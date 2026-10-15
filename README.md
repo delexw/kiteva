@@ -5,13 +5,15 @@ and full-film generation. Conversations use Ant Design X, with a warm dark theme
 
 ## Run a fresh clone
 
-Requirements: macOS, Node.js 22.13 or newer, Chrome/Chromium, and `ffmpeg` with
+Requirements: macOS, Node.js 24 or newer, Chrome/Chromium, and `ffmpeg` with
 `ffprobe` on your PATH. Local video generation uses the configured Claude or
 Codex account. JEV ranking requires a Typesafe API key.
 
 ```sh
 git clone https://github.com/delexw/kiteva.git
 cd kiteva
+# With asdf, install the Node version declared in .tool-versions:
+# asdf install
 npm ci
 cp .env.example .env.local
 # Configure your provider credentials and TYPESAFE_API_KEY in .env.local.

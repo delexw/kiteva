@@ -98,12 +98,12 @@
     "vite": "latest",
     "vitest": "latest"
   },
-  "engines": {
-    "node": ">=22.13.0"
-  },
   "overrides": {
     "multiplane": {
       "three": "$three"
     }
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

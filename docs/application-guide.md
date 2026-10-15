@@ -4,7 +4,7 @@ A standalone browser workspace for style-led video generation. React/Vite + Fast
 
 ## Start
 
-macOS, Node 22.13+, an installed Chrome/Chromium browser, and `ffmpeg`/`ffprobe` are required. Run these commands in this directory:
+macOS, Node 24+, an installed Chrome/Chromium browser, and `ffmpeg`/`ffprobe` are required. Run these commands in the repository root:
 
 ```sh
 npm install

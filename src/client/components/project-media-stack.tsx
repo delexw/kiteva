@@ -29,6 +29,7 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
   const title = media && project.candidates.find((candidate) => candidate.id === media.candidateId);
   const artifact = (file: string) => `/api/artifacts/${project.id}/${media!.id}/${file}`;
   const clip = media && cardClipOf(media);
+  const clipSource = clip ? artifact(clip) : undefined;
   const clipPlayer = useRef<HTMLVideoElement>(null);
   const playClip = Boolean(clip) && hasEnteredViewport && visible && !reducedMotion;
   useEffect(() => {
@@ -36,7 +37,8 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
     if (!player) return;
     if (playClip) player.play().catch(() => player.pause());
     else player.pause();
-  }, [playClip, clip]);
+    return () => player.pause();
+  }, [playClip, clipSource]);
   function rotate(offset: -1 | 1) {
     setRotationDirection(offset);
     setSelectedId(
@@ -133,7 +135,7 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
                 ref={clipPlayer}
                 className="project-card-clip"
                 aria-label={`Clip from ${projectName(project)}`}
-                src={artifact(clip)}
+                src={clipSource}
                 poster={media.poster ? artifact(media.poster) : undefined}
                 muted
                 loop

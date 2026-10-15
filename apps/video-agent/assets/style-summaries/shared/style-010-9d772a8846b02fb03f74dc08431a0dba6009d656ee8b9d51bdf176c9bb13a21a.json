@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-010",
+    "name": "Memphis Design",
+    "visualIdentity": "Supplemental graphic-design reference, not a claimed source-collection label. Dots, zigzags, stripes, circles and irregular geometry form rhythmic pattern fields in bold contrast; headlines stay clear. Playful and graphic. Its suitability for energetic brand, editorial or explanatory work is an inference.",
+    "suitableUses": "The source suggests Memphis alone for playful brand and pattern pieces, and hybrids for short social content needing emphasis captions or disciplined motion. The style can also frame app onboarding, stickers and logo stings; these uses are inferred from its shape language and combinations.",
+    "limitations": "Keep the headline readable, limit simultaneous movement and avoid rapid full-frame flashing. Palette values are suggestions, not canonical colors; supplied brand or reference colors take precedence. Avoid dense copy or hybrids whose materials, hierarchy or motion conflict with Memphis patterns.",
+    "palette": "Suggested five discrete tokens: background #FFF6E8, foreground #202039, accents #ED718E pink, #3DBAB1 teal and #F4C64F yellow. No gradient. Preserve approved colors and semantic roles; do not recolor assets or add hues. Check actual text contrast and compositing; listed contrast pairs are not a full accessibility guarantee.",
+    "motionAndInteraction": "Build reusable SVG patterns and shape groups; stagger selected movements, elastic offsets and pattern handoffs instead of moving everything at once. Preserve reading holds and authored sharp cuts where apt. For interactive HTML, progress may be tied to scroll or controls; support reduced motion with a settled composition. For video, derive every state from seekable composition time and verify forward, backward and direct seeks.",
+    "audio": "No fixed soundtrack is prescribed. Choose music, voice, effects, ambience or silence for the topic and objective; honor supplied audio and explicit requirements. Do not assume beat sync or invent audio assets. Assemble and synchronize audio in the export pipeline, leaving space for speech and comprehension.",
+    "assetRequirements": "No specific uploaded asset is required by the style metadata. Inspect and preserve supplied artwork, exact copy, brand colors and semantic mappings. Use local fonts and assets where available; do not invent product copy or a brand mark. SVG is the recommended visual renderer; Canvas 2D is an alternative.",
+    "combinations": "Suggested: animated reaction captions (style-115) for vertical social and creator content, with accent-mapped emotion colors, #202039 outlines and only one moving pattern. Squash and stretch (style-106) suits logos, onboarding and stickers: deform only a few hero shapes, preserve apparent area, and never deform headlines. These are optional combinations.",
+    "productionApproach": "Choose visual and motion tools from the style and action first. SVG draws patterns; GSAP is the primary seekable motion layer. Motion, mo.js, chroma.js and Matter.js are optional for synchronized DOM/SVG motion, geometric effects, color checks and baked 2D rigid-body movement respectively. HyperFrames owns composition, timing, synchronization, validation and export; use Remotion only if unavailable or a verified limitation requires it. Keep one owner per animated property and deterministic state."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-066",
+    "name": "CRT / Analog Video Effects (Digital and 3D Aesthetics category; explicit provenance).",
+    "visualIdentity": "An explicitly requested analog-display look built from scanlines, mild color offsets, persistence, screen curvature and noise. Details scale to output resolution within a defined CRT context. The source directly names this effect.",
+    "suitableUses": "Explicit fits: retro game trailers, nostalgic tech stories, and in-world broadcasts or terminals. Inferred: other screen-centred or era-specific topics. Best used as a finishing pass over clean content, not as a second filter.",
+    "limitations": "Keep interruptions and distortion restrained so essential information stays legible. Avoid persistent flashes and exaggerated noise. Do not add analog distortion to modern screens unless requested. Do not stack CRT over blurred art or pair it with Glitch Art as a second corruption layer.",
+    "palette": "Authored fallback tokens are background #171C24, foreground #E9E5D8 and accent_1 #6A9DAA. They are suggestions, not exact supplied colors, and task or brand colors override them. Apply them only to new presentation elements, never to source footage or artwork. Gradients are disabled. Contrast is 13.57:1 for foreground on background and 5.713:1 for accent on background, but these are two-color checks only, so recheck composited frames. RGB offsets are a transient effect, not a palette change.",
+    "motionAndInteraction": "Motion is driven by seekable composition time. Scanline, persistence, color-offset and curvature parameters must be deterministic, and noise must be seeded rather than random per frame. Optional motion references are motion-037, motion-040, and motion-020, the last only when distortion aids communication. The motion-040 metadata conflicts (name Word Smash Cuts, label Phrase Scatter and Step-In), so verify it before use. Interaction and reduced-motion behavior are unspecified.",
+    "audio": "The style mandates no audio layer, genre, tempo, voice or sound effect. Inferred suitability: restrained ambience or sparing analog-style effects could mark screen changes, with silence during reading holds. Narration must stay intelligible, and music must not compete with it. Beat-synchronized cuts are unverified without audio analysis.",
+    "assetRequirements": "No specific assets were supplied. Postprocessing needs high-quality source imagery, and video-textured screens need authorized footage. Fonts and assets must load before rendering. Phrase-based motion references need actual glyph assets or approved marks. Do not invent copy or a brand mark; exact copy is unspecified.",
+    "combinations": "Explicit suggestion with style-057 (pixel art): render the pixel scene on the CRT screen at native resolution, upscale by an integer factor, then apply scanlines and a #6A9DAA-tinted offset. Explicit suggestion with style-065 (monitor housing): artifacts appear only on the screen, and the housing uses #171C24 and #E9E5D8. Avoid rolling noise bars and Glitch Art pairing.",
+    "productionApproach": "Style renderer: WebGL with GLSL and Three.js for screen-space postprocessing, plus video-textured screens with CRT overlays for in-world displays. Motion engine: GLSL for effect parameters, and optionally GSAP ScrambleTextPlugin for short title reveals if the typography suits. Pipeline: HyperFrames by default, with Remotion only for a recorded, verified reason."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

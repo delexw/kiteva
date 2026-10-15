@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-071",
+    "name": "Cyberpunk, a supplemental design reference in the Digital and 3D Aesthetics category. It is not a directly named style in the source collection.",
+    "visualIdentity": "Technology-dense urban or industrial scenes with controlled neon, atmosphere and localized reflections. The subject needs a clear luminance hierarchy. Devices, streets or signal systems must visibly function, not rely only on purple-blue light or decorative HUDs.",
+    "suitableUses": "Explicit: world-building scenes with a strong environment. Inferred from the combinations: sci-fi trailers, speculative product narratives and hacking sequences. Stories where working technology carries the message are a reasonable fit.",
+    "limitations": "Palette and layout values are authored suggestions, not approved or canonical colors. Two-color contrast checks do not prove readability over video, glass, textures or animated light. Simulated appearance is not validated physics or evidence of physical production.",
+    "palette": "Suggested for new artwork only: controlled cyan, amber and muted magenta in a dark city. background #111D25 is the dominant ground, and foreground #F1F0E3 is primary text. accent_1 #52B3AC, accent_2 #DAA259 and accent_3 #B96887 stay subordinate. Gradients are disabled. accent_3 reaches only 4.398 against background text, so it is decorative only. Task-supplied exact colors override these tokens.",
+    "motionAndInteraction": "Motion-020 glitch cut suits intentional digital disruption and should be omitted for calm scenes. Motion-012 and motion-015 suit progress-driven chapter handoffs and narrative stages. Motion-037 and motion-039 apply only when real device, sign or mark geometry supports them. Video runs on composition time, while scroll, hover and keyboard input belong only to interactive delivery.",
+    "audio": "The source gives no Cyberpunk-specific audio direction and supplies no audio assets. Music, voiceover, sound effects, ambience or silence may be proposed from the topic and audience. No genre, tempo or instrument is mandated. State assumptions, and use beat-synchronized motion only after real audio analysis.",
+    "assetRequirements": "Subject, approved copy, source artwork, duration, aspect ratio and output format are unspecified. Inspect real device, street or sign assets before choosing motion, and load local fonts before rendering. Motion-037 and motion-039 need glyph or mark geometry. Do not invent product copy or brand marks; report missing assets.",
+    "combinations": "style-112 (functioning in-world interfaces): tracked SVG HUD panels on a Three.js street scene for video, or focusable DOM panels with a reduced-motion still for HTML. style-067 (signal intrusion): brief displacement or channel-split glitches at cuts or story events only. Avoid floating HUD clutter, purple-blue wash, constant corruption and strobing. Neither referenced style is defined in this input.",
+    "productionApproach": "Three.js with PBR materials and postprocessing passes owns geometry, lighting, fog and materials. A paused GSAP timeline owns motion, with one owner per property. HyperFrames is the default for composition and export. Remotion is used only if HyperFrames is unavailable or a verified limitation exists, and that reason must be recorded."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

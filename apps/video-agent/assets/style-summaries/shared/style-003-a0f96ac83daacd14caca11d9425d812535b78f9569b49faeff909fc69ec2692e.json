@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-003",
+    "name": "Constructivism, a supplemental design reference in the Graphic Design and Design Movements category. It is not claimed as a directly named style in the source collection.",
+    "visualIdentity": "Forceful diagonals, wedges, circles and rectangular blocks direct attention alongside transparent photographic cutouts and bold typography. Directional entrances, cuts and recomposition keep one headline and one focal point clear.",
+    "suitableUses": "Explicitly recommended for headline posters and calls to action. Combination entries also name campaign posters, editorial openers, slogan promos and short social spots. Other uses are inferred, not stated by the source.",
+    "limitations": "Red, black and cream inks suit short high-contrast emphasis rather than dense explanatory text. Avoid full-color photographs, rescaling moire, halftone over text, rotated body copy, soft easing, bounce and competing headlines. Source sampling covered only one frame per second from 1 to 8 seconds.",
+    "palette": "Suggested tokens are background #F4ECD8, foreground #171717 and accent #C72C2C, for new artwork only when no approved palette is supplied. The background policy is scene_dependent, so cream is an illustrative swatch, not a required canvas. Foreground-on-background contrast is 15.227, and task-supplied exact colors override these tokens. Source demonstration colors do not approve a palette for a new project.",
+    "motionAndInteraction": "Directional entrances, hard cuts and recomposition should follow one dominant diagonal per scene. Keep sharp cuts, impacts and reading holds, and avoid bounce or soft easing. Video state derives from composition time, while scroll is interactive-only, with reduced motion showing the completed state. Optional references 037 to 040 apply only when scene assets support them.",
+    "audio": "Audio is unspecified by the style, and no fixed genre, tempo, voice or required layer is assigned. Silence is valid, and restrained accents can mark hard cuts or reading holds. Any narration must stay intelligible. No beat synchronization should be claimed without inspected audio.",
+    "assetRequirements": "Core materials are transparent photographic cutouts, diagonal SVG masks and real text. No assets were supplied in the source, so none are assumed. Local fonts and assets must load before rendering. Halftone photographs require authorized sources, and no copy or brand mark should be invented.",
+    "combinations": "The style-050 combination adds halftone cutouts in foreground ink for campaign posters and editorial openers. The style-093 combination adds diagonal kinetic headlines with one red word for promos and launches. Each keeps one dominant diagonal and one focal headline, and halftone must not sit over text.",
+    "productionApproach": "HyperFrames is the default for composition, timing, validation and export; Remotion is a fallback only for a verified limitation. HTML/CSS and SVG are the style renderers, GSAP is the motion engine, and Motion or chroma-js are optional. Subject, duration, aspect ratio, resolution, frame rate and audio requirements are unspecified in the source."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

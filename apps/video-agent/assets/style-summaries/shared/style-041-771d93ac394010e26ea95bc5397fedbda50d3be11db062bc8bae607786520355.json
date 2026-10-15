@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-041",
+    "name": "Chinese Calligraphy, in the Drawing and Illustration category. The label was normalized from calligraphic subtitle and seal-imagery sources, so glyphs and stroke order must be verified before use.",
+    "visualIdentity": "Authentic calligraphic gesture, character spacing and negative space define the look. Vertical text, vermilion seals and limited imagery may support the piece. Use one consistent script with accurate wording, and never stretch characters into incorrect forms.",
+    "suitableUses": "Explicit: the combination guidance names poetry and cultural greetings as best-fit subjects. Inferred: quiet, text-led video or interactive HTML where one large character or phrase carries the focus. Calligraphy is usually strongest used alone.",
+    "limitations": "The source review was an adapted fit: the sampled text was Japanese kana with rounded, tubular strokes rather than true brush calligraphy, at medium confidence. Only one frame per second from seconds 1 to 8 was reviewed, so continuous motion, sub-second timing and audio were not verified. Outlined fonts do not count as brush strokes.",
+    "palette": "Background policy is scene_dependent; the tokens are a non-approved suggestion: background #F5EFDE, foreground #20211E, optional accent #B4382A (vermilion seal). Choose the ground from the subject, such as cool grey, celadon, kraft or dark charcoal with pale ink. Contrast is 14.089 for foreground on background and 5.165 for accent on background, two-color only. No gradient is enabled, and approved exact colors override these tokens.",
+    "motionAndInteraction": "Reveal strokes in real stroke order using separate brush-stroke paths, showing complete character groups where needed. GSAP DrawSVGPlugin controls stroke length. Motion-012 and motion-015 are optional and only apply if the scene supports their actions. Interactive delivery needs accessible text equivalents and static reduced-motion states.",
+    "audio": "Unspecified by the style; no music, voice or sound layer is mandated. Inferred suggestion: restrained ambience or silence, with optional soft accents at stroke completion, keeping space for any narration. Honor explicit user audio choices, and do not claim audio was created unless it was.",
+    "assetRequirements": "Required: authentic calligraphy assets or verified glyph paths with separate, correctly ordered stroke paths, delivered as alpha-preserving layers or numbered frames with a layer manifest. Load local fonts before composition. Optional: vermilion seal art and limited ink imagery. No assets were supplied in the metadata.",
+    "combinations": "The only suggested companion is style-038 as secondary limited ink-wash imagery, which fades in after the calligraphy completes. Rules: calligraphy dominates, black and vermilion only, and verified stroke order. Avoid outlined fonts as strokes, stretched characters and large wash areas.",
+    "productionApproach": "HyperFrames is the default pipeline for composition, timing, validation and export; Remotion is a fallback only with a recorded reason. SVG is the style renderer, GSAP DrawSVGPlugin is the motion engine, and chroma-js validates colors and contrast. Visual construction stays with the style layer, not the pipeline."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

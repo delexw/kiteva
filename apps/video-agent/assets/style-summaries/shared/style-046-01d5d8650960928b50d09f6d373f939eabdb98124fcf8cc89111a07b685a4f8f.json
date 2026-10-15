@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-046",
+    "name": "Paper Cutout Illustration (Printmaking and Craft Materials; explicit provenance).",
+    "visualIdentity": "Objects are cut from paper with thin visible edges and soft contact shadows. Paper colors and materials are limited. Sampled source frames show matte, lightly grained layers and dark heavy ink type.",
+    "suitableUses": "Source-suggested uses: narrative openers, brand origin stories, calm scene transitions, and explainers with a few verified comparisons or process steps. Inferred fit: handmade or tactile subjects. Audience and tone limits are unspecified.",
+    "limitations": "This is not a physical paper solver; procedural curl is artistic only. Keep flat scenes in SVG or Canvas. Pieces must avoid intersections and conflicting shadow directions, and data marks must not curl. The source review covered sampled seconds 1–8 only.",
+    "palette": "Background is scene-dependent; #F2EAD8, #304849, #C17F63 and #829776 are illustrative suggestions, not approved colors. Foreground on background measures 8.161:1; accent pairs (3.017, 3.089) are decorative only. Gradients are disabled, and approved task colors override these tokens.",
+    "motionAndInteraction": "Pieces move on believable joints by sliding, rotation and folding, with one owner per animated property. Video derives all state from composition time. Optional references (gaze, parallax, chapter handoff, story steps, letter scatter, punctuation zoom) apply only when the assets support them.",
+    "audio": "Audio is unspecified; no genre, tempo, voice or required layer is assigned. Silence or restrained accents are valid, with music or narration chosen from the brief. Keep speech intelligible. No audio was supplied or verified.",
+    "assetRequirements": "No uploads are required. Useful inputs are layered transparent PNG or SVG paper contours with consistent dimensions and a layer manifest. Local fonts are needed only if display type is used; none are specified.",
+    "combinations": "Paper Cutout alone suffices when jointed pieces carry the story. Style-101 adds restrained depth parallax to stacked planes. Style-097 adds data encoding for up to three categories, with text placed on the background token only.",
+    "productionApproach": "HyperFrames is the primary pipeline; Remotion is a verified-only fallback. SVG is the default renderer, with optional PixiJS or Paper.js. GSAP owns the motion timeline and chroma-js validates colors. Check snapshots, seeks and decoded frames before delivery."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-015",
+    "name": "Brutalist Web Design. Explicit source direction for a web-design treatment, distinct from architectural Brutalism, in the Graphic Design and Design Movements category.",
+    "visualIdentity": "Explicitly combines web screenshots, bold type, raw interface fragments, hard-edged blocks and deliberately mismatched media in rough collage. Information order must stay clear despite the abrasive presentation. Real text and screenshots are layered directly.",
+    "suitableUses": "Explicitly suited to raw, direct websites and promos. Source-suggested hybrids extend it to indie launches, zines, culture sites and manifesto promos, and to design critiques, product teardowns and dev logs. These fits are suggestions, not verified outcomes.",
+    "limitations": "Explicit constraints: avoid unreadable text, meaningless glitches, random rotation and red accents. Omit glitch cuts for calm editorial scenes or when distortion undermines communication. Overlap must not hide essential copy or provenance, and stacking fails with fixed print geometry.",
+    "palette": "Explicit direction: raw black and white with one sharp lime accent. Suggested tokens #FFFFFF, #000000 and #CEFF24 are unapproved examples. background_policy is scene_dependent, so the canvas should be chosen from the scene. Two-color contrast: black on white 21:1, black on lime 17.95:1. Gradients are disabled. Task-supplied exact colors override these suggestions, and composited pairs must be rechecked.",
+    "motionAndInteraction": "Explicit defaults are direct cuts, scrolling and rough collage. Catalog options include card stacking, chapter handoffs, swipe carousels, glitch cuts, word-step typography and word smash cuts. Each needs actual scene assets that support its defining action. Video states derive from composition time; scroll and pointer input belong only to interactive delivery.",
+    "audio": "Unspecified by the style, and no audio layer is mandatory. Inferred suitability: restrained audio or silence suits hard cuts and reading holds. Music or sound accents must not compete with narration or essential text. Phrase and word-cut timing may use only measured audio timing; source reviews verified no beat synchronization.",
+    "assetRequirements": "Unspecified: exact screenshots, copy, fonts and dimensions; no uploads are mandatory. Needed: real screenshots, transparent assets, real text, local fonts and stable asset dimensions. Punctuation or phrase motions require inspected glyph or mark geometry. Do not invent product copy or brand marks. Gallery use needs accurate image dimensions.",
+    "combinations": "Explicit: style-054 photocopy treatment for screenshots and photos, using lime #CEFF24 rather than zine red and fixed grain. Also style-024 black or lime markup annotations over screenshots, with no red. Brutalist alone suits raw sites and promos. Hybrids apply when imagery needs one rough treatment or screenshots need explanation.",
+    "productionApproach": "HyperFrames is the default pipeline: one paused GSAP timeline registered per composition, then validation, snapshot checks and delivery render. Remotion is fallback only for a verified limitation. HTML/CSS and Canvas 2D are the style renderers. GSAP owns motion; Motion is optional for DOM/SVG only when synchronized; chroma-js validates contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

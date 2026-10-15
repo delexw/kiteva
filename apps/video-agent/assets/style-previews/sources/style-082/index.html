@@ -1,0 +1,279 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>style-082 · Hand-Drawn Stop-Motion · an idea becomes a connected system</title>
+<style>
+  @font-face{font-family:"HandNote";src:local("Chalkboard SE"),local("ChalkboardSE-Regular"),local("Comic Sans MS"),local("ComicSansMS");font-weight:400;font-style:normal}
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#2B3438}
+  #root{position:relative;width:100%;height:100%;overflow:hidden}
+  #paper{position:absolute;left:0;top:0;width:1280px;height:720px;display:block}
+  .txt{position:absolute;margin:0;white-space:nowrap;color:#344344;
+       font-family:"HandNote",cursive}
+  #h1{left:92px;top:52px;font-size:50px;line-height:60px;transform:rotate(-1.5deg);transform-origin:0 50%}
+  #h2{left:98px;top:112px;font-size:50px;line-height:60px;transform:rotate(-1.5deg);transform-origin:0 50%}
+  .w{visibility:hidden}
+  .box{position:absolute;width:190px;height:84px}
+  .lbl{position:absolute;left:0;top:0;width:190px;text-align:center;font-size:26px;line-height:30px;padding-top:12px;visibility:hidden}
+  .det{position:absolute;left:0;top:46px;width:190px;text-align:center;font-size:15px;line-height:20px;visibility:hidden}
+  #cap{left:262px;top:636px;font-size:22px;line-height:28px}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="paper" width="1280" height="720"></canvas>
+  <div class="txt" id="h1"><span class="w">an </span><span class="w">idea </span><span class="w">becomes</span></div>
+  <div class="txt" id="h2"><span class="w">a </span><span class="w">connected </span><span class="w">system</span></div>
+  <div class="box" id="box-a" style="left:790px;top:196px">
+    <div class="txt lbl" data-reveal-after="box-a">sketch</div>
+    <div class="txt det" data-reveal-after="box-a">rough the shape</div>
+  </div>
+  <div class="box" id="box-b" style="left:880px;top:338px">
+    <div class="txt lbl" data-reveal-after="box-b">build</div>
+    <div class="txt det" data-reveal-after="box-b">join the parts</div>
+  </div>
+  <div class="box" id="box-c" style="left:790px;top:480px">
+    <div class="txt lbl" data-reveal-after="box-c">share</div>
+    <div class="txt det" data-reveal-after="box-c">pass it along</div>
+  </div>
+  <div class="txt" id="cap" data-reveal-after="caption-strip"></div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="rough.bundle.js"></script>
+<script>
+(function(){
+  'use strict';
+  // ---- resolved scene palette (system topic: pale blue-grey engineering paper on slate desk) ----
+  const P = {
+    paper:'#EDF1F3',        // scene-dependent canvas (not the #F7EEDD swatch)
+    desk:'#2B3438',
+    ink:'#344344',          // foreground token: all graphite linework + lettering
+    terracotta:'#B6785D',   // accent_1: idea bulb fill, title pencil underline
+    sage:'#819B81',         // accent_2: bulb base, system highlighter
+    card:'#F7EEDD'          // cream paper objects (lighter/warmer than canvas)
+  };
+  // Contrast record (opaque sRGB): ink on paper, ink on cream card.
+  const CONTRAST = { inkOnPaper: chroma.contrast(P.ink,P.paper), inkOnCard: chroma.contrast(P.ink,P.card) };
+  if (CONTRAST.inkOnPaper < 4.5 || CONTRAST.inkOnCard < 4.5) throw Error('Resolved text pair below 4.5:1');
+
+  const W=1280,H=720, DESK_Y=604;
+  const DRAW_RATE=10;                         // drawings per second: each drawing held for 3 delivery frames
+  const cv=document.getElementById('paper'), ctx=cv.getContext('2d');
+  const rc=rough.canvas(cv), gen=rc.generator;
+
+  // ---------- deterministic helpers ----------
+  function mulberry(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const stepT=t=>Math.floor(t*DRAW_RATE+1e-6)/DRAW_RATE;   // held drawing time
+  const prog=(t,s,d)=>clamp((t-s)/d,0,1);
+
+  // ---------- cached static paper (stationary background & grain) ----------
+  const bg=document.createElement('canvas');bg.width=W;bg.height=H;
+  (function buildPaper(){
+    const g=bg.getContext('2d');
+    g.fillStyle=P.desk;g.fillRect(0,0,W,H);
+    // desk grain
+    const rd=mulberry(82);
+    g.globalAlpha=0.08;g.strokeStyle='#000';
+    for(let i=0;i<40;i++){const y=DESK_Y+rd()*(H-DESK_Y);g.beginPath();g.moveTo(0,y);g.bezierCurveTo(400,y+rd()*4-2,800,y+rd()*4-2,W,y+rd()*3);g.stroke();}
+    g.globalAlpha=1;
+    // paper sheet with contact shadow onto the desk
+    g.fillStyle='rgba(0,0,0,0.35)';g.fillRect(0,DESK_Y,W,6);
+    g.fillStyle=P.paper;g.fillRect(0,0,W,DESK_Y);
+    // engineering grid
+    g.strokeStyle='rgba(52,67,68,0.07)';g.lineWidth=1;
+    for(let x=0;x<=W;x+=32){g.beginPath();g.moveTo(x+.5,0);g.lineTo(x+.5,DESK_Y);g.stroke();}
+    for(let y=0;y<=DESK_Y;y+=32){g.beginPath();g.moveTo(0,y+.5);g.lineTo(W,y+.5);g.stroke();}
+    // soft centre-bright vignette (uneven lamp light)
+    const vg=g.createRadialGradient(640,300,120,640,300,820);
+    vg.addColorStop(0,'rgba(255,255,255,0.10)');vg.addColorStop(1,'rgba(40,55,62,0.16)');
+    g.fillStyle=vg;g.fillRect(0,0,W,DESK_Y);
+    // fibre grain (seeded)
+    const rf=mulberry(1982);
+    for(let i=0;i<2600;i++){const x=rf()*W,y=rf()*DESK_Y;g.fillStyle=rf()<.5?'rgba(52,67,68,0.05)':'rgba(255,255,255,0.18)';g.fillRect(x,y,1+rf()*2,1);}
+  })();
+
+  // ---------- designed drawing variants (fixed seeds, cached) ----------
+  const VAR=3;
+  const pencil=(seed,extra)=>Object.assign({seed,roughness:0.9,bowing:0.8,stroke:P.ink,strokeWidth:2.4,disableMultiStack:false},extra||{});
+  const bulbPath='M120 30c74 0 112 58 109 120-2 46-34 68-43 100h-132c-9-32-41-54-43-100-3-62 35-120 109-120z';
+  const variants={card:[],bulb:[],base:[],glint:[],tape:[]};
+  for(let v=0;v<VAR;v++){
+    const s=101+v*17;
+    variants.card.push(gen.rectangle(0,0,240,330,pencil(s,{fill:P.card,fillStyle:'solid',strokeWidth:1.6,roughness:0.6})));
+    variants.bulb.push(gen.path(bulbPath,pencil(s+1,{fill:P.terracotta,fillStyle:'hachure',hachureGap:5.5,hachureAngle:-41,fillWeight:2.2,strokeWidth:3})));
+    variants.base.push(gen.rectangle(66,258,108,46,pencil(s+2,{fill:P.sage,fillStyle:'cross-hatch',hachureGap:6,fillWeight:1.4,strokeWidth:2.6})));
+    variants.glint.push(gen.arc(118,128,120,120,Math.PI*1.05,Math.PI*1.55,false,pencil(s+3,{stroke:P.card,strokeWidth:7,roughness:0.5})));
+    variants.tape.push(gen.rectangle(0,0,78,24,pencil(s+4,{fill:'rgba(247,238,221,0.72)',fillStyle:'solid',stroke:'rgba(52,67,68,0.45)',strokeWidth:1,roughness:1.2})));
+  }
+  // boxes: four separately drawn sides per variant
+  const BOXES=[{id:'box-a',x:790,y:196},{id:'box-b',x:880,y:338},{id:'box-c',x:790,y:480}];
+  const BW=190,BH=84;
+  BOXES.forEach((b,i)=>{
+    b.sides=[];
+    for(let v=0;v<VAR;v++){
+      const s=300+i*31+v*7,o=pencil(s,{strokeWidth:2.2,roughness:1.1});
+      b.sides.push([
+        gen.line(b.x,b.y,b.x+BW,b.y,o),gen.line(b.x+BW,b.y,b.x+BW,b.y+BH,o),
+        gen.line(b.x+BW,b.y+BH,b.x,b.y+BH,o),gen.line(b.x,b.y+BH,b.x,b.y,o)]);
+    }
+  });
+  // connectors: cubic curves from the idea card, sampled with fixed restrained wobble per variant
+  const CARD={x:150,y:214};          // settled card top-left (before -3deg tilt about its centre)
+  const ORIGIN={x:392,y:372};
+  const CONN=[
+    {p:[ORIGIN,{x:520,y:360},{x:640,y:236},{x:790,y:238}]},
+    {p:[ORIGIN,{x:560,y:380},{x:720,y:380},{x:880,y:380}]},
+    {p:[ORIGIN,{x:520,y:390},{x:640,y:520},{x:790,y:522}]},
+    {p:[{x:885,y:280},{x:900,y:300},{x:920,y:316},{x:940,y:338}]},   // a -> b
+    {p:[{x:940,y:422},{x:920,y:446},{x:900,y:462},{x:885,y:480}]}    // b -> c
+  ];
+  const N=48;
+  CONN.forEach((c,i)=>{
+    c.v=[];
+    for(let v=0;v<VAR;v++){
+      const r=mulberry(500+i*13+v),pts=[];
+      const ph=r()*6.28,amp=0.9+r()*0.6;
+      for(let k=0;k<=N;k++){
+        const t=k/N,u=1-t,[a,b,cc,d]=c.p;
+        const x=u*u*u*a.x+3*u*u*t*b.x+3*u*t*t*cc.x+t*t*t*d.x;
+        const y=u*u*u*a.y+3*u*u*t*b.y+3*u*t*t*cc.y+t*t*t*d.y;
+        const w=Math.sin(t*9+ph)*amp*Math.sin(Math.PI*t);
+        pts.push([x+w*0.4,y+w]);
+      }
+      c.v.push(pts);
+    }
+  });
+  // highlighter swash (sage, translucent) around the system
+  const HL=[];
+  for(let v=0;v<VAR;v++){
+    const r=mulberry(900+v),pts=[];
+    for(let k=0;k<=40;k++){const a=Math.PI*(0.92+1.5*k/40);pts.push([975+Math.cos(a)*(128+r()*3),380+Math.sin(a)*(64+r()*2)]);}
+    HL.push(pts);
+  }
+  // title underline (terracotta pencil)
+  const UL=[];
+  for(let v=0;v<VAR;v++){const r=mulberry(700+v),pts=[];for(let k=0;k<=30;k++){const t=k/30;pts.push([136+t*336,180-t*5+Math.sin(t*7+r()*3)*1.6]);}UL.push(pts);}
+
+  // ---------- DOM text references ----------
+  const words=[...document.querySelectorAll('#h1 .w,#h2 .w')];
+  const lbls=BOXES.map(b=>({lbl:document.querySelector('#'+b.id+' .lbl'),det:document.querySelector('#'+b.id+' .det')}));
+  const capEl=document.getElementById('cap');
+  const CAPTION='One spark, drawn out, links into a working whole.';
+
+  // ---------- authored cue sheet (seconds) ----------
+  const CUE={
+    words:[0.0,0.1,0.2,0.3,0.4,0.5],
+    underline:[0.5,0.5],                  // start, duration
+    card:0.3,                             // placement replacement drawings 0.3..0.7
+    tape:0.8, glint:0.9,
+    conn:[[0.9,0.5],[1.0,0.5],[1.1,0.5],[1.9,0.2],[2.0,0.2]],
+    box:[1.3,1.4,1.5],                    // first side drawn; one side per drawing
+    hl:[2.1,0.3],
+    cap:[0.1,2.0]
+  };
+  // card replacement drawings: discrete poses with anticipation/overshoot/settle (no tween)
+  const CARD_POSES=[
+    {dy:-70,rot:-9,sc:1.04,a:0.0},
+    {dy:-70,rot:-9,sc:1.04,a:1},   // 0.3 held in hand above the sheet
+    {dy:-28,rot:-6,sc:1.02,a:1},   // 0.4
+    {dy:7,  rot:-1.5,sc:0.99,a:1}, // 0.5 press / overshoot
+    {dy:-2, rot:-3.5,sc:1.0,a:1},  // 0.6 settle
+    {dy:0,  rot:-3,sc:1.0,a:1}     // 0.7+ rest
+  ];
+
+  function polyPart(g,pts,f,color,width){
+    if(f<=0)return;
+    const n=Math.max(1,Math.round((pts.length-1)*f));
+    g.strokeStyle=color;g.lineWidth=width;g.lineCap='round';g.lineJoin='round';
+    g.beginPath();g.moveTo(pts[0][0],pts[0][1]);
+    for(let k=1;k<=n;k++)g.lineTo(pts[k][0],pts[k][1]);
+    g.stroke();
+  }
+
+  function render(rawT){
+    const t=stepT(clamp(rawT,0,3));
+    const frame=Math.round(t*DRAW_RATE);
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.drawImage(bg,0,0);
+
+    // heading words (handwritten one word per drawing)
+    words.forEach((w,i)=>{w.style.visibility=t>=CUE.words[i]?'visible':'hidden';});
+    // terracotta pencil underline grows in held steps
+    const ulF=prog(t,CUE.underline[0],CUE.underline[1]);
+    const ulV=ulF<1?frame%VAR:0;
+    polyPart(ctx,UL[ulV],ulF,P.terracotta,4);
+
+    // idea card placement — replacement drawing per held step
+    const ci=t<CUE.card?0:Math.min(CARD_POSES.length-1,1+Math.round((t-CUE.card)*DRAW_RATE));
+    const pose=CARD_POSES[ci];
+    const cardV=ci<CARD_POSES.length-1?ci%VAR:0;
+    if(pose.a>0){
+      const cx=CARD.x+120,cy=CARD.y+165+pose.dy;
+      ctx.save();
+      ctx.translate(cx,cy);ctx.rotate(pose.rot*Math.PI/180);ctx.scale(pose.sc,pose.sc);ctx.translate(-120,-165);
+      // contact shadow: tighter when pressed, wider while lifted
+      const lift=Math.max(0,-pose.dy);
+      ctx.fillStyle='rgba(30,40,44,'+(0.22-lift*0.0012).toFixed(3)+')';
+      ctx.fillRect(6+lift*0.12,9+lift*0.2,240,330);
+      rc.draw(variants.card[cardV]);
+      ctx.translate(0,8);
+      rc.draw(variants.bulb[cardV]);
+      rc.draw(variants.base[cardV]);
+      ctx.strokeStyle=P.ink;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(80,281);ctx.lineTo(160,279);ctx.stroke();
+      if(t>=CUE.glint)rc.draw(variants.glint[0]);
+      ctx.translate(0,-8);
+      if(t>=CUE.tape){ctx.save();ctx.translate(82,-10);ctx.rotate(0.07);rc.draw(variants.tape[t<CUE.tape+0.1?1:0]);ctx.restore();}
+      ctx.restore();
+    }
+
+    // connectors draw stroke-by-stroke from the idea
+    CONN.forEach((c,i)=>{
+      const [s,d]=CUE.conn[i];const f=prog(t,s,d);
+      polyPart(ctx,c.v[f<1?frame%VAR:0],f,P.ink,2.6);
+    });
+
+    // boxes: one side per drawing; labels only after the box is complete
+    BOXES.forEach((b,i)=>{
+      const sides=t<CUE.box[i]?0:Math.min(4,1+Math.round((t-CUE.box[i])*DRAW_RATE));
+      const v=sides<4?frame%VAR:0;
+      for(let k=0;k<sides;k++)rc.draw(b.sides[v][k]);
+      const done=sides===4;
+      const labelOn=done&&t>=CUE.box[i]+0.4;
+      lbls[i].lbl.style.visibility=labelOn?'visible':'hidden';
+      lbls[i].det.style.visibility=(labelOn&&t>=CUE.box[i]+0.6)?'visible':'hidden';
+    });
+
+    // sage highlighter swash marks the connected system (translucent marker over pencil)
+    const hf=prog(t,CUE.hl[0],CUE.hl[1]);
+    if(hf>0){ctx.save();ctx.globalAlpha=0.38;polyPart(ctx,HL[hf<1?frame%VAR:0],hf,P.sage,14);ctx.restore();}
+
+    // persistent taped caption strip on the desk edge, typed in held steps
+    ctx.save();
+    ctx.translate(640,652);ctx.rotate(-0.006);
+    ctx.fillStyle='rgba(0,0,0,0.28)';ctx.fillRect(-408,-30,824,64);
+    ctx.fillStyle=P.card;ctx.fillRect(-412,-34,824,64);
+    ctx.strokeStyle='rgba(52,67,68,0.35)';ctx.lineWidth=1;ctx.strokeRect(-412,-34,824,64);
+    ctx.restore();
+    ctx.save();ctx.translate(232,624);ctx.rotate(-0.5);rc.draw(variants.tape[0]);ctx.restore();
+    ctx.save();ctx.translate(1000,592);ctx.rotate(0.45);rc.draw(variants.tape[2]);ctx.restore();
+    const cf=prog(t,CUE.cap[0],CUE.cap[1]);
+    capEl.textContent=CAPTION.slice(0,Math.round(CAPTION.length*cf));
+  }
+
+  // ---------- single seekable motion owner: paused GSAP timeline ----------
+  const state={time:0};
+  const tl=gsap.timeline({paused:true,onUpdate:()=>render(tl.time())});
+  tl.to(state,{time:3,duration:3,ease:'none'},0);
+  tl.addLabel('heading',0).addLabel('place-idea',0.3).addLabel('connect',0.9).addLabel('system',1.9).addLabel('hold',2.4);
+  render(0);
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+  const reseek=e=>{const s=e&&e.detail&&typeof e.detail.time==='number'?e.detail.time:tl.time();render(s);};
+  window.addEventListener('hf-seek',reseek);
+  document.addEventListener('hf-seek',reseek);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

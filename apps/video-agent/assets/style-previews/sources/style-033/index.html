@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#293447}
+#root{position:relative;width:100%;height:100%}
+svg{width:100%;height:100%;display:block}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<defs>
+  <!-- duotone diagonal stripe beat field (navy/teal), stationary -->
+  <pattern id="stripes" width="56" height="56" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
+    <rect width="26" height="56" fill="#668DA0"></rect>
+  </pattern>
+  <!-- stationary scanline grain -->
+  <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse">
+    <rect width="4" height="1" fill="#F4EFE5"></rect>
+  </pattern>
+  <clipPath id="cardClip"><rect x="664" y="74" width="472" height="442" rx="6"></rect></clipPath>
+  <g id="ey"><ellipse rx="13" ry="19" fill="#293447"></ellipse><ellipse cy="5" rx="9" ry="12" fill="#668DA0"></ellipse><circle cx="-4" cy="-8" r="5" fill="#F4EFE5"></circle></g>
+  <g id="eyUp"><ellipse rx="13" ry="19" fill="#293447"></ellipse><ellipse cx="3" cy="-2" rx="9" ry="12" fill="#668DA0"></ellipse><circle cx="-2" cy="-11" r="5" fill="#F4EFE5"></circle></g>
+</defs>
+
+<!-- BACKGROUND (stationary): navy field + diagonal teal stripe panel -->
+<rect width="1280" height="720" fill="#293447"></rect>
+<path d="M640 0H1280V720H900Z" fill="url(#stripes)" opacity=".26"></path>
+
+<!-- NETWORK: stroked, unfilled connection lines (drawn) -->
+<g id="links" stroke="#F4EFE5" stroke-width="4" fill="none" stroke-linecap="round" data-demo-actor="demo-actor-6">
+  <path class="link" d="M580 165L760 140"></path>
+  <path class="link" d="M760 140L900 250"></path>
+  <path class="link" d="M760 140L820 360"></path>
+  <path class="link" d="M900 250L1080 190"></path>
+  <path class="link" d="M900 250L820 360"></path>
+  <path class="link" d="M820 360L1040 420"></path>
+  <path class="link" d="M1080 190L1040 420"></path>
+  <path class="link" d="M1040 420L1150 560"></path>
+</g>
+<g id="nodes">
+  <g class="node" data-demo-actor="demo-actor-7"  data-x="760"  data-y="140"><circle cx="760" cy="140" r="26" fill="#F4EFE5" stroke="#293447" stroke-width="4"></circle><circle cx="760" cy="140" r="11" fill="#C47C67"></circle></g>
+  <g class="node" data-demo-actor="demo-actor-8"  data-x="900"  data-y="250"><circle cx="900" cy="250" r="26" fill="#F4EFE5" stroke="#293447" stroke-width="4"></circle><circle cx="900" cy="250" r="11" fill="#C47C67"></circle></g>
+  <g class="node" data-demo-actor="demo-actor-10" data-x="820"  data-y="360"><circle cx="820" cy="360" r="26" fill="#F4EFE5" stroke="#293447" stroke-width="4"></circle><circle cx="820" cy="360" r="11" fill="#C47C67"></circle></g>
+  <g class="node" data-demo-actor="demo-actor-9"  data-x="1080" data-y="190"><circle cx="1080" cy="190" r="26" fill="#F4EFE5" stroke="#293447" stroke-width="4"></circle><circle cx="1080" cy="190" r="11" fill="#C47C67"></circle></g>
+  <g class="node" data-demo-actor="demo-actor-11" data-x="1040" data-y="420"><circle cx="1040" cy="420" r="26" fill="#F4EFE5" stroke="#293447" stroke-width="4"></circle><circle cx="1040" cy="420" r="11" fill="#C47C67"></circle></g>
+  <g class="node" data-demo-actor="demo-actor-12" data-x="1150" data-y="560"><circle cx="1150" cy="560" r="26" fill="#F4EFE5" stroke="#293447" stroke-width="4"></circle><circle cx="1150" cy="560" r="11" fill="#C47C67"></circle></g>
+</g>
+
+<!-- CHARACTER (consistent model; cream sticker cutout edge separates it from the navy field) -->
+<g id="character" data-demo-actor="demo-actor-29">
+  <!-- cutout edge -->
+  <g fill="#F4EFE5" stroke="#F4EFE5" stroke-width="14" stroke-linejoin="round">
+    <path d="M300 720C300 560 330 500 400 480L470 480C520 500 560 560 560 720Z"></path>
+    <ellipse cx="420" cy="380" rx="72" ry="84"></ellipse>
+    <path d="M340 400C320 300 360 250 430 250C510 250 520 330 500 420L488 340L460 370L450 320L410 360L400 320L360 370Z"></path>
+  </g>
+  <path d="M300 720C300 560 330 500 400 480L470 480C520 500 560 560 560 720Z" fill="#668DA0" stroke="#293447" stroke-width="5"></path>
+  <path d="M470 480C520 500 560 560 560 720H500C500 600 490 520 470 480Z" fill="#293447" opacity=".35"></path>
+  <ellipse cx="420" cy="380" rx="72" ry="84" fill="#F4EFE5" stroke="#293447" stroke-width="5"></ellipse>
+  <path d="M440 300C500 330 492 420 470 446C480 400 470 350 440 300Z" fill="#C47C67" opacity=".45"></path>
+  <path d="M340 400C320 300 360 250 430 250C510 250 520 330 500 420L488 340L460 370L450 320L410 360L400 320L360 370Z" fill="#293447"></path>
+  <path d="M372 424h14M458 424h14" stroke="#C47C67" stroke-width="4"></path>
+
+  <!-- POSE A: thinking (eyes up, hand at chin) -->
+  <g id="poseA" data-demo-actor="demo-actor-31">
+    <use href="#eyUp" x="392" y="398"></use><use href="#eyUp" x="452" y="398"></use>
+    <path d="M412 444h22" stroke="#293447" stroke-width="4" fill="none" stroke-linecap="round"></path>
+    <path d="M505 560C560 520 520 470 470 462" stroke="#F4EFE5" stroke-width="44" fill="none" stroke-linecap="round"></path>
+    <path d="M505 560C560 520 520 470 470 462" stroke="#293447" stroke-width="30" fill="none" stroke-linecap="round"></path>
+    <path d="M505 560C560 520 520 470 470 462" stroke="#F4EFE5" stroke-width="20" fill="none" stroke-linecap="round"></path>
+  </g>
+  <!-- POSE C: idea raised (authored key pose) -->
+  <g id="poseC" data-demo-actor="demo-actor-32">
+    <use href="#ey" x="392" y="398"></use><use href="#ey" x="452" y="398"></use>
+    <path d="M410 440Q424 452 438 440" stroke="#293447" stroke-width="4" fill="none" stroke-linecap="round"></path>
+    <path d="M480 500L520 330L548 214" stroke="#F4EFE5" stroke-width="44" fill="none" stroke-linecap="round"></path>
+    <path d="M480 500L520 330L548 214" stroke="#293447" stroke-width="30" fill="none" stroke-linecap="round"></path>
+    <path d="M480 500L520 330L548 214" stroke="#F4EFE5" stroke-width="20" fill="none" stroke-linecap="round"></path>
+  </g>
+</g>
+
+<!-- IDEA BADGE + burst lines -->
+<g id="burst" stroke="#F4EFE5" stroke-width="4" fill="none" stroke-linecap="round" data-demo-actor="demo-actor-4">
+  <path class="ray" d="M492 112L446 66"></path>
+  <path class="ray" d="M536 100L532 40"></path>
+  <path class="ray" d="M582 116L622 70"></path>
+</g>
+<g id="badge" data-demo-actor="demo-actor-30">
+  <circle cx="540" cy="170" r="46" fill="#F4EFE5"></circle>
+  <circle cx="540" cy="170" r="40" fill="#C47C67" stroke="#293447" stroke-width="5"></circle>
+  <path d="M524 172l10 12 22-26" stroke="#F4EFE5" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+</g>
+
+<!-- POSE B: punch-in close-up card (hard cut), coral colour card -->
+<g id="closeup" data-demo-actor="demo-actor-33">
+  <rect x="660" y="70" width="480" height="450" rx="8" fill="#F4EFE5"></rect>
+  <g clip-path="url(#cardClip)">
+    <rect x="664" y="74" width="472" height="442" fill="#C47C67"></rect>
+    <path d="M700 520C700 470 760 440 840 432H960C1040 440 1100 470 1100 520Z" fill="#668DA0" stroke="#293447" stroke-width="6"></path>
+    <ellipse cx="900" cy="300" rx="150" ry="168" fill="#F4EFE5" stroke="#293447" stroke-width="7"></ellipse>
+    <path d="M748 330C720 170 800 110 900 110C1010 110 1080 180 1052 340L1030 250L990 290L975 220L925 275L905 210L860 270L845 215L785 300Z" fill="#293447"></path>
+    <ellipse cx="845" cy="340" rx="26" ry="38" fill="#293447"></ellipse><ellipse cx="845" cy="348" rx="18" ry="26" fill="#668DA0"></ellipse><circle cx="837" cy="324" r="10" fill="#F4EFE5"></circle>
+    <ellipse cx="955" cy="340" rx="26" ry="38" fill="#293447"></ellipse><ellipse cx="955" cy="348" rx="18" ry="26" fill="#668DA0"></ellipse><circle cx="947" cy="324" r="10" fill="#F4EFE5"></circle>
+    <ellipse cx="900" cy="420" rx="14" ry="12" fill="#293447"></ellipse>
+    <path d="M800 392h26M974 392h26" stroke="#C47C67" stroke-width="6"></path>
+    <path d="M1080 120l14 -34M1104 150l34 -14M1060 96l-4 -22" stroke="#F4EFE5" stroke-width="6" stroke-linecap="round" fill="none"></path>
+  </g>
+</g>
+
+<!-- LETTERING (stationary, on solid navy) -->
+<text x="80" y="110" font-family="Avenir Next,Helvetica,sans-serif" font-weight="900" font-style="italic" font-size="52" fill="#F4EFE5" data-demo-actor="demo-actor-26">AN IDEA</text>
+<text x="80" y="160" font-family="Avenir Next,Helvetica,sans-serif" font-weight="700" font-size="26" fill="#F4EFE5" letter-spacing="4" data-demo-actor="demo-actor-27"><tspan x="80" y="160">BECOMES A</tspan><tspan x="80" y="194">CONNECTED SYSTEM</tspan></text>
+<text x="1200" y="80" font-family="Hiragino Sans,sans-serif" font-weight="800" font-size="34" fill="#F4EFE5" writing-mode="tb" data-demo-actor="demo-actor-28">ひらめき！</text>
+
+<!-- stationary scanline grain over everything -->
+<rect width="1280" height="720" fill="url(#scan)" opacity=".045" pointer-events="none"></rect>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  // Palette tokens (STYLE.json); validated with chroma, no new hues.
+  const P={navy:"#293447",teal:"#668DA0",coral:"#C47C67",cream:"#F4EFE5"};
+  Object.values(P).forEach(c=>{if(!chroma.valid(c))throw Error('bad token '+c);});
+
+  const q=s=>document.querySelector(s);
+  const qa=s=>Array.from(document.querySelectorAll(s));
+  const tl=gsap.timeline({paused:true});
+
+  // Initial states (t=0): thinking pose shown, others hidden.
+  gsap.set('#poseA',{autoAlpha:1});
+  gsap.set(['#poseC','#closeup','#badge'],{autoAlpha:0});
+  gsap.set('#closeup',{scale:0.9,svgOrigin:'900 295'});
+  gsap.set('#badge',{scale:0.6,rotation:-10,svgOrigin:'540 170'});
+
+  // Stroke-draw prep for genuinely unfilled stroked paths.
+  const drawPaths=qa('#links .link, #burst .ray');
+  drawPaths.forEach(p=>{const L=p.getTotalLength();gsap.set(p,{strokeDasharray:L,strokeDashoffset:L});p.dataset.len=L;});
+  qa('.node').forEach(n=>gsap.set(n,{autoAlpha:0,scale:0.6,svgOrigin:n.dataset.x+' '+n.dataset.y}));
+
+  // Beat 1 (0.00-0.50): thinking pose hold.
+  // Beat 2 (0.50-1.10): hard cut to punch-in close-up card (pose replacement).
+  tl.set('#closeup',{autoAlpha:1},0.5);
+  tl.to('#closeup',{scale:1,duration:0.18,ease:'power2.inOut'},0.5);
+  tl.set('#closeup',{autoAlpha:0},1.1);
+  // Beat 3 (1.10): hard cut to raised-idea key pose.
+  tl.set('#poseA',{autoAlpha:0},1.1);
+  tl.set('#poseC',{autoAlpha:1},1.1);
+  tl.set('#badge',{autoAlpha:1},1.1);
+  tl.to('#badge',{scale:1,rotation:0,duration:0.35,ease:'back.out(1.2)'},1.1);
+  qa('#burst .ray').forEach((p,i)=>tl.to(p,{strokeDashoffset:0,duration:0.25,ease:'power2.inOut'},1.3+i*0.04));
+  // Network lines draw outward in order; nodes snap as lines arrive.
+  const links=qa('#links .link');
+  const linkStart=[1.35,1.55,1.55,1.75,1.75,1.9,1.95,2.05];
+  links.forEach((p,i)=>tl.to(p,{strokeDashoffset:0,duration:0.3,ease:'sine.inOut'},linkStart[i]));
+  const nodeOrder=[['demo-actor-7',1.55],['demo-actor-8',1.78],['demo-actor-10',1.82],['demo-actor-9',2.0],['demo-actor-11',2.12],['demo-actor-12',2.3]];
+  nodeOrder.forEach(([id,t])=>{
+    const n=q('[data-demo-actor="'+id+'"]');
+    tl.set(n,{autoAlpha:1},t);
+    tl.to(n,{scale:1,duration:0.3,ease:'back.out(1.2)'},t);
+  });
+  // Hold settled scene to the end.
+  tl.to({}, {duration:0.001},2.999);
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

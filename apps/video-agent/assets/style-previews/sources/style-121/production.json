@@ -1,0 +1,24 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent. No audio track; intentional silence for a short style preview.",
+  "limitations": [
+    "Canvas 2D implementation details: per-dab chalk stamping on an offscreen chalk layer, destination-out paper tooth mask, static seeded paper texture generated once. GSAP owns all motion via one paused timeline (window.__timelines.video) tweening per-stroke progress.",
+    "@remotion/noise is not installed in the local node_modules; an equivalent seeded 2D gradient (Perlin-style) noise2D is implemented inline (seed 121) as a pure function. Grain is spatial and stable across seeks.",
+    "Chalk is a procedural approximation: round dabs with noise-modulated alpha/radius plus a threshold tooth mask; no physical pigment or paper-height simulation.",
+    "Text uses system typography (Chalkboard SE / Marker Felt fallback chain) filled on canvas and textured by the same tooth mask; glyph shapes are font-dependent, not hand-drawn strokes.",
+    "Each frame is rebuilt from scratch (~26k dabs at full completion), so forward, backward and direct seeks are exact; nothing accumulates.",
+    "Arrowhead strokes start only at 1.70 s when the dashed shaft progress reaches 1; there are no boxed containers, so all labels are standalone headings/captions with independent wipe timing.",
+    "Background stays #15141A with sparse low-contrast speckle lifted 2-6 levels; foreground uses only #F1EBDD at varying alpha."
+  ]
+}

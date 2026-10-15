@@ -1,0 +1,28 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Patch Panel",
+  "displayDescription": "A skeuomorphic patch panel: a spark switch powers on, five cables patch the idea into a working system, and the marquee confirms it's online.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG",
+    "HTML/CSS",
+    "Canvas 2D (one-time seeded material prerender)"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent: no music, voice or sound effects.",
+  "limitations": [
+    "Materials are procedural approximations. Brushed metal and walnut grain are seeded Canvas 2D textures prerendered once, and lighting uses SVG gradients and drop-shadows rather than physical rendering.",
+    "The toggle flip is a front-view scaleY foreshortening, not true 3D rotation.",
+    "Neither Blender nor Three.js was used, as instructed. The scene doesn't need real 3D depth.",
+    "STYLE.json has no preview_recipes, so no recipe is demonstrated. The refresh covers the scene-dependent background and the source-review construction lessons.",
+    "Not rendered or browser-tested by the agent. The host runs QA."
+  ]
+}

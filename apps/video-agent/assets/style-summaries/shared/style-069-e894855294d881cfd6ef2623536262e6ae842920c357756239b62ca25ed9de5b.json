@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-069",
+    "name": "Liquid Glass",
+    "visualIdentity": "Explicitly named optical style with clear glass boundaries, plausible refraction, edge highlights, and limited dispersion. A recognizable background stays visible through the form. Ordinary translucent blur does not qualify, and the style is not interchangeable with frosted glass.",
+    "suitableUses": "Explicit: hero optical moments where refraction is the feature, including animated droplets, lenses, or flexible panels. Inferred from the combination guidance: abstract brand loops, fluid UI concept films, and clarity-focused device or feature launches. Other uses are unspecified.",
+    "limitations": "Refraction must stay continuous with deformation and derive from the same surface as the shape. Dispersion stays minimal, and text never sits behind a refracting region. Frosted-blur substitutes and chaotic splashing without a baked simulation are excluded. Simulated appearance is not validated physics.",
+    "palette": "Reference-dependent example for new presentation elements only; the source calls it optional. Suggested tokens are background #EDEBE3, foreground #293C49, and accent_1 #91ACB0, with gradients disabled. Text #293C49 on #EDEBE3 measures 9.578:1, and on #91ACB0 it measures 4.754:1. Task colors override these, and source artwork and background colors visible through the glass stay unchanged.",
+    "motionAndInteraction": "Explicit cue: droplets, lenses, or flexible panels animate while deformation and refraction stay continuous. The punctuation-zoom reference (motion-038) lists this style as compatible and requires a refracting circular lens, never frosted blur. The orbit reference (motion-021) needs real 3D depth. Pointer nudges suit only HTML hero delivery, and video motion must derive from composition time.",
+    "audio": "Audio is unspecified in the source; it assigns no fixed genre, tempo, voice, or mandatory layer. Inferred suitability: restrained ambience or a soft accent on major deformations, with silence during reading holds. Honor any user audio requirements first, and do not invent audio assets or synchronization claims.",
+    "assetRequirements": "Explicit: a recognizable background must be visible through the glass, so background artwork or footage is needed. Fonts and assets must load before rendering. Stateful droplet simulations require baking or caching. Source artwork colors remain unchanged. Asset formats, counts, and resolutions are unspecified.",
+    "combinations": "Liquid Glass alone suits hero optical moments. Supporting style-114 adds droplet merge and split choreography that drives the glass deformation, with refraction following the same surface. Supporting style-096 adds product pacing with one lens over product UI and titles kept outside the refracting area. Avoid overlapping lenses and frosted-blur hybrids.",
+    "productionApproach": "Visual construction uses Three.js with MeshPhysicalMaterial transmission and offscreen background rendering, or labeled screen-space displacement for a 2D approximation. HyperFrames is the default pipeline for seekable timing, validation, and export; Remotion is a fallback only for a verified limitation. chroma-js is optional for contrast checks, and seeks must be verified in both directions."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

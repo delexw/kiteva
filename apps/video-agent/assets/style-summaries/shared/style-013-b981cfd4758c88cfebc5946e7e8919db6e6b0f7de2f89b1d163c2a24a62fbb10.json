@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-013",
+    "name": "Psychedelic Art, Graphic Design and Design Movements. Provenance is explicit: the source directly names and describes this visual direction.",
+    "visualIdentity": "Flowing curves, saturated waves, vortices and looping geometry form an organized color field. Lettering may distort decoratively, but key information needs stable reading moments. Morphs and color movement should develop continuously around one visual theme.",
+    "suitableUses": "Explicitly suited to ambient visuals, music videos, album visualizers, festival posters and title cards, and infinite-zoom or kaleidoscopic transitions. Other topics are unconfirmed inference, so judge fit against the actual subject.",
+    "limitations": "Do not place dense text during vortex travel or beat-strobe color. Avoid unrelated stacked effects and decorative spinning without a scene handoff. Two-color contrast checks do not verify text over animated fields. Physical fluid accuracy is not claimed.",
+    "palette": "Suggested, not approved: background #201337 for layout, foreground #FFF3DB for text, accents #D957A5, #DA873F and #7464D2. Task-supplied colors override these. Foreground on background measures 15.785:1; background-colored text on accent_1 (4.842) or accent_2 (6.215) passes; accent_3 with foreground (4.247) is decorative only. An optional lab gradient applies to wave fields only, never text areas.",
+    "motionAndInteraction": "Video state derives from composition time, with one owner per animated property. Optional motion references include a vortex camera passage (motion-002), a progress-linked chapter handoff (motion-012), and typographic or burst treatments (motion-037 to motion-039); each must fit the actual scene. Scroll mapping applies only to interactive delivery, and reduced motion should show completed frames.",
+    "audio": "Audio is unspecified, and no layer is mandatory. An inferred option is music whose sections drive shader morphs toward a stable title hold. Avoid beat-strobing color and keep speech clear of competing textures. Sound-synchronized motion requires inspected audio, and none is supplied.",
+    "assetRequirements": "No assets are supplied. Needed inputs are exact task copy, any approved palette, and local fonts loaded before rendering. Glyph, punctuation, or approved mark assets are needed only for motion-037 to motion-039, and must be inspected first. Image, video, and audio assets are unspecified.",
+    "combinations": "style-105 provides section-level timing for morphs and color flow in music videos, using lab stops only and text on #201337. style-007 adds Nouveau-style border and lettering ornament for concert posters, in #FFF3DB or psychedelic accents, with DOM text on solid backing. Botanical earth palettes should be avoided.",
+    "productionApproach": "WebGL with GLSL full-screen shaders and one shared time uniform renders the color field, with Three.js only where true 3D is required. GSAP owns other transforms, and text is composited separately. HyperFrames handles assembly, timing, audio sync, and export; Remotion is used only when its verified fallback condition applies. Verify seeks, frames, and audio before delivery."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

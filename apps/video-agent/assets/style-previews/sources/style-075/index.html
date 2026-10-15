@@ -1,0 +1,290 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Skeuomorphism — Idea → Connected System</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#15181D}
+[data-composition-id="video"]{position:relative;width:100%;height:100%}
+svg{width:100%;height:100%;display:block}
+.label{font-family:"Futura","Avenir Next","Helvetica Neue",Arial,sans-serif;font-weight:700}
+.mono{font-family:"Menlo","SF Mono","Courier New",monospace;font-weight:700}
+</style>
+</head>
+<body>
+<div data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="scene" xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<defs>
+  <!-- Stage: cool charcoal desk-at-night field (scene-dependent background) -->
+  <radialGradient id="stage" cx=".5" cy=".42" r=".75">
+    <stop offset="0" stop-color="#262A31"/>
+    <stop offset="1" stop-color="#15181D"/>
+  </radialGradient>
+  <!-- Device materials: light from upper-left -->
+  <linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#EDE7DA"/>
+    <stop offset="1" stop-color="#DDD4C3"/>
+  </linearGradient>
+  <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#E7DFD0"/>
+    <stop offset="1" stop-color="#8B7151"/>
+  </linearGradient>
+  <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#4A443A"/>
+    <stop offset="1" stop-color="#2E2A24"/>
+  </linearGradient>
+  <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#8B7151"/>
+    <stop offset=".35" stop-color="#E7DFD0"/>
+    <stop offset=".7" stop-color="#B8A88E"/>
+    <stop offset="1" stop-color="#6E5A40"/>
+  </linearGradient>
+  <radialGradient id="ball" cx=".35" cy=".3">
+    <stop offset="0" stop-color="#F4EFE6"/>
+    <stop offset=".55" stop-color="#8B7151"/>
+    <stop offset="1" stop-color="#3A352D"/>
+  </radialGradient>
+  <radialGradient id="glassOff" cx=".38" cy=".32">
+    <stop offset="0" stop-color="#8B7151"/>
+    <stop offset=".6" stop-color="#4A3F31"/>
+    <stop offset="1" stop-color="#241F19"/>
+  </radialGradient>
+  <radialGradient id="glassOn" cx=".38" cy=".32">
+    <stop offset="0" stop-color="#FFF4D6"/>
+    <stop offset=".45" stop-color="#F2B84B"/>
+    <stop offset="1" stop-color="#9A5E14"/>
+  </radialGradient>
+  <radialGradient id="amberHalo">
+    <stop offset="0" stop-color="#F2B84B" stop-opacity=".75"/>
+    <stop offset="1" stop-color="#F2B84B" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="greenHalo">
+    <stop offset="0" stop-color="#6FD07E" stop-opacity=".62"/>
+    <stop offset=".55" stop-color="#6FD07E" stop-opacity=".18"/>
+    <stop offset="1" stop-color="#6FD07E" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="drop" x="-10%" y="-10%" width="120%" height="130%">
+    <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000" flood-opacity=".55"/>
+  </filter>
+  <filter id="sh" x="-30%" y="-30%" width="160%" height="170%">
+    <feDropShadow dx="1" dy="5" stdDeviation="3.5" flood-color="#1E1B16" flood-opacity=".5"/>
+  </filter>
+  <g id="screw"><circle r="8" fill="url(#rim)" stroke="#3A352D"/><path d="M-5-5L5 5" stroke="#3A352D" stroke-width="2"/></g>
+  <g id="jack">
+    <circle r="25" fill="url(#rim)" stroke="#3A352D" stroke-width="1.5" filter="url(#sh)"/>
+    <circle r="16" fill="#2A2621"/>
+    <circle r="16" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="3"/>
+    <circle r="6" fill="#8B7151"/>
+  </g>
+  <g id="plughead">
+    <circle r="15" fill="url(#chrome)" stroke="#3A352D" stroke-width="2"/>
+    <circle r="9" fill="url(#rim)" stroke="#3A352D" stroke-opacity=".6"/>
+    <ellipse cx="-4" cy="-5" rx="4" ry="2.4" fill="#F4EFE6" opacity=".8"/>
+  </g>
+  <g id="bulb">
+    <circle r="8.5" fill="url(#glassOff)" stroke="#3A352D" stroke-width="1.5"/>
+    <circle cx="-2.5" cy="-3" r="2" fill="#E7DFD0" opacity=".45"/>
+  </g>
+</defs>
+
+<!-- Stationary stage -->
+<rect id="stage-bg" width="1280" height="720" fill="url(#stage)"/>
+
+<!-- Persistent device: walnut frame + brushed faceplate (prerendered textures composited) -->
+<g id="device">
+  <rect x="60" y="60" width="1160" height="600" rx="28" fill="#8B7151" filter="url(#drop)"/>
+  <image id="woodTex" x="60" y="60" width="1160" height="600" preserveAspectRatio="none" clip-path="inset(0 round 28px)"/>
+  <rect x="60.5" y="60.5" width="1159" height="599" rx="28" fill="none" stroke="#E7DFD0" stroke-opacity=".25"/>
+  <rect x="100" y="100" width="1080" height="520" rx="14" fill="url(#face)"/>
+  <image id="metalTex" x="100" y="100" width="1080" height="520" preserveAspectRatio="none"/>
+  <rect x="100" y="100" width="1080" height="520" rx="14" fill="none" stroke="#3A352D" stroke-opacity=".55" stroke-width="2"/>
+  <path d="M114 101H1166" stroke="#FFFFFF" stroke-opacity=".6"/>
+  <use href="#screw" x="124" y="124"/><use href="#screw" x="1156" y="124"/>
+  <use href="#screw" x="124" y="596"/><use href="#screw" x="1156" y="596"/>
+</g>
+
+<!-- Marquee bulb rows set into the frame (off state) -->
+<g id="bulbs-top"></g>
+<g id="bulbs-bottom"></g>
+
+<!-- Header lettering -->
+<text class="label" x="150" y="172" font-size="30" letter-spacing="6" fill="#3A352D">IDEA → CONNECTED SYSTEM</text>
+<text class="label" x="1130" y="168" font-size="13" letter-spacing="5" text-anchor="end" fill="#3A352D">MODEL 01 · PATCH PANEL</text>
+<path d="M150 196H1130" stroke="#3A352D" stroke-opacity=".4"/>
+<path d="M150 197H1130" stroke="#FFFFFF" stroke-opacity=".7"/>
+
+<!-- Spark switch plate -->
+<g id="switch-plate">
+  <rect x="160" y="240" width="240" height="320" rx="12" fill="url(#plate)" stroke="#1E1B16" filter="url(#sh)"/>
+  <rect x="161" y="241" width="238" height="318" rx="11" fill="none" stroke="#8B7151" stroke-opacity=".6"/>
+  <use href="#screw" x="182" y="262"/><use href="#screw" x="378" y="262"/>
+  <use href="#screw" x="182" y="538"/><use href="#screw" x="378" y="538"/>
+  <!-- pilot lamp -->
+  <circle cx="280" cy="290" r="22" fill="url(#rim)" stroke="#1E1B16" stroke-width="1.5"/>
+  <circle cx="280" cy="290" r="16" fill="url(#glassOff)"/>
+  <text class="label" x="312" y="297" font-size="19" letter-spacing="1" fill="#E7DFD0">ON</text>
+  <!-- lever boss -->
+  <circle cx="280" cy="410" r="34" fill="url(#rim)" stroke="#1E1B16" stroke-width="2" filter="url(#sh)"/>
+  <circle cx="280" cy="410" r="21" fill="#1E1B16"/>
+  <circle cx="280" cy="410" r="21" fill="none" stroke="#8B7151" stroke-opacity=".5" stroke-width="2"/>
+  <text class="label" x="280" y="502" font-size="28" letter-spacing="3" text-anchor="middle" fill="#E7DFD0">IDEA</text>
+  <text class="label" x="280" y="528" font-size="13" letter-spacing="3" text-anchor="middle" fill="#E7DFD0">SPARK SWITCH</text>
+</g>
+<g id="lamp-light" pointer-events="none">
+  <circle id="lamp-halo" cx="280" cy="290" r="44" fill="url(#amberHalo)" fill-opacity="0"/>
+  <circle id="lamp-glass" cx="280" cy="290" r="16" fill="url(#glassOn)" fill-opacity="0"/>
+</g>
+<!-- Toggle lever: neutral wrapper at pivot, GSAP owns inner scaleY -->
+<g transform="translate(280 410)">
+  <g id="lever">
+    <path d="M-9 0L-18-74H18L9 0Z" fill="url(#chrome)" stroke="#1E1B16" stroke-width="2"/>
+    <path d="M-3-4L-8-70" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="0" cy="-78" rx="20" ry="11" fill="url(#ball)" stroke="#1E1B16" stroke-width="2"/>
+  </g>
+</g>
+
+<!-- Jack field -->
+<g id="jack-halos">
+  <circle data-jack="OUT" cx="480" cy="400" r="62" fill="url(#greenHalo)" fill-opacity="0"/>
+  <circle data-jack="LOGIC" cx="680" cy="310" r="62" fill="url(#greenHalo)" fill-opacity="0"/>
+  <circle data-jack="NETWORK" cx="860" cy="310" r="62" fill="url(#greenHalo)" fill-opacity="0"/>
+  <circle data-jack="MEMORY" cx="680" cy="490" r="62" fill="url(#greenHalo)" fill-opacity="0"/>
+  <circle data-jack="PEOPLE" cx="860" cy="490" r="62" fill="url(#greenHalo)" fill-opacity="0"/>
+  <circle data-jack="OUTPUT" cx="1040" cy="490" r="62" fill="url(#greenHalo)" fill-opacity="0"/>
+</g>
+<g id="jacks">
+  <use href="#jack" x="480" y="400"/><use href="#jack" x="680" y="310"/><use href="#jack" x="860" y="310"/>
+  <use href="#jack" x="1040" y="310"/><use href="#jack" x="680" y="490"/><use href="#jack" x="860" y="490"/>
+  <use href="#jack" x="1040" y="490"/>
+</g>
+<g id="jack-rings" fill="none" stroke="#3FA052" stroke-width="3.5">
+  <circle data-jack="OUT" cx="480" cy="400" r="27" stroke-opacity="0"/>
+  <circle data-jack="LOGIC" cx="680" cy="310" r="27" stroke-opacity="0"/>
+  <circle data-jack="NETWORK" cx="860" cy="310" r="27" stroke-opacity="0"/>
+  <circle data-jack="MEMORY" cx="680" cy="490" r="27" stroke-opacity="0"/>
+  <circle data-jack="PEOPLE" cx="860" cy="490" r="27" stroke-opacity="0"/>
+  <circle data-jack="OUTPUT" cx="1040" cy="490" r="27" stroke-opacity="0"/>
+</g>
+<g class="label" font-size="14" letter-spacing="3" text-anchor="middle" fill="#3A352D">
+  <text x="480" y="456">OUT</text>
+  <text x="680" y="272">LOGIC</text>
+  <text x="860" y="272">NETWORK</text>
+  <text x="1040" y="272">SPARE</text>
+  <text x="680" y="452">MEMORY</text>
+  <text x="860" y="452">PEOPLE</text>
+  <text x="1040" y="452">OUTPUT</text>
+  <text x="620" y="596" font-size="14">ONE SWITCH · FIVE PATCHES · ONE WORKING SYSTEM</text>
+</g>
+
+<!-- Patch cables: unfilled stroked paths, drawn by stroke-dashoffset -->
+<g id="cables" fill="none" stroke="#2B2620" stroke-width="15" stroke-linecap="round" filter="url(#sh)">
+  <path id="c1" d="M480 400C560 420 600 250 680 310"/>
+  <path id="c2" d="M480 400C560 540 620 560 680 490"/>
+  <path id="c3" d="M680 310C730 400 810 400 860 310"/>
+  <path id="c4" d="M680 490C740 580 800 580 860 490"/>
+  <path id="c5" d="M860 310C900 440 1000 420 1040 490"/>
+</g>
+<g transform="translate(-2 -3)">
+  <g id="cable-sheen" fill="none" stroke="#8B7151" stroke-width="3.5" stroke-linecap="round" stroke-opacity=".85">
+    <path d="M480 400C560 420 600 250 680 310"/>
+    <path d="M480 400C560 540 620 560 680 490"/>
+    <path d="M680 310C730 400 810 400 860 310"/>
+    <path d="M680 490C740 580 800 580 860 490"/>
+    <path d="M860 310C900 440 1000 420 1040 490"/>
+  </g>
+</g>
+
+<!-- Plug heads: neutral positional wrappers, GSAP owns inner scale/opacity -->
+<g transform="translate(480 400)"><g class="plug" data-jack="OUT"><use href="#plughead"/></g></g>
+<g transform="translate(680 310)"><g class="plug" data-jack="LOGIC"><use href="#plughead"/></g></g>
+<g transform="translate(680 490)"><g class="plug" data-jack="MEMORY"><use href="#plughead"/></g></g>
+<g transform="translate(860 310)"><g class="plug" data-jack="NETWORK"><use href="#plughead"/></g></g>
+<g transform="translate(860 490)"><g class="plug" data-jack="PEOPLE"><use href="#plughead"/></g></g>
+<g transform="translate(1040 490)"><g class="plug" data-jack="OUTPUT"><use href="#plughead"/></g></g>
+
+<!-- Link readout window: state feedback -->
+<g id="readout">
+  <rect x="944" y="570" width="176" height="38" rx="6" fill="#3A352D" stroke="#1E1B16" stroke-width="2"/>
+  <rect x="950" y="575" width="164" height="28" rx="3" fill="#141815"/>
+  <text id="links" class="mono" x="1032" y="595" font-size="16" letter-spacing="2" text-anchor="middle" fill="#6FD07E">LINKS 0/5</text>
+</g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  // ---- Seeded, one-time material prerender (stationary textures) ----
+  function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function brushed(w,h){
+    const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');const r=rng(75);
+    for(let i=0;i<900;i++){const y=r()*h;const a=0.025+r()*0.05;g.strokeStyle=(r()<.5?'rgba(255,255,255,':'rgba(58,53,45,')+a+')';g.lineWidth=.6+r()*0.9;const x=r()*w*0.6;g.beginPath();g.moveTo(x,y);g.lineTo(x+w*(0.25+r()*0.6),y+(r()-.5)*1.2);g.stroke();}
+    const sheen=g.createLinearGradient(0,0,w,h);sheen.addColorStop(0,'rgba(255,255,255,.18)');sheen.addColorStop(.45,'rgba(255,255,255,0)');sheen.addColorStop(1,'rgba(58,53,45,.06)');g.fillStyle=sheen;g.fillRect(0,0,w,h);
+    return c.toDataURL('image/png');
+  }
+  function wood(w,h){
+    const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');const r=rng(1975);
+    for(let i=0;i<70;i++){const y0=r()*h;const amp=2+r()*7;const f=0.002+r()*0.006;const ph=r()*6.28;g.strokeStyle='rgba(42,30,18,'+(0.12+r()*0.18)+')';g.lineWidth=0.8+r()*2.2;g.beginPath();for(let x=0;x<=w;x+=8){const y=y0+Math.sin(x*f+ph)*amp+Math.sin(x*f*3.1+ph*2)*amp*0.3;x?g.lineTo(x,y):g.moveTo(x,y);}g.stroke();}
+    const lit=g.createLinearGradient(0,0,0,h);lit.addColorStop(0,'rgba(255,240,215,.16)');lit.addColorStop(1,'rgba(0,0,0,.18)');g.fillStyle=lit;g.fillRect(0,0,w,h);
+    return c.toDataURL('image/png');
+  }
+  document.getElementById('metalTex').setAttribute('href',brushed(1080,520));
+  document.getElementById('woodTex').setAttribute('href',wood(1160,600));
+
+  // ---- Marquee bulbs (static geometry) ----
+  const lit={top:[],bottom:[]};
+  for(const [row,y] of [['top',80],['bottom',640]]){
+    const host=document.getElementById('bulbs-'+row);
+    for(let i=0;i<23;i++){
+      const x=200+i*40;
+      const u=document.createElementNS(NS,'use');u.setAttribute('href','#bulb');u.setAttribute('x',x);u.setAttribute('y',y);host.appendChild(u);
+      const h=document.createElementNS(NS,'circle');h.setAttribute('cx',x);h.setAttribute('cy',y);h.setAttribute('r',19);h.setAttribute('fill','url(#amberHalo)');h.setAttribute('fill-opacity','0');host.appendChild(h);
+      const gl=document.createElementNS(NS,'circle');gl.setAttribute('cx',x);gl.setAttribute('cy',y);gl.setAttribute('r',7.5);gl.setAttribute('fill','url(#glassOn)');gl.setAttribute('fill-opacity','0');host.appendChild(gl);
+      lit[row].push([h,gl]);
+    }
+  }
+
+  // ---- Seekable timeline: GSAP is the single owner of every animated property ----
+  const tl=gsap.timeline({paused:true});
+  const lever=document.getElementById('lever');
+  // 1. Toggle flips from down (foreshortened toward viewer) to up
+  gsap.set(lever,{svgOrigin:'0 0',scaleY:-0.55});
+  tl.to(lever,{scaleY:1,duration:0.38,ease:'back.out(1.6)'},0.12);
+  // 2. Pilot lamp lights the moment the lever seats
+  tl.to('#lamp-glass',{attr:{'fill-opacity':1},duration:0.12,ease:'power2.out'},0.42);
+  tl.to('#lamp-halo',{attr:{'fill-opacity':1},duration:0.3,ease:'power2.out'},0.42);
+  // 3. Patches: cable draws, plug seats, jack lights
+  const plugs={};document.querySelectorAll('.plug').forEach(p=>{plugs[p.dataset.jack]=p;gsap.set(p,{svgOrigin:'0 0',scale:1.45,opacity:0});});
+  function seat(jack,t){
+    tl.to(plugs[jack],{scale:1,opacity:1,duration:0.22,ease:'back.out(2)'},t);
+    tl.to('#jack-halos [data-jack="'+jack+'"]',{attr:{'fill-opacity':1},duration:0.25,ease:'power2.out'},t+0.08);
+    tl.to('#jack-rings [data-jack="'+jack+'"]',{attr:{'stroke-opacity':1},duration:0.15,ease:'power2.out'},t+0.08);
+  }
+  seat('OUT',0.52);
+  const sheen=document.querySelectorAll('#cable-sheen path');
+  const patches=[['c1',0.62,0.4,'LOGIC'],['c2',0.72,0.4,'MEMORY'],['c3',1.02,0.36,'NETWORK'],['c4',1.12,0.36,'PEOPLE'],['c5',1.38,0.42,'OUTPUT']];
+  const linkTimes=[];
+  patches.forEach(([id,start,dur,jack],i)=>{
+    for(const p of [document.getElementById(id),sheen[i]]){
+      const L=p.getTotalLength();gsap.set(p,{strokeDasharray:L+1,strokeDashoffset:L+1});
+      tl.to(p,{strokeDashoffset:0,duration:dur,ease:'power2.inOut'},start+(p===sheen[i]?0.03:0));
+    }
+    seat(jack,start+dur-0.04);
+    linkTimes.push(start+dur);
+  });
+  // 4. System online: marquee chase around the frame (top L→R, bottom R→L)
+  lit.top.forEach(([h,g],i)=>{tl.to([h,g],{attr:{'fill-opacity':1},duration:0.1,ease:'power1.out'},1.86+i*0.017);});
+  lit.bottom.slice().reverse().forEach(([h,g],i)=>{tl.to([h,g],{attr:{'fill-opacity':1},duration:0.1,ease:'power1.out'},2.25+i*0.012);});
+  tl.to({}, {duration:0.001},2.999);
+  // Readout text derives purely from timeline time (seek-safe, no carried state)
+  const links=document.getElementById('links');
+  function readout(){const t=tl.time();let n=0;for(const lt of linkTimes)if(t>=lt)n++;const s='LINKS '+n+'/5';if(links.textContent!==s)links.textContent=s;}
+  tl.eventCallback('onUpdate',readout);
+  readout();
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

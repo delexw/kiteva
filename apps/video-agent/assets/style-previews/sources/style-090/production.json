@@ -1,0 +1,39 @@
+{
+  "assetNeeds": [
+    {
+      "kind": "reference",
+      "cause": "tool-capability",
+      "reason": "Rotoscoping means tracing filmed movement. No footage was supplied, and the available tools cannot film or create real live-action footage.",
+      "question": "Can you supply a short clip or numbered frames of someone reaching forward, so the trace can follow real footage?",
+      "fallback": "The figure follows a hand-keyed joint track based on how people reach, with a simulated reference plate. This is disclosed as a reconstruction, not a trace of real footage."
+    }
+  ],
+  "displayTitle": "Traced Reach",
+  "displayDescription": "A traced figure reaches out on a cool light table; its hand becomes the first vertex of a connected node system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (traced figure, simulated reference plate, network)",
+    "SVG (stationary light-table cel border, peg bar, registration marks)",
+    "HTML/CSS text (headline, rule, caption)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline at window.__timelines.video (sole owner of all animated scalars; Canvas redraws from them on update and hf-seek)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track, music, voice or sound effects.",
+  "limitations": [
+    "No live-action footage was supplied, and the available tools cannot film any, so nothing here was traced from real footage. The reach comes from a hand-keyed joint track (lean, upper-arm, forearm and rear-arm angles) based on how people reach. It reconstructs rotoscoping's look and trace-over-plate workflow but is not true rotoscoping.",
+    "The soft 'reference plate' silhouette is simulated from the same joint track, not filmed footage.",
+    "Traced drawings are held for 2 frames (15 drawings/s) at 30 fps delivery; the plate runs continuously to show the trace snapping to it.",
+    "Torso lean is approximated by a 2D shear about the feet line; no 3D body or lighting.",
+    "Scene palette: cool light-table #E3E9EA chosen instead of the earlier warm #F1EBDD; ink #314249 and Fill A #9D8A72 keep their earlier roles. Ink on table contrast is 8.53:1. Fill A on table is 2.71:1, so it is used only for decoration and fills, never for text.",
+    "BACKGROUND_REVIEW.json reports 0 matched sources and no contact sheets, so no source-frame observations were used.",
+    "No preview recipes were supplied (tech.preview_recipes is absent), so this refresh shows the core style only.",
+    "Blender was not used, per the user's instruction."
+  ]
+}

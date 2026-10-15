@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sand-on-Light-Table — An idea becomes a connected system</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #E3ECEF; overflow: hidden; }
+  #video { position: relative; width: 100%; height: 100%; background: #E3ECEF; overflow: hidden; }
+  #table { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #copy { position: absolute; left: 6.25%; top: 7.5%; color: #3A291B;
+          font-family: Georgia, "Times New Roman", serif; font-style: italic; }
+  #copy h1 { margin: 0; font-weight: normal; font-size: 54px; line-height: 62px; }
+  #copy p { margin: 10px 0 0 2px; font-size: 22px; line-height: 28px; }
+</style>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="table" class="clip" data-start="0" data-duration="3" width="1280" height="720"></canvas>
+  <div id="copy">
+    <h1 id="headline">An idea becomes<br>a connected system</h1>
+    <p id="sub">light through scraped sand</p>
+  </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="three.bundle.js" data-library="three"></script>
+<script>
+(function () {
+  'use strict';
+  var W = 1280, H = 720;
+  var SAND = '#3A291B', LIGHT = '#E3ECEF', GLOW = '#EEF4F5', EDGE = '#CBD8DC';
+  if (window.chroma) {
+    window.__paletteContrast = { field: chroma.contrast(SAND, LIGHT), glow: chroma.contrast(SAND, GLOW), edge: chroma.contrast(SAND, EDGE) }; // ~11.6 / 12.5 / 9.5
+  }
+
+  // ---------- seeded PRNG (deterministic) ----------
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function makeCanvas() {
+    var c = document.createElement('canvas'); c.width = W; c.height = H;
+    var g = c.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+    return { c: c, g: g };
+  }
+
+  // Shared loose dust (identical in A and B => stationary). Kept away from the copy block.
+  function drawDust(g) {
+    var rnd = mulberry32(122);
+    g.fillStyle = 'rgba(255,255,255,0.55)';
+    for (var i = 0; i < 260; i++) {
+      var x = rnd() * W, y = 250 + rnd() * 140, r = 0.8 + rnd() * 1.8;
+      if (x < 760 && y < 300) continue;
+      g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    }
+  }
+
+  // ---------- density masks (R channel = sand density) ----------
+  function maskA() {
+    var m = makeCanvas(), g = m.g;
+    g.filter = 'blur(3px)';
+    var lg = g.createLinearGradient(0, 300, 1280, 720);
+    lg.addColorStop(0, 'rgba(255,255,255,0.62)');
+    lg.addColorStop(0.5, 'rgba(255,255,255,1)');
+    lg.addColorStop(1, 'rgba(255,255,255,0.85)');
+    g.fillStyle = lg;
+    g.beginPath();
+    g.moveTo(0, 360);
+    g.bezierCurveTo(200, 330, 300, 400, 480, 350);
+    g.bezierCurveTo(660, 300, 820, 380, 1000, 372);
+    g.bezierCurveTo(1150, 365, 1220, 330, 1280, 340);
+    g.lineTo(1280, 720); g.lineTo(0, 720); g.closePath(); g.fill();
+    // dense heap: the "idea"
+    var rg = g.createRadialGradient(250, 500, 10, 250, 500, 175);
+    rg.addColorStop(0, 'rgba(255,255,255,1)');
+    rg.addColorStop(0.7, 'rgba(255,255,255,0.8)');
+    rg.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = rg; g.beginPath(); g.arc(250, 500, 175, 0, Math.PI * 2); g.fill();
+    g.filter = 'none';
+    drawDust(g);
+    // loose grains foreshadow the dune that rises in mask B (source lesson: stray grains precede a shape)
+    var fr = mulberry32(4041);
+    g.fillStyle = 'rgba(255,255,255,0.7)';
+    for (var k = 0; k < 420; k++) {
+      var fx = 660 + fr() * 620, fy = 190 + fr() * 170, fr2 = 0.7 + fr() * 1.6;
+      var top = 232 + (fx - 660) * -0.05;
+      if (fy < top - 30 * fr()) continue;
+      g.beginPath(); g.arc(fx, fy, fr2, 0, Math.PI * 2); g.fill();
+    }
+    return m.c;
+  }
+
+  function maskB() {
+    var m = makeCanvas(), g = m.g;
+    g.filter = 'blur(3px)';
+    var lg = g.createLinearGradient(0, 200, 1280, 720);
+    lg.addColorStop(0, 'rgba(255,255,255,0.55)');
+    lg.addColorStop(0.5, 'rgba(255,255,255,1)');
+    lg.addColorStop(1, 'rgba(255,255,255,0.8)');
+    g.fillStyle = lg;
+    g.beginPath();
+    g.moveTo(0, 340);
+    g.bezierCurveTo(200, 310, 300, 370, 480, 320);
+    g.bezierCurveTo(660, 270, 820, 200, 1000, 232);
+    g.bezierCurveTo(1120, 250, 1200, 150, 1280, 170);
+    g.lineTo(1280, 720); g.lineTo(0, 720); g.closePath(); g.fill();
+    // the system's bed of denser sand
+    var rg = g.createRadialGradient(920, 470, 20, 920, 470, 300);
+    rg.addColorStop(0, 'rgba(255,255,255,0.7)');
+    rg.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = rg; g.beginPath(); g.arc(920, 470, 300, 0, Math.PI * 2); g.fill();
+    // idea heap spreads out, smaller
+    var rh = g.createRadialGradient(250, 500, 10, 250, 500, 130);
+    rh.addColorStop(0, 'rgba(255,255,255,0.6)');
+    rh.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = rh; g.beginPath(); g.arc(250, 500, 130, 0, Math.PI * 2); g.fill();
+    g.filter = 'none';
+    drawDust(g);
+    return m.c;
+  }
+
+  // ---------- scrape textures: R = scrape time param (0..1), G = coverage ----------
+  function strokePath(g, pts, t0, t1, width) {
+    var n = pts.length - 1, total = 0, lens = [];
+    for (var i = 0; i < n; i++) { var d = Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]); lens.push(d); total += d; }
+    var acc = 0;
+    g.lineWidth = width; g.lineCap = 'round';
+    for (var j = 0; j < n; j++) {
+      var t = t0 + (t1 - t0) * ((acc + lens[j] * 0.5) / total);
+      acc += lens[j];
+      g.strokeStyle = 'rgb(' + Math.round(t * 255) + ',255,0)';
+      g.beginPath(); g.moveTo(pts[j][0], pts[j][1]); g.lineTo(pts[j + 1][0], pts[j + 1][1]); g.stroke();
+    }
+  }
+  function sampleBezier(p0, p1, p2, p3, steps) {
+    var out = [];
+    for (var i = 0; i <= steps; i++) {
+      var t = i / steps, u = 1 - t;
+      out.push([u*u*u*p0[0] + 3*u*u*t*p1[0] + 3*u*t*t*p2[0] + t*t*t*p3[0],
+                u*u*u*p0[1] + 3*u*u*t*p1[1] + 3*u*t*t*p2[1] + t*t*t*p3[1]]);
+    }
+    return out;
+  }
+  function spiral(cx, cy, steps) {
+    var out = [];
+    for (var i = 0; i <= steps; i++) {
+      var a = i / steps * Math.PI * 2 * 2.6, r = 8 + i / steps * 62;
+      out.push([cx + Math.cos(a + Math.PI) * r, cy + Math.sin(a + Math.PI) * r]);
+    }
+    return out;
+  }
+  function scrapeA() {
+    var m = makeCanvas(), g = m.g;
+    strokePath(g, spiral(250, 500, 160), 0.0, 0.45, 9);           // finger spiral in the heap
+    strokePath(g, sampleBezier([320, 476], [430, 430], [520, 520], [620, 470], 80), 0.5, 1.0, 9); // the cut
+    return m.c;
+  }
+  function scrapeB() {
+    var m = makeCanvas(), g = m.g;
+    var edges = [
+      [[620,470],[760,370]], [[760,370],[920,450]], [[920,450],[1080,330]],
+      [[620,470],[780,590]], [[780,590],[920,450]], [[920,450],[1100,560]],
+      [[760,370],[920,300]], [[920,300],[1080,330]], [[1080,330],[1100,560]],
+      [[780,590],[1000,650]]
+    ];
+    edges.forEach(function (e, i) {
+      var t0 = 0.05 + i * 0.06;
+      strokePath(g, [e[0], [(e[0][0]+e[1][0])/2, (e[0][1]+e[1][1])/2], e[1]], t0, t0 + 0.3, 8);
+    });
+    var nodes = [[620,470,20,0.0],[760,370,15,0.2],[920,450,24,0.35],[1080,330,15,0.5],
+                 [920,300,11,0.55],[780,590,15,0.6],[1100,560,17,0.75],[1000,650,11,0.85]];
+    nodes.forEach(function (n) {
+      g.fillStyle = 'rgb(' + Math.round(n[3] * 255) + ',255,0)';
+      g.beginPath(); g.arc(n[0], n[1], n[2], 0, Math.PI * 2); g.fill();
+    });
+    return m.c;
+  }
+
+  // ---------- GLSL shaders (Three.js ShaderMaterial) ----------
+  var SAND_VERT_GLSL = [
+    "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }"
+  ].join('\n');
+  var SAND_FRAG_GLSL = [
+    "precision highp float;",
+    "varying vec2 vUv;",
+    "uniform sampler2D uMaskA, uMaskB, uScrA, uScrB;",
+    "uniform float uMorph, uScrapeA, uScrapeB, uPour;",
+    "float hash(vec2 p){ p = fract(p * vec2(443.897, 441.423)); p += dot(p, p.yx + 19.19); return fract((p.x + p.y) * p.x); }",
+    "uniform vec2 uRes; uniform vec3 uSand, uLight, uGlow, uEdge;",
+    "float vnoise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f); return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), f.x), mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), f.x), f.y); }",
+    "float soft(sampler2D t, vec2 uv){ return 0.5*texture2D(t, uv, 0.0).r + 0.3*texture2D(t, uv, 1.5).r + 0.2*texture2D(t, uv, 3.0).r; }",
+    "float scrape(sampler2D t, vec2 uv, float prog, out float ridge){",
+    "  vec4 s = texture2D(t, uv, 0.0);",
+    "  float on = s.g * smoothstep(s.r - 0.015, s.r + 0.015, prog * 1.03);",
+    "  vec4 b = texture2D(t, uv, 2.5);",
+    "  float tb = b.g > 0.001 ? b.r / b.g : 1.0;",
+    "  float onb = b.g * smoothstep(tb - 0.03, tb + 0.03, prog * 1.03);",
+    "  ridge = max(onb - on, 0.0);",
+    "  return on;",
+    "}",
+    "void main(){",
+    "  vec2 uv = vUv;",
+    "  vec2 px = vec2(uv.x * uRes.x, (1.0 - uv.y) * uRes.y);",
+    "  float dA = soft(uMaskA, uv), dB = soft(uMaskB, uv);",
+    "  float d = mix(dA, dB, uMorph);",
+    "  float r = length(px - vec2(250.0, 500.0));",
+    "  float thin = 1.0 - smoothstep(uPour - 55.0, uPour, r);",
+    "  d *= mix(1.0, 0.32, thin * step(1.0, uPour));",
+    "  float rA, rB;",
+    "  float sA = scrape(uScrA, uv, uScrapeA, rA);",
+    "  float sB = scrape(uScrB, uv, uScrapeB, rB);",
+    "  float cut = clamp(sA + sB, 0.0, 1.0);",
+    "  float ridge = clamp(rA + rB, 0.0, 1.0);",
+    "  d = d * (1.0 - 0.97 * cut) + ridge * 0.35 * d;",
+    "  vec2 cell = floor(gl_FragCoord.xy);",
+    "  float g1 = hash(cell);",
+    "  float g2 = hash(floor(gl_FragCoord.xy / 3.0) + 17.0);",
+    "  float grain = (0.62 + 0.76 * g1) * (0.82 + 0.36 * g2);",
+    "  float dens = d * grain;",
+    "  float edgeSpeck = smoothstep(g1 * 0.09, g1 * 0.09 + 0.06, d);",
+    "  dens *= edgeSpeck;",
+    "  float T = exp(-3.4 * dens);",
+    "  T = d < 0.004 ? 1.0 : T;",
+    "  vec2 q = (px - vec2(640.0, 380.0)) / vec2(760.0, 520.0);",
+    "  float glow = exp(-2.2 * dot(q, q));",
+    "  float vig = smoothstep(0.55, 1.35, length(q));",
+    "  float mottle = vnoise(px / 140.0) * 0.6 + vnoise(px / 55.0 + 9.0) * 0.4;",
+    "  vec3 field = mix(uLight, uGlow, glow * 0.85);",
+    "  field = mix(field, uEdge, vig * 0.8);",
+    "  field = mix(field, mix(uLight, uEdge, 0.35), (mottle - 0.5) * 0.35);",
+    "  vec3 col = mix(uSand, field, T);",
+    "  gl_FragColor = vec4(col, 1.0);",
+    "}"
+  ].join('\n');
+
+  // ---------- Three.js orthographic quad ----------
+  var THREE = window.THREE;
+  var canvas = document.getElementById('table');
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false, preserveDrawingBuffer: true, alpha: false });
+  renderer.setPixelRatio(1);
+  renderer.setSize(W, H, false);
+  renderer.setClearColor(new THREE.Color(LIGHT), 1);
+
+  function tex(c, mips) {
+    var t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.NoColorSpace;
+    t.generateMipmaps = !!mips;
+    t.minFilter = mips ? THREE.LinearMipmapLinearFilter : THREE.LinearFilter;
+    t.magFilter = THREE.LinearFilter;
+    t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+    t.needsUpdate = true;
+    return t;
+  }
+
+  function hexVec(h) { var c = chroma(h).gl(); return new THREE.Vector3(c[0], c[1], c[2]); }
+
+  var uniforms = {
+    uMaskA: { value: tex(maskA(), true) },
+    uMaskB: { value: tex(maskB(), true) },
+    uScrA: { value: tex(scrapeA(), true) },
+    uScrB: { value: tex(scrapeB(), true) },
+    uMorph: { value: 0 },
+    uScrapeA: { value: 0 },
+    uScrapeB: { value: 0 },
+    uPour: { value: 0 },
+    uRes: { value: new THREE.Vector2(W, H) },
+    uSand: { value: hexVec(SAND) },
+    uLight: { value: hexVec(LIGHT) },
+    uGlow: { value: hexVec(GLOW) },
+    uEdge: { value: hexVec(EDGE) }
+  };
+
+  var material = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    depthTest: false, depthWrite: false,
+    vertexShader: SAND_VERT_GLSL,
+    fragmentShader: SAND_FRAG_GLSL
+  });
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  var quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+  scene.add(quad);
+
+  // ---------- state owned by GSAP ----------
+  var state = { morph: 0, scrapeA: 0, scrapeB: 0, pour: 0 };
+  function render() {
+    uniforms.uMorph.value = state.morph;
+    uniforms.uScrapeA.value = state.scrapeA;
+    uniforms.uScrapeB.value = state.scrapeB;
+    uniforms.uPour.value = state.pour;
+    renderer.render(scene, camera);
+  }
+
+  var tl = gsap.timeline({ paused: true, onUpdate: render });
+  // 0.0-0.8  the idea heap thins under the pour radius; finger spiral is scraped
+  tl.fromTo(state, { pour: 0 }, { pour: 165, duration: 0.8, ease: 'power2.inOut', immediateRender: true }, 0.0);
+  // 0.2-1.4  spiral then the cut line drawn outward from the idea
+  tl.fromTo(state, { scrapeA: 0 }, { scrapeA: 1, duration: 1.2, ease: 'sine.inOut', immediateRender: false }, 0.2);
+  // 1.3-2.2  sand re-forms: mask A -> mask B
+  tl.fromTo(state, { morph: 0 }, { morph: 1, duration: 0.9, ease: 'power2.inOut', immediateRender: false }, 1.3);
+  // 1.7-2.6  network edges and nodes scraped open
+  tl.fromTo(state, { scrapeB: 0 }, { scrapeB: 1, duration: 0.9, ease: 'sine.inOut', immediateRender: false }, 1.7);
+  // standalone headline settles in independently
+  tl.fromTo('#copy', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'sine.inOut', immediateRender: true }, 0.0);
+  tl.to({}, { duration: 0.001 }, 2.999); // hold to 3.0s
+  tl.seek(0, false);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+
+  function renderAt(t) {
+    if (typeof t === 'number' && isFinite(t)) tl.seek(Math.max(0, Math.min(3, t)), false);
+    render();
+  }
+  window.addEventListener('hf-seek', function (e) {
+    var t = e && e.detail && (e.detail.time != null ? e.detail.time : e.detail.currentTime);
+    renderAt(typeof t === 'number' ? t : tl.time());
+  });
+  document.addEventListener('hf-seek', function (e) {
+    var t = e && e.detail && (e.detail.time != null ? e.detail.time : e.detail.currentTime);
+    renderAt(typeof t === 'number' ? t : tl.time());
+  });
+  render();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-120",
+    "name": "Raymarched Fractal Landscapes (Digital and 3D Aesthetics, extracted in the 2026-10-12 sync). Its provenance is extracted, and its note says reference posters do not verify every scene in a video.",
+    "visualIdentity": "Reflective fractal solids emerge from dark fog, evolve into a landscape and return to sculptural lettering. Depth, spatial scale and coherent reflections define it. Flat SVG or imagery would fake that depth.",
+    "suitableUses": "Explicitly suited to fog-lit emergence, depth-led reveals and sculptural titling. Inferred suitability includes cinematic openers and abstract, nature-scale sci-fi scenes. Target audience and objective are unspecified in the source, and flat or print-only layouts do not fit this style.",
+    "limitations": "Reflections are single-bounce approximations, not path-traced, and the reduced internal render scale softens fine detail. Sculptural lettering is planned but absent from the 3-second preview, which must be reported. Blender/Cycles is unavailable, and Three.js mesh fractals would need huge geometry.",
+    "palette": "Authored suggestions are background #080A0C and foreground #F2EEE5, giving a 17.125 opaque contrast ratio for normal text. The background is scene-dependent: the source specifies dark fog and later sunset, and the poster confirms only near-black surroundings. No exact approved colours were supplied, and gradients are disabled. chroma.js can validate colours and check contrast, but composited frames must be verified because textures, transparency and sunset colours are not covered.",
+    "motionAndInteraction": "GSAP tweens fog density, fractal power, camera path and terrain blend on one paused timeline. Each frame renders from uniforms without accumulation, so out-of-order seeks match. Interaction is unspecified. The optional Punctuation Zoom reference (motion-038) fits only when the scene contains a real punctuation mark.",
+    "audio": "The source gives no fixed audio. Background music, voiceover, sound effects, ambience or silence are suggestions to be chosen from the topic, pacing and explicit user requirements, which take priority. No audio assets are supplied, and none should be invented. Music timing must come from measured audio, not assumed beats.",
+    "assetRequirements": "No uploads are supplied; the single reviewed poster is a reference only, not full-video verification. Planned lettering needs a precomputed glyph distance texture and local fonts, loaded before rendering. The motion-038 reference needs an actual punctuation mark from the scene. Other fonts, colours and fallback assets are unspecified.",
+    "combinations": "The only authored combination is style-099 for a continuous camera path, in a secondary role with Raymarched Fractal Landscapes dominant. Do not import its palette or replace the verified background. Use it only when the brief benefits from continuous camera motion, and make that motion optional in reduced-motion HTML.",
+    "productionApproach": "Three.js and GLSL form the style renderer: a fullscreen-quad raymarch with bounded iterations and steps, rendered offscreen at about 0.5–0.66 scale. GSAP is the motion engine with one owner per property. HyperFrames is the default pipeline for composition, validation and export. Remotion is a fallback only when its documented condition is met and the reason is recorded."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

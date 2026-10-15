@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-118",
+    "name": "Thermal Silhouette Imaging (style-118), Drawing and Illustration category, extracted from the 2026-10-12 repository sync.",
+    "visualIdentity": "Sharp head-profile silhouettes filled with an illustrative heat ramp from black through red and orange to cream. Authored hotspots glow, and nose and ears cool. No temperature scale, degrees or legend appears.",
+    "suitableUses": "Explicit: illustrative thermal depictions of heated subjects, especially head profiles with hotspots. Inferred: expressive warmth scenes in concept or explainer work. Audience and duration are unspecified.",
+    "limitations": "Heat is illustrative and must not be presented as measured temperature. Two-color contrast checks do not cover ramps, textures or transparency, so verify rendered frames. The poster verifies only one reference scene, not full-video scenes.",
+    "palette": "Background is scene_dependent: #080808 is an illustrative black for heated head scenes, not a mandatory canvas. Foreground #FFF1D5 on it gives 17.924:1 for opaque captions. The black-red-orange-cream ramp is the only permitted gradient. Paper and red scenes are separate clips; the yellow poster is an opening card, not the thermal background. Hex values are fallbacks, not approved exact colors.",
+    "motionAndInteraction": "Explicit: warm-up from black through red to cream hotspots (3 s preview), with slow seeded shimmer, all evaluated from shared composition time for exact seeks. Keep sharp cuts and reading holds. No interaction is specified; a reduced-motion option applies only when paired.",
+    "audio": "Unspecified in the source. Suggestion-only: music, voiceover, effects, ambience or silence may suit the brief, and silence is valid. Genre, tempo and voice are not fixed. Honor explicit user audio. No audio assets are supplied.",
+    "assetRequirements": "No uploads are mandatory. Needed: an authored head-profile silhouette mask, hotspot positions, radii and intensities, and local fonts if captions are used. The source poster is an optional single-scene reference. No motion references are supplied.",
+    "combinations": "Optional style-093 for readable caption timing only. Keep style-118 dominant; do not import its palette or replace background and foreground roles. Avoid competing full-scene treatments, accent or subject backgrounds, and unrelated decorative motion.",
+    "productionApproach": "Style renderer: Three.js ShaderMaterial (GLSL) on a fullscreen quad computes heat; Canvas 2D makes the silhouette mask; chroma.js builds the LAB ramp. Motion engine: GSAP tweens shader uniforms on a paused timeline. Pipeline: HyperFrames by default; Remotion only as a recorded fallback."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

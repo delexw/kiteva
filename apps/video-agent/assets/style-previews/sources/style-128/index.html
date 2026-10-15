@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Volumetric Fire &amp; Smoke — An idea becomes a connected system</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #101218; overflow: hidden; }
+  #root { position: relative; width: 100%; height: 100%; background: #101218; overflow: hidden; }
+  #gl { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  .txt { position: absolute; margin: 0; white-space: nowrap; font-family: Georgia, "Times New Roman", serif; }
+  #headline { left: 6.25%; top: 82.2%; font-size: 44px; font-style: italic; line-height: 1; color: #F6EFE3; }
+  #subhead { left: 6.25%; top: 90.6%; font-size: 26px; letter-spacing: 6px; line-height: 1; color: #FFAD42; }
+  #tag { right: 6.25%; top: 92.6%; font-size: 15px; letter-spacing: 4px; line-height: 1; color: #F6EFE3; }
+  #caption { left: 6.25%; top: 5.2%; font-size: 15px; letter-spacing: 1px; line-height: 1.3; color: #F6EFE3; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="gl" width="640" height="360"></canvas>
+  <p class="txt" id="caption">Illustrative procedural volume — not a combustion solver</p>
+  <p class="txt" id="headline">An idea becomes</p>
+  <p class="txt" id="subhead">A CONNECTED SYSTEM</p>
+  <p class="txt" id="tag">IGNITE · RISE · LINK</p>
+</div>
+<script src="gsap.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var canvas = document.getElementById("gl");
+  var gl = canvas.getContext("webgl2", { preserveDrawingBuffer: true, antialias: false, alpha: false, premultipliedAlpha: false });
+
+  // Shared, deterministic scene state; GSAP is the only owner of each property.
+  var S = {
+    uTime: 0, uIgnite: 0, uCool: 0, uCompress: 0, uShock: 0, uShockFade: 0, uDebris: 0,
+    uLinkA: 0, uLinkB: 0, uLinkC: 0, uArc: 0
+  };
+
+  var VS = "#version 300 es\n" +
+    "void main(){ vec2 p = vec2(float((gl_VertexID<<1)&2), float(gl_VertexID&2)); gl_Position = vec4(p*2.0-1.0, 0.0, 1.0); }";
+
+  var FS = `#version 300 es
+precision highp float;
+out vec4 outColor;
+uniform vec2 uRes;
+uniform float uTime, uIgnite, uCool, uCompress, uShock, uShockFade, uDebris;
+uniform float uLinkA, uLinkB, uLinkC, uArc;
+
+const vec3 BG     = vec3(16.,18.,24.)/255.;
+const vec3 CORE   = vec3(255.,240.,188.)/255.;
+const vec3 AMBER  = vec3(255.,173.,66.)/255.;
+const vec3 ORANGE = vec3(240.,90.,40.)/255.;
+const vec3 SMOKE  = vec3(116.,123.,134.)/255.;
+const vec3 COAL   = vec3(75.,64.,58.)/255.;
+
+const vec3 FORK = vec3(0.0, 1.36, 0.0);
+const vec3 NA = vec3(-1.04, 2.00, 0.0);
+const vec3 NB = vec3( 1.08, 2.08, 0.0);
+const vec3 NC = vec3( 0.03, 2.36, 0.0);
+const vec3 LIGHTP = vec3(0.0, 0.55, 0.0);
+
+float hash3(vec3 p){ p = fract(p*0.3183099 + vec3(0.11,0.17,0.13)); p *= 17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+float vnoise(vec3 x){
+  vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0-2.0*f);
+  return mix(mix(mix(hash3(i+vec3(0,0,0)),hash3(i+vec3(1,0,0)),f.x), mix(hash3(i+vec3(0,1,0)),hash3(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(hash3(i+vec3(0,0,1)),hash3(i+vec3(1,0,1)),f.x), mix(hash3(i+vec3(0,1,1)),hash3(i+vec3(1,1,1)),f.x),f.y), f.z);
+}
+float fbm(vec3 p, int oct){
+  float a = 0.5, s = 0.0, n = 0.0;
+  for (int i = 0; i < 4; i++){ if (i >= oct) break; s += a*vnoise(p); n += a; p = p*2.03 + vec3(1.7,9.2,3.1); a *= 0.5; }
+  return s/n;
+}
+float segDist(vec3 p, vec3 a, vec3 b, out float h){
+  vec3 pa = p-a, ba = b-a; h = clamp(dot(pa,ba)/dot(ba,ba), 0.0, 1.0); return length(pa - ba*h);
+}
+float flameHeight(){ return mix(0.12, 1.75, uIgnite) * (1.0 - 0.6*uCool); }
+float flicker(){ return 0.88 + 0.07*sin(uTime*11.0) + 0.05*sin(uTime*23.0+1.3); }
+
+// Approximate temperature ramp (not measured thermal data)
+vec3 ramp(float t){
+  if (t > 0.72) return mix(AMBER, CORE, smoothstep(0.72, 0.95, t));
+  if (t > 0.42) return mix(ORANGE, AMBER, smoothstep(0.42, 0.72, t));
+  return mix(SMOKE*0.35, ORANGE, smoothstep(0.12, 0.42, t));
+}
+
+// Smoke branches: the "connected system". Returns base (noise-free) density.
+float branchField(vec3 p, out float along){
+  float h; float d; float best = 0.0; along = 0.0;
+  float H = flameHeight();
+  // trunk from flame tip to fork
+  d = segDist(p, vec3(0.0, max(H*0.65, 0.3), 0.0), FORK, h);
+  float trunk = smoothstep(0.26, 0.04, d) * smoothstep(0.0, 0.25, uIgnite);
+  best = trunk; along = h*0.3;
+  vec3 eA = mix(FORK, NA, uLinkA), eB = mix(FORK, NB, uLinkB), eC = mix(FORK, NC, uLinkC);
+  if (uLinkA > 0.001){ d = segDist(p, FORK, eA, h); float r = 0.13 + 0.07*h; float v = smoothstep(r, r*0.2, d); if (v > best){ best = v; along = 0.3+h; } }
+  if (uLinkB > 0.001){ d = segDist(p, FORK, eB, h); float r = 0.13 + 0.07*h; float v = smoothstep(r, r*0.2, d); if (v > best){ best = v; along = 0.3+h; } }
+  if (uLinkC > 0.001){ d = segDist(p, FORK, eC, h); float r = 0.10 + 0.05*h; float v = smoothstep(r, r*0.2, d); if (v > best){ best = v; along = 0.3+h; } }
+  if (uArc > 0.001){
+    vec3 a1 = mix(NA, NC, clamp(uArc*2.0,0.0,1.0));
+    d = segDist(p, NA, a1, h); float v = smoothstep(0.075, 0.01, d) * 0.8; best = max(best, v);
+    vec3 b1 = mix(NB, NC, clamp(uArc*2.0-1.0,0.0,1.0));
+    if (uArc > 0.5){ d = segDist(p, NB, b1, h); v = smoothstep(0.075, 0.01, d) * 0.8; best = max(best, v); }
+  }
+  return best;
+}
+
+// Shockwave dust torus (displaced material) at deterministic radius uShock
+float shockField(vec3 p){
+  if (uShockFade <= 0.001) return 0.0;
+  float rr = length(p.xz) - uShock;
+  float tube = 0.07 + 0.09*uShock;
+  float d = length(vec2(rr, (p.y - 0.06 - 0.12*uShock)*1.3));
+  return smoothstep(tube, tube*0.25, d) * uShockFade;
+}
+
+// Full field: x = flame density, y = temperature, z = smoke density
+vec3 field(vec3 p){
+  float H = flameHeight();
+  vec3 q = p;
+  float sway = 0.07*sin(1.7*uTime + p.y*2.0) + 0.04*sin(3.1*uTime + p.y*4.3);
+  q.x -= sway * p.y;
+  q.z -= 0.04*sin(2.3*uTime + p.y*3.1) * p.y;
+  float y = q.y / max(H, 0.05);
+  // analytic upward advection (buoyancy) + closed-form curl-like offset
+  vec3 np = vec3(q.x*2.4 + 0.35*sin(uTime*0.9), q.y*1.7 - uTime*2.6, q.z*2.4 + 0.35*cos(uTime*0.8));
+  float n = fbm(np, 4);
+  float r = length(q.xz);
+  float prof = 0.40 * pow(clamp(1.0 - y, 0.0, 1.0), 0.6) * smoothstep(-0.02, 0.10, y);
+  float edge = prof - r + (n - 0.5) * 0.42 * (0.35 + y);
+  float fl = smoothstep(0.0, 0.10, edge) * step(0.0, q.y) * smoothstep(1.35, 0.9, y) * smoothstep(0.0, 0.15, uIgnite);
+  // compression core before ignition
+  float cr = 0.22 * (1.0 - 0.55*uCompress);
+  float comp = smoothstep(cr, cr*0.25, length(p - vec3(0.0, 0.13, 0.0))) * uCompress;
+  float temp = clamp((1.12 - y*0.95) * (0.75 + 0.5*(n-0.5)) * (1.0 - 0.72*uCool), 0.0, 1.0) * fl;
+  temp = max(temp, comp);
+  fl = max(fl, comp);
+
+  // smoke: branches + cooled soot from flame + shock dust
+  float along;
+  float b = branchField(p, along);
+  float sn = 0.0;
+  float sh = shockField(p);
+  if (b > 0.001 || sh > 0.001){
+    sn = fbm(vec3(p.x*2.6, p.y*2.2 - uTime*0.9, p.z*2.6) + vec3(0.25*sin(uTime*0.6), 0.0, 0.25*cos(uTime*0.5)), 3);
+  }
+  float smoke = clamp(b * smoothstep(0.25, 0.6, sn + 0.25*b), 0.0, 1.0) * (0.55 + 0.35*uCool);
+  smoke += sh * smoothstep(0.3, 0.6, sn) * 0.9;
+  smoke += fl * uCool * 0.55 * smoothstep(0.2, 0.9, y);
+  return vec3(fl, temp, smoke);
+}
+
+// cheap smoke density for light marching (no noise)
+float smokeCheap(vec3 p){ float a; return branchField(p, a) * 0.5 + shockField(p)*0.5; }
+
+vec2 boxHit(vec3 ro, vec3 rd, vec3 bmin, vec3 bmax){
+  vec3 inv = 1.0/rd; vec3 t0 = (bmin-ro)*inv, t1 = (bmax-ro)*inv;
+  vec3 tmin = min(t0,t1), tmax = max(t0,t1);
+  return vec2(max(max(tmin.x,tmin.y),tmin.z), min(min(tmax.x,tmax.y),tmax.z));
+}
+float rayPointDist(vec3 ro, vec3 rd, vec3 p, out float tp){ tp = max(dot(p-ro, rd), 0.0); return length(ro + rd*tp - p); }
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uRes) / uRes.y;
+  vec3 ro = vec3(0.0, 1.1, -5.0);
+  vec3 rd = normalize(vec3(uv.x, uv.y, 1.6));
+
+  float fI = uIgnite * (1.0 - 0.65*uCool) * flicker();
+  // ground / hearth (stationary geometry, dynamic light)
+  vec3 back = BG; float tg = 1e5;
+  if (rd.y < 0.0){
+    tg = -ro.y / rd.y;
+    vec3 gp = ro + rd*tg;
+    float rr = length(gp.xz);
+    float hearth = smoothstep(0.78, 0.74, rr);
+    float grain = 0.82 + 0.18*vnoise(vec3(gp.xz*9.0, 0.5));
+    vec3 base = mix(BG, COAL*grain, hearth);
+    float spill = fI * exp(-rr*rr*2.4) * 0.55;
+    float ring = uShockFade * exp(-((rr - uShock)*(rr - uShock))/0.01) * 0.55;
+    float compL = uCompress * exp(-rr*rr*14.0) * 0.8;
+    // embers on the coal bed glow while the fire burns
+    float emb = hearth * smoothstep(0.62, 0.8, vnoise(vec3(gp.xz*14.0, 2.0))) * (0.25 + 0.75*fI);
+    back = base + AMBER*spill*(0.45 + 0.55*hearth) + ORANGE*(ring + emb*0.6) + CORE*compL;
+  }
+
+  // volume march (<=48 primary steps, <=5 light steps)
+  vec3 L = vec3(0.0); float T = 1.0;
+  vec2 bh = boxHit(ro, rd, vec3(-1.75, 0.0, -1.0), vec3(1.75, 2.85, 1.0));
+  float t0 = max(bh.x, 0.0), t1 = min(bh.y, tg);
+  if (t1 > t0){
+    const int STEPS = 48;
+    float dt = (t1 - t0) / float(STEPS);
+    float jit = hash3(vec3(gl_FragCoord.xy, 7.0));
+    float t = t0 + dt*jit;
+    for (int i = 0; i < STEPS; i++){
+      vec3 p = ro + rd*t;
+      vec3 f = field(p);
+      float sigF = f.x * 1.6, sigS = f.z * 2.8;
+      float sig = sigF + sigS;
+      if (sig > 0.002){
+        vec3 emit = ramp(f.y) * f.y * f.x * 5.0;
+        vec3 scat = vec3(0.0);
+        if (f.z > 0.01){
+          vec3 toL = LIGHTP - p; float dl = length(toL); vec3 ld = toL/dl;
+          float od = 0.0; float ls = dl/5.0;
+          for (int j = 0; j < 5; j++){ od += smokeCheap(p + ld*ls*(float(j)+0.5)) * ls * 2.8; }
+          vec3 inc = AMBER * fI * 2.2 / (1.0 + 2.5*dl*dl) * exp(-od);
+          scat = SMOKE * (0.22 + inc) * sigS;
+        }
+        float a = exp(-sig*dt);
+        L += T * (emit + scat) * dt;
+        T *= a;
+        if (T < 0.01) break;
+      }
+      t += dt;
+    }
+  }
+
+  // node embers (emissive volumes at branch tips)
+  vec3 add = vec3(0.0); float tp;
+  float onA = smoothstep(0.85, 1.0, uLinkA), onB = smoothstep(0.85, 1.0, uLinkB), onC = smoothstep(0.85, 1.0, uLinkC);
+  float dA = rayPointDist(ro, rd, NA, tp), dB = rayPointDist(ro, rd, NB, tp), dC = rayPointDist(ro, rd, NC, tp);
+  float nodeGlow = 0.9 + 0.1*flicker();
+  add += onA * nodeGlow * (CORE*smoothstep(0.075, 0.03, dA) + AMBER*0.7*exp(-dA*dA/0.018) + ORANGE*0.25*exp(-dA*dA/0.06));
+  add += onB * nodeGlow * (CORE*smoothstep(0.075, 0.03, dB) + AMBER*0.7*exp(-dB*dB/0.018) + ORANGE*0.25*exp(-dB*dB/0.06));
+  add += onC * nodeGlow * (CORE*smoothstep(0.075, 0.03, dC) + AMBER*0.7*exp(-dC*dC/0.018) + ORANGE*0.25*exp(-dC*dC/0.06));
+
+  // deterministic ballistic debris from the burst (closed-form trajectories)
+  if (uDebris > 0.0){
+    for (int k = 0; k < 10; k++){
+      float fk = float(k);
+      float ang = fk*2.39996 + 0.4;
+      float vh = 0.9 + 0.6*fract(fk*0.618);
+      float vy = 1.6 + 1.4*fract(fk*0.371 + 0.2);
+      float tl = 2.0*vy/9.8;
+      float th = min(uDebris, tl);
+      vec3 dp = vec3(cos(ang)*vh*th, 0.15 + vy*th - 4.9*th*th, sin(ang)*vh*th*0.8);
+      dp.y = max(dp.y, 0.03);
+      float heat = exp(-uDebris*2.2);
+      float dd = rayPointDist(ro, rd, dp, tp);
+      if (tp < tg + 0.05){
+        vec3 c = mix(COAL*1.6, mix(ORANGE, CORE, heat), clamp(heat*1.5 + 0.35, 0.0, 1.0));
+        add += c * smoothstep(0.035, 0.012, dd) * (0.6 + 0.4*heat);
+      }
+    }
+  }
+
+  // exposure-clamped composite; untouched stage remains exactly #101218
+  vec3 Lt = 1.0 - exp(-(L + add) * 1.25);
+  vec3 col = back * T + Lt;
+  outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}`;
+
+  function compile(type, src) {
+    var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { throw new Error("Shader compile failed: " + gl.getShaderInfoLog(s)); }
+    return s;
+  }
+  var prog = null, U = {};
+  if (gl) {
+    prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { throw new Error("Program link failed: " + gl.getProgramInfoLog(prog)); }
+    gl.useProgram(prog);
+    gl.bindVertexArray(gl.createVertexArray());
+    ["uRes"].concat(Object.keys(S)).forEach(function (k) { U[k] = gl.getUniformLocation(prog, k); });
+  } else {
+    console.error("WebGL2 unavailable: volumetric renderer cannot run.");
+  }
+
+  function render() {
+    if (!gl || !prog) return;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.useProgram(prog);
+    gl.uniform2f(U.uRes, canvas.width, canvas.height);
+    for (var k in S) { if (U[k]) gl.uniform1f(U[k], S[k]); }
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  var tl = gsap.timeline({ paused: true, onUpdate: render });
+  // advection clock: linear, then settles during cooling (holds from 2.7s)
+  tl.fromTo(S, { uTime: 0 }, { uTime: 2.2, duration: 2.0, ease: "none", immediateRender: false }, 0);
+  tl.to(S, { uTime: 2.55, duration: 0.7, ease: "sine.out" }, 2.0);
+  // blast_aftermath staging: compression -> burst/shock -> debris -> flame -> cooling
+  tl.fromTo(S, { uCompress: 0 }, { uCompress: 1, duration: 0.25, ease: "power2.in", immediateRender: false }, 0);
+  tl.to(S, { uCompress: 0, duration: 0.25, ease: "power2.out" }, 0.25);
+  tl.fromTo(S, { uShockFade: 0 }, { uShockFade: 1, duration: 0.06, ease: "none", immediateRender: false }, 0.22);
+  tl.fromTo(S, { uShock: 0 }, { uShock: 2.3, duration: 0.95, ease: "power2.out", immediateRender: false }, 0.25);
+  tl.to(S, { uShockFade: 0, duration: 0.9, ease: "sine.inOut" }, 0.75);
+  tl.fromTo(S, { uDebris: 0 }, { uDebris: 1.1, duration: 1.1, ease: "none", immediateRender: false }, 0.25);
+  tl.fromTo(S, { uIgnite: 0 }, { uIgnite: 1, duration: 0.6, ease: "power2.out", immediateRender: false }, 0.3);
+  // smoke links grow into a connected system
+  tl.fromTo(S, { uLinkC: 0 }, { uLinkC: 1, duration: 0.6, ease: "sine.inOut", immediateRender: false }, 0.9);
+  tl.fromTo(S, { uLinkA: 0 }, { uLinkA: 1, duration: 0.6, ease: "sine.inOut", immediateRender: false }, 1.1);
+  tl.fromTo(S, { uLinkB: 0 }, { uLinkB: 1, duration: 0.6, ease: "sine.inOut", immediateRender: false }, 1.3);
+  tl.fromTo(S, { uArc: 0 }, { uArc: 1, duration: 0.6, ease: "sine.inOut", immediateRender: false }, 1.7);
+  // cooling into translucent smoke
+  tl.fromTo(S, { uCool: 0 }, { uCool: 1, duration: 0.7, ease: "sine.inOut", immediateRender: false }, 2.0);
+  // copy (standalone headings, independent timing)
+  tl.fromTo("#caption", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "sine.inOut" }, 0.15);
+  tl.fromTo("#headline", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.7);
+  tl.fromTo("#subhead", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 1.0);
+  tl.fromTo("#tag", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "sine.inOut" }, 1.4);
+  tl.set({}, {}, 3);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+
+  window.addEventListener("hf-seek", function (e) {
+    var t = e && e.detail && typeof e.detail.time === "number" ? e.detail.time : null;
+    if (t !== null) { tl.seek(t, false); }
+    render();
+  });
+  tl.seek(0, false);
+  render();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

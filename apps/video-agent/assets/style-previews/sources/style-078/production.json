@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Clay System",
+  "displayDescription": "A clay idea bulb lands on a dark slate studio sweep. Clay tubes extrude from it and connect to falling orbs, forming a settled network.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js WebGLRenderer (procedural rounded meshes, matte MeshStandardMaterial with seeded bump grain, PCF soft shadows, blob contact shadows, NeutralToneMapping)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline (single scene-time owner + copy reveals)",
+    "Analytic keyed squash/stretch functions of time",
+    "Extended Position-Based Dynamics (XPBD) rope bake, fixed 24 substeps per frame, cached at load"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track, music, effects or voice.",
+  "limitations": [
+    "Reviewed renderer Blender/bpy/Cycles could not run: Blender 5.2.2 segfaults at startup inside this sandbox while detecting the Metal GPU backend (before any Python executes). The scene was instead built with Three.js (STYLE.json-listed alternative) in WebGL; this is rasterized lighting with shadow maps, not path tracing, so there is no true global illumination, subsurface scattering or ray-traced ambient occlusion — contact shadows are approximated with blob textures.",
+    "Clay-like digital treatment only; no physical clay or stop motion was filmed. Surface grain is seeded procedural value noise used as a bump map.",
+    "Squash/stretch is an analytic damped-cosine scale on rigid meshes (volume-preserving approximation), not soft-body deformation.",
+    "Tube sag uses a simplified XPBD chain (distance + soft bending constraints, gravity, floor contact with approximate friction); it is illustrative, not validated physics.",
+    "Optional preview recipe list was empty; the refresh demonstrates the reviewed source-frame lesson: a scene-dependent dark stage with radial falloff, a value-contrasted matte hero, a single complementary accent family, and flat 2D type layered over the 3D scene.",
+    "Three.js internals contain Math.random for object UUIDs only; no visual state depends on it."
+  ]
+}

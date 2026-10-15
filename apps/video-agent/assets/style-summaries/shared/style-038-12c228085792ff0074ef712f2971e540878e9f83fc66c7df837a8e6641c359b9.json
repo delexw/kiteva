@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-038",
+    "name": "Ink Wash Painting. It is a supplemental design reference, not a directly named source-collection style. Chinese ink wash and Japanese sumi-e are related but distinct traditions.",
+    "visualIdentity": "Pressure-sensitive brush marks, diluted ink washes, deliberate empty space and restrained tonal contrast define the look. Choose one tradition, Chinese ink wash or sumi-e, and keep its compositional logic. Reveal strokes and washes coherently rather than using generic splashes.",
+    "suitableUses": "Explicit fits are cultural pieces, poetic intros, festival greetings and slow meditative content. Inferred from the shan-shui reviews: restrained landscape or mood pieces. Unspecified: data-heavy, fast-paced or commercial topics, which the source does not assess.",
+    "limitations": "Avoid fast camera moves, generic splash effects, added accent hues and crowded empty space. Do not mix sumi-e with Chinese inscriptions. Palette checks are two-colour only. Source review covered only sampled seconds 1–8, with no continuous motion, sub-second timing or audio verified.",
+    "palette": "Background #F4EFDF and foreground #242724 are authored scene-dependent suggestions, not approved exact colours. The background policy is scene_dependent, so choose the substrate per subject, such as cool grey, celadon or dusk indigo for night. Tone comes from ink dilution, with no gradient. Contrast is 13.129; verify it on composited frames. Task-supplied colours override these tokens.",
+    "motionAndInteraction": "Use smooth, authored movement where the action benefits, while preserving sharp cuts, impacts, constant-speed sections and reading holds. A very slow drift of 2–3 wash planes with long holds suits depth. Motion-012 chaptered handoffs and motion-015 story steps are optional and not required. Scroll behaviour applies only to interactive delivery and must respect reduced motion.",
+    "audio": "The source does not specify audio. Its guidance lists music, voiceover, sung vocals, effects, ambience or silence as options, with no fixed genre, tempo, instrument or voice. Any choice must be justified for this topic. Speech must stay intelligible, avoid clipping and avoid competing vocals. No audio was verified or created.",
+    "assetRequirements": "The source requires no uploads. Use authentic ink assets or controlled brush and wash masks, keeping stroke direction, pigment layering and negative space consistent. Local fonts and assets must load before rendering. Inscriptions need verified wording and stroke paths. Sampled external frames serve only as visual evidence.",
+    "combinations": "Single use is recommended, relying on empty space. Optional style-041 inscription is suitable only for a matching Chinese tradition, using #242724 on #F4EFDF with no seal colour added. Optional style-101 wash-plane depth is suitable with slow drift, minimal movement and no added colour.",
+    "productionApproach": "HyperFrames is the primary pipeline for composition, timing and export. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation applies, and the reason must be recorded. Canvas 2D is the style renderer for brush and wash masks. GSAP is the single motion owner. Python, Pillow and chroma-js are supporting tools."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

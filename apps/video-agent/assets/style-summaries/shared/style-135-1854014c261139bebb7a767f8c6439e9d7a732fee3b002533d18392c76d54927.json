@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-135",
+    "name": "Cave Wall Painting (Illustration and Art Media category), extracted from sampled Fable gallery video frames on 2026-10-13. Provenance is extracted, not a supplied creator brief.",
+    "visualIdentity": "Red-ochre and charcoal animal outlines, hand marks, or simple figures follow an uneven rock field. Pores and ragged pigment edges belong to the surface. Modern cartoon outlines, neon glow, and decorative pseudo-inscriptions are excluded.",
+    "suitableUses": "No explicit use cases are listed; the only stated provenance is gallery video frames. Inferred: short mood or concept pieces, and interactive HTML where a textured painted wall serves as a stable backdrop. Captions need a separate readable zone.",
+    "limitations": "The depiction is a procedural rock and pigment approximation, not archaeological footage, so disclose this on screen or in credits. Lighting is approximate. Hex values are suggested defaults, not measured source colors. Medium labels are classifications, not claims about technique. Glow and bloom are forbidden.",
+    "palette": "Fallback tokens: background rock #AF845A, foreground text #2B211A, ochre #C49B6B, red pigment #984B32, charcoal #3B2B21, chalk #DDD0B4. Approved task or reference colors take precedence. Gradients are disabled, so use pigment layering and texture. Normal text needs 4.5:1 contrast, checked on the textured composite.",
+    "motionAndInteraction": "Pigment strokes reveal in short, meaningful sequence over 0 to 1.8 seconds. From 1.8 to 3.0 seconds, a slow warm light crosses the fixed rock texture. Motion is seekable: GSAP drives a uniforms proxy and each update renders synchronously. No interaction behavior is specified; no motion reference is supplied.",
+    "audio": "Audio is unspecified, and the medium implies no historical soundtrack. Music, voiceover, effects, ambience, or silence are task-specific choices. Honor supplied audio and use silent catalog previews. Without inputs, state assumptions rather than defaulting to instrumental music, and keep speech intelligible.",
+    "assetRequirements": "Bison and horse contours plus a few hand stencils are drawn once into a Canvas 2D texture. Height and stroke-order maps are precomputed offline with NumPy or Pillow. Optional inputs: authored pigment frames, transparent hand-drawn marks, or an approved rock photo, disclosed as composited. Specific supplied files are unspecified.",
+    "combinations": "Style-021 is only an optional example for a supporting detail. Keep Cave Wall Painting dominant and preserve approved colors. Avoid generic effects replacing mark-making and invented historical text. Video shares seekable timing; HTML needs accessible captions and reduced motion.",
+    "productionApproach": "Use a Three.js WebGLRenderer with an orthographic quad and ShaderMaterial. GLSL computes the rock relief and pigment wrap, Canvas 2D draws strokes, and GSAP owns the uniforms. HyperFrames is the default export pipeline; Remotion is fallback only for verified limits. The Blender bake is optional and unverified. Psychedelic, Swiss, and Mid-Century tool notes do not apply."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

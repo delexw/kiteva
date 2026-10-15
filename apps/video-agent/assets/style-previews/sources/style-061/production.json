@@ -1,0 +1,29 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js",
+    "PBR Materials",
+    "Postprocessing"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview with no audio track.",
+  "limitations": [
+    "Browser real-time approximation of photorealism. Nothing was photographed or path-traced.",
+    "Floor caustics are a first-order analytic estimate, 1/(1+k·∇²h), from the same height field that bends the water normals. They are not traced photon caustics, and the gain k is chosen for appearance.",
+    "The glass focus spot and dimmed footprint use an analytic ball-lens model. Metal-node light occlusion on the caustic layer is an analytic ray-sphere test, while shadows use the PCF shadow map.",
+    "Refraction uses three.js transmission render-target sampling. The glass refracts the floor but not the water surface.",
+    "The ambient water phase eases to rest by 2.6 s so the final hold is still. This is a presentation choice, not real water behaviour.",
+    "The ripple is emitted when the glass comes to rest. No wake is simulated along its rolling path.",
+    "three r186 removed PCFSoftShadowMap, so soft shadows use PCFShadowMap with shadow.radius.",
+    "The full-video route (Blender PBR, Cycles, baked simulation) is unavailable here and is reported as missing.",
+    "Typography is system Georgia / Times New Roman."
+  ]
+}

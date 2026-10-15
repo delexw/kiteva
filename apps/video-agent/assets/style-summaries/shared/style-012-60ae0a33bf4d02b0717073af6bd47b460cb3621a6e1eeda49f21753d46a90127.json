@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-012",
+    "name": "Op Art is a supplemental design reference in Graphic Design and Design Movements. The source collection does not directly name it, and a kaleidoscope alone does not establish it.",
+    "visualIdentity": "Explicit: optical illusions built from stripes, checkerboards, concentric circles and repeated geometry. Line weight, density and positive-negative relationships are controlled deliberately. Gradients are disabled by the palette.",
+    "suitableUses": "Explicit: illusion-led pieces, best used alone. Explicit for the poster pairing: exhibition posters, album covers and event key art. Inferred: motion-039 lists Op Art as a compatible reference for a centered radial logo burst.",
+    "limitations": "Explicit: avoid high-frequency flicker, and keep text away from the strongest illusion zones. Inspect moiré at final output size. Pairing easily causes flicker or illegibility. Two-color contrast checks do not verify text over animated or composited content. Reduced-motion handling for standalone output is unspecified.",
+    "palette": "Suggested, not approved: background #FFFFFF and foreground #000000 only, for new artwork when no exact palette is supplied. Task-provided colors override these, and only notation is normalized. Tone comes from hatching, screen patterns or opacity, not extra hues. Contrast is 21:1 (chroma-js 3.2.0).",
+    "motionAndInteraction": "Explicit: animate phase, spacing and deformation at continuous, measured speeds, and avoid flicker. Drive state from a paused, seekable timeline evaluated at composition time. Interactive HTML pairings pause on reduced motion and offer a pause control. Motion-002 and motion-012 are optional, conditional chapter references.",
+    "audio": "Unspecified by this style. The generic audio direction allows music, voiceover, sound effects, ambience or silence, chosen per topic, with no mandated genre, tempo or layer. Speech must remain intelligible. Inferred: restrained silence or ambience can support reading holds, but this is not a style requirement.",
+    "assetRequirements": "Explicit: no external image or audio asset is named, since geometry is generated parametrically. Fonts and assets must load before rendering. Task-supplied copy and any approved mark must be used exactly, and no brand mark may be invented. Unspecified: which specific assets a given task needs.",
+    "combinations": "Explicit: one suggested pairing with style-103 motion poster discipline. Stripes phase slowly while a solid black or white text block holds the title, with matched loop endpoints. Stay strictly black and white. Avoid text over stripes, flicker and loop jumps. Otherwise, use Op Art alone.",
+    "productionApproach": "HyperFrames is the default composition and export pipeline, using one paused GSAP timeline registered in window.__timelines. Canvas 2D is the style renderer for repeated geometry. GSAP is the motion engine. Remotion is fallback only, with a recorded reason. chroma-js is optional for palette checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

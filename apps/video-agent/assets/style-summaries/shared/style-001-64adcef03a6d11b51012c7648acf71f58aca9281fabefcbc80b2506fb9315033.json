@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-001",
+    "name": "International Typographic Style (Swiss Style); a supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Column grid, baseline alignment, repeated spacing, asymmetric composition and generous negative space. Left-aligned sans-serif type with clear size hierarchy, plus grid-aligned photography.",
+    "suitableUses": "Explicit: posters, identity and typographic statements where grid and type carry everything. Inferred: headline-led explainers and data stories with a few verified figures.",
+    "limitations": "A restrained palette makes rich color or texture needs a weak fit (inferred). Charts must stay truthful and labeled. Two-color checks do not verify text over images or video.",
+    "palette": "Black and white with one restrained red accent. Suggested, not approved, tokens: background #FFFFFF, foreground #000000, accent #D32F2F. Background is scene-dependent, so white is illustrative. Checked pairs: 21:1 foreground/background, 4.979:1 accent on white. Gradients are disabled.",
+    "motionAndInteraction": "Elements travel along layout axes and settle on shared alignment points without changing reading order. Kinetic-headline rule: no springs or overshoot. Optional motion references 007, 012, 013, 015 and 038; choosing none is valid.",
+    "audio": "No audio is specified or mandated. Inferred: restrained, speech-friendly choices such as sparse music, ambience or silence at reading holds. Music must not compete with narration; no audio assets are supplied.",
+    "assetRequirements": "No uploads, exact copy or subject are specified. Needs locally loaded sans-serif fonts, optional grid-aligned photography and truthful chart data. Missing assets must be reported, not invented.",
+    "combinations": "Style-097 suits grid-based charts with red on one series. Style-093 suits kinetic headlines with red on one keyword per scene. Avoid multi-hue palettes, script faces and bouncy per-letter motion.",
+    "productionApproach": "HyperFrames is the default pipeline, with one paused, seekable GSAP timeline per composition. HTML/CSS Grid and SVG render the visuals; GSAP owns motion. Remotion is fallback only with a recorded reason. chroma-js validates colors."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

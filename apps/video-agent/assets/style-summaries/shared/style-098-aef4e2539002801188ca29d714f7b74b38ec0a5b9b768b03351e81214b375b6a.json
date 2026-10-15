@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-098",
+    "name": "Infinite Zoom, a camera and transition technique rather than an art movement.",
+    "visualIdentity": "The next scene already exists inside a visible object, lens, or portal of each world. A continuous zoom path fills the frame with that portal, while focus, scale, and velocity stay matched across levels.",
+    "suitableUses": "Explicit fits: nested-world concepts, infinite-zoom transitions, and surreal spatial passages. Inferred: looping brand journeys and scale tours, where labels stay in a fixed layer outside the zoom.",
+    "limitations": "Dense reading text during travel and unplanned hidden resets break reading and one-shot needs. Avoid raster textures that blur under magnification and labels that scale with the scene. Adapt when stable orientation is required.",
+    "palette": "Example tokens only: background #F4EFE3, foreground #30404A, accent_1 #688D96, accent_2 #B78462, with gradients disabled. Foreground on background measures 9.348:1 for text. Accent-to-text pairs fail 4.5:1 and are decorative only. Supplied colors override these.",
+    "motionAndInteraction": "Video drives camera transforms from composition time along defined portal paths and handoff scales. Optional motion-038 Punctuation Zoom or motion-002 vortex transit apply only when scene assets support them. Live scroll input is interactive-only.",
+    "audio": "The source mandates no audio, and no audio is specified. Suggested, inferred: restrained ambience or music whose energy follows zoom velocity, leaving room for narration. Beat sync requires real audio analysis, not assumed timing.",
+    "assetRequirements": "Use layered high-resolution assets with alpha, consistent dimensions, and clear names, or numbered frames with a manifest. Vector art suits deep zoom. Punctuation Zoom needs real glyph or mark geometry. Task asset supply is unspecified.",
+    "combinations": "Explicit suggestions: style-027 for contour line-art worlds that stay crisp at any zoom, and style-097 for a fixed annotation layer of scale labels and units. Pair them when worlds need a consistent drawing language or factual scale labeling.",
+    "productionApproach": "Canvas 2D renders portals and handoffs, with optional PixiJS for dense sprites under explicit render on seek. GSAP owns the paused timeline. HyperFrames handles composition and export; Remotion is a verified-only fallback. Check direct, backward, and forward seeks plus loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

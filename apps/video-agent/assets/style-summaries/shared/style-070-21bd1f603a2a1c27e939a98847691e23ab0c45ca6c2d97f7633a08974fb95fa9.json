@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-070",
+    "name": "Iridescent Materials is a normalized label in the Digital and 3D Aesthetics category, based on descriptions of pearlescent liquid silk and molten glass.",
+    "visualIdentity": "Pearlescent material, flowing silk or molten glass is the dominant surface. Coherent highlights, controlled color shifts and a quiet background define the look. The form is revealed through measured flow, folds, rotation or macro framing.",
+    "suitableUses": "Explicit: macro material studies, product finish and colorway reveals, and beauty or fashion editorial as a hybrid. Inferred: premium product campaigns where one material carries the frame. Subject, audience and format are unspecified.",
+    "limitations": "Avoid rainbow noise, blown reflections, chrome or holographic type, and quick cuts. Basic XPBD does not produce iridescence, molten-glass behavior or fluid merging. Two-color contrast checks do not verify glass, texture or animated backgrounds.",
+    "palette": "Background policy is scene_dependent, so #F1EDEA is illustrative only. Suggested tokens are foreground #3F4351 and accents #A99DC1, #9FB9B2, #D3ADA1. These are unapproved, and task exact colors override them. Foreground on background is 8.458:1; accent_1 is decorative only.",
+    "motionAndInteraction": "Use smooth, measured, authored movement with readable holds and deterministic seeks. Optional references: tilt card (motion-011), chapter handoff (motion-012), orb (motion-014), storytelling (motion-015), and camera orbit (motion-021), which requires real 3D depth. None is required.",
+    "audio": "Audio is unspecified and not mandatory. Options include restrained music, voiceover, effects, ambience or silence, chosen from the topic. Audio must not compete with narration or essential text. Silence is valid, and no genre or tempo is prescribed.",
+    "assetRequirements": "No uploads are required. Macro material imagery can be rendered or supplied, and approved exact colors override suggestions. HTML editorial variants need real web fonts and prerendered loops or stills with posters. Copy, duration and format are unspecified.",
+    "combinations": "style-020 adds editorial serif layout, with type in #3F4351 on #F1EDEA and color shifts coming only from the material. style-096 adds restrained reveal pacing with one move per shot. Both avoid chrome type, blown highlights and quick cuts.",
+    "productionApproach": "Blender with Python bpy and Cycles serves as style renderer and motion engine for physical materials and keyframed or cached deformation. HyperFrames handles composition, timing, sync and export; Remotion is fallback only with a recorded reason. GSAP drives the paused timeline. XPBD is optional for silk only."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,76 @@
+{
+  "version": 3,
+  "title": "Paper Craft — An Idea Becomes a Connected System",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Fold open, assemble, connect",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "A folded cream idea card opens on its crease. Kraft strips unroll to connect it to cardboard boxes, which fold up from flat nets into a connected system on a green cutting mat.",
+      "visuals": [
+        "Three.js scene on a stationary green self-healing cutting mat with grid (scene-dependent background replacing the earlier cream poster field)",
+        "Cream card stock idea card with printed kraft lightbulb and 'FOLD · IDEA' label, procedurally folded along its center crease",
+        "Three kraft corrugated boxes made from constant-thickness panels with fluted edges, hinged walls, lid flaps and seam tape",
+        "Kraft connector strips that unroll from paper coils, pinned with brass brads",
+        "Soft warm key light with PCF soft shadows and a cool hemisphere fill"
+      ],
+      "assets": [
+        "paper-scene.js (esbuild bundle of src/scene.js + three 0.186.1)",
+        "gsap.min.js",
+        "chroma.min.js",
+        "Procedural seeded CanvasTextures: mat grid, paper fibers, kraft fibers, corrugated flutes"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.85,
+          "development": "The title fades in. The folded idea card opens 177° to 0° along its crease (arc-length-preserving fold, so the card does not stretch) and its free corner curls up and back down.",
+          "captions": ["AN IDEA BECOMES"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.85,
+          "endSeconds": 1.55,
+          "development": "The first box's walls hinge up from its flat net, lid flaps close and seam tape runs across. The first kraft strip unrolls from the card to the box.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.55,
+          "endSeconds": 2.3,
+          "development": "Two more strips unroll from the first box and the two connected boxes fold up, close and get taped. The subtitle appears.",
+          "captions": ["a connected system — assembled"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.3,
+          "endSeconds": 3,
+          "development": "Settled hold on the assembled, connected system so the full copy can be read.",
+          "captions": ["AN IDEA BECOMES", "a connected system — assembled"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.7
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Primary focus moves left to right: card, then first box, then the two connected boxes, following the strips.",
+      "Hinge actions overlap and are staggered so each part reads as a separate assembly step within 3 s.",
+      "All motion is settled by 2.3 s, before the 2.7 s requirement."
+    ],
+    "justifiedHolds": [
+      "2.3–3.0 s: final reading hold for the title and subtitle over the completed system."
+    ]
+  },
+  "notes": [
+    "Silent preview: no audio track.",
+    "Blender was not used, per user instruction. Three.js WebGL stands in for the Blender/Cycles paperboard route.",
+    "No preview_recipes were listed in STYLE.json, and BACKGROUND_REVIEW.json contains no matched sources or contact sheets. The background change is a scene-dependent choice, not something drawn from source frames."
+  ]
+}

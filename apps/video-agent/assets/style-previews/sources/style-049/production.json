@@ -1,0 +1,29 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Riso System",
+  "displayDescription": "A two-ink riso sheet on cool recycled stock: coral and blue separations print an idea that grows into a connected network.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (masks, patterns, clipPath, <use> ink clones, stroke-dashoffset, feTurbulence/feDisplacementMap static edge roughness, mix-blend-mode multiply)",
+    "Seeded Node-generated grain/fibre PNG textures (tools/make-grain.mjs)"
+  ],
+  "motionEngine": [
+    "Motion 14.1.0 (interpolate + easing; bundled locally to motion-kit.js with esbuild) for all visual property values",
+    "GSAP paused timeline as the single seekable clock (window.__timelines.video)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent; no audio track.",
+  "limitations": [
+    "Ink grain, dropouts, overprint and edge roughness are procedural SVG/PNG approximations of risograph printing, not a physical print or scan.",
+    "The overprint uses CSS multiply blending, which approximates real ink transparency.",
+    "Typography uses locally installed system fonts (Arial Black or Helvetica fallback, Courier New), so glyph widths may vary slightly by machine; the headline is measured at runtime.",
+    "No tech.preview_recipes were supplied, so the preview demonstrates the primary style implementation together with the source-frame refresh lessons.",
+    "Silent preview.",
+    "The coral headline layer is an aria-hidden SVG <use> clone of the blue type, so the misregistered second ink reads as print texture rather than as separate text."
+  ]
+}

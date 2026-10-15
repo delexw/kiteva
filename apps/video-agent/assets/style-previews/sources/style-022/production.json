@@ -1,0 +1,26 @@
+{
+  "displayTitle": "Pencil Drawing",
+  "displayDescription": "Style-022 Pencil Drawing: a hatched graphite idea sphere draws itself on cool bristol paper, then pencil connectors grow into a five-node system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (style-022 Pencil Drawing: paper substrate, graphite tooth mask, pressure-tapered strokes, stump smudge sprites)",
+    "Rough.js 4.6.6 (seeded contours, connector lines, hachure cast shadow; local rough.js bundle)",
+    "DOM text (Georgia italic notes)"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline at window.__timelines.video (sole owner of draw-progress state and note clip-path/opacity; Canvas redraws from timeline state on update and hf-seek)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track.",
+  "limitations": [
+    "Graphite and paper are procedural approximations (seeded grain, tooth alpha mask, pressure taper, low-res smudge). There is no physical media simulation.",
+    "Rough.js hachure and custom seeded hatching are vector line approximations of pencil hatching.",
+    "Notes are set in system Georgia italic, not real handwriting. A serif fallback is used where Georgia is missing.",
+    "Silent: no soundtrack or voice was requested for this preview."
+  ]
+}

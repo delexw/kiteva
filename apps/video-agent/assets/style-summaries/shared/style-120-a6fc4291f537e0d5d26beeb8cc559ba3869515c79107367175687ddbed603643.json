@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-120",
+    "name": "Raymarched Fractal Landscapes (Digital and 3D Aesthetics; extracted 2026-10-12 from source xanares-738984).",
+    "visualIdentity": "Reflective fractal solids emerge from dark fog, evolve into a landscape, and return to sculptural lettering. Coherent reflections, spatial scale, and depth must be preserved. One reference poster confirms near-black surroundings.",
+    "suitableUses": "Explicitly suited to depth-led abstract or title sequences driven by fractal solids, reflections, and fog. Inferred: cinematic reveals moving from form to landscape to lettering. Punctuation Zoom fits only when the scene contains a real punctuation mark.",
+    "limitations": "Sculptural lettering is missing from the 3-second preview and is only a planned SDF built from a precomputed glyph distance texture. Reflections are single-bounce approximations, not path-traced, and lower internal resolution softens fine detail.",
+    "palette": "Authored tokens: background #080A0C (fallback, not sampled from source) and foreground #F2EEE5; gradients are disabled, and fog also targets #080A0C. Opaque caption contrast is 17.125, above the 4.5 target; verify compositing. Never use accents or materials as background.",
+    "motionAndInteraction": "GSAP tweens shader uniforms on a paused timeline: uEmerge morphs fog density and fractal power, the camera follows an authored path, and uLandscape blends toward a terrain fold. Seeks are deterministic. Keep sharp cuts and reading holds; interaction is unspecified.",
+    "audio": "No style-specific audio is specified, so direction must follow topic and motion. Evolving, restrained ambience may suit the fog-to-sunset arc (inferred). Music timing is unverified without audio analysis; speech must stay intelligible and unclipped.",
+    "assetRequirements": "No assets were supplied. Lettering needs a precomputed glyph distance texture, and fonts must load before rendering. Punctuation Zoom needs an actual in-scene punctuation glyph. Exact copy, source artwork, and audio are unspecified.",
+    "combinations": "Style-099 (continuous camera path) is the only listed supporting style; keep this style dominant and do not import its palette. Avoid competing full-scene treatments and unrelated decorative motion. Motion-038 Punctuation Zoom is optional.",
+    "productionApproach": "HyperFrames is the default for composition, validation, and export; Remotion is a fallback only when HyperFrames is unavailable or a verified limit exists. Three.js with GLSL raymarching renders visuals, and GSAP owns motion. No approved library IDs are listed."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

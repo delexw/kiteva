@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-018",
+    "name": "Minimalism. The source explicitly names this direction under Graphic Design and Design Movements, so provenance is explicit.",
+    "visualIdentity": "Keep only the elements needed to communicate the subject, with generous negative space, precise proportions, a limited palette, and consistent edges and spacing. Use a small set of real text and graphic elements. These visual cues are explicit in the source.",
+    "suitableUses": "Explicit fits: UI and product storytelling, editorial and minimalist layouts, and motion posters or staged geometric compositions. Inferred fit: single-message explainers where viewers need reading time to absorb one idea.",
+    "limitations": "Minimalism is usually best used alone, since added styles easily dilute it. Fades must not drive every transition, and enough reading time is required. Dense, many-element content conflicts with the style. Minimum text sizes are unspecified.",
+    "palette": "Suggested, not supplied: background #FAF9F5 as the dominant layout field, foreground #202421 for primary ink, and accent #406B5A used sparingly. Task-supplied exact colors override these. Gradients are disabled. Two-color contrast is 14.923:1 for foreground on background and 5.747:1 for background on accent; verify in composited frames.",
+    "motionAndInteraction": "Animate only a few elements at a time with restrained easing, favoring position changes and masks over fades, and hold for reading. Video derives all state from seekable composition time. Scroll or pointer behavior applies only to interactive output. Motion references are optional, and none is required.",
+    "audio": "Audio is unspecified by the source, and no layer is mandated. Inferred: sparse, restrained audio suits the reading holds, and any voiceover must stay intelligible. Honor user-supplied audio first, and state any proposed music or effects as assumptions.",
+    "assetRequirements": "No specific asset list is given. Real text requires locally loaded fonts before rendering. Graphic elements are SVG or simple shapes. Supplied artwork colors must remain unchanged. Any missing assets are unspecified and must be reported.",
+    "combinations": "Explicit suggestions: style-097 for one honest chart per scene, with the accent reserved for the single highlighted series; style-109 for thin, single-weight diagram connectors, with the accent marking only the active path. Avoid decorative data and extra series colors.",
+    "productionApproach": "HyperFrames is the default pipeline for timing, synchronization, validation, and export; Remotion is a fallback only when HyperFrames is unavailable or a verified limitation is recorded. HTML/CSS and SVG render visuals, GSAP provides seekable motion, Motion is optional, and chroma-js checks colors. Verify decoded frames, seeks, and audio sync before delivery."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

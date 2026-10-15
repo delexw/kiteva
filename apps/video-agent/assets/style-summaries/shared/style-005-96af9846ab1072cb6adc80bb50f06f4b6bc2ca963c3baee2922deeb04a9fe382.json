@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-005",
+    "name": "De Stijl, a supplemental design reference. The source collection does not name it as a directly named style.",
+    "visualIdentity": "Horizontal and vertical rules divide the composition into rectangular color fields. The palette is limited to red, yellow, blue, black, and white, with controlled line weight and area ratios. Diagonals, rounded corners, and gradients are excluded.",
+    "suitableUses": "The source lists UI and product storytelling, editorial and minimalist layouts, and motion posters or staged geometric compositions as good fits. Rhythmic abstract and identity work are also described as suitable. Other uses are unspecified.",
+    "limitations": "No arbitrary diagonals, rounded corners, or gradients are permitted. Hybrid uses must keep data and labels orthogonal and within the five tokens. Omit recomposition or motion when it weakens hierarchy or crops key details.",
+    "palette": "Suggested tokens, used only when no task or brand palette is supplied: white #FFFFFF, black #000000, red #D02020, yellow #F4CB28, blue #184BA0. Gradients are disabled. Contrast pairs: black on white 21:1, white on red 5.37:1, black on yellow 13.42:1, white on blue 8.23:1. These are two-color checks only, so verify composited frames.",
+    "motionAndInteraction": "Animate rectangular expansion, division, sliding, and color changes while keeping boundaries orthogonal and color fields connected. Elastic easing and bounce are excluded. Video uses seekable composition time, and scroll or hover applies only to interactive output. Motion references are optional.",
+    "audio": "Audio is unspecified for this style, and no audio layer is mandated. Music, voiceover, sound effects, ambience, or silence may suit the topic and audience, honoring any explicit requirements. Use only authorized assets and verify speech clarity and sync.",
+    "assetRequirements": "No external assets are mandated. Geometry is built from aligned rectangles and straight-line groups in SVG. Fonts and assets must load before rendering. Diagrams may be authored in tldraw and exported as SVG, and Remotion shape helpers are optional.",
+    "combinations": "Style-097 maps proportional data to rectangle areas, using at most three categories on red, yellow, and blue, with labels only on white cells. Style-093 slides block sans labels orthogonally, using black on white or yellow and white on red or blue. Rotated letters and elastic easing are avoided.",
+    "productionApproach": "SVG is the style renderer, and a paused, seekable GSAP timeline is the motion engine. Motion is optional for DOM or SVG layers, and chroma.js is optional for color validation. HyperFrames handles assembly, timing, and export. Remotion is a fallback only if HyperFrames is unavailable or a verified limitation exists."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

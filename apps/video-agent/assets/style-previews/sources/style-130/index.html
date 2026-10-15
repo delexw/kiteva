@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Illuminated Manuscript — An idea becomes a connected system (purple vellum)</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #3A2340; overflow: hidden; }
+  #video { position: relative; width: 100%; height: 100%; background: #3A2340; overflow: hidden;
+    font-family: 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif; color: #EFE4C8; }
+  #art { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; display: block; }
+  .txt { position: absolute; margin: 0; white-space: nowrap; }
+  #t-head { left: 296px; top: 112px; font-size: 66px; line-height: 76px; color: #EFE4C8; letter-spacing: 0.5px; }
+  #t-sub { left: 300px; top: 198px; font-size: 30px; line-height: 36px; color: #B89B51; font-variant: small-caps; letter-spacing: 1px; }
+  .verse { left: 112px; font-size: 27px; line-height: 36px; font-style: italic; color: #EFE4C8; }
+  #t-v1 { top: 318px; } #t-v2 { top: 362px; } #t-v3 { top: 406px; }
+  #t-rubric { left: 112px; top: 474px; font-size: 22px; line-height: 28px; color: #B89B51; letter-spacing: 3px; }
+  .rule { position: absolute; left: 112px; height: 0; border-top: 1.5px solid rgba(184, 155, 81, 0.55); transform-origin: 0 50%; }
+  #r1 { top: 540px; width: 520px; } #r2 { top: 578px; width: 520px; } #r3 { top: 616px; width: 380px; }
+</style>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30" data-start="0">
+  <svg id="art" viewBox="0 0 1280 720" width="1280" height="720" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <!-- Static seeded vellum grain: pale hair-side speckle + dark flesh-side mottling (never animated) -->
+      <filter id="grainLight" x="0" y="0" width="100%" height="100%" filterUnits="userSpaceOnUse">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="130" result="n"/>
+        <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.937  0 0 0 0 0.894  0 0 0 0 0.784  0 0 0 0.09 -0.035"/>
+      </filter>
+      <filter id="fibre" x="0" y="0" width="100%" height="100%" filterUnits="userSpaceOnUse">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.05" numOctaves="3" seed="17" result="f"/>
+        <feColorMatrix in="f" type="matrix" values="0 0 0 0 0.09  0 0 0 0 0.05  0 0 0 0 0.10  0 0 0 0.28 -0.10"/>
+      </filter>
+      <filter id="deckle" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="41" result="d"/>
+        <feDisplacementMap in="SourceGraphic" in2="d" scale="10"/>
+        <feGaussianBlur stdDeviation="1.4"/>
+      </filter>
+      <radialGradient id="edgeShade" cx="50%" cy="50%" r="75%">
+        <stop offset="0.7" stop-color="#160C18" stop-opacity="0"/>
+        <stop offset="1" stop-color="#160C18" stop-opacity="0.35"/>
+      </radialGradient>
+      <pattern id="diaper" width="28" height="28" patternUnits="userSpaceOnUse" x="726" y="126">
+        <rect width="28" height="28" fill="#3C5487"/>
+        <path d="M0 14L14 0L28 14L14 28Z" fill="none" stroke="#EFE4C8" stroke-opacity="0.35" stroke-width="1"/>
+        <circle cx="14" cy="14" r="2.6" fill="#A5433C"/>
+        <circle cx="0" cy="0" r="1.4" fill="#EFE4C8" fill-opacity="0.7"/><circle cx="28" cy="0" r="1.4" fill="#EFE4C8" fill-opacity="0.7"/>
+        <circle cx="0" cy="28" r="1.4" fill="#EFE4C8" fill-opacity="0.7"/><circle cx="28" cy="28" r="1.4" fill="#EFE4C8" fill-opacity="0.7"/>
+      </pattern>
+      <clipPath id="miniClip"><rect id="miniClipRect" x="726" y="126" width="398" height="468"/></clipPath>
+      <clipPath id="initClip"><rect x="126" y="118" width="144" height="144"/></clipPath>
+      <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#EFE4C8" stop-opacity="0"/>
+        <stop offset="0.5" stop-color="#EFE4C8" stop-opacity="0.8"/>
+        <stop offset="1" stop-color="#EFE4C8" stop-opacity="0"/>
+      </linearGradient>
+      <mask id="giltMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720"><g id="giltMaskShapes"></g></mask>
+    </defs>
+
+    <!-- Stationary purple-dyed vellum page -->
+    <g id="page">
+      <rect width="1280" height="720" fill="#3A2340"/>
+      <rect width="1280" height="720" filter="url(#fibre)"/>
+      <rect width="1280" height="720" filter="url(#grainLight)"/>
+      <rect width="1280" height="720" fill="url(#edgeShade)"/>
+      <rect x="4" y="4" width="1272" height="712" fill="none" stroke="#160C18" stroke-opacity="0.55" stroke-width="12" filter="url(#deckle)"/>
+    </g>
+
+    <g id="border"></g>
+
+    <!-- Decorated initial A -->
+    <g id="initial">
+      <g id="initial-frame">
+        <rect id="if-ground" x="122" y="114" width="152" height="152" fill="#3C5487" style="fill-opacity:0"/>
+        <path id="if-band" class="gilt" d="M112 104H284V276H112ZM122 114V266H274V114Z" fill="#B89B51" fill-rule="evenodd" style="fill-opacity:0"/>
+        <path id="if-outer" class="draw" d="M112 104H284V276H112Z" fill="none" stroke="#EFE4C8" stroke-width="2"/>
+        <path id="if-inner" class="draw" d="M122 114H274V266H122Z" fill="none" stroke="#EFE4C8" stroke-width="1.5"/>
+      </g>
+      <g id="initial-art" data-reveal-after="initial-frame" style="opacity:0">
+        <path id="if-rule" d="M128 120H268V260H128Z" fill="none" stroke="#A5433C" stroke-width="3"/>
+        <g clip-path="url(#initClip)" id="if-filigree" fill="none" stroke="#EFE4C8" stroke-width="1.5"></g>
+        <g id="if-interlace" fill="none"></g>
+        <path id="if-letter" class="gilt" fill-rule="evenodd"
+          d="M131 258H160V251H153L162 226H214L223 251H215V258H267V251H257L205 120L193 113L180 120L141 236Q137 248 131 251ZM169 211L188 154L208 211Z"
+          fill="#B89B51" stroke="#352D27" stroke-width="2.4" stroke-linejoin="round" style="fill-opacity:0"/>
+        <path id="if-letter-hl" d="M184 128L150 232M199 128L242 240" fill="none" stroke="#352D27" stroke-opacity="0.45" stroke-width="1"/>
+      </g>
+    </g>
+
+    <!-- Framed miniature -->
+    <g id="miniature">
+      <g id="mini-frame">
+        <path id="mf-band" class="gilt" d="M700 100H1150V620H700ZM714 114V606H1136V114Z" fill="#B89B51" fill-rule="evenodd" style="fill-opacity:0"/>
+        <path id="mf-outer" d="M700 100H1150V620H700Z" fill="none" stroke="#EFE4C8" stroke-width="2.2"/>
+        <path id="mf-inner" d="M714 114H1136V606H714Z" fill="none" stroke="#EFE4C8" stroke-width="1.6"/>
+        <path id="mf-rule" d="M722 122H1128V598H722Z" fill="none" stroke="#A5433C" stroke-width="3"/>
+        <g id="mf-corners"></g>
+      </g>
+      <g id="mini-art" data-reveal-after="mini-frame" clip-path="url(#miniClip)" style="opacity:0">
+        <rect x="726" y="126" width="398" height="468" fill="url(#diaper)"/>
+        <g id="idea">
+          <g id="idea-rays" stroke="#B89B51" stroke-width="3"></g>
+          <circle id="idea-disc" class="gilt" cx="890" cy="190" r="30" fill="#B89B51" stroke="#352D27" stroke-width="2.5"/>
+          <path d="M890 166L897 183L914 190L897 197L890 214L883 197L866 190L883 183Z" fill="#A5433C" stroke="#352D27" stroke-width="1.5"/>
+          <circle cx="890" cy="190" r="4" fill="#EFE4C8" stroke="#352D27" stroke-width="1"/>
+        </g>
+        <path d="M726 468Q790 420 858 452Q930 404 1004 440Q1070 414 1124 446V594H726Z" fill="#66825D" stroke="#352D27" stroke-width="2"/>
+        <path d="M760 462q14-8 28-4M846 470q16-10 32-6M930 444q18-10 34-4M1040 456q16-8 32-2M1080 470q12-6 26-2" fill="none" stroke="#352D27" stroke-opacity="0.35" stroke-width="1.2"/>
+        <g stroke="#352D27" stroke-width="1.4">
+          <path d="M770 444v-16"/><circle cx="770" cy="420" r="11" fill="#66825D"/>
+          <path d="M1074 430v-14"/><circle cx="1074" cy="408" r="10" fill="#66825D"/>
+        </g>
+        <path d="M726 546Q925 500 1124 546V594H726Z" fill="#66825D" stroke="#352D27" stroke-width="2"/>
+        <path d="M726 546Q925 500 1124 546V594H726Z" fill="#352D27" fill-opacity="0.2"/>
+        <g id="ground-flowers"></g>
+        <g id="tree">
+          <path d="M992 552Q1000 480 1004 404L1018 404Q1020 480 1030 552Z" fill="#EFE4C8" stroke="#352D27" stroke-width="2.2"/>
+          <path d="M1008 420Q1006 480 1000 540M1016 430Q1018 490 1022 540" fill="none" stroke="#352D27" stroke-opacity="0.45" stroke-width="1.1"/>
+          <g id="branches"></g>
+          <g id="canopy"></g>
+          <g id="links" fill="none" stroke="#B89B51" stroke-width="3"></g>
+          <g id="nodes"></g>
+        </g>
+        <g id="figure">
+          <circle id="halo" class="gilt" cx="818" cy="402" r="25" fill="#B89B51" stroke="#352D27" stroke-width="2"/>
+          <path d="M818 380a22 22 0 0 1 0 44" fill="none" stroke="#352D27" stroke-opacity="0.4" stroke-width="1"/>
+          <path d="M784 560L796 446Q818 428 842 446L856 560Z" fill="#3C5487" stroke="#352D27" stroke-width="2.2"/>
+          <path d="M806 470L800 556M820 466V558M834 470L842 556" fill="none" stroke="#352D27" stroke-opacity="0.5" stroke-width="1.3"/>
+          <path d="M796 450Q818 432 842 450L836 516Q816 532 796 512Z" fill="#A5433C" stroke="#352D27" stroke-width="2"/>
+          <path d="M806 470Q818 500 832 470" fill="none" stroke="#352D27" stroke-opacity="0.5" stroke-width="1.2"/>
+          <path d="M780 560Q820 568 860 560" fill="none" stroke="#352D27" stroke-width="2"/>
+          <circle cx="818" cy="406" r="15" fill="#EFE4C8" stroke="#352D27" stroke-width="2"/>
+          <path d="M805 400Q818 386 831 400Q826 392 818 391Q810 392 805 400Z" fill="#352D27"/>
+          <path d="M813 406h2M822 406h2M816 414q2 2 4 0" fill="none" stroke="#352D27" stroke-width="1.2"/>
+          <path d="M790 488l14-6 4 16-14 6z" fill="#A5433C" stroke="#352D27" stroke-width="1.5"/>
+          <!-- gesturing arm: reshaped by attribute tweens (no transform pivot) -->
+          <g id="arm">
+            <path id="arm-sleeve" d="M834 452L876 418L884 428L842 466Z" fill="#3C5487" stroke="#352D27" stroke-width="2"/>
+            <circle id="arm-hand" cx="884" cy="420" r="6" fill="#EFE4C8" stroke="#352D27" stroke-width="1.6"/>
+            <path id="arm-finger" d="M887 415L896 407" stroke="#352D27" stroke-width="2.4" stroke-linecap="round"/>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- Narrow highlight sweep, masked to #B89B51 gilded shapes only -->
+    <g id="sweepGroup" mask="url(#giltMask)" data-layout-allow-overflow style="opacity:0">
+      <g id="sweep"><rect x="-70" y="-60" width="70" height="840" fill="url(#sheen)" transform="rotate(18 -35 360)"/></g>
+    </g>
+  </svg>
+
+  <!-- HTML/CSS text column: verified authored copy only -->
+  <div class="txt" id="t-head" aria-label="An idea">n idea</div>
+  <div class="txt" id="t-sub">becomes a connected system</div>
+  <div class="txt verse" id="t-v1">From one bright seed of thought</div>
+  <div class="txt verse" id="t-v2">each line is drawn to another,</div>
+  <div class="txt verse" id="t-v3">and every link upholds the whole.</div>
+  <div class="txt" id="t-rubric">HERE BEGINNETH THE SYSTEM ¶</div>
+  <div class="rule" id="r1"></div><div class="rule" id="r2"></div><div class="rule" id="r3"></div>
+</div>
+
+<script src="gsap.min.js"></script>
+<script src="DrawSVGPlugin.min.js"></script>
+<script id="manuscript-scene">
+/* Illuminated Manuscript preview — purple-vellum page. All ornament is built deterministically
+   (no randomness) and every visual change is a tween on one paused GSAP timeline. */
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var C = { page: "#3A2340", cream: "#EFE4C8", ink: "#352D27", gold: "#B89B51", red: "#A5433C", blue: "#3C5487", green: "#66825D" };
+  gsap.registerPlugin(DrawSVGPlugin);
+
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function f1(n) { return Math.round(n * 10) / 10; }
+  function $(id) { return document.getElementById(id); }
+
+  var tl = gsap.timeline({ paused: true });
+  function draw(target, start, dur, ease) {
+    tl.fromTo(target, { drawSVG: "0% 0%" }, { drawSVG: "0% 100%", duration: dur, ease: ease || "power2.inOut", immediateRender: true }, start);
+  }
+  function fillIn(target, start, dur) {
+    tl.fromTo(target, { fillOpacity: 0 }, { fillOpacity: 1, duration: dur, ease: "sine.inOut", immediateRender: true }, start);
+  }
+  function show(target, start, dur) {
+    tl.fromTo(target, { opacity: 0 }, { opacity: 1, duration: dur, ease: "sine.inOut", immediateRender: true }, start);
+  }
+  function leafPath(len, w) {
+    return "M0 0Q" + f1(len * 0.45) + " " + (-w) + " " + len + " 0Q" + f1(len * 0.45) + " " + w + " 0 0Z";
+  }
+
+  /* ---------------- Vine border (0.6–1.65 s) ---------------- */
+  var border = $("border");
+  var bars = el("g", {}, border);
+  var outerBar = el("path", { d: "M20 20H1260V700H20Z", fill: "none", stroke: C.blue, "stroke-width": 6 }, bars);
+  var outerHair = el("path", { d: "M27 27H1253V693H27Z", fill: "none", stroke: C.gold, "stroke-width": 1.8 }, bars);
+  var outerHair2 = el("path", { d: "M13 13H1267V707H13Z", fill: "none", stroke: C.gold, "stroke-width": 1.2 }, bars);
+  var innerRule = el("path", { d: "M68 68H1212V652H68Z", fill: "none", stroke: C.gold, "stroke-opacity": 0.75, "stroke-width": 1.6 }, bars);
+  draw(outerBar, 0.6, 0.85, "none");
+  draw([outerHair, outerHair2], 0.66, 0.85, "none");
+  draw(innerRule, 0.72, 0.85, "none");
+
+  var corners = [[44, 44], [1236, 44], [1236, 676], [44, 676]];
+  var A = 7, CORNER = 24;
+  var vineG = el("g", {}, border), leafG = el("g", {}, border), bossG = el("g", {}, border);
+  var sideStart = [0.6, 0.72, 0.84, 0.96], sideDur = 0.45;
+
+  for (var i = 0; i < 4; i++) {
+    var p0 = corners[i], p1 = corners[(i + 1) % 4];
+    var dx = p1[0] - p0[0], dy = p1[1] - p0[1], L = Math.hypot(dx, dy);
+    var tx = dx / L, ty = dy / L, nx = -ty, ny = tx;
+    var usable = L - 2 * CORNER, k = Math.round(usable / 92), P = usable / k;
+    var d = "";
+    for (var s = 0; s <= usable + 0.01; s += 4) {
+      var off = A * Math.sin(2 * Math.PI * s / P);
+      d += (s === 0 ? "M" : "L") + f1(p0[0] + tx * (CORNER + s) + nx * off) + " " + f1(p0[1] + ty * (CORNER + s) + ny * off);
+    }
+    // chrysographic gold contour under the inked green stem (reads on dark vellum)
+    var stemG = el("path", { d: d, fill: "none", stroke: C.gold, "stroke-opacity": 0.7, "stroke-width": 6 }, vineG);
+    var stemO = el("path", { d: d, fill: "none", stroke: C.ink, "stroke-width": 4 }, vineG);
+    var stemI = el("path", { d: d, fill: "none", stroke: C.green, "stroke-width": 2 }, vineG);
+    var st = sideStart[i];
+    draw([stemG, stemO, stemI], st, sideDur, "none");
+
+    var bx = p0[0], by = p0[1];
+    var boss = el("path", { d: "M" + bx + " " + (by - 17) + "L" + (bx + 17) + " " + by + "L" + bx + " " + (by + 17) + "L" + (bx - 17) + " " + by + "Z",
+      fill: C.gold, stroke: C.cream, "stroke-width": 1.6, "class": "gilt", style: "fill-opacity:0" }, bossG);
+    var bossIn = el("circle", { cx: bx, cy: by, r: 7, fill: i % 2 ? C.blue : C.red, stroke: C.ink, "stroke-width": 1.5, style: "fill-opacity:0" }, bossG);
+    draw(boss, st - 0.06, 0.12);
+    draw(bossIn, st - 0.02, 0.1);
+    fillIn([boss, bossIn], st + 0.06, 0.1);
+
+    for (var j = 0; j < k * 2; j++) {
+      var crest = j % 2 === 0, sign = crest ? 1 : -1;
+      var sc = P * (j / 2 + 0.25);
+      var cx = p0[0] + tx * (CORNER + sc) + nx * A * sign, cy = p0[1] + ty * (CORNER + sc) + ny * A * sign;
+      var ang = Math.atan2(ty * 0.6 + ny * 0.8 * sign, tx * 0.6 + nx * 0.8 * sign) * 180 / Math.PI;
+      var t0 = st + sideDur * (sc / usable);
+      var g = el("g", { transform: "translate(" + f1(cx) + " " + f1(cy) + ") rotate(" + f1(ang) + ")" }, leafG);
+      var kind = crest ? "leaf" : (j % 4 === 1 ? "flower" : "blue");
+      var parts;
+      if (kind === "flower") {
+        parts = [
+          el("path", { d: "M2 0a5 5 0 1 1 8 -6a5 5 0 1 1 6 8a5 5 0 1 1 -14 -2Z", fill: C.red, stroke: C.gold, "stroke-width": 1.3, style: "fill-opacity:0" }, g),
+          el("circle", { cx: 8, cy: 0, r: 2.6, fill: C.cream, stroke: C.ink, "stroke-width": 1, style: "fill-opacity:0" }, g)
+        ];
+      } else {
+        parts = [
+          el("path", { d: leafPath(crest ? 17 : 14, crest ? 7 : 6), fill: crest ? C.green : C.blue, stroke: C.gold, "stroke-width": 1.3, style: "fill-opacity:0" }, g),
+          el("path", { d: "M2 0L" + (crest ? 13 : 10) + " 0", fill: "none", stroke: C.ink, "stroke-opacity": 0.7, "stroke-width": 0.9 }, g)
+        ];
+      }
+      draw(parts, t0, 0.12, "sine.inOut");
+      fillIn(parts[0], t0 + 0.1, 0.1);
+      if (kind === "flower") fillIn(parts[1], t0 + 0.12, 0.08);
+    }
+    var bz = el("circle", { cx: f1(p0[0] + tx * L / 2 - nx * 13), cy: f1(p0[1] + ty * L / 2 - ny * 13), r: 3.2, fill: C.gold, "class": "gilt", style: "opacity:0" }, bossG);
+    show(bz, st + sideDur * 0.5, 0.1);
+  }
+
+  /* ---------------- Decorated initial (0–0.9 s) ---------------- */
+  draw(["#if-outer", "#if-inner"], 0, 0.3, "power2.inOut");
+  fillIn("#if-ground", 0.3, 0.15);            // box ground laid once its outline is closed
+  show("#initial-art", 0.3, 0.02);            // interior only after #initial-frame is complete
+  var fil = $("if-filigree");
+  var filEls = [
+    "M132 140c0-10 14-10 14 0s-8 6-8 0", "M264 140c0-10-14-10-14 0s8 6 8 0",
+    "M132 240c0 10 14 10 14 0s-8-6-8 0", "M264 238c0 10-14 10-14 0s8-6 8 0",
+    "M146 150q10 20 2 44", "M252 150q-6 18 0 36", "M142 202q-6 16 2 30"
+  ].map(function (dd) { return el("path", { d: dd }, fil); });
+  var il = $("if-interlace");
+  var knotA = "M168 246c0-14 40-14 40 0s-40 14-40 0", knotB = "M188 232c14 0 14 28 0 28s-14-28 0-28";
+  var kOut = [el("path", { d: knotA, stroke: C.ink, "stroke-width": 6 }, il), el("path", { d: knotB, stroke: C.ink, "stroke-width": 6 }, il)];
+  var kIn = [el("path", { d: knotA, stroke: C.red, "stroke-width": 3 }, il), el("path", { d: knotB, stroke: C.cream, "stroke-width": 3 }, il)];
+  var tend = el("path", { d: "M193 113c-4-6 6-10 10-4", stroke: C.cream, "stroke-width": 2 }, il);
+  draw("#if-rule", 0.32, 0.28);
+  draw("#if-letter", 0.36, 0.36, "power2.inOut");
+  draw("#if-letter-hl", 0.52, 0.18);
+  draw(filEls, 0.4, 0.3);
+  draw(kOut, 0.42, 0.3);
+  draw(kIn, 0.46, 0.3);
+  draw(tend, 0.6, 0.12);
+  fillIn("#if-band", 0.66, 0.2);
+  fillIn("#if-letter", 0.7, 0.2);
+
+  /* ---------------- Text column (standalone heading/copy timing) ---------------- */
+  function rise(sel, at, extra) {
+    var to = { opacity: 1, y: 0, duration: 0.35, ease: "power2.inOut", immediateRender: true };
+    for (var q in extra) to[q] = extra[q];
+    tl.fromTo(sel, { opacity: 0, y: 8 }, to, at);
+  }
+  rise("#t-head", 0.55);
+  rise("#t-sub", 0.75);
+  rise(".verse", 0.95, { stagger: 0.14 });
+  rise("#t-rubric", 1.4);
+  tl.fromTo(".rule", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power2.inOut", stagger: 0.1, immediateRender: true }, 1.55);
+
+  /* ---------------- Miniature (1.2–2.22 s) ---------------- */
+  var mfc = $("mf-corners"), cornerEls = [];
+  [[707, 107], [1143, 107], [1143, 613], [707, 613]].forEach(function (c, n) {
+    cornerEls.push(el("path", { d: "M" + c[0] + " " + (c[1] - 10) + "a5 5 0 0 1 0 10a5 5 0 0 1 0 -10Z" +
+      "M" + (c[0] - 10) + " " + c[1] + "a5 5 0 0 1 10 0a5 5 0 0 1 -10 0Z" +
+      "M" + c[0] + " " + (c[1] + 10) + "a5 5 0 0 1 0 -10a5 5 0 0 1 0 10Z" +
+      "M" + (c[0] + 10) + " " + c[1] + "a5 5 0 0 1 -10 0a5 5 0 0 1 10 0Z",
+      fill: n % 2 ? C.blue : C.red, stroke: C.ink, "stroke-width": 1.4, style: "fill-opacity:0" }, mfc));
+  });
+  draw("#mf-outer", 1.2, 0.4);
+  draw("#mf-inner", 1.28, 0.4);
+  draw("#mf-rule", 1.4, 0.32);
+  fillIn("#mf-band", 1.56, 0.16);
+  draw(cornerEls, 1.6, 0.12);
+  fillIn(cornerEls, 1.68, 0.1);
+  var FRAME_DONE = 1.78;
+
+  var rays = $("idea-rays");
+  for (var r = 0; r < 12; r++) {
+    var a = r * Math.PI / 6, r0 = 35, r1 = r % 2 ? 44 : 50;
+    el("path", { d: "M" + f1(890 + Math.cos(a) * r0) + " " + f1(190 + Math.sin(a) * r0) + "L" + f1(890 + Math.cos(a) * r1) + " " + f1(190 + Math.sin(a) * r1) }, rays);
+  }
+  var nodes = [[944, 300, C.red], [1012, 258, C.blue], [1082, 300, C.red], [1094, 382, C.red], [930, 382, C.blue]];
+  var origins = [[1008, 410], [1011, 404], [1014, 408], [1016, 420], [1004, 424]];
+  var brG = $("branches"), canG = $("canopy"), linkG = $("links"), nodeG = $("nodes");
+  nodes.forEach(function (nd, n) {
+    var o = origins[n], mxp = (o[0] + nd[0]) / 2 + (n % 2 ? 8 : -8), myp = (o[1] + nd[1]) / 2 + 6;
+    var bd = "M" + o[0] + " " + o[1] + "Q" + f1(mxp) + " " + f1(myp) + " " + nd[0] + " " + nd[1];
+    el("path", { d: bd, fill: "none", stroke: C.ink, "stroke-width": 7 }, brG);
+    el("path", { d: bd, fill: "none", stroke: C.cream, "stroke-width": 3.6 }, brG);
+    [0.45, 0.75].forEach(function (u, m) {
+      var lx = (1 - u) * (1 - u) * o[0] + 2 * (1 - u) * u * mxp + u * u * nd[0];
+      var ly = (1 - u) * (1 - u) * o[1] + 2 * (1 - u) * u * myp + u * u * nd[1];
+      var lg = el("g", { transform: "translate(" + f1(lx) + " " + f1(ly) + ") rotate(" + ((n * 67 + m * 140) % 360) + ")" }, canG);
+      [-40, 0, 40].forEach(function (aa) {
+        el("path", { d: leafPath(16, 6), transform: "rotate(" + aa + ")", fill: C.green, stroke: C.ink, "stroke-width": 1.3 }, lg);
+      });
+    });
+  });
+  var linkEls = [[0, 1], [1, 2], [2, 3], [0, 4], [4, 3], [0, 2]].map(function (pr) {
+    var a1 = nodes[pr[0]], b1 = nodes[pr[1]];
+    return el("path", { d: "M" + a1[0] + " " + a1[1] + "Q" + (a1[0] + b1[0]) / 2 + " " + ((a1[1] + b1[1]) / 2 - 14) + " " + b1[0] + " " + b1[1] }, linkG);
+  });
+  linkEls.push(el("path", { d: "M906 214Q960 230 1012 258" }, linkG));
+  var nodeEls = nodes.map(function (nd) {
+    var g2 = el("g", {}, nodeG);
+    el("circle", { cx: nd[0], cy: nd[1], r: 14, fill: nd[2], stroke: C.ink, "stroke-width": 2 }, g2);
+    el("circle", { cx: nd[0], cy: nd[1], r: 5.5, fill: C.cream, stroke: C.ink, "stroke-width": 1.2 }, g2);
+    return g2;
+  });
+  var gf = $("ground-flowers");
+  [[752, 572], [776, 584], [884, 566], [910, 582], [948, 572], [1060, 576], [1088, 586], [1108, 568]].forEach(function (pt, n) {
+    el("path", { d: "M" + pt[0] + " " + (pt[1] + 8) + "V" + pt[1], stroke: C.ink, "stroke-width": 1.2 }, gf);
+    el("circle", { cx: pt[0], cy: pt[1], r: 4, fill: n % 3 === 0 ? C.cream : C.red, stroke: C.ink, "stroke-width": 1 }, gf);
+  });
+
+  show("#mini-art", FRAME_DONE, 0.04);
+  tl.fromTo("#miniClipRect", { attr: { y: 594, height: 0 } }, { attr: { y: 126, height: 468 }, duration: 0.36, ease: "power2.inOut", immediateRender: true }, FRAME_DONE);
+  draw(linkEls, 1.98, 0.24);
+  tl.fromTo(nodeEls, { scale: 0.65, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.24, ease: "back.out(1.2)", stagger: 0.03, immediateRender: true }, 1.96);
+
+  /* ---------------- Gesture: arm reshaped (not transformed) toward the idea ---------------- */
+  var PIV = [838, 458];
+  function rot(p, deg) {
+    var t = deg * Math.PI / 180, x = p[0] - PIV[0], y = p[1] - PIV[1];
+    return [f1(PIV[0] + x * Math.cos(t) - y * Math.sin(t)), f1(PIV[1] + x * Math.sin(t) + y * Math.cos(t))];
+  }
+  function armState(deg) {
+    var q = [[834, 452], [876, 418], [884, 428], [842, 466]].map(function (p) { return rot(p, deg); });
+    var h = rot([884, 420], deg), f0 = rot([887, 415], deg), fE = rot([896, 407], deg);
+    return {
+      sleeve: "M" + q[0].join(" ") + "L" + q[1].join(" ") + "L" + q[2].join(" ") + "L" + q[3].join(" ") + "Z",
+      hand: { cx: h[0], cy: h[1] },
+      finger: "M" + f0.join(" ") + "L" + fE.join(" ")
+    };
+  }
+  var A0 = armState(0), A1 = armState(-24);
+  tl.fromTo("#arm-sleeve", { attr: { d: A0.sleeve } }, { attr: { d: A1.sleeve }, duration: 0.4, ease: "back.out(1.2)", immediateRender: true }, 2.2);
+  tl.fromTo("#arm-hand", { attr: A0.hand }, { attr: A1.hand, duration: 0.4, ease: "back.out(1.2)", immediateRender: true }, 2.2);
+  tl.fromTo("#arm-finger", { attr: { d: A0.finger } }, { attr: { d: A1.finger }, duration: 0.4, ease: "back.out(1.2)", immediateRender: true }, 2.2);
+
+  /* ---------------- Gilt sweep, masked to #B89B51 shapes only (2.15–2.64 s) ---------------- */
+  var maskG = $("giltMaskShapes");
+  Array.prototype.forEach.call(document.querySelectorAll("#art .gilt"), function (g3) {
+    var cl = g3.cloneNode(false);
+    cl.removeAttribute("id"); cl.removeAttribute("class");
+    cl.setAttribute("style", "opacity:1;fill-opacity:1");
+    cl.setAttribute("fill", "#FFFFFF"); cl.setAttribute("stroke", "none");
+    maskG.appendChild(cl);
+  });
+  show("#sweepGroup", 2.15, 0.04);
+  tl.fromTo("#sweep", { x: -40 }, { x: 1360, duration: 0.48, ease: "sine.inOut", immediateRender: true }, 2.15);
+  tl.to("#sweepGroup", { opacity: 0, duration: 0.04, ease: "none" }, 2.6);
+  tl.set({}, {}, 3);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  tl.seek(0);
+  function onSeek(e) {
+    var t = e && e.detail && typeof e.detail.time === "number" ? e.detail.time : null;
+    if (t !== null) tl.seek(t, false);
+  }
+  window.addEventListener("hf-seek", onSeek);
+  document.addEventListener("hf-seek", onSeek);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

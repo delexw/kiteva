@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-060",
+    "name": "Cel-Shaded 3D",
+    "visualIdentity": "Explicit cel-shaded 3D look in the Digital and 3D Aesthetics category: discrete shadow bands, consistent outlines and selective highlights make forms look drawn. Light direction and outline width stay fixed through motion. Realistic gradients and reflections are avoided.",
+    "suitableUses": "Explicitly suited to characters and objects where stable bands and outlines suffice, including the reviewed cartoon reward reveal. Inferred fits include collectibles and character introductions. Orbit and dolly camera motions need true 3D depth.",
+    "limitations": "True 3D is required; flat SVG is ruled out. Geometry edges miss view-dependent silhouettes, so outlines must not be called Sobel filters. Tone mapping stays off and backface outline scaling is not used.",
+    "palette": "Suggested example only; task or brand colors override it. Background #F4ECD9 is the layout ground and foreground #26394A is the base and outline color, giving 10.103:1 text contrast. Accents #547E8F and #BA7461 are decorative only, at 3.751 and 3.26 contrast. Gradients are disabled.",
+    "motionAndInteraction": "Reward preview runs idle sway 0–0.6s, rarity swap 0.6–1.2s, charge squash 1.2–1.8s, burst 1.8–2.1s, isolated reveal with glow card, and settle by 3s. Full video adds a collection step. Loops cancel before state changes, and particles stay outside the silhouette. Pointer controls are interactive-only.",
+    "audio": "Style-specific audio is unspecified. Generic guidance applies: suggest topic-based music, voiceover, effects, ambience or silence without a fixed soundtrack. Inferred: restrained accents could mark the rarity step or burst. Narration must stay intelligible.",
+    "assetRequirements": "No external asset is explicitly supplied; the hero is a procedural Three.js form such as a capsule or gem. Optional glTF parts need authorized licenses and inspected node names and clips. Fonts and assets must load before rendering.",
+    "combinations": "Style-031 comic panels suit action trailers, with outline weight matching panel lines. Style-050 halftone suits retro product shots, confined to mid-tone bands. Avoid realistic reflections, mixed comic traditions and halftone over small faces.",
+    "productionApproach": "HyperFrames handles composition, timing, validation and export; Remotion is fallback only when HyperFrames is unavailable or verifiably limited. Three.js with MeshToonMaterial and a 3-step nearest-filtered ramp renders the style. A paused GSAP timeline drives hero, rarity and camera. chroma-js validates colors only."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

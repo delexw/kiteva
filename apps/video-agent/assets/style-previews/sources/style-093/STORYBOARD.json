@@ -1,0 +1,157 @@
+{
+  "version": 3,
+  "title": "An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Phrase enters",
+      "startSeconds": 0,
+      "endSeconds": 1.2,
+      "purpose": "Read the phrase in order. Each word gets its own typographic move on a measured baseline grid, then the whole phrase holds before anything becomes structure.",
+      "visuals": [
+        "Stationary night forest-green ground #102820 with one soft deterministic radial light and a faint drafting grid",
+        "Cream #F4E9D5 type; the amber #F2B544 accent is kept for the word 'system.' and, later, the load-bearing T",
+        "'an' (light, 34px) rises in",
+        "Italic serif 'idea' grows from 92px to 128px",
+        "'BECOMES' tracks out from 2px to 22px",
+        "'CONNECTED' enters at weight 300, tracked to fill the full margin width, over a hairline rule",
+        "Amber 'system.' rises onto its platform rule"
+      ],
+      "assets": [
+        "index.html",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.38,
+          "development": "'an', then 'idea', enter with different eases and durations",
+          "captions": [
+            "an",
+            "idea"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.2
+        },
+        {
+          "startSeconds": 0.38,
+          "endSeconds": 1.2,
+          "development": "'BECOMES' tracks open. 'CONNECTED' and its hairline arrive, then 'system.' lands on its platform. The full phrase holds from 1.12 s.",
+          "captions": [
+            "BECOMES",
+            "CONNECTED",
+            "system."
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.08
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Key word becomes a lintel",
+      "startSeconds": 1.2,
+      "endSeconds": 2.2,
+      "purpose": "Architectural typography recipe: the key word gains weight, and its T becomes the lintel and support that carry the earlier words.",
+      "visuals": [
+        "'CONNECTED' re-weights from 300 to 900 while its tracking tightens, so its width and counters are kept",
+        "At 1.55 s the DOM 'T' is swapped for its measured SVG outline at identical geometry",
+        "MorphSVGPlugin deforms only the T crossbar: it widens into a lintel whose tips flex up, then it settles straight",
+        "The T stem lengthens as the support; the T fills from cream to the amber structural accent",
+        "'BECOMES', 'idea' (the load, centred over the support) and 'an' travel onto the lintel with x/y transforms, changing size, weight and tracking",
+        "The clear band between the lintel and the cap height of CONNECTED remains as the aperture"
+      ],
+      "assets": [
+        "MorphSVGPlugin.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 1.2,
+          "endSeconds": 1.55,
+          "development": "CONNECTED re-weights and changes tracking at constant width",
+          "captions": [
+            "CONNECTED"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.55,
+          "endSeconds": 2.2,
+          "development": "The T crossbar morphs into the lintel and turns amber, the stem rises, and the earlier words build the line 'an idea BECOMES' on top",
+          "captions": [
+            "an idea BECOMES"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Final composition holds",
+      "startSeconds": 2.2,
+      "endSeconds": 3,
+      "purpose": "A settled, readable structure built from the earlier words, plus the tagline.",
+      "visuals": [
+        "Tagline lines enter at the lower left",
+        "Everything is static from 2.6 s"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 2.2,
+          "endSeconds": 3,
+          "development": "The two tagline lines land on separate beats, then the full composition holds",
+          "captions": [
+            "One thought, said once.",
+            "Then everything answers it."
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.4
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "The phrase is complete by 1.12 s, so it holds before the re-weight at 1.2 s",
+      "The lintel morph, stem and word travel finish by 2.18 s; the tagline finishes by 2.6 s, before the 2.7 s settle limit",
+      "Beats are contiguous and do not overlap"
+    ],
+    "justifiedHolds": [
+      "0.08 s hold on the complete phrase before it turns into structure",
+      "0.4 s final hold on the completed structure and tagline"
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, effects or lyrics",
+    "Recipe demonstrated: architectural_type. Glyph roles: lintel (T crossbar, the only path MorphSVG deforms), support (T stem), load ('idea' over the stem), aperture (clear band above CONNECTED), platform (rule under 'system.')",
+    "Source-frame refresh: the background policy is scene_dependent, so the earlier cream swatch was replaced. The recipe source palette (#102820 / #F4E9D5 / #F2B544) is adopted explicitly, matching the forest-green-with-amber option in BACKGROUND_REVIEW.json",
+    "Lessons taken from the reviewed contact sheets: a three-role colour split (quiet ground, high-contrast neutral type, rare accent), one stationary radial light, a faint grid as the only texture, and reading holds between developments. No source subject, wording or branding is copied",
+    "Contrast: cream on ground 12.97:1, amber on ground 8.52:1, cream over the brightest point of the glow 10.56:1",
+    "Word travel uses GSAP x/y transforms from static CSS anchors; left and top are never tweened"
+  ]
+}

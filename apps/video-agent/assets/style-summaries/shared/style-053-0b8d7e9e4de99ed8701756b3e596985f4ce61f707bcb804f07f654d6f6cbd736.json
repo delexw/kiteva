@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-053",
+    "name": "Woodcut / Linocut is a supplemental printmaking reference in the Printmaking and Craft Materials category. It is not claimed as a directly named style in the source collection.",
+    "visualIdentity": "The look is carved print: directional cut marks, bold positive-negative shapes and hatching that follows form. Woodcuts may emphasize grain, and linocuts favor clean carved masses. Carving marks must never turn into uniform noise.",
+    "suitableUses": "Explicit: suited to single striking images. Inferred: a hybrid can carry multi-scene narratives or declarative typography. The combination guidance cites folk tales, heritage stories, book trailers, campaign statements and documentary title cards.",
+    "limitations": "Palette is monochrome, so tone comes only from hatching, screen patterns or medium-appropriate opacity. Gradients are disabled. Source review sampled only seconds 1 to 8 of one third-party video, with no continuous motion, audio or later scenes verified. Simulated appearance does not prove physical print production. Duration, aspect ratio, resolution and frame rate are unspecified.",
+    "palette": "The background is scene-dependent: #F2E6CA is an illustrative swatch, not a required canvas color. Foreground #262820 is a suggested ink, and the pair measures 12.047:1 on two-color checks only. Approved or task-supplied colors override both. Use one tinted tonal ramp, with at most one accent reserved for the focal point.",
+    "motionAndInteraction": "Two optional patterns exist: motion-012 (progress-controlled chapter handoff with synchronized copy) and motion-015 (narrative steps with optional within-step progress). Neither is required, and both need compatible scene elements. Video evaluates state from composition time, while scroll is interactive-only. Keep sharp cuts, impacts and reading holds, and make reverse seeks retrace the same state.",
+    "audio": "Audio is unspecified and not mandated; the style requires no audio layer. Suggest music, voiceover, sound effects, ambience or silence from the topic, audience and storyboard, honoring any explicit user choice. Silence is valid for reading holds. Do not invent audio assets or default to instrumental music.",
+    "assetRequirements": "No asset files are specified as required. Preparation may need local fonts, carved SVG shapes and print textures, which Python with Pillow can generate. Small text uses a real font, and carved lettering is limited to display sizes. Optional motion-catalog references require checking the illustration before selection.",
+    "combinations": "style-030 (narrative character staging) suits sequential folk-tale or book-trailer beats, but must stay single dark ink and avoid its warm palette. style-093 (headline typography) suits campaign statements, but must drop its red accent and keep words in reading order. Both must keep cut marks intact.",
+    "productionApproach": "HyperFrames is the primary pipeline for composition, timing, validation and export. Remotion is a fallback only when its condition is verified and recorded, and an existing React project alone is not sufficient. SVG is the style renderer for carved paths and masks, Python with Pillow handles preprocessing, Motion is the optional motion engine, and chroma-js validates colors."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

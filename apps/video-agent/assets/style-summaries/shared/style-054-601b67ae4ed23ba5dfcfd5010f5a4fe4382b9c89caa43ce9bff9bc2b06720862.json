@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-054",
+    "name": "Photocopy Art / Zine Design (Printmaking and Craft Materials). Supplemental reference, not a named style in the source collection.",
+    "visualIdentity": "Raw zine look: high-contrast photographs, photocopy grain, cutout headlines, tape or staples, and irregular page layouts. Keep one information center, monochrome with an optional accent. Animate page changes, pasting, and recomposition while lettering stays readable.",
+    "suitableUses": "Explicit: raw page collages when used alone. Best-for uses appear only in hybrid suggestions: activist explainers, DIY guides, community announcements, band promos, lyric zines, and music event recaps. This style has no standalone compatibility block, so other fits would be inferred.",
+    "limitations": "The source lists no standalone exclusions. Explicit constraints: keep one focal point per page and use readable type. In hybrids, never use a third ink color or handwriting for body text. Avoid full-frame flashing and pasting everything at once. Simulated appearance is not evidence of physical production.",
+    "palette": "Suggested, not supplied: background #FFFFFF, foreground #000000, optional accent #BF3232, omitted for full monochrome. Task or approved colors override these and must not be recolored. Gradients are disabled, so tokens stay discrete. Two-color contrast: black on white 21:1; white on accent 5.649:1; normal text target 4.5:1. Verify actual composited frames.",
+    "motionAndInteraction": "Video: animate page changes, paste actions, and recomposition on seekable composition time using deliberate paste and page-turn moves. Keep sharp cuts, impacts, and reading holds, and avoid automatic springs or bounce. Interactive delivery is unspecified for this style. Optional motion references (motion-007, -008, -012, -015) apply only if the scene fits; choosing none is valid.",
+    "audio": "The source specifies no required audio. Suggest per topic: background music, voiceover, sound effects, ambience, or silence, none mandatory. Music-driven hybrids pace paste and page-turns on a verified beat table, without drift from live analysis. Keep speech intelligible, avoid clipping and competing vocals, and do not invent audio assets.",
+    "assetRequirements": "Preprocess high-contrast photographs, fixed photocopy grain (not reseeded), torn edges, and cut lettering before compositing. Pillow (Python) handles crop, resize, alpha compositing, masks, and textures. Sharp (Node.js only, never browser) is an optional alternative. Load fonts and assets before rendering. Supplied assets: unspecified.",
+    "combinations": "Use alone for raw page collages. With style-024: marker arrows or circles in black or the optional red, pointing at one focal point, never covering faces. With style-105: beat-locked paste and page-turns, fixed grain, and reading holds for headlines. Both hybrids require their listed consistency rules.",
+    "productionApproach": "Build visuals with Canvas 2D (listed alternative) or DOM/SVG, and drive motion with a paused, seekable GSAP timeline. HyperFrames is the primary pipeline for assembly, timing, audio sync, validation, and export. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists; record the reason. chroma-js validates colors. Deliver video, source, contact sheet, parameters, and render commands, and verify decoded frames and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

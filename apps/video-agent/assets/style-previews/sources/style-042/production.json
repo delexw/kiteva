@@ -1,0 +1,29 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Idea Connected",
+  "displayDescription": "IDEA and CONNECTED pieces sprayed onto a night concrete wall, then an arrow, a sprayed node network and a link.up! tag.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (stationary concrete wall; seeded spray clouds, drips, sprayed strokes and nodes redrawn from timeline time)",
+    "SVG (Impact/Marker Felt lettering with feDropShadow extrudes and feTurbulence-roughened path masks)"
+  ],
+  "motionEngine": [
+    "GSAP 3.15 paused timeline (sole owner of composition time, mask dash offsets and wrapper transforms)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent. No audio track.",
+  "limitations": [
+    "Spray paint is approximated with seeded 2D particles and soft radial blooms. There is no fluid, pigment-absorption or pressure simulation.",
+    "Drips are procedural growing shapes, not simulated runs.",
+    "The concrete wall is procedural noise and seams, not a photographed texture.",
+    "Lettering uses locally installed system fonts (Impact, Marker Felt) with fallbacks, so glyph shapes vary if those fonts are missing.",
+    "No reviewed preview recipe was supplied, so only the base style implementation is shown.",
+    "BACKGROUND_REVIEW.json had no matched sources or contact sheets, so the background choice is not backed by source-frame evidence.",
+    "Not rendered or browser-tested by the agent. The host QA results are authoritative."
+  ]
+}

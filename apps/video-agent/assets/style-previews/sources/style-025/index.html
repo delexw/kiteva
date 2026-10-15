@@ -1,0 +1,272 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Doodle Art — An idea becomes a connected system</title>
+<style>
+  /* OS-bundled handwriting fonts (macOS); no downloadable files, resolved via local() */
+  @font-face { font-family: 'Chalkboard SE'; font-weight: 400; src: local('Chalkboard SE'), local('ChalkboardSE-Regular'); }
+  @font-face { font-family: 'Chalkboard SE'; font-weight: 700; src: local('Chalkboard SE Bold'), local('ChalkboardSE-Bold'); }
+  @font-face { font-family: 'Marker Felt'; font-weight: 400; src: local('Marker Felt'), local('MarkerFelt-Thin'); }
+  @font-face { font-family: 'Marker Felt'; font-weight: 700; src: local('Marker Felt Wide'), local('MarkerFelt-Wide'); }
+  @font-face { font-family: 'Comic Sans MS'; font-weight: 400; src: local('Comic Sans MS'), local('ComicSansMS'); }
+  @font-face { font-family: 'Comic Sans MS'; font-weight: 700; src: local('Comic Sans MS Bold'), local('ComicSansMS-Bold'); }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #EDF1F5; }
+  #video { position: relative; width: 100%; height: 100%; }
+  #stage { width: 100%; height: 100%; display: block; }
+  .ink-text { font-family: 'Chalkboard SE', 'Marker Felt', 'Comic Sans MS', cursive; fill: #34343D; }
+</style>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#D5DEE7" stroke-width="1.2"/>
+    </pattern>
+    <radialGradient id="vignette" cx="50%" cy="50%" r="75%">
+      <stop offset="70%" stop-color="#C9D3DD" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#C9D3DD" stop-opacity="0.45"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Stationary paper: cool blue-grey graph sheet (no motion) -->
+  <g id="paper">
+    <rect width="1280" height="720" fill="#EDF1F5"/>
+    <rect width="1280" height="720" fill="url(#grid)"/>
+    <rect width="1280" height="720" fill="url(#vignette)"/>
+  </g>
+
+  <!-- Connection links bulb -> nodes (filled by script with rough strokes) -->
+  <g id="links" fill="none" stroke="#34343D" stroke-width="3.2" stroke-linecap="round"></g>
+  <!-- Node-to-node dotted links -->
+  <g id="dots" fill="#34343D"></g>
+
+  <!-- Four mint node characters -->
+  <g id="nodes"></g>
+
+  <!-- Bulb character: wrapper owns transform; variants/expressions own opacity -->
+  <g id="bulb-wrap">
+    <g id="bulb">
+      <g id="bulb-rays" fill="none" stroke="#34343D" stroke-width="3.5" stroke-linecap="round">
+        <path id="ray-1" d="M420 206V174"/>
+        <path id="ray-2" d="M338 230L316 208"/>
+        <path id="ray-3" d="M502 230L524 208"/>
+        <path id="ray-4" d="M300 298L270 290"/>
+        <path id="ray-5" d="M540 298L570 290"/>
+      </g>
+      <path id="bulb-fill" d="M360 470C290 420 280 250 420 240C560 250 550 420 480 470Z" fill="#E6AF9C"/>
+      <g id="bulb-lines"></g>
+      <path id="bulb-shine" d="M352 304C362 279 380 266 400 262" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+      <rect x="372" y="470" width="96" height="56" rx="10" fill="#94C1B3"/>
+      <g id="base-lines"></g>
+      <path d="M380 489H460M380 507H460" fill="none" stroke="#34343D" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M404 540H436" fill="none" stroke="#34343D" stroke-width="3.5" stroke-linecap="round"/>
+
+      <!-- Replaceable expression groups -->
+      <g id="face-sleepy" fill="none" stroke="#34343D" stroke-width="4" stroke-linecap="round">
+        <path d="M380 352H408M432 352H460"/>
+        <path d="M406 402Q420 408 434 402"/>
+      </g>
+      <g id="face-aha">
+        <path d="M376 312Q392 296 408 308M432 308Q448 296 464 312" fill="none" stroke="#34343D" stroke-width="3.5" stroke-linecap="round"/>
+        <ellipse cx="394" cy="350" rx="11" ry="16" fill="#34343D"/>
+        <ellipse cx="446" cy="350" rx="11" ry="16" fill="#34343D"/>
+        <circle cx="398" cy="344" r="4" fill="#FFFFFF"/>
+        <circle cx="450" cy="344" r="4" fill="#FFFFFF"/>
+        <ellipse cx="420" cy="404" rx="13" ry="15" fill="#34343D"/>
+      </g>
+      <g id="face-happy">
+        <path d="M380 356Q394 338 408 356M432 356Q446 338 460 356" fill="none" stroke="#34343D" stroke-width="4" stroke-linecap="round"/>
+        <path d="M396 390Q420 432 444 390Z" fill="#34343D" stroke="#34343D" stroke-width="3" stroke-linejoin="round"/>
+        <ellipse cx="370" cy="384" rx="11" ry="7" fill="#F5D3C6"/>
+        <ellipse cx="470" cy="384" rx="11" ry="7" fill="#F5D3C6"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Thought bubble with silent ellipsis -->
+  <g id="bubble-wrap">
+    <g id="bubble">
+      <circle cx="510" cy="250" r="7" fill="#FFFFFF" stroke="#34343D" stroke-width="3"/>
+      <path id="bubble-shape" d="M528 196C528 176 548 166 580 166C612 166 632 176 632 196C632 216 612 226 580 226C548 226 528 216 528 196Z" fill="#FFFFFF"/>
+      <g id="bubble-lines"></g>
+      <g id="bubble-dots" fill="#34343D">
+        <circle id="bd-1" cx="560" cy="197" r="5" data-reveal-after="bubble-shape"/>
+        <circle id="bd-2" cx="580" cy="197" r="5" data-reveal-after="bubble-shape"/>
+        <circle id="bd-3" cx="600" cy="197" r="5" data-reveal-after="bubble-shape"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Title reading card: opaque white surface, ink type -->
+  <g id="card-wrap">
+    <g id="card">
+      <rect id="title-card" x="836" y="214" width="392" height="316" rx="26" fill="#FFFFFF"/>
+      <g id="card-lines"></g>
+      <g id="title-copy" class="ink-text" font-weight="bold">
+        <text id="t1" x="870" y="292" font-size="58" data-reveal-after="title-card">An idea</text>
+        <text id="t2" x="874" y="346" font-size="36" font-weight="normal" data-reveal-after="title-card">becomes a</text>
+        <text id="t3" x="870" y="414" font-size="58" data-reveal-after="title-card">connected</text>
+        <text id="t4" x="870" y="478" font-size="58" data-reveal-after="title-card">system!</text>
+      </g>
+      <path id="underline" d="M872 502C950 512 1050 494 1150 506" fill="none" stroke="#94C1B3" stroke-width="10" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="rough.local.js"></script>
+<script>
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const INK = '#34343D', PEACH = '#E6AF9C', MINT = '#94C1B3', CARD = '#FFFFFF', PAPER = '#EDF1F5';
+  const gen = window.rough.generator();
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; };
+
+  // Contrast sanity using the resolved scene palette (reading text sits on opaque white card).
+  window.__paletteContrast = { inkOnCard: chroma.contrast(INK, CARD), inkOnPaper: chroma.contrast(INK, PAPER) };
+
+  // Rough.js outline → SVG path(s). Every call is seeded, so variants are fixed, not random.
+  function roughPaths(drawable, parent, extra) {
+    const out = [];
+    for (const p of gen.toPaths(drawable)) {
+      out.push(el('path', Object.assign({ d: p.d, fill: 'none', stroke: p.stroke, 'stroke-width': p.strokeWidth, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, extra || {}), parent));
+    }
+    return out;
+  }
+  const opt = (seed, w, r) => ({ seed, stroke: INK, strokeWidth: w, roughness: r, bowing: 1.2, disableMultiStroke: true, fill: undefined });
+
+  // ---- Fixed line variants (pose-linked) ----
+  const BULB_D = 'M360 470C290 420 280 250 420 240C560 250 550 420 480 470Z';
+  const bulbVariants = [11, 23, 37].map((seed, i) => {
+    const g = el('g', { id: 'bulb-line-' + i }, $('bulb-lines'));
+    roughPaths(gen.path(BULB_D, opt(seed, 4.2, 1.1)), g);
+    return g;
+  });
+  const baseVariants = [5, 19, 41].map((seed, i) => {
+    const g = el('g', { id: 'base-line-' + i }, $('base-lines'));
+    roughPaths(gen.rectangle(372, 470, 96, 56, opt(seed, 4, 0.9)), g);
+    return g;
+  });
+  roughPaths(gen.path('M528 196C528 176 548 166 580 166C612 166 632 176 632 196C632 216 612 226 580 226C548 226 528 216 528 196Z', opt(7, 3.2, 0.9)), $('bubble-lines'));
+  roughPaths(gen.path('M862 214H1202Q1228 214 1228 240V504Q1228 530 1202 530H862Q836 530 836 504V240Q836 214 862 214Z', opt(13, 3.4, 0.8)), $('card-lines'));
+
+  // ---- Nodes: mint doodle faces with sleepy -> smile expression groups ----
+  const nodeSpecs = [
+    { id: 'n1', x: 180, y: 214, seed: 51, from: [318, 388], c: [250, 330] },
+    { id: 'n2', x: 176, y: 520, seed: 63, from: [320, 424], c: [240, 470] },
+    { id: 'n3', x: 712, y: 200, seed: 77, from: [520, 382], c: [640, 300] },
+    { id: 'n4', x: 752, y: 476, seed: 89, from: [522, 424], c: [650, 462] }
+  ];
+  const nodes = nodeSpecs.map((n) => {
+    const wrap = el('g', { id: n.id + '-wrap' }, $('nodes'));
+    const g = el('g', { id: n.id }, wrap);
+    el('circle', { cx: n.x, cy: n.y, r: 38, fill: MINT }, g);
+    roughPaths(gen.circle(n.x, n.y, 76, opt(n.seed, 3.5, 0.9)), g);
+    const sleepy = el('g', { fill: 'none', stroke: INK, 'stroke-width': 3.5, 'stroke-linecap': 'round' }, g);
+    el('path', { d: `M${n.x - 18} ${n.y - 6}H${n.x - 6}M${n.x + 6} ${n.y - 6}H${n.x + 18}M${n.x - 6} ${n.y + 12}H${n.x + 6}` }, sleepy);
+    const smile = el('g', {}, g);
+    el('circle', { cx: n.x - 12, cy: n.y - 6, r: 4.5, fill: INK }, smile);
+    el('circle', { cx: n.x + 12, cy: n.y - 6, r: 4.5, fill: INK }, smile);
+    el('circle', { cx: n.x - 22, cy: n.y + 8, r: 6, fill: PEACH }, smile);
+    el('circle', { cx: n.x + 22, cy: n.y + 8, r: 6, fill: PEACH }, smile);
+    el('path', { d: `M${n.x - 10} ${n.y + 10}Q${n.x} ${n.y + 20} ${n.x + 10} ${n.y + 10}`, fill: 'none', stroke: INK, 'stroke-width': 3.5, 'stroke-linecap': 'round' }, smile);
+    // Link from bulb edge to node edge
+    const dx = n.x - n.c[0], dy = n.y - n.c[1], len = Math.hypot(dx, dy);
+    const ex = n.x - dx / len * 42, ey = n.y - dy / len * 42;
+    const link = roughPaths(gen.path(`M${n.from[0]} ${n.from[1]}Q${n.c[0]} ${n.c[1]} ${ex.toFixed(1)} ${ey.toFixed(1)}`, opt(n.seed + 3, 3.2, 0.8)), $('links'));
+    return Object.assign({ wrap, sleepy, smile, link }, n);
+  });
+
+  // Dotted node-to-node links (system closes): fixed dot positions along gentle curves
+  function dotRow(x1, y1, cx, cy, x2, y2, count) {
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      const t = (i + 1) / (count + 1), u = 1 - t;
+      out.push(el('circle', { cx: (u * u * x1 + 2 * u * t * cx + t * t * x2).toFixed(1), cy: (u * u * y1 + 2 * u * t * cy + t * t * y2).toFixed(1), r: 3.4 }, $('dots')));
+    }
+    return out;
+  }
+  const dotGroups = [
+    dotRow(176, 256, 150, 368, 172, 478, 9),
+    dotRow(224, 196, 450, 130, 670, 186, 15),
+    dotRow(718, 242, 750, 340, 750, 434, 8)
+  ];
+
+  // ---- Timeline (single paused GSAP timeline; one owner per property) ----
+  const tl = gsap.timeline({ paused: true });
+  const show = (list, idx, t) => list.forEach((g, i) => tl.set(g, { opacity: i === idx ? 1 : 0 }, t));
+  const faces = { sleepy: $('face-sleepy'), aha: $('face-aha'), happy: $('face-happy') };
+  const face = (name, t) => Object.keys(faces).forEach((k) => tl.set(faces[k], { opacity: k === name ? 1 : 0 }, t));
+
+  // Initial states (t = 0): bulb present but sleepy, everything else hidden
+  gsap.set('#bulb-wrap', { svgOrigin: '420 526' });
+  bulbVariants.forEach((g, i) => gsap.set(g, { opacity: i === 0 ? 1 : 0 }));
+  baseVariants.forEach((g, i) => gsap.set(g, { opacity: i === 0 ? 1 : 0 }));
+  gsap.set(faces.sleepy, { opacity: 1 }); gsap.set([faces.aha, faces.happy], { opacity: 0 });
+  gsap.set('#bubble-wrap', { svgOrigin: '510 250', scale: 0.4, opacity: 0 });
+  gsap.set(['#bd-1', '#bd-2', '#bd-3'], { opacity: 0 });
+  const rays = ['#ray-1', '#ray-2', '#ray-3', '#ray-4', '#ray-5'].map((s) => document.querySelector(s));
+  const dash = (p) => { const L = p.getTotalLength(); gsap.set(p, { strokeDasharray: L + 1, strokeDashoffset: L + 1 }); return L; };
+  rays.forEach(dash);
+  nodes.forEach((n) => { n.link.forEach(dash); gsap.set(n.wrap, { svgOrigin: `${n.x} ${n.y}`, scale: 0.5, opacity: 0 }); gsap.set(n.smile, { opacity: 0 }); gsap.set(n.sleepy, { opacity: 1 }); });
+  dotGroups.flat().forEach((d) => gsap.set(d, { opacity: 0 }));
+  gsap.set('#card-wrap', { svgOrigin: '1032 372', scale: 0.92, y: 18, opacity: 0 });
+  gsap.set(['#t1', '#t2', '#t3', '#t4'], { opacity: 0 });
+  dash($('underline'));
+
+  // Beat 1 (0.00–0.70): sleepy bulb wonders; silent ellipsis bubble pops, dots after bubble is complete
+  tl.to('#bubble-wrap', { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.6)' }, 0.12);
+  tl.to('#bd-1', { opacity: 1, duration: 0.01 }, 0.44);
+  tl.to('#bd-2', { opacity: 1, duration: 0.01 }, 0.52);
+  tl.to('#bd-3', { opacity: 1, duration: 0.01 }, 0.60);
+
+  // Beat 2 (0.72–1.25): anticipation squash -> AHA stretch -> settle, with fixed line variants per pose
+  tl.to('#bulb-wrap', { scaleX: 1.07, scaleY: 0.9, duration: 0.16, ease: 'power2.inOut' }, 0.72);
+  show(bulbVariants, 1, 0.72); show(baseVariants, 1, 0.72);
+  tl.to('#bulb-wrap', { scaleX: 0.95, scaleY: 1.1, duration: 0.14, ease: 'power2.out' }, 0.88);
+  show(bulbVariants, 2, 0.88); show(baseVariants, 2, 0.88);
+  face('aha', 0.88);
+  tl.to('#bubble-wrap', { scale: 0.5, opacity: 0, duration: 0.16, ease: 'power2.in' }, 0.86);
+  rays.forEach((r, i) => tl.to(r, { strokeDashoffset: 0, duration: 0.22, ease: 'power2.out' }, 0.9 + i * 0.03));
+  tl.to('#bulb-wrap', { scaleX: 1, scaleY: 1, duration: 0.26, ease: 'back.out(2)' }, 1.02);
+  show(bulbVariants, 0, 1.02); show(baseVariants, 0, 1.02);
+
+  // Beat 3 (1.05–1.95): links draw outward; each node pops on arrival, wakes up with a smile
+  nodes.forEach((n, i) => {
+    const s = 1.05 + i * 0.09;
+    n.link.forEach((p) => tl.to(p, { strokeDashoffset: 0, duration: 0.34, ease: 'power2.inOut' }, s));
+    tl.to(n.wrap, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.8)' }, s + 0.3);
+    tl.set(n.sleepy, { opacity: 0 }, s + 0.58);
+    tl.set(n.smile, { opacity: 1 }, s + 0.58);
+  });
+
+  // Beat 4 (1.55–2.05): dotted cross-links close the loop into a system
+  dotGroups.forEach((row, r) => row.forEach((d, i) => tl.to(d, { opacity: 1, duration: 0.01 }, 1.6 + r * 0.06 + i * (0.36 / row.length))));
+
+  // Title card: container first, copy only after the card is complete, then underline
+  tl.to('#card-wrap', { scale: 1, y: 0, opacity: 1, duration: 0.34, ease: 'back.out(1.4)' }, 1.2);
+  ['#t1', '#t2', '#t3', '#t4'].forEach((t, i) => tl.to(t, { opacity: 1, duration: 0.14, ease: 'sine.inOut' }, 1.56 + i * 0.07));
+  tl.to('#underline', { strokeDashoffset: 0, duration: 0.36, ease: 'power2.inOut' }, 1.92);
+
+  // Beat 5 (2.05–2.45): bulb reacts happily to the finished system (small nod), then holds
+  face('happy', 2.08);
+  tl.to('#bulb-wrap', { rotation: -5, duration: 0.14, ease: 'sine.inOut' }, 2.06);
+  show(bulbVariants, 1, 2.06);
+  tl.to('#bulb-wrap', { rotation: 0, duration: 0.24, ease: 'back.out(1.6)' }, 2.2);
+  show(bulbVariants, 0, 2.2);
+
+  // Settled reading hold until 3.0s
+  tl.to({}, { duration: 0.001 }, 2.999);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+
+  // Deterministic seek support (SVG state is fully owned by the GSAP timeline)
+  document.addEventListener('hf-seek', (e) => { const t = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : null; if (t !== null) tl.seek(t, false); });
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

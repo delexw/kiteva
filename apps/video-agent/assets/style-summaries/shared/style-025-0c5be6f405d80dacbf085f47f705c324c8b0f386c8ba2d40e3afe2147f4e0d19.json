@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-025",
+    "name": "Doodle Art, in the Drawing and Illustration category. Provenance is explicit: the source names this style directly. It is distinct from graffiti.",
+    "visualIdentity": "Simple contours, expressive faces, and a few exaggerated details in a casual drawing rhythm. Forms stay consistent, colors stay light, and backgrounds stay quiet. Characters are built from a few drawn paths plus replaceable expression groups.",
+    "suitableUses": "Explicitly suited to casual explainers and social content on its own. Inferred fits include mascots, reaction-driven character beats, and short expressive explainers. Long character holds or punchline-dependent content are better served by a hybrid, per the source's selection guidance.",
+    "limitations": "Avoid arbitrary shaking, identical expressions in every scene, and boiling or busy backgrounds. Long character holds may need a hybrid with captions. Other technical limits are unspecified in the source.",
+    "palette": "Suggested tokens, not approved colors: background #FFFBF2 (paper), foreground #34343D (ink), accent_1 #E6AF9C (peach), accent_2 #94C1B3 (mint). No gradient is enabled. Foreground on background measures 11.928:1; accent_1 and accent_2 against foreground measure 6.439:1 and 6.182:1, from two-color checks only. Supplied exact colors override these, and approved colors must never be darkened, desaturated, or recolored.",
+    "motionAndInteraction": "Animate clear poses, short reactions, and natural pauses, avoiding identical expressions and arbitrary shaking. Drive all video state from seekable composition time, with one owner per animated property. Interaction behavior is unspecified for this style; the catalog gaze, chapter, and storytelling patterns are optional candidates that need suitable layers.",
+    "audio": "Audio is unspecified; the source fixes no genre, tempo, voice, or mandatory audio layer. Suggest music, voiceover, effects, ambience, or silence from the topic, audience, and motion, honoring explicit user requirements first. Verify speech clarity, audio balance, and picture sync in the final video.",
+    "assetRequirements": "Requires drawn character paths, replaceable expression groups, and fixed line variants for pose sequencing. Fonts and assets must be loaded before rendering. Rough.js may generate sketch-like contours, which is an inferred fit. No specific asset files are supplied, so any missing assets are unspecified.",
+    "combinations": "Style-092 adds a gentle line boil: only contours boil, fills stay fixed, and backgrounds stay still. Style-115 adds reaction captions in #34343D on #FFFBF2 or accent chips, one per beat, shorter than pose motion, and never over faces or in neon styling.",
+    "productionApproach": "The style renderer uses SVG, Canvas 2D, or optional Rough.js, Paper.js, or PixiJS for drawing. GSAP or Motion owns motion. HyperFrames is the primary pipeline for assembly, timing, sync, validation, and export; Remotion is a fallback only when its documented condition is met and recorded. Seed randomness, and verify key frames and the decoded video."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

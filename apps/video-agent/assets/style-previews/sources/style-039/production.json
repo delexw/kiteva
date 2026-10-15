@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Dusk Valley",
+  "displayDescription": "Gouache dusk valley: an ochre idea ring is brushed in, hills repaint in dry-brush sweeps, and light links four houses.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (native browser API): cached gouache paint layers, seeded directional bristle dabs, coverage-mask compositing via destination-in",
+    "HTML/CSS lettering in system Gill Sans / Avenir Next"
+  ],
+  "motionEngine": [
+    "GSAP (local gsap.min.js) single paused timeline at window.__timelines.video; a function-based clock tween redraws the canvas from composition time; GSAP tweens own headline clip-path and subtitle opacity/y"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track. Authored visual cue sequence: ring stroke 0.15s, hill sweeps 0.25s/0.5s, beam 1.15s, houses 1.0-1.75s, window lights 1.68/2.02/2.15/2.32s, settled by 2.6s.",
+  "limitations": [
+    "Gouache is approximated procedurally in Canvas 2D with opaque seeded bristle dabs and a stationary grain overlay; there is no physical pigment, paper absorption or brush simulation.",
+    "Window glow and the idea-ring halo use translucent dab clusters as a lighting approximation, not real light transport.",
+    "Dusk palette is scene-dependent, following the background review lesson (dominant cool field, one warm complementary accent family for focal light). The cream swatch is reused only for lettering and house walls; it is not the canvas colour.",
+    "The source reference (a framed oil night scene that becomes an interactive 3D walk-through) informed only stroke direction, the cool field with warm light accents, and the dark anchoring forms. Its subject, frame, interface and wording were not copied, and its 3D push-in was not used in this 2D scene.",
+    "STYLE.json lists no preview recipes (tech.preview_recipes absent/empty), so the preview demonstrates the base implementation: medium-specific paint layers with coverage-mask brush reveals.",
+    "Blender was not used, per user instruction. No render or browser test was run by the agent.",
+    "Typography uses the OS-bundled Gill Sans via @font-face src: local() declarations (no font file shipped). Where Gill Sans is not installed, the stack falls back to Avenir Next, Futura, Helvetica Neue or Arial."
+  ]
+}

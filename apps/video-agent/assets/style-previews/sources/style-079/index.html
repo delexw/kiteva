@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #1F2C34; }
+  #root { position: relative; width: 100%; height: 100%; background: #1F2C34; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; display: block; }
+  .copy { position: absolute; margin: 0; white-space: nowrap; }
+  #h1 { left: 80px; top: 58px; font: 400 44px/52px Georgia, "Times New Roman", serif; color: #EEE6D4; }
+  #h2 { left: 80px; top: 110px; font: italic 400 44px/52px Georgia, "Times New Roman", serif; color: #B3885F; }
+  #tag { right: 80px; top: 80px; font: 400 14px/20px "Helvetica Neue", Arial, sans-serif; letter-spacing: 3px; color: #EEE6D4; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="stage" width="1280" height="720"></canvas>
+  <p id="h1" class="copy">An idea becomes</p>
+  <p id="h2" class="copy">a connected system</p>
+  <p id="tag" class="copy">MINIATURE STAGE · 1:87</p>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="diorama.js"></script>
+<script>
+(function () {
+  const diorama = window.createDiorama(document.getElementById('stage'));
+
+  // Scene state: every property has exactly one owning tween on this timeline.
+  const state = {
+    azimuth: 18, radius: 50,
+    tower: 0.02, orb: 0, glow: 0, halo: 0, screen: 0,
+    roads: 0, ring: 0, trees: 0, figures: 0,
+    house0: 0, house1: 0, house2: 0, house3: 0,
+    pod0: 0, pod1: 0, pod2: 0, pod3: 0,
+    win0: 0, win1: 0, win2: 0, win3: 0
+  };
+  const draw = () => diorama.render(state);
+
+  const tl = gsap.timeline({ paused: true, onUpdate: draw });
+  // Camera: one bounded orbit + push-in that eases into the frontal isometric hero view.
+  tl.to(state, { azimuth: 45, duration: 2.6, ease: 'power2.inOut' }, 0);
+  tl.to(state, { radius: 46, duration: 2.6, ease: 'power2.inOut' }, 0);
+  // Part animation: the idea rises first.
+  tl.to(state, { tower: 1, duration: 0.7, ease: 'back.out(1.2)' }, 0.1);
+  tl.to(state, { orb: 1, duration: 0.5, ease: 'back.out(1.6)' }, 0.55);
+  tl.to(state, { halo: 1, duration: 0.6, ease: 'sine.inOut' }, 0.7);
+  tl.to(state, { glow: 1, duration: 0.6, ease: 'sine.inOut' }, 0.75);
+  tl.to(state, { screen: 1, duration: 1.4, ease: 'none' }, 0.8);
+  // Roads extend outward from the tower, then the back link closes the loop.
+  tl.to(state, { roads: 1, duration: 0.7, ease: 'power2.inOut' }, 0.8);
+  tl.to(state, { ring: 1, duration: 0.5, ease: 'power2.inOut' }, 1.35);
+  // Houses rise at the road ends, staggered.
+  ['house0', 'house1', 'house2', 'house3'].forEach((k, i) => {
+    tl.to(state, { [k]: 1, duration: 0.45, ease: 'back.out(1.4)' }, 1.05 + i * 0.12);
+  });
+  tl.to(state, { trees: 1, duration: 0.45, ease: 'back.out(1.4)' }, 1.3);
+  tl.to(state, { figures: 1, duration: 0.35, ease: 'back.out(1.4)' }, 1.5);
+  // Flow: a pod travels from the idea to each house; its windows light on arrival.
+  ['pod0', 'pod1', 'pod2', 'pod3'].forEach((k, i) => {
+    const s = 1.55 + i * 0.12;
+    tl.to(state, { [k]: 1, duration: 0.55, ease: 'power1.inOut' }, s);
+    tl.to(state, { ['win' + i]: 1, duration: 0.2, ease: 'sine.out' }, s + 0.5);
+  });
+  tl.to({}, { duration: 0.001 }, 2.999);
+
+  draw();
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+
+  // Redraw on any framework seek (direct, backward or out of order).
+  window.addEventListener('hf-seek', (e) => {
+    const t = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : tl.time();
+    tl.time(t, false);
+    draw();
+  });
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

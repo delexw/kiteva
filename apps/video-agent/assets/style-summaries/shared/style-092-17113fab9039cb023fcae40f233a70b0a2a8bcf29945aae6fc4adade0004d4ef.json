@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-092",
+    "name": "Line Boil",
+    "visualIdentity": "Supplemental design reference, not a named style in the source collection. Two or three carefully drawn contour variants cycle at a stable cadence. Variation stays small, preserving silhouette, glyph structure, and position. The boil must coordinate with subject motion.",
+    "suitableUses": "Explicitly suited to two-tone hand-drawn shimmer on illustrations or titles, where the boil is the whole idea. Inferred from combinations: hand-made title sequences, short quotes, brand intros, and simple explainers. Suitability for other media is unspecified.",
+    "limitations": "A jittery mouth alone does not establish Line Boil; controlled drawing variants are required. Random per-frame noise causes distracting instability and must be avoided. Accent hues and gradients are excluded. Rough.js cannot supply handwriting, pencil media, or pose animation.",
+    "palette": "No palette was supplied, so suggested monochrome tokens apply: cream background #F6EFDF and ink foreground #354142. Contrast is 9.229, meeting the 4.5 normal-text target for two-color checks only. Tone comes from hatching or opacity. Supplied exact colors override these suggestions.",
+    "motionAndInteraction": "Variants cycle with explicit exposure holds at a constant cadence, independent of other easing. Designed trajectories may be smoothed, but never by replacing the boil with random jitter. Video state derives from composition time. Optional scroll or pointer behavior applies only to interactive delivery; in the typography pairing, the boil stops under reduced motion.",
+    "audio": "Unspecified in the source; no audio layer is assigned. Optional choices include restrained accents on reveals, or silence during reading holds. Speech must stay intelligible without competing vocals. Any music mood or tempo should derive from the topic and boil cadence.",
+    "assetRequirements": "Requires two or three aligned line-art variants per object, checked for silhouette and glyph correspondence before cycling. Generated geometry needs fixed seeds and cached paths. Fonts and assets must load before rendering. No source assets are supplied, so their availability is unspecified.",
+    "combinations": "Works alone when a two-tone shimmer is the whole idea. Suggested hybrids: style-093 for kinetic typography with boiled glyph variants, and style-026 for whiteboard diagrams with lower boil on labels than drawings. Hybrids keep the two-color palette and avoid boiling during active drawing strokes.",
+    "productionApproach": "Renderer: Canvas 2D, SVG, or Rough.js for seeded contours; Motion is optional for DOM or SVG layers. Pipeline: HyperFrames is primary, and Remotion applies only when its documented fallback condition is verified. Check seeks, decoded frames, audio sync, and loop seams. Tool choices are suggestions, not a confirmed toolchain."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-015",
+    "name": "Brutalist Web Design. This is a web-design treatment, distinct from architectural Brutalism.",
+    "visualIdentity": "Explicitly combines web screenshots, bold type, raw interface fragments, hard-edged blocks, and deliberately mismatched media. Information order stays clear despite the abrasive look. Favors direct cuts, scrolling, and rough collage. Unreadable text and meaningless glitches are avoided.",
+    "suitableUses": "Explicitly suited to editorial narratives, product explainers, document or process sequences, and flat vector, collage, sticker, or motion-poster layouts. Raw, direct sites and promos are also named as suitable. Inferred: it fits topics that benefit from a confrontational tone.",
+    "limitations": "Adapt or omit when the layout hides content viewers still need, overlap obscures provenance or comparison labels, or fixed print geometry cannot accommodate stacking. Omit abrasive transitions for calm editorial scenes or when distortion undermines communication. Unreadable text is not acceptable.",
+    "palette": "Suggested, not approved: #FFFFFF background, #000000 foreground, and #CEFF24 lime accent, used as discrete tokens with no gradient. Task, brand, or reference colors override these, and assets must not be recolored. Black on white and black on lime pass two-color normal-text checks (21:1 and about 17.95:1). Recheck composited frames.",
+    "motionAndInteraction": "Motion references are optional. Candidates are motion-008 (anchored card stacking), motion-012 (chapter handoff), motion-013 (swipe carousel), motion-015 (narrative steps), and motion-020 (glitch cut, only for intentionally abrasive moments). Choosing none is valid. Video motion derives from composition time, and interactive delivery may use scroll or swipe.",
+    "audio": "Unspecified by the source, which assigns no fixed genre, tempo, voice, or mandatory audio layer. Choices should derive from topic, audience, and motion, and may include music, narration, effects, ambience, or silence. Speech must remain intelligible and synchronized with picture.",
+    "assetRequirements": "Screenshots, transparent assets, and real text are layered directly. Asset dimensions and typography should stay stable across cuts. Fonts and assets must load before rendering. No specific asset list or exact copy is supplied, so these remain unspecified placeholders.",
+    "combinations": "Brutalist Web Design alone suits raw, direct sites and promos. Hybrid option one is style-054, a photocopy treatment for screenshots and photos, using lime rather than zine red, with fixed grain and no random rotation. Hybrid option two is style-024, black or lime markup annotations over screenshots, with no red and point-before-note ordering.",
+    "productionApproach": "HyperFrames is the primary pipeline for composition, timing, sync, validation, and export. Remotion is the fallback only when HyperFrames is unavailable or verifiably limited, and the reason must be recorded. HTML/CSS and Canvas 2D act as style renderers, GSAP acts as the motion engine, and Motion and chroma.js are optional. Verify key frames, seeks, and audio sync before delivery."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

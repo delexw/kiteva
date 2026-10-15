@@ -1,0 +1,33 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Origami System",
+  "displayDescription": "A terracotta kite folds, pleats unfold to carry sage kites outward, and crease links reach small kites on a dark cutting mat.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186 WebGLRenderer (orthographic tilted camera, MeshStandardMaterial paper, PCF soft shadows)",
+    "Canvas 2D (stationary seeded cutting-mat texture)",
+    "HTML/CSS text overlay",
+    "chroma-js (palette derivation/contrast)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline registered inline in index.html at window.__timelines.video (single owner of composition time)",
+    "Extended Position-Based Dynamics (XPBD) — custom 2D cross-section pleat solver, precomputed at 120 Hz x 8 substeps and replayed from cache",
+    "Parent-child crease-hinge pivots (quaternion axis-angle) for kite flaps"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Blender was not used, by explicit user instruction; this is a Three.js approximation of folded paper.",
+    "Paper is modelled as rigid zero-thickness facets with a 1.2-unit layer offset; no real paper thickness, fibre texture, bending or crease spring-back.",
+    "The XPBD solver is a small custom 2D cross-section solve (inextensible panels, ground contact, soft pleat-memory and compliant end attachment); it isn't a full cloth or origami crease simulator, and pleat memory is an artistic constraint.",
+    "Kite flap folds are authored hinge rotations, not simulated; fold order and layer offsets are validated analytically (window.__origamiValidation).",
+    "Several sheets are used although the copy reads ONE SHEET; the copy is kept from the reference illustration.",
+    "No source frames matched this style (BACKGROUND_REVIEW matchedSources 0); no source observations were used.",
+    "The 'a connected system' headline is ivory with a terracotta rule, because terracotta text on the dark mat measured 3.6:1."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-045",
+    "name": "Hand-drawn Collage, in the Printmaking and Craft Materials category. Provenance is explicit.",
+    "visualIdentity": "Explicit: drawn characters, handwritten text and cut paper share one brush and paper language. Uneven edges, tape and light contact shadows can support the craft look. Other materials are unspecified.",
+    "suitableUses": "Explicitly suited to crafted narratives, which the source says it works alone for. Listed best-fit uses are craft stories, social clips and explainers. Inferred: paper-based storytelling. Other uses are unspecified.",
+    "limitations": "Explicit: layers must not wobble continuously, and roughness must not touch precise text, grids or approved assets. Rough.js adds no animation, handwriting, paper texture or character poses. Other limits are unspecified.",
+    "palette": "Suggested, not supplied: background #F6EDD9, foreground #3C4345, accent_1 #B97259, accent_2 #819777, with no gradient. Foreground on background measures 8.666:1 for body text. Accent pairs at 3.212:1 and 3.184:1 are decorative only. Task colors override these.",
+    "motionAndInteraction": "Explicit motion: placing, peeling, hinged movement and scene recomposition, using explicit pivots. Stepped timing is suggested only for placements. Interaction is unspecified beyond reduced-motion fallbacks and accessible labels for HTML hybrids. Motion references are optional; none is required.",
+    "audio": "Unspecified by the style; no fixed music, voice or effects. Options include music, voiceover, sung vocals, effects, ambience or silence, with silence suitable for reading holds. Beat sync needs actual audio analysis. Audio assets are unspecified.",
+    "assetRequirements": "Prepare separated paper pieces, lettering and character parts as transparent layers or numbered frames with alpha, consistent dimensions and a layer manifest. Include shared paper textures and explicit pivots. Copy, fonts and source assets are unspecified.",
+    "combinations": "Style-097 Rough.js diagrams suit explainers when using the primary palette only, one ink weight and accurate data; avoid glossy charts, overlaps and wobble. Style-082 stepped placement suits craft clips, with only placements stepped and no line boil.",
+    "productionApproach": "HyperFrames is primary for composition, timing, validation and export, with a paused GSAP timeline per composition. Remotion is fallback only when HyperFrames is unavailable or a verified limit exists, recorded. PixiJS and Rough.js are optional renderers, Pillow or sharp preprocess assets, and chroma-js validates colors."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

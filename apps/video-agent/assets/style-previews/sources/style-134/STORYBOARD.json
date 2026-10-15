@@ -1,0 +1,124 @@
+{
+  "version": 3,
+  "title": "Fine-Line Chinese Painted Scroll — An idea becomes a connected system (dawn mist)",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Contours before pigment",
+      "startSeconds": 0,
+      "endSeconds": 1.3,
+      "purpose": "Lay down a dawn-mist river valley in fine #3B544D contours that follow a line-weight hierarchy. Each translucent wash appears only after its contour group is complete.",
+      "visuals": [
+        "Cool celadon silk #E1E8E4 with a stationary seeded Canvas 2D weave, inside a fixed warm-paper #D8C6A5 mount border",
+        "Rose #D2A6A3 dawn sun disk, its wash revealed after its 0.6px contour",
+        "Far range in mountain #B5CEC0 wash (1.3px contour, 0.6px ridge strokes), overlapped by the jade #86B6A2 mid range",
+        "Mist band in mist white #F2F5F0, revealed after its fine edge line",
+        "Ornamental cloud curls with billowed lobes, inner spirals and curling mist tails",
+        "Three pavilions with jade roofs and warm-paper platforms on the ridge",
+        "One scholar figure holding up a blossom sprig; plum branch with five rose blossoms; jade water ripples",
+        "Rose thread drawn from the held blossom to pavilions 1, 2 and 3, with a knot appearing as each span arrives"
+      ],
+      "assets": [
+        "index.html",
+        "gsap.min.js",
+        "DrawSVGPlugin.min.js",
+        "tools/build-scene.mjs"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.7,
+          "development": "The frame rule, sun, far range, plum branch, mid range, water lines and near bank draw in sequence. Each wash fades in after its own contour group. The titles rise in as standalone headings.",
+          "captions": [
+            "An idea becomes",
+            "a connected system"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.7,
+          "endSeconds": 1.3,
+          "development": "The mist band, clouds, pavilions, figure and blossoms finish drawing, then fill. 念 appears after the seal frame closes, and the caption fades in. The rose thread links the blossom to the three pavilions.",
+          "captions": [
+            "念",
+            "one blossom, a thread, three pavilions"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "The scroll breathes, then holds",
+      "startSeconds": 1.3,
+      "endSeconds": 3,
+      "purpose": "Add restrained life to the finished painting, then settle so the whole composition can be read.",
+      "visuals": [
+        "Bird flying along an authored arc",
+        "Four petals drifting down onto the water",
+        "Sleeve swaying about the shoulder pivot",
+        "Cloud band shifting 16px (about 1.25%); small cloud drifting 10px the other way"
+      ],
+      "assets": [
+        "index.html"
+      ],
+      "beats": [
+        {
+          "startSeconds": 1.3,
+          "endSeconds": 2.6,
+          "development": "The bird flaps along its path while the petals fall and settle. The sleeve sways 5° and returns to rest, and the cloud band makes a shallow lateral shift. The silk and weave stay fixed.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.6,
+          "endSeconds": 3,
+          "development": "Hold on the completed scroll.",
+          "captions": [
+            "An idea becomes",
+            "a connected system",
+            "one blossom, a thread, three pavilions"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.4
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "All contours and washes are complete by 1.3s.",
+      "All motion ends by 2.6s, so the frame is settled before 2.7s.",
+      "The large mountain and mist wash reveals provide the main pixel change; the background never moves."
+    ],
+    "justifiedHolds": [
+      "2.6–3.0s: final reading hold"
+    ]
+  },
+  "notes": [
+    "Silent preview.",
+    "Refresh: the background is now a scene-dependent dawn-mist celadon silk (#E1E8E4) instead of the warm #F0EEDD swatch, and a rose dawn sun and a mist band have been added.",
+    "STYLE.json lists no preview recipes, and BACKGROUND_REVIEW.json has 0 matched sources and no contact sheets. No source observations are claimed.",
+    "No Blender, and no arrows."
+  ]
+}

@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Constructivism — an idea becomes a connected system</title>
+<style>
+  @font-face{font-family:"Impact";src:local("Impact");font-weight:400;font-style:normal}
+  @font-face{font-family:"Arial Black";src:local("Arial Black"),local("ArialMT-Black");font-weight:900;font-style:normal}
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#121829}
+  #root{position:relative;width:100%;height:100%;overflow:hidden;background:#121829}
+  #scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .display{font-family:Impact,"Arial Black","Helvetica Neue",Arial,sans-serif}
+  .caps{font-family:"Arial Black","Helvetica Neue",Arial,sans-serif;font-weight:900}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Static print grain (fixed seed, never animated) -->
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.93  0 0 0 0 0.91  0 0 0 0 0.85  0 0 0 0.55 -0.18"/>
+    </filter>
+    <!-- Diagonal wipe mask for the halftone cutout, in the cutout's local coordinates -->
+    <clipPath id="bulbWipe" clipPathUnits="userSpaceOnUse">
+      <rect id="bulbWipeRect" x="-760" y="-700" width="620" height="1400" transform="rotate(-12)"/>
+    </clipPath>
+    <!-- Headline lives inside the band: clip equals the band plate -->
+    <clipPath id="bandClip" clipPathUnits="userSpaceOnUse">
+      <rect x="-260" y="370" width="1800" height="140"/>
+    </clipPath>
+    <clipPath id="stripClip" clipPathUnits="userSpaceOnUse">
+      <rect x="300" y="522" width="600" height="52"/>
+    </clipPath>
+  </defs>
+
+  <!-- Stationary ground: ink-navy field, low-value rays from the future hub, grain -->
+  <rect x="0" y="0" width="1280" height="720" fill="#121829"/>
+  <g id="rays" fill="#19203A"></g>
+  <rect x="0" y="0" width="1280" height="720" filter="url(#grain)" opacity="0.10"/>
+
+  <!-- Kicker (standalone heading) -->
+  <g id="kicker">
+    <text x="72" y="82" class="caps" font-size="18" letter-spacing="6" fill="#EEE8DA">FROM ONE IDEA</text>
+    <rect id="kickerRule" x="72" y="96" width="132" height="4" fill="#C8301F"/>
+  </g>
+
+  <!-- Spokes + nodes of the system (drawn later from the hub outward) -->
+  <g id="spokes" stroke="#EEE8DA" stroke-width="5" fill="none" stroke-linecap="square"></g>
+  <g id="nodes"></g>
+
+  <!-- Hub ring (draws around the recomposed idea) -->
+  <circle id="hubRing" cx="990" cy="170" r="84" fill="none" stroke="#C8301F" stroke-width="12" transform="rotate(-102 990 170)"/>
+
+  <!-- Procedural halftone "photographic" cutout of a light bulb, centred on 0,0 -->
+  <g id="bulb">
+    <g clip-path="url(#bulbWipe)">
+      <g id="bulbBase">
+        <path d="M-62 104 L62 104 L46 176 L-46 176 Z" fill="#0A0D18" stroke="#EEE8DA" stroke-width="3"/>
+        <rect x="-46" y="176" width="92" height="58" fill="#0A0D18" stroke="#EEE8DA" stroke-width="3"/>
+        <g id="baseDots" fill="#EEE8DA"></g>
+      </g>
+      <circle r="140" fill="#0A0D18" stroke="#EEE8DA" stroke-width="3"/>
+      <g id="globeDots" fill="#EEE8DA"></g>
+      <path id="filament" d="M-34 104 L-34 30 L-20 -8 L-6 30 L8 -8 L22 30 L34 -8 L34 104" fill="none" stroke="#C8301F" stroke-width="7" stroke-linejoin="miter"/>
+    </g>
+  </g>
+
+  <!-- Diagonal construction: band, headline, strip, all on the -12° axis -->
+  <g id="axis" transform="rotate(-12 600 440)">
+    <rect id="band" x="-260" y="370" width="0" height="140" fill="#B8261E"/>
+    <g clip-path="url(#bandClip)">
+      <text id="headline" data-reveal-after="band" x="600" y="467" text-anchor="middle" class="display" font-size="78" letter-spacing="2" fill="#EEE8DA">IDEA BUILDS THE SYSTEM</text>
+    </g>
+    <g id="stripGroup">
+      <rect id="strip" x="300" y="522" width="0" height="52" fill="#07090F"/>
+      <rect id="ruleTop" x="300" y="518" width="0" height="2" fill="#EEE8DA"/>
+      <rect id="ruleBot" x="300" y="576" width="0" height="2" fill="#EEE8DA"/>
+      <g clip-path="url(#stripClip)">
+        <text id="stripText" data-reveal-after="strip" x="600" y="556" text-anchor="middle" class="caps" font-size="20" letter-spacing="7" fill="#EEE8DA">CONNECT / ASSEMBLE / ACT</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Corner metadata -->
+  <text id="meta" x="1208" y="672" text-anchor="end" class="caps" font-size="18" letter-spacing="5" fill="#EEE8DA">ONE HUB / FOUR NODES</text>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  const HUB={x:990,y:170};
+  const PAL={ground:'#121829',ink:'#EEE8DA',signal:'#C8301F',band:'#B8261E',strip:'#07090F'};
+  // Palette contrast record (validation only — never used to hide or recolor text)
+  document.getElementById('root').setAttribute('data-contrast',JSON.stringify({
+    inkOnGround:+chroma.contrast(PAL.ink,PAL.ground).toFixed(2),
+    inkOnBand:+chroma.contrast(PAL.ink,PAL.band).toFixed(2),
+    inkOnStrip:+chroma.contrast(PAL.ink,PAL.strip).toFixed(2)
+  }));
+  function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent.appendChild(e);return e;}
+
+  // Static low-value sunburst wedges radiating from the hub (stationary ground)
+  const rays=document.getElementById('rays');
+  for(let i=0;i<20;i++){
+    const a0=(i/20)*Math.PI*2, a1=a0+Math.PI/40, R=1800;
+    el('polygon',{points:`${HUB.x},${HUB.y} ${HUB.x+R*Math.cos(a0)},${HUB.y+R*Math.sin(a0)} ${HUB.x+R*Math.cos(a1)},${HUB.y+R*Math.sin(a1)}`},rays);
+  }
+
+  // Deterministic halftone: dot radius from Lambert + specular shading of a sphere (light upper-left)
+  const L=(()=>{const v=[-0.55,-0.62,0.56];const m=Math.hypot(...v);return v.map(c=>c/m);})();
+  const globe=document.getElementById('globeDots');
+  const S=9, R=134;
+  for(let gy=-R;gy<=R;gy+=S){
+    for(let gx=-R;gx<=R;gx+=S){
+      const ox=gx+((Math.round(gy/S)%2)?S/2:0), oy=gy;
+      const d2=ox*ox+oy*oy; if(d2>R*R) continue;
+      const nx=ox/140, ny=oy/140, nz=Math.sqrt(Math.max(0,1-nx*nx-ny*ny));
+      const lam=Math.max(0,nx*L[0]+ny*L[1]+nz*L[2]);
+      const spec=Math.pow(Math.max(0,2*lam*nz-L[2]),18);
+      const lum=Math.min(1,0.08+0.78*lam+0.5*spec);
+      const r=0.4+3.9*lum; if(r<0.7) continue;
+      el('circle',{cx:ox.toFixed(1),cy:oy.toFixed(1),r:r.toFixed(2)},globe);
+    }
+  }
+  const base=document.getElementById('baseDots');
+  for(let gy=110;gy<=228;gy+=8){
+    const half= gy<176 ? 62-(gy-104)*(16/72)-6 : 40;
+    for(let gx=-half;gx<=half;gx+=8){
+      const u=gx/half; const thread=(gy>=176)?(0.6+0.4*Math.cos((gy-176)/58*Math.PI*6)):1;
+      const lum=Math.max(0,(0.55-0.45*u)*Math.sqrt(Math.max(0,1-u*u))*thread);
+      const r=0.4+3.2*lum; if(r<0.8) continue;
+      el('circle',{cx:gx.toFixed(1),cy:gy,r:r.toFixed(2)},base);
+    }
+  }
+
+  // System spokes and nodes (geometry precomputed)
+  const NODES=[{x:722,y:84,c:PAL.ink},{x:1186,y:62,c:PAL.ink},{x:1214,y:206,c:PAL.signal},{x:808,y:262,c:PAL.ink}];
+  const spokes=document.getElementById('spokes'), nodes=document.getElementById('nodes');
+  const spokeEls=[], nodeEls=[];
+  NODES.forEach((n,i)=>{
+    const dx=n.x-HUB.x, dy=n.y-HUB.y, len=Math.hypot(dx,dy), ux=dx/len, uy=dy/len;
+    const x1=HUB.x+ux*92, y1=HUB.y+uy*92, x2=n.x-ux*14, y2=n.y-uy*14;
+    const l=Math.hypot(x2-x1,y2-y1);
+    const line=el('line',{id:'spoke-'+i,x1:x1.toFixed(1),y1:y1.toFixed(1),x2:x2.toFixed(1),y2:y2.toFixed(1),'stroke-dasharray':l.toFixed(1),'stroke-dashoffset':l.toFixed(1)},spokes);
+    spokeEls.push({line,l});
+    const sq=el('rect',{id:'node-'+i,x:(n.x-14).toFixed(1),y:(n.y-14).toFixed(1),width:28,height:28,fill:n.c,'data-reveal-after':'spoke-'+i},nodes);
+    nodeEls.push(sq);
+  });
+  const ring=document.getElementById('hubRing');
+  const ringLen=2*Math.PI*84;
+  ring.setAttribute('stroke-dasharray',ringLen.toFixed(1));
+  ring.setAttribute('stroke-dashoffset',ringLen.toFixed(1));
+
+  // ---- One paused, fully built GSAP timeline (sole owner of every animated property) ----
+  const tl=gsap.timeline({paused:true});
+  const bulb=document.getElementById('bulb');
+  gsap.set(bulb,{x:300,y:330,scale:1,svgOrigin:'0 0'});
+  gsap.set('#kicker',{opacity:0,x:-40});
+  gsap.set('#headline',{y:130});
+  gsap.set('#stripText',{y:44});
+  gsap.set('#meta',{opacity:0,x:40});
+  gsap.set(nodeEls,{scale:0,transformOrigin:'50% 50%'});
+
+  // Beat 1 (0–0.75): halftone cutout wipes in along the diagonal, travelling up the axis
+  tl.fromTo('#bulbWipeRect',{attr:{x:-760}},{attr:{x:-150},duration:0.6,ease:'power3.out'},0.05);
+  tl.fromTo(bulb,{x:250,y:341},{x:330,y:324,duration:0.7,ease:'power3.out'},0.05);
+  tl.to('#kicker',{opacity:1,x:0,duration:0.4,ease:'power2.out'},0.2);
+
+  // Beat 2 (0.6–1.3): signal band slashes in on the -12° axis; headline rises inside it once settled
+  tl.to('#band',{attr:{width:1800},duration:0.42,ease:'power4.out'},0.6);
+  tl.to('#headline',{y:0,duration:0.32,ease:'power3.out'},1.0);
+
+  // Beat 3 (1.3–2.1): recomposition — the idea travels up the same axis and becomes the hub
+  tl.to('#bulbBase',{opacity:0,y:30,duration:0.3,ease:'power2.in'},1.3);
+  tl.to(bulb,{x:HUB.x,y:HUB.y,scale:0.5,duration:0.6,ease:'power3.inOut'},1.3);
+  tl.to(ring,{attr:{'stroke-dashoffset':0},duration:0.4,ease:'power2.out'},1.75);
+
+  // Beat 4 (1.95–2.5): spokes draw outward; each node lands when its spoke arrives
+  spokeEls.forEach((s,i)=>{
+    const t=1.95+i*0.08;
+    tl.to(s.line,{attr:{'stroke-dashoffset':0},duration:0.3,ease:'power2.out'},t);
+    tl.to(nodeEls[i],{scale:1,duration:0.2,ease:'back.out(2)'},t+0.3);
+  });
+
+  // Beat 5 (2.05–2.6): caption strip cuts in along the axis; its text follows once the strip is complete
+  tl.to(['#strip'],{attr:{width:600},duration:0.3,ease:'power3.out'},2.05);
+  tl.to(['#ruleTop','#ruleBot'],{attr:{width:600},duration:0.3,ease:'power3.out'},2.1);
+  tl.to('#stripText',{y:0,duration:0.25,ease:'power3.out'},2.36);
+  tl.to('#meta',{opacity:1,x:0,duration:0.3,ease:'power2.out'},2.3);
+
+  // Settled by 2.62 s; hold the full lockup to 3 s
+  tl.set({}, {}, 3);
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+  tl.seek(0);
+  window.addEventListener('hf-seek',e=>{const t=e&&e.detail&&typeof e.detail.time==='number'?e.detail.time:null;if(t!==null)tl.seek(t,false);});
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

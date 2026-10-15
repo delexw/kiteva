@@ -1,0 +1,26 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Idea Network",
+  "displayDescription": "Pixel-art frame-by-frame study: a bulb idea charges, flashes and sparks into a connected node system on a dusk lake.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (native, 320x180 pixel buffer, nearest-neighbour 4x upscale)",
+    "chroma-js (palette mixing for dithered stops)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline at window.__timelines.video (sole time owner) driving an explicit 12-drawings/sec exposure sheet"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "No Blender used per user instruction; scene is procedural Canvas 2D pixel art.",
+    "Drawings are procedurally authored per drawing index (33 distinct drawings on twos), not hand-drawn by an animator.",
+    "Water reflection is an approximated mirrored-slice effect, not optical simulation.",
+    "Title and HUD use an authored 5x7 bitmap font drawn into the canvas, not DOM text."
+  ]
+}

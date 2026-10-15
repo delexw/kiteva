@@ -1,0 +1,53 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:1280px;height:720px;overflow:hidden}svg{width:1280px;height:720px;display:block}</style></head><body><div data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30"><svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720"><defs><rect id="k" x="-12" y="-12" width="24" height="24" fill="#000000"></rect></defs><rect x="0" y="0" width="1280" height="720" fill="#FFFFFF" data-demo-actor="demo-actor-1"></rect><rect x="0" y="200" width="240" height="320" fill="#D02020" data-demo-actor="demo-actor-2"></rect><rect x="880" y="0" width="200" height="200" fill="#184BA0" data-demo-actor="demo-actor-3"></rect><rect x="240" y="520" width="400" height="80" fill="#F4CB28" data-demo-actor="demo-actor-4"></rect><rect x="1080" y="200" width="200" height="60" fill="#000000" data-demo-actor="demo-actor-5"></rect><rect x="880" y="600" width="200" height="120" fill="#F4CB28" data-demo-actor="demo-actor-6"></rect><g fill="#000000" data-demo-actor="demo-actor-7"><rect x="234" y="0" width="12" height="720" data-demo-actor="demo-actor-8"></rect><rect x="874" y="0" width="12" height="720" data-demo-actor="demo-actor-9"></rect><rect x="1074" y="0" width="12" height="720" data-demo-actor="demo-actor-10"></rect><rect x="634" y="520" width="8" height="200" data-demo-actor="demo-actor-11"></rect><rect x="0" y="194" width="1280" height="12" data-demo-actor="demo-actor-12"></rect><rect x="0" y="514" width="1280" height="12" data-demo-actor="demo-actor-13"></rect><rect x="240" y="596" width="840" height="8" data-demo-actor="demo-actor-14"></rect></g><use href="#k" x="240" y="200" data-demo-actor="demo-actor-15"></use><use href="#k" x="880" y="200" data-demo-actor="demo-actor-16"></use><use href="#k" x="1080" y="200" data-demo-actor="demo-actor-17"></use><use href="#k" x="240" y="520" data-demo-actor="demo-actor-18"></use><use href="#k" x="880" y="520" data-demo-actor="demo-actor-19"></use><use href="#k" x="1080" y="520" data-demo-actor="demo-actor-20"></use><text x="290" y="320" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="700" font-size="60" fill="#000000" data-demo-actor="demo-actor-21">AN IDEA</text><text x="290" y="390" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="700" font-size="40" fill="#D02020" data-demo-actor="demo-actor-22">DIVIDES INTO</text><text x="290" y="450" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="700" font-size="40" fill="#184BA0" data-demo-actor="demo-actor-23">A CONNECTED SYSTEM</text><text x="1100" y="480" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="16" fill="#000000" letter-spacing="4" data-demo-actor="demo-actor-24">NO. 05</text></svg></div><script src="gsap.min.js"></script><script src="chroma.min.js"></script><script>
+const plan={"styleId":"style-005","selectedReferenceIds":[],"rationale":"De Stijl grid: thick black rules divide the frame into cells holding red, blue and yellow fields, with the headline in the central white cell. Only the colour fields and the headline move. Each field slides along a horizontal or vertical axis into its cell, under the fixed black grid, which is drawn above the fields. The red field enters from the left edge, the blue from the top edge, and the lower yellow fields from the left and the bottom. Then the three headline lines step in one after another. There are no diagonals or rotation. The grid group, junction squares, black block, NO. 05 and white field stay still. Everything is settled by 1.75s. No reference fits, because this is one scene.","tracks":[{"actorId":"demo-actor-2","role":"Red field slides in from the left edge","action":"reveal","start":0,"duration":0.6,"ease":"power2.inOut","pose":{"x":-48,"y":0,"scale":0.85,"rotation":0,"opacity":0}},{"actorId":"demo-actor-3","role":"Blue field drops down from the top edge","action":"reveal","start":0.25,"duration":0.6,"ease":"power2.inOut","pose":{"x":0,"y":-40,"scale":0.85,"rotation":0,"opacity":0}},{"actorId":"demo-actor-4","role":"Lower-left yellow field slides in horizontally","action":"reveal","start":0.5,"duration":0.6,"ease":"power2.inOut","pose":{"x":-40,"y":0,"scale":0.85,"rotation":0,"opacity":0}},{"actorId":"demo-actor-6","role":"Lower-right yellow field rises in from the bottom edge","action":"reveal","start":0.7,"duration":0.6,"ease":"power2.inOut","pose":{"x":0,"y":40,"scale":0.85,"rotation":0,"opacity":0}},{"actorId":"demo-actor-21","role":"AN IDEA headline appears","action":"reveal","start":1,"duration":0.45,"ease":"power2.inOut","pose":{"x":-24,"y":0,"scale":0.9,"rotation":0,"opacity":0}},{"actorId":"demo-actor-22","role":"DIVIDES INTO line appears","action":"reveal","start":1.15,"duration":0.45,"ease":"power2.inOut","pose":{"x":-24,"y":0,"scale":0.9,"rotation":0,"opacity":0}},{"actorId":"demo-actor-23","role":"A CONNECTED SYSTEM line appears","action":"reveal","start":1.3,"duration":0.45,"ease":"power2.inOut","pose":{"x":-24,"y":0,"scale":0.9,"rotation":0,"opacity":0}}]};
+const svg=document.querySelector('svg');
+const foreground="#000000";
+const background="#FFFFFF";
+const seenText=new Map();
+Array.from(svg.querySelectorAll('text')).forEach(el=>{
+ const label=el.textContent.trim();const prior=seenText.get(label);
+ if(prior && Math.abs(Number(prior.getAttribute('x'))-Number(el.getAttribute('x')))<12 && Math.abs(Number(prior.getAttribute('y'))-Number(el.getAttribute('y')))<12) prior.remove();
+ seenText.set(label,el);
+ // Preserve authored baselines. Tight headline leading can overlap font em-boxes
+ // without overlapping visible glyphs; annotate only baseline gaps of at least one em.
+ const fontSize=Number(getComputedStyle(el).fontSize.replace('px',''));
+ const fill=getComputedStyle(el).fill;
+ if(fontSize<24 && chroma.valid(fill) && chroma(fill).hex()!==chroma(background).hex() && chroma.contrast(fill,background)<4.5){el.setAttribute('fill',foreground);el.setAttribute('opacity','1');el.setAttribute('fill-opacity','1');}
+ if(fontSize>=36){
+  for(const sibling of Array.from(el.parentElement.querySelectorAll(':scope > text'))){
+   if(sibling===el)continue;
+   const gap=Math.abs(Number(sibling.getAttribute('y'))-Number(el.getAttribute('y')));
+   if(gap>=fontSize && gap<=fontSize*1.3 && Math.abs(Number(sibling.getAttribute('x'))-Number(el.getAttribute('x')))<12){el.setAttribute('data-layout-allow-overlap','true');sibling.setAttribute('data-layout-allow-overlap','true');}
+  }
+ }
+ // Outlined display lettering needs a readable fill as well as its decorative outline.
+ if(el.getAttribute('stroke') && el.getAttribute('stroke')!=='none') {el.setAttribute('fill',foreground);el.setAttribute('stroke',background);}
+});
+
+const timeline=gsap.timeline({paused:true});
+const chosen=plan.tracks.map(track=>({track,element:document.querySelector('[data-demo-actor="'+track.actorId+'"]')}));
+if(chosen.some(item=>!item.element))throw Error('Motion references an absent actor');
+for(const item of chosen){
+ if(chosen.some(other=>other!==item&&other.element.contains(item.element)))throw Error('Nested motion actors would double-transform artwork');
+ const el=item.element;
+ if(el.tagName==='rect' && Number(el.getAttribute('width'))>=1200 && Number(el.getAttribute('height'))>=650)throw Error('Background cannot be a motion actor');
+ const wrapper=document.createElementNS('http://www.w3.org/2000/svg','g');
+ el.parentNode.insertBefore(wrapper,el);wrapper.appendChild(el);
+ wrapper.setAttribute('data-demo-motion',item.track.actorId);
+ // Animate a neutral wrapper, never overwrite the artwork's authored matrix.
+ gsap.set(wrapper,{transformOrigin:'50% 50%'});
+ if(item.track.action==='reveal'){
+   gsap.set(wrapper,item.track.pose);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:item.track.ease},item.track.start);
+ }else if(item.track.action==='draw'){
+   const paths=Array.from(el.matches('path,line,polyline,polygon')?[el]:el.querySelectorAll('path,line,polyline,polygon'));
+   const drawable=paths.filter(p=>getComputedStyle(p).fill==='none' && getComputedStyle(p).stroke!=='none' && typeof p.getTotalLength==='function');
+   if(!drawable.length)throw Error('Draw action needs visible unfilled stroked paths');
+   for(const path of drawable){const length=path.getTotalLength();gsap.set(path,{strokeDasharray:length,strokeDashoffset:length});timeline.to(path,{strokeDashoffset:0,duration:item.track.duration,ease:item.track.ease},item.track.start);}
+ }else{
+   timeline.to(wrapper,{...item.track.pose,duration:item.track.duration,ease:item.track.ease},item.track.start);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:'sine.inOut'},Math.min(2.7-item.track.duration,item.track.start+item.track.duration+.2));
+ }
+}
+timeline.to({}, {duration:.001},2.999);window.__timelines={video:timeline};
+</script></body></html>

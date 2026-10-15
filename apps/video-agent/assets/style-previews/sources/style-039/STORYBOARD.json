@@ -1,0 +1,128 @@
+{
+ "version": 3,
+ "title": "An idea becomes a connected system — gouache dusk valley",
+ "durationSeconds": 3,
+ "scenes": [
+  {
+   "id": "scene-1",
+   "title": "The idea is painted",
+   "startSeconds": 0,
+   "endSeconds": 1.0,
+   "purpose": "Establish the dusk gouache valley and paint the ochre idea ring and headline.",
+   "visuals": [
+    "Static dusk sky of directional dabs swirling around the idea",
+    "Ochre idea ring brushed in as one circular stroke",
+    "Far slate hill repainted left to right",
+    "Headline brush-wiped in, then the subtitle rises"
+   ],
+   "assets": [
+    "index.html canvas layers: sky, orb, far hill, grain"
+   ],
+   "beats": [
+    {
+     "startSeconds": 0,
+     "endSeconds": 1.0,
+     "development": "The ring stroke closes around the warm core (0.15-1.0s), the far hill sweep starts at 0.25s, the headline is wiped in at 0.1-0.8s and the subtitle fades in at 0.6-1.15s.",
+     "captions": [
+      "An idea",
+      "becomes a connected system"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-2",
+   "title": "The valley and village form",
+   "startSeconds": 1.0,
+   "endSeconds": 1.8,
+   "purpose": "Layer the scenery and settle the village where the idea will land.",
+   "visuals": [
+    "Mid hill repainted in a dry-brush sweep",
+    "Gold beam dabbed from the ring down to the central house",
+    "Four houses settle in sequence"
+   ],
+   "assets": [
+    "index.html canvas layers: mid hill, foreground rust field, houses"
+   ],
+   "beats": [
+    {
+     "startSeconds": 1.0,
+     "endSeconds": 1.8,
+     "development": "Houses settle at 1.0-1.75s, the beam draws at 1.15-1.65s, the mid hill completes by 1.45s, and the central house's windows light at 1.68s.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-3",
+   "title": "Connected system",
+   "startSeconds": 1.8,
+   "endSeconds": 3.0,
+   "purpose": "Spread light along the dashed path so every house is connected, then hold the readable scene.",
+   "visuals": [
+    "Cream-gold dash dabs travel left and right from the central house",
+    "Windows light warm orange as each connection arrives",
+    "Settled full composition with footer"
+   ],
+   "assets": [
+    "index.html canvas: dashed links, window glow"
+   ],
+   "beats": [
+    {
+     "startSeconds": 1.8,
+     "endSeconds": 2.6,
+     "development": "Links reach the right-centre house (2.02s), the left house (2.15s) and the far-right house (2.32s), and each one's windows light up.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 2.6,
+     "endSeconds": 3.0,
+     "development": "Final reading hold on the complete connected valley.",
+     "captions": [
+      "An idea",
+      "becomes a connected system",
+      "GOUACHE · LAYERED VALLEY"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.4
+    }
+   ]
+  }
+ ],
+ "pacingAudit": {
+  "findings": [
+   "All motion completes by 2.6s, so the full readable scene holds from 2.6s to 3.0s.",
+   "The footer stays static and readable throughout on the dark rust field."
+  ],
+  "justifiedHolds": [
+   "The 0.4s closing hold lets the viewer read the connected system."
+  ]
+ },
+ "notes": [
+  "Silent preview.",
+  "Background policy is scene-dependent: a dusk indigo field replaces the prior cream swatch.",
+  "Renderer: Canvas 2D. Motion owner: one GSAP timeline."
+ ]
+}

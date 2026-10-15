@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-063",
+    "name": "Oscilloscope Graphics. Category: Digital and 3D Aesthetics. Provenance: explicit.",
+    "visualIdentity": "A dark field with a small set of glowing green vectors for waveforms, trajectories and contours, using modest persistence so paths stay clear. Motion must follow a defined signal or precomputed audio, not arbitrary line wobble.",
+    "suitableUses": "Explicitly suited to audio-reactive or Lissajous pieces driven by a real signal. Inferred uses: offline music visualizers with style-105, and signal, phase or frequency education with style-097. Motion-039 lists this style as a good fit.",
+    "limitations": "Requires defined signal behavior; a simulated appearance is not validated physics. Avoid live microphone input for renders, brightness strobing on every beat, raster CRT scanlines on vector display, and crossing traces. Keep text in reserved stable zones. Duration and resolution are unspecified.",
+    "palette": "Background is scene_dependent. #081613 is an illustrative dark swatch, so the scene may choose another dark field that preserves the phosphor-on-dark identity. Foreground #D8F0DD and accent #76CF9B are unapproved suggestions; task-provided colors override them. No gradient is enabled. Two-color checks reach 15.362:1 and 9.845:1; recheck composited frames, since these do not guarantee readability over animated lighting or video.",
+    "motionAndInteraction": "Video motion derives from composition time and a fixed signal, with constant persistence and line weight across sections. Section changes switch figure families only at verified boundaries. Interactive delivery may add play/pause keyboard controls and a static waveform fallback. Motion-039 may suit a signal-driven reveal; motion-012, 014 and 015 are conditional, and motion-014 does not establish fluid behavior.",
+    "audio": "The source assigns no mandatory audio layer. Signal-driven traces need authorized audio analyzed offline into a precomputed signal or event table, not live input. Music, voiceover, sound effects or silence are task-specific choices; where inputs are absent, state assumptions rather than inventing audio assets.",
+    "assetRequirements": "No mandatory uploads are specified. Optional inputs include authorized audio for signal analysis, exact task colors, and approved mark geometry for motion-039. Fonts must load locally before rendering. Typography and glyph requirements are unspecified.",
+    "combinations": "Style-105 supplies a shared precomputed event table that changes trace families at verified section boundaries. Style-097 supplies a labeled graticule, readouts and explicit functions, whose formulas must match the plotted traces. Both hybrids keep the phosphor-on-dark identity; this pairing is inferred from source suggestions.",
+    "productionApproach": "Canvas 2D is the style renderer, drawing traces and persistence at deterministic times from explicit functions or precomputed signals. Web Audio API only inspects previews, not offline renders. HyperFrames owns composition, timing and export, with Remotion as conditional fallback. GSAP provides the paused timeline and chroma.js validates colors. The motion engine is unspecified."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-029",
+    "name": "Geometric Illustration, in the Drawing and Illustration category. The label was normalized from source descriptions, so its provenance is normalized rather than canonical.",
+    "visualIdentity": "Explicit: figures, objects and environments are built from a limited geometric vocabulary. Angles, proportions, line weights and palette are shared across the scene. Forms may be decomposed, assembled and resized while keeping identity and visual balance. Texture and medium are unspecified.",
+    "suitableUses": "Explicit: the style is coherent alone. Its combinations target brand idents, concept transitions and logo stories with shape morphing, and posters, report covers or design-system intros with a Swiss grid. Inferred: it suits geometric explainers where shapes carry meaning.",
+    "limitations": "Explicit: it needs support for meaningful transitions or a strict typographic grid. Avoid blobby organic morphs, new colors mid-morph and continuous morphing without holds. Duration, aspect ratio, resolution and frame rate are unspecified. The palette is an unapproved suggestion.",
+    "palette": "Suggested, not supplied: background #F3EFE4, foreground #253849, accent_1 #BF6D45, accent_2 #638878, with four base colors and gradients disabled. Foreground on background measures 10.501:1 and passes normal text. Accents on background (3.33 and 3.433) fail, so they are decorative fills only. Approved task colors override these tokens.",
+    "motionAndInteraction": "Explicit: use smooth authored movement where it helps, but keep deliberate sharp cuts, impacts, constant-speed sections and reading holds. GSAP paused timelines are the motion engine, with one owner per property. Video is driven by composition time; interaction is unspecified. Radial Logo Burst references white and dark confetti, which is not in the suggested tokens.",
+    "audio": "Explicit: no audio requirement, genre, tempo or voice is specified. Music-synchronized animation is listed as compatible, but no beat sync is verified without inspected audio. Options to consider include music, voiceover, sound effects, ambience or silence, with speech intelligibility prioritized. Source reference timing is approximate.",
+    "assetRequirements": "Explicit: the subject, audience, exact copy and assets are placeholders to be supplied by the task. Inspect approved mark or glyph geometry before punctuation or logo actions. Do not invent copy or a brand mark. Load fonts and geometry before animating. Motion references need an actual scene that contains the defining element.",
+    "combinations": "Explicit: style-100 adds shape-morph transitions that preserve pivots and holds, and HTML uses SVG morphs with reduced-motion handling. style-001 adds a flush-left Swiss grid using only primary tokens, with no Swiss red and no centered text. Avoid decorative type and Swiss palette imports.",
+    "productionApproach": "Style renderer: SVG for geometry, masks, clip paths and strokes; tldraw, p5.js and Paper.js are optional. Motion engine: GSAP paused timelines; Motion or Anime.js only with verified time sync. Pipeline: HyperFrames primary, Remotion only under the documented fallback condition. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

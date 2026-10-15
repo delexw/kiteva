@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-057",
+    "name": "Pixel Art. Explicit style in the Digital and 3D Aesthetics category; a 16-bit sprite appearance is explicitly requested.",
+    "visualIdentity": "Explicit: low logical resolution, limited palette, whole-pixel placement and deliberate pixel clusters. The 320 x 180 canvas and 32-color palette are optional examples. Source-video detail is unverified.",
+    "suitableUses": "Explicit: sprites and scenes on a fixed logical grid. Inferred from catalog lists: retro game trailers, looping social clips, isometric explainers, word smash cuts, punctuation zoom and lighting-state progression.",
+    "limitations": "No Three.js perspective, arbitrary-angle sprite rotation or anti-aliased edges. Smoothing and non-integer scaling are disallowed. Avoid post-effects that blend palette indices and full-screen flashing swaps. 32 colors is not a universal 16-bit rule.",
+    "palette": "Background is scene_dependent: #18253A is illustrative, so choose the background from subject, lighting and mood. Suggested discrete tokens: foreground #F3EBD3; accents #426A76, #8AA386, #D3A45E, #B56D6F; no gradient. Approved task colors override these and stay unrecolored. Foreground on background is 12.923:1; accent_4 is decorative only.",
+    "motionAndInteraction": "Key poses with few in-betweens, whole-pixel placement and integer nearest-neighbor scaling. Palette cycling can show water, neon or day-night change without moving silhouettes or interpolating colors. Catalog references (gaze, chapter handoff, phrase scatter, punctuation zoom, radial burst, word smash, lighting progression) need scene support; choosing none is valid. HTML reduced motion freezes palette cycling.",
+    "audio": "Unspecified: no audio was verified and no genre is mandated. Silence or restrained accents are valid. Chiptune-style music fits only if poses and palette steps follow a saved beat table from inspected audio. Voice language and delivery are unspecified.",
+    "assetRequirements": "No uploads are specified. Needed: indexed sprite or tile art on a fixed grid, approved palette colors if supplied, and local fonts loaded before rendering. Aseprite is optional for sprites, palettes and sprite sheets. Exact copy and brand marks are unspecified.",
+    "combinations": "Catalog-suggested: style-105 for beat-table timing of key poses and palette cycles; style-077 for a 2:1 pixel isometric tile grid. Use hybrids only when music must schedule poses or a strict isometric grid is required. Keep labels in a separate crisp text layer.",
+    "productionApproach": "HyperFrames is primary for composition, timing, validation and export; Remotion is fallback only if HyperFrames is unavailable or a verified limit applies. Canvas 2D with smoothing disabled is the primary style renderer; PixiJS or p5.js are optional. GSAP paused timelines own motion; chroma-js checks contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

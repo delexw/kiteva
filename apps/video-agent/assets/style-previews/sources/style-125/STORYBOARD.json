@@ -1,0 +1,173 @@
+{
+  "version": 2,
+  "durationSeconds": 3,
+  "format": "structured",
+  "sections": [
+    {
+      "heading": "style-125 Ancient Greek Vase Painting: \"An idea becomes a connected system\" (3 s, silent)",
+      "level": 1,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "strong",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Pipeline:"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": " HyperFrames composition ("
+            },
+            {
+              "type": "inlineCode",
+              "value": "index.html"
+            },
+            {
+              "type": "text",
+              "value": ", root "
+            },
+            {
+              "type": "inlineCode",
+              "value": "data-composition-id=\"video\""
+            },
+            {
+              "type": "text",
+              "value": ", 1280×720, 30 fps, 3 s).\n"
+            },
+            {
+              "type": "strong",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Renderers:"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": " Three.js amphora made with LatheGeometry (authored profile, 64 radial segments), MeshStandardMaterial with procedural roughness and normal maps, soft key, rim and hemisphere lights, Neutral tone mapping, and a Canvas 2D wrap texture (4096×2048, U wraps exactly once).\n"
+            },
+            {
+              "type": "strong",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Motion owner:"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": " GSAP. One paused timeline, built inline in index.html and registered at "
+            },
+            {
+              "type": "inlineCode",
+              "value": "window.__timelines.video"
+            },
+            {
+              "type": "text",
+              "value": ". Every render reads timeline state. Seeks re-render through the "
+            },
+            {
+              "type": "inlineCode",
+              "value": "totalTime"
+            },
+            {
+              "type": "text",
+              "value": " override and the "
+            },
+            {
+              "type": "inlineCode",
+              "value": "hf-seek"
+            },
+            {
+              "type": "text",
+              "value": " handler.\n"
+            },
+            {
+              "type": "strong",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Palette:"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": " background #100D09, foreground/incised lines #F3DFC0, vessel material #BA642F.\n"
+            },
+            {
+              "type": "strong",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Audio:"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": " silent."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "columns": [
+            {
+              "key": "Time",
+              "label": "Time",
+              "alignment": null
+            },
+            {
+              "key": "Beat",
+              "label": "Beat",
+              "alignment": null
+            }
+          ],
+          "rows": [
+            {
+              "Time": "0.00–0.85",
+              "Beat": "The vessel sits at a 225° turn. The left heading \"AN IDEA / BECOMES\" fades in from the left. The neck lozenges and meander register start painting in (texture-space sweep)."
+            },
+            {
+              "Time": "0.45–1.4",
+              "Beat": "The frieze reveal reaches the seated figure holding the flame (the idea), then the figure who receives a lit torch. The left rule draws."
+            },
+            {
+              "Time": "1.0–2.3",
+              "Beat": "The tongue band paints in. The frieze sweep moves on to the torch-runner and the chain of figures joined by cords and knotted nodes (the connected system). The right heading \"A CONNECTED / SYSTEM\" and its rule appear."
+            },
+            {
+              "Time": "2.0–2.5",
+              "Beat": "The caption \"ONE FLAME · MANY HANDS\" fades in."
+            },
+            {
+              "Time": "0–2.6 / 0–2.7",
+              "Beat": "The vessel rotates 90° (sine.inOut). The camera orbits slowly (azimuth −7°→+5°, elevation 6°→4°)."
+            },
+            {
+              "Time": "2.7–3.0",
+              "Beat": "Everything is settled and legible."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "No arrows and no text inside containers. The headings are standalone, with their own timing. Background and grain stay fixed: the burnish detail lives in texture space on the vessel."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

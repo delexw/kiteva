@@ -1,0 +1,211 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>An idea becomes a connected system — gouache dusk valley</title>
+<style>
+@font-face{font-family:"Gill Sans";src:local("Gill Sans"),local("GillSans");font-weight:400;font-style:normal}
+@font-face{font-family:"Gill Sans";src:local("Gill Sans SemiBold"),local("GillSans-SemiBold"),local("Gill Sans Bold"),local("GillSans-Bold");font-weight:600;font-style:normal}
+@font-face{font-family:"Gill Sans MT";src:local("Gill Sans MT"),local("GillSansMT");font-weight:400;font-style:normal}
+@font-face{font-family:"Gill Sans MT";src:local("Gill Sans MT Bold"),local("GillSansMT-Bold");font-weight:600;font-style:normal}
+html,body{margin:0;padding:0;width:1280px;height:720px;overflow:hidden;background:#23223D}
+#root{position:relative;width:100%;height:100%;overflow:hidden}
+#paint{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.copy{position:absolute;margin:0;color:#F1E6CF;font-family:"Gill Sans","Gill Sans MT","Avenir Next",Futura,"Helvetica Neue",Arial,sans-serif;white-space:nowrap}
+#headline{left:80px;top:78px;font-size:72px;line-height:86px;font-weight:600;letter-spacing:0}
+#subtitle{left:84px;top:168px;font-size:30px;line-height:40px;letter-spacing:2px}
+#footer{left:84px;top:666px;font-size:16px;line-height:20px;letter-spacing:5px}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="paint" width="1280" height="720"></canvas>
+  <h1 class="copy" id="headline">An idea</h1>
+  <p class="copy" id="subtitle">becomes a connected system</p>
+  <p class="copy" id="footer">GOUACHE · LAYERED VALLEY</p>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+'use strict';
+const W=1280,H=720,DUR=3;
+// ---------- resolved scene palette (dusk; scene-dependent background policy) ----------
+const P={
+  cream:'#F1E6CF',            // token background -> lettering, house walls, light dabs
+  ink:'#3E4C48',              // token foreground -> mid-hill body pigment
+  rust:'#9B604C',             // token accent_1 -> roofs, foreground rust field highlights
+  ochre:'#A89656',            // token accent_2 -> idea ring, doors
+  slate:'#63818A',            // token accent_3 -> far-hill light dabs
+  sky:['#23223D','#2A2847','#2F2C4C','#3A3557','#4A3B5C','#5E4560','#7A4F63'],
+  far:{base:'#3F5A66',dabs:['#4C6A75','#63818A','#37505B','#45616C']},
+  mid:{base:'#2C3D3B',dabs:['#3E4C48','#344542','#45574F','#26353A']},
+  front:{base:'#4A302A',dabs:['#563630','#5A3A32','#3F2823','#6B4439']},
+  glow:'#F4D78A', window:'#F2B45A', unlit:'#2B2A3C'
+};
+// ---------- seeded PRNG (deterministic) ----------
+function rng(seed){let a=seed>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const prog=(t,s,d)=>clamp((t-s)/d,0,1);
+const eIO=gsap.parseEase('power2.inOut'), eOut=gsap.parseEase('power2.out'), eBack=gsap.parseEase('back.out(1.4)'), eSine=gsap.parseEase('sine.inOut');
+function mixHex(a,b,f){const A=[1,3,5].map(i=>parseInt(a.substr(i,2),16)),B=[1,3,5].map(i=>parseInt(b.substr(i,2),16));return 'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*f)).join(',')+')';}
+function mk(){const c=document.createElement('canvas');c.width=W;c.height=H;return c;}
+
+// ---------- geometry from the authored composition ----------
+function cubicPts(segs,n){const out=[];segs.forEach(([p0,p1,p2,p3],i)=>{for(let k=(i?1:0);k<=n;k++){const t=k/n,u=1-t;out.push([u*u*u*p0[0]+3*u*u*t*p1[0]+3*u*t*t*p2[0]+t*t*t*p3[0],u*u*u*p0[1]+3*u*u*t*p1[1]+3*u*t*t*p2[1]+t*t*t*p3[1]]);}});return out;}
+function quadPts(p0,p1,p2,n){const o=[];for(let k=0;k<=n;k++){const t=k/n,u=1-t;o.push([u*u*p0[0]+2*u*t*p1[0]+t*t*p2[0],u*u*p0[1]+2*u*t*p1[1]+t*t*p2[1]]);}return o;}
+function ridgeY(pts,x){for(let i=1;i<pts.length;i++){if(pts[i][0]>=x){const a=pts[i-1],b=pts[i];const f=(x-a[0])/((b[0]-a[0])||1);return a[1]+(b[1]-a[1])*f;}}return pts[pts.length-1][1];}
+function slopeAt(pts,x){return Math.atan2(ridgeY(pts,x+8)-ridgeY(pts,x-8),16);}
+const farRidge=cubicPts([[[0,430],[200,340],[380,380],[560,330]],[[560,330],[760,280],[980,360],[1280,300]]],40);
+const midRidge=cubicPts([[[0,520],[240,450],[460,500],[700,450]],[[700,450],[900,410],[1100,470],[1280,430]]],40);
+const frontRidge=cubicPts([[[0,615],[300,560],[600,625],[900,585]],[[900,585],[1050,565],[1180,595],[1280,575]]],40);
+function hillPath(ridge,seed){const r=rng(seed);const p=new Path2D();p.moveTo(-10,H+10);for(let x=-10;x<=W+10;x+=6){p.lineTo(x,ridgeY(ridge,clamp(x,0,W))+(r()-.5)*5);}p.lineTo(W+10,H+10);p.closePath();return p;}
+
+// ---------- brush primitives (gouache: opaque, matte, dry-brush edges) ----------
+function bristle(ctx,x,y,ang,len,wid,color,r,alpha){
+  const n=Math.max(3,Math.round(wid/2.2));const ca=Math.cos(ang),sa=Math.sin(ang);
+  ctx.strokeStyle=color;ctx.lineCap='round';
+  for(let i=0;i<n;i++){
+    const off=(i/(n-1)-.5)*wid;const l=len*(.62+r()*.38);const s0=(r()-.5)*len*.18;
+    const ox=x-sa*off,oy=y+ca*off;
+    ctx.globalAlpha=alpha*(.75+r()*.25);ctx.lineWidth=wid/n*1.6;
+    ctx.beginPath();ctx.moveTo(ox+ca*(s0-l/2),oy+sa*(s0-l/2));ctx.lineTo(ox+ca*(s0+l/2),oy+sa*(s0+l/2));ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+
+// ---------- prepared paint layers (cached once, stationary) ----------
+const layers={};
+function paintSky(){
+  const c=mk(),x=c.getContext('2d'),r=rng(11);
+  const bands=[0,110,200,290,370,440,520,720];
+  for(let i=0;i<bands.length-1;i++){x.fillStyle=P.sky[i];x.fillRect(0,bands[i],W,bands[i+1]-bands[i]+2);}
+  // directional dabs following the air: horizontal drift plus a swirl around the idea
+  for(let k=0;k<5200;k++){
+    const px=r()*W,py=r()*620;let bi=0;while(bi<bands.length-2&&py>bands[bi+1])bi++;
+    const mix=r()<.28?Math.min(bi+1,P.sky.length-1):(r()<.2?Math.max(bi-1,0):bi);
+    const dx=px-980,dy=py-190,d=Math.hypot(dx,dy);
+    let ang=Math.sin(px*.005+py*.011)*.35;
+    if(d<300){const tan=Math.atan2(dy,dx)+Math.PI/2;const w=1-d/300;ang=ang*(1-w)+tan*w;}
+    bristle(x,px,py,ang,18+r()*30,5+r()*6,P.sky[mix],r,.9);
+  }
+  // a few pale stars as single dabs, kept away from the lettering
+  for(let k=0;k<26;k++){const px=560+r()*700,py=30+r()*230;if(Math.hypot(px-980,py-190)<150)continue;bristle(x,px,py,r()*3,5,4,'#C9BFA8',r,.75);}
+  return c;
+}
+function paintHill(ridge,spec,seed,rim){
+  const c=mk(),x=c.getContext('2d'),r=rng(seed);const path=hillPath(ridge,seed+1);
+  x.save();x.clip(path);x.fillStyle=spec.base;x.fillRect(0,0,W,H);
+  for(let k=0;k<4200;k++){
+    const px=r()*W;const top=ridgeY(ridge,px);const py=top+2+Math.pow(r(),.8)*(H-top);
+    const ang=slopeAt(ridge,px)*(1-(py-top)/500)+(r()-.5)*.25;
+    bristle(x,px,py,ang,16+r()*30,4+r()*6,spec.dabs[(r()*spec.dabs.length)|0],r,.92);
+  }
+  if(rim){for(let k=0;k<420;k++){const px=r()*W;const py=ridgeY(ridge,px)+2+r()*8;bristle(x,px,py,slopeAt(ridge,px),14+r()*20,3+r()*3,rim,r,.7);}}
+  x.restore();return c;
+}
+function paintOrb(){
+  const c=mk(),x=c.getContext('2d'),r=rng(31);const cx=980,cy=190;
+  // halo of pale dabs (lighting approximation, discrete dabs not a gradient)
+  for(let k=0;k<700;k++){const a=r()*Math.PI*2,rad=118+Math.pow(r(),1.6)*70;bristle(x,cx+Math.cos(a)*rad,cy+Math.sin(a)*rad,a+Math.PI/2,14+r()*18,4+r()*4,r()<.5?'#6C5A6A':'#857063',r,.55);}
+  // ochre ring painted as tangential strokes
+  for(let k=0;k<1500;k++){const a=r()*Math.PI*2,rad=66+r()*46;bristle(x,cx+Math.cos(a)*rad,cy+Math.sin(a)*rad,a+Math.PI/2+(r()-.5)*.3,16+r()*20,5+r()*5,[P.ochre,'#B9A563','#96844A',P.glow][(r()*4)|0],r,.95);}
+  // warm core light
+  for(let k=0;k<500;k++){const a=r()*Math.PI*2,rad=Math.pow(r(),.7)*60;bristle(x,cx+Math.cos(a)*rad,cy+Math.sin(a)*rad,a+Math.PI/2,10+r()*14,4+r()*4,r()<.6?'#5B4B5E':'#7A6560',r,.6);}
+  return c;
+}
+function paintGrain(){
+  const c=mk(),x=c.getContext('2d'),r=rng(77);
+  for(let k=0;k<9000;k++){x.fillStyle=r()<.5?'rgba(241,230,207,0.05)':'rgba(20,18,30,0.06)';x.fillRect(r()*W,r()*H,1+r()*2,1+r()*2);}
+  return c;
+}
+// coverage-mask stamps for left-to-right repainting sweeps
+function makeStamps(ridge,seed,spread){const r=rng(seed),out=[];for(let px=-20;px<=W+20;px+=24){const top=ridgeY(ridge,clamp(px,0,W))-14;for(let py=top;py<H;py+=17){out.push({x:px+(r()-.5)*14,y:py+(r()-.5)*8,t0:clamp(px/W,0,1)*(1-spread)+r()*spread*.85+(py-top)/H*.08,ang:slopeAt(ridge,clamp(px,0,W))+(r()-.5)*.4,len:60+r()*40,wid:24+r()*12,s:seed+px*31+py});}}return out;}
+const scratch=mk(),sctx=scratch.getContext('2d');const maskC=mk(),mctx=maskC.getContext('2d');
+function drawMasked(ctx,layer,stamps,p){
+  if(p<=0)return;if(p>=1){ctx.drawImage(layer,0,0);return;}
+  mctx.clearRect(0,0,W,H);
+  for(const st of stamps){const g=clamp((p-st.t0)/.09,0,1);if(g<=0)continue;bristle(mctx,st.x,st.y,st.ang,st.len*(.35+.65*g),st.wid,'#000',rng(st.s),1);}
+  sctx.globalCompositeOperation='copy';sctx.drawImage(layer,0,0);
+  sctx.globalCompositeOperation='destination-in';sctx.drawImage(maskC,0,0);sctx.globalCompositeOperation='source-over';
+  ctx.drawImage(scratch,0,0);
+}
+// houses (from the authored composition)
+const houses=[{x:200,y:500,s:1.45,light:2.15},{x:560,y:470,s:1.30,light:1.68},{x:900,y:440,s:1.65,light:2.02},{x:1120,y:450,s:1.85,light:2.32}];
+function drawHouse(ctx,h,i,k,lit){
+  const r=rng(500+i);ctx.save();ctx.translate(h.x,h.y+(1-k)*-26);ctx.scale(.7+.3*k,.7+.3*k);ctx.globalAlpha=clamp(k*1.6,0,1);
+  if(lit>0){for(let n=0;n<40;n++){const a=r()*6.283,rr=16+r()*26;ctx.globalAlpha=.18*lit;ctx.fillStyle=P.window;ctx.beginPath();ctx.ellipse(Math.cos(a)*rr,-4+Math.sin(a)*rr*.7,7,5,a,0,6.283);ctx.fill();}ctx.globalAlpha=clamp(k*1.6,0,1);}
+  ctx.fillStyle='#D9CBB0';ctx.fillRect(-16,-14,32,24);
+  ctx.fillStyle=P.rust;ctx.beginPath();ctx.moveTo(-21,-12);ctx.lineTo(0,-31);ctx.lineTo(21,-12);ctx.closePath();ctx.fill();
+  for(let n=0;n<10;n++)bristle(ctx,-12+r()*24,-17+r()*4,-.5+r()*1,8,3,'#7E4A3B',r,.6);
+  ctx.fillStyle=P.ochre;ctx.fillRect(-4,-5,8,15);
+  const wc=lit>0?mixHex(P.unlit,P.window,lit):P.unlit;ctx.fillStyle=wc;ctx.fillRect(-13,-9,6,6);ctx.fillRect(7,-9,6,6);
+  ctx.restore();ctx.globalAlpha=1;
+}
+// light path: beam + dashed links between houses
+const beamA=[905,245],beamB=[560,462];
+const segL=quadPts([560,482],[380,548],[200,512],40), segR=quadPts([560,482],[760,530],[900,452],40), segRR=quadPts([900,452],[1010,486],[1120,462],30);
+function drawDashes(ctx,pts,p,seed){
+  if(p<=0)return;const r=rng(seed);let acc=0;const lens=[0];for(let i=1;i<pts.length;i++){acc+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);lens.push(acc);}
+  const lim=acc*p;
+  for(let d=6;d<lim;d+=24){let i=1;while(i<lens.length-1&&lens[i]<d)i++;const a=pts[i-1],b=pts[i];const f=(d-lens[i-1])/((lens[i]-lens[i-1])||1);
+    const x=a[0]+(b[0]-a[0])*f,y=a[1]+(b[1]-a[1])*f;const ang=Math.atan2(b[1]-a[1],b[0]-a[0]);
+    bristle(ctx,x,y,ang,15,6,r()<.5?P.glow:P.cream,r,.95);}
+}
+function drawBeam(ctx,p){if(p<=0)return;const r=rng(91);const n=Math.round(46*p);for(let i=0;i<n;i++){const f=i/46;const x=beamA[0]+(beamB[0]-beamA[0])*f,y=beamA[1]+(beamB[1]-beamA[1])*f;bristle(ctx,x,y,Math.atan2(beamB[1]-beamA[1],beamB[0]-beamA[0]),18,4,r()<.6?P.glow:P.ochre,r,.85);}}
+
+const canvas=document.getElementById('paint'),ctx=canvas.getContext('2d');
+function prepare(){
+  layers.sky=paintSky();
+  layers.far=paintHill(farRidge,P.far,201,null);
+  layers.mid=paintHill(midRidge,P.mid,301,'#5E4560');
+  layers.front=paintHill(frontRidge,P.front,401,null);
+  layers.orb=paintOrb();layers.grain=paintGrain();
+  layers.farStamps=makeStamps(farRidge,211,.25);layers.midStamps=makeStamps(midRidge,311,.25);
+}
+// ---------- render: every pixel derived from composition time t ----------
+function render(t){
+  t=clamp(+t||0,0,DUR);
+  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+  ctx.drawImage(layers.sky,0,0);
+  // idea ring painted as one circular brush stroke (coverage mask = growing arc)
+  const po=eIO(prog(t,.15,.85));
+  if(po>0){
+    mctx.clearRect(0,0,W,H);mctx.strokeStyle='#000';mctx.lineCap='round';
+    for(let b=0;b<7;b++){mctx.lineWidth=34;mctx.beginPath();const st=-Math.PI/2-.35;mctx.arc(980,190,74+b*16,st,st+(Math.PI*2+.7)*clamp(po*(1.02-b*.012),0,1));mctx.stroke();}
+    if(po>.6){mctx.globalAlpha=(po-.6)/.4;mctx.beginPath();mctx.arc(980,190,66,0,6.283);mctx.fill();mctx.globalAlpha=1;}
+    if(po>=1){mctx.fillRect(760,0,440,420);}
+    sctx.globalCompositeOperation='copy';sctx.drawImage(layers.orb,0,0);sctx.globalCompositeOperation='destination-in';sctx.drawImage(maskC,0,0);sctx.globalCompositeOperation='source-over';
+    ctx.drawImage(scratch,0,0);
+  }
+  // layered scenery repainted with left-to-right dry-brush sweeps
+  drawMasked(ctx,layers.far,layers.farStamps,eSine(prog(t,.25,.95)));
+  drawBeam(ctx,eIO(prog(t,1.15,.5)));
+  drawMasked(ctx,layers.mid,layers.midStamps,eSine(prog(t,.5,.95)));
+  ctx.drawImage(layers.front,0,0);
+  // connections spread outward from the house the idea reaches
+  drawDashes(ctx,segL,eIO(prog(t,1.65,.5)),71);
+  drawDashes(ctx,segR,eIO(prog(t,1.65,.38)),72);
+  drawDashes(ctx,segRR,eIO(prog(t,2.02,.3)),73);
+  houses.forEach((h,i)=>{const k=eBack(prog(t,1.0+i*.1,.45));if(k<=0)return;drawHouse(ctx,h,i,k,eOut(prog(t,h.light,.25)));});
+  ctx.drawImage(layers.grain,0,0);
+}
+prepare();
+// ---------- single paused GSAP timeline: the composition clock ----------
+const tl=gsap.timeline({paused:true});
+// function-based property: GSAP's setter call redraws the canvas on every play, seek or backward seek
+const clock={v:0,t:function(val){if(arguments.length){this.v=val;render(val);}return this.v;}};
+tl.to(clock,{t:DUR,duration:DUR,ease:'none'},0);
+// DOM lettering: each property has one owner
+gsap.set('#headline',{clipPath:'inset(0% 100% 0% 0%)'});
+gsap.set('#subtitle',{opacity:0,y:14});
+tl.to('#headline',{clipPath:'inset(0% 0% 0% 0%)',duration:.7,ease:'power2.inOut'},.1);
+tl.to('#subtitle',{opacity:1,y:0,duration:.55,ease:'power2.out'},.6);
+render(0);
+window.addEventListener('hf-seek',()=>render(tl.time()));
+window.__timelines=window.__timelines||{};
+window.__timelines.video=tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

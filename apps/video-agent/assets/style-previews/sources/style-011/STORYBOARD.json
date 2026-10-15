@@ -1,0 +1,114 @@
+{
+  "version": 3,
+  "title": "Pop Art: An Idea Becomes a Connected System",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "An idea becomes a connected system",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "A four-panel Pop Art comic page in which a single idea lights up, repeats, connects and becomes a system.",
+      "visuals": [
+        "Stationary ink-navy page with two-tone diagonal stripes and a cobalt dot screen weighted to the corners (Canvas 2D)",
+        "Hero panel: yellow separation with a red luminance-based halftone screen that thins as the bulb's light grows (Canvas 2D)",
+        "Giant outlined lightbulb, cream starburst, and BING! lettering with a separate offset ink echo layer (SVG)",
+        "Right column of repeated panels: blue panel with a radiating bulb, red panel with two bulbs, a wire and ZAP!, and a yellow/blue-halftone panel with three wired bulbs",
+        "Heavy #171717 panel contours with cream keylines so they read on the dark page"
+      ],
+      "assets": [
+        "index.html",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.85,
+          "development": "The caption box AN IDEA BECOMES... unrolls. The unlit cream bulb flashes to yellow with a scale punch, the red halftone thins into a lit halo around it, and the starburst bursts out behind it.",
+          "captions": [
+            "AN IDEA BECOMES..."
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.85,
+          "endSeconds": 1.4,
+          "development": "BING! slams in from 1.6x scale. Its black offset echo layer then separates down and right. The bulb in the blue panel pops in.",
+          "captions": [
+            "BING!"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.4,
+          "endSeconds": 1.8,
+          "development": "The blue panel's light rays draw on. Two bulbs slide toward each other inside the red panel, and the wire between them draws.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.8,
+          "endSeconds": 2.65,
+          "development": "ZAP! pops in. The caption box A CONNECTED SYSTEM! unrolls, and three bulbs pop in one after another, each thinning the blue halftone around itself. The connecting wire draws, completing the system.",
+          "captions": [
+            "ZAP!",
+            "A CONNECTED SYSTEM!"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.65,
+          "endSeconds": 3,
+          "development": "Reading hold on the fully settled four-panel page.",
+          "captions": [
+            "AN IDEA BECOMES...",
+            "BING!",
+            "ZAP!",
+            "A CONNECTED SYSTEM!"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.35
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Reveals follow reading order: hero panel, then the right column from top to bottom, with one sound-effect word per beat.",
+      "All motion settles by 2.65s, before the 2.7s target."
+    ],
+    "justifiedHolds": [
+      "2.65-3.0s final hold so all copy can be read on the complete page."
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, effects or voice. The beat cadence is a silent authored cue sequence (0.25 lamp flash, 0.85 BING!, 1.6 wire, 1.85 ZAP!, 1.95/2.07/2.19 system bulbs).",
+    "Background refresh: the scene-dependent ink-navy striped page replaces the previous cream page. Panel inks keep the style tokens #171717, #E8393E, #F1C932, #2671C6 and #FFF6D6.",
+    "Demonstrated technique: luminance-based halftone shading (no separate preview recipe was supplied). Dots sit on a fixed rotated grid, and only their radius follows a time-derived light field."
+  ]
+}

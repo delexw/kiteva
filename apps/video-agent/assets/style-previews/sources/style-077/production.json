@@ -1,0 +1,30 @@
+{
+  "displayTitle": "Isometric Assembly",
+  "displayDescription": "A terracotta idea lands, extrudes into a core and links four sage modules on true isometric axes in a low-key cutaway.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js WebGLRenderer (local three 0.186.1, bundled with local esbuild into scene.js)",
+    "Three.js OrthographicCamera at true isometric orientation (camera on the (1,1,1) diagonal)",
+    "SVG + HTML/CSS screen-aligned 2D label and copy layer",
+    "chroma.js palette normalisation and contrast assessment"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline built in an inline script in index.html and registered at window.__timelines[\"video\"]; it is the sole owner of the scene state object, text opacity/offset and leader stroke-dashoffset. scene.js (Three.js) exposes draw(), which redraws WebGL from that state on timeline update, seek (wrapped totalTime) and hf-seek."
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No soundtrack, effects or voice were created.",
+  "limitations": [
+    "Blender was not used, per the user's instruction; the scene is a procedural Three.js approximation of flat isometric illustration.",
+    "Lighting is not simulated: faces use fixed flat tonal steps (top/left/right) mixed toward the ink token, and cast shadows are flat offset quads, not computed shadows.",
+    "The warm floor pool is an additive canvas-gradient texture, not real emissive light; module windows and link tops change fill colour rather than glow.",
+    "WebGL line outlines render at 1 px.",
+    "Background is a scene-dependent dark slate void chosen from the source-frame review instead of the #F3EFE5 example swatch; sage #6E9990 and terracotta #C98961 keep their approved semantic roles.",
+    "STYLE.json contains no tech.preview_recipes, so no specific recipe is demonstrated; the refresh applies the BACKGROUND_REVIEW lessons.",
+    "Not rendered or browser-tested by the agent after this repair; host QA is pending."
+  ]
+}

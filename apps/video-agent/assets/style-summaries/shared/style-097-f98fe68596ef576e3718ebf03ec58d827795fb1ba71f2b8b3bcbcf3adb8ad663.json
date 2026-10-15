@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-097",
+    "name": "Scientific Visualization / Data Storytelling",
+    "visualIdentity": "Explanatory format normalized from Pudding and 3Blue1Brown references. Define concept, variables, units, data, and causal links before drawing. Keep color and label meanings consistent. Introduce mechanisms, comparisons, and conclusions gradually, with pauses for understanding.",
+    "suitableUses": "Explicitly suited to data and process explanations and mechanism-based science explainers. Inferred: fits research summaries, scale-spanning stories, video, and interactive HTML where labeled charts or mechanisms carry the argument. Plain charts suffice when no mechanism needs explaining.",
+    "limitations": "Scales must not mislead, values must not be invented, and motion must not replace explanation. Drawing and motion APIs do not validate scientific models. Network adjacency or drawn paths do not prove causation or real routes. Interactive graphs and maps need text or table alternatives.",
+    "palette": "Suggested only, not supplied: background #FAF7EF, foreground #263744, accent_1 #367E88, accent_2 #C17E49, accent_3 #856B9A. Supplied exact colors override these. Foreground on background gives 11.455 contrast; accents fail 4.5 for body text and are fill-only. No gradient is enabled. Never interpolate nominal categories.",
+    "motionAndInteraction": "Video state derives from seekable composition time, with smooth authored movement while sharp cuts and reading holds are preserved. Scroll or hover applies only to interactive delivery, never video export. Optional references motion-004, 012, 015, and 017 need scene fit. The shared_motion_guidance it cites was not supplied.",
+    "audio": "Unspecified; no genre or mandatory audio layer is prescribed. Options include background music, voiceover, sung vocals, sound effects, ambience, or silence, chosen for topic and audience. User audio requirements take priority. Verify speech intelligibility, balance, absence of clipping, and picture sync.",
+    "assetRequirements": "Unspecified: no exact copy, source artwork, datasets, fonts, or audio were supplied. Data needs verified values, units, and sources. Maps need authorized tiles with attribution. Assets must load before rendering. Sketch or mesh treatments must preserve source colors and values.",
+    "combinations": "style-109 supports mechanism schematics with causal reveals; keep semantic colors fixed and avoid implied causation. style-098 supports nested scale zooms with a persistent, unit-correct scale bar; avoid implying continuity where scales are not nested. Use this style alone when charts suffice.",
+    "productionApproach": "HyperFrames is primary for scene assembly and export. Remotion is a fallback only if HyperFrames is unavailable or a verified limitation exists, and the reason must be recorded; an existing React project alone is insufficient. Manim and NumPy build mathematical visuals and verified data; D3 suits nonmathematical charts. Verify with validation, frame snapshots, seek tests, and decoded playback."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

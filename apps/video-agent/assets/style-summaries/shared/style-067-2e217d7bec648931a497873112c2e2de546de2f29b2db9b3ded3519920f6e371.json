@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-067",
+    "name": "Glitch Art (Digital and 3D Aesthetics). The label was normalized from source descriptions, not from a verified reference.",
+    "visualIdentity": "Explicit fault model: signal interruption, data loss, or displacement. Brief strip offsets, RGB separation, and block damage appear at narrative or transition points, then clarity returns.",
+    "suitableUses": "Inferred suitability: short transition-led edits with a clear fault model, such as tech promos or punchy social cuts. Hybrids suit cybersecurity messages, sci-fi narratives, and security incident explainers.",
+    "limitations": "Avoid continuous random corruption and glitching body copy. Omit motion-020 for calm editorial scenes or when distortion undermines communication. Tool routes are suggestions, not claims about any source video's toolchain.",
+    "palette": "Background is scene-dependent and should be chosen from subject, environment, and lighting. Illustrative tokens #111A24, #F2F0E6, #47B3AF, and #D16A84 are not approved exact colors; they apply only to new presentation elements, with gradients disabled. Two-color contrast: foreground on background is 15.356, and background-colored text on accent_1 and accent_2 measures 6.963 and 5.101. Recheck composited frames.",
+    "motionAndInteraction": "Each video glitch event needs start, damage, and restore phases on composition time, often six to ten frames at transitions. Motion-020 supplies bounded slice offsets, reversible scrubbing, and a reduced-motion cut. Motion-012 and 015 are optional chapter or story structures. Interactive HTML headlines may glitch once on hover or focus, disabled under reduced motion, with text kept selectable.",
+    "audio": "Unspecified: the source assigns no genre, tempo, voice, or mandatory audio layer. Honor any user audio choice first. Silence is valid, and restrained glitch accents or ambience are inferred options. Music timing requires inspected audio, and gallery previews stay silent.",
+    "assetRequirements": "No uploads are specified, and none are mandatory. Glitch passes need a rendered clean source or real-text layout to displace, with local fonts and assets loaded before rendering. Motion-037 and 038 need actual phrase or punctuation assets; copy or brand marks must not be invented.",
+    "combinations": "Style-093 kinetic type provides a clean text baseline; glitch headlines only, never body copy. Style-112 HUD confines a fault to named panels using primary tokens. Glitch Art alone suits short transition-led edits.",
+    "productionApproach": "Style renderer: WebGL with GLSL applies timed displacement, channel-separation, and localized damage passes to the rendered image, restoring the clean source at each event end. HyperFrames is the default pipeline; Remotion is used only with a recorded reason. Seed randomness and drive all state from shared composition time."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

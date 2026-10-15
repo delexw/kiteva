@@ -1,0 +1,73 @@
+{
+  "version": 3,
+  "title": "An Idea Becomes a System (Voxel Art preview)",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "One block, then many",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Show a single glowing idea block that grows, block by block, into a connected voxel system on a night-slate stage, with the headline building alongside it.",
+      "visuals": [
+        "Exact-isometric orthographic Three.js view of unit cubes (one InstancedMesh, one BoxGeometry) on a stepped slate plateau",
+        "Terracotta seed block with a warm local light pool",
+        "Teal path, branch and stacks connecting terracotta-and-cream towers",
+        "Opaque slate copy panel on the right with cream monospace headline, a teal rule and three palette swatches"
+      ],
+      "assets": [
+        "voxel-scene.bundle.js (local esbuild bundle of src/voxel-scene.js and three)",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.6,
+          "development": "The seed idea block drops onto the empty plateau and flares, casting warm terracotta light on the ground; the kicker and AN IDEA slide in.",
+          "captions": ["01 BLOCK / ∞ BLOCKS", "AN IDEA"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.6,
+          "endSeconds": 1.7,
+          "development": "Blocks fall into place in order of graph distance from the seed: the left tower rises, then the teal path, the branch, the stacks, the turn and the right tower land. BECOMES A appears.",
+          "captions": ["BECOMES A"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.7,
+          "endSeconds": 2.5,
+          "development": "A light pulse travels outward from the idea through every connected block and leaves the network softly lit. SYSTEM, its teal rule and the palette swatches resolve.",
+          "captions": ["SYSTEM"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.5,
+          "endSeconds": 3,
+          "development": "Settled hold: the complete lit voxel system and the full headline are readable.",
+          "captions": ["01 BLOCK / ∞ BLOCKS", "AN IDEA", "BECOMES A", "SYSTEM"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0.5
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Every block has landed by about 1.70s and the pulse has settled by about 2.46s, so the full scene is complete before 2.7s.",
+      "Each headline line appears in step with the build stage it describes."
+    ],
+    "justifiedHolds": [
+      "The 0.5s closing hold (2.5–3.0s) gives time to read the complete headline and system."
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, effects or voice.",
+    "No reviewed preview recipe was supplied (STYLE.json has no tech.preview_recipes and the optional recipe list is empty). This refresh instead demonstrates the source-frame background lesson: a night-slate stage lit by a local warm source instead of the earlier cream canvas.",
+    "Blender was not used."
+  ]
+}

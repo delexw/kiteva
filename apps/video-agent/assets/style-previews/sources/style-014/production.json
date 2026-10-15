@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Dream Egg",
+  "displayDescription": "A floating porcelain egg opens to show its own sun and cloud, which tether out satellites into a connected system under dusk light.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "three.js r186 (WebGL, MeshPhysicalMaterial, PCF soft shadow maps, fog)",
+    "HTML/CSS (stationary dusk sky gradient and Georgia typography)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline created inline in index.html and registered at window.__timelines[\"video\"]; scene.js (window.SurrealScene.build) adds all tweens. GSAP is the sole owner of scene state, the camera dolly and text opacity/y."
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Blender was not used, at the user's instruction. The scene is real-time Three.js WebGL, not path-traced: no global illumination, caustics or subsurface scattering. The porcelain is approximated with clearcoat and sheen.",
+    "Shadows come from a single PCF soft shadow map; the inner sun's point light casts no shadows.",
+    "The sky is a stationary CSS gradient behind a transparent canvas. The camera only translates (its orientation is fixed), so the horizon stays registered at 488px.",
+    "Subtitle colour #C9D6DD is a light tint of the slate-blue family. The suggested #617C8B is only about 2.3:1 on the dusk sky, so #617C8B is kept for the cloud and the blue satellites.",
+    "BACKGROUND_REVIEW.json has no matched sources or contact sheets, so no source-frame evidence was applied. STYLE.json has no preview_recipes, so the refresh demonstrates only the scene-dependent background.",
+    "The bundled three.js contains Math.random (UUID and random-vector helpers) and requestAnimationFrame (unused animation loop). Neither affects rendered pixels; every frame is redrawn from GSAP time on seek.",
+    "The title copy uses Georgia, which the renderer resolves automatically. Didot/Bodoni were dropped because no @font-face source exists for them, so the serif is less high-contrast than the reference."
+  ]
+}

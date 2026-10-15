@@ -1,0 +1,125 @@
+{
+ "version": 3,
+ "title": "An idea becomes a connected system \u2014 3D Diorama preview",
+ "durationSeconds": 3,
+ "scenes": [
+  {
+   "id": "scene-1",
+   "title": "The idea rises",
+   "startSeconds": 0,
+   "endSeconds": 1.05,
+   "purpose": "Establish the bounded blue-hour miniature stage and raise the central idea tower with its glowing orb.",
+   "visuals": [
+    "Floating toon-shaded plinth with grass top, soil strata and ink base band on a stationary dusk-slate canvas",
+    "Camera begins a bounded orbit (18\u00b0 to 45\u00b0 azimuth) at constant 33\u00b0 elevation",
+    "Tower extrudes, idea orb pops in, glass halo blooms, CRT screen begins drawing a node graph"
+   ],
+   "assets": [
+    "diorama.js (esbuild bundle of src/scene.js + three 0.186.1)",
+    "gsap.min.js",
+    "chroma.min.js"
+   ],
+   "beats": [
+    {
+     "startSeconds": 0,
+     "endSeconds": 0.55,
+     "development": "Empty plinth; the tower extrudes upward from the centre as the camera starts to orbit.",
+     "captions": [
+      "An idea becomes",
+      "a connected system",
+      "MINIATURE STAGE \u00b7 1:87"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 0.55,
+     "endSeconds": 1.05,
+     "development": "Idea orb pops onto the tower, its warm emissive glow and glass halo bloom; the tower screen starts linking nodes and the roads begin to extend.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-2",
+   "title": "The system connects",
+   "startSeconds": 1.05,
+   "endSeconds": 3,
+   "purpose": "Show the idea spreading into a connected system: roads, houses, people and flow pods, ending on a settled hero view.",
+   "visuals": [
+    "Four houses rise at the road ends, staggered",
+    "Back link road closes the loop; trees and figures appear",
+    "Cream pods travel from the tower to each house; each house's windows light on arrival",
+    "Camera eases into the frontal isometric hero view and holds"
+   ],
+   "assets": [
+    "diorama.js"
+   ],
+   "beats": [
+    {
+     "startSeconds": 1.05,
+     "endSeconds": 1.55,
+     "development": "Houses rise at each road end; the back road links two houses; trees pop up.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 1.55,
+     "endSeconds": 2.65,
+     "development": "Figures appear; one pod per house travels outward along the roads and the windows light in sequence as each arrives; camera orbit settles at 2.6 s.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 2.65,
+     "endSeconds": 3,
+     "development": "Complete settled scene held for reading: lit system, still camera.",
+     "captions": [
+      "An idea becomes",
+      "a connected system",
+      "MINIATURE STAGE \u00b7 1:87"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.35
+    }
+   ]
+  }
+ ],
+ "pacingAudit": {
+  "findings": [
+   "All motion completes by 2.61 s; the final 0.39 s is a still reading hold.",
+   "Copy is static and fully visible for the whole 3 s, so it is readable throughout."
+  ],
+  "justifiedHolds": [
+   "2.65\u20133.00 s closing hold so the viewer can read the completed connected system."
+  ]
+ },
+ "notes": [
+  "Silent preview: no music, effects or voice.",
+  "Background changed from the earlier cream swatch to a scene-dependent blue-hour slate (#1F2C34), following palette.background_policy = scene_dependent and the reviewed source frames (dusk/night stages with warm emissive accents)."
+ ]
+}

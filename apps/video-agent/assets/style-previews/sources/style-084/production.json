@@ -1,0 +1,35 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Paper Network",
+  "displayDescription": "Torn-paper cutouts on a slate planning board: an idea bulb lights, folded cards unfold and kraft strips unroll to join them into one system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "PixiJS 8.22 (WebGL) compositing torn-edge paper sprites, fold meshes and Graphics strips",
+    "Rough.js 4.6 (seeded) inking the four node-card icons onto Canvas 2D textures",
+    "Canvas 2D procedural paper textures: white torn core, stock colour, fibre grain, pre-blurred contact shadows, stationary slate field",
+    "chroma-js palette validation and contrast checks"
+  ],
+  "motionEngine": [
+    "Procedural Paper Curl and Fold Deformation implemented on a PixiJS MeshGeometry strip (cylindrical crease + straight flap, front/back face split) re-derived from rest UVs and the timeline fold angle each draw",
+    "GSAP 3 paused timeline registered at window.__timelines.video: sole owner of every animated value (placement, lift, fold angle, unroll progress, held filament poses via steps(3))"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Silent preview: no music, voice or sound effects were created.",
+    "No reviewed preview recipe exists in STYLE.json (tech.preview_recipes absent, optional recipes list empty); the preview demonstrates the primary Cutout Animation style plus the requested source-frame background refresh.",
+    "Paper fold and roll are artistic procedural deformations (orthographic cylinder curl with slight size-by-depth scaling), not a physical paper solver; lighting is an alpha shading approximation, not real 3D lighting.",
+    "Torn edges, fibre grain and contact shadows are seeded procedural simulations, not scanned or photographed paper.",
+    "Rendered with PixiJS instead of Three.js for the fold: the same rest-vertex deformation is applied to a 2D mesh, which suffices because the fold axis is in-plane; there is no free 3D camera.",
+    "Canvas-rendered copy is not DOM-inspectable; contrast was resolved in code with chroma.contrast (ink #3B3C34 on cream #F0E5D0, 8.94:1). The slate field carries no text.",
+    "PixiJS Application.init is asynchronous; frames redraw on every timeline seek and on hf-seek once the WebGL renderer is ready.",
+    "Background review used only sampled stills from two sources; source subjects, wording and colours were not copied.",
+    "Blender was not used, per user instruction.",
+    "Not rendered or browser-tested by the agent; host QA pending."
+  ]
+}

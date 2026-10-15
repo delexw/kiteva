@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-111",
+    "name": "Sticker-Style Explainer Animation. A supplemental, user-requested direction that combines sticker graphics with educational explanation. It is not an established art movement.",
+    "visualIdentity": "Scientific objects and symbols become consistent stickers with white borders, rounded silhouettes and light shadows. Each concept keeps a stable color or symbol. Short labels and purposeful arrows sequence the question, objects, mechanism and conclusion.",
+    "suitableUses": "Explicitly suited to concept walkthroughs. Inferred from the source combinations: science communication, classroom lessons and quick social explainers. Interactive stepper explainers are documented. Audience, objective and duration are unspecified and must come from the brief.",
+    "limitations": "Decoration must never obscure labels, data or the mechanism. Arrows indicate causality only. Rough.js hachure does not create authentic pencil, ink or print media. Physics, fluid or 3D effects are not established by the style. Remotion is a documented fallback only.",
+    "palette": "Background is scene_dependent, so it should follow subject, lighting and mood. The supplied tokens are illustrative, unapproved suggestions; no exact approved colors were supplied. White is the sticker border (accent_1), with stable teal and warm concept colors. Source demonstration hues are not style rules. Contrast was checked only for two colors, so composited frames must be rechecked.",
+    "motionAndInteraction": "Motion includes placing, peeling, path movement and restrained bounce, evaluated from composition time for video. Reveals follow explanatory order with reading holds. Optional catalog references motion-012 (chapter handoff) and motion-015 (narrative steps) are not required. Live stepper or scroll input applies only to interactive delivery.",
+    "audio": "Audio is unspecified in the source; no audio layer is mandatory. Music, voiceover, effects, ambience or silence are task-specific suggestions. Speech must not compete with essential text. The source review did not verify audio, so any soundtrack must be created or sourced separately.",
+    "assetRequirements": "No mandatory uploads are specified. Sticker artwork, scientific symbols and labels can be derived from the brief. Fonts and geometry should be loaded locally before rendering. Map or chart data are needed only if Leaflet or D3 is chosen. Exact copy, aspect ratio and resolution are unspecified.",
+    "combinations": "Style-097 adds accurate D3/SVG charts that stickers point to; chart marks stay flat without white borders. Style-024 adds handwritten arrows and one short note per step, with notes in the foreground color. Hybrids are optional and suit real quantities or teacher commentary.",
+    "productionApproach": "HyperFrames is the default pipeline for assembly, timing, audio sync and export; Remotion is conditional fallback. SVG is the core renderer for shapes, masks and text. GSAP is the registered timeline. Motion, mo.js or Anime.js may own specific properties, with one owner each. chroma-js checks contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>style-124 · Translucent Tissue-Paper Collage · An idea becomes a connected system</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #172D3A; overflow: hidden; }
+  #root { position: relative; width: 100%; height: 100%; background: #172D3A; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; }
+  #scene { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; display: block; }
+  .copy { position: absolute; left: 80px; margin: 0; color: #F2EEE1; white-space: nowrap;
+          font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1; }
+  #h1 { top: 516px; font-size: 46px; font-weight: 300; }
+  #h2 { top: 568px; font-size: 46px; font-weight: 600; }
+  #sub { top: 638px; left: 82px; font-size: 16px; letter-spacing: 5px; font-weight: 500; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <div id="stage">
+    <canvas id="scene" width="1280" height="720" aria-label="Tissue-paper collage: a glowing idea seed sends a strip to a network of connected tissue nodes underwater"></canvas>
+    <h1 class="copy" id="h1">An idea becomes</h1>
+    <h2 class="copy" id="h2">a connected system</h2>
+    <p class="copy" id="sub">LAYERS OF LIGHT, DRIFTING TOGETHER</p>
+  </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  // ---------- palette (exact tokens only; tints are alpha/mix of these) ----------
+  var BG = "#172D3A", FG = "#F2EEE1";
+  if (!chroma.valid(BG) || !chroma.valid(FG)) throw new Error("palette tokens invalid");
+  var CONTRAST = chroma.contrast(FG, BG); // ~12.28, reported in production.json
+  function fgA(a) { return chroma(FG).alpha(Math.max(0, Math.min(1, a))).css(); }
+  function mixHex(k) { return chroma.mix(FG, BG, k, "rgb").hex(); } // fiber greys derived from tokens
+
+  var W = 1280, H = 720;
+  var canvas = document.getElementById("scene");
+  var ctx = canvas.getContext("2d");
+
+  // ---------- seeded randomness + noise ----------
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hash2(ix, iy, seed) {
+    var h = Math.imul(ix, 374761393) ^ Math.imul(iy, 668265263) ^ Math.imul(seed, 2147483647);
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  }
+  function noise2D(x, y, seed) {
+    var ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy;
+    var u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+    var a = hash2(ix, iy, seed), b = hash2(ix + 1, iy, seed), c = hash2(ix, iy + 1, seed), d = hash2(ix + 1, iy + 1, seed);
+    return (a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v) * 2 - 1;
+  }
+  function fbm(x, y, seed) { return noise2D(x, y, seed) * 0.6 + noise2D(x * 2.3, y * 2.3, seed + 7) * 0.3 + noise2D(x * 5.1, y * 5.1, seed + 13) * 0.1; }
+
+  // ---------- authored geometry helpers ----------
+  function blobPts(cx, cy, rx, ry, seed, wob) {
+    var pts = [], n = 64;
+    for (var i = 0; i < n; i++) {
+      var t = i / n * Math.PI * 2;
+      var k = 1 + (wob || 0.08) * noise2D(Math.cos(t) * 1.6 + 5, Math.sin(t) * 1.6 + 5, seed);
+      pts.push([cx + Math.cos(t) * rx * k, cy + Math.sin(t) * ry * k]);
+    }
+    return pts;
+  }
+  // strip along a polyline (center points), width function w(u) with u in 0..1
+  function stripPts(center, wf) {
+    var L = [], R = [], n = center.length;
+    for (var i = 0; i < n; i++) {
+      var p = center[i], a = center[Math.max(0, i - 1)], b = center[Math.min(n - 1, i + 1)];
+      var dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+      var nx = -dy / l, ny = dx / l, w = wf(i / (n - 1)) / 2;
+      L.push([p[0] + nx * w, p[1] + ny * w]); R.push([p[0] - nx * w, p[1] - ny * w]);
+    }
+    return L.concat(R.reverse());
+  }
+  function sampleCurve(f, n) { var o = []; for (var i = 0; i <= n; i++) o.push(f(i / n)); return o; }
+
+  // torn edge: subdivide outline, perturb along normal with seeded noise, cache as Path2D
+  function tear(pts, seed, amp) {
+    var rng = mulberry32(seed * 977 + 3), sub = [];
+    for (var i = 0; i < pts.length; i++) {
+      var a = pts[i], b = pts[(i + 1) % pts.length];
+      var l = Math.hypot(b[0] - a[0], b[1] - a[1]), steps = Math.max(1, Math.ceil(l / 4));
+      for (var s = 0; s < steps; s++) { var t = s / steps; sub.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
+    }
+    var out = [], n = sub.length, along = 0;
+    for (var j = 0; j < n; j++) {
+      var p = sub[j], q0 = sub[(j - 1 + n) % n], q1 = sub[(j + 1) % n];
+      var dx = q1[0] - q0[0], dy = q1[1] - q0[1], l2 = Math.hypot(dx, dy) || 1;
+      along += 4;
+      var off = amp * fbm(along * 0.035, 0.5, seed) + amp * 0.35 * (rng() * 2 - 1);
+      out.push([p[0] + (-dy / l2) * off, p[1] + (dx / l2) * off]);
+    }
+    var path = new Path2D();
+    out.forEach(function (p, k) { k ? path.lineTo(p[0], p[1]) : path.moveTo(p[0], p[1]); });
+    path.closePath();
+    var minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+    out.forEach(function (p) { minX = Math.min(minX, p[0]); minY = Math.min(minY, p[1]); maxX = Math.max(maxX, p[0]); maxY = Math.max(maxY, p[1]); });
+    return { path: path, box: [minX, minY, maxX, maxY] };
+  }
+
+  // fiber texture: generated once offscreen with stored seed (speckle + short fibers), multiplied at draw
+  function fiberTexture(box, seed) {
+    var pad = 6, x0 = Math.floor(box[0] - pad), y0 = Math.floor(box[1] - pad);
+    var w = Math.ceil(box[2] - box[0] + pad * 2), h = Math.ceil(box[3] - box[1] + pad * 2);
+    var c = document.createElement("canvas"); c.width = w; c.height = h;
+    var g = c.getContext("2d"), rng = mulberry32(seed * 131 + 17);
+    g.fillStyle = FG; g.fillRect(0, 0, w, h);
+    var area = w * h, speck = Math.min(5000, Math.floor(area / 90));
+    for (var i = 0; i < speck; i++) {
+      g.fillStyle = mixHex(0.12 + rng() * 0.25);
+      g.globalAlpha = 0.25 + rng() * 0.4;
+      g.fillRect(rng() * w, rng() * h, 1 + rng() * 1.2, 1 + rng() * 1.2);
+    }
+    var fibers = Math.min(4200, Math.floor(area / 110));
+    g.lineCap = "round";
+    for (var f = 0; f < fibers; f++) {
+      var x = rng() * w, y = rng() * h, len = 6 + rng() * 26, ang = Math.PI / 2 + (rng() - 0.5) * 0.5;
+      g.strokeStyle = mixHex(0.2 + rng() * 0.4);
+      g.globalAlpha = 0.25 + rng() * 0.45;
+      g.lineWidth = 0.5 + rng() * 1.1;
+      g.beginPath(); g.moveTo(x, y);
+      g.quadraticCurveTo(x + (rng() - 0.5) * 4, y + Math.sin(ang) * len * 0.5, x + Math.cos(ang) * len, y + Math.sin(ang) * len);
+      g.stroke();
+    }
+    g.globalAlpha = 1;
+    return { canvas: c, x: x0, y: y0 };
+  }
+
+  // ---------- layer manifest (back-to-front) ----------
+  // depth: parallax coefficient; tint: foreground alpha before layer globalAlpha
+  var pieces = [];
+  var seedCounter = 11;
+  function addPiece(o) {
+    o.seed = seedCounter++;
+    var px = o.pivot[0], py = o.pivot[1];
+    var local = o.pts.map(function (p) { return [p[0] - px, p[1] - py]; });
+    var t = tear(local, o.seed, o.amp || 4.5);
+    o.path = t.path; o.box = t.box;
+    o.tex = fiberTexture(t.box, o.seed);
+    o.st = { x: 0, y: 0, s: 1, r: 0, a: 0, p: o.draw ? 0 : 1 };
+    pieces.push(o); return o;
+  }
+  function centroid(pts) { var x = 0, y = 0; pts.forEach(function (p) { x += p[0]; y += p[1]; }); return [x / pts.length, y / pts.length]; }
+
+  // back layer: light bands + shafts
+  var topBand = sampleCurve(function (u) { var x = -40 + u * 1360; return [x, 52 + 22 * Math.sin(x / 380 + 0.4)]; }, 40)
+    .concat(sampleCurve(function (u) { var x = 1320 - u * 1360; return [x, 150 + 18 * Math.sin(x / 290 + 1.2)]; }, 40));
+  addPiece({ id: "band-top", pts: topBand, pivot: centroid(topBand), depth: -0.5, tint: 0.2, amp: 6, group: "back" });
+  var botBand = sampleCurve(function (u) { var x = -40 + u * 1360; return [x, 598 + 16 * Math.sin(x / 340 + 2.0)]; }, 40).concat([[1320, 770], [-40, 770]]);
+  addPiece({ id: "band-bottom", pts: botBand, pivot: centroid(botBand), depth: -0.4, tint: 0.2, amp: 6, group: "back" });
+  var vShaft = [[200, 110], [362, 84], [334, 760], [228, 760]];
+  addPiece({ id: "shaft-v", pts: vShaft, pivot: centroid(vShaft), depth: -0.3, tint: 0.14, amp: 5, group: "back" });
+  var lShaft1 = [[770, -30], [880, -30], [720, 760], [575, 760]];
+  addPiece({ id: "shaft-l1", pts: lShaft1, pivot: centroid(lShaft1), depth: -0.25, tint: 0.11, amp: 5, group: "back" });
+  var lShaft2 = [[1010, -30], [1075, -30], [990, 760], [905, 760]];
+  addPiece({ id: "shaft-l2", pts: lShaft2, pivot: centroid(lShaft2), depth: -0.2, tint: 0.1, amp: 5, group: "back" });
+
+  // kelp fronds (sway about their base)
+  function kelp(id, bx, by, h, bend, wid, ph) {
+    var c = sampleCurve(function (u) { return [bx + bend * Math.sin(u * 2.6 + ph) * u, by - u * h]; }, 30);
+    var pts = stripPts(c, function (u) { return wid * (1 - u * 0.75) * (0.8 + 0.2 * Math.sin(u * 9 + ph)); });
+    return addPiece({ id: id, pts: pts, pivot: [bx, by], depth: 0.35, tint: 0.3, amp: 3, group: "kelp", phase: ph });
+  }
+  kelp("kelp-1", 612, 740, 330, 34, 30, 0.3);
+  kelp("kelp-2", 652, 740, 250, -28, 24, 1.7);
+  kelp("kelp-3", 1228, 740, 300, -30, 28, 2.6);
+  kelp("kelp-4", 1190, 740, 200, 22, 22, 4.1);
+
+  // the idea: tail strip, then the network (edges under nodes)
+  var NET_DEPTH = 0.55;
+  var tailC = sampleCurve(function (u) { var x = 330 + u * 380; return [x, 382 - 16 * Math.sin(u * Math.PI * 1.6) + u * -10]; }, 40);
+  var tailPivot = [330, 382];
+  addPiece({ id: "tail", pts: stripPts(tailC, function (u) { return 22 - u * 6; }), pivot: tailPivot, depth: NET_DEPTH, tint: 0.5, amp: 2.5, group: "net", draw: true, dir: 0, len: 390 });
+
+  var N = [[720, 360], [880, 230], [900, 480], [1060, 340], [1120, 540], [1130, 170], [750, 390], [1080, 370]];
+  var E = [[0, 1], [0, 2], [1, 3], [2, 3], [1, 2], [3, 5], [3, 4], [2, 4]];
+  E.forEach(function (e, i) {
+    var a = N[e[0]], b = N[e[1]], len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    var c = sampleCurve(function (u) { return [u * len, 3 * Math.sin(u * 7 + i)]; }, Math.ceil(len / 12));
+    addPiece({ id: "edge-" + i, pts: stripPts(c, function () { return 14; }), pivot: [0, 0], at: a,
+      rot: Math.atan2(b[1] - a[1], b[0] - a[0]), depth: NET_DEPTH, tint: 0.46, amp: 2.2, group: "net", draw: true, len: len, order: i });
+  });
+  N.forEach(function (n, i) {
+    var pts = blobPts(n[0], n[1], 46, 44, 300 + i, 0.1);
+    addPiece({ id: "node-" + i, pts: pts, pivot: n, depth: NET_DEPTH, tint: 0.4, amp: 4.5, group: "node", order: i });
+  });
+
+  // seed of the idea: stacked translucent blobs (overlaps compound to a glowing core)
+  var so = blobPts(270, 378, 94, 74, 41, 0.12);
+  addPiece({ id: "seed-outer", pts: so, pivot: [270, 375], depth: 0.5, tint: 0.38, amp: 5, group: "seed" });
+  var sm = blobPts(268, 366, 62, 56, 42, 0.1);
+  addPiece({ id: "seed-mid", pts: sm, pivot: [268, 366], depth: 0.5, tint: 0.5, amp: 4, group: "seed" });
+  var sc = blobPts(266, 366, 34, 32, 43, 0.12);
+  addPiece({ id: "seed-core", pts: sc, pivot: [266, 366], depth: 0.5, tint: 0.95, amp: 3, group: "seed" });
+
+  // front layer: tissue fish + bubbles
+  function fishPts(cx, cy, l, h) {
+    var body = sampleCurve(function (u) { var t = u * Math.PI * 2; return [cx + Math.cos(t) * l / 2, cy + Math.sin(t) * h / 2 * (1 - 0.25 * Math.cos(t))]; }, 40);
+    // tail attached at the back
+    var tx = cx - l / 2;
+    var idx = 20; // leftmost sample
+    var tail = [[tx - 4, cy + 2], [tx - l * 0.38, cy + h * 0.55], [tx - l * 0.28, cy], [tx - l * 0.38, cy - h * 0.55], [tx - 4, cy - 2]];
+    return body.slice(0, idx).concat(tail).concat(body.slice(idx + 1));
+  }
+  var f1 = fishPts(520, 226, 74, 30);
+  addPiece({ id: "fish-1", pts: f1, pivot: [520, 226], depth: 1, tint: 0.5, amp: 2.4, group: "fish", phase: 0.4 });
+  var f2 = fishPts(470, 274, 52, 22);
+  addPiece({ id: "fish-2", pts: f2, pivot: [470, 274], depth: 1, tint: 0.42, amp: 2, group: "fish", phase: 2.2 });
+  var f3 = fishPts(860, 640, 64, 26);
+  addPiece({ id: "fish-3", pts: f3, pivot: [860, 640], depth: 0.9, tint: 0.45, amp: 2.2, group: "fish", phase: 3.6 });
+  [[420, 250, 10], [470, 196, 6], [440, 150, 14], [990, 110, 8], [640, 470, 7], [1180, 260, 9]].forEach(function (b, i) {
+    addPiece({ id: "bubble-" + i, pts: blobPts(b[0], b[1], b[2], b[2] * 1.1, 500 + i, 0.15), pivot: [b[0], b[1]], depth: 1.2, tint: 0.55, amp: 1.2, group: "bubble", order: i });
+  });
+
+  // ---------- shared timeline-driven state ----------
+  var scene = { drift: 0 };   // 0..1 owned by GSAP, settles at 2.7 s
+  var LAYER_ALPHA = 0.55;     // per-piece globalAlpha (spec 0.45–0.6)
+
+  function drawPiece(o) {
+    var st = o.st;
+    if (st.a <= 0.001 || st.p <= 0.001) return;
+    var d = scene.drift, depth = o.depth;
+    // depth-scaled drift parallax (back drifts against front)
+    var dx = depth * -26 * d, dy = depth * -6 * d, swayR = 0;
+    if (o.group === "kelp") swayR = 0.07 * Math.sin(d * Math.PI * 2.2 + o.phase) * (0.4 + 0.6 * (1 - d * 0.3));
+    if (o.group === "fish") { dx = 70 * d; dy = 8 * Math.sin(d * Math.PI * 2 + o.phase); swayR = 0.06 * Math.sin(d * Math.PI * 4 + o.phase); }
+    if (o.group === "bubble") { dx = depth * -10 * d; dy = -34 * d; }
+    var base = o.at || o.pivot;
+    ctx.save();
+    ctx.translate(base[0] + st.x + dx, base[1] + st.y + dy);
+    ctx.rotate((o.rot || 0) + st.r * Math.PI / 180 + swayR);
+    ctx.scale(st.s, st.s);
+    if (o.draw) { // progressive laydown along the strip direction (seekable via st.p)
+      var b = o.box;
+      ctx.beginPath(); ctx.rect(b[0] - 8, b[1] - 20, (b[2] - b[0] + 16) * st.p, b[3] - b[1] + 40); ctx.clip();
+    }
+    var ga = LAYER_ALPHA * st.a;
+    // 1) translucent tissue fill — source-over so overlaps compound
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = ga;
+    ctx.fillStyle = fgA(o.tint);
+    ctx.fill(o.path);
+    // 2) fiber texture multiplied, clipped to the torn piece
+    ctx.save();
+    ctx.clip(o.path);
+    ctx.globalCompositeOperation = "multiply";
+    ctx.globalAlpha = Math.min(1, ga * 0.9 * (0.35 + o.tint));
+    ctx.drawImage(o.tex.canvas, o.tex.x, o.tex.y);
+    ctx.restore();
+    // 3) thinner, lighter torn rim
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = ga;
+    ctx.lineWidth = 1.1;
+    ctx.strokeStyle = fgA(Math.min(1, o.tint * 1.5 + 0.08));
+    ctx.stroke(o.path);
+    ctx.restore();
+  }
+
+  function render() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = BG;            // opaque, stationary field
+    ctx.fillRect(0, 0, W, H);
+    for (var i = 0; i < pieces.length; i++) drawPiece(pieces[i]);
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------- GSAP timeline (sole owner of animated properties) ----------
+  var tl = gsap.timeline({ paused: true, onUpdate: render });
+  tl.to(scene, { drift: 1, duration: 2.7, ease: "sine.inOut" }, 0);
+
+  function byId(id) { for (var i = 0; i < pieces.length; i++) if (pieces[i].id === id) return pieces[i]; }
+  function laydown(o, at, dur, from, ease) {
+    tl.fromTo(o.st, { x: from.x || 0, y: from.y || 0, s: from.s || 1, r: from.r || 0, a: 0 },
+      { x: 0, y: 0, s: 1, r: 0, a: 1, duration: dur, ease: ease || "power2.inOut" }, at);
+  }
+  // back layers settle first (large area change)
+  laydown(byId("band-top"), 0.0, 0.8, { x: -48, y: -30, r: -2 });
+  laydown(byId("band-bottom"), 0.1, 0.8, { x: 48, y: 30, r: 2 });
+  laydown(byId("shaft-v"), 0.2, 0.7, { y: -48, r: 3 });
+  laydown(byId("shaft-l1"), 0.3, 0.7, { x: 40, y: -40, r: -3 });
+  laydown(byId("shaft-l2"), 0.4, 0.7, { x: 40, y: -40, r: -3 });
+  ["kelp-1", "kelp-2", "kelp-3", "kelp-4"].forEach(function (id, i) { laydown(byId(id), 0.35 + i * 0.1, 0.7, { y: 40, s: 0.8, r: i % 2 ? 8 : -8 }, "back.out(1.2)"); });
+  // the idea appears
+  laydown(byId("seed-outer"), 0.25, 0.7, { s: 0.7, r: -12 }, "back.out(1.2)");
+  laydown(byId("seed-mid"), 0.4, 0.6, { s: 0.7, r: 10 }, "back.out(1.2)");
+  laydown(byId("seed-core"), 0.55, 0.5, { s: 0.65 }, "back.out(1.2)");
+  // the idea reaches out: tail strip laid down along its length
+  var tail = byId("tail");
+  tl.fromTo(tail.st, { a: 0 }, { a: 1, duration: 0.2, ease: "sine.inOut" }, 0.8);
+  tl.fromTo(tail.st, { p: 0 }, { p: 1, duration: 0.6, ease: "power2.inOut" }, 0.8);
+  // network nodes laid down
+  pieces.filter(function (o) { return o.group === "node"; }).forEach(function (o) {
+    laydown(o, 1.15 + o.order * 0.07, 0.55, { s: 0.65, r: (o.order % 2 ? 12 : -12), y: 12 }, "back.out(1.2)");
+  });
+  // connections laid down after their nodes
+  pieces.filter(function (o) { return o.draw && o.id !== "tail"; }).forEach(function (o) {
+    var at = 1.4 + o.order * 0.09;
+    tl.fromTo(o.st, { a: 0 }, { a: 1, duration: 0.2, ease: "sine.inOut" }, at);
+    tl.fromTo(o.st, { p: 0 }, { p: 1, duration: 0.5, ease: "power2.inOut" }, at);
+  });
+  // front: fish and bubbles
+  ["fish-1", "fish-2", "fish-3"].forEach(function (id, i) { laydown(byId(id), 0.5 + i * 0.2, 0.6, { x: -40, r: -10 }, "sine.inOut"); });
+  pieces.filter(function (o) { return o.group === "bubble"; }).forEach(function (o) { laydown(o, 0.7 + o.order * 0.12, 0.5, { s: 0.65, y: 20 }, "back.out(1.2)"); });
+  // standalone headings: independent timing, settled well before 2.7 s
+  tl.fromTo("#h1", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.inOut" }, 0.6);
+  tl.fromTo("#h2", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.inOut" }, 0.85);
+  tl.fromTo("#sub", { opacity: 0, y: 10 }, { opacity: 0.82, y: 0, duration: 0.5, ease: "power2.inOut" }, 1.15);
+  tl.set({}, {}, 3); // hold to full duration
+
+  // redraw after every time change (seek/totalTime/progress all route through totalTime)
+  var origTotalTime = tl.totalTime;
+  tl.totalTime = function () {
+    var r = origTotalTime.apply(tl, arguments);
+    if (arguments.length) render();
+    return r;
+  };
+  window.addEventListener("hf-seek", function (e) {
+    var t = e && e.detail && typeof e.detail.time === "number" ? e.detail.time : null;
+    if (t !== null) tl.seek(t, false); else render();
+  });
+
+  window.__tissueContrast = CONTRAST;
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  tl.seek(0, false);
+  render();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

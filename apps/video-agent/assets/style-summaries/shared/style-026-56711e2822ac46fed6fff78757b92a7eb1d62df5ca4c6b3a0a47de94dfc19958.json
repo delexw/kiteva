@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-026",
+    "name": "Whiteboard Animation (explicit name_en; category Drawing and Illustration). Source provenance is explicit.",
+    "visualIdentity": "Explicit: a clean pale background, simplified line diagrams, and legible lettering. Draw only objects that help explain the subject. Reveal diagrams in causal order, then add annotations. No fabricated drawing hand is required.",
+    "suitableUses": "Explicitly self-sufficient for causal explainers that build diagrams step by step. Inferred fit: educational, science, or process topics with simple mechanisms. Quantitative or recurring-character segments need supporting styles rather than this style alone.",
+    "limitations": "Explicit: never invent a drawing hand when none is provided. Use erasure or redrawing transitions with sufficient reading pauses. Avoid polished dashboard charts, invented values, revealing everything at once, and drawing-hand props. Duration, aspect ratio, and resolution limits are unspecified.",
+    "palette": "Suggested, not supplied: background #FFFFFF as a layout role, foreground #23282C for ink, and accent_1 #245B9B for one explanatory highlight. Gradients are disabled and base color count is three. Contrast: foreground on background 14.879; white on accent_1 6.897, both above the 4.5 target. Task colors override these. Recheck composited frames.",
+    "motionAndInteraction": "Explicit: diagrams reveal in causal order, annotations follow, and erasure or redrawing transitions include reading holds. Shared guidance favors smooth movement where useful, while preserving sharp cuts and reading holds. Live interaction is unspecified for this style. Motion references motion-012 and motion-015 are optional and not required.",
+    "audio": "Unspecified for this style. Source directs proposing audio from topic, audience, objective, and motion, while honoring explicit user requirements first. No fixed music, voice, or sound-effect layer is imposed. Verify speech intelligibility, audio balance, absence of clipping, and picture synchronization in the final video.",
+    "assetRequirements": "Organize diagram paths and text layers in advance, then load fonts and assets before rendering. Specific asset files are unspecified. Optional authoring aids include tldraw for editable SVG layers and Rough.js only where sketch-like marks are authorized. Source states no drawing hand asset is needed.",
+    "combinations": "Recommended supports, inferred from source: style-097 adds staged data charts drawn in whiteboard order, with only #245B9B highlighting the key series and a reading pause per stage. style-025 adds simple doodle characters using marker lines without fills, never overlapping the diagram, with fixed expressions.",
+    "productionApproach": "Style renderer: native SVG strokes, with optional tldraw, Rough.js, Cytoscape.js, or Paper.js only where needed. Motion engine: GSAP DrawSVGPlugin for stroke reveals, with Motion or Anime.js optional and one owner per property. Pipeline: HyperFrames by default, with Remotion as a recorded fallback. Verify seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

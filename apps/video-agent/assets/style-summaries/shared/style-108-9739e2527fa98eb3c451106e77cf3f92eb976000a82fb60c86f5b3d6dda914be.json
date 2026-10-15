@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-108",
+    "name": "Isometric Motion Graphics; supplemental, user-requested direction in the Motion Design and Cinematography category.",
+    "visualIdentity": "Consistent isometric axes, shared scale and light direction. Top and side faces, modest thickness and contact shadows show form; labels stay 2D. Distant objects do not shrink through perspective.",
+    "suitableUses": "Explicitly favored for clear assembled systems or spaces, such as infrastructure or logistics explainers. Inferred fit: miniature scenes and product diagrams. Poor fit for perspective-driven drama.",
+    "limitations": "Perspective, camera tilts and diagonal free-form lines break the projection. Parallax alone is not full 3D. Source frames covered only 1–8 seconds, so continuous motion and audio were not verified.",
+    "palette": "Background is scene-dependent. Unapproved suggestions: #F3EFE6 background, #2C424F foreground, #63968D and #C58662 accents, no gradient. Foreground on background is 9.153:1; accents are decorative only. Exact task colors override.",
+    "motionAndInteraction": "Objects move along scene axes and settle before connectors reveal. Optional patterns motion-009, -012, -015 and -017 apply only when scene elements support them. Video uses timeline time, not live input.",
+    "audio": "Unspecified; no audio is mandated. Inferred: restrained accents or ambience at transitions, with voiceover or music only if the topic benefits. Keep speech intelligible and clear of reading holds.",
+    "assetRequirements": "Assets are optional; no uploads are mandatory. The style needs isometric geometry or flat illustrations with top and side faces, plus local fonts. Other asset requirements are unspecified.",
+    "combinations": "Style-109 adds axis-aligned diagram connectors between blocks. Style-095 shows flat UI on iso device tops, then cuts to a flat view. Use isometric alone for simple systems.",
+    "productionApproach": "HyperFrames handles composition, timing, validation and export; Remotion is fallback only for a recorded limitation. Three.js OrthographicCamera renders, GSAP paused timelines drive motion. Verify seeks and composited contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

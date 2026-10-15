@@ -1,0 +1,353 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Rubber Hose Animation – An Idea Gets Connected</title>
+<style>
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1C1B18}
+  #root{position:relative;width:100%;height:100%;overflow:hidden}
+  #stage{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+  #type{position:absolute;left:0;top:0;width:100%;height:100%;display:block;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <!-- Canvas 2D owns the procedural rubber-hose scene (character, cords, sockets, iris, hatching). -->
+  <canvas id="stage" width="1280" height="720"></canvas>
+  <!-- SVG owns the stationary copy. Headline and caption are standalone, always visible and never moved. -->
+  <svg id="type" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+    <g id="banner">
+      <path d="M330 38h620l-30 40 30 40H330l30-40z" fill="#F4ECD9" stroke="#1C1B18" stroke-width="7"/>
+      <text x="640" y="91" font-family="'Cooper Black','Georgia',serif" font-weight="bold" font-size="34" fill="#1C1B18" text-anchor="middle">An Idea Gets Connected!</text>
+    </g>
+    <g id="caption">
+      <rect x="470" y="666" width="340" height="44" rx="22" fill="#F4ECD9" stroke="#1C1B18" stroke-width="4"/>
+      <text x="640" y="696" font-family="'Cooper Black','Georgia',serif" font-weight="bold" font-size="22" fill="#1C1B18" text-anchor="middle" letter-spacing="3">A BRIGHT NOTION</text>
+    </g>
+  </svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  // ---------- Palette (two-ink monochrome; roles swapped for a night-stage field) ----------
+  const INK = chroma('#1C1B18').hex();
+  const PAPER = chroma('#F4ECD9').hex();
+  if (chroma.contrast(INK, PAPER) < 4.5) throw Error('Palette contrast below target');
+  const W = 1280, H = 720, DUR = 3;
+  const IRIS = {x: 640, y: 380};
+
+  const canvas = document.getElementById('stage');
+  const ctx = canvas.getContext('2d');
+
+  // ---------- Cached stationary background: ink field with paper hatching ----------
+  const hatch = document.createElement('canvas');
+  hatch.width = W; hatch.height = H;
+  (function buildHatch(){
+    const h = hatch.getContext('2d');
+    h.fillStyle = INK; h.fillRect(0, 0, W, H);
+    h.strokeStyle = PAPER; h.lineWidth = 1.6; h.lineCap = 'butt';
+    h.beginPath();
+    for (let k = -H; k < W + H; k += 13) { h.moveTo(k, 0); h.lineTo(k + H, H); }
+    h.stroke();
+    // a stationary vignette band of denser ink near the frame edge (pure ink, no new hue)
+    h.fillStyle = INK;
+    h.fillRect(0, 0, W, 10); h.fillRect(0, H - 10, W, 10); h.fillRect(0, 0, 10, H); h.fillRect(W - 10, 0, 10, H);
+  })();
+
+  // ---------- Easing helpers (pure functions of time) ----------
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const E = {
+    linear: k => k,
+    out2: k => 1 - (1 - k) * (1 - k),
+    in2: k => k * k,
+    inOut2: k => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2,
+    sine: k => -(Math.cos(Math.PI * k) - 1) / 2,
+    back: k => { const c1 = 1.7, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); }
+  };
+  const prog = (t, t0, t1, ease) => (ease || E.linear)(clamp((t - t0) / (t1 - t0), 0, 1));
+  // keyed scalar track: [[time, value, easeIntoThisKey], ...]
+  function track(t, keys){
+    if (t <= keys[0][0]) return keys[0][1];
+    for (let i = 1; i < keys.length; i++) {
+      if (t <= keys[i][0]) {
+        const a = keys[i - 1], b = keys[i];
+        return lerp(a[1], b[1], (b[2] || E.inOut2)((t - a[0]) / (b[0] - a[0])));
+      }
+    }
+    return keys[keys.length - 1][1];
+  }
+
+  // ---------- Replaceable poses (rubber-hose rig parameters) ----------
+  // bodyY: + lowers (squash), - raises (stretch). Arm angles in degrees, screen space, from shoulder.
+  const POSES = {
+    rest:    {bodyY:  0, lA: 112, lB: -28, rA:  68, rB: -28, leg: 10, mouth: 40},
+    crouch:  {bodyY: 20, lA: 128, lB: -44, rA:  54, rB: -44, leg: 26, mouth: 30},
+    stretch: {bodyY:-16, lA: 222, lB: -12, rA:  12, rB: -12, leg:  2, mouth: 70},
+    land:    {bodyY: 12, lA: 202, lB: -40, rA:  32, rB: -40, leg: 22, mouth: 52},
+    settle:  {bodyY:  0, lA: 208, lB: -30, rA:  25, rB: -30, leg: 12, mouth: 58},
+    waveUp:  {bodyY: -3, lA: 224, lB: -16, rA:  25, rB: -30, leg: 11, mouth: 62},
+    waveDn:  {bodyY:  1, lA: 196, lB: -42, rA:  25, rB: -30, leg: 12, mouth: 58},
+    waveUp2: {bodyY: -1, lA: 216, lB: -24, rA:  25, rB: -30, leg: 12, mouth: 60}
+  };
+  // pose exposure schedule: [time, poseName, easeIntoPose]
+  const SCHEDULE = [
+    [0.00, 'rest'],
+    [0.32, 'crouch',  E.out2],   // anticipation
+    [0.56, 'stretch', E.out2],   // throw: arms whip outward on arcs
+    [0.84, 'land',    E.in2],    // squash on landing contact
+    [1.12, 'settle',  E.sine],   // recover
+    [1.80, 'settle',  E.linear], // hold while system lights
+    [1.98, 'waveUp',  E.sine],
+    [2.16, 'waveDn',  E.sine],
+    [2.34, 'waveUp2', E.sine],
+    [2.56, 'settle',  E.sine],   // settled; reading hold follows
+    [3.00, 'settle',  E.linear]
+  ];
+  function poseAt(t){
+    let i = 1;
+    while (i < SCHEDULE.length - 1 && t > SCHEDULE[i][0]) i++;
+    const a = SCHEDULE[i - 1], b = SCHEDULE[i];
+    const k = (b[2] || E.inOut2)(clamp((t - a[0]) / (b[0] - a[0]), 0, 1));
+    const pa = POSES[a[1]], pb = POSES[b[1]], out = {};
+    for (const key in pa) out[key] = lerp(pa[key], pb[key], k);
+    return out;
+  }
+
+  // ---------- Geometry helpers ----------
+  const BASE = {x: 640, y: 504};
+  function bodyXform(p){
+    const sy = 1 - p.bodyY * 0.0045, sx = 1 / sy;
+    return {sx, sy, ty: p.bodyY};
+  }
+  function bodyPoint(x, y, bx){
+    return {x: BASE.x + (x - BASE.x) * bx.sx, y: BASE.y + bx.ty + (y - BASE.y) * bx.sy};
+  }
+  const ARM = 200;
+  function limb(shoulder, deg, bend){
+    const a = deg * Math.PI / 180;
+    const hand = {x: shoulder.x + Math.cos(a) * ARM, y: shoulder.y + Math.sin(a) * ARM};
+    const n = {x: -Math.sin(a), y: Math.cos(a)};
+    const ctrl = {x: (shoulder.x + hand.x) / 2 + n.x * bend, y: (shoulder.y + hand.y) / 2 + n.y * bend};
+    return {hand, ctrl};
+  }
+  function cubicPts(p0, p1, p2, p3, n){
+    const out = [];
+    for (let i = 0; i <= n; i++) {
+      const s = i / n, u = 1 - s;
+      out.push({
+        x: u*u*u*p0.x + 3*u*u*s*p1.x + 3*u*s*s*p2.x + s*s*s*p3.x,
+        y: u*u*u*p0.y + 3*u*u*s*p1.y + 3*u*s*s*p2.y + s*s*s*p3.y
+      });
+    }
+    return out;
+  }
+  function strokePartial(c, pts, frac){
+    if (frac <= 0) return;
+    let total = 0; const seg = [];
+    for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i].x - pts[i-1].x, pts[i].y - pts[i-1].y); seg.push(d); total += d; }
+    let remain = total * clamp(frac, 0, 1);
+    c.beginPath(); c.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length && remain > 0; i++) {
+      const d = seg[i - 1];
+      if (d <= remain) { c.lineTo(pts[i].x, pts[i].y); remain -= d; }
+      else { const k = remain / d; c.lineTo(lerp(pts[i-1].x, pts[i].x, k), lerp(pts[i-1].y, pts[i].y, k)); remain = 0; }
+    }
+    c.stroke();
+  }
+
+  // ---------- Network (sockets + cords) ----------
+  const S = [{x:185,y:200},{x:150,y:470},{x:1100,y:300},{x:1120,y:560}];
+  // socket pop times are deliberately uneven (no identical bounce on every object)
+  const SOCKET_POP = [0.86, 1.14, 0.97, 1.33];
+  const P = (x, y) => ({x, y});
+  // static cord samples (cached)
+  const CORD_S1S2 = cubicPts(S[0], P(105,280), P(205,400), S[1], 48);
+  const CORD_S3S4 = cubicPts(S[2], P(1160,390), P(1090,470), S[3], 48);
+  const CORD_S2S4 = cubicPts(S[1], P(250,670), P(470,580), P(640,640), 48)
+    .concat(cubicPts(P(640,640), P(810,700), P(1040,620), S[3], 48).slice(1));
+  function cordsAt(t, hands){
+    return [
+      {pts: cubicPts(hands.L, P(hands.L.x - 60, hands.L.y + 40), P(S[0].x + 65, S[0].y + 15), S[0], 40), f: prog(t, 0.50, 0.86, E.inOut2)},
+      {pts: cubicPts(hands.R, P(hands.R.x + 80, hands.R.y + 40), P(S[2].x - 65, S[2].y + 5), S[2], 40), f: prog(t, 0.60, 0.97, E.inOut2)},
+      {pts: CORD_S1S2, f: prog(t, 0.88, 1.14, E.inOut2)},
+      {pts: CORD_S3S4, f: prog(t, 1.00, 1.33, E.inOut2)},
+      {pts: CORD_S2S4, f: prog(t, 1.16, 1.70, E.inOut2)}
+    ];
+  }
+
+  function drawSocket(c, s, t, popAt, fg, bg){
+    const k = clamp((t - popAt) / 0.30, 0, 1);
+    if (k <= 0) return;
+    const sc = lerp(0.55, 1, E.back(k));
+    c.save(); c.translate(s.x, s.y); c.scale(sc, sc);
+    c.fillStyle = fg; c.beginPath(); c.arc(0, 0, 34, 0, Math.PI * 2); c.fill();
+    c.fillStyle = bg; c.beginPath(); c.arc(0, 0, 22, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = fg; c.lineWidth = 5; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(-8, -8); c.lineTo(-8, 4); c.moveTo(8, -8); c.lineTo(8, 4); c.stroke();
+    c.restore();
+    // connection spark ring: expands and thins to nothing (stroke width, not opacity)
+    const r = clamp((t - popAt) / 0.28, 0, 1);
+    if (r > 0 && r < 1) {
+      c.strokeStyle = fg; c.lineWidth = 6 * (1 - r);
+      c.beginPath(); c.arc(s.x, s.y, 38 + 30 * E.out2(r), 0, Math.PI * 2); c.stroke();
+    }
+  }
+
+  function drawNetwork(c, t, hands, fg, bg){
+    c.strokeStyle = fg; c.lineWidth = 9; c.lineCap = 'round'; c.lineJoin = 'round';
+    for (const cord of cordsAt(t, hands)) strokePartial(c, cord.pts, cord.f);
+    S.forEach((s, i) => drawSocket(c, s, t, SOCKET_POP[i], fg, bg));
+  }
+
+  // ---------- Character ----------
+  const BULB = new Path2D('M640 180a120 120 0 0 1 70 218v30h-140v-30a120 120 0 0 1 70-218z');
+  function rig(t){
+    const p = poseAt(t), bx = bodyXform(p);
+    const shL = bodyPoint(565, 340, bx), shR = bodyPoint(715, 340, bx);
+    const L = limb(shL, p.lA, p.lB), R = limb(shR, p.rA, p.rB);
+    return {p, bx, shL, shR, L, R, hipL: bodyPoint(620, 500, bx), hipR: bodyPoint(660, 500, bx)};
+  }
+
+  function drawGlove(c, pos, angle){
+    c.save(); c.translate(pos.x, pos.y); c.rotate((angle - 90) * Math.PI / 180 * 0.15);
+    c.fillStyle = PAPER; c.strokeStyle = INK; c.lineWidth = 6;
+    c.beginPath(); c.arc(0, 0, 26, 0, Math.PI * 2); c.fill(); c.stroke();
+    c.lineWidth = 4; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(-8, -10); c.lineTo(-8, 2); c.moveTo(5, -12); c.lineTo(5, 0); c.stroke();
+    c.restore();
+  }
+
+  function drawCharacter(c, t, R){
+    const {p, bx} = R;
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    // legs: hips follow the body, feet stay planted (contact points never slide)
+    const feet = [{x: 522, y: 640}, {x: 752, y: 640}];
+    const hips = [R.hipL, R.hipR];
+    c.strokeStyle = INK; c.lineWidth = 16;
+    for (let i = 0; i < 2; i++) {
+      const out = i === 0 ? -1 : 1, h = hips[i], f = {x: feet[i].x - out * 18, y: feet[i].y - 10};
+      c.beginPath(); c.moveTo(h.x, h.y);
+      c.quadraticCurveTo((h.x + f.x) / 2 + out * p.leg, (h.y + f.y) / 2 + 6, f.x, f.y);
+      c.stroke();
+    }
+    // shoes
+    c.fillStyle = INK;
+    for (const f of feet) { c.beginPath(); c.ellipse(f.x, f.y, 46, 20, 0, 0, Math.PI * 2); c.fill(); }
+    // arms (behind bulb)
+    c.strokeStyle = INK; c.lineWidth = 16;
+    for (const [sh, arm] of [[R.shL, R.L], [R.shR, R.R]]) {
+      c.beginPath(); c.moveTo(sh.x, sh.y); c.quadraticCurveTo(arm.ctrl.x, arm.ctrl.y, arm.hand.x, arm.hand.y); c.stroke();
+    }
+    // bulb body, squash and stretch about the base contact point
+    c.save();
+    c.translate(BASE.x, BASE.y + bx.ty); c.scale(bx.sx, bx.sy); c.translate(-BASE.x, -BASE.y);
+    c.fillStyle = PAPER; c.strokeStyle = INK; c.lineWidth = 9;
+    c.fill(BULB); c.stroke(BULB);
+    c.fillStyle = INK;
+    c.fillRect(575, 434, 130, 18); c.fillRect(580, 458, 120, 18);
+    c.beginPath(); c.moveTo(600, 482); c.lineTo(680, 482); c.lineTo(665, 504); c.lineTo(615, 504); c.closePath(); c.fill();
+    // highlight
+    c.strokeStyle = INK; c.lineWidth = 7;
+    c.beginPath(); c.moveTo(562, 252); c.quadraticCurveTo(572, 212, 607, 196); c.stroke();
+    // pie eyes: pupils glance toward the sockets as they connect, blink once when lit
+    const look = track(t, [[0, 0], [0.7, 0], [0.86, -6, E.out2], [1.0, 6, E.inOut2], [1.4, 0, E.inOut2]]);
+    const lid = 1 - 0.9 * (prog(t, 1.52, 1.60, E.in2) - prog(t, 1.62, 1.74, E.out2));
+    for (const ex of [610, 670]) {
+      c.fillStyle = INK; c.beginPath(); c.ellipse(ex, 288, 18, 34 * lid, 0, 0, Math.PI * 2); c.fill();
+      if (lid > 0.45) {
+        c.fillStyle = PAPER; c.beginPath();
+        c.moveTo(ex + look, 288 - 6 * lid); c.lineTo(ex + 14 + look, 288 - 28 * lid); c.lineTo(ex + 19 + look * 0.5, 288 - 8 * lid); c.closePath(); c.fill();
+      }
+    }
+    // mouth
+    c.fillStyle = INK; c.beginPath();
+    c.moveTo(585, 342); c.quadraticCurveTo(640, 342 + p.mouth, 695, 342); c.quadraticCurveTo(640, 368, 585, 342); c.closePath(); c.fill();
+    c.restore();
+    // gloves
+    drawGlove(c, R.L.hand, p.lA); drawGlove(c, R.R.hand, p.rA);
+  }
+
+  // glow rays + sparkles + wave marks (ink, inside the iris)
+  const RAYS = [-122, -104, -86, -68, -50];
+  const STARS = [{x:510,y:176,s:1,at:1.62,rot:-1},{x:780,y:168,s:.7,at:1.76,rot:1},{x:812,y:236,s:.5,at:1.92,rot:-1}];
+  function star(c, s){ c.beginPath(); c.moveTo(0,-22); c.lineTo(5,-5); c.lineTo(22,0); c.lineTo(5,5); c.lineTo(0,22); c.lineTo(-5,5); c.lineTo(-22,0); c.lineTo(-5,-5); c.closePath(); c.fill(); }
+  function drawLight(c, t, R){
+    const bx = R.bx;
+    const centre = bodyPoint(640, 290, bx);
+    c.strokeStyle = INK; c.lineWidth = 8; c.lineCap = 'round';
+    RAYS.forEach((deg, i) => {
+      const k = prog(t, 1.42 + i * 0.035, 1.70 + i * 0.035, E.out2);
+      if (k <= 0) return;
+      const a = deg * Math.PI / 180, r0 = 136, r1 = 136 + 26 * k;
+      c.beginPath(); c.moveTo(centre.x + Math.cos(a) * r0, centre.y + Math.sin(a) * r0); c.lineTo(centre.x + Math.cos(a) * r1, centre.y + Math.sin(a) * r1); c.stroke();
+    });
+    c.fillStyle = INK;
+    for (const st of STARS) {
+      const k = clamp((t - st.at) / 0.32, 0, 1);
+      if (k <= 0) continue;
+      c.save(); c.translate(st.x, st.y); c.rotate(st.rot * (1 - k) * 0.26); c.scale(st.s * lerp(0.4, 1, E.back(k)), st.s * lerp(0.4, 1, E.back(k)));
+      star(c); c.restore();
+    }
+    // motion marks beside the waving glove (drawn on, then stay as a held accent)
+    const wk = prog(t, 1.98, 2.30, E.out2);
+    if (wk > 0) {
+      c.strokeStyle = INK; c.lineWidth = 5;
+      strokePartial(c, [P(338,200), P(328,211), P(326,228), P(328,252)], wk);
+      strokePartial(c, [P(316,186), P(304,203), P(299,230), P(302,260)], prog(t, 2.06, 2.38, E.out2));
+    }
+  }
+
+  // ---------- Frame render: pure function of composition time ----------
+  function irisRadius(t){ return track(t, [[0, 236], [0.62, 330, E.out2]]); }
+  function render(time){
+    const t = clamp(Number(time) || 0, 0, DUR);
+    const R = rig(t);
+    const hands = {L: R.L.hand, R: R.R.hand};
+    const r = irisRadius(t);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(hatch, 0, 0);
+
+    // Outside the iris: paper-tone line on ink (negative print of the same two inks)
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.arc(IRIS.x, IRIS.y, r, 0, Math.PI * 2, true); ctx.clip('evenodd');
+    drawNetwork(ctx, t, hands, PAPER, INK);
+    ctx.restore();
+
+    // Inside the iris: ink on paper stage
+    ctx.save();
+    ctx.beginPath(); ctx.arc(IRIS.x, IRIS.y, r, 0, Math.PI * 2); ctx.clip();
+    ctx.fillStyle = PAPER; ctx.fillRect(0, 0, W, H);
+    drawNetwork(ctx, t, hands, INK, PAPER);
+    drawCharacter(ctx, t, R);
+    drawLight(ctx, t, R);
+    ctx.restore();
+
+    // iris ring: ink line with a thin paper keyline so it reads against the ink field
+    ctx.strokeStyle = PAPER; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(IRIS.x, IRIS.y, r + 8, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = INK; ctx.lineWidth = 10;
+    ctx.beginPath(); ctx.arc(IRIS.x, IRIS.y, r, 0, Math.PI * 2); ctx.stroke();
+  }
+
+  // ---------- GSAP: single owner of composition time ----------
+  const clock = {t: 0};
+  const tl = gsap.timeline({paused: true});
+  tl.to(clock, {t: DUR, duration: DUR, ease: 'none', onUpdate: () => render(clock.t)}, 0);
+  tl.eventCallback('onUpdate', () => render(tl.time()));
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  render(0);
+  window.addEventListener('hf-seek', e => {
+    const s = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : null;
+    if (s !== null) tl.seek(s, false);
+    render(tl.time());
+  });
+  window.__renderAt = render; // deterministic frame access for QA
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

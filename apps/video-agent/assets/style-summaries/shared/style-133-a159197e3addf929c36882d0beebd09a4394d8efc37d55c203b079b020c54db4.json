@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-133",
+    "name": "Impressionist Painting (Illustration and Art Media category, extracted from sampled Fable gallery video frames). The art-medium label is an authored classification.",
+    "visualIdentity": "Broken visible brush marks, atmospheric light and adjacent color touches describe a fleeting outdoor scene. Light, reflected color and soft edges stay coherent, unlike the forceful directional structure of Post-Impressionism. The label does not claim the creator's production technique.",
+    "suitableUses": "Explicit: the preview is an outdoor river landscape, and the template accepts any subject. Inferred: calm, atmospheric outdoor scenes where mood matters more than detail, and slower-paced captioned storytelling. No other use cases are specified.",
+    "limitations": "Explicit: the preview is a procedural approximation of an Impressionist manner and must be disclosed as one. Hex values are suggested defaults, not measured source values. Gradients, blur, swirl filters and whole-image boil are excluded. Full-video layered-asset runtime is unverified.",
+    "palette": "Fallback tokens, used only when no approved task or reference palette is supplied: background #F0E9D7 (paper or painted field), foreground #364747 (accents and captions), sky #9EBCC8, foliage #829C79, sunlight #D8BF7A, rose #C59D9D. Gradients are disabled, so use pigment layering and texture. Approved colors take precedence, and caption contrast (4.5:1 target) must be checked on the composited texture.",
+    "motionAndInteraction": "Preview plan: 0–1.0s regional paint-on, with each dab revealed by a per-dab threshold against GSAP progress; 1.0–3.0s reflection shimmer and slight grass sway, then hold. Shimmer is a pure function of time with bounded jitter. Only the water reflection and one small subject redraw. Keep sharp cuts and reading holds. HTML interaction and reduced-motion behavior are unspecified.",
+    "audio": "Unspecified for this style; the source offers only optional suggestions. Background music, voiceover and ambience are chosen per task, and silence suits reading holds. Do not assume a historical soundtrack from the visual medium. Honor supplied audio, invent no audio assets, and keep speech intelligible without clipping.",
+    "assetRequirements": "The procedural preview needs a seeded PRNG, authored flow fields per region, offscreen rasterized static layers, and a small subject such as a skiff or parasol figure. Optional approved or newly painted layered assets (for example Krita layers, runtime unverified) can replace procedural regions with local motion. Local fonts and assets must load before rendering.",
+    "combinations": "Optional supporting style-036 is suggested for a secondary detail; its role is described only as supporting medium or narrative detail. Keep Impressionist Painting dominant, with its picture plane, approved colors and one animation owner per property. Avoid generic effects replacing mark-making and invented historical text. This compatibility guidance is authored, not validated.",
+    "productionApproach": "Style renderer: Canvas 2D draws thousands of dabs and caches static layers. Motion engine: GSAP drives the seekable time proxy. Optional: chroma-js validates tokens and checks contrast. Pipeline: HyperFrames handles composition, checks and export by default, and Remotion is used only with a recorded, verified limitation. Verify direct and backward seeks, decoded frames and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

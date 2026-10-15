@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Hand-drawn Collage — an idea becomes a connected system</title>
+<style>
+  /* OS-bundled macOS handwriting faces: declared via local() so the renderer resolves them explicitly. */
+  @font-face { font-family: "Bradley Hand"; src: local("Bradley Hand Bold"), local("BradleyHandITCTT-Bold"), local("Bradley Hand"); font-weight: 100 900; font-style: normal; }
+  @font-face { font-family: "Chalkboard SE"; src: local("Chalkboard SE Regular"), local("ChalkboardSE-Regular"), local("Chalkboard SE"); font-weight: 100 500; font-style: normal; }
+  @font-face { font-family: "Chalkboard SE"; src: local("Chalkboard SE Bold"), local("ChalkboardSE-Bold"); font-weight: 600 900; font-style: normal; }
+  @font-face { font-family: "Comic Sans MS"; src: local("Comic Sans MS"), local("ComicSansMS"); font-weight: 100 500; font-style: normal; }
+  @font-face { font-family: "Comic Sans MS"; src: local("Comic Sans MS Bold"), local("ComicSansMS-Bold"); font-weight: 600 900; font-style: normal; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #415A64; }
+  [data-composition-id="video"] { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  #pixi-stage, #pixi-stage canvas, #ink { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  #ink { pointer-events: none; }
+  .chip-grain { mix-blend-mode: multiply; opacity: 0.9; }
+  .hand { font-family: "Bradley Hand", "Chalkboard SE", "Comic Sans MS", cursive; fill: #3C4345; }
+</style>
+</head>
+<body>
+<div data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <div id="pixi-stage"></div>
+  <svg id="ink" xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+    <defs>
+      <filter id="chip-blur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3.5"></feGaussianBlur></filter>
+      <pattern id="grain" patternUnits="userSpaceOnUse" width="512" height="512"><image id="grain-img" width="512" height="512" href=""></image></pattern>
+      <clipPath id="clip-people" clipPathUnits="userSpaceOnUse"><rect id="clip-people-r" x="571" y="228" width="130" height="58"></rect></clipPath>
+      <clipPath id="clip-flow" clipPathUnits="userSpaceOnUse"><rect id="clip-flow-r" x="911" y="388" width="130" height="58"></rect></clipPath>
+      <clipPath id="clip-tools" clipPathUnits="userSpaceOnUse"><rect id="clip-tools-r" x="651" y="508" width="130" height="58"></rect></clipPath>
+      <clipPath id="clip-caption" clipPathUnits="userSpaceOnUse"><rect id="clip-caption-r" x="680" y="604" width="560" height="70"></rect></clipPath>
+    </defs>
+    <g id="ink-strokes" stroke-linecap="round" stroke-linejoin="round"></g>
+    <g id="title-chips" aria-label="an idea…" style="isolation:isolate">
+      <g id="chip-0" class="chip" data-cx="94.0" data-cy="93.0"><g transform="rotate(-5 94.0 93.0)">
+        <path class="chip-shadow" d="M69.3 62.0 L116.7 61.5 L116.6 122.4 L69.3 122.8 Z" fill="#1B2327" opacity="0.32" filter="url(#chip-blur)" transform="translate(3 5)"></path>
+        <path d="M69.3 62.0 L116.7 61.5 L116.6 122.4 L69.3 122.8 Z" fill="#F6EDD9"></path><path class="chip-grain" d="M69.3 62.0 L116.7 61.5 L116.6 122.4 L69.3 122.8 Z" fill="url(#grain)"></path>
+        <text x="94.0" y="108" font-size="44" font-family="Georgia, serif" font-weight="700" fill="#3C4345" text-anchor="middle">a</text></g></g>
+      <g id="chip-1" class="chip" data-cx="146.0" data-cy="93.0"><g transform="rotate(4 146.0 93.0)">
+        <path class="chip-shadow" d="M121.4 62.8 L168.5 62.4 L168.8 124.9 L122.8 123.1 Z" fill="#1B2327" opacity="0.32" filter="url(#chip-blur)" transform="translate(3 5)"></path>
+        <path d="M121.4 62.8 L168.5 62.4 L168.8 124.9 L122.8 123.1 Z" fill="#3C4345"></path><path class="chip-grain" d="M121.4 62.8 L168.5 62.4 L168.8 124.9 L122.8 123.1 Z" fill="url(#grain)"></path>
+        <text x="146.0" y="108" font-size="44" font-family="Futura, Avenir Next, Helvetica, sans-serif" font-weight="700" fill="#F6EDD9" text-anchor="middle">n</text></g></g>
+      <g id="chip-2" class="chip" data-cx="220.0" data-cy="93.0"><g transform="rotate(6 220.0 93.0)">
+        <path class="chip-shadow" d="M197.1 62.7 L242.6 61.7 L244.6 125.4 L195.0 123.2 Z" fill="#1B2327" opacity="0.32" filter="url(#chip-blur)" transform="translate(3 5)"></path>
+        <path d="M197.1 62.7 L242.6 61.7 L244.6 125.4 L195.0 123.2 Z" fill="#F6EDD9"></path><path class="chip-grain" d="M197.1 62.7 L242.6 61.7 L244.6 125.4 L195.0 123.2 Z" fill="url(#grain)"></path>
+        <text x="220.0" y="108" font-size="44" font-family="Bradley Hand, Chalkboard SE, cursive" font-weight="700" fill="#3C4345" text-anchor="middle">i</text></g></g>
+      <g id="chip-3" class="chip" data-cx="270.0" data-cy="93.0"><g transform="rotate(-4 270.0 93.0)">
+        <path class="chip-shadow" d="M246.9 63.5 L292.7 60.7 L294.8 123.4 L245.6 125.2 Z" fill="#1B2327" opacity="0.32" filter="url(#chip-blur)" transform="translate(3 5)"></path>
+        <path d="M246.9 63.5 L292.7 60.7 L294.8 123.4 L245.6 125.2 Z" fill="#3C4345"></path><path class="chip-grain" d="M246.9 63.5 L292.7 60.7 L294.8 123.4 L245.6 125.2 Z" fill="url(#grain)"></path>
+        <text x="270.0" y="108" font-size="44" font-family="Courier New, Courier, monospace" font-weight="700" fill="#F6EDD9" text-anchor="middle">d</text></g></g>
+      <g id="chip-4" class="chip" data-cx="322.0" data-cy="93.0"><g transform="rotate(3 322.0 93.0)">
+        <path class="chip-shadow" d="M298.8 62.5 L347.2 62.7 L347.0 124.5 L298.3 122.6 Z" fill="#1B2327" opacity="0.32" filter="url(#chip-blur)" transform="translate(3 5)"></path>
+        <path d="M298.8 62.5 L347.2 62.7 L347.0 124.5 L298.3 122.6 Z" fill="#F6EDD9"></path><path class="chip-grain" d="M298.8 62.5 L347.2 62.7 L347.0 124.5 L298.3 122.6 Z" fill="url(#grain)"></path>
+        <text x="322.0" y="108" font-size="44" font-family="American Typewriter, Georgia, serif" font-weight="700" fill="#3C4345" text-anchor="middle">e</text></g></g>
+      <g id="chip-5" class="chip" data-cx="374.0" data-cy="93.0"><g transform="rotate(-6 374.0 93.0)">
+        <path class="chip-shadow" d="M351.3 63.3 L397.5 62.4 L396.5 124.0 L350.4 123.3 Z" fill="#1B2327" opacity="0.32" filter="url(#chip-blur)" transform="translate(3 5)"></path>
+        <path d="M351.3 63.3 L397.5 62.4 L396.5 124.0 L350.4 123.3 Z" fill="#3C4345"></path><path class="chip-grain" d="M351.3 63.3 L397.5 62.4 L396.5 124.0 L350.4 123.3 Z" fill="url(#grain)"></path>
+        <text x="374.0" y="108" font-size="44" font-family="Didot, Times New Roman, serif" font-weight="700" fill="#F6EDD9" text-anchor="middle">a</text></g></g>
+      <g id="chip-6" class="chip" data-cx="434.0" data-cy="93.0"><g transform="rotate(4 434.0 93.0)">
+        <path class="chip-shadow" d="M403.7 63.1 L462.9 61.9 L462.7 123.6 L405.2 124.4 Z" fill="#1B2327" opacity="0.32" filter="url(#chip-blur)" transform="translate(3 5)"></path>
+        <path d="M403.7 63.1 L462.9 61.9 L462.7 123.6 L405.2 124.4 Z" fill="#F6EDD9"></path><path class="chip-grain" d="M403.7 63.1 L462.9 61.9 L462.7 123.6 L405.2 124.4 Z" fill="url(#grain)"></path>
+        <text x="434.0" y="108" font-size="44" font-family="Georgia, serif" font-weight="700" fill="#3C4345" text-anchor="middle">…</text></g></g>
+    </g>
+    <g id="lettering">
+      <text class="hand" x="636" y="265" font-size="30" text-anchor="middle" transform="rotate(-2 636 230)" clip-path="url(#clip-people)">people</text>
+      <text class="hand" x="976" y="425" font-size="30" text-anchor="middle" transform="rotate(2 976 390)" clip-path="url(#clip-flow)">flow</text>
+      <text class="hand" x="716" y="545" font-size="30" text-anchor="middle" transform="rotate(-1 716 510)" clip-path="url(#clip-tools)">tools</text>
+      <text class="hand" x="960" y="651" font-size="36" text-anchor="middle" transform="rotate(1.5 708 604)" clip-path="url(#clip-caption)">…becomes a connected system</text>
+    </g>
+  </svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="scene.bundle.js"></script>
+<script>
+(async () => {
+  // Contrast guard using only palette tokens: every label sits on cream paper (#F6EDD9) in foreground ink (#3C4345).
+  const paper = '#F6EDD9', ink = '#3C4345';
+  if (chroma.contrast(ink, paper) < 4.5) throw new Error('Label ink/paper pairing below 4.5:1');
+  if (document.fonts && document.fonts.ready) await document.fonts.ready;
+  const timeline = await window.__collageBoot();
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = timeline;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

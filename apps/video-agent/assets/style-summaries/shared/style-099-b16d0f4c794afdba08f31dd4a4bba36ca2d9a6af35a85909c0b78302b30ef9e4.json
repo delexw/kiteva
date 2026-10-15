@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-099",
+    "name": "Continuous Shot. Label normalized from an explicit request for one continuous shot. Category: Motion Design and Cinematography.",
+    "visualIdentity": "Explicit: one unbroken, readable camera path through continuous space that keeps subjects, lighting and occlusion consistent. Structure comes from internal action, scale changes or transformations, with deliberate acceleration and pauses. Medium, materials and typography are otherwise unspecified.",
+    "suitableUses": "Explicit: any single unbroken camera journey, and a good fit for real-depth dolly work per motion-019. Inferred: company story tours and process walkthroughs (with style-079), and manifesto films or immersive landing pages (with style-093).",
+    "limitations": "Explicit: avoid unexplained resets, wall intersections and hidden discontinuities. Unsuitable when viewers must read dense text during travel, or when a hidden reset would break the one-shot requirement. Simulated appearance is not validated physics or physical production evidence.",
+    "palette": "Optional reference-dependent example, not an intrinsic style palette. Background #F2EBDD and foreground #343E43 give 9.239 contrast and suit body text. Accent #8D957D (3.511) is decorative only. Use three discrete colors with gradients disabled. Task or approved colors override these.",
+    "motionAndInteraction": "The camera pose must be computed directly from time, with any simulation cached so seeks are deterministic. Pauses and acceleration are deliberate, with reading holds. Optional references motion-002 (vortex), motion-010 (orbit), motion-015 (storytelling), motion-019 (dolly) and motion-038 (punctuation zoom) need scene screening and may all be omitted. Live scroll or pointer input applies only to interactive delivery.",
+    "audio": "Audio is unspecified and no audio layer is mandated. Inferred suggestion when inputs are absent: restrained music or ambience that supports acceleration and pauses, with silence during reading holds. Voiceover only if it clarifies the topic. Honor task audio first and do not invent audio assets.",
+    "assetRequirements": "No asset list is supplied. Subject, copy, audience, duration, aspect ratio, resolution, frame rate and output directory are task inputs and remain unspecified. Needed: a traversable scene with real depth, uniform-scale props and occlusion-safe geometry, with fonts and textures loaded before rendering. motion-010 needs complete geometry or sufficient turntable views.",
+    "combinations": "Environment: style-079 (diorama) supplies a bounded miniature stage with one camera spline, uniform scale and no wall crossings. Typography: style-093 places frontal spatial signage on surfaces for reading holds. Three.js remains the single renderer. Avoid overdetailed sets and oblique, unreadable text angles.",
+    "productionApproach": "Three.js is the style renderer for geometry, camera, materials and lighting. GSAP is the motion engine, with one owner per animated property. HyperFrames is the default pipeline for composition, sync and export; Remotion is a fallback only with a recorded, verified reason. chroma-js is optional for color checks. Verify decoded frames, direct, backward and forward seeks, and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

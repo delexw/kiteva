@@ -1,0 +1,74 @@
+{
+  "version": 3,
+  "title": "Volumetric Fire & Smoke — An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Spark to connected system",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Show an idea igniting as a raymarched volumetric flame whose cooling smoke branches link three ember nodes, staged with the blast_aftermath recipe (compression, shock, debris, cooling).",
+      "visuals": [
+        "Stationary #101218 stage with an analytic coal (#4B403A) hearth disk receiving flicker light spill",
+        "WebGL2 fragment-shader raymarched flame volume with approximate temperature ramp #FFF0BC -> #FFAD42 -> #F05A28",
+        "Translucent #747B86 smoke volume branching from the flame tip to three emissive ember nodes, then linked by thin arcs",
+        "Ground shock ring and displaced dust torus at deterministic radius, plus ten ballistic debris embers that land on the hearth",
+        "Serif copy bottom-left, tag bottom-right, disclosure caption top-left"
+      ],
+      "assets": [
+        "index.html",
+        "gsap.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.25,
+          "development": "Compression: a small bright core contracts on the coal bed and lights the hearth centre.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.25,
+          "endSeconds": 0.9,
+          "development": "Ignition and expanding force: shock ring and dust torus travel outward across the floor, debris embers arc out and land, flame volume rises; disclosure caption fades in.",
+          "captions": ["Illustrative procedural volume — not a combustion solver"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.9,
+          "endSeconds": 2.0,
+          "development": "Tall readable flame; smoke trunk forks and grows to the top, left and right ember nodes, which light on arrival; arcs begin linking nodes. Headline, subhead and tag appear.",
+          "captions": ["An idea becomes", "A CONNECTED SYSTEM", "IGNITE · RISE · LINK"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.0,
+          "endSeconds": 3.0,
+          "development": "Cooling aftermath: flame shortens and cools into translucent smoke, light spill dims, linking arcs complete; advection eases to a settled state by 2.7s and holds.",
+          "captions": ["An idea becomes", "A CONNECTED SYSTEM", "IGNITE · RISE · LINK"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.3
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Blast staging spans compression, shock propagation, debris flight and cooling across 0-2.7s rather than a single flash.",
+      "All copy is fully visible by 1.8s and the composition is settled by 2.7s."
+    ],
+    "justifiedHolds": [
+      "2.7-3.0s final hold lets the connected-system frame and copy be read."
+    ]
+  },
+  "notes": [
+    "Silent preview.",
+    "GSAP paused timeline owns every uniform (uTime, uIgnite, uCool, uCompress, uShock, uShockFade, uDebris, uLinkA/B/C, uArc); each update and hf-seek redraws one frame.",
+    "Covers optional recipe blast_aftermath within the primary volumetric fire style.",
+    "Blender/Cycles gas simulation is the validated route for physically simulated shots and is unavailable here."
+  ]
+}

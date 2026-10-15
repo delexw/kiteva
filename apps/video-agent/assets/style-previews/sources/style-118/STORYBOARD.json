@@ -1,0 +1,89 @@
+{
+  "version": 2,
+  "durationSeconds": 3,
+  "format": "structured",
+  "sections": [
+    {
+      "heading": "style-118 — Thermal Silhouette Imaging · 3 s silent preview",
+      "level": 1,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Subject: an idea becomes a connected system. 1280×720, 30 fps, 3 s, silent. Background: opaque #080808 throughout."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Style renderer: Three.js WebGLRenderer + GLSL ShaderMaterial (fullscreen orthographic quad, vendored three.min.js, scene script inline in index.html). Load-time helpers: Canvas 2D masks (head profile + ear, network wires) and a chroma.js LAB ramp #080808 → #C82E20 → #F07C30 → #FFF1D5.\nMotion engine: GSAP. One paused timeline "
+            },
+            {
+              "type": "inlineCode",
+              "value": "window.__timelines.video"
+            },
+            {
+              "type": "text",
+              "value": " tweens the uniform-state object; onUpdate writes the uniforms and calls renderer.render, and hf-seek also seeks and redraws."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "columns": [
+            {
+              "key": "Time",
+              "label": "Time",
+              "alignment": null
+            },
+            {
+              "key": "Beat",
+              "label": "Beat",
+              "alignment": null
+            }
+          ],
+          "rows": [
+            {
+              "Time": "0.0–0.3 s",
+              "Beat": "Dark head silhouette, barely warm, on black. Title \"AN IDEA HEATS UP\" fades up."
+            },
+            {
+              "Time": "0.3–1.4 s",
+              "Beat": "Head warms black → red → orange; the core heats faster than the edges, and the nose and ear stay cooler. Subtitle and the \"ILLUSTRATIVE HEAT · NOT MEASURED DATA\" disclaimer appear."
+            },
+            {
+              "Time": "0.6–1.4 s",
+              "Beat": "The idea hotspot near the brow ignites to cream."
+            },
+            {
+              "Time": "1.05–2.25 s",
+              "Beat": "Heat runs out along the wires into the network, cooling with distance."
+            },
+            {
+              "Time": "1.6–2.35 s",
+              "Beat": "Three node hotspots switch on one after another (hard-edged discs with cream cores)."
+            },
+            {
+              "Time": "2.5–3.0 s",
+              "Beat": "Shimmer fades out and the frame settles and holds."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "There are no arrows and no containers with internal labels; all text is standalone copy. There is no temperature legend because the heat is illustrative."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

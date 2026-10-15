@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-055",
+    "name": "The explicit name is Sticker Collage, in the Printmaking and Craft Materials category. The label was normalized from source descriptions, so it is not a verbatim original label.",
+    "visualIdentity": "The style explicitly uses consistent white sticker borders and light contact shadows on paper, notebook pages, or a simple surface. Cutout quality and border scale must stay consistent. Stickers must never float without surface contact.",
+    "suitableUses": "The source explicitly supports playful arrangements of existing subjects. Inferred fits include kids' content, casual brand mascots, study notes, and travel journals. The source says to avoid pairing it with sticker-explainer styles, because they duplicate it.",
+    "limitations": "Border width and shadows must stay uniform, and stickers must keep surface contact. Rough.js must not roughen every cutout edge. Procedural paper curl is an artistic deformation, not a physical paper solver. Duration, aspect ratio, resolution, frame rate, and audio requirements are unspecified and must come from the task.",
+    "palette": "These are authored suggestions, not supplied colors. Background #F3EBD9 is the dominant layout role, and foreground #273F49 is the primary text and ink role. Accent_1 #FFFFFF is the sticker border only, while #D78267 and #77A397 are decorative fills. Gradients are disabled. Accent fills fail 4.5:1 with foreground, so body text belongs on the background. Task-supplied colors override these values.",
+    "motionAndInteraction": "The style explicitly covers placing, peeling, repeated arrangements, slight rotation, and lifting through layer transforms. Optional references motion-037 and motion-038 apply only when matching letter or punctuation stickers exist. Motion-012 and motion-015 are optional structural patterns. Video state must derive from composition time. Hover lift is interactive-only and inferred.",
+    "audio": "The style gives no sticker-specific audio direction, so audio is unspecified. Generic guidance allows music, voiceover, effects, ambience, or silence, chosen per topic. Honor user audio choices and supplied assets. Do not default to instrumental music or invent assets, and keep speech intelligible.",
+    "assetRequirements": "Sticker cutouts need alpha masks, expanded into uniform white borders. Paper, notebook, or surface backgrounds and local fonts must be loaded before rendering. Approved artwork and exact copy must be preserved. Missing assets must be reported, and brand marks or product copy must not be invented.",
+    "combinations": "Supporting style-025 adds doodle characters with constant border width and coral/sage fills only. Supporting style-024 adds short handwritten notes on the paper, never on sticker borders. Hybrids suit drawn characters or connecting notes. Sticker Collage alone suits arrangements of existing subjects.",
+    "productionApproach": "HyperFrames is the default pipeline for composition, timing, validation, and export. Remotion is a fallback only when its documented condition is met and the reason is recorded. SVG is the primary sticker renderer, with optional Rough.js interiors and PixiJS only for large sprite sets. A GSAP timeline is the clock, with Motion or mo.js optional. Pillow or Sharp can preprocess alpha masks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

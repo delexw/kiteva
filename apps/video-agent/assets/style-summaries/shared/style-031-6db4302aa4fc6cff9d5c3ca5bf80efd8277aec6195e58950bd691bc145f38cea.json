@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-031",
+    "name": "Comic Book Art, in the Drawing and Illustration category, with explicit source direction.",
+    "visualIdentity": "Panel layouts, bold contours, exaggerated poses, speed lines and purposeful sound-effect lettering. Use one coherent drawing and printing language. Elements may cross panel borders without mixing comic traditions.",
+    "suitableUses": "Explicit: narrative panels, character action, and combinations for data explainers (style-097) or SFX-led trailers and titles (style-093). Inferred: manga-style openings, since motion-016 lists this style as a good fit.",
+    "limitations": "Keep dialogue accurate and readable. Avoid glossy gradients, distorted scales, speed lines on static values, constant jitter, and mixed manga and western SFX conventions. Rough.js cannot supply poses, handwriting or print materials. Simulated looks are not physical production evidence.",
+    "palette": "Suggested fallback tokens only: background #FFF2D9, foreground #1C2230, accent_1 #C9403C, accent_2 #E1B744, accent_3 #3768A1. Task or reference colors override them and must keep their values. Gradients are disabled. Body text pairs: foreground on background 14.35, accent_2 with foreground 8.372, accent_3 with background 5.183. accent_1 with background (4.427) is decorative only.",
+    "motionAndInteraction": "Staged entrances: anchored panels, separately animated subjects, speed-line sweeps, bounded impact pops and punchy lettering. Motion-016 is the preferred opening reference; motion-037 to 040 are optional and need supporting assets. Video runs on one paused timeline with no live input, and sharp cuts and impacts stay sharp.",
+    "audio": "The style sets no audio rule, so these are suggestions only. Music, voiceover, sound effects, ambience or silence may fit the topic. Motion-016 suggests instrumental pacing and short impact accents, with silent gallery demos. Honor user audio, invent no assets, and claim no beat sync without inspected audio.",
+    "assetRequirements": "Layered PNGs with alpha, numbered frames or a layer manifest that separate panels, characters, lettering and masks. Inspect supplied artwork and use exact dialogue text. Invent no copy or brand marks. Load local comic-style lettering fonts; generic display fonts are unsuitable. Source artwork and font files are unspecified.",
+    "combinations": "Use alone for narrative panels and character action. With style-097, charts are inked inside panels using palette colors and matching contour weight. With style-093, SFX and captions receive timed emphasis on key poses. Avoid dashboard gradients and constant type jitter.",
+    "productionApproach": "HyperFrames is the primary pipeline: data-composition-id clips, one paused GSAP timeline in window.__timelines, then check, snapshot and render. Remotion is fallback only with a recorded reason. SVG is the main renderer; PixiJS, Rough.js and Motion are optional. Verify decoded frames, dialogue, audio sync and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

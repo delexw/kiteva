@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-019",
+    "name": "Editorial Design, in the Graphic Design and Design Movements category. The source explicitly describes this visual direction.",
+    "visualIdentity": "Magazine or book reading logic organizes headlines, short copy, images and annotations on one consistent grid. Serif-sans-serif pairings are purposeful. Information reveals in reading order, with transitions through cropping, grouped movement or layout changes, not whole-page slides.",
+    "suitableUses": "Explicit: article-like narratives with images and pull quotes, plus listed good fits for UI and product storytelling, editorial and minimalist layouts, and staged geometric motion posters. Source best-fit examples include feature stories, case studies and behind-the-scenes explainers.",
+    "limitations": "Editorial Design stands alone for article-like narratives and adds supporting styles only when a human annotation voice or data explanation is needed. Avoid handwritten body copy, dashboard-style chart walls, new chart fonts and unsourced numbers. Recomposition or pinning that hides hierarchy or crops key details should be adapted or omitted.",
+    "palette": "placeholder",
+    "motionAndInteraction": "placeholder",
+    "audio": "placeholder",
+    "assetRequirements": "Use only supplied or authorized photographs and illustrations; do not assume photographic assets exist. Crops must fit grid proportions while keeping subjects, labels and attribution in frame. Serif and sans-serif font families are unspecified; measure and load them locally. Chart data must be supplied and sourced. Any PhotoSwipe gallery needs accurate image dimensions and responsive sources.",
+    "combinations": "Optional support styles: style-024 (margin notes) adds handwritten callouts in #A84235 marker ink, at most two per spread, placed in margins, never over body text, and drawn after their references. style-097 (infographic sidebars) sets charts within grid columns, with data in #252A30, accent only for highlighted series, and a caption and source line on each chart.",
+    "productionApproach": "HyperFrames is the primary render pipeline, using data-composition-id, a paused GSAP timeline in window.__timelines, then check, snapshot and render. Remotion is a documented fallback that requires a recorded reason. HTML/CSS and SVG are the style renderers; GSAP is the suggested motion engine, with Motion optional. chroma.js validates colors. PhotoSwipe, Cropper.js and Chartist are optional. Verify opening, action, transition and closing frames, text legibility and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

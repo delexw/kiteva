@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-006",
+    "name": "Art Deco: a supplemental design reference under Graphic Design and Design Movements. The source collection does not list it as a directly named style.",
+    "visualIdentity": "Axial symmetry, stepped silhouettes, sunbursts and repeated geometric ornament. Forms draw toward the center; layers reveal in order; metallic accents use controlled highlight sweeps, not indiscriminate gold.",
+    "suitableUses": "Explicit fit: ornament-led titles and posters. Source hybrids suggest hotel, theater or gala openers, invitations, menus, product launches and premium landing pages. These are suggestions, not verified fit.",
+    "limitations": "Avoid excessive gold, shimmer, sparkle, blur, pastel film grading, asymmetric handheld moves and beige backgrounds. Ornament must frame copy, never sit behind body text. Metallic looks are simulated. Palette checks are two-color only.",
+    "palette": "Background is scene_dependent; #151515 is an illustrative swatch. Suggested tokens: background #151515, foreground #F6EEDC, accent #B99A57 (contrast 15.811 foreground on background, 6.802 accent on background). Gradients are disabled. Task colors override these.",
+    "motionAndInteraction": "Smooth authored movement for layer reveals and center-drawn forms, preserving sharp cuts and reading holds. Optional references: motion-012 chaptered handoff, motion-015 narrative steps, motion-039 radial burst only with a suitable approved mark. Interactive delivery needs reduced-motion states.",
+    "audio": "Unspecified by the style. Restrained music, optional voiceover, sound accents or silence may fit, chosen by topic; no genre, tempo or mandatory layer is assigned. No audio is supplied; use measured timing only after inspecting actual audio.",
+    "assetRequirements": "Geometric display type and one text face are needed. The source names no fonts, so load local fonts before rendering. Inspect approved marks or glyphs first; do not invent brand marks or copy. Build ornament as symmetric SVG paths.",
+    "combinations": "style-104 adds axial camera push-ins on 2D SVG layers, keeping gold to ornament and one sweep. style-020 adds copy hierarchy and spacing; ignore its taupe backgrounds and use one display face with one text face.",
+    "productionApproach": "HyperFrames is the default composition and export pipeline; Remotion is a fallback only when HyperFrames is unavailable or a verified limit exists. SVG renders visuals; GSAP owns the seekable timeline; Motion is optional; chroma-js validates colors. Verify seeks and delivered frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

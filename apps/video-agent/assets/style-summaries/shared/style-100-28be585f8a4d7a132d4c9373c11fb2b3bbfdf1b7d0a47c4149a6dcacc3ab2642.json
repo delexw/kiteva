@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-100",
+    "name": "Shape Morphing",
+    "visualIdentity": "Explicit style in Motion Design and Cinematography: a continuous contour morph from designed start, intermediate and target forms with trackable point or semantic correspondence. It preserves center of gravity, direction and continuity, with holds at readable states. Crossfading alone is not morphing.",
+    "suitableUses": "Explicitly suited to logo and icon transitions. Hybrids are suggested when morphs must carry data meaning or recognizable silhouettes. Interactive HTML can use SVG morphs on step changes. Other uses are unspecified.",
+    "limitations": "Must be continuous morphing, not a crossfade; shared-element transitions are one application only. Source-level details were not verified in the source video. Avoid self-intersections, inconsistent holes, mid-morph value distortion and unreadable lettering after the morph.",
+    "palette": "Background policy is scene_dependent; choose backgrounds from subject, lighting and mood. Example tokens (#F5EFE2 background, #2F4348 foreground, #5C9790 and #CB8661 accents) are illustrative, not approved. Foreground on background measures 9.085:1. Both accents fail body-text targets and are decorative only. Task-supplied exact colors override these tokens. Reference frames suggest one dominant flat field with 1–3 accents, sampled only.",
+    "motionAndInteraction": "Morph timing lives on one paused, seekable timeline with controlled path order and readable holds. Scroll or pointer input applies only to interactive delivery; video uses composition time. Punctuation-zoom (motion-038) and radial-burst (motion-039) references are optional and need a matching mark in the scene.",
+    "audio": "Audio direction is unspecified for this style. Propose a direction per task while honoring explicit requirements. No audio layer is mandatory, and music synchronization requires measured audio analysis. Sound accents may mark morph transitions or holds, and speech must stay intelligible.",
+    "assetRequirements": "Needs start and target artwork with compatible contour structure, or inspected glyph and approved mark geometry for lettering. Local fonts and assets must load before timeline construction. Do not invent copy, brand marks or product assets. Imported SVG requires fidelity checks.",
+    "combinations": "style-097 suits data-driven chart morphs, such as bars becoming pie segments with matched order and labels shown only at holds. style-043 suits recognizable silhouettes with matched point counts and primary foreground tokens. Both avoid crossfades and inconsistent holes.",
+    "productionApproach": "Style renderer: SVG, with Paper.js for compatible path geometry. Motion engine: GSAP MorphSVGPlugin, with optional Motion or Anime.js svg.morphTo; mo.js only for supported shape properties. Pipeline: HyperFrames by default, Remotion only with a recorded reason. Validate colors with chroma-js, verify forward, backward and direct seeks, then inspect decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

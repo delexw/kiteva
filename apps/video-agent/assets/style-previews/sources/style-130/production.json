@@ -1,0 +1,27 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG",
+    "HTML/CSS"
+  ],
+  "motionEngine": [
+    "GSAP",
+    "GSAP DrawSVGPlugin"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview: no music, voice or sound effects.",
+  "limitations": [
+    "Scene-dependent background: instead of the #EFE4C8 example swatch, the page is a purple-dyed vellum (#3A2340), modelled on the codex purpureus tradition. It is a procedural approximation: a flat field with static seeded SVG feTurbulence speckle and fibre mottling, an edge shade and a displaced darker deckle stroke. It is not a scanned or simulated skin.",
+    "BACKGROUND_REVIEW.json reports 0 matched sources and lists no contact sheets, so no source-frame observations were applied. The purple vellum choice is an authored scene decision, not source evidence.",
+    "STYLE.json tech.preview_recipes is absent or null, so no reviewed recipe could be demonstrated. The refresh demonstrates the scene-dependent background policy within the primary style.",
+    "Gilding is flat #B89B51 with a narrow masked linearGradient sweep. It is not raised gesso, metallic reflectance, bloom or PBR gold.",
+    "Contours on the dark page use gold and cream (chrysographic) lines in place of #352D27, which disappears on purple (1.04:1). #352D27 is kept for outlines inside the pigment grounds of the initial and miniature.",
+    "Text uses the authored copy from the illustration, set in a system Palatino-style serif in cream #EFE4C8 (11.1:1) and gold #B89B51 (5.25:1) on #3A2340. It is not verified calligraphy. The ruling lines below the rubric stay blank.",
+    "The ornament, initial and miniature are original procedural vector art. The page turn and push-in from the full-video plan are out of scope, and the page plane stays fixed. Blender was not used.",
+    "Render and browser QA were not run by the agent."
+  ]
+}

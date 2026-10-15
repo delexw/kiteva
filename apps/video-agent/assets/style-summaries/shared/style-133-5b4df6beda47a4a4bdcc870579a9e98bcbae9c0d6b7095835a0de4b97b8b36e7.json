@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-133",
+    "name": "Impressionist Painting, an extracted Illustration and Art Media style. Its art-medium labels are authored classifications, not claims about the creator's production technique.",
+    "visualIdentity": "Broken visible brush marks, atmospheric light and adjacent color touches describe a fleeting outdoor scene. Light, reflected color and soft edges stay coherent, unlike the forceful directional structure of Post-Impressionism.",
+    "suitableUses": "Explicitly suited to fleeting outdoor scenes with light and reflection, such as the river landscape preview. Other subjects, audiences and interactive HTML uses are inferred, not specified. Captions must stay readable.",
+    "limitations": "Procedural output must be disclosed as an approximation of an Impressionist manner. Blur, swirl filters and whole-image boil are excluded. The source review covered only one frame per second from 1–8 seconds, so continuous motion, sub-second timing, audio and later scenes are unverified.",
+    "palette": "The background is scene-dependent, and #F0E9D7 is only a suggested ground, not a required canvas. Suggested tokens are sky #9EBCC8, foliage #829C79, sunlight #D8BF7A, rose #C59D9D and foreground #364747, all authored rather than sampled. Approved task or reference colors override them. Gradients are disabled, and text must meet 4.5:1 contrast on the final composited background.",
+    "motionAndInteraction": "The explicit preview timing is 0–1.0s of regional paint-on, then 1.0–3.0s of reflection shimmer and slight grass sway, then a hold. In full-video work, layered assets may animate with local motion only. No interaction is specified, and reduced motion is merely suggested for HTML.",
+    "audio": "Audio is unspecified. The source only offers options: music, voiceover, vocals, effects, ambience or silence. Inferred guidance is to avoid assuming an instrumental or historical soundtrack and to keep speech intelligible. Silence is valid, and silent previews need no soundtrack.",
+    "assetRequirements": "No mandatory uploads are specified. Optional approved or newly painted layered painting assets, such as Krita layers with runtime unverified, may replace procedural regions. Supplied reference colors and assets override defaults. The poster and later frames were not inspected.",
+    "combinations": "Optional and not limiting: style-036 may supply a secondary illustrative detail with a compatible supporting role. Keep Impressionist Painting dominant, with its palette and mark-making. Avoid generic effects that replace brush marks and any invented historical text.",
+    "productionApproach": "In the authored preview, Canvas 2D draws about 6–10k seeded dabs and redraws only the roughly 1.5k-dab reflection and a small subject. GSAP supplies a paused time proxy. HyperFrames handles assembly, timing and export, with Remotion only when HyperFrames is unavailable or a verified limitation applies. chroma.js checks color and contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

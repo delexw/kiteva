@@ -1,0 +1,11 @@
+{"version":3,"title":"An idea becomes a connected system — 2.5D Parallax","durationSeconds":3,
+"scenes":[{"id":"scene-1","title":"Dusk valley network","startSeconds":0,"endSeconds":3,
+"purpose":"Show one idea (a lamp on a foreground post) wiring itself into a lit network across parallax depth layers.",
+"visuals":["Stationary dusk sky plate with fixed faint stars","BG ridge 0.25x, far hills with cottages 0.45x, MG hill with five poles 0.6x, FG ground and idea post 1.0x, blurred near grass 1.5x","Shared camera truck right-to-left with slight push-in and pedestal, settling at 2.6s"],
+"assets":["pixi.min.js","gsap.min.js","chroma.min.js"],
+"beats":[
+{"startSeconds":0,"endSeconds":0.6,"development":"Camera starts drifting; the idea lamp flickers on and its warm glow becomes the brightest point; headline lines rise in.","captions":["An idea becomes","a connected system"],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0},
+{"startSeconds":0.6,"endSeconds":2.15,"development":"A warm wire draws from the lamp down to the nearest pole and across the valley; each pole lamp pops on as the wire arrives, and branch wires light three cottage windows on the far hills. Depth key fades in at 1.0s.","captions":["FG 1.0x   MG 0.6x   BG 0.25x"],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":1.2},
+{"startSeconds":2.15,"endSeconds":3,"development":"Last pole lights, the idea glow swells slightly, camera settles by 2.6s and the full lit system holds.","captions":[],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0.4}]}],
+"pacingAudit":{"findings":["Headline fully legible from 0.95s onward (about 2s exposure).","All motion settles by 2.6s; final 0.4s is a still hold."],"justifiedHolds":["2.6–3.0s hold lets the completed network and headline read together."]},
+"notes":["Silent preview.","No preview_recipes were supplied in STYLE.json; the refresh demonstrates the core style implementation (depth/crop-margin layers + shared camera with per-layer offsets) with a scene-dependent dusk palette from BACKGROUND_REVIEW lessons."]}

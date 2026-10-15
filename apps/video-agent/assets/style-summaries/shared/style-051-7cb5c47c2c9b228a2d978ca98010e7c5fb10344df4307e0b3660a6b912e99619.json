@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-051",
+    "name": "Screen Printing (style-051), Printmaking and Craft Materials. Supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Flat spot-color inks over visible paper, with strong positive-negative shapes and slight handmade edge variation. Overprints show ink coverage, and color layers reveal in order. Smooth gradients are not the main feature.",
+    "suitableUses": "Explicit listed uses: bold flat-ink graphics; looping posters paired with Motion Poster (style-103), suited to gig posters and festival promos; narrative silhouette posters paired with style-043. Other uses are unspecified.",
+    "limitations": "Avoid smooth gradients, extra spot colors, tonal layers, and constantly moving headlines. Loop endpoints must match, and silhouettes must not merge. Source review covered only sampled seconds 1–8, with no audio or continuous motion verified.",
+    "palette": "Background is scene-dependent. The tokens are an authored, unapproved suggestion: paper #F4E9D4, foreground #233E45, accent #B95A43. Foreground on background contrast is 9.452. Accent on background (3.789) is decorative only. Gradients are disabled, and task-supplied exact colors override these.",
+    "motionAndInteraction": "Layers reveal in discrete flat steps in print order. Suggested references: motion-037 (spot-ink word swaps), motion-038 (punctuation zoom), motion-039 (radial burst, needs suitable scene elements), motion-040 (word smash cuts; its label names Phrase Scatter, so verify). Scroll-chaptered motion-012 and motion-015 suit interactive delivery only.",
+    "audio": "The style sets no audio requirement, and music, voice, and effects are unspecified; silence is valid. Restrained accents or ambience may suit layer reveals if they never compete with narration. No beat or speech timing was inspected, so no sync claims apply.",
+    "assetRequirements": "No uploaded assets or exact copy are specified. Production needs spot-color layer artwork, fixed ink-edge textures, a paper texture, and fonts loaded before rendering. Word and punctuation motions need actual scene copy or marks; do not invent brand text.",
+    "combinations": "Use alone for bold flat-ink graphics. Pair with style-103 for loopable posters, keeping two inks plus paper and usable still frames. Pair with style-043 for silhouettes, using dark ink, a rust accent, and a fixed edge texture per plate; avoid its slate accent.",
+    "productionApproach": "SVG draws shapes, masks, and clip paths; Python with Pillow prepares layers and textures; GSAP paused timelines drive motion. HyperFrames is the default pipeline, with Remotion only on a verified fallback. chroma-js validates colors. Verify forward, backward, and direct seeks plus decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

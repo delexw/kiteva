@@ -1,0 +1,144 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0F1B24}
+#root{width:100%;height:100%;position:relative}
+#root svg{width:100%;height:100%;display:block}
+text{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+</style></head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+ <defs>
+  <!-- stationary print grain: fixed seed, never animated -->
+  <filter id="grain" x="0" y="0" width="100%" height="100%">
+   <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" stitchTiles="stitch"/>
+   <feColorMatrix type="matrix" values="0 0 0 0 0.94  0 0 0 0 0.91  0 0 0 0 0.87  0 0 0 0.9 -0.35"/>
+  </filter>
+  <radialGradient id="halo" cx="860" cy="340" r="380" gradientUnits="userSpaceOnUse">
+   <stop offset="0.55" stop-color="#E8603F" stop-opacity="0.32"/>
+   <stop offset="0.8" stop-color="#E8603F" stop-opacity="0.08"/>
+   <stop offset="1" stop-color="#E8603F" stop-opacity="0"/>
+  </radialGradient>
+  <pattern id="dots" width="16" height="16" patternUnits="userSpaceOnUse">
+   <circle cx="4" cy="4" r="1.8" fill="#B8432B" opacity="0.7"/>
+  </pattern>
+  <clipPath id="discClip"><circle cx="860" cy="340" r="250"/></clipPath>
+  <clipPath id="linkedClip"><rect x="60" y="398" width="620" height="122"/></clipPath>
+ </defs>
+
+ <!-- STATIC GROUND -->
+ <rect width="1280" height="720" fill="#0F1B24" data-demo-actor="demo-actor-1"/>
+ <rect width="1280" height="720" filter="url(#grain)" opacity="0.07" data-demo-actor="demo-actor-2"/>
+ <rect x="40" y="40" width="1200" height="640" fill="none" stroke="#3A4F5B" stroke-width="2" data-demo-actor="demo-actor-3"/>
+
+ <!-- IDEA: low-value rays, light halo, signal disc -->
+ <g id="rays" data-demo-actor="demo-actor-4" opacity="0"></g>
+ <circle id="halo" cx="860" cy="340" r="380" fill="url(#halo)" opacity="0" data-demo-actor="demo-actor-5"/>
+ <g id="disc" data-demo-actor="demo-actor-6">
+  <circle cx="860" cy="340" r="250" fill="#E8603F"/>
+  <rect x="600" y="80" width="520" height="520" fill="url(#dots)" clip-path="url(#discClip)"/>
+ </g>
+
+ <!-- SYSTEM: cased links (dark casing + off-white core) -->
+ <g id="links" fill="none" stroke-linecap="round" data-demo-actor="demo-actor-7"></g>
+
+ <!-- hub -->
+ <g id="hub" data-demo-actor="demo-actor-8">
+  <circle cx="860" cy="340" r="46" fill="#0F1B24"/>
+  <circle cx="860" cy="340" r="14" fill="#EFE9DD"/>
+ </g>
+ <g id="nodes"></g>
+
+ <!-- COPY -->
+ <g fill="#EFE9DD">
+  <text x="88" y="112" font-size="14" font-weight="700" letter-spacing="5" data-demo-actor="demo-actor-16">NO. 01 — SYSTEMS SERIES</text>
+  <text x="82" y="290" font-size="112" font-weight="900" letter-spacing="-5" data-layout-allow-overlap="true" data-demo-actor="demo-actor-17">One</text>
+  <text x="82" y="392" font-size="112" font-weight="900" letter-spacing="-5" data-layout-allow-overlap="true" data-demo-actor="demo-actor-18">idea,</text>
+  <g clip-path="url(#linkedClip)">
+   <text id="linked" x="82" y="494" font-size="112" font-weight="900" letter-spacing="-5" fill="#E8603F" data-layout-allow-overlap="true" data-demo-actor="demo-actor-19">linked.</text>
+  </g>
+  <rect id="rule" x="88" y="540" width="64" height="6" fill="#E8603F" data-demo-actor="demo-actor-20"/>
+  <text x="88" y="588" font-size="19" data-demo-actor="demo-actor-21">An idea becomes a connected system.</text>
+  <text x="88" y="640" font-size="12" letter-spacing="3" font-weight="700" fill="#8FA3AD" data-demo-actor="demo-actor-22">PREVIEW 00:00 — 00:03 · SILENT</text>
+  <text x="1192" y="640" font-size="12" letter-spacing="3" font-weight="700" text-anchor="end" fill="#8FA3AD" data-demo-actor="demo-actor-23">1 → 8 NODES</text>
+ </g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script>
+(function(){
+ const NS='http://www.w3.org/2000/svg';
+ const C={ground:'#0F1B24',ink:'#EFE9DD',signal:'#E8603F',ray:'#172833'};
+ const H=[860,340];
+ // --- static construction (deterministic) ---
+ const rays=document.getElementById('rays');
+ for(let i=0;i<24;i++){
+  const a0=(i/24)*Math.PI*2, a1=a0+Math.PI/48, R=420;
+  const p=document.createElementNS(NS,'path');
+  p.setAttribute('d',`M${H[0]} ${H[1]}L${(H[0]+R*Math.cos(a0)).toFixed(1)} ${(H[1]+R*Math.sin(a0)).toFixed(1)}L${(H[0]+R*Math.cos(a1)).toFixed(1)} ${(H[1]+R*Math.sin(a1)).toFixed(1)}Z`);
+  p.setAttribute('fill',C.ray);
+  rays.appendChild(p);
+ }
+ // branches: [inner node, outer node|null]
+ const branches=[[[740,220],[640,110]],[[1010,250],[1190,140]],[[960,480],[1150,590]],[[720,450],null]];
+ const links=document.getElementById('links');
+ const nodesG=document.getElementById('nodes');
+ const seg=(a,b,cls)=>{
+  const out=[];
+  for(const [w,col] of [[11,C.ground],[5,C.ink]]){
+   const p=document.createElementNS(NS,'path');
+   p.setAttribute('d',`M${a[0]} ${a[1]}L${b[0]} ${b[1]}`);
+   p.setAttribute('stroke',col);p.setAttribute('stroke-width',w);p.setAttribute('class',cls);
+   links.appendChild(p);out.push(p);
+  }
+  return out;
+ };
+ const node=(pt,id)=>{
+  const g=document.createElementNS(NS,'g');g.setAttribute('id',id);
+  g.innerHTML=`<circle cx="${pt[0]}" cy="${pt[1]}" r="16" fill="${C.ink}" stroke="${C.ground}" stroke-width="5"/><circle cx="${pt[0]}" cy="${pt[1]}" r="5" fill="${C.ground}"/>`;
+  nodesG.appendChild(g);return g;
+ };
+ const inner=[],outer=[],innerNodes=[],outerNodes=[];
+ branches.forEach((b,i)=>{
+  inner.push(...seg(H,b[0],'inner'));innerNodes.push(node(b[0],'node-in-'+i));
+  if(b[1]){outer.push(...seg(b[0],b[1],'outer'));outerNodes.push(node(b[1],'node-out-'+i));}
+ });
+ // put links below hub/nodes (already ordered by DOM)
+ const disc=document.getElementById('disc'),halo=document.getElementById('halo'),hub=document.getElementById('hub');
+ const linked=document.getElementById('linked'),rule=document.getElementById('rule');
+
+ // --- initial poses (single GSAP owner for every animated property) ---
+ const O={svgOrigin:'860 340'};
+ gsap.set(disc,{...O,scale:0.056});
+ gsap.set(halo,{...O,scale:0.4,opacity:0});
+ gsap.set(rays,{...O,scale:0.7,rotation:-10,opacity:0});
+ gsap.set(hub,{...O,scale:0});
+ for(const p of [...inner,...outer]){const L=p.getTotalLength();gsap.set(p,{strokeDasharray:L+' '+(L+2),strokeDashoffset:L});}
+ [...innerNodes,...outerNodes].forEach(n=>{const c=n.querySelector('circle');gsap.set(n,{svgOrigin:c.getAttribute('cx')+' '+c.getAttribute('cy'),scale:0});});
+ gsap.set(linked,{y:118});
+ gsap.set(rule,{scaleX:0,transformOrigin:'0% 50%'});
+
+ const tl=gsap.timeline({paused:true});
+ // 1 · the idea: seed dot gathers (anticipation) then expands into the signal disc
+ tl.to(disc,{scale:0.042,duration:0.18,ease:'sine.inOut'},0.1)
+   .to(disc,{scale:1,duration:0.68,ease:'power3.out'},0.28)
+   .to(halo,{scale:1,opacity:1,duration:0.75,ease:'power2.out'},0.32)
+   .to(rays,{scale:1,rotation:0,opacity:1,duration:0.95,ease:'power2.out'},0.35);
+ // 2 · the hub locks in on the disc
+ tl.to(hub,{scale:1,duration:0.32,ease:'back.out(1.6)'},0.78);
+ // 3 · links draw outward; each node appears only when its link arrives
+ tl.to(inner,{strokeDashoffset:0,duration:0.36,ease:'power2.out'},0.98);
+ innerNodes.forEach((n,i)=>tl.to(n,{scale:1,duration:0.26,ease:'back.out(2)'},1.3+i*0.03));
+ tl.to(outer,{strokeDashoffset:0,duration:0.34,ease:'power2.out'},1.38);
+ outerNodes.forEach((n,i)=>tl.to(n,{scale:1,duration:0.26,ease:'back.out(2)'},1.68+i*0.03));
+ // 4 · headline completes: "linked." rises out of its mask, signal rule underlines
+ tl.to(linked,{y:0,duration:0.5,ease:'power3.out'},1.62)
+   .to(rule,{scaleX:1,duration:0.3,ease:'power2.inOut'},1.95);
+ tl.to({}, {duration:0.001},2.999);
+ window.__timelines=window.__timelines||{};
+ window.__timelines.video=tl;
+ tl.seek(0);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body></html>

@@ -1,0 +1,121 @@
+{
+ "version": 3,
+ "title": "An Idea Becomes a Connected System",
+ "durationSeconds": 3,
+ "scenes": [
+  {
+   "id": "scene-1",
+   "title": "Thinking pose",
+   "startSeconds": 0,
+   "endSeconds": 0.5,
+   "purpose": "Introduce the consistent cel character in a thinking key pose against a navy/teal stripe beat field",
+   "visuals": [
+    "Full-length character, eyes up, hand at chin, cream cutout edge",
+    "Stationary navy field with teal diagonal stripe panel and scanline grain",
+    "Headline lettering in cream"
+   ],
+   "assets": [
+    "index.html inline SVG character model"
+   ],
+   "beats": [
+    {
+     "startSeconds": 0,
+     "endSeconds": 0.5,
+     "development": "Held thinking pose; the stage is set with the copy already readable",
+     "captions": [
+      "AN IDEA",
+      "BECOMES A CONNECTED SYSTEM",
+      "ひらめき！"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.5
+    }
+   ]
+  },
+  {
+   "id": "scene-2",
+   "title": "Punch-in spark",
+   "startSeconds": 0.5,
+   "endSeconds": 1.1,
+   "purpose": "Scale jump to a bust close-up card on a coral colour card for the moment of inspiration",
+   "visuals": [
+    "Hard-cut close-up card with wide eyes, open mouth and sparkle lines",
+    "Card settles from 0.9 to 1.0 scale in 0.18s"
+   ],
+   "assets": [],
+   "beats": [
+    {
+     "startSeconds": 0.5,
+     "endSeconds": 1.1,
+     "development": "Pose replacement by hard cut to an expressive close-up",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.4
+    }
+   ]
+  },
+  {
+   "id": "scene-3",
+   "title": "Idea connects",
+   "startSeconds": 1.1,
+   "endSeconds": 3,
+   "purpose": "Cut back to the full shot in the raised-idea key pose; the idea spreads into a network",
+   "visuals": [
+    "Raised arm pose with coral check badge popping",
+    "Burst rays and eight connection lines stroke-draw outward",
+    "Six nodes snap in as lines arrive"
+   ],
+   "assets": [],
+   "beats": [
+    {
+     "startSeconds": 1.1,
+     "endSeconds": 2.6,
+     "development": "Badge pops, rays and links draw, nodes snap in sequence",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 2.6,
+     "endSeconds": 3,
+     "development": "Fully settled readable scene holds",
+     "captions": [
+      "AN IDEA",
+      "BECOMES A CONNECTED SYSTEM",
+      "ひらめき！"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.4
+    }
+   ]
+  }
+ ],
+ "pacingAudit": {
+  "findings": [
+   "Three key poses with hard cuts at 0.5s and 1.1s; scene settles at 2.6s, before the 2.7s target"
+  ],
+  "justifiedHolds": [
+   "0.4s closing hold for reading the complete composition"
+  ]
+ },
+ "notes": [
+  "Silent preview: no music, effects or voice.",
+  "Recipe demonstrated: anime pose-card structure from the background review (pose replacement, shot-scale punch-in, flat colour card, cutout edge, stationary scanline grain) applied to the original subject; no source character, wording or branding copied."
+ ]
+}

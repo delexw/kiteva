@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-052",
+    "name": "Letterpress Printing: a supplemental Printmaking and Craft Materials reference, not a named source-collection style.",
+    "visualIdentity": "Thick paper, shallow debossed edges, natural ink coverage, and simple type or graphics, revealed by soft side light. Impressions derive from glyph or graphic outlines. Avoid metallic bevels and deep embossed lettering.",
+    "suitableUses": "Explicit: short typographic statements and stationery. Inferred: invitations, business cards, and craft or publisher covers, especially with the style-019 or style-096 support noted in combinations.",
+    "limitations": "Avoid metallic bevels, deep embossing, and body copy rendered as images. The source review sampled only 1–8 second frames, so later scenes, continuous motion, and audio are unverified.",
+    "palette": "Background is scene-dependent; cream #F6EDD9 is an illustrative suggestion, not an approved color. Fallback foreground #343932 and accent #914839 measure 10.147 (foreground on background) and 5.653 (accent on background), two-color only, so recheck composited frames. Supplied colors override these; gradients are disabled.",
+    "motionAndInteraction": "Restrained typesetting, pressing, and localized reveals; no exaggerated motion. Optional motion-012 (chapter handoff) and motion-015 (narrative steps) apply only if scene fit is verified. Scroll input serves interactive delivery only, not video.",
+    "audio": "Unspecified; no audio is supplied or required. Propose a direction from topic and audience, choosing music, voiceover, effects, ambience, or silence; no genre, tempo, or voice is fixed. Keep speech intelligible.",
+    "assetRequirements": "No uploads are specified; copy, subject, duration, format, and output directory are unspecified placeholders. Local fonts and assets must load before rendering. Prerendered impression textures are optional hero imagery for interactive delivery.",
+    "combinations": "style-019 suits editorial page grids read in reading order; style-096 suits single printed cards under raking light. Both keep uniform shallow impressions, dark ink, one oxblood accent, and a paper background. Avoid sliding pages and gold sparkle.",
+    "productionApproach": "Blender with Python bpy and Cycles is the listed non-optional renderer and motion engine for impressions, materials, and light. HyperFrames handles composition timing, validation, and export; Remotion is fallback only with a recorded reason. chroma-js is optional for color checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

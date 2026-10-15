@@ -1,0 +1,121 @@
+{
+  "version": 3,
+  "title": "An idea becomes a connected system \u2014 Sand on a cool light table",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The idea heap thins",
+      "startSeconds": 0,
+      "endSeconds": 1.3,
+      "purpose": "A dense sand heap (the idea) thins under a pour radius so cool backlight shines through, and a finger spiral and a cut line are scraped into it.",
+      "visuals": [
+        "Static cool blue-white lit field with centre glow, mottling and soft edge vignette",
+        "Dark #3A291B sand dune with speckled edges",
+        "Loose grains scattered above the right-hand dune foreshadow the next form",
+        "Headline copy top-left"
+      ],
+      "assets": [
+        "index.html",
+        "three.bundle.js",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.5,
+          "development": "Headline and subtitle fade in; pour radius begins thinning the idea heap.",
+          "captions": [
+            "An idea becomes",
+            "a connected system",
+            "light through scraped sand"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.5,
+          "endSeconds": 1.3,
+          "development": "Heap becomes translucent; a finger spiral is scraped, then a cut line travels from the idea toward the first node site.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "The system forms",
+      "startSeconds": 1.3,
+      "endSeconds": 3,
+      "purpose": "Sand re-forms from mask A to mask B (the dune rises where the stray grains were) and network edges and nodes are scraped open in sequence.",
+      "visuals": [
+        "Dune morph A to B",
+        "Scraped network of 10 edges and 8 nodes glowing with transmitted light"
+      ],
+      "assets": [
+        "index.html"
+      ],
+      "beats": [
+        {
+          "startSeconds": 1.3,
+          "endSeconds": 2.2,
+          "development": "Sand density morphs from mask A to mask B; the right dune rises and a denser bed gathers around the system.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.2,
+          "endSeconds": 2.6,
+          "development": "Network edges and nodes finish being scraped outward from the cut line.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.6,
+          "endSeconds": 3,
+          "development": "Still, fully legible hold on the finished system.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.4
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "All motion settles by 2.6 s; final 0.4 s is a still hold."
+    ],
+    "justifiedHolds": [
+      "2.6-3.0 s reading hold on the completed composition."
+    ]
+  },
+  "notes": [
+    "Silent preview.",
+    "Renderers: Three.js + GLSL; motion owner: GSAP paused timeline window.__timelines.video.",
+    "No tech.preview_recipes are defined in STYLE.json."
+  ]
+}

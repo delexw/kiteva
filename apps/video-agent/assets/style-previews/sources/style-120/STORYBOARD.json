@@ -1,0 +1,91 @@
+{
+  "version": 2,
+  "durationSeconds": 3,
+  "format": "structured",
+  "sections": [
+    {
+      "heading": "Style-120 Raymarched Fractal Landscapes — 3 s silent preview",
+      "level": 1,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Subject: an idea becomes a connected system. 1280x720, 30 fps, 3 s, silent.\nRenderers: Three.js + GLSL + Offscreen Rendering — Three.js fullscreen-quad GLSL raymarcher -> WebGLRenderTarget (0.6 scale) -> linear blit (ACES + sRGB once).\nMotion owner: GSAP — one paused GSAP timeline ("
+            },
+            {
+              "type": "inlineCode",
+              "value": "window.__timelines.video"
+            },
+            {
+              "type": "text",
+              "value": ") tweens uniforms + camera; each update/hf-seek renders synchronously, no accumulation.\nPalette: background #080A0C (exact on all missed/fogged pixels), foreground #F2EEE5 (copy, material albedo, emissive)."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "columns": [
+            {
+              "key": "Time",
+              "label": "Time",
+              "alignment": null
+            },
+            {
+              "key": "Beat",
+              "label": "Beat",
+              "alignment": null
+            },
+            {
+              "key": "Focal point",
+              "label": "Focal point",
+              "alignment": null
+            }
+          ],
+          "rows": [
+            {
+              "Time": "0.0–0.6 s",
+              "Beat": "A small idea spark lights above the dark fog; kicker \"AN IDEA BECOMES\" fades in (0.25–0.95).",
+              "Focal point": "Spark"
+            },
+            {
+              "Time": "0.1–2.4 s",
+              "Beat": "uEmerge: fog density 0.62 -> 0.075 and fractal power 3 -> 8; the central Mandelbulb and two satellites emerge with reflections on a mirror floor. Camera dollies (0.9,0.62,8.4) -> (0,0.2,5.6).",
+              "Focal point": "Central fractal solid"
+            },
+            {
+              "Time": "1.3–2.3 s",
+              "Beat": "Emissive links draw from the core to each satellite (connected system).",
+              "Focal point": "Links"
+            },
+            {
+              "Time": "1.5–2.3 s",
+              "Beat": "Title \"A CONNECTED SYSTEM\" settles.",
+              "Focal point": "Title"
+            },
+            {
+              "Time": "1.6–2.6 s",
+              "Beat": "uLandscape 0 -> 0.35: smooth-min blend toward a domain-repeated pyramid fold rising away from the solids.",
+              "Focal point": "Terrain hint"
+            },
+            {
+              "Time": "2.6–3.0 s",
+              "Beat": "Hold, fully settled.",
+              "Focal point": "Whole composition"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Not in preview: full landscape, sunset, SDF glyph lettering (planned: glyph distance texture extruded with max(d2D, |z|-h))."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

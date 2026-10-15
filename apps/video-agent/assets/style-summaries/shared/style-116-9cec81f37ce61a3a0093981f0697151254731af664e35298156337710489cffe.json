@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-116",
+    "name": "Blueprint Drafting Animation",
+    "visualIdentity": "Flat #1B3ED2 blueprint field with white grid, dimension lines, dashed hidden edges, and 45° section hatching. Labels show real measured dimensions in a technical face.",
+    "suitableUses": "Explicit: measured, dimension-led technical explainers of parts. Inferred: engineering or architectural explainers. Subject, audience, and scenes are unspecified.",
+    "limitations": "Dense hatching can alias at 1080p. The 7.876 white-on-blue check excludes textures and video compositing. Simulations are not validated physics. Sketch treatments would undermine measured precision.",
+    "palette": "Source-evidenced #1B3ED2 field and #FFFFFF text, no gradient. Policy is scene_dependent, yet the visual cues fix the blue field; keep it unless the task supplies an approved palette. Never transfer the poster's cream PAPER stage.",
+    "motionAndInteraction": "One paused GSAP timeline: grid fades in, outlines and hidden edges draw, hatch wipes in, then dimension shafts draw inward. Arrowheads appear at shaft completion, labels after. No interaction or motion reference is specified.",
+    "audio": "No audio is supplied or mandated. Suggested: optional music, voiceover, effects, or silence fitted to topic and audience. Music must not compete with speech or reading holds; effects may mark line completions.",
+    "assetRequirements": "No uploads are mandatory. Needed: a measured geometry spec from which dimensions and labels are computed, plus local technical fonts. The source poster is optional reference only; no motion-reference candidates exist.",
+    "combinations": "Keep style-116 dominant. Optional style-109 adds precise contour reveals only, without its palette or background. Optional tools: p5.js for evolving curves, Cytoscape.js for node-edge graphs, Anime.js for line reveals. Avoid competing full-scene treatments.",
+    "productionApproach": "SVG and HTML/CSS render visuals; GSAP with DrawSVGPlugin owns motion. HyperFrames is the default pipeline; Remotion only if HyperFrames is unavailable. Verify forward, backward, and direct seeks at head-switch times, and inspect decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

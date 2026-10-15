@@ -1,0 +1,954 @@
+{
+  "motion": "Word Smash Cuts",
+  "stylesReviewed": 135,
+  "references": 20,
+  "noNeed": 115,
+  "method": "Compatibility judgments from all complete style visual_cues and 72 inspected artwork-only reference frames from 75\u201381 seconds, not 135 rendered combinations.",
+  "pairs": [
+    {
+      "styleId": "style-001",
+      "styleName": "International Typographic Style (Swiss Style)",
+      "decision": "No need",
+      "reason": "Arbitrary full-field switches and oversize clipping would undermine the prescribed column/baseline grid and alignment-point motion.",
+      "styleEvidence": "Use a column grid, baseline alignment, repeated spacing, asymmetric composition, and generous negative space. Set left-aligned sans-serif type with clear size hierarchy; use black and white with restrained accent colors and grid-aligned photography. Animate along layout axes and settle elements on shared alignment points without disrupting reading order."
+    },
+    {
+      "styleId": "style-002",
+      "styleName": "Bauhaus",
+      "decision": "No need",
+      "reason": "The defining motion assembles interlocking geometric poster forms; pure phrase replacement does not provide that construction.",
+      "styleEvidence": "Compose circles, squares, triangles, rules, and lettering on a shared grid, balancing asymmetry with deliberate proportions. A restricted red, yellow, blue, black, and white palette can support the composition. Assemble the poster in rhythmic stages using growth, rotation, and interlocking forms. A 120 px grid, 120 BPM, and 20 beats are optional starting parameters, not defining features."
+    },
+    {
+      "styleId": "style-003",
+      "styleName": "Constructivism",
+      "decision": "Add",
+      "reason": "Forceful bold typography, rectangular blocks and prescribed cuts support sharp phrase cards; retain red/black/cream and directional hierarchy.",
+      "styleEvidence": "Direct attention with forceful diagonals, wedges, circles, rectangular blocks, photographic cutouts, and bold typography. Red, black, and cream can provide a restricted high-contrast palette. Animate directional entrances, cuts, and recomposition while maintaining a clear headline and focal point."
+    },
+    {
+      "styleId": "style-004",
+      "styleName": "Suprematism",
+      "decision": "No need",
+      "reason": "Slow abstract shifts of balanced forms conflict with abrupt text-led scene replacement.",
+      "styleEvidence": "Arrange a few squares, circles, crosses, and bars against an open field. Emphasize relative size, angle, balance, and negative space with black, white, and restrained primary colors. Slowly shift position, rotation, and proportion; keep the forms abstract and free of illustrative textures."
+    },
+    {
+      "styleId": "style-005",
+      "styleName": "De Stijl",
+      "decision": "Add",
+      "reason": "Use rectangular full-frame fields and orthogonal type with only the approved primary/black/white colors; no diagonals, rounded corners or gradients.",
+      "styleEvidence": "Divide the composition with horizontal and vertical rules and rectangular color fields. Restrict the palette to red, yellow, blue, black, and white; control line weight and area ratios. Animate rectangular expansion, division, sliding, and color changes without introducing arbitrary diagonals, rounded corners, or gradients."
+    },
+    {
+      "styleId": "style-006",
+      "styleName": "Art Deco",
+      "decision": "No need",
+      "reason": "Centered geometric ornament and controlled layer/highlight reveals are the defining action; text/background cuts would replace them.",
+      "styleEvidence": "Use axial symmetry, stepped silhouettes, sunbursts, and repeated geometric ornament. Choose restrained black, ivory, and metallic accents or a coherent jewel-tone palette; favor precise geometric display type. Reveal layers, draw forms toward the center, and use controlled highlight sweeps rather than indiscriminate gold effects."
+    },
+    {
+      "styleId": "style-007",
+      "styleName": "Art Nouveau",
+      "decision": "No need",
+      "reason": "Growing organic curves and integrated ornament require connected reveals rather than flat word-card replacement.",
+      "styleEvidence": "Build flowing ornament from plants, flowers, and long organic curves, integrating figures and lettering into borders. Maintain coherent line-weight variation and a natural or limited print palette. Reveal the artwork like growing vines, following the direction of each curve rather than using mechanical bounce transitions."
+    },
+    {
+      "styleId": "style-008",
+      "styleName": "Modernist Graphic Design",
+      "decision": "No need",
+      "reason": "The rules call for continuous informational movement; abrupt scene replacement breaks that continuity.",
+      "styleEvidence": "Prioritize function, simplified forms, shared alignment, and a clear reading sequence. Limit the palette and establish hierarchy through size and placement. Animate to explain structural or informational changes; use continuous movement without sacrificing hierarchy for decoration."
+    },
+    {
+      "styleId": "style-009",
+      "styleName": "Mid-Century Modern",
+      "decision": "No need",
+      "reason": "Readable poses and modest graphic offsets center figures/contours rather than typography-only rapid cards.",
+      "styleEvidence": "Combine simplified figures, organic contours, and geometric color fields in a relaxed but ordered composition. Use a limited selection of mustard, brick red, teal, and cream, with optional print grain. Favor readable poses, modest offsets, and graphic transitions; avoid unrelated neon or glossy plastic finishes."
+    },
+    {
+      "styleId": "style-010",
+      "styleName": "Memphis Design",
+      "decision": "Add",
+      "reason": "Readable headlines and contrasting colors support word cards; retain patterns and use measured reading holds, never rapid full-frame flashing.",
+      "styleEvidence": "Combine dots, zigzags, stripes, circles, and irregular geometry with bold contrasting colors. Keep the headline readable and use patterns to establish rhythm. Alternate shapes, elastic offsets, and pattern handoffs while limiting simultaneous movement and avoiding rapid full-frame flashing."
+    },
+    {
+      "styleId": "style-011",
+      "styleName": "Pop Art",
+      "decision": "Add",
+      "reason": "Bold color fields, lettering and color substitutions support short phrase cuts; preserve the chosen comic/print language and one focal message.",
+      "styleEvidence": "Build a theme from mass-culture objects, comic imagery, repeated panels, bold color fields, heavy outlines, and optional halftones. Treat lettering as part of the composition. Use repetition, color substitutions, scale changes, and split screens while maintaining a single clear focal image."
+    },
+    {
+      "styleId": "style-012",
+      "styleName": "Op Art",
+      "decision": "No need",
+      "reason": "Continuous measured optical phase/deformation and text outside illusion zones conflict with abrupt full-field phrase switching.",
+      "styleEvidence": "Use stripes, checkerboards, concentric circles, and repeated geometry to create optical illusions. Control line weight, density, and positive-negative relationships. Animate phase, spacing, and deformation at continuous, measured speeds; keep text away from the strongest illusion zones and avoid high-frequency flicker."
+    },
+    {
+      "styleId": "style-013",
+      "styleName": "Psychedelic Art",
+      "decision": "No need",
+      "reason": "Continuous morphs and color movement around one flowing theme conflict with clean discrete word cards.",
+      "styleEvidence": "Use flowing curves, saturated waves, vortices, and looping geometry with an organized color palette. Distorted lettering may support the image, but key information needs stable reading moments. Develop continuous morphs and color movement around one visual theme rather than stacking unrelated effects."
+    },
+    {
+      "styleId": "style-014",
+      "styleName": "Surrealism",
+      "decision": "No need",
+      "reason": "Calm impossible transformations in convincing space would be displaced by abrupt typography fields.",
+      "styleEvidence": "Place impossible scales, object relationships, or gravity inside convincing space and lighting. Establish one coherent dream logic, whether photorealistic or painterly. Let impossible transformations unfold calmly while preserving composition and narrative continuity."
+    },
+    {
+      "styleId": "style-015",
+      "styleName": "Brutalist Web Design",
+      "decision": "Add",
+      "reason": "Bold type, hard-edged blocks and explicitly favored direct cuts match this action; keep information order and omit meaningless glitch.",
+      "styleEvidence": "Combine web screenshots, bold type, raw interface fragments, hard-edged blocks, and deliberately mismatched media. Preserve a clear information order despite the abrasive presentation. Favor direct cuts, scrolling, and rough collage; avoid unreadable text or meaningless glitches."
+    },
+    {
+      "styleId": "style-016",
+      "styleName": "Punk Graphics",
+      "decision": "No need",
+      "reason": "Pasting, peeling and tearing textured letter material are the defining action; clean word/color cuts do not show those material transitions.",
+      "styleEvidence": "Use cutout lettering, torn paper, tape, photocopy grain, and handwritten marks in a deliberately irregular layout. Keep the headline prominent and the palette limited. Animate pasting, peeling, and tearing with small placement imperfections; give different materials distinct edges and textures."
+    },
+    {
+      "styleId": "style-017",
+      "styleName": "Grunge",
+      "decision": "No need",
+      "reason": "Localized worn-surface erasures/reveals differ from replacing full flat backgrounds.",
+      "styleEvidence": "Create worn surfaces with distressed ink, scratches, stains, incomplete lettering, and rough substrates. Control texture density and scale so the main message stays clear. Use local erasures and surface reveals rather than darkening the entire image or covering the subject with persistent noise."
+    },
+    {
+      "styleId": "style-018",
+      "styleName": "Minimalism",
+      "decision": "Add",
+      "reason": "A single concise phrase and generous space can use restrained hard cuts; keep the palette limited and allow reading time instead of aggressive flashing.",
+      "styleEvidence": "Retain only the elements needed to communicate the subject. Use generous negative space, precise proportions, a limited palette, and consistent edges and spacing. Animate a few elements at a time with restrained easing and enough reading time; do not rely on fades for every transition."
+    },
+    {
+      "styleId": "style-019",
+      "styleName": "Editorial Design",
+      "decision": "No need",
+      "reason": "Magazine reading order, annotations and grouped crops need more continuity than isolated rapid word cards.",
+      "styleEvidence": "Organize headlines, short body copy, images, and annotations with the reading logic of a magazine or book. Use a consistent grid and purposeful serif-sans-serif combinations. Reveal information in reading order and transition through cropping, grouped movement, and layout changes rather than sliding an entire page."
+    },
+    {
+      "styleId": "style-020",
+      "styleName": "Luxury Editorial",
+      "decision": "No need",
+      "reason": "Refined subject presentation uses smooth camera/parallax and restrained settling rather than punchy full-field cuts.",
+      "styleEvidence": "Highlight one subject with refined display type, concise copy, generous space, selective image cropping, and restrained color. Use material highlights sparingly. Favor smooth camera moves, subtle parallax, and precise settling; avoid equating luxury with excessive gold, sparkle, or blur."
+    },
+    {
+      "styleId": "style-021",
+      "styleName": "Hand-drawn Illustration",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Preserve pressure variation, drawing speed, and small irregularities in the linework. Use limited color fills, subtle paper texture, and consistent character proportions. Choose actual frame-by-frame drawing or layered artwork movement explicitly; random jitter alone does not create a hand-drawn style."
+    },
+    {
+      "styleId": "style-022",
+      "styleName": "Pencil Drawing",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Use fine graphite lines, exploratory contours, and localized hatching on pale paper. Build volume through pencil marks rather than broad digital gradients. Reveal lines in drawing order or alternate controlled drawing variations while keeping pressure and texture coherent."
+    },
+    {
+      "styleId": "style-023",
+      "styleName": "Ballpoint Pen Drawing",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Use thin blue-black or black lines, repeated contours, and dense-to-sparse hatching. Choose clean white or lightly warm paper and retain a sketchbook character. Reveal marks in drawing order or animate layered sketches; avoid heavy outlines and smooth vector fills."
+    },
+    {
+      "styleId": "style-024",
+      "styleName": "Handwritten Annotations",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Use handwritten lettering, underlines, arrows, circles, and simple diagrams with slightly uneven marker edges. Restrict ink and accent colors. Draw annotations in explanatory order, pointing to the subject before introducing the note, and allow enough time to read."
+    },
+    {
+      "styleId": "style-025",
+      "styleName": "Doodle Art",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Use simple contours, expressive faces, and a few exaggerated details with a casual drawing rhythm. Keep forms consistent, colors light, and backgrounds quiet. Animate clear poses, short reactions, and natural pauses instead of using identical expressions or arbitrary shaking."
+    },
+    {
+      "styleId": "style-026",
+      "styleName": "Whiteboard Animation",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Use a clean pale background, simplified line diagrams, and legible lettering. Draw only objects that help explain the subject. Reveal diagrams in causal order, then add annotations; use erasure or redrawing transitions with sufficient reading pauses."
+    },
+    {
+      "styleId": "style-027",
+      "styleName": "Line Art",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Describe objects through contours, structural lines, and limited internal detail. Establish consistent line-weight hierarchy on a simple background, with small accent colors for emphasis. Reveal or move line components while preserving connected joints and controlled stroke widths."
+    },
+    {
+      "styleId": "style-028",
+      "styleName": "Flat Vector Illustration",
+      "decision": "Add",
+      "reason": "Simple flat fields and proportionally consistent typography support short phrase cards; preserve the three-to-five-color palette and meaningful holds.",
+      "styleEvidence": "Use clear flat color fields, simplified figures, consistent corner radii, and three to five main colors with a fixed accent. Keep icons, outlines, and typography proportionally consistent. Communicate through movement, masks, decomposition, and meaningful morphs; stage entrances and hold key text. Avoid photorealistic reflections, complex materials, and inconsistent shadows."
+    },
+    {
+      "styleId": "style-029",
+      "styleName": "Geometric Illustration",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Build recognizable figures, objects, and environments from a limited geometric vocabulary. Share angles, proportions, line weights, and palette across the scene. Decompose, assemble, and resize forms while preserving identity and visual balance."
+    },
+    {
+      "styleId": "style-030",
+      "styleName": "Storybook Illustration",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Create recognizable characters, narrative environments, small props, and warm colors, with optional paper texture and drawn edges. Emphasize observation, reactions, and emotional changes; allow time to read the scene. Maintain character continuity and give characters meaningful actions."
+    },
+    {
+      "styleId": "style-031",
+      "styleName": "Comic Book Art",
+      "decision": "Add",
+      "reason": "Use punchy comic sound-effect lettering as designed title panels; cuts may change the panel/color field while keeping one coherent drawing/printing language.",
+      "styleEvidence": "Use panel layouts, bold contours, exaggerated poses, speed lines, and purposeful sound-effect lettering. Choose one coherent drawing and printing language. Move from panels into action or let elements cross panel borders without mixing conflicting comic traditions; keep dialogue accurate and readable."
+    },
+    {
+      "styleId": "style-032",
+      "styleName": "Manga",
+      "decision": "No need",
+      "reason": "Expressive drawn panels, screentone and close-ups define this entry; a typography-card reference would add a different dominant action.",
+      "styleEvidence": "Use monochrome or limited color, controlled line-weight hierarchy, screentone shading, expressive panels, and close-ups. Animate panel reveals, poses, and targeted speed effects. Maintain consistent screen-tone scale and readable lettering rather than applying a generic dot filter to every surface."
+    },
+    {
+      "styleId": "style-033",
+      "styleName": "Anime",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Choose a coherent anime character-design and rendering language, including stable proportions, expressive poses, clean linework, and controlled shadow shapes. Plan key poses, holds, and selectively detailed action. Avoid treating all anime as one aesthetic or claiming that a static cel-shading filter constitutes character animation."
+    },
+    {
+      "styleId": "style-034",
+      "styleName": "Rubber Hose Animation",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Use rounded figures, flexible tube-like limbs, bold silhouettes, and expressive poses. Coordinate anticipation, arcs, rhythmic poses, and clear reactions while keeping character identity stable. Avoid arbitrary limb deformation or applying identical bounces to every object."
+    },
+    {
+      "styleId": "style-035",
+      "styleName": "Painterly 3D",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Render 3D forms with painterly surface marks, controlled color masses, and stylized lighting. Keep brush direction consistent with form and limit glossy photorealistic highlights. Let camera movement and poses reveal the painted treatment without making surface textures crawl."
+    },
+    {
+      "styleId": "style-036",
+      "styleName": "Post-Impressionist Painting",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Use expressive, directional brushwork, rhythmic color relationships, and simplified painted forms. Select a specific painting reference instead of assuming every Post-Impressionist work uses swirling skies. Animate brush reveals, localized repainting, or layered scenery while retaining coherent light and color."
+    },
+    {
+      "styleId": "style-037",
+      "styleName": "Watercolor",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Use translucent pigment washes, paper grain, soft bleeding edges, and selective dry-brush detail. Preserve lighter paper areas and believable pigment overlap. Animate wash development or layered reveals gently; avoid uniform blur or repeatedly changing random stains."
+    },
+    {
+      "styleId": "style-038",
+      "styleName": "Ink Wash Painting",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Use pressure-sensitive brush marks, diluted ink washes, deliberate empty space, and restrained tonal contrast. Choose a specific ink-painting tradition and preserve its compositional logic. Reveal strokes and washes coherently rather than using generic splashes or treating Chinese ink painting and Japanese sumi-e as interchangeable."
+    },
+    {
+      "styleId": "style-039",
+      "styleName": "Oil Painting / Gouache",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Choose oil painting or gouache as the primary medium. Oil may use varied paint thickness and visible brushwork; gouache favors matte, opaque color masses. Keep lighting and palette coherent, and animate repainting, brush reveals, or layered scenery without forcing both material behaviors onto every object."
+    },
+    {
+      "styleId": "style-040",
+      "styleName": "Charcoal Drawing / Pastel",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Choose charcoal or pastel as the primary medium. Charcoal emphasizes tonal mass, hatching, and smudging; pastel allows softly layered pigment with visible grain. Preserve paper texture and localized powder edges while revealing or erasing marks; avoid uniform noise that obscures structure."
+    },
+    {
+      "styleId": "style-041",
+      "styleName": "Chinese Calligraphy",
+      "decision": "No need",
+      "reason": "Drawing/paint development and consistent illustrative subjects are defining here; full-field phrase replacement would substitute a different narrative and medium.",
+      "styleEvidence": "Compose around authentic calligraphic gesture, character spacing, and negative space. Vertical text, vermilion seals, and limited imagery may support the piece. Select a consistent script and accurate wording; reveal complete groups or follow actual stroke order without stretching characters into incorrect forms."
+    },
+    {
+      "styleId": "style-042",
+      "styleName": "Graffiti / Street Art",
+      "decision": "No need",
+      "reason": "Spray-painted stroke/overpaint development needs wall and paint continuity rather than flat phrase-card replacement.",
+      "styleEvidence": "Combine spray-painted lettering, tags, wall texture, and street graphics with a coherent lettering style and palette. Use overspray and layered paint selectively. Reveal strokes, overpaint areas, and replace graphic layers while keeping the principal message recognizable."
+    },
+    {
+      "styleId": "style-043",
+      "styleName": "Silhouette Illustration",
+      "decision": "No need",
+      "reason": "Recognizable outline poses and depth layers are the primary narrative; short word cards would displace those silhouettes.",
+      "styleEvidence": "Communicate through recognizable outlines, poses, and negative space. Use a limited set of solid colors and clear depth layers; details can be omitted when the silhouette reads. Keep limbs separated and contrast sufficient throughout movement."
+    },
+    {
+      "styleId": "style-044",
+      "styleName": "Vintage Photo Collage",
+      "decision": "No need",
+      "reason": "Material edges, paper connections and modest object-based movement need continuity; flat full-field word replacement would bypass those craft actions.",
+      "styleEvidence": "Combine period-consistent photographs, newspaper fragments, clipped objects, and visible paper edges. Preserve distinct grain and print characteristics within a unified palette. Animate cutout movement, modest parallax, and object-based scene connections while maintaining a coherent theme."
+    },
+    {
+      "styleId": "style-045",
+      "styleName": "Hand-drawn Collage",
+      "decision": "No need",
+      "reason": "Material edges, paper connections and modest object-based movement need continuity; flat full-field word replacement would bypass those craft actions.",
+      "styleEvidence": "Layer drawn characters, handwritten text, and cut paper within a shared brush and paper language. Uneven edges, tape, and light contact shadows can support the craft treatment. Animate placing, peeling, hinged movement, and scene recomposition without making every layer wobble continuously."
+    },
+    {
+      "styleId": "style-046",
+      "styleName": "Paper Cutout Illustration",
+      "decision": "No need",
+      "reason": "Material edges, paper connections and modest object-based movement need continuity; flat full-field word replacement would bypass those craft actions.",
+      "styleEvidence": "Construct objects from clearly cut paper shapes with thin visible edges and soft contact shadows. Limit paper colors and material types. Move pieces around believable joints, using sliding, rotation, and folding while avoiding intersections and conflicting shadow directions."
+    },
+    {
+      "styleId": "style-047",
+      "styleName": "Paper Craft / Cardboard Craft",
+      "decision": "No need",
+      "reason": "Material edges, paper connections and modest object-based movement need continuity; flat full-field word replacement would bypass those craft actions.",
+      "styleEvidence": "Show paper fibers, cardboard thickness, folds, cuts, and assembly seams. Use soft lighting and colors that suit the material. Assemble or unfold parts along plausible connections; maintain consistent thickness rather than deforming cardboard like rubber."
+    },
+    {
+      "styleId": "style-048",
+      "styleName": "Origami",
+      "decision": "No need",
+      "reason": "Material edges, paper connections and modest object-based movement need continuity; flat full-field word replacement would bypass those craft actions.",
+      "styleEvidence": "Make creases, facets, and paper continuity legible with limited paper colors and clean lighting. Fold sequentially along defined creases while retaining connection and thickness. Avoid calling arbitrary 3D deformation origami or allowing the sheet to stretch, split, or pass through itself."
+    },
+    {
+      "styleId": "style-049",
+      "styleName": "Risograph Printing",
+      "decision": "Add",
+      "reason": "Swap complete printed word forms on paper using the same two or three inks; preserve grain and fixed registration rather than borrowing neon digital fields.",
+      "styleEvidence": "Use two or three ink colors on natural paper, allowing overprints to create additional tones. Add controlled grain, dots, and slight registration offsets without sacrificing text. Reveal color separations and swap printed forms; registration errors should remain stable rather than jitter every frame."
+    },
+    {
+      "styleId": "style-050",
+      "styleName": "Halftone Printing",
+      "decision": "Add",
+      "reason": "Cut complete word cards while keeping halftone dots anchored and correctly scaled; retain limited separations, outlines and paper texture.",
+      "styleEvidence": "Express tone through dot size or density with consistent dot shape, spacing, and angle. Combine halftones with limited color separations, clear outlines, and paper texture. Keep dots anchored to the artwork during motion and inspect scaling for moire and lost text detail."
+    },
+    {
+      "styleId": "style-051",
+      "styleName": "Screen Printing",
+      "decision": "Add",
+      "reason": "Compose short printed word cards in approved spot-color layers; keep flat ink, paper and overprint relationships intact across each cut.",
+      "styleEvidence": "Use a small set of spot colors, flat ink layers, strong positive-negative shapes, and visible paper. Slight handmade edge variation can support the print treatment. Establish ink coverage and overprint relationships; reveal color layers without turning smooth gradients into the main feature."
+    },
+    {
+      "styleId": "style-052",
+      "styleName": "Letterpress Printing",
+      "decision": "No need",
+      "reason": "Restrained pressing/typesetting and shallow paper impressions need tactile continuity rather than rapid field replacement.",
+      "styleEvidence": "Show thick paper, shallow debossed edges, and natural ink coverage with simple typography and graphics. Use soft side lighting to reveal the impression. Animate typesetting, pressing, or localized reveals with restraint; avoid exaggerated metallic bevels or deep embossed lettering."
+    },
+    {
+      "styleId": "style-053",
+      "styleName": "Woodcut / Linocut",
+      "decision": "No need",
+      "reason": "Directional carved marks and designed print regions are the primary reveal; isolated phrase cards do not demonstrate that structure.",
+      "styleEvidence": "Use directional cut marks, bold positive-negative shapes, and hatching that follows form. Woodcuts may emphasize grain; linocuts may favor clean carved masses. Reveal print regions or alternate designed print frames without replacing carving marks with uniform noise."
+    },
+    {
+      "styleId": "style-054",
+      "styleName": "Photocopy Art / Zine Design",
+      "decision": "Add",
+      "reason": "Cut between designed photocopy headline pages with monochrome and an optional accent; preserve cut edges and grain rather than substituting clean neon fills.",
+      "styleEvidence": "Combine high-contrast photographs, photocopy grain, cutout headlines, tape or staples, and irregular page layouts. Keep one information center and use monochrome with an optional accent. Animate page changes, pasting, and recomposition while preserving readable lettering."
+    },
+    {
+      "styleId": "style-055",
+      "styleName": "Sticker Collage",
+      "decision": "No need",
+      "reason": "Sticker placement/peeling requires ongoing surface contact and border consistency; plain color-card changes remove that staging.",
+      "styleEvidence": "Use consistent white sticker borders and light contact shadows on paper, notebook pages, or a simple surface. Animate placing, peeling, repeated arrangements, and slight rotation. Keep cutout quality and border scale consistent rather than letting stickers float without surface contact."
+    },
+    {
+      "styleId": "style-056",
+      "styleName": "Mosaic",
+      "decision": "No need",
+      "reason": "Tesserae flip and return to exact image positions; replacing backgrounds with words does not preserve the assembled image.",
+      "styleEvidence": "Build a recognizable image from glass, stone, or gold-leaf tesserae with coherent shapes, gaps, and reflections. Animate selected pieces flipping, rotating, and returning to precise positions. Control highlights and avoid simultaneous sparkle that overwhelms the overall image."
+    },
+    {
+      "styleId": "style-057",
+      "styleName": "Pixel Art",
+      "decision": "Add",
+      "reason": "Use bitmap phrases with whole-pixel placement and integer scaling; switch only approved palette colors with smoothing disabled.",
+      "styleEvidence": "Use a low logical resolution, a limited palette, whole-pixel placement, and deliberate pixel clusters. A 320 x 180 canvas and a 32-color palette are optional examples. Animate key poses with few in-between frames and use palette cycling for water, neon, or day-night changes without moving silhouette pixels. Scale by integer factors with smoothing disabled."
+    },
+    {
+      "styleId": "style-058",
+      "styleName": "Voxel Art",
+      "decision": "No need",
+      "reason": "Readable spatial geometry, shading and credible object motion are defining; isolated flat word cards would replace the 3D subject.",
+      "styleEvidence": "Construct figures and spaces from cubes of consistent voxel size. Use stepped contours, controlled light, and color blocks to establish depth. Animate complete forms or purposeful block assembly while maintaining scale; a pixel texture on an arbitrary mesh is not voxel geometry."
+    },
+    {
+      "styleId": "style-059",
+      "styleName": "Low-Poly 3D",
+      "decision": "No need",
+      "reason": "Readable spatial geometry, shading and credible object motion are defining; isolated flat word cards would replace the 3D subject.",
+      "styleEvidence": "Use a deliberately limited mesh with readable silhouettes, faceted shading, and selected color fields. Keep joints and contact relationships credible. Favor clear camera framing and stable 3D motion rather than reducing polygon count until the subject becomes unrecognizable."
+    },
+    {
+      "styleId": "style-060",
+      "styleName": "Cel-Shaded 3D",
+      "decision": "No need",
+      "reason": "Readable spatial geometry, shading and credible object motion are defining; isolated flat word cards would replace the 3D subject.",
+      "styleEvidence": "Use discrete shadow bands, consistent outlines, and selective highlights to give 3D forms a drawn appearance. Keep light direction and outline width stable through motion. Avoid realistic gradients and reflections that undermine the flat shading; this rendering method is distinct from traditional cel production."
+    },
+    {
+      "styleId": "style-061",
+      "styleName": "Photorealism",
+      "decision": "No need",
+      "reason": "Readable spatial geometry, shading and credible object motion are defining; isolated flat word cards would replace the 3D subject.",
+      "styleEvidence": "Maintain credible scale, roughness, contact shadows, reflections, lighting, and depth of field. Give objects weight, plausible acceleration, and consistent contact. Keep camera moves measured and the subject readable; avoid unexplained highlights, floating geometry, intersections, or excessive blur."
+    },
+    {
+      "styleId": "style-062",
+      "styleName": "Particle Art",
+      "decision": "No need",
+      "reason": "Particle subjects coordinate into recognizable poses/flows; crisp word-card cuts do not provide particle construction.",
+      "styleEvidence": "Form recognizable subjects from particle density, size, brightness, and color against a contrasting background. Selected trails may indicate direction. Coordinate particles into poses, flows, and structural changes, holding stable silhouettes at important moments; constrain glow so it does not erase detail."
+    },
+    {
+      "styleId": "style-063",
+      "styleName": "Oscilloscope Graphics",
+      "decision": "No need",
+      "reason": "Signal-driven vectors on a dark field conflict with full-field color swaps and oversized text.",
+      "styleEvidence": "Use a dark background and a small set of glowing vectors for waveforms, trajectories, and contours. Add modest persistence while keeping paths clear. Drive motion from a defined signal or precomputed audio, reserving stable areas for text rather than using arbitrary line wobble."
+    },
+    {
+      "styleId": "style-064",
+      "styleName": "Demoscene Graphics",
+      "decision": "Add",
+      "reason": "Use bitmap lettering as a coherent retro word-card section; keep the shared motif and verify music timing before claiming beat synchronization.",
+      "styleEvidence": "Choose a coherent retro graphics theme such as plasma fields, tunnels, rotating geometry, or bitmap lettering. Relate visual sections to the music and return to a shared motif. Avoid stacking every classic demo effect at once or switching algorithms without rhythm."
+    },
+    {
+      "styleId": "style-065",
+      "styleName": "Retrofuturism",
+      "decision": "No need",
+      "reason": "Period-specific mechanical/display animation requires context and objects; generic color cards do not establish it.",
+      "styleEvidence": "Choose one historical period's vision of the future and align objects, instruments, interfaces, type, and color accordingly. Analog controls, early computers, and space-age forms are possible directions. Match animation to the chosen mechanical and display language rather than relying exclusively on neon grids."
+    },
+    {
+      "styleId": "style-066",
+      "styleName": "CRT / Analog Video Effects",
+      "decision": "Add",
+      "reason": "Make the cuts changes of screen content, retaining the same CRT curvature, scanline density and modest persistence; no persistent flashing or corruption.",
+      "styleEvidence": "Use scanlines, mild color offsets, persistence, screen curvature, and noise within a defined analog-display context. Scale details to the output resolution. Restrict interruptions and distortion so the main information remains legible; avoid persistent flashes and exaggerated noise."
+    },
+    {
+      "styleId": "style-067",
+      "styleName": "Glitch Art",
+      "decision": "No need",
+      "reason": "A defined signal fault and reconstruction are central here; Word Smash Cuts deliberately uses clean cuts without a fault effect.",
+      "styleEvidence": "Establish a clear fault model such as signal interruption, data loss, or displacement. Use brief strip offsets, RGB separation, block damage, and reconstruction at narrative or transition points, then restore clarity. Avoid continuous random corruption of every element."
+    },
+    {
+      "styleId": "style-068",
+      "styleName": "Glassmorphism",
+      "decision": "No need",
+      "reason": "Frosted panels and transmitted background color need stable layer relationships rather than opaque full-field word cards.",
+      "styleEvidence": "Use translucent frosted panels with thin borders, soft shadows, and restrained highlights. Let background color show through without reducing text contrast. Animate panels, masks, and modest parallax; avoid excessive layers of blur."
+    },
+    {
+      "styleId": "style-069",
+      "styleName": "Liquid Glass",
+      "decision": "No need",
+      "reason": "Continuous refraction through identifiable glass cannot be preserved by replacing the field with flat typography.",
+      "styleEvidence": "Use clear glass boundaries, plausible refraction, edge highlights, and limited dispersion with a recognizable background visible through the form. Animate droplets, lenses, or flexible panels while maintaining continuity between deformation and refraction. Ordinary translucent blur does not provide this optical treatment."
+    },
+    {
+      "styleId": "style-070",
+      "styleName": "Iridescent Materials",
+      "decision": "No need",
+      "reason": "Measured material flow and quiet backgrounds conflict with abrupt graphic word-card switching.",
+      "styleEvidence": "Choose pearlescent material, flowing silk, or molten glass as the dominant surface language. Use coherent highlights, controlled color shifts, and a quiet background. Reveal the material through measured flow, folds, rotation, or macro framing instead of rainbow noise and blown-out reflections."
+    },
+    {
+      "styleId": "style-071",
+      "styleName": "Cyberpunk",
+      "decision": "No need",
+      "reason": "Functioning technology-dense scenes and localized reflections would be displaced by typography-only background cards.",
+      "styleEvidence": "Create a technology-dense setting with legible social and industrial character, controlled neon, atmosphere, and localized reflections. Give the subject a clear luminance hierarchy. Show devices, streets, or signal systems functioning rather than relying only on purple-blue light, signs, and decorative HUDs."
+    },
+    {
+      "styleId": "style-072",
+      "styleName": "Synthwave",
+      "decision": "No need",
+      "reason": "A continuous horizon journey through neon imagery differs from word/background hard cuts.",
+      "styleEvidence": "Use 1980s electronic-music imagery: neon night colors, perspective grids, striped sunsets, and selected mountains or sports-car silhouettes. Separate magenta, cyan, and warm orange against deep blue-purple. Move toward a clear horizon in sync with musical sections. Optional VHS texture may add tape noise, tracking errors, and color bleed without persistent corruption."
+    },
+    {
+      "styleId": "style-073",
+      "styleName": "Vaporwave",
+      "decision": "No need",
+      "reason": "Slow drift, repetition and displaced time conflict with the rapid, punchy reference rhythm.",
+      "styleEvidence": "Combine nostalgic consumer imagery, early digital interfaces, sculpture, or advertising fragments with a coherent pastel palette and selective distortion. Favor slow repetition, drift, and displaced time. Keep a recognizable theme and distinguish it from fast, driving Synthwave imagery."
+    },
+    {
+      "styleId": "style-074",
+      "styleName": "Y2K Design",
+      "decision": "Add",
+      "reason": "Use short chrome/display-type cards with coherent highlight/material treatment and approved bright backgrounds; avoid metallic glare that obscures words.",
+      "styleEvidence": "Use turn-of-the-millennium digital optimism: chrome type, transparent plastic, rounded devices, early web elements, and bright accents. Choose coherent material rules. Animate rotations, elastic reveals, and interface assembly without letting metallic highlights overpower the message."
+    },
+    {
+      "styleId": "style-075",
+      "styleName": "Skeuomorphism",
+      "decision": "No need",
+      "reason": "Physical control motions must cause interface state changes; typography-card cuts do not implement that functional mechanism.",
+      "styleEvidence": "Make interface elements resemble specific physical controls, materials, and mechanisms. Match lighting, edges, and shadows; align presses and rotations with the resulting state change. Keep labels readable and give the physical resemblance a functional purpose."
+    },
+    {
+      "styleId": "style-076",
+      "styleName": "Neumorphism",
+      "decision": "No need",
+      "reason": "Near-background raised surfaces and press/release states conflict with contrasting full-field color replacement.",
+      "styleEvidence": "Use raised or inset surfaces close to the background color, with paired soft highlights and shadows in a consistent direction. Keep color restrained but state differences clear. Animate pressing and release without sacrificing text, edge, or control contrast."
+    },
+    {
+      "styleId": "style-077",
+      "styleName": "Isometric Illustration",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Arrange objects on consistent isometric axes with clear scale, depth, and occlusion. Use limited colors and light shadows. Move, assemble, and separate objects along the established axes without introducing perspective shrinkage; keep labels in a readable 2D layer."
+    },
+    {
+      "styleId": "style-078",
+      "styleName": "Clay-Style 3D",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Use rounded forms, restrained handmade surface detail, matte materials, broad lights, and credible contact shadows. Keep colors limited. Animate weight and slight elasticity without continuous melting; distinguish the digital surface treatment from actual clay stop motion."
+    },
+    {
+      "styleId": "style-079",
+      "styleName": "3D Diorama",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Build a complete miniature stage with deliberate boundaries and consistent scales for architecture, characters, and props. Use a clear elevated or oblique view and limited depth of field. Show local actions and environmental detail without blurring away important models or paths."
+    },
+    {
+      "styleId": "style-080",
+      "styleName": "Frame-by-Frame Animation",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Draw individual frames with consistent character proportions and intentional line variation. Plan key drawings, in-betweens, and exposure holds. Animation on twos at 24 fps uses 12 distinct drawings per second. Output frame rate is not drawing rate; moving one image or adding random jitter does not establish frame-by-frame drawing."
+    },
+    {
+      "styleId": "style-081",
+      "styleName": "Traditional Cel Animation",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Use fixed backgrounds and layered character drawings with consistent linework, flat fills, and shadow shapes. Animate actions through distinct drawings and clean transparent compositing. If produced digitally, identify the simulation of the cel-animation treatment rather than implying physical cels were photographed."
+    },
+    {
+      "styleId": "style-082",
+      "styleName": "Hand-Drawn Stop-Motion Style",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Use drawn paper assets, clear lines, and limited colors with deliberate replacement or repositioning between held frames. Preserve anticipation, weight, and settling. Keep small drawing variations reproducible and identify the simulated treatment rather than claiming physical stop-motion photography."
+    },
+    {
+      "styleId": "style-083",
+      "styleName": "Stop-Motion Animation",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Use physical-looking objects with stable materials, light, contact shadows, and space. Plan held frames and incremental poses to communicate weight. Preserve controlled craft characteristics without seeking accidental defects; distinguish photographed stop motion from a digital simulation."
+    },
+    {
+      "styleId": "style-084",
+      "styleName": "Cutout Animation",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Layer photographic cutouts, paper, drawn objects, and lettering around a shared theme. Preserve cut edges, slight paper thickness, and consistent contact shadows. Define pivots and occlusion, then animate placing, peeling, hinged movement, pose replacement, and limited parallax. Avoid joint gaps, intersections, and conflicting shadows."
+    },
+    {
+      "styleId": "style-085",
+      "styleName": "Shadow Puppetry",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Use readable silhouettes, a translucent screen, and distinct depth layers. Keep colors limited and props legible in outline. Animate poses, shadow size, and stage movement while maintaining consistent light and separating limbs from the torso."
+    },
+    {
+      "styleId": "style-086",
+      "styleName": "Claymation",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Show matte clay, small fingerprints, credible contact, and shape changes that appear physically adjusted between exposures. Plan volume-preserving poses under stable light. Avoid liquid-like unrestricted flow or glossy plastic reflections; identify a digital simulation when no clay was photographed."
+    },
+    {
+      "styleId": "style-087",
+      "styleName": "Puppet Animation",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Use articulated figures, identifiable materials, stable costumes, and miniature sets. Plan each pose to communicate weight, balance, and foot contact. Avoid rubber-like deformation, costume flicker, and joint intersections; identify the actual production method."
+    },
+    {
+      "styleId": "style-088",
+      "styleName": "Object Animation",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Choose everyday objects that support the subject, preserving material, scale, and contact shadows. Give objects clear behavior through incremental movement, rotation, arrangements, and replacement. Avoid moving everything together without a relationship or confusing simulated movement with photographed animation."
+    },
+    {
+      "styleId": "style-089",
+      "styleName": "Pixilation",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Animate live performers through deliberately photographed poses, maintaining scene and costume continuity. Plan sliding, unexpected position changes, and object interaction with readable direction and exposure holds. Reducing a continuous video's frame rate is not equivalent to pixilation, which is distinct from pixel art."
+    },
+    {
+      "styleId": "style-090",
+      "styleName": "Rotoscoping",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Use actual filmed movement as the basis for frame-by-frame tracing or reconstruction. Choose consistent contours, fills, and simplification rules while preserving weight and proportions. Avoid random edge changes; generated movement or an ordinary filter is not automatically rotoscoping."
+    },
+    {
+      "styleId": "style-091",
+      "styleName": "2D Rigged Animation",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Separate character artwork into rigged parts with defined joints, pivots, occlusion, motion limits, and replaceable expressions. Animate poses, arcs, anticipation, and settling; draw replacement poses when needed. Avoid excessive stretch, exposed joint seams, or claiming every frame was redrawn."
+    },
+    {
+      "styleId": "style-092",
+      "styleName": "Line Boil",
+      "decision": "No need",
+      "reason": "The prescribed geometry, character/object action or drawing/exposure method needs coherent poses and material continuity; word-card cuts alone do not implement it.",
+      "styleEvidence": "Cycle two or three carefully drawn contour variants at a stable cadence. Keep variation small and preserve silhouette, glyph structure, and position. Coordinate the boil with subject motion; independent random noise on every frame can cause distracting instability."
+    },
+    {
+      "styleId": "style-093",
+      "styleName": "Kinetic Typography",
+      "decision": "Add",
+      "reason": "Text already carries the narrative through concise copy, scale and movement order; coordinate clean phrase/background cuts with readable holds.",
+      "styleEvidence": "Let text carry the narrative through size, weight, spacing, position, and movement order. Use concise copy and actions motivated by meaning, with clear holds. Maintain alignment and reading continuity instead of applying identical spring motion to every letter."
+    },
+    {
+      "styleId": "style-094",
+      "styleName": "Abstract Motion Graphics",
+      "decision": "No need",
+      "reason": "A continuous shape system with connected states is prescribed, whereas this reference replaces disconnected word cards.",
+      "styleEvidence": "Build a continuous visual system from a few shapes and limited colors with deliberate proportions and centers of gravity. Use repetition, division, merging, rotation, and varied timing; let each state lead into the next. Avoid unrelated particles or light effects that weaken the structural motif."
+    },
+    {
+      "styleId": "style-095",
+      "styleName": "UI Animation / Product Motion Design",
+      "decision": "No need",
+      "reason": "Accurate interface states must change causally through shared elements and framing; color cards should not substitute for product screens.",
+      "styleEvidence": "Use accurate product interfaces, real copy, and established branding. Separate cards, numbers, charts, and states into animatable elements. Explain features through causal state changes, shared elements, and precise camera framing; avoid invented interfaces and repeatedly sliding a whole screenshot."
+    },
+    {
+      "styleId": "style-096",
+      "styleName": "Minimalist Product Motion Design",
+      "decision": "No need",
+      "reason": "Smooth product close-ups and selective settling would be displaced by oversized word-card cuts.",
+      "styleEvidence": "Frame one product and a few meaningful details with generous space, concise copy, precise proportions, and restrained materials and light. Use smooth close-ups, selective reveals, and deliberate settling. Preserve product accuracy and adapt presentation principles without copying specific campaign shots."
+    },
+    {
+      "styleId": "style-097",
+      "styleName": "Scientific Visualization / Data Storytelling",
+      "decision": "No need",
+      "reason": "Semantic colors, variables and causal explanation require gradual development and understanding pauses; arbitrary field switching is unsuitable.",
+      "styleEvidence": "Define the concept, variables, units, data, and causal relationships before drawing. Assign consistent meaning to color and labels. Introduce objects, mechanisms, comparisons, and conclusions gradually, with pauses for understanding. Avoid misleading scales, invented values, and decorative motion that substitutes for explanation."
+    },
+    {
+      "styleId": "style-098",
+      "styleName": "Infinite Zoom",
+      "decision": "No need",
+      "reason": "The next scene must already exist inside a portal on a continuous zoom path; a hard cut is not that transition.",
+      "styleEvidence": "Plan connected worlds or scales so the next scene already exists within a visible object, lens, or portal. Follow a continuous zoom path and align transitions as the portal fills the frame. Match focus, scale, and velocity; a loop must connect both composition and motion."
+    },
+    {
+      "styleId": "style-099",
+      "styleName": "Continuous Shot",
+      "decision": "No need",
+      "reason": "A continuous readable camera path expressly avoids discontinuities; hard scene cuts conflict.",
+      "styleEvidence": "Plan one readable camera path through continuous space, preserving subjects, lighting, and occlusion. Structure the sequence through internal action, scale changes, or transformations with deliberate acceleration and pauses. Avoid unexplained resets, wall intersections, and hidden discontinuities."
+    },
+    {
+      "styleId": "style-100",
+      "styleName": "Shape Morphing",
+      "decision": "No need",
+      "reason": "Trackable contours and intermediate forms are required; replacing words by cuts does not perform a morph.",
+      "styleEvidence": "Design starting, intermediate, and target forms with trackable contour or semantic correspondence. Preserve center of gravity, direction, and visual continuity, allowing holds at readable states. Control path order and holes; verify lettering after the morph. Crossfading alone does not constitute shape morphing."
+    },
+    {
+      "styleId": "style-101",
+      "styleName": "2.5D Parallax Animation",
+      "decision": "No need",
+      "reason": "Relative layered parallax needs stable depth/occlusion rather than flat word-card replacement.",
+      "styleEvidence": "Separate flat artwork into foreground, midground, and background with plausible depth and occlusion. Move layers at restrained relative speeds, leaving extra artwork beyond the crop. Avoid reversed depth motion, exposed edges, or excessive separation; layered parallax is not proof of full 3D modeling."
+    },
+    {
+      "styleId": "style-102",
+      "styleName": "Kaleidoscopic Animation",
+      "decision": "No need",
+      "reason": "Fixed-center mirrored sectors and continuous symmetry conflict with full-screen text cards.",
+      "styleEvidence": "Build a pattern around a fixed center and a deliberate number of mirrored sectors. Keep rotational speed, density, and palette coherent. Develop rotation and shape changes while maintaining symmetry; keep text out of repeated sectors and avoid center jumps or rapid flicker."
+    },
+    {
+      "styleId": "style-103",
+      "styleName": "Motion Poster",
+      "decision": "Add",
+      "reason": "Each word card must remain a complete useful poster still with hierarchy and negative space; boundary-crossing emphasis fits if loop endpoints match.",
+      "styleEvidence": "Design a complete static poster with clear headline, imagery, supporting information, and negative space before adding motion. Use local loops, layout changes, or controlled boundary crossings while retaining useful still frames. Give important text reading opportunities and match loop endpoints."
+    },
+    {
+      "styleId": "style-104",
+      "styleName": "Symmetrical Cinematic Composition",
+      "decision": "No need",
+      "reason": "Measured theatrical staging and ordered subject actions differ from rapid flat typography cards.",
+      "styleEvidence": "Use axial symmetry, a carefully selected palette, frontal framing, theatrical sets, and deliberately arranged props. Stage measured lateral moves, push-ins, and ordered character actions. Adapt compositional principles rather than applying a generic pastel filter or copying a film scene."
+    },
+    {
+      "styleId": "style-105",
+      "styleName": "Music-Synchronized Animation",
+      "decision": "Add",
+      "reason": "Schedule phrase and color cuts to inspected beats/sections, varying density with energy and retaining reading holds; never infer beat timing from silent frames.",
+      "styleEvidence": "Identify actual beats, downbeats, and musical sections before scheduling reveals, cuts, and motion accents. Vary visual density with musical energy and use anticipation and pauses. Avoid starting every element on the same beat or eliminating all reading time."
+    },
+    {
+      "styleId": "style-106",
+      "styleName": "Squash and Stretch",
+      "decision": "No need",
+      "reason": "Anticipation, deformation, rebound and volume preservation are central; clean hard cuts provide none of those actions.",
+      "styleEvidence": "Plan anticipation, impact, compression or extension, rebound, and settling. Align deformation with movement while preserving apparent volume and recognizable silhouettes. Use timing variation and short holds; avoid making every object bounce or deform continuously."
+    },
+    {
+      "styleId": "style-107",
+      "styleName": "Mixed-Media Animation",
+      "decision": "Add",
+      "reason": "Use word cards as the typography role within the shared media palette; preserve texture/material distinctions through intentional cuts, not random visual mixtures.",
+      "styleEvidence": "Establish shared color, line, texture, and lighting rules before mixing photos, drawings, paper, type, or 3D objects. Give each medium a narrative role and connect them through composition, direction, and intentional transitions. Retain medium differences within a coherent whole."
+    },
+    {
+      "styleId": "style-108",
+      "styleName": "Isometric Motion Graphics",
+      "decision": "No need",
+      "reason": "Assembly along isometric axes with stable 2D labels should not be replaced by flat word cards.",
+      "styleEvidence": "Use consistent isometric axes for flat graphics or shallow 3D objects, with common scale and light direction. Show top and side faces, contact shadows, and modest thickness while keeping labels in 2D. Assemble and move along the axes; distant objects should not shrink through perspective. If using layered parallax, keep it restrained and spatially coherent."
+    },
+    {
+      "styleId": "style-109",
+      "styleName": "Animated Line Art",
+      "decision": "No need",
+      "reason": "Objects and connected paths develop in relationship order; phrase replacement discards that structure.",
+      "styleEvidence": "Build the subject from contours, connectors, arrows, and paths with consistent widths, caps, and joins. Reveal objects before relationships, then draw connections, follow paths, or reorganize outlines. Maintain continuous endpoints and readable completed structures; avoid arbitrary tangled lines or endlessly repeated drawing."
+    },
+    {
+      "styleId": "style-110",
+      "styleName": "3D Motion Graphics",
+      "decision": "No need",
+      "reason": "Weighted genuine 3D geometry/camera actions require spatial continuity rather than flat title-card substitution.",
+      "styleEvidence": "Choose photorealistic, cartoon, or stylized rendering before building genuine 3D geometry. Use coherent bevels, roughness, reflections, contact shadows, and a clear key light. Choose perspective or orthographic framing deliberately. Animate weighted rotation, assembly, and camera movement without intersections, floating objects, inconsistent scale, or blown-out highlights."
+    },
+    {
+      "styleId": "style-111",
+      "styleName": "Sticker-Style Explainer Animation",
+      "decision": "No need",
+      "reason": "Stable concept colors and causal sticker mechanisms would be obscured by rapid full-field phrase changes.",
+      "styleEvidence": "Make scientific objects and symbols into consistent stickers with white borders, rounded silhouettes, and light shadows. Assign stable colors or symbols to concepts. Sequence a question, objects, mechanism, and conclusion with short labels and purposeful arrows. Animate placing, peeling, path movement, and restrained bounce; do not let decoration obscure the explanation."
+    },
+    {
+      "styleId": "style-112",
+      "styleName": "Futuristic UI (FUI) / HUD Design",
+      "decision": "No need",
+      "reason": "A dark functional data display needs stable labels and event-driven scanning/feedback, not arbitrary background swaps.",
+      "styleEvidence": "Use dark backgrounds, fine wireframes, limited cyan or magenta accents, and readable monospaced data. Give panels, reticles, scales, maps, and progress rings defined functions. Animate startup, scanning, acquisition, and feedback so data changes correspond to visible events. Avoid meaningless microtext, excessive spinning rings, and overexposed neon; label fictional data."
+    },
+    {
+      "styleId": "style-113",
+      "styleName": "Aurora Gradients / Glassmorphism",
+      "decision": "No need",
+      "reason": "Slow aurora fields behind frosted panels conflict with opaque rapid field changes.",
+      "styleEvidence": "Place frosted panels over slow aurora bands, diffuse color fields, or mesh gradients using two to four main colors and stable brightness. Use fine borders, highlights, and soft shadows; local refraction or dispersion is optional. Keep foreground text sharp and panel movement precise. Avoid banding, shimmering edges, excessive blur, or backgrounds that compete with reading."
+    },
+    {
+      "styleId": "style-114",
+      "styleName": "Liquid Motion",
+      "decision": "No need",
+      "reason": "Stretching, merging and accurate wordmark formation require continuous viscous contours; hard phrase cuts skip that action.",
+      "styleEvidence": "Animate deliberate stretching, stringing, merging, splitting, and elastic settling of droplets or viscous forms. Choose a 2D or 3D surface language and keep highlights from obscuring contours. A drop may land, spread, and gather into a wordmark; hold accurate lettering after formation. SDF metaballs simulate a fluid appearance without establishing physically accurate fluid behavior."
+    },
+    {
+      "styleId": "style-115",
+      "styleName": "Animated Reaction Captions",
+      "decision": "No need",
+      "reason": "Reaction captions must keep faces/dialogue/overlays visible; full-screen color cards would cover their context.",
+      "styleEvidence": "Use concise emphasis text with expressive display lettering, consistent layered outlines, shadows, reaction stickers, and small doodles. Give emotions distinct colors and motion. Time short spring entrances, squash, bounce, and wobble to reactions or verbal stress, followed by readable holds. Three emotion treatments and 9:16 framing are optional examples. Keep faces, dialogue subtitles, and platform overlays unobstructed."
+    },
+    {
+      "styleId": "style-116",
+      "styleName": "Blueprint Drafting Animation",
+      "decision": "No need",
+      "reason": "A fixed measured blueprint field and readable dimensions must retain geometry rather than switch to phrase cards.",
+      "styleEvidence": "Flat blueprint-blue field; white grid, clean dimension lines, dashed hidden edges and fine hatching. Preserve measured geometry and readable labels."
+    },
+    {
+      "styleId": "style-117",
+      "styleName": "Holographic Scanline Illustration",
+      "decision": "No need",
+      "reason": "Cyan contour/scanline density on a black field is defining; arbitrary solid background replacement discards it.",
+      "styleEvidence": "Black field with cyan contours, narrow white cores and horizontal scan-line fills. Light is communicated through line density, without blur halos or generic neon particles."
+    },
+    {
+      "styleId": "style-118",
+      "styleName": "Thermal Silhouette Imaging",
+      "decision": "No need",
+      "reason": "Heat-ramp silhouettes and authored hotspots carry meaning that full-field word/color cuts would displace.",
+      "styleEvidence": "Sharp silhouettes with a black-to-red-to-orange-to-cream heat ramp, cool narrow extremities and authored hotspots. Distinguish thermal illustration from measured temperature data."
+    },
+    {
+      "styleId": "style-119",
+      "styleName": "Engraved Mechanical Diagrams",
+      "decision": "No need",
+      "reason": "Linked mechanical motions must explain real operations; isolated text-card changes do not show those mechanisms.",
+      "styleEvidence": "Porcelain field with engraved number wheels, inspection rails, mechanical belts and settled tabular numerals. Every linked mechanical movement must explain a real operation."
+    },
+    {
+      "styleId": "style-120",
+      "styleName": "Raymarched Fractal Landscapes",
+      "decision": "No need",
+      "reason": "Fractal solids and coherent depth/reflections evolve continuously; word-card cuts replace the spatial subject.",
+      "styleEvidence": "Reflective fractal solids emerge from dark fog, evolve into a landscape and return to sculptural lettering. Preserve coherent reflections, spatial scale and depth."
+    },
+    {
+      "styleId": "style-121",
+      "styleName": "Chalk on Black Paper",
+      "decision": "No need",
+      "reason": "A fixed black-paper substrate with powdery drawn strokes conflicts with rapidly replaced flat fields.",
+      "styleEvidence": "Powdery chalk marks on black paper with broken textured edges and layered opaque/pale strokes. Preserve a dark paper field; this differs from charcoal drawn on light paper."
+    },
+    {
+      "styleId": "style-122",
+      "styleName": "Sand-on-Light-Table Animation",
+      "decision": "No need",
+      "reason": "Backlit sand density and scraped gaps define the image; typography/color-card replacement loses those material actions.",
+      "styleEvidence": "Backlit warm light table with dark granular sand silhouettes, scraped negative-space lines and changing sand density. Light shines through gaps rather than illuminating a white page."
+    },
+    {
+      "styleId": "style-123",
+      "styleName": "Pop-Up Book Animation",
+      "decision": "No need",
+      "reason": "Hinges, folds and page mechanics must drive the reveal; abrupt card replacement bypasses that mechanism.",
+      "styleEvidence": "Folded paper structures rise from hinged pages with visible tabs, paper thickness, contact shadows and consistent creases. Page mechanics drive the reveal."
+    },
+    {
+      "styleId": "style-124",
+      "styleName": "Translucent Tissue-Paper Collage",
+      "decision": "No need",
+      "reason": "Translucent tissue overlap and transmitted underwater depth require stable material relationships, not opaque flat cards.",
+      "styleEvidence": "Overlapping translucent fibers, torn edges and colored tissue layers create underwater depth. Preserve light transmission and overlap rather than opaque cardstock shapes."
+    },
+    {
+      "styleId": "style-125",
+      "styleName": "Ancient Greek Vase Painting",
+      "decision": "No need",
+      "reason": "Painted registers must remain on a coherent curved vessel; full-screen word cards remove that subject.",
+      "styleEvidence": "Terracotta vessels carry dark painted figures, ornamental registers and a continuous narrative around the curved surface. Keep the vessel profile, painted bands and silhouettes coherent."
+    },
+    {
+      "styleId": "style-126",
+      "styleName": "Stained-Glass Light Projection",
+      "decision": "No need",
+      "reason": "Glass leading and physically coherent transmitted projections need geometry and occlusion rather than arbitrary word-field cuts.",
+      "styleEvidence": "Jewel-colored glass panes separated by dark leading project the same image onto a stone interior. Cool dim architectural space changes into colored transmitted light with physically coherent occlusion."
+    },
+    {
+      "styleId": "style-127",
+      "styleName": "Cutaway / Exploded 3D Illustration",
+      "decision": "No need",
+      "reason": "Connected component geometry, attached labels and meaningful assembly axes must stay trackable; rapid word cards would interrupt the explanation.",
+      "styleEvidence": "Use genuine 3D component geometry, section views and exploded assemblies to explain internal structure. Separate parts along meaningful axes, keep labels attached through camera motion and preserve assembly orientation. Reveal internal flow paths with semantic colors; reassemble precisely. Neutral readable staging is distinct from black barrels, red tissue, blue vessels and gold object materials."
+    },
+    {
+      "styleId": "style-128",
+      "styleName": "Volumetric Fire & Smoke",
+      "decision": "No need",
+      "reason": "Buoyant three-dimensional flame/smoke must retain depth and exposure; crisp word-card changes do not implement volume motion.",
+      "styleEvidence": "Render emissive three-dimensional flame and translucent smoke as coherent volumes with readable depth, buoyant motion, cooling soot and light spill. Maintain a stable dark or contrasting stage, bounded exposure and consistent camera scale. Do not substitute a flat glow sprite, liquid blob or unrelated particle shower for the volume."
+    },
+    {
+      "styleId": "style-129",
+      "styleName": "Egyptian Register Painting",
+      "decision": "No need",
+      "reason": "Orderly symbolic registers on pale papyrus/plaster should retain historic framing rather than rapid modern color cards.",
+      "styleEvidence": "Flat profile heads and legs with frontal shoulders, orderly horizontal registers, symbolic proportions, bounded mineral-colored fills and fine dark contours on a pale papyrus/plaster field. Use a specified historical reference; Egyptian framing is more than a pyramid icon."
+    },
+    {
+      "styleId": "style-130",
+      "styleName": "Illuminated Manuscript",
+      "decision": "No need",
+      "reason": "Miniatures, initials, ornament and verified text belong to one parchment page; replacing it with flat word cards removes the manuscript.",
+      "styleEvidence": "Parchment page with framed miniature, ornamental border, decorated initial, restrained gilded highlights and precise red/blue/green pigment. Organize illustration and verified text as a page rather than a generic paper scene."
+    },
+    {
+      "styleId": "style-131",
+      "styleName": "Ukiyo-e Woodblock Print",
+      "decision": "No need",
+      "reason": "Registered contours, patterned print planes and warm paper require coherent subject/palette, not clean digital phrase-card replacement.",
+      "styleEvidence": "Fine dark key-block contours, flat registered color planes, asymmetric cropped compositions, patterned waves/clouds and restrained sky gradation on warm print paper. Select a specific Japanese print reference rather than substituting generic carved monochrome texture."
+    },
+    {
+      "styleId": "style-132",
+      "styleName": "Cubist Painted Collage",
+      "decision": "No need",
+      "reason": "Several viewpoints must describe the same recognizable subject through planar fragmentation; isolated word cards do not preserve that subject.",
+      "styleEvidence": "Intersecting planar facets describe the same subject from several viewpoints; compressed space, muted ochre/gray/brown paint and selective printed-paper fragments. Preserve recognizable subject anchors through fragmentation; low-poly 3D alone does not establish Cubism."
+    },
+    {
+      "styleId": "style-133",
+      "styleName": "Impressionist Painting",
+      "decision": "No need",
+      "reason": "Fleeting outdoor light and broken brushwork need painterly coherence rather than graphic full-field replacement.",
+      "styleEvidence": "Broken visible brush marks, atmospheric light and adjacent color touches describe a fleeting outdoor scene. Preserve coherent light, reflected color and soft edges; distinguish this treatment from the forceful directional structure of Post-Impressionism."
+    },
+    {
+      "styleId": "style-134",
+      "styleName": "Fine-Line Chinese Painted Scroll",
+      "decision": "No need",
+      "reason": "Bounded scroll outlines, pale washes and open silk/paper composition would be replaced by modern flat word cards.",
+      "styleEvidence": "Fine bounded outlines around jade mountain layers, ornamental cloud curls, architecture, flowers and carefully drawn figures; translucent pale color washes on a light paper/silk field. Preserve a specified painted-scroll composition and open space. This source-inspired treatment is not a claim that every Chinese painting uses this palette."
+    },
+    {
+      "styleId": "style-135",
+      "styleName": "Cave Wall Painting",
+      "decision": "No need",
+      "reason": "Animal/hand marks and mineral pigment belong to uneven rock; flat modern lettering/color fields contradict that surface.",
+      "styleEvidence": "Mineral red/ochre and dark charcoal animal outlines, hand marks or simplified figures follow an uneven rock field. Material pores and irregular pigment edges belong to the surface; avoid modern cartoon outlines, neon glow or decorative pseudo-inscriptions."
+    }
+  ]
+}

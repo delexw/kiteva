@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-093",
+    "name": "Kinetic Typography",
+    "visualIdentity": "Text carries the narrative through size, weight, spacing, position and movement order. Copy is concise and actions follow meaning. Optional architectural recipe gives glyphs structural roles such as lintel or support.",
+    "suitableUses": "Explicitly suited to quotes, manifestos and copy-led spots. Inferred fits: lyric or spoken-word pieces with a supplied track, and announcements. Dense copy needs a grid-based support style.",
+    "limitations": "Dense explanatory copy or added photography weakens the text-first narrative. Two-color contrast checks do not verify text over video, textures or animated light. Source review covered sampled frames only, not continuous motion or audio.",
+    "palette": "Background is scene-dependent. #FAF5E9, #252D39 and #B84F3F are authored suggestions, not approved colors, although the implementation text states them as fixed. Recipe colors apply only if explicitly adopted. Recheck composited contrast.",
+    "motionAndInteraction": "GSAP varies size, variable weight, tracking and position per word, with reading holds. MorphSVGPlugin bends only load-bearing architectural strokes. Video runs on composition time, not live scroll or pointer. Motion-037, -038 and -040 are optional fits.",
+    "audio": "Unspecified; no audio was verified in the source. Suggested, not mandatory: restrained music or silence for reading holds, with voiceover only if supplied or requested. Beat timing requires measured audio. Speech must stay intelligible.",
+    "assetRequirements": "Local fonts, including a variable-weight font if weight animation is used, are awaited with document.fonts.ready before measuring. Exact copy is required. The architectural recipe needs authored SVG outlines because font-to-path conversion is unavailable. Uploads are optional.",
+    "combinations": "style-105 adds beat and section timing for music-led lyric or promo work. style-001 adds Swiss grid placement for corporate copy. Combine when timing must follow music or dense copy needs a rigid grid. Avoid motion that breaks the grid.",
+    "productionApproach": "HTML/CSS and SVG are the style renderers; GSAP drives motion, with MorphSVGPlugin only for architectural deformation. HyperFrames is the default pipeline; Remotion is a conditional fallback. Avoid Canvas or WebGL text and duplicate Motion or Anime.js engines."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

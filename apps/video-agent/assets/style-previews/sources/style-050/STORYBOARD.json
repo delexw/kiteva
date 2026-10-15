@@ -1,0 +1,49 @@
+{
+  "version": 3,
+  "title": "Halftone Printing — An Idea Becomes a Connected System",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The idea prints",
+      "startSeconds": 0,
+      "endSeconds": 0.85,
+      "purpose": "Set up the printed navy ground and print the central idea as a red halftone sphere.",
+      "visuals": ["Full-bleed navy printed ground with stationary paper grain and a halftone floor band", "Red spot-ink sphere revealed by a growing circular mask over a fixed 15° dot screen", "Headline wipes on in paper ink"],
+      "assets": ["index.html canvas (procedural)"],
+      "beats": [
+        {"startSeconds": 0, "endSeconds": 0.85, "development": "Headline wipes in from the left while the hub mask grows. Fixed red dots appear in place, and a paper-ink halo screen spreads around it.", "captions": ["ONE IDEA. FOUR LINKS."], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.3}
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Light and links",
+      "startSeconds": 0.85,
+      "endSeconds": 2.0,
+      "purpose": "Show the tone driven by luminance and connect the idea to four nodes.",
+      "visuals": ["Key light rakes to the upper left; red dot sizes re-separate across the sphere and a paper highlight screen at 45° emerges", "Four paper-ink link rules draw outward one after another (no arrowheads)", "Each node prints with a radial mask on the fixed 45° screen as its link arrives, and its outline sweeps closed", "Caption bar expands, then its label appears after the bar is complete"],
+      "assets": ["index.html canvas (procedural)"],
+      "beats": [
+        {"startSeconds": 0.85, "endSeconds": 1.45, "development": "The light finishes its sweep while the links print out in sequence and the first nodes start to print.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 1.45, "endSeconds": 2.0, "development": "The remaining nodes complete; the caption bar expands and its text appears.", "captions": ["AN IDEA BECOMES A CONNECTED SYSTEM"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Settled system",
+      "startSeconds": 2.0,
+      "endSeconds": 3,
+      "purpose": "Hold the complete connected system for reading.",
+      "visuals": ["Full composition at rest: hub, four links, four nodes, headline and caption"],
+      "assets": ["index.html canvas (procedural)"],
+      "beats": [
+        {"startSeconds": 2.0, "endSeconds": 3, "development": "Reading hold; nothing moves.", "captions": ["ONE IDEA. FOUR LINKS.", "AN IDEA BECOMES A CONNECTED SYSTEM"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 1.0}
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": ["Headline is fully legible from 0.55s, giving about 2.45s of exposure.", "Caption is fully legible from 1.96s, giving about 1.04s of exposure for six words.", "All motion settles by 2.0s, before the 2.7s requirement."],
+    "justifiedHolds": ["2.0–3.0s final hold so the complete diagram and both lines of copy can be read."]
+  },
+  "notes": ["Silent preview.", "Dot pitch, angle and positions are fixed; only the luminance content, light direction and reveal masks animate.", "Palette is a polarity flip of the existing three tokens: navy #253E56 as ground, paper #F8EFD9 as light ink and type, red #C25143 as the single spot ink on the hub."]
+}

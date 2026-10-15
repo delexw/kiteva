@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Paper Craft — an idea becomes a connected system</title>
+<style>
+  /* OS-bundled system fonts (macOS Supplemental) declared via local(); Courier New is auto-resolved by the renderer. */
+  @font-face { font-family: 'Impact'; src: local('Impact'); font-weight: 400 900; font-style: normal; }
+  @font-face { font-family: 'Arial Black'; src: local('Arial Black'), local('ArialMT-Black'); font-weight: 400 900; font-style: normal; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #2F4A43; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #2F4A43; }
+  #stage { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  .copy { position: absolute; left: 72px; top: 48px; color: #EFE5D2; }
+  #title { margin: 0; font-family: Impact, "Arial Black", "Helvetica Neue", Arial, sans-serif; font-weight: 400;
+           font-size: 58px; letter-spacing: 2px; line-height: 1.05; text-shadow: 0 2px 0 rgba(20,32,28,0.55); }
+  #subtitle { margin: 10px 0 0 2px; font-family: "Courier New", Courier, monospace; font-weight: 700; font-size: 27px;
+              text-shadow: 0 1px 0 rgba(20,32,28,0.6); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="stage" width="1280" height="720"></canvas>
+  <div class="copy">
+    <h1 id="title">AN IDEA BECOMES</h1>
+    <p id="subtitle">a connected system — assembled</p>
+  </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="paper-scene.js"></script>
+<script>
+(function () {
+  var P = window.PaperCraftScene.PALETTE;
+  // Palette audit (chroma-js): cream text sits on the dark cutting-mat field.
+  window.__paletteAudit = {
+    titleOnMat: chroma.contrast(P.paper, P.mat),
+    inkOnPaper: chroma.contrast(P.ink, P.paper)
+  };
+
+  var scene = window.PaperCraftScene.createScene(document.getElementById('stage'));
+  // Single owner: every animated scene property lives on `state` and is tweened only by this timeline.
+  var state = { cardFold: 1, cardCurl: 0, s1: 0, s2: 0, s3: 0,
+                aW: 0, aL: 0, aT: 0, bW: 0, bL: 0, bT: 0, cW: 0, cL: 0, cT: 0 };
+  function draw() { scene.render(state); }
+
+  var tl = gsap.timeline({ paused: true, onUpdate: draw });
+  tl.set(state, { cardFold: 1, cardCurl: 0, s1: 0, s2: 0, s3: 0, aW: 0, aL: 0, aT: 0, bW: 0, bL: 0, bT: 0, cW: 0, cL: 0, cT: 0 }, 0);
+  tl.fromTo('#title', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 0.1);
+  // 1. The idea card opens on its crease (procedural arc-length fold), free corner curls then settles.
+  tl.to(state, { cardFold: 0, duration: 0.7, ease: 'power2.inOut' }, 0.15);
+  tl.to(state, { cardCurl: 0.2, duration: 0.35, ease: 'sine.inOut' }, 0.15);
+  tl.to(state, { cardCurl: 0, duration: 0.45, ease: 'sine.inOut' }, 0.5);
+  // 2. First box folds up from its flat net; walls, lid flaps, then seam tape.
+  tl.to(state, { aW: 1, duration: 0.5, ease: 'power2.inOut' }, 0.55);
+  tl.to(state, { aL: 1, duration: 0.4, ease: 'power2.out' }, 0.95);
+  tl.to(state, { aT: 1, duration: 0.2, ease: 'power2.out' }, 1.35);
+  // 3. Kraft strips unroll from paper coils to connect the parts.
+  tl.to(state, { s1: 1, duration: 0.5, ease: 'sine.inOut' }, 0.8);
+  tl.to(state, { s2: 1, duration: 0.5, ease: 'sine.inOut' }, 1.15);
+  tl.to(state, { s3: 1, duration: 0.5, ease: 'sine.inOut' }, 1.25);
+  // 4. Connected boxes assemble.
+  tl.to(state, { bW: 1, duration: 0.45, ease: 'power2.inOut' }, 1.25);
+  tl.to(state, { bL: 1, duration: 0.35, ease: 'power2.out' }, 1.6);
+  tl.to(state, { bT: 1, duration: 0.2, ease: 'power2.out' }, 1.95);
+  tl.to(state, { cW: 1, duration: 0.45, ease: 'power2.inOut' }, 1.4);
+  tl.to(state, { cL: 1, duration: 0.35, ease: 'power2.out' }, 1.75);
+  tl.to(state, { cT: 1, duration: 0.2, ease: 'power2.out' }, 2.1);
+  tl.fromTo('#subtitle', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 1.7);
+  // Settled by 2.3 s; hold the assembled system to 3.0 s.
+  tl.set({}, {}, 3);
+
+  // Redraw after any seek path (forward, backward, direct), even when callbacks are suppressed.
+  ['seek', 'time', 'totalTime', 'progress', 'totalProgress'].forEach(function (m) {
+    var orig = tl[m];
+    tl[m] = function () { var r = orig.apply(tl, arguments); if (arguments.length) draw(); return r; };
+  });
+  window.addEventListener('hf-seek', function (e) {
+    var t = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : null;
+    if (t !== null) tl.seek(t, false); else draw();
+  });
+  tl.seek(0, false);
+  draw();
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

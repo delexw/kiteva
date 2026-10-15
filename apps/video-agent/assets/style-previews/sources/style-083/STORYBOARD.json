@@ -1,0 +1,107 @@
+{
+  "version": 3,
+  "title": "An idea becomes a connected system — Stop-Motion Animation preview",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The idea lands",
+      "startSeconds": 0,
+      "endSeconds": 0.9,
+      "purpose": "Establish the handmade tabletop set and drop the idea, a yellow clay ball, onto it with weight.",
+      "visuals": [
+        "Flat sage-green painted card backdrop with a soft falloff; kraft corrugated card tabletop",
+        "Yellow clay ball lowered over 6 exposures, squash on contact, small rebound, settle",
+        "Digital title layer steps in on the exposure cadence; exposure-sheet strip fills one cell per ball key pose"
+      ],
+      "assets": [
+        "src/scene.js (procedural Three.js clay set, bundled to scene.bundle.js)",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.5,
+          "development": "Title lines step in (3 exposures each) while the clay ball drops from above frame into the set; its contact shadow tightens as it nears the card.",
+          "captions": ["An idea becomes", "a connected system.", "SC.04 — TK.2 — FRAME 0112/0240", "4 POSES · HELD ON TWOS"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.5,
+          "endSeconds": 0.9,
+          "development": "Contact exposure squashes the ball, one rebound exposure, then it settles at rest; the fourth strip cell fills.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.4
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "The system is built",
+      "startSeconds": 0.9,
+      "endSeconds": 2.4,
+      "purpose": "Show the idea connecting outward: rolled clay coils extend across the card and each coil is met by a clay block set down in place.",
+      "visuals": [
+        "Charcoal clay coils roll out over 6 exposures each with a rounded growing tip",
+        "Red, blue, cream and charcoal clay blocks lowered with a slight tilt, then a landing squash exposure"
+      ],
+      "assets": ["scene.bundle.js"],
+      "beats": [
+        {
+          "startSeconds": 0.9,
+          "endSeconds": 1.6,
+          "development": "Coil 1 runs from the ball to the red block (lands 1.17 s); coil 2 runs on to the blue block (lands 1.5 s).",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.6,
+          "endSeconds": 2.4,
+          "development": "Coil 3 reaches the cream block (lands 1.83 s); coil 4 loops from the ball to the front charcoal block (lands 2.17 s); the last squash resolves by 2.33 s and the slate counter stops.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Hold on the connected system",
+      "startSeconds": 2.4,
+      "endSeconds": 3,
+      "purpose": "Settled reading hold of the finished network and the headline.",
+      "visuals": ["Static final set: ball, four blocks, four coils, contact shadows, title and strip"],
+      "assets": ["scene.bundle.js"],
+      "beats": [
+        {
+          "startSeconds": 2.4,
+          "endSeconds": 3,
+          "development": "No movement; full composition legible and settled.",
+          "captions": ["An idea becomes", "a connected system."],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.6
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Poses are evaluated at 12 exposures per second (held on twos at 24) inside a 30 fps delivery, so each pose is held for 2–3 encoded frames.",
+      "The headline is fully legible by 0.42 s and stays fully legible through 3.0 s.",
+      "One primary action at a time: ball drop, then one coil plus block per 0.33 s step, read left to right then front.",
+      "All foreground motion ends by 2.33 s, before the 2.7 s settle requirement."
+    ],
+    "justifiedHolds": [
+      "2.4–3.0 s final hold lets the viewer read the completed network and headline together."
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, effects, voice or audio track.",
+    "Digital simulation of stop motion (Three.js WebGL, exposure-quantized poses); not photographed frames.",
+    "STYLE.json lists no tech.preview_recipes, so no reviewed recipe is demonstrated; the refresh is in the source-frame palette and material lessons."
+  ]
+}

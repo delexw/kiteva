@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-081",
+    "name": "Traditional Cel Animation. This is a supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Fixed backgrounds, layered character drawings, consistent linework, flat fills and shadow shapes. Motion comes from distinct drawings with clean transparent compositing. Digital output must be described as a simulated cel look, not photographed physical cels. It is distinct from cel-shaded 3D rendering.",
+    "suitableUses": "Explicit: character-led scenes on simple backgrounds. Hybrids are suggested for painted environments or multiplane depth. Listed best fits are character shorts, title sequences and nostalgic narrative pieces. Other uses are inferred from the visual rules and are not verified.",
+    "limitations": "Digital output is a simulation, so physical-production claims are unsupported. The style is not 3D, and multiplane hybrids must not be called full 3D. Simulated physics is not validated, so stateful simulations must be cached. Motion references need suitable facial layers or a rig, and choosing none is valid.",
+    "palette": "Optional example tokens, not canonical: background #F6EDD8, foreground #263746, accent_1 #718E9D, accent_2 #BE795F. Use four discrete colors with gradients disabled. Foreground on background gives 10.495 contrast for body text. Accents (about 3.5 contrast) are decorative only. Task or approved colors override these, and assets must not be recolored.",
+    "motionAndInteraction": "Motion uses planned drawing exposures and held states, with no automatic in-betweens, springs or bounce. Delivery frame rate may exceed exposure rate. Keep line-boil cadence and whole-pixel placement. Six optional catalog motions apply only when scene assets support them. Video output must stay independent of live pointer, scroll or keyboard input.",
+    "audio": "The style sets no genre, tempo, voice or mandatory audio layer. Propose audio from the topic, audience and storyboard, and honor explicit requirements and supplied assets. Do not silently default to instrumental music or invent assets. Music timing requires real audio analysis. Verify speech intelligibility, balance and clipping in the final video.",
+    "assetRequirements": "Use layered drawn frames or numbered PNG sequences with alpha, consistent dimensions and clear naming, plus a layer manifest. Krita is the suggested drawing and export tool. Load local fonts and assets before rendering. Inspect every asset and do not invent copy or brand marks. State any missing assets explicitly.",
+    "combinations": "Style-039 gouache plates may serve as backgrounds, gouache only, while character cels keep flat fills without brush texture. Style-101 restrained multiplane parallax may move background layers, with characters locked to their ground layer and extra artwork beyond the crop. Oil impasto and full 3D are excluded from these combinations.",
+    "productionApproach": "{{render_pipeline}} resolves to HyperFrames, which handles composition, timing and export only. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists, and that reason must be recorded. Drawn layers are the style renderer, and PixiJS is an optional 2D renderer that repaints explicitly on seek. Verify key frames, full playback, audio sync and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

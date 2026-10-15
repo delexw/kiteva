@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-136",
+    "name": "Manga Production Theatre",
+    "visualIdentity": "Application-authored backstage manga, mostly black and white, staged as one continuous film set. White round-headed, faceless, short-bodied crew with pointed feet, bold ink outlines, halftone scenery, a persistent director and shadowed presentation board define the look.",
+    "suitableUses": "Explicitly designed for narrated or illustrated explainers and production-process storytelling. The style supports video and a bounded, naturally scrolling interactive viewer; suitability beyond those contexts is inferred.",
+    "limitations": "Keep the director, board and crew legible in distinct zones; stack zones on narrow layouts. Preserve the faceless silhouette without jointed limbs. Add specialist crew only for recorded cues, and never imply real production footage. Opening title is optional and opening-only; no per-scene title cards.",
+    "palette": "For new art: white paper #FFFFFF, dark ink #151515 and halftone; gradients are disabled. #F47B45 is restricted to small activity signals: progress, working dots, brief dialogue-change underlines, equipment indicators and optional opening accents. No orange body text, permanent reaction rays or large washes; preserve approved asset and brand colors.",
+    "motionAndInteraction": "Backgrounds and boards travel right to left; crew take individually timed trips, work, return and settle for readable holds. Idle crew stay still; actions and reactions follow recorded cues, not every beat. Use a deterministic seekable clock for dialogue, status and motion. Interactive viewer may scroll and scrub with hidden scrollbar chrome; preserve scrolling and reduced-motion access.",
+    "audio": "Audio is optional and task-specific: documentary narration, unobtrusive instrumental music or silence may fit. Synchronize only to verified timing; no automatic ding per word or reveal. Silent catalog previews are specified. Audio assets and final mix are unspecified.",
+    "assetRequirements": "Storyboard JSON provides timed scene and beat cues; derive crew tasks from actual props, captions, camera moves, lighting and sound cues. Preserve supplied imagery and exact copy. No particular upload is mandatory; use no unsupported specialist or invented audible speech. Specific asset inventory is unspecified.",
+    "combinations": "Keep this comic dominant. Optional style-024 handwritten director annotations suit tutorials and process explainers; reveal only when useful and keep accessible text beside interactive artwork. Avoid dense notes over the board or replacing the characters and ink treatment.",
+    "productionApproach": "HTML/CSS owns comic layout; SVG may refine contours and equipment. Halftone is authored separately; Rough.js is optional for seeded, cached sketch accents, PixiJS for complex scrolling worlds, and Matter.js only for baked physical props. GSAP owns seekable motion; Anime.js is an optional verified alternative. HyperFrames owns composition/export; Remotion only for a documented limitation. Keep one owner per property and verify direct and reverse seeks."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

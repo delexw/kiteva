@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Idea Connected",
+  "displayDescription": "Night editorial: a typed serif headline and an amber hub that grows into a ringed system of connected nodes on an ink-navy field.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "HTML/CSS",
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP (single paused seekable timeline at window.__timelines.video)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track; no music, voice or sound effects were created.",
+  "limitations": [
+    "Source-frame refresh: the scene now uses an ink-navy field (#0B1220) with a stationary cool steel radial glow and a faint dot grid. Hero type is bone (#EDE8DF), secondary text is steel (#93A1B6) and amber (#C9974C) is kept for the eyebrow, caret, rule and hub. The previous ivory, brown and taupe swatch was only a suggestion and is not used.",
+    "STYLE.json tech.preview_recipes is empty, so no named recipe is shown. The refresh shows techniques from BACKGROUND_REVIEW.json: a typed serif line led by an accent caret that disappears when the line completes; a lockup built in order (eyebrow, headline, rule growing from its anchor, then supporting copy); and a low-contrast ambient ring of tracked words that appears only after its frame is drawn. The source subjects, brand and wording are not copied.",
+    "Motion (motion.dev) was reviewed as the motion engine, but its seek integration with the HyperFrames GSAP timeline contract has not been verified. Following the style's integration guidance, GSAP is the only animation owner, so Motion is not used.",
+    "Fonts are local system faces (Didot/Bodoni 72, falling back to Georgia; SF Mono/Menlo). No webfont files are bundled, so glyphs may differ on hosts without these faces.",
+    "Lighting is a flat procedural approximation: deterministic CSS radial gradients and an SVG radial-gradient disc. There is no physical light, material or depth simulation. Parallax is limited to two transform layers (diagram push and text counter-drift).",
+    "Rendering and browser QA were not run by the agent; the host runs them."
+  ]
+}

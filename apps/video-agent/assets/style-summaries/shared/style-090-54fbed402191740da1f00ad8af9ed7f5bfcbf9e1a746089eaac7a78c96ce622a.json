@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-090",
+    "name": "Rotoscoping, a supplemental Animation Techniques design reference that the source collection does not name directly.",
+    "visualIdentity": "Frame-by-frame tracing or reconstruction of actual filmed movement, using consistent contours, fills and simplification rules that preserve weight and proportions. Random edge changes, generated motion or ordinary filters do not qualify.",
+    "suitableUses": "Explicitly, realistic traced motion built from verified live-action footage. Inferred from the listed combinations: music videos, documentary vignettes, editorial films, and sports or dance analysis with explanatory overlays.",
+    "limitations": "Requires a verified live-action reference; if footage is absent, the gap must be reported. No dedicated renderer is listed. Python or OpenCV assistance does not by itself prove tracing occurred. A simulated look is not photographed production.",
+    "palette": "Background is scene-dependent. The example swatches #F1EBDD background, #314249 foreground and #9D8A72 accent are optional, not approved colors, and gradients are disabled. Foreground on background measures 8.807:1; accent-background text measures 3.146:1 and is decorative only. Task-approved colors override these.",
+    "motionAndInteraction": "Motion comes from the traced footage rather than a preset, and stop-motion stepping is not implied by the style name. Optional motion-012 chapter handoff and motion-015 narrative steps apply only if the scene's action supports them. Video uses composition time; scroll or keyboard control is interactive-only.",
+    "audio": "The source leaves audio unspecified and imposes no mandatory layer. Inferred suggestions: music for music videos and editorial films, voiceover for explanatory analysis with speech-safe space, and silence or restrained accents around reading holds. Tempo and voice are unspecified.",
+    "assetRequirements": "Verified live-action footage, prepared as numbered transparent frames or layers with consistent dimensions and clear names. Krita can export numbered PNG sequences. Local fonts and assets must load before rendering, and any audio must be supplied or authorized.",
+    "combinations": "Riso fill (style-049): #314249 and #9D8A72 as the only two inks on #F1EBDD, with fixed grain and registration offset and no third ink. Motion-path overlay (style-109): thin #9D8A72 trajectory and angle marks derived from traced positions, never obscuring the figure. Use alone for realistic traced motion.",
+    "productionApproach": "HyperFrames owns composition, timing, audio sync, validation and export; Remotion is a fallback only for a verified limitation. Tracing or reconstruction owns visuals and motion, with Krita optional for drawing. GSAP paused timelines can drive motion, and chroma-js checks contrast on composited frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

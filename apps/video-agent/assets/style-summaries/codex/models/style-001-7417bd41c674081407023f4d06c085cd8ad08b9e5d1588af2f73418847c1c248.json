@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-001",
+    "name": "International Typographic Style (Swiss Style)",
+    "visualIdentity": "Supplemental reference, not a style explicitly named in the source collection. Asymmetric, spacious layouts use column grids, baseline alignment, repeated spacing, left-aligned sans-serif type, clear scale hierarchy, and grid-aligned photography.",
+    "suitableUses": "Explicitly suggested for posters, identity, typographic statements, UI and product storytelling, editorial layouts, motion posters, and concise data explanations. Suitability for video and interactive HTML is inferred from the layout and motion guidance.",
+    "limitations": "Can feel forced without a meaningful typographic or narrative structure. Keep hierarchy and reading order clear; avoid motion that hides essential copy. Photography and exact font choices are not specified. The suggested palette is not canonical and yields to supplied or approved colors.",
+    "palette": "Suggested tokens: white background #FFFFFF, black foreground #000000, and one restrained red accent #D32F2F. Use discrete colors, no gradient; keep red subordinate and preserve roles. Exact task, brand, or approved source colors take precedence. Recheck contrast on actual compositions.",
+    "motionAndInteraction": "Move type and SVG geometry along horizontal or vertical layout axes; settle on shared grid alignments without disrupting reading order. Use purposeful holds and style-appropriate cuts or easing. For video, derive every state from seekable composition time. Interactive HTML may adapt layout to scroll or controls, with accessible reading order and reduced-motion states.",
+    "audio": "No fixed genre, voice, tempo, or required audio layer. Choose music, narration, effects, ambience, or silence for the topic and audience; supplied audio and explicit requirements take precedence. Audio creation capability is unspecified.",
+    "assetRequirements": "No mandatory uploads are specified. Use loaded sans-serif fonts and, when useful, photography aligned to the grid; preserve supplied assets and colors. SVG supports scalable geometry, masks, and crops. Do not imply photographs or audio were created when they were not.",
+    "combinations": "Suggested: style-097 data diagrams/charts for verified figures, constrained to the same three colors and grid; style-093 kinetic typography for titles and statements, with one sans-serif family and no bounce. Motion references are optional: use only when actual scene elements support them; punctuation zoom requires real punctuation or an approved mark.",
+    "productionApproach": "Build typography with HTML/CSS Grid and SVG, aligning geometry to the baseline grid. GSAP is the primary suggested seekable motion engine; synchronize optional Motion explicitly. HyperFrames owns composition, timing, media/audio sync, validation, and export; Remotion is only a documented fallback if HyperFrames is unavailable or cannot meet a verified requirement. Keep visual and motion work independent of the export pipeline."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

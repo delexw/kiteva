@@ -1,0 +1,271 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Squash and Stretch — An idea lands and connects</title>
+<style>
+  html,body{margin:0;padding:0;width:1280px;height:720px;overflow:hidden;background:#E3EAE9}
+  #root{position:relative;width:100%;height:100%}
+  #root svg{width:100%;height:100%;display:block}
+  /* Squash layer: pivot on the contact point (bottom centre).
+     rotate · scale(1/s, s) · skewX(k): every factor has determinant 1, so sx·sy = 1 (area preserved). */
+  .squash{
+    --s:1;--r:0;--k:0;
+    transform-box:fill-box;
+    transform-origin:50% 100%;
+    transform:rotate(calc(var(--r) * 1deg)) scale(calc(1 / var(--s)), var(--s)) skewX(calc(var(--k) * 1deg));
+  }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <!-- Cool icy studio sweep: desaturated, lighter than the jelly actors -->
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#DCE4E4"/>
+      <stop offset="1" stop-color="#EEF2F1"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D8E0DF"/>
+      <stop offset="1" stop-color="#C9D4D3"/>
+    </linearGradient>
+    <pattern id="dots" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="20" cy="20" r="2.2" fill="#32444A" opacity=".06"/>
+    </pattern>
+    <!-- Jelly materials (teal ball, clay block): lit core, saturated body, dark rim -->
+    <radialGradient id="jelly-teal" cx=".36" cy=".3" r=".8">
+      <stop offset="0" stop-color="#A9D1C8"/>
+      <stop offset=".45" stop-color="#66978E"/>
+      <stop offset="1" stop-color="#3C6A62"/>
+    </radialGradient>
+    <radialGradient id="jelly-clay" cx=".34" cy=".28" r=".85">
+      <stop offset="0" stop-color="#EDBFA2"/>
+      <stop offset=".45" stop-color="#C78461"/>
+      <stop offset="1" stop-color="#94563A"/>
+    </radialGradient>
+    <!-- Coloured light spilling onto the floor -->
+    <radialGradient id="glow-teal"><stop offset="0" stop-color="#66978E" stop-opacity=".6"/><stop offset="1" stop-color="#66978E" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glow-clay"><stop offset="0" stop-color="#C78461" stop-opacity=".6"/><stop offset="1" stop-color="#C78461" stop-opacity="0"/></radialGradient>
+    <mask id="trail-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720">
+      <path id="trail-rise" d="M190 508Q365 198 540 198" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+      <path id="trail-fall" d="M540 198Q722.5 198 905 508" fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+    </mask>
+  </defs>
+
+  <!-- Stationary set -->
+  <rect width="1280" height="720" fill="#E3EAE9"/>
+  <rect width="1280" height="560" fill="url(#wall)"/>
+  <rect width="1280" height="560" fill="url(#dots)"/>
+  <rect x="0" y="560" width="1280" height="160" fill="url(#floor)"/>
+  <path d="M60 560H1220" fill="none" stroke="#32444A" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Floor light + contact shadows: follow their body's x; scale with height -->
+  <g id="ball-floor"><g id="ball-floor-s">
+    <ellipse cx="0" cy="566" rx="120" ry="20" fill="url(#glow-teal)"/>
+    <ellipse cx="0" cy="562" rx="44" ry="6" fill="#32444A" opacity=".2"/>
+  </g></g>
+  <g id="block-floor"><g id="block-floor-s">
+    <ellipse cx="0" cy="566" rx="140" ry="22" fill="url(#glow-clay)"/>
+    <ellipse cx="0" cy="562" rx="62" ry="6" fill="#32444A" opacity=".2"/>
+  </g></g>
+
+  <!-- Dotted trajectory, revealed behind the ball -->
+  <path d="M190 508Q365 198 540 198Q722.5 198 905 508" fill="none" stroke="#32444A" stroke-width="3" stroke-dasharray="4 12" stroke-linecap="round" opacity=".7" mask="url(#trail-mask)"/>
+
+  <!-- System connections (stroked, unfilled: drawn on), behind the bodies -->
+  <g fill="none" stroke="#32444A" stroke-width="4" stroke-linecap="round">
+    <path id="link-1" d="M935 508L1080 504"/>
+    <path id="link-2" d="M935 508L1010 392"/>
+    <path id="link-3" d="M1010 392L1080 504"/>
+    <path id="link-4" d="M1080 504L1170 380"/>
+    <path id="link-5" d="M1010 392L1170 380"/>
+  </g>
+
+  <!-- Body 1: teal jelly ball. outer = translation (contact point), inner = squash about contact -->
+  <g id="ball-move">
+    <g id="ball-squash" class="squash">
+      <path id="ball-body" fill="url(#jelly-teal)" stroke="#3C6A62" stroke-width="3"/>
+      <ellipse cx="0" cy="-20" rx="30" ry="12" fill="#A9D1C8" opacity=".45"/>
+      <path d="M-30 -70Q-24 -90 -2 -94" fill="none" stroke="#F4EDDF" stroke-width="8" stroke-linecap="round" opacity=".95"/>
+      <circle cx="18" cy="-88" r="4" fill="#F4EDDF" opacity=".9"/>
+    </g>
+  </g>
+
+  <!-- Body 2: clay jelly block -->
+  <g id="block-move">
+    <g id="block-squash" class="squash">
+      <path id="block-body" fill="url(#jelly-clay)" stroke="#94563A" stroke-width="3"/>
+      <ellipse cx="0" cy="-22" rx="44" ry="13" fill="#EDBFA2" opacity=".4"/>
+      <path d="M-46 -84Q-44 -98 -26 -100" fill="none" stroke="#F4EDDF" stroke-width="8" stroke-linecap="round" opacity=".95"/>
+      <path d="M-50 -60L-50 -40" fill="none" stroke="#F4EDDF" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+    </g>
+  </g>
+
+  <!-- Network nodes (small jellies) -->
+  <g transform="translate(1010 392)"><g id="node-1">
+    <circle r="16" fill="url(#jelly-teal)" stroke="#3C6A62" stroke-width="3"/>
+    <path d="M-8 -5Q-6 -10 0 -11" fill="none" stroke="#F4EDDF" stroke-width="3" stroke-linecap="round"/>
+  </g></g>
+  <g transform="translate(1170 380)"><g id="node-2">
+    <circle r="16" fill="url(#jelly-clay)" stroke="#94563A" stroke-width="3"/>
+    <path d="M-8 -5Q-6 -10 0 -11" fill="none" stroke="#F4EDDF" stroke-width="3" stroke-linecap="round"/>
+  </g></g>
+
+  <!-- Copy -->
+  <g font-family="Trebuchet MS,Verdana,sans-serif" fill="#32444A">
+    <text x="64" y="96" font-size="50" font-weight="700">An idea lands —</text>
+    <text x="64" y="150" font-size="50" font-weight="700">and connects.</text>
+    <text x="1216" y="64" font-size="13" font-weight="700" letter-spacing="2" text-anchor="end">FIG. 01 — SOFT-BODY APPROXIMATION</text>
+  </g>
+  <path id="underline" d="M66 172Q220 182 372 168" fill="none" stroke="#C78461" stroke-width="6" stroke-linecap="round"/>
+  <g font-family="Trebuchet MS,Verdana,sans-serif" font-size="14" font-weight="700" letter-spacing="3" text-anchor="middle" fill="#32444A">
+    <text x="190" y="612">ANTICIPATE</text>
+    <text x="330" y="612">STRETCH</text>
+    <text x="540" y="612">HANG</text>
+    <text x="780" y="612">STRETCH</text>
+    <text x="905" y="612">IMPACT</text>
+    <text x="1080" y="612">SETTLE</text>
+  </g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const n = v => v.toFixed(2);
+  const K = 0.5523;
+
+  // Contact-aware silhouettes. f = contact flattening (0 round, 1 pressed flat on the floor).
+  // Same command structure for every f, so GSAP interpolates the path numbers directly.
+  function ballD(f){
+    const R = 52, h = K*R, c = -R;
+    const side = h*(1 - 0.6*f), base = h*(1 + 0.7*f);
+    return 'M0 '+n(-2*R)+'C'+n(h)+' '+n(-2*R)+' '+n(R)+' '+n(c-h)+' '+n(R)+' '+n(c)+
+      'C'+n(R)+' '+n(c+side)+' '+n(base)+' 0 0 0'+
+      'C'+n(-base)+' 0 '+n(-R)+' '+n(c+side)+' '+n(-R)+' '+n(c)+
+      'C'+n(-R)+' '+n(c-h)+' '+n(-h)+' '+n(-2*R)+' 0 '+n(-2*R)+'Z';
+  }
+  function blockD(f){
+    const x0 = -68, x1 = 68, y0 = -112, y1 = 0;
+    const rt = 30 + 10*f, rb = 30 - 18*f, kt = K*rt, kb = K*rb;
+    return 'M'+n(x0+rt)+' '+n(y0)+'L'+n(x1-rt)+' '+n(y0)+
+      'C'+n(x1-rt+kt)+' '+n(y0)+' '+n(x1)+' '+n(y0+rt-kt)+' '+n(x1)+' '+n(y0+rt)+
+      'L'+n(x1)+' '+n(y1-rb)+
+      'C'+n(x1)+' '+n(y1-rb+kb)+' '+n(x1-rb+kb)+' '+n(y1)+' '+n(x1-rb)+' '+n(y1)+
+      'L'+n(x0+rb)+' '+n(y1)+
+      'C'+n(x0+rb-kb)+' '+n(y1)+' '+n(x0)+' '+n(y1-rb+kb)+' '+n(x0)+' '+n(y1-rb)+
+      'L'+n(x0)+' '+n(y0+rt)+
+      'C'+n(x0)+' '+n(y0+rt-kt)+' '+n(x0+rt-kt)+' '+n(y0)+' '+n(x0+rt)+' '+n(y0)+'Z';
+  }
+
+  const ball = $('ball-move'), ballSq = $('ball-squash'), ballBody = $('ball-body');
+  const block = $('block-move'), blockSq = $('block-squash'), blockBody = $('block-body');
+  const ballFloor = $('ball-floor'), ballFloorS = $('ball-floor-s');
+  const blockFloor = $('block-floor'), blockFloorS = $('block-floor-s');
+  ballBody.setAttribute('d', ballD(0));
+  blockBody.setAttribute('d', blockD(0));
+
+  // Text contrast against the actual local fields, using the resolved scene palette
+  [['#32444A','#DCE4E4'],['#32444A','#EEF2F1'],['#32444A','#D8E0DF'],['#32444A','#C9D4D3']].forEach(([fg,bg]) => {
+    if (chroma.contrast(fg,bg) < 4.5) throw new Error('Text contrast below 4.5 on '+bg);
+  });
+
+  const tl = gsap.timeline({paused:true});
+  const at = (target, vars, pos) => tl.to(target, Object.assign({}, vars), pos);
+  const IMPACT = 1/1.3;
+
+  // Rest poses
+  gsap.set([ball, ballFloor], {x:190});
+  gsap.set(ball, {y:560});
+  gsap.set([block, blockFloor], {x:1150});
+  gsap.set(block, {y:560});
+  gsap.set([ballSq, blockSq], {'--s':1, '--r':0, '--k':0});
+  gsap.set([ballFloorS, blockFloorS], {svgOrigin:'0 564', scale:1, opacity:1});
+
+  // ---------- Ball cycle 0 – 1.6s ----------
+  at(ballSq, {'--s':0.85, duration:0.22, ease:'power2.out'}, 0);                 // anticipation
+  at(ballBody, {attr:{d:ballD(0.5)}, duration:0.22, ease:'power2.out'}, 0);
+  at(ballBody, {attr:{d:ballD(0)}, duration:0.08, ease:'power2.out'}, 0.22);
+  at(ballSq, {'--s':1.25, '--r':18, duration:0.08, ease:'power2.out'}, 0.22);    // launch stretch along velocity
+  at([ball, ballFloor], {x:540, duration:0.40, ease:'none'}, 0.26);
+  at(ball, {y:250, duration:0.40, ease:'power2.out'}, 0.26);
+  at([ball, ballFloor], {x:905, duration:0.42, ease:'none'}, 0.66);
+  at(ball, {y:560, duration:0.42, ease:'power2.in'}, 0.66);
+  at(ballFloorS, {scale:0.45, opacity:0.35, duration:0.40, ease:'power2.out'}, 0.26);
+  at(ballFloorS, {scale:1, opacity:1, duration:0.42, ease:'power2.in'}, 0.66);
+  at(ballSq, {'--s':1, '--r':0, duration:0.20, ease:'sine.inOut'}, 0.36);        // hang: round near apex
+  at(ballSq, {'--s':1.25, '--r':-18, duration:0.28, ease:'power2.in'}, 0.76);    // fall stretch
+  at(ballSq, {'--s':IMPACT, '--r':0, duration:0.05, ease:'power2.out'}, 1.08);   // impact sx 1.3, sy 1/1.3
+  at(ballBody, {attr:{d:ballD(1)}, duration:0.05, ease:'power2.out'}, 1.08);
+  at(ballBody, {attr:{d:ballD(0)}, duration:0.08, ease:'power2.out'}, 1.13);
+  at(ballSq, {'--s':1.1, duration:0.05, ease:'power2.out'}, 1.13);                // rebound
+  at(ballSq, {'--s':1, duration:0.10, ease:'sine.inOut'}, 1.18);
+  at([ball, ballFloor], {x:935, duration:0.14, ease:'none'}, 1.16);
+  at(ball, {y:528, duration:0.07, ease:'power2.out'}, 1.16);
+  at(ball, {y:560, duration:0.07, ease:'power2.in'}, 1.23);
+  at(ballSq, {'--s':0.9, duration:0.04, ease:'power2.out'}, 1.30);                // soft landing
+  at(ballBody, {attr:{d:ballD(0.4)}, duration:0.04, ease:'power2.out'}, 1.30);
+  at(ballSq, {'--s':1, duration:0.06, ease:'power2.out'}, 1.34);                  // settle
+  at(ballBody, {attr:{d:ballD(0)}, duration:0.06, ease:'power2.out'}, 1.34);
+  // 1.40 – 1.60 ball holds still while the block takes over
+
+  const trail = [$('trail-rise'), $('trail-fall')];
+  trail.forEach(p => { const L = p.getTotalLength(); gsap.set(p, {strokeDasharray:L, strokeDashoffset:L}); });
+  at(trail[0], {strokeDashoffset:0, duration:0.40, ease:'power2.out'}, 0.26);
+  at(trail[1], {strokeDashoffset:0, duration:0.42, ease:'power2.in'}, 0.66);
+
+  // ---------- Block hop 1.4 – 2.6s (heavier, lower, slower settle) ----------
+  at(blockSq, {'--s':0.85, duration:0.18, ease:'power2.out'}, 1.40);
+  at(blockBody, {attr:{d:blockD(0.5)}, duration:0.18, ease:'power2.out'}, 1.40);
+  at(blockBody, {attr:{d:blockD(0)}, duration:0.06, ease:'power2.out'}, 1.58);
+  at(blockSq, {'--s':1.25, '--r':-12, duration:0.06, ease:'power2.out'}, 1.58);
+  at([block, blockFloor], {x:1080, duration:0.40, ease:'none'}, 1.62);
+  at(block, {y:440, duration:0.20, ease:'power2.out'}, 1.62);
+  at(block, {y:560, duration:0.20, ease:'power2.in'}, 1.82);
+  at(blockFloorS, {scale:0.7, opacity:0.5, duration:0.20, ease:'power2.out'}, 1.62);
+  at(blockFloorS, {scale:1, opacity:1, duration:0.20, ease:'power2.in'}, 1.82);
+  at(blockSq, {'--s':1, '--r':0, duration:0.14, ease:'sine.inOut'}, 1.66);
+  at(blockSq, {'--s':1.2, '--r':10, duration:0.16, ease:'power2.in'}, 1.84);
+  at(blockSq, {'--s':IMPACT, '--r':0, duration:0.05, ease:'power2.out'}, 2.02);   // impact
+  at(blockBody, {attr:{d:blockD(1)}, duration:0.05, ease:'power2.out'}, 2.02);
+  // damped jelly settle: base stays planted, top lags (area-preserving shear)
+  at(blockBody, {attr:{d:blockD(0)}, duration:0.14, ease:'sine.out'}, 2.07);
+  at(blockSq, {'--s':1.12, '--k':7, duration:0.11, ease:'sine.inOut'}, 2.07);
+  at(blockSq, {'--s':0.94, '--k':-4, duration:0.12, ease:'sine.inOut'}, 2.18);
+  at(blockSq, {'--s':1.03, '--k':1.5, duration:0.12, ease:'sine.inOut'}, 2.30);
+  at(blockSq, {'--s':1, '--k':0, duration:0.12, ease:'sine.inOut'}, 2.42);
+
+  // ---------- Connections 2.05 – 2.6s ----------
+  ['node-1','node-2'].forEach(id => gsap.set($(id), {svgOrigin:'0 0', scale:0}));
+  at($('node-1'), {scale:1, duration:0.30, ease:'back.out(1.7)'}, 2.05);
+  at($('node-2'), {scale:1, duration:0.30, ease:'back.out(1.7)'}, 2.15);
+  [['link-1',2.05],['link-2',2.10],['link-3',2.20],['link-4',2.25],['link-5',2.30]].forEach(([id,start]) => {
+    const p = $(id), L = p.getTotalLength();
+    gsap.set(p, {strokeDasharray:L, strokeDashoffset:L});
+    at(p, {strokeDashoffset:0, duration:0.30, ease:'power2.inOut'}, start);
+  });
+  const ul = $('underline'), ulL = ul.getTotalLength();
+  gsap.set(ul, {strokeDasharray:ulL, strokeDashoffset:ulL});
+  at(ul, {strokeDashoffset:0, duration:0.45, ease:'power2.inOut'}, 2.15);
+
+  tl.to({}, {duration:0.001}, 2.999);
+
+  // ---------- Volume check: sx·sy ≈ 1 at sampled seeks ----------
+  const det = el => { const m = new DOMMatrix(getComputedStyle(el).transform); return m.a*m.d - m.b*m.c; };
+  [0, 0.11, 0.24, 0.5, 0.9, 1.1, 1.15, 1.32, 1.5, 1.7, 1.95, 2.04, 2.1, 2.2, 2.35, 2.5, 2.9].forEach(t => {
+    tl.seek(t, true);
+    [ballSq, blockSq].forEach(el => {
+      const d = det(el);
+      if (!(Math.abs(d - 1) < 0.01)) throw new Error('Volume check failed at '+t+'s: sx*sy='+d);
+    });
+  });
+  tl.seek(0, true);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

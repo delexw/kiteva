@@ -1,0 +1,23 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent. No music, voiceover or sound effects.",
+  "limitations": [
+    "Illustrative procedural scene: 'holographic light' is approximated solely by scanline density (integer line spacing 2-9 px); no physical light transport, blur, bloom or particles.",
+    "Density shifts are quantised to integer row spacings, so light changes step rather than glide (intentional for pixel-aligned crispness).",
+    "Backing store fixed at DPR 1 to keep 1px rows pixel-exact; on high-DPI displays the canvas is upscaled by CSS.",
+    "Path lengths for contour reveal come from an offscreen SVG getTotalLength; requires a DOM browser runtime.",
+    "Copy is rendered as DOM overlays in Menlo/Consolas/monospace system fonts; exact glyph metrics vary by platform.",
+    "Captions and the IDEA label are DOM text overlays above the Canvas 2D scene (accessibility tradeoff from the technology review); all scene geometry is Canvas 2D."
+  ]
+}

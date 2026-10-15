@@ -1,0 +1,31 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Connected Collage",
+  "displayDescription": "Ransom-note paper chips spell an idea. A taped paper bulb, hinged label cards and chalk connectors assemble a system on a slate board.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "PixiJS 8.22.0 WebGL (cut-paper pieces: shared seeded paper-fibre texture, blurred contact shadows, explicit pivots; local esbuild bundle scene.bundle.js)",
+    "Rough.js 4.6.6 SVG generator (seeded hand-inked strokes and dashed chalk connectors)",
+    "SVG (ransom-note letter chips sharing the same paper texture as a pattern; handwritten labels)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline at window.__timelines.video. It is the single owner of every animated value: a state proxy for the PixiJS pieces, plus transforms, stroke-dashoffset and clip widths for the SVG layers. PixiJS redraws from that state on timeline update and on hf-seek."
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Illustrative procedural scene. The paper grain is a seeded noise texture, the contact shadows are blurred offset silhouettes, and paper lift is approximated by scale plus shadow offset. There is no physical lighting or paper simulation.",
+    "The label-slip hinge is a 2D scaleY fold about the slip's top edge, not a true 3D fold.",
+    "Typefaces are macOS system fonts (Georgia, Futura, Bradley Hand, Courier New, American Typewriter, Didot) with generic fallbacks, so glyph shapes vary by machine.",
+    "Blender was not used, at the user's instruction. PixiJS, Rough.js, SVG and GSAP are installed locally and need no installs.",
+    "The bundle contains library code paths for Math.random and requestAnimationFrame. They are unused: every Rough.js drawable has a fixed seed, and the PixiJS ticker is stopped (autoStart false), so rendering happens only on timeline update or seek.",
+    "PixiJS initialisation is async, so the timeline is registered after it completes. HyperFrames polls for window.__timelines.",
+    "Source evidence covers sampled seconds only. Source subjects, wording and colours were not copied.",
+    "The handwriting families (Bradley Hand, Chalkboard SE, Comic Sans MS) are declared with @font-face src: local() for the OS-bundled macOS fonts. No font files are shipped, so a renderer without them falls back to a generic cursive."
+  ]
+}

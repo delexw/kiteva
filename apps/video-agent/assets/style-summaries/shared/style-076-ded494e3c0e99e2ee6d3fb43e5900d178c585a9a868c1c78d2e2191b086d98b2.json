@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-076",
+    "name": "Neumorphism: a supplemental design reference, not a directly named source style, in the Digital and 3D Aesthetics category.",
+    "visualIdentity": "Soft UI with raised or inset surfaces near the background color, paired soft highlights and shadows in one light direction, and restrained color with clear state differences.",
+    "suitableUses": "Explicitly suited to simple control panels and walkthroughs of settings, smart-home or audio controls. Hybrid dashboards suit supplied energy, health or device values. Other uses are inferred.",
+    "limitations": "Low-contrast depth can weaken edges and controls, so text and boundaries need separate checks. Shadows alone must not carry state; pair them with color or labels. Do not slide whole screens or invent copy or data.",
+    "palette": "Background is scene-dependent; #E7EBED is only an illustrative swatch. Suggested, unapproved tokens are foreground #303D49 (9.264:1, text-safe) and accent #506F86 (4.421:1, decorative only). Gradients are disabled.",
+    "motionAndInteraction": "Core motion is press and release plus depth and shadow changes that keep contrast. Interactive states use aria-pressed, #506F86 focus rings and reduced-motion instant changes. Five optional catalog patterns apply only when the scene supports them.",
+    "audio": "The style specifies no audio. Music, voiceover, sound accents, ambience or silence are optional suggestions. User choices and supplied assets override them; absent inputs need stated assumptions, not invented assets.",
+    "assetRequirements": "No uploads are required. Subject, copy, duration, aspect, resolution, frame rate and output path are unspecified here. Load local fonts and assets before rendering. PhotoSwipe needs accurate image dimensions only for web galleries.",
+    "combinations": "Style-095 suits settings, smart-home or audio UIs where each press causes the next state. Style-097 suits supplied data in inset wells with flat #506F86 marks. Neumorphism alone suits simple control panels.",
+    "productionApproach": "Default pipeline is HyperFrames, using one paused GSAP timeline registered in window.__timelines, then check, snapshot and render. Remotion is fallback only for a documented limitation. HTML/CSS renders surfaces; optional Motion animates DOM layers; chroma-js checks contrast. Do not mix framework APIs."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

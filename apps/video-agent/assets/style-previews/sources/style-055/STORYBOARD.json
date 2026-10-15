@@ -1,0 +1,72 @@
+{
+  "version": 3,
+  "title": "Sticker Collage: From one spark to a whole network",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Spark to system",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Show an idea sticker becoming a connected system of die-cut stickers on one flat dark dot-grid surface.",
+      "visuals": [
+        "Stationary ink-navy (#13222A) field with a faint dot grid",
+        "White heading with the word network in coral (#D78267)",
+        "Coral bulb sticker with a slate base, alpha-dilated white border and contact shadow",
+        "Four round node stickers in sage, slate and coral",
+        "Seeded Rough.js hand-drawn connectors in pale blue-grey",
+        "White label sticker reading IDEA → SYSTEM"
+      ],
+      "assets": ["gsap.min.js", "chroma.min.js", "rough.bundle.js"],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.85,
+          "development": "The bulb sticker arrives lifted, with a large offset shadow and its top-right corner peeled back. It drops and rotates into place, and the shadow tightens as it lands. The peeled corner is then smoothed flat while a short white spark burst radiates outward.",
+          "captions": ["From one spark to a whole network"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.85,
+          "endSeconds": 1.62,
+          "development": "Node stickers pop down one at a time, each with a slight rotation and a press-in lift. A rough connector draws from the bulb to the hub, then from the hub to each node as the nodes land.",
+          "captions": [],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.62,
+          "endSeconds": 2.41,
+          "development": "The label sticker is slapped on with its corner folded, then the fold is smoothed flat. The IDEA → SYSTEM copy appears only once the label is complete.",
+          "captions": ["IDEA → SYSTEM"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.41,
+          "endSeconds": 3,
+          "development": "Settled hold: the whole sticker network and both lines of copy stay still and readable.",
+          "captions": ["From one spark to a whole network", "IDEA → SYSTEM"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0.59
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "The bulb is the only focus for the first 0.85s. Later actions overlap slightly so that each link draws as its node lands.",
+      "All motion is complete by 2.41s, before the 2.7s settle requirement.",
+      "The heading is static and readable for the full 3s. The label copy is only revealed after its container is flat."
+    ],
+    "justifiedHolds": [
+      "2.41–3.0s: a final reading hold on the completed system and label."
+    ]
+  },
+  "notes": [
+    "Silent preview: no audio.",
+    "The background follows palette.background_policy scene_dependent. An ink-navy dot grid replaces the previous warm notebook page, following the review's dark-field and white-border-contrast guidance.",
+    "No preview recipe was supplied (tech.preview_recipes is absent, and the optional recipe list is empty). The refresh covers the source-frame background review and the core implementation: alpha-mask expansion, lift and placement transforms, and a procedural paper fold."
+  ]
+}

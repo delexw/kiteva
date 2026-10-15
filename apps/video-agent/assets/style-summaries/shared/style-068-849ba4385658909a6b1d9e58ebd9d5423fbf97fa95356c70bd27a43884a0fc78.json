@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-068",
+    "name": "Glassmorphism, Digital and 3D Aesthetics. The label was normalized from a frosted-glass interface description, so precise source provenance is unspecified.",
+    "visualIdentity": "Translucent frosted panels with thin borders, soft shadows, and restrained highlights. Background color shows through without lowering text contrast. Cues come from a normalized interface description; no reference artwork is supplied.",
+    "suitableUses": "Explicit: simple layered UI cards over color; with supporting styles, product-state demos, SaaS onboarding, and analytics panels. Inferred: calm product explainers where panels carry readable content.",
+    "limitations": "Explicit: combination guidance caps stacked blur at two layers and rejects low-contrast white text and charts placed directly on busy gradients. Inspect backdrop-filter in the target browser; use a solid fallback when it is unsupported or transparency is reduced. Opaque contrast ratios do not prove glass readability.",
+    "palette": "Suggestion for new artwork only; supplied task or brand colors override it. Tokens: background #182837, foreground #F6F7F0, accent_1 #7AAEB4, accent_2 #A698C5, used as layout roles without recoloring assets. Optional lab gradient #7AAEB4 to #A698C5 sits only behind glass. Checked pairs: foreground on background 13.94; background on accent_1 6.112 and accent_2 5.666. Verify on composited frames.",
+    "motionAndInteraction": "Panels, masks, and modest parallax animate; excessive blur layers are avoided. Smooth movement suits action, while cuts and reading holds stay deliberate and springs are not automatic. Optional references include card stacking, voice-card tilt, chapter handoff, swipe carousel, storytelling, and punctuation zoom; choosing none is valid. Video derives state from composition time.",
+    "audio": "Unspecified by the style; audio is optional. Inferred: restrained ambience or soft interface accents suit the calm glass tone and leave room for narration. No genre, tempo, voice, or mandatory layer is specified, and audio assets must be authorized rather than invented.",
+    "assetRequirements": "Unspecified: no style assets are listed; subject, copy, duration, aspect ratio, and resolution come from the task. Load local fonts and assets before rendering. Punctuation zoom needs real punctuation glyphs or approved mark geometry; gallery variants need accurate image dimensions and fallbacks.",
+    "combinations": "Alone for simple UI cards. Style-095 adds state transitions and feedback timing over the optional gradient; style-097 adds SVG charts in slightly more opaque panels using primary accents. Avoid other translucent or aurora styles, which duplicate it. Motion-038 lists aurora and liquid-glass as compatible, but the avoidance rule is stricter.",
+    "productionApproach": "HTML/CSS owns backdrop-filter, borders, and layout; SVG owns icons, masks, and strokes; GSAP owns the paused seekable timeline; Motion is optional and needs synchronization. HyperFrames is the default pipeline when render_pipeline is omitted; Remotion requires a recorded, verified reason. chroma-js validates colors; Chartist is optional for charts."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

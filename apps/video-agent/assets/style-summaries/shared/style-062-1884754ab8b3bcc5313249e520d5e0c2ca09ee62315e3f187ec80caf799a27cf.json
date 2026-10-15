@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-062",
+    "name": "Particle Art, Digital and 3D Aesthetics category, with explicit source provenance.",
+    "visualIdentity": "Subjects form from particle density, size, brightness and color on a contrasting background, and optional trails can show direction. Silhouettes hold steady at key moments, and glow stays limited so detail survives.",
+    "suitableUses": "Explicitly suited to abstract brand moments and transformations between silhouettes. Inferred fits include openers, short titles and structural form changes. Not suited to dense copy; add style-097 for data or style-093 for legible words.",
+    "limitations": "Final legible text must be real type, not particles, and long sentences are unsuitable as particles. Glow must never erase silhouettes, and reading holds must stay still. Physical accuracy and the source toolchain are unverified.",
+    "palette": "Background is scene-dependent; #111C29 is only an illustrative dark field, not a mandated canvas. Suggested roles are #EFF5EE foreground, #65BEC2 cool body and #CEAF79 warm focal accent. These are unapproved, so exact task or brand colors override them. Gradients are off. #EFF5EE on #111C29 measures 15.521:1 in a two-color check only, so verify composited frames.",
+    "motionAndInteraction": "Reference preview runs drift 0–0.8s, flow into the silhouette 0.8–2.0s and hold 2.0–3.0s, all seekable from a paused timeline. The fireworks recipe uses seeded births and analytic trails. Optional motion-037, 038 and 039 fit typography or logo bursts; motion-010 needs full 3D geometry.",
+    "audio": "Source audio is unspecified, and no soundtrack or voice is supplied. Direction depends on topic: music, voiceover, effects, ambience or silence may each be proposed, with no fixed genre. Silence is valid. Sync to music only after inspecting actual audio.",
+    "assetRequirements": "No uploads are mandatory. Needs a silhouette or approved mark sampled into points, glyph points for typography, and local fonts loaded before render. Motion-037, 038 and 039 need real phrase or punctuation assets; motion-010 needs full geometry or turntable views.",
+    "combinations": "style-097 maps particle counts to real data units; #65BEC2 and #CEAF79 encode categories only, and bloom never covers labels. style-093 lets particles converge on glyph points before real #EFF5EE type holds. Avoid decorative swirling that implies false relationships.",
+    "productionApproach": "HyperFrames handles composition, validation, snapshots and export; Remotion is fallback only with a recorded reason. Three.js Points, BufferGeometry and GLSL render particles, UnrealBloomPass limits glow, and a paused GSAP timeline drives uniforms. Seeded data keeps seeks deterministic, and chroma-js checks contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

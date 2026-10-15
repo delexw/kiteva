@@ -1,0 +1,103 @@
+{
+  "version": 3,
+  "title": "IDÉE — Cubist Painted Collage style preview (slate café wall)",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Still life locks into one connected system",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "An idea becomes a connected system: the guitar, bottle, glass and table edge, each drawn from several viewpoints, lock into one compressed Cubist picture plane against a dark café wall.",
+      "visuals": [
+        "Stationary dark slate café wall (#2F3833) with seeded Canvas 2D brush grain",
+        "Static left column in paper tone #ECE4D0: IDÉE, 'an idea becomes', 'a connected system', with an ochre rule",
+        "Guitar from two views: frontal body (ochre), side band (gray), hatched umber overlap, soundhole, neck, strings, bridge",
+        "Bottle from two views: gray profile with a clipped plain-ruled paper passage, and a paper-toned top-view disc with shoulder and mouth rings",
+        "Glass from two views: paper profile with stem and foot, plus the rim ellipse seen from above",
+        "Table from two views: ochre top plane and gray front edge, umber where they overlap; ochre/gray/umber wall planes anchored to the table corner",
+        "Printed-paper fragment reading LE SYSTÈME, and a PAPIER COLLÉ label card",
+        "Every facet has a seeded Canvas 2D scumble texture rotated to its plane, with #332E29 outlines"
+      ],
+      "assets": [
+        "geometry.js",
+        "tools/build-geometry.cjs",
+        "gsap.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 1.2,
+          "development": "Each view group slides from its authored per-view offset (up to 130 px) into registration and fades from 0.35 to full opacity.",
+          "captions": [
+            "IDÉE",
+            "an idea becomes",
+            "a connected system",
+            "LE SYSTÈME",
+            "PAPIER COLLÉ"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.2,
+          "endSeconds": 2,
+          "development": "Bottle view swap: the profile facet shifts left and fades to 0.55, while the top-view facet scales from 0.86 to 1 and comes forward to full opacity.",
+          "captions": [
+            "IDÉE",
+            "an idea becomes",
+            "a connected system",
+            "LE SYSTÈME",
+            "PAPIER COLLÉ"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2,
+          "endSeconds": 3,
+          "development": "Readable hold: the composition is fully settled.",
+          "captions": [
+            "IDÉE",
+            "an idea becomes",
+            "a connected system",
+            "LE SYSTÈME",
+            "PAPIER COLLÉ"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 1
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Motion is complete by 2.0 s, ahead of the 2.7 s settle requirement.",
+      "The headings are static paper-tone text on the slate wall (about 9.6:1 contrast), so they are readable in every frame."
+    ],
+    "justifiedHolds": [
+      "A 1.0 s hold from 2.0 to 3.0 s lets viewers read the registered still life and its copy."
+    ]
+  },
+  "notes": [
+    "Silent preview.",
+    "Refresh: scene-dependent dark slate café wall replaces the warm #DED5BB swatch; the facet pigments (ochre, gray, umber, paper) and #332E29 outlines are kept.",
+    "BACKGROUND_REVIEW.json has 0 matched sources and no contact sheets, so no source-frame evidence was applied.",
+    "STYLE.json has no preview_recipes, so the primary implementation is demonstrated.",
+    "No Blender was used. Tools: Paper.js (build-time geometry), SVG, Canvas 2D, GSAP.",
+    "Typography: Didot declared via @font-face local() with a Georgia fallback; Futura with Helvetica Neue/Arial fallbacks.",
+    "No arrows in this composition."
+  ]
+}

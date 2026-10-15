@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-016",
+    "name": "Punk Graphics is a supplemental design reference. The source collection does not directly name it as a style.",
+    "visualIdentity": "Cutout lettering, torn paper, tape, photocopy grain, and handwritten marks form a deliberately irregular layout. The headline stays prominent and the palette stays limited. Each material has distinct edges and textures, and placement imperfections stay small.",
+    "suitableUses": "Explicitly suitable for posters, title cards, and short protest-style edits where the cutout chaos is the message. Inferred suitability includes campaign slogans and zine-style editorial intros. Hybrids apply only when slogans need timed delivery or photos need one consistent print treatment.",
+    "limitations": "The headline must stay readable and must not be buried by ransom-style lettering. Motion is limited to paste, tear, and peel, with no springy easing, smooth tracking, blur, or random per-frame jitter. Red marks may appear on at most one word per slogan. Body text belongs on the main background, not on the red accent.",
+    "palette": "Suggested tokens are not supplied exact colors: background #EFE9D9, foreground #171717, and accent_1 #C63A3A, three colors in total. Foreground on background measures 14.793 contrast and suits text. Background on accent measures 4.26, so the accent is decorative only. Gradients are disabled, and task-provided colors override these tokens.",
+    "motionAndInteraction": "Motion consists of pasting, peeling, and tearing with small fixed offsets and rotations, kept abrupt rather than springy. Motion-037 (cutout letters peel before a replacement headline) and motion-038 (cut-paper punctuation as a scene connection) are optional and need matching assets. Motion-020 glitch cut is optional and should be omitted for calm scenes. Interactive scroll or hover is optional; reduced motion should show the finished paste-up.",
+    "audio": "The source leaves audio unspecified and assigns no genre, tempo, voice, or mandatory layer. Inferred suggestion: restrained music or effect accents could mark paste beats, but beat synchronization requires actual audio analysis first. Reading holds should stay quiet, and speech must remain intelligible. No audio assets are supplied.",
+    "assetRequirements": "Torn-paper masks and printed assets should be preprocessed with Pillow using fixed seeds and fixed textures. Cutout letters use precomputed torn masks. Local fonts and assets must load before rendering. Exact copy and subject are task inputs, and the source supplies none. Motion-037 and motion-038 need real phrase or punctuation assets.",
+    "combinations": "style-093 supplies kinetic headline timing for paste-on-beat slogans, using fixed offsets with no springs. style-050 supplies one monochrome halftone treatment for cutout photos, using #171717 on #EFE9D9 only, with one fixed dot angle and size per piece. Headline cutouts stay solid and are never halftoned.",
+    "productionApproach": "Pillow prepares torn masks and textures, and Python handles asset preprocessing outside the browser. A paused, seekable GSAP timeline owns motion, with one owner per animated property. Rough.js is optional, only for sketch marks. HyperFrames is the default pipeline for composition, checks, snapshots, and export. Remotion is a fallback only when HyperFrames is unavailable or blocked, and the reason must be recorded."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

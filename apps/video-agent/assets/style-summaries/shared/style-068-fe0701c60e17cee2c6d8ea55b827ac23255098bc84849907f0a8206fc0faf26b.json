@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-068",
+    "name": "Glassmorphism belongs to the Digital and 3D Aesthetics category. The label was normalized from a frosted-glass description, so it is not verified source-video evidence.",
+    "visualIdentity": "The style uses translucent frosted panels with thin borders, soft shadows and restrained highlights. Background color shows through without lowering text contrast. Masks and modest parallax carry motion.",
+    "suitableUses": "The style is explicitly suited to simple layered UI cards over color. Panels that show product states or data need a hybrid pairing. Suggested uses are app feature demos, SaaS onboarding and analytics dashboards.",
+    "limitations": "Blur on blur, low-contrast white text and more than two stacked blur layers are excluded. Two-color contrast checks are opaque-only and do not verify translucent, highlighted or video-backed areas. Check composited frames.",
+    "palette": "Background is scene_dependent, chosen from subject and lighting. Suggested, not approved, tokens are background #182837, foreground #F6F7F0, accent_1 #7AAEB4 and accent_2 #A698C5. An optional gradient runs between the two accents behind glass only. Foreground on background measures 13.94:1. Task colors override these values.",
+    "motionAndInteraction": "Motion comes from panels, masks and modest parallax, with deliberate cuts and reading holds preserved. Compatible references include card stacking, pointer tilt, chapter handoffs, swipe carousels, storytelling and optional punctuation zoom. Video follows composition time.",
+    "audio": "Audio is unspecified and not mandatory; no music, voice or effects are supplied. Options include music, voiceover, effects, ambience or silence, chosen from topic and audience. Any soundtrack must be real authored audio, and beat sync needs analysis.",
+    "assetRequirements": "No uploads are mandatory. Optional inputs include brand or gradient colors, real interface screens, verified chart data and exact copy. Local fonts must load before rendering. Punctuation Zoom needs actual punctuation or approved mark geometry.",
+    "combinations": "style-095 supports state transitions and feedback timing for app demos and SaaS onboarding. style-097 supports charts in panels for dashboards. Avoid other translucent or aurora styles, which duplicate the look.",
+    "productionApproach": "HTML/CSS backdrop-filter, translucent fills and SVG form the style renderer. Motion or GSAP is the motion engine, with one owner per animated property. HyperFrames is the default pipeline; Remotion is fallback only when HyperFrames is unavailable or limited. chroma-js validates contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-106",
+    "name": "Squash and Stretch",
+    "visualIdentity": "An animation principle, not a separate art movement: recognizable forms anticipate, compress or extend with motion, rebound, then settle. Preserve apparent volume and readable silhouettes; vary timing and use short holds.",
+    "suitableUses": "Explicit examples suit expressive hero objects, mascots, logos, kinetic headlines, product explainers and short loops. In HTML, a button or focus action can play a cycle. These are suggested uses, not source-provenance claims.",
+    "limitations": "Do not make every object bounce continuously or deform together; the example stages only one body deforming at a time. Matter.js supplies rigid-body motion, not soft bodies. XPBD needs a verified solver and does not itself provide fluid behavior or guarantee accuracy.",
+    "palette": "No intrinsic palette is specified. Optional four-token example: background #F4EDDF, foreground/floor #32444A, ball accent #66978E and block accent #C78461. Preserve task or approved colors; use discrete tokens, no proposed gradient. Accent-on-foreground contrast is insufficient for normal text; check final compositing.",
+    "motionAndInteraction": "Use contact-aware pivots and staged anticipation, travel stretch, area-preserving impact, rebound and damped settling; avoid uniform spring presets. GSAP keyframes on a paused timeline support deterministic video seeks. HTML may trigger the same timeline on click or focus and reduce motion to the settled pose. Physics is optional and must be cached or replayed deterministically.",
+    "audio": "No fixed soundtrack is prescribed. Choose music, voice, effects, ambience or silence for the topic and explicit audio requirements. Accents may support meaningful impacts, but are optional; keep narration intelligible and coordinate sync in the composition pipeline.",
+    "assetRequirements": "No uploads are required by the style. Example artwork uses nested SVG groups for translation and contact-pivot deformation; compatible paths can support optional MorphSVG silhouette changes. Three.js glass and XPBD are conditional approximations, not proof of physical simulation.",
+    "combinations": "Suggested hybrids: flat vector silhouettes (style-028) for mascots and props, retaining this style’s timing and palette; kinetic typography (style-093) for one or two baseline-pivoted headline words, each settling into a readable hold. Other motion references are optional and require matching scene elements.",
+    "productionApproach": "Use SVG as the clear 2D renderer and GSAP as the motion owner; choose tools by required fidelity. HyperFrames owns composition, timing, media/audio sync, checks and export; Remotion is only a documented fallback if unavailable or unable to meet a verified requirement. Keep visual and motion layers time-driven, and bake/cache simulations for repeatable direct and backward seeks."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

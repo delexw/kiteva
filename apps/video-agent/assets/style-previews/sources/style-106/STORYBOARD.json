@@ -1,0 +1,66 @@
+{
+  "version": 3,
+  "title": "Squash and Stretch: An idea lands and connects",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The idea lands",
+      "startSeconds": 0,
+      "endSeconds": 1.4,
+      "purpose": "A glossy teal jelly ball (the idea) performs a full contact-aware squash-and-stretch bounce.",
+      "visuals": [
+        "Cool icy gray-white studio sweep with faint stationary wall dots, a floor gradient and an ink #32444A floor line",
+        "Teal #66978E jelly ball: an outer group for translation, an inner squash group pivoting at the contact point, and a path that flattens on contact",
+        "Teal floor light and contact shadow that shrink as the ball rises",
+        "Dotted trajectory revealed behind the ball",
+        "Static copy: 'An idea lands —', 'and connects.', the figure label and the six stage labels"
+      ],
+      "assets": ["index.html", "gsap.min.js", "chroma.min.js"],
+      "beats": [
+        {"startSeconds": 0, "endSeconds": 0.22, "development": "Anticipation: sy 0.85 with the base flattened against the floor.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 0.22, "endSeconds": 0.66, "development": "Launch stretch along velocity (sy 1.25, tilted 18°). The ball rises on a parabola and relaxes round near the apex while the trail draws.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 0.66, "endSeconds": 1.08, "development": "Hang, then fall stretch (sy 1.25, tilted -18°). The floor glow grows as the ball approaches.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 1.08, "endSeconds": 1.4, "development": "Impact (sx 1.3, sy 1/1.3, fully flattened base), rebound, a small hop, a soft landing and settle.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "It connects",
+      "startSeconds": 1.4,
+      "endSeconds": 3,
+      "purpose": "A heavier clay jelly block hops in on its own cue and wobbles to rest, then lines join the bodies and nodes into a system.",
+      "visuals": [
+        "Clay #C78461 jelly block with the same nesting and a contact pivot at its base",
+        "Clay floor light and contact shadow",
+        "Two small jelly nodes popping in",
+        "Five ink links drawn between the bodies and nodes",
+        "Clay underline drawn under 'and connects.'"
+      ],
+      "assets": ["index.html"],
+      "beats": [
+        {"startSeconds": 1.4, "endSeconds": 1.62, "development": "The ball rests while the block anticipates (sy 0.85, flattened base) and launches stretched (sy 1.25, tilted -12°).", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.2},
+        {"startSeconds": 1.62, "endSeconds": 2.02, "development": "A lower, shorter hop leftward: round at the peak, stretched on the descent.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 2.02, "endSeconds": 2.6, "development": "Impact (sx 1.3, sy 1/1.3), then a damped jelly settle with the base planted and the top lagging (s 1.12/0.94/1.03/1, shear 7°/-4°/1.5°/0). Nodes pop in, links draw, and the underline draws.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 2.6, "endSeconds": 3, "development": "Hold on the complete, settled system.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.4}
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Copy is static and readable for the full 3 seconds.",
+      "Only one body deforms at a time: the ball from 0 to 1.4s, the block from 1.4 to 2.54s.",
+      "The scene is fully settled by 2.6s, before the 2.7s target."
+    ],
+    "justifiedHolds": [
+      "From 1.4 to 1.6s the ball holds while the block anticipates, separating the two cues.",
+      "From 2.6 to 3.0s the final hold lets the connected system read."
+    ]
+  },
+  "notes": [
+    "Silent preview with no music, effects or lyrics.",
+    "Renderer: SVG. Motion: one paused GSAP timeline at window.__timelines.video.",
+    "Demonstrates the soft_body_glass recipe (soft-body part) as an analytic, area-preserving shape-key approximation, not a physical simulation.",
+    "Background follows palette.background_policy scene_dependent: a cool icy studio sweep informed by BACKGROUND_REVIEW.json."
+  ]
+}

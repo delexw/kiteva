@@ -1,0 +1,142 @@
+{
+  "version": 3,
+  "title": "An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Core arrives",
+      "startSeconds": 0,
+      "endSeconds": 0.6,
+      "purpose": "Set up the slate studio stage and drop the copper core onto its plinth.",
+      "visuals": [
+        "Dark slate (#303C40) stage with a stationary sage key-light lift behind the plinth",
+        "Copper metal core sphere drops 1.4 units with a back-ease settle onto the slate plinth with its copper inlay ring",
+        "Camera starts on a raised three-quarter view about 30° off axis"
+      ],
+      "assets": [
+        "scene.bundle.js (procedural Three.js geometry)"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.6,
+          "development": "Core scales up and settles onto the plinth; its contact shadow fades in; the camera begins its weighted orbit.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Assembly",
+      "startSeconds": 0.6,
+      "endSeconds": 1.5,
+      "purpose": "Show the idea connecting: rods extend and four satin nodes seat on them.",
+      "visuals": [
+        "Four dark metal rods grow out of the core in sequence",
+        "Satin sage nodes appear above and outside their sockets, then a baked XPBD compliant attachment pulls them in until they clack against the rod-length contact",
+        "Lower nodes come to rest on the floor with contact shadows"
+      ],
+      "assets": [
+        "scene.bundle.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0.6,
+          "endSeconds": 1.0,
+          "development": "Upper-left and upper-right nodes seat on their rods; the rods swing to follow each incoming node.",
+          "captions": [
+            "FIG. 03 — ASSEMBLY"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.0,
+          "endSeconds": 1.5,
+          "development": "The lower-left and lower-right nodes seat; the headline begins rising in line by line.",
+          "captions": [
+            "An idea",
+            "becomes a"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Settle and read",
+      "startSeconds": 1.5,
+      "endSeconds": 3,
+      "purpose": "Finish the camera settle, complete the copy and hold the readable system.",
+      "visuals": [
+        "Camera completes its dolly to the near-front 17° view by 2.3s",
+        "Nodes locked exactly in their seats by 2.5s",
+        "Copy column complete on the flat slate stage"
+      ],
+      "assets": [
+        "scene.bundle.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 1.5,
+          "endSeconds": 2.6,
+          "development": "The last headline lines and the body copy reveal while the camera settles.",
+          "captions": [
+            "connected",
+            "system.",
+            "One copper core, four satin nodes,",
+            "a single key light from upper left."
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.6,
+          "endSeconds": 3,
+          "development": "Static hold on the complete assembled scene and copy.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.4
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Every object is in place and all copy is fully opaque by 2.55s, inside the 2.7s requirement.",
+      "The motion is substantial: the camera orbit, the core drop, rod growth and node travel cover most of the left 60% of the frame."
+    ],
+    "justifiedHolds": [
+      "2.6–3.0s: a 0.4s final hold so the complete headline and body can be read on a 3s card."
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, effects or voice.",
+    "Background refresh: a cool slate studio stage replaces the earlier warm cream canvas, following the background review's dark-stage lessons (sources 2 and 3) and the fog-depth lesson (source 1). No source subject, wording or branding is reused.",
+    "No reviewed preview recipes were supplied (tech.preview_recipes is absent), so the preview demonstrates the primary style: real 3D geometry, a coherent key light, contact shadows and a weighted assembly."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-008",
+    "name": "Modernist Graphic Design: a supplemental design reference, not a directly named style in the source collection. Its provenance is explicitly marked as supplemental.",
+    "visualIdentity": "It prioritizes function, simplified forms, shared alignment, and a clear reading sequence. Hierarchy comes from size and placement within a limited palette. Animation explains structural or informational change and must not sacrifice hierarchy for decoration.",
+    "suitableUses": "Explicitly listed as good fits: UI and product storytelling, editorial and minimalist layouts, and motion posters or staged geometric compositions. Inferred: functional explainers where alignment and hierarchy carry the message.",
+    "limitations": "Explicitly, omit or adapt it when recomposition changes hierarchy without explaining the subject, when anchored subjects crop key details or push text into unsafe areas, or when pinning disrupts layout or waits for live scroll input. Two-color contrast checks do not prove full accessibility.",
+    "palette": "Suggested only, not approved: background #FAF8F2, foreground #202020, and one blue accent #235DA8, used as discrete tokens with gradients disabled. These are layout roles, not recoloring instructions, and exact task or brand colors override them. Foreground on background measures 15.342:1; background on accent measures 6.174:1.",
+    "motionAndInteraction": "Movement should clarify structure while keeping the reading hierarchy readable. Catalog references motion-007, motion-008, motion-012, motion-013, and motion-015 are optional candidates that must be screened against the actual scene; none is required. Video must derive all state from composition time rather than live scroll or pointer input.",
+    "audio": "Unspecified by the style itself. Audio should follow the topic and objective, so music, voiceover, sound effects, ambience, or silence may each be proposed without a fixed genre, tempo, or mandatory layer. Verify speech intelligibility, audio balance, and picture synchronization in the final video.",
+    "assetRequirements": "Unspecified; the source defines no fixed asset list. Topic assets and exact copy come from the task, and fonts and assets must load before rendering. Optional tools include tldraw for exporting editable SVG or raster artwork and PhotoSwipe only for interactive galleries. Asset licensing and sources are not stated.",
+    "combinations": "Explicitly suggested: style-109 for connector and diagram line art, with blue reserved for the active path and uniform strokes, and style-108 for shallow isometric system diagrams with flat labels and neutral tints derived from existing tokens. Both suit process, organization, or infrastructure explainers. Avoid off-palette accents and decorative tangles.",
+    "productionApproach": "HyperFrames is the primary composition and export pipeline, and Remotion is a fallback only when its documented condition is verified and recorded. HTML/CSS and SVG are the style renderers, and a paused, seekable GSAP timeline supplies composition time. Motion and chroma-js are optional. Validate with check and snapshot commands, then inspect frames, render, and review audio."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

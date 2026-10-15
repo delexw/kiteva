@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-124",
+    "name": "Translucent Tissue-Paper Collage. Explicit category: Printmaking and Craft Materials. Provenance: extracted, added in the 2026-10-12 repository sync.",
+    "visualIdentity": "Explicit: overlapping translucent fibers, torn edges, and colored tissue layers create underwater depth. Light must transmit through overlaps rather than read as opaque cardstock. Subjects are authored polygons such as fish, kelp, and light shafts.",
+    "suitableUses": "Explicit: underwater tissue-paper scenes with layered depth. Inferred: short atmospheric or illustrative videos and interactive HTML where translucent craft aesthetics support the topic. Unspecified: audience, duration, aspect ratio, and resolution.",
+    "limitations": "Palette is limited to supplied tokens; no arbitrary hues may be invented unless approved tissue colors are provided, and that gap must be reported. Source specifies tissue paper underwater, not exact colors. The single reference poster shows a different fog scene, so full-video scene verification is not claimed.",
+    "palette": "Background #172D3A is the opaque scene field, an authored fallback. Foreground #F2EEE1 serves layout text and derives tissue tints via chroma-js. Foreground-on-background contrast is 12.284:1, meeting the 4.5 normal-text target only for opaque captions. Gradients are disabled. Background must never be replaced by an accent or subject material.",
+    "motionAndInteraction": "Explicit: per-piece GSAP transforms on a paused, seekable timeline provide gentle sway, depth-scaled drift parallax, and layer laydown. The 3-second preview settles layers into an underwater scene with slow overlapping drift. Every frame is redrawn from scratch. HTML interaction behavior is unspecified.",
+    "audio": "Unspecified by the source style. The audio direction guidance asks the agent to choose music, voiceover, effects, ambience, or silence based on topic, audience, and motion cadence. No genre, tempo, instrument, or voice is assigned. Speech intelligibility, balance, and absence of clipping must be verified.",
+    "assetRequirements": "Explicit: authored polygon geometry, seeded noise2D torn-edge outlines cached as Path2D, and an offscreen fiber texture per piece with stored seeds. Local fonts and assets must load before rendering. No source fonts, images, or audio assets are supplied; motion reference candidates are empty.",
+    "combinations": "Authored guidance, not prior review: keep this style dominant. Secondary style-101 may add restrained layer depth only, without importing its palette, replacing background roles, or adding competing full-scene treatments. For HTML, make motion optional for reduced-motion preferences.",
+    "productionApproach": "Style renderer: Canvas 2D, source-over at globalAlpha about 0.45–0.6, multiply fiber overlay clipped to each piece, and a thinner lighter torn rim. Motion engine: GSAP. Pipeline: HyperFrames by default; Remotion only when its documented fallback condition is met and recorded. Seed randomness; verify decoded frames and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

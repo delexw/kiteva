@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-002",
+    "name": "Bauhaus. Supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Circles, squares, triangles, rules and lettering share a grid with asymmetric balance. Restricted red, yellow, blue, black and white support the composition. Rhythmic stages use growth, rotation and interlocking forms.",
+    "suitableUses": "Explicitly suited to posters and identity built from primitives. Metadata also lists logo reveals, design-education pieces, section transitions and music-backed brand loops. Other fits are inferred, not verified.",
+    "limitations": "Not every primary-color geometric animation is Bauhaus. Grid size, tempo and beat count are optional starting values. Suggested details were not verified against the source video. Contrast checks cover two colors only, so composited frames must be rechecked.",
+    "palette": "Background policy is scene_dependent, so #FFFFFF is only an illustrative swatch. Suggested tokens #000000, #D62828, #F2C230 and #164B9B are not approved exact colors; task-supplied palettes override them. No gradients are enabled. Two-color contrast: black on white 21:1, white on #D62828 5.0:1, black on #F2C230 12.5:1, white on #164B9B 8.4:1.",
+    "motionAndInteraction": "Growth, rotation and interlocking unfold in rhythmic stages on an optional beat table (0.5 seconds per beat at 120 BPM). Flat discrete fields and sharp cuts are kept. Shape morphing, pinned heroes and chaptered handoffs are optional. Motion references 037 to 039 need real approved marks.",
+    "audio": "Audio is unspecified; no genre, tempo or mandatory layer is fixed. Music-synchronized assembly via the beat table fits if audio is supplied or authored. Silence and narration are valid. Playback should be user-initiated, never autoplay. No audio has been verified.",
+    "assetRequirements": "No uploads are mandatory. Exact copy, subject, duration, aspect ratio, resolution and frame rate are unspecified. References 037 to 039 need an actual phrase, punctuation or approved mark. Load fonts and assets before animation, and do not invent a brand mark.",
+    "combinations": "style-100 Shape Morphing adds circle, square and triangle transitions with snapped colors and grid-aligned endpoints. style-105 Timing Engine supplies only a beat and section table, with no visuals. Keep the five tokens fixed; avoid gradients and autoplay.",
+    "productionApproach": "HyperFrames is primary for composition, synchronization, validation and export; Remotion is a fallback requiring a recorded reason. SVG renders the style and GSAP drives a paused, seekable timeline. p5.js, Anime.js, Motion and chroma-js are optional, with one owner per animated property."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

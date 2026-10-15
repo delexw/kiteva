@@ -1,0 +1,13 @@
+{
+  "styleId": "style-056",
+  "name": "Mosaic, in the Printmaking and Craft Materials category. Provenance is explicit, and the source directly names this visual direction.",
+  "visualIdentity": "Explicit: recognizable images built from glass, stone, or gold-leaf tesserae with coherent shapes, gaps, and reflections. Highlights are controlled so sparkle never overwhelms the overall image.",
+  "suitableUses": "Explicit examples appear only in hybrids: institutional anniversaries, hospitality brands, title cards, and museum or heritage intros. Mosaic alone suits most work. Other uses are inferred.",
+  "limitations": "Explicit: hybrids suit only ornamental work or level reveals, since Blender rendering cost rises quickly. Avoid simultaneous sparkle, smooth metallic gradients, mismatched lighting, and hidden crossfades. Scene size limits are unspecified.",
+  "palette": "Suggested, not approved: background #E4D8BE, foreground #39494B, accents #47777B, #9B694C, and #B19A61. Gradients are disabled, and supplied exact colors override these. Foreground on background reaches 6.67:1. Accent fills fall below 4.5:1, so they are decorative only.",
+  "motionAndInteraction": "Explicit: selected tiles flip, rotate, and return to precise positions, with controlled highlights. Motion references motion-012 and motion-015 are optional and fit-dependent. Suggested HTML controls include pause, a static reduced-motion frame, and keyboard level advance.",
+  "audio": "Unspecified: the source gives no style-specific audio. Music, voiceover, and effects are not assigned. Any choice is inferred from the topic and objective and requires authorized assets.",
+  "assetRequirements": "Explicit: Blender-generated tile meshes and glass, stone, or gold materials, with stored target transforms for accurate returns. Source images, fonts, and copy are unspecified. Delaunator is optional for triangular tile connectivity only.",
+  "combinations": "Explicit: style-006 adds Art Deco sunburst borders, with gold as accent_3. style-098 adds a portal zoom into one tessera. Avoid Deco black-and-ivory palettes and hidden crossfades.",
+  "productionApproach": "Suggested routes: Blender with Python bpy and Cycles handles tiles, materials, and motion. HyperFrames handles composition, audio sync, and export. Remotion is only for a verified HyperFrames gap. Chroma.js checks colors."
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-039",
+    "name": "Oil Painting / Gouache (supplemental; choose one medium).",
+    "visualIdentity": "Visible brushwork and opaque color masses. Oil allows varied thickness and impasto; gouache favors matte, opaque masses. Choose one primary medium per project. Provenance is supplemental.",
+    "suitableUses": "Explicit: painted scenes and layered scenery. Inferred: painted intros, landscape stories, and gouache event posters with one loop. Fit for a specific subject is unverified.",
+    "limitations": "Keep standalone for painted scenes. Avoid mixing impasto and matte gouache, generic filters, fake brush jitter, glossy effects, and excess parallax. Source review covered only sampled seconds 1–8.",
+    "palette": "Background is scene-dependent. Tokens #F1E6CF, #3E4C48, #9B604C, #A89656, #63818A are illustrative, not approved; task colors override them. Foreground on background is 7.272:1; accents are decorative only. Gradients are disabled.",
+    "motionAndInteraction": "Seekable repainting, brush reveals, and layered-scenery motion with one owner per property. Optional motion-012 (chaptered handoff) and motion-015 (narrative steps) apply only if the scene supports them. Scroll and hover are interactive-only.",
+    "audio": "Unspecified by the style. Task-specific suggestions may include music, voiceover, effects, ambience, or silence, with no fixed genre or required layer. No audio was supplied or verified; speech must stay intelligible.",
+    "assetRequirements": "Optional: layered paint assets with alpha, numbered frames, or a layer manifest, plus coverage masks and local fonts. Inspect transparency, dimensions, and naming first. No upload is mandatory; source review is evidence, not reusable artwork.",
+    "combinations": "style-101 for layered paint planes with shared lighting and one medium. style-103 for a held gouache poster with one loop focal point. Avoid glossy effects and busy loops. Compatibility is suggested, not verified.",
+    "productionApproach": "Renderer: prepared paint layers and coverage masks, composited for local repainting, with Pillow preprocessing. Motion: one owner per property via GSAP or native Canvas/SVG. HyperFrames handles assembly, check, snapshot, and render; Remotion only on a recorded limitation."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

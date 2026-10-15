@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-092",
+    "name": "Line Boil. Supplemental Animation Techniques reference; the source does not name it as a directly named style.",
+    "visualIdentity": "Two-tone hand-drawn line art whose contours cycle through two or three prepared variants on a stable cadence. Variation stays small, preserving silhouette, glyph structure and position. Random per-frame noise is excluded.",
+    "suitableUses": "Explicitly suited to illustrations or titles where a two-tone hand-drawn shimmer is the core idea. Inferred suitability: handcrafted title sequences, short quotes and simple explanatory diagrams.",
+    "limitations": "Requires controlled drawing variants; a jittery mouth alone does not establish Line Boil. Rough.js adds no animation, handwriting, pen pressure, paper texture or character poses. Hatching does not imply authentic pencil or print. Source review sampled only seconds 1 to 8.",
+    "palette": "Background is scene-dependent; the cream #F6EFDF and ink #354142 pair is an authored example, not an approved exact palette. Keep it monochrome, discrete and gradient-free. Two-color contrast is 9.229:1; recheck composited frames. Task-provided colors override.",
+    "motionAndInteraction": "Contour variants cycle at explicit exposure holds, separate from object trajectory; designed movement may be smoothed without flattening the boil. Diagram use stops boiling during active strokes. No interaction is specified; motion references 006, 012 and 015 are optional.",
+    "audio": "Unspecified; no mandatory audio layer. Options to weigh per topic include music, voiceover, effects, ambience or silence. The source warns against defaulting to instrumental music and against competing with narration. No audio assets are supplied.",
+    "assetRequirements": "No uploaded artwork, exact copy or audio is specified. Production needs two or three aligned, fixed-seed contour variants per drawn object, inspected for glyph and silhouette fidelity, plus locally loaded fonts. Subject and copy must come from the brief.",
+    "combinations": "Stands alone when a two-tone shimmer is the whole idea. Hybrids: style-093 for kinetic typography with per-glyph variants and word order; style-026 for causal-order whiteboard diagrams with a low-amplitude boil and no extra fills. Both keep the strict two-color palette.",
+    "productionApproach": "Style renderer: Canvas 2D or SVG, with optional Rough.js for seeded contours. Motion: optional Motion library for DOM or SVG layers. Pipeline: HyperFrames by default with a paused GSAP timeline; Remotion only if HyperFrames is unavailable or blocked, with the reason recorded. Select renderer by fidelity, not pipeline availability."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

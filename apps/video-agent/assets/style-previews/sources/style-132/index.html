@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>IDÉE — Cubist Painted Collage preview</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #2F3833; overflow: hidden; }
+  #root { position: relative; width: 100%; height: 100%; background: #2F3833; }
+  #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  @font-face { font-family: 'Didot'; src: local('Didot'); font-style: normal; font-weight: 400; }
+  @font-face { font-family: 'Didot'; src: local('Didot Italic'), local('Didot-Italic'); font-style: italic; font-weight: 400; }
+  .serif { font-family: 'Didot', Georgia, 'Times New Roman', serif; }
+  .sans { font-family: 'Futura', 'Helvetica Neue', Arial, sans-serif; }
+</style>
+<script src="gsap.min.js"></script>
+<script src="geometry.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+  <defs id="defs">
+    <pattern id="ruled" width="90" height="14" patternUnits="userSpaceOnUse">
+      <rect width="90" height="14" fill="#ECE4D0"/>
+      <path d="M2 7h30M36 7h18M58 7h28" stroke="#332E29" stroke-width="2.5"/>
+    </pattern>
+    <pattern id="ruled-plain" width="60" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(90)">
+      <rect width="60" height="12" fill="#ECE4D0"/>
+      <path d="M0 6h60" stroke="#85867D" stroke-width="2"/>
+    </pattern>
+    <pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+      <path d="M0 5h10" stroke="#332E29" stroke-width="1.5"/>
+    </pattern>
+  </defs>
+
+  <!-- Stationary background field -->
+  <rect id="bg" width="1280" height="720" fill="#2F3833"/>
+  <rect id="bg-grain" width="1280" height="720" fill="#2F3833"/>
+
+  <!-- Still life: facet groups are filled in by script from cached Paper.js geometry -->
+  <g id="scene"></g>
+
+  <!-- Standalone headings (independent timing: static, always readable) -->
+  <g id="copy">
+    <text x="60" y="130" font-size="78" fill="#ECE4D0" class="sans" font-weight="bold" letter-spacing="10">IDÉE</text>
+    <text x="62" y="190" font-size="30" fill="#ECE4D0" class="serif" font-style="italic" fill-opacity="1">an idea becomes</text>
+    <text x="62" y="232" font-size="30" fill="#ECE4D0" class="serif" font-style="italic">a connected system</text>
+    <path d="M60 260h300" stroke="#AD9369" stroke-width="3"/>
+  </g>
+
+  <!-- Label card: text grouped with its paper backing -->
+  <g id="label-card">
+    <rect id="label-box" x="1060" y="640" width="190" height="52" fill="#ECE4D0" stroke="#332E29" stroke-width="2"/>
+    <text x="1155" y="673" font-size="19" fill="#332E29" class="serif" text-anchor="middle" letter-spacing="3" data-reveal-after="label-box">PAPIER COLLÉ</text>
+  </g>
+</svg>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  var G = window.CUBIST_GEOMETRY;
+  var TONE = { ochre: '#AD9369', gray: '#85867D', umber: '#705F4B', paper: '#ECE4D0', ink: '#332E29' };
+  var INK = '#332E29';
+  var defs = document.getElementById('defs');
+  var scene = document.getElementById('scene');
+
+  function el(tag, attrs, parent) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  // Seeded PRNG (mulberry32) + string hash: textures are identical on every load.
+  function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  // Canvas 2D scumble bitmap (tileable), drawn once per facet with a seeded PRNG.
+  // Strokes run along the pattern's x axis; the SVG patternTransform orients them to the plane.
+  var SIZE = 160;
+  function scumble(id, tone) {
+    var c = document.createElement('canvas'); c.width = SIZE; c.height = SIZE;
+    var x = c.getContext('2d'); var r = rng(hash(id));
+    var light = TONE.paper, dark = tone === 'paper' ? TONE.gray : INK;
+    var mids = [TONE.ochre, TONE.umber, TONE.gray];
+    x.lineCap = 'round';
+    for (var i = 0; i < 90; i++) {
+      var px = r() * SIZE, py = r() * SIZE, len = 18 + r() * 46, w = 3 + r() * 9;
+      var pick = r();
+      x.strokeStyle = pick < 0.42 ? light : pick < 0.72 ? dark : mids[(r() * 3) | 0];
+      x.globalAlpha = 0.06 + r() * 0.12;
+      x.lineWidth = w;
+      var bend = (r() - 0.5) * 10;
+      for (var ox = -SIZE; ox <= SIZE; ox += SIZE) for (var oy = -SIZE; oy <= SIZE; oy += SIZE) {
+        x.beginPath();
+        x.moveTo(px + ox, py + oy);
+        x.quadraticCurveTo(px + ox + len / 2, py + oy + bend, px + ox + len, py + oy + (r() - 0.5) * 3);
+        x.stroke();
+      }
+    }
+    return c.toDataURL('image/png');
+  }
+
+  // Stationary scene-dependent wall: dark slate café wall with seeded Canvas 2D grain (never animated).
+  (function () {
+    var W = 320, c = document.createElement('canvas'); c.width = W; c.height = W;
+    var x = c.getContext('2d'), r = rng(hash('cafe-wall'));
+    x.fillStyle = '#2F3833'; x.fillRect(0, 0, W, W); x.lineCap = 'round';
+    for (var i = 0; i < 160; i++) {
+      var px = r() * W, py = r() * W, len = 30 + r() * 70;
+      x.strokeStyle = r() < 0.5 ? '#3A443E' : '#262D29'; x.globalAlpha = 0.35 + r() * 0.35; x.lineWidth = 6 + r() * 14;
+      for (var ox = -W; ox <= W; ox += W) for (var oy = -W; oy <= W; oy += W) {
+        x.beginPath(); x.moveTo(px + ox, py + oy); x.lineTo(px + ox + len * 0.94, py + oy + len * 0.34); x.stroke();
+      }
+    }
+    var pat = el('pattern', { id: 'wall-grain', width: W, height: W, patternUnits: 'userSpaceOnUse' }, defs);
+    var im = el('image', { width: W, height: W, href: c.toDataURL('image/png') }, pat);
+    document.getElementById('bg-grain').setAttribute('fill', 'url(#wall-grain)');
+  })();
+
+  // Per-view registration offsets (authored): where each viewpoint starts before it locks in.
+  var OFFSET = {
+    'wall-plane-a': [-70, -36], 'wall-plane-ab': [0, -60], 'wall-plane-b': [80, -24],
+    'table-top': [-96, 34], 'table-top-x-front': [0, 60], 'table-front': [96, 70],
+    'guitar-front': [-130, 40], 'guitar-front-x-profile': [-10, -40], 'guitar-profile': [120, -70], 'guitar-neck': [-60, -110],
+    'guitar-soundhole': [-130, 40], 'guitar-bridge': [-130, 40],
+    'bottle-profile': [-110, 20], 'bottle-profile-x-top': [-40, -60], 'bottle-top': [40, -110],
+    'glass-profile': [110, 60], 'glass-profile-x-rim': [120, 0], 'glass-rim': [130, -80]
+  };
+  // Line work follows its view's offset.
+  var LINE_VIEW = {
+    tableTop: 'table-top', tableFront: 'table-front',
+    guitarFront: 'guitar-front', guitarProfile: 'guitar-profile', guitarNeck: 'guitar-neck', guitarStrings: 'guitar-front',
+    bottleProfile: 'bottle-profile', bottleTop: 'bottle-top', bottleTopMouth: 'bottle-top', bottleTopShoulder: 'bottle-top',
+    glassProfile: 'glass-profile', glassRim: 'glass-rim', glassLiquid: 'glass-profile'
+  };
+
+  var byId = {};
+  G.facets.forEach(function (f) { byId[f.id] = f; });
+
+  // Layers (back to front) keep each part's views together so the subject stays anchored.
+  var layers = {};
+  ['wall', 'table', 'paper', 'glass', 'bottle', 'guitar'].forEach(function (k) { layers[k] = el('g', { id: 'part-' + k, 'data-part': k }, scene); });
+
+  var groups = {}; // view id -> <g>
+  function viewGroup(id, part) {
+    if (!groups[id]) groups[id] = el('g', { id: 'view-' + id, 'data-part': part, 'data-view': id }, layers[part]);
+    return groups[id];
+  }
+
+  G.facets.forEach(function (f) {
+    if (!f.d) return;
+    var g = viewGroup(f.id, f.part);
+    el('path', { d: f.d, fill: TONE[f.tone], 'data-facet': f.id, 'data-view': f.view }, g);
+    if (f.tone !== 'ink') {
+      var pid = 'scumble-' + f.id;
+      var pat = el('pattern', { id: pid, width: SIZE, height: SIZE, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(' + f.angle + ')' }, defs);
+      var im = el('image', { width: SIZE, height: SIZE }, pat);
+      im.setAttributeNS('http://www.w3.org/1999/xlink', 'href', scumble(f.id, f.tone));
+      im.setAttribute('href', im.getAttributeNS('http://www.w3.org/1999/xlink', 'href'));
+      el('path', { d: f.d, fill: 'url(#' + pid + ')' }, g);
+    }
+    if (f.id === 'guitar-front-x-profile') el('path', { d: f.d, fill: 'url(#hatch)', opacity: 0.55 }, g);
+    el('path', { d: f.d, fill: 'none', stroke: INK, 'stroke-width': 2.5, 'stroke-linejoin': 'round' }, g);
+  });
+
+  // Plain ruled printed-paper passage clipped to the bottle's profile body (no words).
+  var bp = groups['bottle-profile'];
+  var clip = el('clipPath', { id: 'clip-bottle-paper' }, defs);
+  el('path', { d: byId['bottle-profile'].d }, clip);
+  el('rect', { x: 752, y: 380, width: 120, height: 120, fill: 'url(#ruled-plain)', 'clip-path': 'url(#clip-bottle-paper)', opacity: 0.9 }, bp);
+
+  // Subject contour line work (each original view outline) in its view group.
+  Object.keys(G.lines).forEach(function (k) {
+    var view = LINE_VIEW[k];
+    var g = groups[view];
+    var w = /Strings/.test(k) ? 1.6 : /Mouth|Shoulder|Liquid/.test(k) ? 2.5 : 3.5;
+    el('path', { d: G.lines[k], fill: 'none', stroke: INK, 'stroke-width': w, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'data-line': k }, g);
+  });
+  // Bottle top view mouth reads as a dark opening.
+  el('path', { d: G.lines.bottleTopMouth, fill: INK }, groups['bottle-top']);
+  // Guitar strings sit above its soundhole.
+  layers.guitar.appendChild(groups['guitar-front']);
+  layers.guitar.appendChild(groups['guitar-front-x-profile']);
+  layers.guitar.appendChild(groups['guitar-soundhole']);
+  layers.guitar.appendChild(groups['guitar-bridge']);
+  var strings = layers.guitar.querySelector('[data-line="guitarStrings"]');
+  var strG = el('g', { id: 'view-guitar-strings' }, layers.guitar); strG.appendChild(strings);
+  OFFSET['guitar-strings'] = OFFSET['guitar-front']; groups['guitar-strings'] = strG;
+  // Bottle top view in front of its profile so the view swap reads clearly.
+  layers.bottle.appendChild(groups['bottle-top']);
+
+  // Printed-paper fragment with its approved words (container + label move as one).
+  var frag = el('g', { id: 'view-paper-fragment', 'data-part': 'paper' }, layers.paper);
+  var fragInner = el('g', { transform: 'rotate(-7 300 470)' }, frag);
+  var fclip = el('clipPath', { id: 'clip-fragment' }, defs);
+  el('path', { id: 'fragment-edge', d: 'M110 360L470 352L476 590L300 598L118 588L112 470z' }, fclip);
+  var fbody = el('g', { 'clip-path': 'url(#clip-fragment)' }, fragInner);
+  el('rect', { id: 'fragment-paper', x: 100, y: 340, width: 390, height: 270, fill: 'url(#ruled)' }, fbody);
+  el('rect', { x: 100, y: 340, width: 390, height: 72, fill: '#ECE4D0' }, fbody);
+  el('path', { d: 'M110 360L470 352L476 590L300 598L118 588L112 470z', fill: 'none', stroke: INK, 'stroke-width': 2 }, fragInner);
+  var head = el('text', { x: 292, y: 398, 'font-size': 30, fill: INK, 'text-anchor': 'middle', 'letter-spacing': 2, class: 'serif', 'data-reveal-after': 'fragment-paper' }, fragInner);
+  head.textContent = 'LE SYSTÈME';
+  OFFSET['paper-fragment'] = [-80, 40]; groups['paper-fragment'] = frag;
+
+  // ---- One paused, seekable GSAP timeline ----
+  var tl = gsap.timeline({ paused: true, defaults: { overwrite: false } });
+  var order = ['wall-plane-a', 'wall-plane-b', 'wall-plane-ab', 'table-front', 'table-top', 'table-top-x-front', 'paper-fragment',
+    'glass-rim', 'glass-profile', 'glass-profile-x-rim', 'bottle-profile', 'bottle-top', 'bottle-profile-x-top',
+    'guitar-profile', 'guitar-neck', 'guitar-front', 'guitar-soundhole', 'guitar-bridge', 'guitar-strings', 'guitar-front-x-profile'];
+  // 0–1.2 s: facets slide into registration from their per-view offsets.
+  order.forEach(function (id, i) {
+    var g = groups[id]; if (!g) return;
+    var o = OFFSET[id] || [0, 0];
+    var start = Math.min(0.3, i * 0.016);
+    var endOpacity = id === 'bottle-top' ? 0.3 : 1;
+    var from = { x: o[0], y: o[1], opacity: 0.35 }, to = { x: 0, y: 0, opacity: endOpacity, duration: 1.2 - start, ease: 'power2.inOut' };
+    if (id === 'bottle-top') { from.scale = 0.86; from.transformOrigin = '50% 50%'; to.scale = 0.86; }
+    tl.fromTo(g, from, to, start);
+  });
+  // 1.2–2.0 s: deliberate bottle view swap — profile recedes and shifts, top view comes forward.
+  tl.addLabel('viewSwap', 1.2);
+  tl.fromTo(groups['bottle-profile'], { x: 0, y: 0, opacity: 1 }, { x: -22, y: 10, opacity: 0.55, duration: 0.8, ease: 'sine.inOut', immediateRender: false }, 1.2);
+  tl.fromTo(groups['bottle-profile-x-top'], { x: 0, y: 0, opacity: 1 }, { x: -11, y: 5, opacity: 0.8, duration: 0.8, ease: 'sine.inOut', immediateRender: false }, 1.2);
+  tl.fromTo(groups['bottle-top'], { x: 0, y: 0, opacity: 0.3, scale: 0.86, transformOrigin: '50% 50%' }, { x: 6, y: -8, opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.2)', immediateRender: false }, 1.2);
+  // 2.0–3.0 s: readable hold.
+  tl.addLabel('hold', 2.0);
+  tl.set({}, {}, 3.0);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  tl.seek(0);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

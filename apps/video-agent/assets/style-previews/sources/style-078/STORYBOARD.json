@@ -1,0 +1,135 @@
+{
+  "version": 3,
+  "title": "Clay-Style 3D — An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The idea lands",
+      "startSeconds": 0,
+      "endSeconds": 0.66,
+      "purpose": "Establish the dark slate studio sweep and the clay idea bulb with weight: it drops, squashes on contact and rebounds elastically.",
+      "visuals": [
+        "Seamless dark slate-green cyclorama with a soft overhead light pool and a stationary vignette",
+        "Peach clay head (#C7917B) on an ink socket (#3E4A46) with two sage grooves (#93AD9E) and a pressed-in brow arc",
+        "Soft contact shadow that tightens and darkens as the bulb reaches the floor"
+      ],
+      "assets": [
+        "clay-scene.bundle.js (procedural Three.js scene, bundled from src/clay-scene.js)"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.42,
+          "development": "The bulb falls from above the frame into the light pool, slightly stretched while falling.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.42,
+          "endSeconds": 0.66,
+          "development": "Contact: volume-preserving squash, then a damped elastic rebound. The title starts rising in.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Connections extrude",
+      "startSeconds": 0.66,
+      "endSeconds": 1.96,
+      "purpose": "Show the idea becoming a system: clay tubes extrude from the bulb, and clay orbs drop in to meet each tube and form the network.",
+      "visuals": [
+        "Five clay tubes grow along XPBD-baked rope paths that sag and drape onto the floor",
+        "Three sage orbs and one peach orb drop in, squash and settle at the tube ends",
+        "Two orb-to-orb tubes close the loop to the far-right orb"
+      ],
+      "assets": [
+        "clay-scene.bundle.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0.66,
+          "endSeconds": 1.44,
+          "development": "Tubes extrude toward the front, back and middle orbs, which land in sequence at 1.08, 1.26 and 1.42 s. Both title lines are settled by 1.2 s.",
+          "captions": [
+            "An idea becomes",
+            "a connected system"
+          ],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.24
+        },
+        {
+          "startSeconds": 1.44,
+          "endSeconds": 1.96,
+          "development": "Orb-to-orb tubes grow toward the far-right orb, which drops in at 1.95 s. The landing tugs the ropes and the XPBD solver absorbs it.",
+          "captions": [
+            "An idea becomes",
+            "a connected system"
+          ],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.52
+        }
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Settled system",
+      "startSeconds": 1.96,
+      "endSeconds": 3,
+      "purpose": "Let the connected clay network settle and hold as a readable lockup.",
+      "visuals": [
+        "Last orb squash decays and the tubes come to rest on the floor",
+        "Footer fades in at the lower right"
+      ],
+      "assets": [
+        "clay-scene.bundle.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 1.96,
+          "endSeconds": 2.35,
+          "development": "The final squash decays, the rope wobble damps out and the footer fades in.",
+          "captions": [
+            "An idea becomes",
+            "a connected system"
+          ],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.39
+        },
+        {
+          "startSeconds": 2.35,
+          "endSeconds": 3,
+          "development": "Full lockup holds still: bulb, network, title, subtitle and footer, all legible.",
+          "captions": [
+            "An idea becomes",
+            "a connected system",
+            "DIGITAL CLAY · MATTE STUDY"
+          ],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.65
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "The bulb drop takes 0.42 s and its squash settles in about 0.4 s, which gives the clay weight without lingering.",
+      "Tube and orb arrivals are staggered by 0.16–0.5 s so that each connection can be followed along the eye path from left to right.",
+      "Copy appears only after the bulb lands, so the falling object never crosses visible text.",
+      "Rope motion falls below about 0.01 scene units per frame by 2.67 s, and every element is settled by 2.7 s."
+    ],
+    "justifiedHolds": [
+      "2.35–3.0 s: a final still lockup gives a settled reading hold for all three lines of copy."
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, effects, voice or lyrics.",
+    "This is a clay-like 3D treatment rendered procedurally in Three.js WebGL. No physical clay was filmed.",
+    "Planned Blender/Cycles route was blocked: Blender 5.2.2 crashes at startup in this sandbox during Metal GPU backend detection.",
+    "Background is a scene-dependent dark slate-green studio sweep, which replaces the earlier warm cream canvas. It follows the reviewed hero/stage/accent luminance structure."
+  ]
+}

@@ -1,0 +1,57 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:1280px;height:720px;overflow:hidden}svg{width:1280px;height:720px;display:block}</style></head><body><div data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30"><svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720"><defs><linearGradient id="ir" x1="0" y1="0" x2="1" y2=".4"><stop offset="0" stop-color="#A99DC1"></stop><stop offset=".35" stop-color="#9FB9B2"></stop><stop offset=".7" stop-color="#D3ADA1"></stop><stop offset="1" stop-color="#A99DC1"></stop></linearGradient><linearGradient id="ir2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D3ADA1"></stop><stop offset=".5" stop-color="#F1EDEA"></stop><stop offset="1" stop-color="#9FB9B2"></stop></linearGradient><radialGradient id="pl" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#F1EDEA"></stop><stop offset=".45" stop-color="#D3ADA1"></stop><stop offset=".75" stop-color="#A99DC1"></stop><stop offset="1" stop-color="#9FB9B2"></stop></radialGradient><g id="pr"><circle r="26" fill="url(#pl)"></circle><circle r="26" fill="none" stroke="#3F4351" stroke-opacity=".15"></circle><ellipse cx="-8" cy="-10" rx="8" ry="5" fill="#F1EDEA" opacity=".9"></ellipse></g></defs><rect width="1280" height="720" fill="#F1EDEA" data-demo-actor="demo-actor-1"></rect><path d="M-40 220 C240 60 420 380 700 260 S1100 40 1320 180 L1320 300 C1100 180 940 420 700 400 S260 220 -40 360Z" fill="url(#ir)" opacity=".85" data-demo-actor="demo-actor-2"></path><path d="M-40 300 C260 160 420 420 700 330 S1080 110 1320 240 L1320 280 C1080 160 920 400 700 370 S280 240 -40 340Z" fill="url(#ir2)" opacity=".7" data-demo-actor="demo-actor-3"></path><path d="M-40 220 C240 60 420 380 700 260 S1100 40 1320 180" fill="none" stroke="#F1EDEA" stroke-width="3" opacity=".9" data-demo-actor="demo-actor-4"></path><path d="M200 380 C420 520 760 420 1000 560" fill="none" stroke="#A99DC1" stroke-width="1.5" data-demo-actor="demo-actor-5"></path><path d="M700 330 C760 420 900 470 1000 560" fill="none" stroke="#9FB9B2" stroke-width="1.5" data-demo-actor="demo-actor-6"></path><use href="#pr" x="700" y="330" data-demo-actor="demo-actor-7"></use><use href="#pr" x="1000" y="560" transform="translate(0 0)" data-demo-actor="demo-actor-8"></use><use href="#pr" x="200" y="380" data-demo-actor="demo-actor-9"></use><use href="#pr" x="1120" y="170" data-demo-actor="demo-actor-10"></use><use href="#pr" x="420" y="250" data-demo-actor="demo-actor-11"></use><text x="80" y="540" font-family="Didot,Georgia,serif" font-style="italic" font-size="58" fill="#3F4351" data-demo-actor="demo-actor-12">An idea becomes</text><text x="80" y="610" font-family="Didot,Georgia,serif" font-size="58" fill="#3F4351" data-demo-actor="demo-actor-13">a connected system</text><text x="84" y="660" font-family="Avenir Next,Helvetica,sans-serif" font-size="13" letter-spacing="6" fill="#3F4351" data-demo-actor="demo-actor-14">PEARL · SILK · CONTINUITY</text></svg></div><script src="gsap.min.js"></script><script src="chroma.min.js"></script><script>
+const plan={"styleId":"style-070","selectedReferenceIds":[],"rationale":"Pearlescent silk ribbons sweep across the frame, with pearls resting on and below them, joined by thin threads. The surface is revealed through measured flow. The main iridescent band (actor-2) slides in from the left as it fades up, like silk unfurling. Its paler inner layer (actor-3) follows a beat later for depth. The bright sheen edge (actor-4, a stroked unfilled path) then draws along the top of the silk. Next the pearls appear in a stagger: first the free pearl at left, then the pearls resting on the ribbon. The two threads (actors 5 and 6, stroked) draw toward the lower-right pearl, which forms last as the point where they meet. The serif headline and caption never move. The morphing-orb reference was rejected because the pearls are small rigid beads, not a deforming orb. Tilt and chapter handoffs aren't supported by this single scene.","tracks":[{"actorId":"demo-actor-2","role":"Main iridescent silk band flows in from the left and settles","action":"reveal","start":0,"duration":0.8,"ease":"power2.inOut","pose":{"x":-48,"y":0,"scale":1,"rotation":0,"opacity":0}},{"actorId":"demo-actor-3","role":"Pale inner silk fold follows for layered depth","action":"reveal","start":0.2,"duration":0.8,"ease":"power2.inOut","pose":{"x":-32,"y":0,"scale":1,"rotation":0,"opacity":0}},{"actorId":"demo-actor-4","role":"Bright sheen edge draws along the top of the silk","action":"draw","start":0.5,"duration":0.7,"ease":"sine.inOut","pose":{"x":0,"y":0,"scale":1,"rotation":0,"opacity":1}},{"actorId":"demo-actor-9","role":"Left pearl (thread origin) forms","action":"reveal","start":0.8,"duration":0.4,"ease":"back.out(1.2)","pose":{"x":0,"y":0,"scale":0.7,"rotation":0,"opacity":0}},{"actorId":"demo-actor-11","role":"Pearl resting on the left ribbon crest forms","action":"reveal","start":0.95,"duration":0.4,"ease":"back.out(1.2)","pose":{"x":0,"y":0,"scale":0.7,"rotation":0,"opacity":0}},{"actorId":"demo-actor-7","role":"Central pearl on the ribbon forms","action":"reveal","start":1.1,"duration":0.4,"ease":"back.out(1.2)","pose":{"x":0,"y":0,"scale":0.7,"rotation":0,"opacity":0}},{"actorId":"demo-actor-10","role":"Upper-right pearl on the ribbon forms","action":"reveal","start":1.25,"duration":0.4,"ease":"back.out(1.2)","pose":{"x":0,"y":0,"scale":0.7,"rotation":0,"opacity":0}},{"actorId":"demo-actor-5","role":"Lilac thread draws from the left pearl toward the lower-right pearl","action":"draw","start":1.2,"duration":0.6,"ease":"power2.inOut","pose":{"x":0,"y":0,"scale":1,"rotation":0,"opacity":1}},{"actorId":"demo-actor-6","role":"Sage thread draws from the central pearl to the same node","action":"draw","start":1.35,"duration":0.5,"ease":"power2.inOut","pose":{"x":0,"y":0,"scale":1,"rotation":0,"opacity":1}},{"actorId":"demo-actor-8","role":"Lower-right pearl forms where both threads meet, completing the system","action":"reveal","start":1.65,"duration":0.4,"ease":"back.out(1.2)","pose":{"x":0,"y":0,"scale":0.7,"rotation":0,"opacity":0}}]};
+const svg=document.querySelector('svg');
+const foreground="#3F4351";
+const background="#F1EDEA";
+const seenText=new Map();
+Array.from(svg.querySelectorAll('text')).forEach(el=>{
+ const label=el.textContent.trim();const prior=seenText.get(label);
+ if(prior && Math.abs(Number(prior.getAttribute('x'))-Number(el.getAttribute('x')))<12 && Math.abs(Number(prior.getAttribute('y'))-Number(el.getAttribute('y')))<12) {
+  const selected=typeof plan!=='undefined' && plan.tracks.some(track=>track.actorId===prior.getAttribute('data-demo-actor'));
+  if(selected){el.remove();return;}
+  prior.remove();
+ }
+ seenText.set(label,el);
+ // Preserve authored baselines. Tight headline leading can overlap font em-boxes
+ // without overlapping visible glyphs; annotate only baseline gaps of at least one em.
+ const fontSize=Number(getComputedStyle(el).fontSize.replace('px',''));
+ const fill=getComputedStyle(el).fill;
+ if(fontSize<24 && chroma.valid(fill) && chroma(fill).hex()!==chroma(background).hex() && chroma.contrast(fill,background)<4.5){el.setAttribute('fill',foreground);el.setAttribute('opacity','1');el.setAttribute('fill-opacity','1');}
+ if(fontSize>=36){
+  for(const sibling of Array.from(el.parentElement.querySelectorAll(':scope > text'))){
+   if(sibling===el)continue;
+   const gap=Math.abs(Number(sibling.getAttribute('y'))-Number(el.getAttribute('y')));
+   if(gap>=fontSize && gap<=fontSize*1.3 && Math.abs(Number(sibling.getAttribute('x'))-Number(el.getAttribute('x')))<12){el.setAttribute('data-layout-allow-overlap','true');sibling.setAttribute('data-layout-allow-overlap','true');}
+  }
+ }
+ // Outlined display lettering needs a readable fill as well as its decorative outline.
+ if(el.getAttribute('stroke') && el.getAttribute('stroke')!=='none') {el.setAttribute('fill',foreground);el.setAttribute('stroke',background);}
+});
+
+const timeline=gsap.timeline({paused:true});
+const chosen=plan.tracks.map(track=>({track,element:document.querySelector('[data-demo-actor="'+track.actorId+'"]')}));
+if(chosen.some(item=>!item.element))throw Error('Motion references an absent actor');
+for(const item of chosen){
+ if(chosen.some(other=>other!==item&&other.element.contains(item.element)))throw Error('Nested motion actors would double-transform artwork');
+ const el=item.element;
+ if(el.tagName==='rect' && Number(el.getAttribute('width'))>=1200 && Number(el.getAttribute('height'))>=650)throw Error('Background cannot be a motion actor');
+ const wrapper=document.createElementNS('http://www.w3.org/2000/svg','g');
+ el.parentNode.insertBefore(wrapper,el);wrapper.appendChild(el);
+ wrapper.setAttribute('data-demo-motion',item.track.actorId);
+ // Animate a neutral wrapper, never overwrite the artwork's authored matrix.
+ gsap.set(wrapper,{transformOrigin:'50% 50%'});
+ if(item.track.action==='reveal'){
+   gsap.set(wrapper,item.track.pose);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:item.track.ease},item.track.start);
+ }else if(item.track.action==='draw'){
+   const paths=Array.from(el.matches('path,line,polyline,polygon')?[el]:el.querySelectorAll('path,line,polyline,polygon'));
+   const drawable=paths.filter(p=>getComputedStyle(p).fill==='none' && getComputedStyle(p).stroke!=='none' && typeof p.getTotalLength==='function');
+   if(!drawable.length)throw Error('Draw action needs visible unfilled stroked paths');
+   for(const path of drawable){const length=path.getTotalLength();gsap.set(path,{strokeDasharray:length,strokeDashoffset:length});timeline.to(path,{strokeDashoffset:0,duration:item.track.duration,ease:item.track.ease},item.track.start);}
+ }else{
+   timeline.to(wrapper,{...item.track.pose,duration:item.track.duration,ease:item.track.ease},item.track.start);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:'sine.inOut'},Math.min(2.7-item.track.duration,item.track.start+item.track.duration+.2));
+ }
+}
+timeline.to({}, {duration:.001},2.999);window.__timelines={video:timeline};
+</script></body></html>

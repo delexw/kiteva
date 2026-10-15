@@ -1,0 +1,27 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js",
+    "GLSL"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent. No audio track; intentional silence for a style preview.",
+  "limitations": [
+    "Illustrative granular appearance only: sand is a GLSL density field built from authored Canvas 2D masks, not a granular physics simulation.",
+    "Backlight transmission is approximated as mix(#3A291B, lit field, exp(-3.4*density)); no real light scattering.",
+    "Scene-dependent palette: cool blue-white light table (#E3ECEF field, #EEF4F5 centre glow, #CBD8DC edge vignette) chosen for a technical 'connected system' subject; dark sand #3A291B unchanged. The prior #F5E3B5 warm swatch was an example, not an approved restriction.",
+    "Table glow, vignette and mottling are static procedural approximations of a lightbox diffuser; they never change over time.",
+    "Speckled sand edges come from a per-pixel hash threshold; scrape ridges are approximated from mip-blurred scrape coverage.",
+    "Grain is a fixed seeded screen-space hash (stationary), not true grain-size variation.",
+    "STYLE.json defines no tech.preview_recipes; the preview demonstrates the base implementation plus source-frame lessons (stray grains before a shape, sequential build, still final hold).",
+    "Source-frame evidence covers only seconds 1-8 of one reference video and shows no scraping; scraping behaviour follows STYLE.json, not the source.",
+    "Canvas 2D only bakes textures at load; Three.js is bundled locally with esbuild as three.bundle.js. Copy is HTML Georgia italic in #3A291B on the lit field (>= 9.5:1 contrast even at the vignette edge)."
+  ]
+}

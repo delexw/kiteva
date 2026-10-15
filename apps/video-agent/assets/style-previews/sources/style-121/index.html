@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chalk on Black Paper — An idea becomes a connected system</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #15141A; overflow: hidden; }
+  #root { position: relative; width: 100%; height: 100%; background: #15141A; }
+  #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: #15141A; }
+</style>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30" data-style-renderer="Canvas 2D" data-motion-engine="GSAP">
+  <canvas id="stage" class="clip" data-start="0" data-duration="3" width="1280" height="720"
+          aria-label="Chalk drawing: An idea becomes a connected system. A light bulb labelled one spark, a chalk arrow, and a network of nodes labelled many links."></canvas>
+</div>
+<script>
+(function () {
+  "use strict";
+  var W = 1280, H = 720;
+  var BG = "#15141A", FG = "#F1EBDD";
+  // palette sanity (chroma.js used only for verification; no derived colors are introduced)
+  var CONTRAST = (window.chroma ? chroma.contrast(FG, BG) : 0);
+
+  // ---------- seeded RNG + seeded 2D gradient noise (local stand-in for @remotion/noise noise2D) ----------
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function makeNoise2D(seed) {
+    var r = mulberry32(seed), p = new Uint8Array(512), i, j, k;
+    var base = []; for (i = 0; i < 256; i++) base[i] = i;
+    for (i = 255; i > 0; i--) { j = Math.floor(r() * (i + 1)); k = base[i]; base[i] = base[j]; base[j] = k; }
+    for (i = 0; i < 512; i++) p[i] = base[i & 255];
+    var GX = [1, -1, 1, -1, 1, -1, 0, 0], GY = [1, 1, -1, -1, 0, 0, 1, -1];
+    function fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+    function g(h, x, y) { h &= 7; return GX[h] * x + GY[h] * y; }
+    return function (x, y) {
+      var X = Math.floor(x), Y = Math.floor(y), xf = x - X, yf = y - Y; X &= 255; Y &= 255;
+      var u = fade(xf), v = fade(yf);
+      var aa = p[p[X] + Y], ab = p[p[X] + Y + 1], ba = p[p[X + 1] + Y], bb = p[p[X + 1] + Y + 1];
+      var x1 = g(aa, xf, yf) + u * (g(ba, xf - 1, yf) - g(aa, xf, yf));
+      var x2 = g(ab, xf, yf - 1) + u * (g(bb, xf - 1, yf - 1) - g(ab, xf, yf - 1));
+      return (x1 + v * (x2 - x1)) * 1.2; // approx [-1, 1]
+    };
+  }
+  var noise2D = makeNoise2D(121);
+  var noiseB = makeNoise2D(9121);
+  function hash2(x, y) { var h = Math.imul((x | 0) * 374761393 + (y | 0) * 668265263, 1274126177); h ^= h >>> 13; h = Math.imul(h, 1103515245); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+
+  // ---------- static paper + tooth textures (generated once) ----------
+  var paper = document.createElement("canvas"); paper.width = W; paper.height = H;
+  var tooth = document.createElement("canvas"); tooth.width = W; tooth.height = H;
+  (function buildTextures() {
+    var pc = paper.getContext("2d"), tc = tooth.getContext("2d");
+    var pd = pc.createImageData(W, H), td = tc.createImageData(W, H);
+    var br = 0x15, bgc = 0x14, bb = 0x1A;
+    for (var y = 0; y < H; y++) {
+      for (var x = 0; x < W; x++) {
+        var i = (y * W + x) * 4;
+        var h = hash2(x, y);
+        var n = noise2D(x * 0.045, y * 0.045);
+        // low-contrast speckle: most pixels exactly #15141A, a sparse few lifted by 2–6 levels
+        var lift = 0;
+        if (h > 0.93) lift = 2 + Math.round((h - 0.93) * 60);
+        else if (n > 0.55 && h > 0.7) lift = 2;
+        pd.data[i] = br + lift; pd.data[i + 1] = bgc + lift; pd.data[i + 2] = bb + lift; pd.data[i + 3] = 255;
+        // tooth pits: where paper valleys sit, chalk does not reach
+        var t = noise2D(x * 0.55 + 31.7, y * 0.55 - 12.3) * 0.6 + (h - 0.5) * 0.9 + noiseB(x * 0.09, y * 0.09) * 0.25;
+        var a = t > 0.42 ? 255 : (t > 0.32 ? 120 : 0);
+        td.data[i] = 0; td.data[i + 1] = 0; td.data[i + 2] = 0; td.data[i + 3] = a;
+      }
+    }
+    pc.putImageData(pd, 0, 0); tc.putImageData(td, 0, 0);
+  })();
+
+  // ---------- path construction + arc-length sampling (cached once) ----------
+  function cubic(a, b, c, d, n) { var out = []; for (var i = 0; i <= n; i++) { var t = i / n, m = 1 - t;
+    out.push([m*m*m*a[0] + 3*m*m*t*b[0] + 3*m*t*t*c[0] + t*t*t*d[0], m*m*m*a[1] + 3*m*m*t*b[1] + 3*m*t*t*c[1] + t*t*t*d[1]]); } return out; }
+  function line(a, b) { return [a, b]; }
+  function circle(cx, cy, r, start) { var out = [], s = start || -Math.PI / 2; for (var i = 0; i <= 72; i++) { var t = s + i / 72 * Math.PI * 2; out.push([cx + Math.cos(t) * r, cy + Math.sin(t) * r]); } return out; }
+  function join() { var out = []; for (var k = 0; k < arguments.length; k++) { var seg = arguments[k]; for (var i = 0; i < seg.length; i++) { if (out.length && i === 0) { var l = out[out.length - 1]; if (Math.abs(l[0] - seg[0][0]) < 0.01 && Math.abs(l[1] - seg[0][1]) < 0.01) continue; } out.push(seg[i]); } } return out; }
+  function resample(pts, step) {
+    var dense = [], i, L = 0, acc = [0];
+    for (i = 1; i < pts.length; i++) { L += Math.hypot(pts[i][0] - pts[i-1][0], pts[i][1] - pts[i-1][1]); acc.push(L); }
+    var n = Math.max(2, Math.ceil(L / step)), j = 1;
+    for (i = 0; i <= n; i++) {
+      var d = L * i / n; while (j < acc.length - 1 && acc[j] < d) j++;
+      var seg = acc[j] - acc[j-1] || 1, f = (d - acc[j-1]) / seg;
+      var x = pts[j-1][0] + (pts[j][0] - pts[j-1][0]) * f, y = pts[j-1][1] + (pts[j][1] - pts[j-1][1]) * f;
+      var tx = pts[j][0] - pts[j-1][0], ty = pts[j][1] - pts[j-1][1], tl = Math.hypot(tx, ty) || 1;
+      dense.push({ x: x, y: y, tx: tx / tl, ty: ty / tl, d: d });
+    }
+    return { s: dense, L: L };
+  }
+
+  // Build cached dab list for a stroke: dabs ordered along arc length.
+  var STEP = 1.7;
+  function buildStroke(id, pts, o) {
+    var rs = resample(pts, STEP), S = rs.s, L = rs.L, dabs = [], idx = [];
+    var w = o.width, alpha = o.alpha, seed = o.seed || 1, dash = o.dash || null;
+    var per = Math.max(2, Math.ceil(w / 2.1));
+    for (var i = 0; i < S.length; i++) {
+      var p = S[i], s = i / (S.length - 1);
+      idx.push(dabs.length / 4);
+      if (dash) { var m = p.d % (dash[0] + dash[1]); if (m > dash[0]) continue; }
+      var nx = -p.ty, ny = p.tx;
+      var taper = Math.min(1, (p.d + 3) / 9, (L - p.d + 3) / 9);
+      var pressure = (o.pressure || 0.85) + 0.15 * Math.sin(s * Math.PI * (1.3 + (seed % 3) * 0.4) + seed);
+      var wj = w * taper * (0.85 + 0.3 * (noiseB(p.x * 0.05 + seed, p.y * 0.05) * 0.5 + 0.5));
+      for (var k = 0; k < per; k++) {
+        var h = hash2(i * 7 + k * 131 + seed * 977, seed * 31 + k);
+        var h2 = hash2(i * 13 + seed * 17, k * 59 + seed);
+        var off = ((k + 0.5) / per - 0.5) * wj + (h - 0.5) * 2.2;
+        var x = p.x + nx * off + (h2 - 0.5) * 1.6, y = p.y + ny * off + (h - 0.5) * 1.2;
+        var edge = Math.abs(off) / (wj * 0.5 + 0.001);
+        var gn = noise2D(x * 0.12, y * 0.12) * 0.5 + 0.5;           // spatial seeded grain
+        var en = noise2D(x * 0.3 + 50, y * 0.3 - 20);                 // edge breakup
+        if (edge > 0.7 && en < -0.15) continue;                       // broken powdery edge
+        var r = (1.25 + 0.9 * h2) * (1 + 0.35 * en) * (w < 6 ? 0.9 : 1.15);
+        if (r < 0.5) r = 0.5;
+        var a = alpha * pressure * (0.45 + 0.6 * gn) * (edge > 0.8 ? 0.6 : 1);
+        if (a > 1) a = 1;
+        dabs.push(x, y, r, a);
+      }
+    }
+    idx.push(dabs.length / 4);
+    return { id: id, dabs: new Float32Array(dabs), idx: idx, end: S[S.length - 1], start: S[0], n: S.length };
+  }
+
+  // ---------- authored stroke library ----------
+  var STROKES = {}, ORDER = [];
+  function add(id, pts, o) { STROKES[id] = buildStroke(id, pts, o); ORDER.push(id); }
+  var PALE = 0.36, OPAQ = 0.9;
+
+  var bulb = join(cubic([222,400],[160,350],[172,232],[262,226], 60), cubic([262,226],[352,232],[362,350],[302,400], 60), line([302,400],[222,400]));
+  add("bulbHalo", bulb, { width: 20, alpha: 0.24, seed: 3, pressure: 0.8 });
+  add("bulbPale", bulb, { width: 8, alpha: PALE, seed: 5, pressure: 0.85 });
+  // pale side-of-chalk glow hatching inside the bulb glass
+  [[204,330,250,262],[200,366,300,252],[214,392,322,272],[250,396,328,318]].forEach(function (h, i) {
+    add("hatch" + i, line([h[0], h[1]], [h[2], h[3]]), { width: 16, alpha: 0.2, seed: 401 + i * 13, pressure: 0.75 });
+  });
+  add("bulbOpaque", bulb, { width: 6, alpha: OPAQ, seed: 7, pressure: 0.9 });
+  add("base1", line([228,422],[296,422]), { width: 6, alpha: OPAQ, seed: 11 });
+  add("base2", line([232,442],[292,442]), { width: 6, alpha: OPAQ, seed: 13 });
+  add("base3", line([244,462],[280,462]), { width: 6, alpha: OPAQ, seed: 17 });
+  add("filament", [[242,382],[252,330],[262,362],[272,330],[282,382]], { width: 4.5, alpha: OPAQ, seed: 19 });
+  add("ray1", line([262,196],[262,166]), { width: 5, alpha: 0.75, seed: 23 });
+  add("ray2", line([180,230],[158,208]), { width: 5, alpha: 0.75, seed: 29 });
+  add("ray3", line([344,230],[366,208]), { width: 5, alpha: 0.75, seed: 31 });
+  add("ray4", line([150,310],[122,310]), { width: 5, alpha: 0.75, seed: 37 });
+  add("ray5", line([374,310],[402,310]), { width: 5, alpha: 0.75, seed: 41 });
+  add("underline", cubic([82,172],[220,162],[380,180],[520,166], 50), { width: 5, alpha: 0.6, seed: 43 });
+
+  // arrow: dashed chalk shaft from the spark to the network; head drawn only after shaft reaches endpoint
+  add("arrowShaft", cubic([360,326],[440,270],[490,390],[588,338], 80), { width: 5, alpha: OPAQ, seed: 47, dash: [14, 11] });
+  var aEnd = STROKES.arrowShaft.end, ang = Math.atan2(aEnd.ty, aEnd.tx);
+  function headPt(da) { return [aEnd.x - Math.cos(ang + da) * 22, aEnd.y - Math.sin(ang + da) * 22]; }
+  add("arrowHeadA", line([aEnd.x, aEnd.y], headPt(0.5)), { width: 5, alpha: OPAQ, seed: 53 });
+  add("arrowHeadB", line([aEnd.x, aEnd.y], headPt(-0.5)), { width: 5, alpha: OPAQ, seed: 59 });
+
+  var N = { a: [640,330], b: [800,210], c: [820,450], d: [980,320], e: [1120,200], f: [1110,470], g: [960,570] };
+  var EDGES = [["a","b"],["a","c"],["b","d"],["c","d"],["b","c"],["d","e"],["d","f"],["c","g"],["g","f"]];
+  function trimmed(p, q) { var dx = q[0]-p[0], dy = q[1]-p[1], l = Math.hypot(dx, dy), u = 30 / l; return [[p[0]+dx*u, p[1]+dy*u],[q[0]-dx*u, q[1]-dy*u]]; }
+  EDGES.forEach(function (e, i) { add("edgeHalo" + i, trimmed(N[e[0]], N[e[1]]), { width: 18, alpha: 0.17, seed: 301 + i * 7, pressure: 0.8 }); });
+  EDGES.forEach(function (e, i) { add("edge" + i, trimmed(N[e[0]], N[e[1]]), { width: 6, alpha: PALE + 0.06, seed: 61 + i * 7, pressure: 0.85 }); });
+  var spine = [N.a, N.b, N.d, N.f, N.g];
+  add("spineHalo", spine, { width: 24, alpha: 0.2, seed: 131, pressure: 0.8 });
+  add("spineOpaque", spine.map(function (p) { return p; }), { width: 5, alpha: OPAQ, seed: 137 });
+  Object.keys(N).forEach(function (k, i) {
+    var p = N[k];
+    add("ring" + k, circle(p[0], p[1], 26, -Math.PI / 2 + i), { width: 6, alpha: OPAQ, seed: 151 + i * 11 });
+    add("dot" + k, circle(p[0], p[1], 4.5, i), { width: 9, alpha: OPAQ, seed: 211 + i * 5 });
+  });
+
+  // ---------- text (standalone headings/captions, wipe-revealed in chalk) ----------
+  var FONT = '"Chalkboard SE", "Chalkboard", "Marker Felt", "Noteworthy", "Trebuchet MS", sans-serif';
+  var TEXTS = [
+    { id: "t1", str: "An idea becomes", x: 80, y: 96, size: 50, a: 0.96 },
+    { id: "t2", str: "a connected system", x: 80, y: 152, size: 50, a: 0.86 },
+    { id: "t3", str: "one spark", x: 212, y: 528, size: 26, a: 0.86 },
+    { id: "t4", str: "many links", x: 880, y: 650, size: 26, a: 0.86 }
+  ];
+
+  // ---------- timeline-owned state ----------
+  var P = {}; ORDER.forEach(function (id) { P[id] = 0; }); TEXTS.forEach(function (t) { P[t.id] = 0; });
+
+  var canvas = document.getElementById("stage"), ctx = canvas.getContext("2d");
+  var chalk = document.createElement("canvas"); chalk.width = W; chalk.height = H;
+  var cc = chalk.getContext("2d");
+
+  function drawStroke(st, p) {
+    if (p <= 0) return;
+    var si = Math.min(st.n, Math.floor(p * st.n + 0.0001));
+    var end = p >= 1 ? st.dabs.length / 4 : st.idx[si];
+    var d = st.dabs, TAU = Math.PI * 2;
+    for (var i = 0; i < end; i++) {
+      var o = i * 4; cc.globalAlpha = d[o + 3];
+      cc.beginPath(); cc.arc(d[o], d[o + 1], d[o + 2], 0, TAU); cc.fill();
+    }
+  }
+  function drawText(t, p) {
+    if (p <= 0) return;
+    cc.save();
+    cc.font = t.size + "px " + FONT;
+    var wdt = cc.measureText(t.str).width + 8;
+    cc.beginPath(); cc.rect(t.x - 4, t.y - t.size * 1.1, wdt * Math.min(1, p), t.size * 1.6); cc.clip();
+    cc.textBaseline = "alphabetic";
+    cc.globalAlpha = t.a * 0.35; cc.fillText(t.str, t.x + 1.2, t.y + 0.8);  // pale powder pass
+    cc.globalAlpha = t.a; cc.fillText(t.str, t.x, t.y);                     // opaque pass
+    cc.restore();
+  }
+
+  function render() {
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+    ctx.drawImage(paper, 0, 0);
+    cc.setTransform(1, 0, 0, 1, 0, 0);
+    cc.globalCompositeOperation = "source-over"; cc.globalAlpha = 1;
+    cc.clearRect(0, 0, W, H);
+    cc.fillStyle = FG;
+    for (var i = 0; i < ORDER.length; i++) drawStroke(STROKES[ORDER[i]], P[ORDER[i]]);
+    for (var j = 0; j < TEXTS.length; j++) drawText(TEXTS[j], P[TEXTS[j].id]);
+    // paper tooth gaps: chalk skips the valleys of the black paper
+    cc.globalAlpha = 0.85; cc.globalCompositeOperation = "destination-out";
+    cc.drawImage(tooth, 0, 0);
+    cc.globalCompositeOperation = "source-over"; cc.globalAlpha = 1;
+    ctx.drawImage(chalk, 0, 0);
+  }
+
+  // ---------- GSAP: one paused timeline, tweens per-stroke progress ----------
+  var tl = gsap.timeline({ paused: true, defaults: { ease: "none" }, onUpdate: render });
+  function T(id, start, dur, ease) { var v = {}; v[id] = 1; v.duration = dur; v.ease = ease || "power1.inOut"; tl.fromTo(P, (function(){ var f = {}; f[id] = 0; return f; })(), v, start); }
+
+  T("t1", 0.0, 0.55, "power1.out");
+  T("t2", 0.25, 0.6, "power1.out");
+  T("bulbHalo", 0.12, 0.6);
+  T("bulbPale", 0.2, 0.6);
+  T("underline", 0.72, 0.32);
+  [0,1,2,3].forEach(function (i) { T("hatch" + i, 0.45 + i * 0.07, 0.2); });
+  T("bulbOpaque", 0.6, 0.55);
+  T("base1", 0.92, 0.12); T("base2", 1.0, 0.12); T("base3", 1.08, 0.12);
+  T("filament", 1.0, 0.3);
+  ["ray1","ray2","ray3","ray4","ray5"].forEach(function (r, i) { T(r, 1.1 + i * 0.05, 0.14, "power2.out"); });
+  T("t3", 1.2, 0.3, "power1.out");
+  T("arrowShaft", 1.25, 0.45, "sine.inOut");
+  // heads start only once the shaft progress is complete (1.70)
+  T("arrowHeadA", 1.70, 0.1, "power1.out");
+  T("arrowHeadB", 1.74, 0.1, "power1.out");
+  EDGES.forEach(function (e, i) { T("edge" + i, 1.38 + i * 0.06, 0.26); });
+  EDGES.forEach(function (e, i) { T("edgeHalo" + i, 1.32 + i * 0.06, 0.26); });
+  Object.keys(N).forEach(function (k, i) { T("ring" + k, 1.5 + i * 0.08, 0.28, "power1.out"); T("dot" + k, 1.62 + i * 0.08, 0.12); });
+  T("spineHalo", 1.95, 0.45);
+  T("spineOpaque", 2.02, 0.5);
+  T("t4", 2.3, 0.3, "power1.out");
+  tl.set({}, {}, 3);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  window.__chalkMeta = { contrast: CONTRAST, strokes: ORDER.length };
+
+  function seekTo(t) { tl.pause(); tl.seek(Math.max(0, Math.min(3, t)), false); render(); }
+  window.addEventListener("hf-seek", function (e) {
+    var t = e && e.detail && typeof e.detail.time === "number" ? e.detail.time : tl.time();
+    seekTo(t);
+  });
+  document.addEventListener("hf-seek", function (e) {
+    var t = e && e.detail && typeof e.detail.time === "number" ? e.detail.time : tl.time();
+    seekTo(t);
+  });
+  tl.seek(0, false);
+  render();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { render(); });
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

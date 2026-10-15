@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>An idea becomes a connected system — Kinetic Typography</title>
+<style>
+  /* Local fonts only: installed system faces, no network. */
+  @font-face { font-family: "KT Serif"; font-style: italic; font-weight: 400;
+    src: local("Georgia Italic"), local("Georgia-Italic"); }
+  /* Scene palette (background_policy: scene_dependent). The architectural_type recipe source palette is adopted explicitly:
+     night forest-green ground, cream type, amber structural accent. #FAF5E9/#252D39/#B84F3F was only an example swatch. */
+  :root { --bg:#102820; --ink:#F4E9D5; --accent:#F2B544; }
+  html, body { margin:0; padding:0; width:1280px; height:720px; overflow:hidden; background:var(--bg); }
+  #root { position:relative; width:100%; height:100%; overflow:hidden; background:var(--bg); }
+  #stage { position:absolute; left:0; top:0; width:1280px; height:720px; background:var(--bg); }
+  /* Stationary ground: one soft deterministic radial light (8% cream into the green) and a faint drafting grid. */
+  #ground { position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 640px 420px at 52% 46%, rgba(244,233,213,0.08), rgba(244,233,213,0) 100%),
+      repeating-linear-gradient(0deg, rgba(244,233,213,0.035) 0 1px, transparent 1px 48px),
+      repeating-linear-gradient(90deg, rgba(244,233,213,0.035) 0 1px, transparent 1px 48px); }
+  /* A word = anchor at (left, baseline). The inner run is lifted by its measured baseline offset. */
+  .w { position:absolute; width:0; height:0; --s:20; --wght:400; --ls:0; --k:0.8; }
+  .w > .t { position:absolute; left:0; top:calc(var(--s) * var(--k) * -1px); white-space:nowrap;
+    font-size:calc(var(--s) * 1px); line-height:1; font-weight:var(--wght);
+    letter-spacing:calc(var(--ls) * 1px); color:var(--ink); font-kerning:normal; }
+  .sans > .t { font-family: system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; }
+  .serif > .t { font-family: "KT Serif", Georgia, "Times New Roman", serif; font-style:italic; }
+  .accent > .t { color:var(--accent); }
+  .g { display:inline; }
+  .rule { position:absolute; background:var(--ink); transform-origin:0 50%; }
+  #structure { position:absolute; left:0; top:0; width:1280px; height:720px; overflow:visible; pointer-events:none; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <div id="stage">
+    <div id="ground" aria-hidden="true"></div>
+    <div class="w sans"  id="w-an"><span class="t">an</span></div>
+    <div class="w serif" id="w-idea"><span class="t">idea</span></div>
+    <div class="w sans"  id="w-becomes"><span class="t">BECOMES</span></div>
+    <div class="w sans"  id="w-connected" aria-label="CONNECTED"><span class="t" aria-hidden="true"><span class="g" id="g-C1">C</span><span class="g">O</span><span class="g">N</span><span class="g">N</span><span class="g">E</span><span class="g">C</span><span class="g" id="g-T">T</span><span class="g">E</span><span class="g" id="g-D">D</span></span></div>
+    <div class="w sans accent" id="w-system"><span class="t">system.</span></div>
+    <div class="w sans" id="w-tag1"><span class="t">One thought, said once.</span></div>
+    <div class="w sans" id="w-tag2"><span class="t">Then everything answers it.</span></div>
+    <div class="rule" id="rule-hair"></div>
+    <div class="rule" id="rule-platform"></div>
+    <!-- Authored outline of the T glyph (measured from the rendered font), the only deformed paths. -->
+    <svg id="structure" viewBox="0 0 1280 720" aria-hidden="true">
+      <g id="svgT" opacity="0" fill="#F4E9D5">
+        <rect id="t-stem" x="0" y="0" width="0" height="0"></rect>
+        <path id="t-lintel" d="M0 0 C0 0 0 0 0 0 L0 0 C0 0 0 0 0 0 Z"></path>
+      </g>
+    </svg>
+  </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="MorphSVGPlugin.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function () {
+  gsap.registerPlugin(MorphSVGPlugin);
+  const PALETTE = { bg: '#102820', ink: '#F4E9D5', accent: '#F2B544' };
+  // Palette audit with chroma (approved tokens only, no new hues).
+  const CONTRAST = { inkOnBg: chroma.contrast(PALETTE.ink, PALETTE.bg), accentOnBg: chroma.contrast(PALETTE.accent, PALETTE.bg) };
+  if (CONTRAST.inkOnBg < 4.5 || CONTRAST.accentOnBg < 4.5) console.warn('palette contrast below target', CONTRAST);
+
+  const SANS = 'system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif';
+  const SERIF = '"KT Serif", Georgia, "Times New Roman", serif';
+  const M = { L: 92, R: 1188 };         // safe margins
+  const GRID = { an: 110, upper: 215, key: 410, low: 552, tag1: 548, tag2: 576 }; // baseline grid (px)
+  const $ = (id) => document.getElementById(id);
+  const stage = $('stage');
+  const cvs = document.createElement('canvas');
+  const ctx = cvs.getContext('2d', { willReadFrequently: true });
+
+  function textWidth(text, font, ls) { ctx.font = font; return ctx.measureText(text).width + ls * text.length; }
+
+  // Exact baseline offset (per em) of a word run, measured with a zero-size baseline marker.
+  function baselineK(el) {
+    const t = el.querySelector('.t');
+    const prev = el.style.getPropertyValue('--s');
+    el.style.setProperty('--s', '100'); el.style.setProperty('--k', '0');
+    const mk = document.createElement('i');
+    mk.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
+    t.appendChild(mk);
+    const k = (mk.getBoundingClientRect().top - t.getBoundingClientRect().top) / 100;
+    t.removeChild(mk);
+    el.style.setProperty('--s', prev || '20');
+    return k;
+  }
+
+  // Scan the rendered 'T' to author its outline (stem + crossbar rectangles).
+  function scanT(size, wght) {
+    const W = Math.ceil(size * 1.2) + 40, H = Math.ceil(size * 1.4), ox = 20, base = Math.ceil(size * 1.1);
+    cvs.width = W; cvs.height = H;
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = wght + ' ' + size + 'px ' + SANS; ctx.fillStyle = '#000'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText('T', ox, base);
+    const a = ctx.getImageData(0, 0, W, H).data;
+    const ink = (x, y) => a[(y * W + x) * 4 + 3] > 127;
+    let l = W, r = -1, t = H, b = -1;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (ink(x, y)) { if (x < l) l = x; if (x > r) r = x; if (y < t) t = y; if (y > b) b = y; }
+    let th = 0; for (let y = t; y <= b && ink(l + 2, y); y++) th++;
+    const row = b - 2; let sl = -1, sr = -1;
+    for (let x = l; x <= r; x++) if (ink(x, row)) { if (sl < 0) sl = x; sr = x; }
+    return { l: l - ox, r: r + 1 - ox, top: t - base, bottom: b + 1 - base, th, sl: sl - ox, sr: sr + 1 - ox };
+  }
+
+  function beamD(L, R, top, th, bendL, bendR) {
+    const w = R - L, c1 = L + w / 3, c2 = R - w / 3, f = (n) => n.toFixed(2);
+    return 'M' + f(L) + ' ' + f(top - bendL) + ' C' + f(c1) + ' ' + f(top) + ' ' + f(c2) + ' ' + f(top) + ' ' + f(R) + ' ' + f(top - bendR) +
+      ' L' + f(R) + ' ' + f(top - bendR + th) + ' C' + f(c2) + ' ' + f(top + th) + ' ' + f(c1) + ' ' + f(top + th) + ' ' + f(L) + ' ' + f(top - bendL + th) + ' Z';
+  }
+
+  const words = {
+    an:      { el: $('w-an'),        s: 34,  wght: 300, ls: 4,  x: 100, b: GRID.an },
+    idea:    { el: $('w-idea'),      s: 128, wght: 400, ls: 0,  x: 96,  b: GRID.upper },
+    becomes: { el: $('w-becomes'),   s: 22,  wght: 700, ls: 22, x: 400, b: GRID.upper - 10 },
+    conn:    { el: $('w-connected'), s: 168, wght: 300, ls: 0,  x: M.L, b: GRID.key },
+    system:  { el: $('w-system'),    s: 104, wght: 800, ls: -3, x: 0,   b: GRID.low },
+    tag1:    { el: $('w-tag1'),      s: 18,  wght: 400, ls: 1,  x: 100, b: GRID.tag1 },
+    tag2:    { el: $('w-tag2'),      s: 18,  wght: 700, ls: 1,  x: 100, b: GRID.tag2 }
+  };
+
+  // Static anchor (CSS left/top, never tweened); all motion is x/y transform offsets from this anchor.
+  function anchor(el, x, b) { el.style.left = x + 'px'; el.style.top = b + 'px'; }
+  function place(w, s) { anchor(w.el, s.x, s.b); gsap.set(w.el, { x: 0, y: 0, '--s': s.s, '--wght': s.wght, '--ls': s.ls }); }
+
+  function measure() {
+    for (const key in words) words[key].el.style.setProperty('--k', baselineK(words[key].el).toFixed(4));
+    // CONNECTED: constant measured width; weight 300 -> 900 is paid for by tracking.
+    const span = M.R - M.L, LS1 = -6;
+    const w900 = textWidth('CONNECTED', '900 100px ' + SANS, 0) / 100;
+    const sC = Math.min(176, (span - 9 * LS1) / w900);
+    const w300 = textWidth('CONNECTED', '300 ' + sC + 'px ' + SANS, 0);
+    const LS0 = (span - w300) / 9;
+    // system. right-aligned to the margin.
+    const wSys = textWidth('system.', '800 104px ' + SANS, -3) + 3;
+    // Final-state DOM measurement of the glyph spans that become structure.
+    const conn = words.conn;
+    place(conn, { x: conn.x, b: conn.b, s: sC, wght: 900, ls: LS1 });
+    const st = stage.getBoundingClientRect();
+    const rT = $('g-T').getBoundingClientRect(), rC = $('g-C1').getBoundingClientRect(), rD = $('g-D').getBoundingClientRect();
+    ctx.font = '900 ' + sC + 'px ' + SANS;
+    const cLeft = rC.left - st.left - ctx.measureText('C').actualBoundingBoxLeft;
+    const dRight = rD.left - st.left + ctx.measureText('D').actualBoundingBoxRight;
+    const penT = rT.left - st.left;
+    const T = scanT(sC, 900);
+    const g = {
+      sC, LS0, LS1, wSys,
+      crossL: penT + T.l, crossR: penT + T.r, crossTop: conn.b + T.top, th: T.th,
+      stemL: penT + T.sl, stemR: penT + T.sr, stemBottom: conn.b + T.bottom,
+      lintelL: Math.max(M.L, cLeft), lintelR: Math.min(M.R, dRight), lift: T.th + 14
+    };
+    g.lintelTop = g.crossTop - g.lift;
+    // Phrase line that sits on the lintel: "an idea BECOMES", the idea carried over the T stem.
+    g.lineB = g.lintelTop - 8;
+    const wIdea = textWidth('idea', 'italic 400 112px ' + SERIF, 0);
+    const wAn = textWidth('an', '400 34px ' + SANS, 2) - 2;
+    const wB = textWidth('BECOMES', '800 26px ' + SANS, 6) - 6;
+    const stemC = (g.stemL + g.stemR) / 2;
+    let ideaX = stemC - wIdea / 2, anX = ideaX - 20 - wAn, bX = ideaX + wIdea + 24;
+    const over = bX + wB - M.R; if (over > 0) { ideaX -= over; anX -= over; bX -= over; }
+    if (anX < M.L + 8) { const d = M.L + 8 - anX; ideaX += d; anX += d; bX += d; }
+    Object.assign(g, { ideaX, anX, bX });
+    return g;
+  }
+
+  const tl = gsap.timeline({ paused: true });
+  let G = null;
+
+  function build() {
+    G = measure();
+    tl.clear();
+    const W = words;
+    // ---- initial (t=0) layout on the baseline grid
+    place(W.an, W.an); place(W.idea, W.idea); place(W.becomes, W.becomes);
+    place(W.conn, { x: W.conn.x, b: W.conn.b, s: G.sC, wght: 300, ls: G.LS0 });
+    place(W.system, { x: M.R - G.wSys, b: W.system.b, s: 104, wght: 800, ls: -3 });
+    place(W.tag1, W.tag1); place(W.tag2, W.tag2);
+    for (const k in W) gsap.set(W[k].el, { opacity: 0, x: 0, y: 0 });
+    gsap.set($('g-T'), { opacity: 1 });
+    const hair = $('rule-hair'), plat = $('rule-platform');
+    anchor(hair, M.L, W.conn.b + 22); hair.style.width = (M.R - M.L) + 'px'; hair.style.height = '2px';
+    anchor(plat, M.R - G.wSys, W.system.b + 26); plat.style.width = G.wSys + 'px'; plat.style.height = '6px';
+    gsap.set(hair, { scaleX: 0 });
+    gsap.set(plat, { scaleX: 0, transformOrigin: '100% 50%' });
+    const crossD = beamD(G.crossL, G.crossR, G.crossTop, G.th, 0, 0);
+    const midD = beamD(G.crossL - (G.crossL - G.lintelL) * 0.7, G.crossR + (G.lintelR - G.crossR) * 0.7, G.crossTop - G.lift * 0.6, G.th, 16, 16);
+    const lintelD = beamD(G.lintelL, G.lintelR, G.lintelTop, G.th, 0, 0);
+    gsap.set('#t-lintel', { attr: { d: crossD } });
+    gsap.set('#t-stem', { attr: { x: G.stemL, y: G.crossTop, width: G.stemR - G.stemL, height: G.stemBottom - G.crossTop } });
+    gsap.set('#svgT', { opacity: 0 });
+
+    // ---- 0–1.2s: the phrase enters word by word, each with its own size/tracking move, then holds
+    tl.fromTo(W.an.el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', immediateRender: false }, 0.0);
+    tl.fromTo(W.idea.el, { opacity: 0, '--s': 92 }, { opacity: 1, '--s': 128, duration: 0.5, ease: 'power3.out', immediateRender: false }, 0.12);
+    tl.fromTo(W.becomes.el, { opacity: 0, '--ls': 2 }, { opacity: 1, '--ls': 22, duration: 0.42, ease: 'power2.inOut', immediateRender: false }, 0.38);
+    tl.fromTo(W.conn.el, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.45, ease: 'expo.out', immediateRender: false }, 0.55);
+    tl.fromTo('#rule-hair', { scaleX: 0 }, { scaleX: 1, duration: 0.35, ease: 'power2.inOut', immediateRender: false }, 0.7);
+    tl.fromTo(W.system.el, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power3.out', immediateRender: false }, 0.82);
+    tl.fromTo('#rule-platform', { scaleX: 0 }, { scaleX: 1, duration: 0.25, ease: 'power2.out', immediateRender: false }, 0.95);
+
+    // ---- 1.2–2.2s: CONNECTED re-weights at constant width; its T becomes the lintel
+    tl.fromTo(W.conn.el, { '--wght': 300, '--ls': G.LS0 }, { '--wght': 900, '--ls': G.LS1, duration: 0.35, ease: 'power2.inOut', immediateRender: false }, 1.2);
+    // Swap the DOM 'T' for its measured outline at identical geometry, then deform only that outline.
+    tl.fromTo('#svgT', { opacity: 0 }, { opacity: 1, duration: 0.001, immediateRender: false }, 1.55);
+    tl.fromTo('#g-T', { opacity: 1 }, { opacity: 0, duration: 0.001, immediateRender: false }, 1.55);
+    // The load-bearing T takes the structural accent while it works: cream glyph -> amber lintel + support.
+    tl.fromTo('#svgT', { attr: { fill: PALETTE.ink } }, { attr: { fill: PALETTE.accent }, duration: 0.5, ease: 'sine.inOut', immediateRender: false }, 1.6);
+    tl.to('#t-lintel', { morphSVG: { shape: midD, shapeIndex: 0 }, duration: 0.3, ease: 'power2.in' }, 1.56);
+    tl.to('#t-lintel', { morphSVG: { shape: lintelD, shapeIndex: 0 }, duration: 0.32, ease: 'back.out(1.2)' }, 1.86);
+    tl.fromTo('#t-stem', { attr: { y: G.crossTop, height: G.stemBottom - G.crossTop } },
+      { attr: { y: G.lintelTop, height: G.stemBottom - G.lintelTop }, duration: 0.62, ease: 'power2.inOut', immediateRender: false }, 1.56);
+    // Earlier words travel up onto the lintel: BECOMES first, then the idea (the carried load), then 'an'.
+    tl.fromTo(W.becomes.el, { x: 0, y: 0, '--s': 22, '--ls': 22, '--wght': 700 },
+      { x: G.bX - W.becomes.x, y: G.lineB - W.becomes.b, '--s': 26, '--ls': 6, '--wght': 800, duration: 0.55, ease: 'power3.inOut', immediateRender: false }, 1.4);
+    tl.fromTo(W.idea.el, { x: 0, y: 0, '--s': 128 },
+      { x: G.ideaX - W.idea.x, y: G.lineB - W.idea.b, '--s': 112, duration: 0.5, ease: 'power2.inOut', immediateRender: false }, 1.62);
+    tl.fromTo(W.an.el, { x: 0, y: 0, '--wght': 300, '--ls': 4 },
+      { x: G.anX - W.an.x, y: G.lineB - W.an.b, '--wght': 400, '--ls': 2, duration: 0.42, ease: 'sine.inOut', immediateRender: false }, 1.72);
+
+    // ---- 2.2–3.0s: the tagline lands on its own beats; full composition holds from 2.6s
+    tl.fromTo(W.tag1.el, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out', immediateRender: false }, 2.2);
+    tl.fromTo(W.tag2.el, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out', immediateRender: false }, 2.32);
+    tl.set({}, {}, 3);
+    tl.seek(0);
+  }
+
+  build();
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  // Fonts are local system faces; re-measure once they report ready and rebuild in place if metrics moved.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => { const t = tl.time(); build(); tl.seek(t); });
+  }
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Watercolor — an idea becomes a connected system</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#F1F4F3}
+  #root{position:relative;width:100%;height:100%;overflow:hidden}
+  #scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .copy{position:absolute;left:0;right:0;text-align:center;color:#3C4E58;margin:0;pointer-events:none}
+  .copy span{display:inline-block;clip-path:inset(0 100% 0 0)}
+  @font-face{font-family:"Preview Serif";font-style:normal;font-weight:400;src:local("Georgia"),local("Georgia Regular");}
+  @font-face{font-family:"Preview Serif";font-style:italic;font-weight:400;src:local("Georgia Italic"),local("Georgia-Italic");}
+  #headline{top:58px;font-family:"Preview Serif",serif;font-style:italic;font-size:50px;line-height:64px;font-weight:400}
+  #subline{top:632px;font-family:"Preview Serif",serif;font-size:22px;line-height:30px;letter-spacing:8px;font-weight:400}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="scene" width="1280" height="720"></canvas>
+  <p class="copy" id="headline"><span>an idea, softly spreading</span></p>
+  <p class="copy" id="subline"><span>BECOMES A CONNECTED SYSTEM</span></p>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+'use strict';
+var W=1280,H=720;
+// Resolved scene palette: cool bright-white cold-press paper (scene-dependent alternative
+// to the warm cream example), ink = foreground token, washes keep the illustration's
+// semantic assignments (rose = idea, blue / sage = connected nodes).
+var PAPER=chroma('#F1F4F3').rgb();
+var INK='#3C4E58';
+var ROSE=chroma('#BF8E7A').rgb(), BLUE=chroma('#8EA8B6').rgb(), SAGE=chroma('#9BAE8E').rgb();
+
+// ---------- deterministic noise ----------
+function hash(ix,iy,seed){var h=(ix*374761393+iy*668265263+seed*2147483647)|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967295;}
+function vnoise(x,y,seed){var ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;fx=fx*fx*(3-2*fx);fy=fy*fy*(3-2*fy);
+  var a=hash(ix,iy,seed),b=hash(ix+1,iy,seed),c=hash(ix,iy+1,seed),d=hash(ix+1,iy+1,seed);
+  return a+(b-a)*fx+(c-a)*fy+(a-b-c+d)*fx*fy;}
+function fbm(x,y,seed,oct){var s=0,amp=.5,f=1,n=0;for(var i=0;i<oct;i++){s+=amp*vnoise(x*f,y*f,seed+i*17);n+=amp;amp*=.5;f*=2.03;}return s/n;}
+function smooth(a,b,x){var t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t);}
+
+// ---------- precomputed paper texture (stationary) ----------
+var paper=document.createElement('canvas');paper.width=W;paper.height=H;
+(function(){var c=paper.getContext('2d'),img=c.createImageData(W,H),d=img.data;
+  for(var y=0;y<H;y++)for(var x=0;x<W;x++){
+    var tooth=fbm(x/5.5,y/5.5,11,2);            // cold-press tooth
+    var cloud=fbm(x/180,y/180,23,3);            // sizing unevenness
+    var dx=(x-W/2)/(W/2),dy=(y-H/2)/(H/2),vig=(dx*dx+dy*dy)*.025;
+    var k=1-(tooth-.5)*.07-(cloud-.5)*.03-vig;
+    var i=(y*W+x)*4;d[i]=PAPER[0]*k;d[i+1]=PAPER[1]*k;d[i+2]=PAPER[2]*(k+.004);d[i+3]=255;}
+  c.putImageData(img,0,0);})();
+function paperTooth(x,y){return fbm(x/5.5,y/5.5,11,2);}
+
+// ---------- precomputed pigment layers ----------
+function shapeFn(s){return function(a){return 1+.045*Math.sin(3*a+s)+.03*Math.sin(5*a+s*1.7)+.018*Math.sin(9*a+s*2.3);};}
+function makeWash(o){
+  var f=shapeFn(o.seed),pad=14;
+  var x0=Math.floor(o.cx-o.rx*1.12-pad),y0=Math.floor(o.cy-o.ry*1.12-pad);
+  var w=Math.ceil(o.rx*2.24+pad*2),h=Math.ceil(o.ry*2.24+pad*2);
+  var cv=document.createElement('canvas');cv.width=w;cv.height=h;
+  var c=cv.getContext('2d'),img=c.createImageData(w,h),d=img.data;
+  for(var j=0;j<h;j++)for(var i=0;i<w;i++){
+    var X=x0+i,Y=y0+j,dx=(X-o.cx)/o.rx,dy=(Y-o.cy)/o.ry,r=Math.sqrt(dx*dx+dy*dy),a=Math.atan2(dy,dx);
+    var dn=r/f(a);if(dn>1.05)continue;
+    var mott=fbm(X/70,Y/70,o.seed*7+3,3),fine=fbm(X/16,Y/16,o.seed*5+9,2);
+    var al=o.density*(.42+.42*mott+.16*fine);
+    al+=o.pool*smooth(.74,.985,dn)*(.7+.3*fine);           // pigment pooling at the drying edge
+    al*=.82+.36*paperTooth(X,Y);                           // granulation settles in paper tooth
+    al*=1-smooth(.99,1.05,dn);                              // short soft bleed past the edge
+    var k=(j*w+i)*4;
+    var deep=1-.18*smooth(.8,1,dn);                         // pooled pigment reads slightly deeper
+    d[k]=o.rgb[0]*deep;d[k+1]=o.rgb[1]*deep;d[k+2]=o.rgb[2]*deep;d[k+3]=Math.max(0,Math.min(255,al*255));}
+  c.putImageData(img,0,0);
+  var scratch=document.createElement('canvas');scratch.width=w;scratch.height=h;
+  return {o:o,f:f,layer:cv,scratch:scratch,x0:x0,y0:y0,w:w,h:h};
+}
+var washes={
+  idea:  makeWash({cx:330,cy:380,rx:185,ry:172,rgb:ROSE,seed:1.3,density:.62,pool:.34}),
+  ideaIn:makeWash({cx:362,cy:362,rx:104,ry:94,rgb:ROSE,seed:2.9,density:.44,pool:.22}),
+  top:   makeWash({cx:720,cy:262,rx:104,ry:94,rgb:BLUE,seed:4.1,density:.66,pool:.3}),
+  bottom:makeWash({cx:760,cy:520,rx:92,ry:84,rgb:SAGE,seed:5.7,density:.68,pool:.3}),
+  right: makeWash({cx:1030,cy:380,rx:114,ry:106,rgb:BLUE,seed:6.2,density:.64,pool:.3}),
+  rightIn:makeWash({cx:1002,cy:400,rx:76,ry:66,rgb:SAGE,seed:7.4,density:.6,pool:.26})
+};
+
+// Reveal mask: a wet front whose outline has its own fixed, seeded wobble.
+function frontPath(c,wsh,g,ox,oy){
+  var o=wsh.o,f=wsh.f,s=o.seed;c.beginPath();
+  for(var n=0;n<=96;n++){var a=n/96*Math.PI*2;
+    var wob=1+.06*(1-g)*Math.sin(4*a+s*3)+.04*(1-g)*Math.sin(7*a+s);
+    var r=g*1.07*f(a)*wob;var x=o.cx+Math.cos(a)*o.rx*r-ox,y=o.cy+Math.sin(a)*o.ry*r-oy;
+    n?c.lineTo(x,y):c.moveTo(x,y);}
+  c.closePath();
+}
+function drawWash(ctx,wsh,p){
+  if(p<=0)return;
+  var c=wsh.scratch.getContext('2d');
+  c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';c.filter='none';c.globalAlpha=1;
+  c.clearRect(0,0,wsh.w,wsh.h);c.drawImage(wsh.layer,0,0);
+  if(p<1){
+    c.globalCompositeOperation='destination-in';c.filter='blur(3px)';
+    frontPath(c,wsh,p,wsh.x0,wsh.y0);c.fillStyle='#000';c.fill();
+    // wet front: pigment gathers at the advancing edge, fading as the wash settles
+    c.filter='blur(2px)';c.globalCompositeOperation='source-atop';
+    frontPath(c,wsh,p,wsh.x0,wsh.y0);c.lineWidth=7;c.strokeStyle='rgba('+wsh.o.rgb.map(function(v){return Math.round(v*.8);}).join(',')+','+(.35*(1-p))+')';c.stroke();
+    c.filter='none';c.globalCompositeOperation='source-over';
+  }
+  ctx.globalCompositeOperation='multiply';ctx.globalAlpha=1;
+  ctx.drawImage(wsh.scratch,wsh.x0,wsh.y0);
+  ctx.globalCompositeOperation='source-over';
+}
+
+// ---------- precomputed ink geometry ----------
+function contourPts(wsh,start,seed){var o=wsh.o,f=wsh.f,pts=[],N=150,turn=1.05;
+  for(var n=0;n<=N;n++){var t=n/N,a=start+t*turn*Math.PI*2;
+    var r=f(a)*(1.015+.012*Math.sin(a*6+seed)+.008*(vnoise(t*18,seed,41)-.5)+.02*t);
+    pts.push([o.cx+Math.cos(a)*o.rx*r,o.cy+Math.sin(a)*o.ry*r]);}
+  return pts;}
+function curvePts(x0,y0,cx,cy,x1,y1,seed){var pts=[];for(var n=0;n<=70;n++){var t=n/70,u=1-t;
+  var x=u*u*x0+2*u*t*cx+t*t*x1,y=u*u*y0+2*u*t*cy+t*t*y1;
+  var j=(vnoise(t*9,seed,57)-.5)*2.2;pts.push([x+j*.4,y+j]);}return pts;}
+var ink={
+  idea:contourPts(washes.idea,-2.2,1),top:contourPts(washes.top,2.6,2),
+  bottom:contourPts(washes.bottom,-2.8,3),right:contourPts(washes.right,2.4,4),
+  cUp:curvePts(512,334,582,262,612,258,5),cDown:curvePts(506,438,604,526,666,522,6),
+  cTR:curvePts(823,280,902,278,946,306,7),cBR:curvePts(850,505,926,484,948,455,8)
+};
+function drawInk(ctx,pts,p,base){
+  if(p<=0)return;var N=pts.length-1,end=p*N,last=Math.floor(end);
+  ctx.strokeStyle=INK;ctx.lineCap='round';ctx.lineJoin='round';
+  for(var n=0;n<Math.min(last,N);n++){
+    var w=base*(.75+.4*vnoise(n*.21,3,71));ctx.lineWidth=w;
+    ctx.beginPath();ctx.moveTo(pts[n][0],pts[n][1]);ctx.lineTo(pts[n+1][0],pts[n+1][1]);ctx.stroke();}
+  if(last<N){var fr=end-last,a=pts[last],b=pts[last+1];ctx.lineWidth=base*.9;
+    ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(a[0]+(b[0]-a[0])*fr,a[1]+(b[1]-a[1])*fr);ctx.stroke();}
+}
+function drawDot(ctx,x,y,r,p){if(p<=0)return;ctx.fillStyle=INK;ctx.globalAlpha=Math.min(1,p*1.5);
+  ctx.beginPath();ctx.arc(x,y,r*(.4+.6*p),0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
+
+// Lifted highlight: a damp brush pulls pigment back toward paper (dry-brush broken edge).
+var liftPts=curvePts(298,300,360,246,422,308,9);
+function drawLift(ctx,p){if(p<=0)return;var N=liftPts.length-1,end=Math.floor(p*N);
+  ctx.lineCap='round';
+  for(var n=0;n<end;n++){var t=n/N,w=15*(.55+.45*Math.sin(Math.PI*t));
+    for(var k=-2;k<=2;k++){var br=vnoise(n*.35,k*3.1,83);if(br<.28)continue; // dry-brush skips
+      ctx.strokeStyle='rgba('+PAPER.join(',')+','+(.32+.2*br)+')';ctx.lineWidth=w*.32;
+      var off=k*w*.2;ctx.beginPath();ctx.moveTo(liftPts[n][0],liftPts[n][1]+off);ctx.lineTo(liftPts[n+1][0],liftPts[n+1][1]+off);ctx.stroke();}}
+}
+
+// ---------- state owned by the GSAP timeline ----------
+var S={cIdea:0,wIdea:0,wIdeaIn:0,lift:0,head:0,cUp:0,cDown:0,cTop:0,cBottom:0,wTop:0,wBottom:0,
+       cTR:0,cBR:0,cRight:0,wRight:0,wRightIn:0,sub:0,dIdea:0,dTop:0,dBottom:0,dRight:0};
+var canvas=document.getElementById('scene'),ctx=canvas.getContext('2d');
+var headSpan=document.querySelector('#headline span'),subSpan=document.querySelector('#subline span');
+function render(){
+  ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.filter='none';
+  ctx.drawImage(paper,0,0);
+  // washes stay inside their owning contours; glazes layer on dried washes
+  drawWash(ctx,washes.idea,S.wIdea);drawWash(ctx,washes.ideaIn,S.wIdeaIn);drawLift(ctx,S.lift);
+  drawWash(ctx,washes.top,S.wTop);drawWash(ctx,washes.bottom,S.wBottom);
+  drawWash(ctx,washes.right,S.wRight);drawWash(ctx,washes.rightIn,S.wRightIn);
+  drawInk(ctx,ink.idea,S.cIdea,2.6);drawInk(ctx,ink.cUp,S.cUp,2.4);drawInk(ctx,ink.cDown,S.cDown,2.4);
+  drawInk(ctx,ink.top,S.cTop,2.3);drawInk(ctx,ink.bottom,S.cBottom,2.3);
+  drawInk(ctx,ink.cTR,S.cTR,2.2);drawInk(ctx,ink.cBR,S.cBR,2.2);drawInk(ctx,ink.right,S.cRight,2.4);
+  drawDot(ctx,362,362,7,S.dIdea);drawDot(ctx,720,262,5,S.dTop);drawDot(ctx,760,520,5,S.dBottom);drawDot(ctx,1030,380,6,S.dRight);
+  headSpan.style.clipPath='inset(-12px '+((1-S.head)*100).toFixed(3)+'% -12px -4px)';
+  subSpan.style.clipPath='inset(-8px '+((1-S.sub)*100).toFixed(3)+'% -8px -4px)';
+}
+
+var tl=gsap.timeline({paused:true,onUpdate:render});
+function at(prop,start,dur,ease){var v={};v[prop]=1;v.duration=dur;v.ease=ease||'power2.inOut';tl.to(S,v,start);}
+// idea: ink contour, then rose wash blooms inside it, inner glaze, lifted highlight
+at('cIdea',0.00,0.50,'sine.inOut');
+at('wIdea',0.22,0.78,'power2.out');
+at('head',0.45,0.60,'power2.inOut');
+at('wIdeaIn',0.62,0.50,'power2.out');
+at('dIdea',0.85,0.20,'back.out(1.2)');
+at('lift',1.00,0.30,'sine.inOut');
+// connections draw outward; each node contour starts as its line arrives
+at('cUp',0.95,0.45,'power2.inOut');at('cDown',1.02,0.45,'power2.inOut');
+at('cTop',1.36,0.32,'sine.inOut');at('cBottom',1.43,0.32,'sine.inOut');
+at('wTop',1.46,0.50,'power2.out');at('wBottom',1.53,0.50,'power2.out');
+at('dTop',1.66,0.18,'back.out(1.2)');at('dBottom',1.72,0.18,'back.out(1.2)');
+at('cTR',1.62,0.36,'power2.inOut');at('cBR',1.66,0.36,'power2.inOut');
+at('cRight',1.94,0.32,'sine.inOut');
+at('wRight',2.02,0.42,'power2.out');at('wRightIn',2.16,0.36,'power2.out');
+at('dRight',2.26,0.18,'back.out(1.2)');
+at('sub',2.05,0.42,'power2.inOut');
+tl.to({},{duration:0.001},2.999);
+
+window.__timelines=window.__timelines||{};
+window.__timelines.video=tl;
+function resync(){render();}
+window.addEventListener('hf-seek',resync);document.addEventListener('hf-seek',resync);
+tl.seek(0,false);render();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

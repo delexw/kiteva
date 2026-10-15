@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-009",
+    "name": "Mid-Century Modern. This is a supplemental design reference and is not claimed as a directly named style in the source collection.",
+    "visualIdentity": "Explicit: simplified figures, organic contours and geometric color fields in a relaxed but ordered composition, with optional print grain. Avoid unrelated neon or glossy plastic finishes. Suggested drawing methods are SVG and Canvas 2D.",
+    "suitableUses": "Explicit: illustrations and posters. Hybrids are suggested when characters must move or scenes need depth. Inferred from the combination notes: retro-inspired explainers, ads and title sequences with characters. Audience and objective are unspecified.",
+    "limitations": "Explicit: avoid unrelated neon and glossy plastic finishes. Source review covered only single frames at seconds 1 to 8, so no continuous motion, sub-second timing, audio or later scenes were verified. No strong source palette match was observed. Two-color contrast checks do not guarantee readability over textures or video.",
+    "palette": "Status: style-compatible suggestion. Background is scene-dependent, so cream is illustrative and not a fixed canvas. Illustrative tokens: background #F3E9D5, foreground #332C26, accent_1 #C49A35, accent_2 #A64E3D, accent_3 #357B78. Task-provided or approved colors override these. Gradients are disabled. Foreground on background is 11.398:1. accent_3 at 4.095:1 is decorative only.",
+    "motionAndInteraction": "Explicit: readable poses, modest offsets and graphic transitions. Motion should be smooth and authored where it helps, while sharp cuts, impacts and reading holds stay deliberate. Springs and bounce are not required. Print grain should be seeded and fixed, not regenerated per frame. Optional motion references motion-006, motion-012 and motion-015 each need a scene-fit check, and choosing none is valid.",
+    "audio": "Unspecified by the style: no audio is mandated and no audio was supplied. Inferred: restrained, graphic-friendly music or light accents could suit the retro mood, but this is an assumption to state, not a requirement. Silence is valid. Do not claim a soundtrack exists unless it was actually produced.",
+    "assetRequirements": "No uploads are mandatory, so visuals should be derived from the brief using local tools. Fonts and assets must load before rendering. Grain must be seeded. Motion-006 requires suitable eye layers or a rig. Combination style-084 forbids photographic cutouts. No real photographs or website captures were supplied.",
+    "combinations": "style-084 cutout animation: hinged limbs and pose swaps at about 12 fps, using only the Mid-Century palette, with seeded grain and no joint gaps or glossy finishes. style-101 2.5D parallax: flat layers drifting at restrained speeds, with no blur, an unchanged palette and no exposed layer edges. Both are optional and apply when characters move or scenes need depth.",
+    "productionApproach": "Use HyperFrames by default for composition timing, validation and export only. Remotion is a fallback only when HyperFrames is unavailable or a verified limit applies, and the reason must be recorded. SVG and Canvas 2D own shapes, textures and grain. GSAP owns a paused, seekable timeline. Motion is optional. chroma-js checks contrast. Validate with hyperframes check, snapshot and delivery render."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

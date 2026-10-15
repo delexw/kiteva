@@ -1,0 +1,61 @@
+{
+  "version": 3,
+  "title": "How does an idea become a system? — sticker explainer preview",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Question",
+      "startSeconds": 0,
+      "endSeconds": 0.6,
+      "purpose": "Pose the question and place the first sticker.",
+      "visuals": ["Sky-blue field with a faint white dot grid (stays still)", "Headline wipes on left to right", "Dark question-circle sticker drops and presses down with a white border and soft shadow", "White '?' pops onto it", "QUESTION pill label peels in"],
+      "assets": ["index.html inline SVG"],
+      "beats": [
+        {"startSeconds": 0, "endSeconds": 0.6, "development": "Headline wipe (0-0.45s); question sticker placed (0.15-0.55s); '?' pops (0.35-0.65s); label peels (0.5-0.8s).", "captions": ["How does an idea become a system?", "QUESTION"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Idea",
+      "startSeconds": 0.6,
+      "endSeconds": 1.15,
+      "purpose": "Carry the question to the copper idea sticker.",
+      "visuals": ["First dotted connector draws through a mask while a copper idea chip rides its tip", "Copper bulb sticker drops into place", "White highlight stroke draws", "IDEA pill peels in"],
+      "assets": ["index.html inline SVG"],
+      "beats": [
+        {"startSeconds": 0.6, "endSeconds": 1.15, "development": "Connector 1 and chip travel (0.6-0.95s); bulb placed (0.85-1.25s); label (1.05-1.35s); highlight drawn (1.1-1.35s).", "captions": ["IDEA"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Links mechanism",
+      "startSeconds": 1.15,
+      "endSeconds": 1.7,
+      "purpose": "Show the idea forming connections.",
+      "visuals": ["Second connector draws with the chip", "Teal links tile drops in", "White triangle edges draw", "Three white nodes pop in turn", "LINKS pill peels in"],
+      "assets": ["index.html inline SVG"],
+      "beats": [
+        {"startSeconds": 1.15, "endSeconds": 1.7, "development": "Connector 2 and chip (1.15-1.5s); tile placed (1.4-1.8s); triangle drawn and nodes popped (1.6-1.95s); label (1.6-1.9s).", "captions": ["LINKS"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-4",
+      "title": "System conclusion and hold",
+      "startSeconds": 1.7,
+      "endSeconds": 3,
+      "purpose": "Assemble the system and state the conclusion, then hold the full readable scene.",
+      "visuals": ["Third connector draws; the chip sinks into the system tile's centre", "Dark system tile drops in; six white lines draw; four teal nodes and the copper core pop", "SYSTEM pill peels in", "Copper and teal legend pills grow behind the summary line", "White marker band lays behind 'system?' in the headline"],
+      "assets": ["index.html inline SVG"],
+      "beats": [
+        {"startSeconds": 1.7, "endSeconds": 2.6, "development": "Connector 3 (1.7-2.05s); tile placed (1.9-2.3s); lines, nodes and chip into core (2.05-2.45s); label (2.2-2.45s); legend pills and text (2.3-2.55s); headline band (2.35-2.6s).", "captions": ["SYSTEM", "● idea + ● connections =  a system that works together."], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 2.6, "endSeconds": 3, "development": "Settled reading hold of the full composition.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.4}
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": ["The preview is only 3s, so the steps overlap; each sticker lands before its label and the next connector starts.", "Everything is settled by 2.6s, leaving a 0.4s hold of the complete scene."],
+    "justifiedHolds": ["2.6-3.0s final hold so the whole question → idea → links → system chain can be read."]
+  },
+  "notes": ["Silent preview: no music, voiceover or effects.", "No preview recipe was supplied (tech.preview_recipes is empty); this refresh shows a scene-dependent background chosen from the reviewed sources.", "No motion reference was selected."]
+}

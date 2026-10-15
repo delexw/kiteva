@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-014",
+    "name": "Surrealism, a supplemental design reference, not a directly named style in the source collection. An unusual scene is not automatically Surrealism.",
+    "visualIdentity": "Explicit: impossible scale, object relationships, or gravity sit inside convincing space and lighting under one coherent dream logic, photorealistic or painterly. Transformations unfold calmly while composition and narrative continuity are preserved.",
+    "suitableUses": "Explicit: single dreamlike images and staged camera journeys that carry narrative. Explicit pairings suit brand films, music videos, and narrative openers, or art campaigns and poster-like key frames. Other uses are unspecified.",
+    "limitations": "Explicit: avoid hidden cuts, camera intersecting geometry, and rushed transformations, and do not reset lighting or dream logic. Motion references are optional: motion-002 must not be decorative spinning, motion-005 is not a cursor light trail, and motion-038 needs real punctuation in the scene.",
+    "palette": "Reference-dependent example, used only when no approved palette is supplied: background #EDE5D7, foreground #302D35, accent_1 #617C8B, accent_2 #B26E51, with no gradient. Foreground on background measures 10.815:1. Accent-backed text pairs (3.524 and 3.377) fail the normal-text target and are decorative only. Task colors override, and composited frames must be rechecked.",
+    "motionAndInteraction": "Explicit: camera moves and deformations come from keyframes or cached simulation, evaluated from composition time with calm eased changes and preserved reading holds. Springs or bounce are not automatically added. Interactive output may scrub prerendered frames, with play/pause and a reduced-motion still.",
+    "audio": "Unspecified and not mandatory; the style fixes no music, voice, or effects. Choose per topic from music, voiceover, sung vocals, effects, ambience, or silence, honoring any user audio choice. Do not invent audio assets or assume beat synchronization without analysis, and keep speech intelligible.",
+    "assetRequirements": "Blender, using Python bpy from its bundled Python and Cycles or EEVEE, handles models, materials, lighting, and offline renders; Three.js is an optional 3D alternative. GSAP drives the seekable timeline. Fonts, frames, and cached simulations must be preloaded; source artwork is unspecified.",
+    "combinations": "Explicit: style-099 for a continuous camera path through impossible spaces with one dream logic and no hidden cuts, and style-104 for centered frontal staging with a slow push-in, where the scene palette governs. Avoid mixed rendering styles, generic pastel grading, and busy prop clutter.",
+    "productionApproach": "Blender with bpy is the style renderer and motion engine, and GSAP keeps one owner per animated property. HyperFrames owns assembly, checks, and export, with Remotion only for a recorded, verified fallback. Verify representative frames, direct, forward, and backward seeks, decoded frames, and audio sync before delivery."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

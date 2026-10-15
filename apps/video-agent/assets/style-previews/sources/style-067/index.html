@@ -1,0 +1,57 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:1280px;height:720px;overflow:hidden}svg{width:1280px;height:720px;display:block}</style></head><body><div data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30"><svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720"><defs><g id="a" font-family="&apos;Helvetica Neue&apos;, Arial, sans-serif" font-weight="bold"><text x="80" y="190" font-size="40" letter-spacing="4">AN IDEA BECOMES A</text><text x="74" y="340" font-size="122" letter-spacing="-3">CONNECTED</text><text x="74" y="460" font-size="122" letter-spacing="-3">SYSTEM.</text><g fill="none" stroke-width="3"><path d="M1000 150L1150 260L1060 420L900 360L1000 150L1060 420M1150 260L1180 560L1060 420M900 360L960 590L1180 560"></path></g><g fill="#111A24" stroke-width="4"><circle cx="1000" cy="150" r="16"></circle><circle cx="1150" cy="260" r="12"></circle><circle cx="1060" cy="420" r="14"></circle><circle cx="900" cy="360" r="12"></circle><circle cx="1180" cy="560" r="12"></circle><circle cx="960" cy="590" r="12"></circle></g></g><clipPath id="top"><rect width="1280" height="290"></rect></clipPath><clipPath id="mid"><rect y="290" width="1280" height="36"></rect></clipPath><clipPath id="bot"><rect y="326" width="1280" height="394"></rect></clipPath><pattern id="blk" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#47B3AF"></rect><rect x="8" y="8" width="8" height="8" fill="#D16A84"></rect></pattern></defs><rect width="1280" height="720" fill="#111A24" data-demo-actor="demo-actor-1"></rect><use href="#a" clip-path="url(#top)" fill="#F2F0E6" stroke="#F2F0E6" data-demo-actor="demo-actor-2"></use><use href="#a" clip-path="url(#bot)" fill="#F2F0E6" stroke="#F2F0E6" data-demo-actor="demo-actor-3"></use><g clip-path="url(#mid)" data-demo-actor="demo-actor-4"><use href="#a" x="38" fill="#47B3AF" stroke="#47B3AF" data-demo-actor="demo-actor-5"></use><use href="#a" x="58" fill="#D16A84" stroke="#D16A84" opacity=".85" data-demo-actor="demo-actor-6"></use><use href="#a" x="48" fill="#F2F0E6" stroke="#F2F0E6" opacity=".9" data-demo-actor="demo-actor-7"></use></g><rect x="640" y="290" width="96" height="36" fill="url(#blk)" opacity=".8" data-demo-actor="demo-actor-8"></rect><rect x="736" y="306" width="48" height="20" fill="#47B3AF" data-demo-actor="demo-actor-9"></rect><rect x="0" y="326" width="1280" height="2" fill="#D16A84" data-demo-actor="demo-actor-10"></rect><rect x="0" y="288" width="1280" height="2" fill="#47B3AF" data-demo-actor="demo-actor-11"></rect><g font-family="Menlo, Consolas, monospace" font-size="15" letter-spacing="2" data-demo-actor="demo-actor-12"><text x="80" y="80" fill="#47B3AF" data-demo-actor="demo-actor-13">PKT 0x2A · ROW 290–326 DISPLACED +48px</text><text x="80" y="640" fill="#D16A84" data-demo-actor="demo-actor-14">■ SIGNAL INTERRUPTED</text><text x="330" y="640" fill="#F2F0E6" data-demo-actor="demo-actor-15">→ RECONSTRUCTED 100%</text></g></svg></div><script src="gsap.min.js"></script><script src="chroma.min.js"></script><script>
+const plan={"styleId":"style-067","selectedReferenceIds":[],"rationale":"The artwork already shows its fault model: one strip (rows 290–326) of the headline-and-network symbol is displaced +48px with RGB copies, plus a block of corruption and status lines. The motion stages the interruption and its readout. First the checker damage block (actor-8) and the SIGNAL INTERRUPTED label (actor-14) snap in. Then the displaced strip group (actor-4) snaps back toward alignment in hard steps and glitches out to its authored displacement. Next the lower slice (actor-3: the bottom of CONNECTED, SYSTEM. and the lower network) gets a brief stepped offset. The teal fill block (actor-9) pops in, and RECONSTRUCTED 100% (actor-15) lands last. The strip group is animated as a whole, never with its children. The background and divider lines stay fixed, and everything holds from about 1.9s. No chapter handoff exists, so the references were omitted.","tracks":[{"actorId":"demo-actor-8","role":"Checker block-damage tile flickers into the corrupted strip","action":"reveal","start":0.1,"duration":0.3,"ease":"steps(6)","pose":{"x":0,"y":0,"scale":0.8,"rotation":0,"opacity":0}},{"actorId":"demo-actor-14","role":"SIGNAL INTERRUPTED status label appears as the fault begins","action":"reveal","start":0.2,"duration":0.4,"ease":"steps(6)","pose":{"x":-16,"y":0,"scale":1,"rotation":0,"opacity":0}},{"actorId":"demo-actor-4","role":"Displaced RGB strip snaps toward alignment and back out to its authored +48px displacement","action":"transform","start":0.4,"duration":0.6,"ease":"steps(6)","pose":{"x":-40,"y":0,"scale":1,"rotation":0,"opacity":1}},{"actorId":"demo-actor-3","role":"Lower clip slice (SYSTEM. and lower network) shears briefly sideways as a second strip offset","action":"transform","start":1,"duration":0.4,"ease":"steps(6)","pose":{"x":-28,"y":0,"scale":1,"rotation":0,"opacity":1}},{"actorId":"demo-actor-9","role":"Teal data block pops into the damaged row","action":"reveal","start":0.9,"duration":0.3,"ease":"steps(6)","pose":{"x":24,"y":0,"scale":0.8,"rotation":0,"opacity":0}},{"actorId":"demo-actor-15","role":"RECONSTRUCTED 100% readout lands to close the fault cycle","action":"reveal","start":1.4,"duration":0.5,"ease":"steps(6)","pose":{"x":-16,"y":0,"scale":1,"rotation":0,"opacity":0}}]};
+const svg=document.querySelector('svg');
+const foreground="#F2F0E6";
+const background="#111A24";
+const seenText=new Map();
+Array.from(svg.querySelectorAll('text')).forEach(el=>{
+ const label=el.textContent.trim();const prior=seenText.get(label);
+ if(prior && Math.abs(Number(prior.getAttribute('x'))-Number(el.getAttribute('x')))<12 && Math.abs(Number(prior.getAttribute('y'))-Number(el.getAttribute('y')))<12) {
+  const selected=typeof plan!=='undefined' && plan.tracks.some(track=>track.actorId===prior.getAttribute('data-demo-actor'));
+  if(selected){el.remove();return;}
+  prior.remove();
+ }
+ seenText.set(label,el);
+ // Preserve authored baselines. Tight headline leading can overlap font em-boxes
+ // without overlapping visible glyphs; annotate only baseline gaps of at least one em.
+ const fontSize=Number(getComputedStyle(el).fontSize.replace('px',''));
+ const fill=getComputedStyle(el).fill;
+ if(fontSize<24 && chroma.valid(fill) && chroma(fill).hex()!==chroma(background).hex() && chroma.contrast(fill,background)<4.5){el.setAttribute('fill',foreground);el.setAttribute('opacity','1');el.setAttribute('fill-opacity','1');}
+ if(fontSize>=36){
+  for(const sibling of Array.from(el.parentElement.querySelectorAll(':scope > text'))){
+   if(sibling===el)continue;
+   const gap=Math.abs(Number(sibling.getAttribute('y'))-Number(el.getAttribute('y')));
+   if(gap>=fontSize && gap<=fontSize*1.3 && Math.abs(Number(sibling.getAttribute('x'))-Number(el.getAttribute('x')))<12){el.setAttribute('data-layout-allow-overlap','true');sibling.setAttribute('data-layout-allow-overlap','true');}
+  }
+ }
+ // Outlined display lettering needs a readable fill as well as its decorative outline.
+ if(el.getAttribute('stroke') && el.getAttribute('stroke')!=='none') {el.setAttribute('fill',foreground);el.setAttribute('stroke',background);}
+});
+
+const timeline=gsap.timeline({paused:true});
+const chosen=plan.tracks.map(track=>({track,element:document.querySelector('[data-demo-actor="'+track.actorId+'"]')}));
+if(chosen.some(item=>!item.element))throw Error('Motion references an absent actor');
+for(const item of chosen){
+ if(chosen.some(other=>other!==item&&other.element.contains(item.element)))throw Error('Nested motion actors would double-transform artwork');
+ const el=item.element;
+ if(el.tagName==='rect' && Number(el.getAttribute('width'))>=1200 && Number(el.getAttribute('height'))>=650)throw Error('Background cannot be a motion actor');
+ const wrapper=document.createElementNS('http://www.w3.org/2000/svg','g');
+ el.parentNode.insertBefore(wrapper,el);wrapper.appendChild(el);
+ wrapper.setAttribute('data-demo-motion',item.track.actorId);
+ // Animate a neutral wrapper, never overwrite the artwork's authored matrix.
+ gsap.set(wrapper,{transformOrigin:'50% 50%'});
+ if(item.track.action==='reveal'){
+   gsap.set(wrapper,item.track.pose);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:item.track.ease},item.track.start);
+ }else if(item.track.action==='draw'){
+   const paths=Array.from(el.matches('path,line,polyline,polygon')?[el]:el.querySelectorAll('path,line,polyline,polygon'));
+   const drawable=paths.filter(p=>getComputedStyle(p).fill==='none' && getComputedStyle(p).stroke!=='none' && typeof p.getTotalLength==='function');
+   if(!drawable.length)throw Error('Draw action needs visible unfilled stroked paths');
+   for(const path of drawable){const length=path.getTotalLength();gsap.set(path,{strokeDasharray:length,strokeDashoffset:length});timeline.to(path,{strokeDashoffset:0,duration:item.track.duration,ease:item.track.ease},item.track.start);}
+ }else{
+   timeline.to(wrapper,{...item.track.pose,duration:item.track.duration,ease:item.track.ease},item.track.start);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:'sine.inOut'},Math.min(2.7-item.track.duration,item.track.start+item.track.duration+.2));
+ }
+}
+timeline.to({}, {duration:.001},2.999);window.__timelines={video:timeline};
+</script></body></html>

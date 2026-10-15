@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-018",
+    "name": "Minimalism",
+    "visualIdentity": "Explicitly named Minimalism in the Graphic Design and Design Movements category. It keeps only elements needed to communicate the subject, using generous negative space, precise proportions, a limited palette, and consistent edges and spacing.",
+    "suitableUses": "Explicit good fits: UI and product storytelling, editorial and minimalist layouts, and motion posters with staged geometric compositions. Inferred: one-idea explainers where restraint aids comprehension. Usually best used alone.",
+    "limitations": "Adapt or omit when recomposition does not aid explanation, when cropping hides important detail, or when pinning disrupts the layout. Adding secondary styles easily dilutes it. Duration, aspect ratio, and scene count are unspecified.",
+    "palette": "Suggested, not supplied: background #FAF9F5, foreground #202421, accent #406B5A, described as warm neutrals with one muted green. Supplied exact colors override these. Gradients are disabled. Foreground on background is 14.923:1 and accent on background is 5.747:1. Two-color ratios do not verify text over images, video, or animated lighting.",
+    "motionAndInteraction": "Explicitly, animate a few elements at a time with restrained easing and enough reading time. Do not rely on fades for every transition. Optional references motion-007, -008, -012, and -015 apply only when scene-compatible. Interactive output may use scroll-pinned progress, while video must derive all state from composition time.",
+    "audio": "Unspecified by the style, which mandates no music, voiceover, or effects. Inferred options include restrained music, voiceover, or intentional silence that supports reading holds, chosen from topic and audience. Honor user audio requirements and supplied assets first, and never invent available assets. Verify speech clarity and picture sync.",
+    "assetRequirements": "Use a small set of real text and graphic elements. Load local fonts and assets before rendering. Measure spacing and reading time. Animate restrained position changes and masks. Cache or bake stateful simulations. Exact asset formats and counts for the topic are unspecified.",
+    "combinations": "Suggested only, and usually unnecessary. style-097 adds one chart per scene, with the accent reserved for the highlighted value, for quantitative content. style-109 adds thin single-weight connectors that draw after their endpoints appear. Avoid extra colors, gridline clutter, and decorative linework.",
+    "productionApproach": "HTML/CSS and SVG are the style renderers for visuals. GSAP is the primary paused, seekable timeline, and Motion is optional, with one owner per animated property. HyperFrames is the default pipeline for timing, sync, validation, and export. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists, and the reason must be recorded. Chroma.js checks colors. Inspect key frames and direct seeks before final render."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

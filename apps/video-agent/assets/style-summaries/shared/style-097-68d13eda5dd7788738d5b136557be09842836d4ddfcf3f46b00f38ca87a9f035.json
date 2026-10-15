@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-097",
+    "name": "Scientific Visualization / Data Storytelling, a normalized explanatory-format label. The source references The Pudding and 3Blue1Brown, but this entry describes the format rather than those works.",
+    "visualIdentity": "Explanatory format: define concepts, variables, units, data and causal links before drawing. Keep color and label meaning consistent. Reveal mechanisms, comparisons and conclusions gradually, with pauses. Decorative motion must never replace explanation.",
+    "suitableUses": "Explicit: science explainers, mechanism stages, mathematical or model outputs, and verified network or geographic data. Inferred: research summaries and process explanations. Hybrid combinations suit stories spanning orders of magnitude.",
+    "limitations": "Avoid misleading scales and invented values. Rough.js must not distort measured values, and Delaunator adjacency is not scientific proof. Leaflet paths do not prove real routes. The source review covered only sampled seconds 1–8 and verified no audio.",
+    "palette": "Background is scene-dependent; #FAF7EF is only an illustrative swatch. Non-binding suggested tokens: foreground #263744, accents #367E88, #C17E49, #856B9A, with no gradient. Foreground/background contrast is 11.455. Accents fail 4.5 for body text, so use them as decorative fills. Approved task colors override these suggestions.",
+    "motionAndInteraction": "Optional references: motion-004 helix camera journey, motion-012 chaptered handoff, motion-015 narrative steps, motion-017 exploded reveal for separable parts only, motion-037 phrase step-in, and motion-041 ranked race with authorized data. Video follows composition time; scroll and pointer are interactive-only.",
+    "audio": "Unspecified by the style; no audio layer is mandatory. Options include music, voiceover, effects, ambience or silence, chosen from topic and audience. Speech must stay intelligible and uncompeted. Silence suits a schematic ranked-race preview. No audio was verified in the source review.",
+    "assetRequirements": "Charts and rankings need real, cited data with comparable units; values must never be invented. Leaflet needs authorized geographic data with attribution. Helix and phrase motions need prepared views or approved glyphs. Fonts and assets must load before rendering.",
+    "combinations": "style-109 adds mechanism schematics, arrows and flow paths with fixed semantic colors. style-098 adds continuous zoom between nested scale levels with a persistent scale bar. Use this style alone when charts and labeled mechanisms suffice.",
+    "productionApproach": "HyperFrames is primary for composition, paused GSAP timeline registration, validation and export; Remotion is fallback only under its documented condition. Manim, NumPy, D3/SVG, Rough.js, p5.js, Cytoscape.js and Leaflet are optional renderers. Verify seeks, composited contrast and decoded output."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

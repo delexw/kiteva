@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-011",
+    "name": "Pop Art. This is a supplemental design reference and is not claimed as a directly named style in the source collection.",
+    "visualIdentity": "Explicit: built from mass-culture objects, comic imagery, repeated panels, bold color fields, heavy outlines, and optional halftones. Lettering is part of the composition. Comic imagery or halftones alone do not establish the style. Keep one clear focal image.",
+    "suitableUses": "Explicit: single iconic images; product promos, campaign headlines, and event teasers when paired with style-093 lettering; music promos and social loops when paired with style-105 beat timing. Inferred: bold graphic introductions where one focal image and short punchy text carry the message.",
+    "limitations": "Explicit: avoid thin type, halftones over letterforms, too many simultaneous words, strobe-like full swaps, and random colors. Red never carries small text. Dense explanatory copy is unsuitable. Audio, asset availability, and exact copy are unspecified.",
+    "palette": "Suggested fallback tokens, used only when no task, brand, or reference palette is supplied: background #FFF6D6, foreground #171717, accent_1 red #E8393E, accent_2 yellow #F1C932, accent_3 blue #2671C6. Gradients are disabled. Supplied colors override these. Red with foreground text is 4.342:1, so body text belongs on the background.",
+    "motionAndInteraction": "Motion is authored on a seekable timeline with GSAP as the motion owner. Optional action references: motion-037 phrase step-in, motion-038 punctuation zoom, motion-039 radial burst, and motion-040 hard word cuts, each only if the scene supplies the matching phrase or mark. Motion-012, 013, and 015 are optional navigation or narrative patterns. Hold readable states.",
+    "audio": "Unspecified in the source. Audio is a task-specific suggestion, not a requirement: music, voiceover, sound effects, or silence may be chosen by topic and audience. No genre, tempo, or layer is mandated. Beat-matched cuts require inspected audio, and beat synchronization is not verified. Honor explicit user audio choices.",
+    "assetRequirements": "Unspecified: no supplied artwork, glyphs, fonts, approved marks, or exact copy are listed. Motion-037, 038, and 039 need real punctuation, phrases, or approved marks; do not invent product copy or brand marks. Load local fonts and assets before rendering. Default pipeline is HyperFrames; Remotion is a fallback only under its documented conditions.",
+    "combinations": "Style-093 suits bold kinetic lettering: outlined #171717 words, one focal image, no halftones over letters. Style-105 suits beat-timed repetition and color substitution among palette tokens, with staggered panel changes and a fixed halftone, but needs a verified beat table. Neither style is defined in this file. A single iconic image needs no hybrid.",
+    "productionApproach": "Style renderer: SVG for crisp type, outlines, and masks; Canvas 2D for stable halftones and color separations; an optional luminance halftone shader only if needed. Motion engine: GSAP paused timeline. mo.js is optional for bursts with pre-resolved random values. Pipeline: HyperFrames assembles, validates, and exports. Verify key frames, seeks, and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,27 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Idea Network",
+  "displayDescription": "A silhouette raises a glowing idea at twilight, and strings of light link the buildings on a ridge into one connected system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (layers, mask-based light reveal, filled silhouettes)",
+    "Paper.js 0.12.18 (boolean-united compound contours and window cutouts, built once from fixed rest geometry)"
+  ],
+  "motionEngine": [
+    "GSAP (single paused seekable timeline owns every animated property)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent. No audio track.",
+  "limitations": [
+    "Illustrative procedural scene. The bulb glow is approximated with flat translucent bloom discs, and the spreading light is a masked solid value step. Neither is physical lighting.",
+    "Motion was not used. GSAP alone covers the needed actions, so each property has one owner.",
+    "No preview recipe is listed in STYLE.json, so the refresh demonstrates the BACKGROUND_REVIEW scene-dependent palette and construction lessons.",
+    "The background review covers only sampled source seconds. No source subject, lettering or composition is copied.",
+    "The palette tokens are scene choices for this preview, not approved brand colours."
+  ]
+}

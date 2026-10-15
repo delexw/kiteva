@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-044",
+    "name": "Vintage Photo Collage",
+    "visualIdentity": "Explicit: a Printmaking and Craft Materials style that combines period-consistent photographs, newspaper fragments, clipped objects and visible paper edges. Grain and print character stay distinct within a unified palette. Cutout movement, modest parallax and object-based connections carry a coherent theme.",
+    "suitableUses": "Explicit: the source names collage, archival and historical subjects, and the best-for note lists historical documentaries and archives. Inferred: history explainers, timelines and object-based narratives. Catalog compatibility lists it for gallery, phrase and punctuation motions. Audience and objective are unspecified.",
+    "limitations": "No period photographs are supplied, so archival images must come from the user or be clearly labeled authored illustrations. Invented photos are excluded. Cropping does not remove backgrounds or create subject cutouts. Irregular paper edges need masks or authored artwork. Source review covered only 1–8 second samples, and the palette has no verified source evidence.",
+    "palette": "Explicit: background_policy is scene_dependent, with direction for neutral period paper and type that preserves photographic colors and grain. Suggested, not approved: background #EDE3CD, foreground #393329, accent #85765D. Foreground on background measures 9.806. Accent on background measures 3.47, so it is decorative only. No gradient is enabled, and tokens apply only to new elements.",
+    "motionAndInteraction": "Cutout movement, modest parallax and object-based connections run on a seekable GSAP timeline in HyperFrames. Optional references: motion-012 chapter handoff, motion-015 narrative steps, motion-037 clipped newspaper words dispersing, motion-038 crop into the next photograph. Motion-018 gallery requires actual images and captions. Select none if unsupported. Scroll, drag and lightbox are interactive-only.",
+    "audio": "Audio is unspecified in the source, and no soundtrack is mandatory. Suggested direction is restrained ambience or sparing sound accents at collage moves, leaving space for narration. Silence is valid. Do not default to instrumental music or invent audio assets. Honor explicit user audio choices. Tempo, voice and language are unspecified.",
+    "assetRequirements": "Required inputs are period-consistent photographs, newspaper fragments and clipped objects. None are supplied, so report them as missing rather than failing. Prepare transparent cutouts, paper edges and print textures with Python and Pillow; Sharp is an optional Node alternative. Keep archival photo colors and grain unaltered, and load fonts and assets locally.",
+    "combinations": "Suggested: style-024 for handwritten archival labels in #393329 on a neutral palette, never covering faces. Suggested: style-097 for timeline strips built from paper with cutouts, using accurate dates. Avoid colored notes, modern UI charts, fabricated data and excess parallax. Supporting styles must keep paper textures and grain consistent.",
+    "productionApproach": "HyperFrames is the default for composition, validation, snapshots and export; Remotion is a fallback only with a recorded reason. Python and Pillow prepare assets. The style renderer (PixiJS optional, or DOM/Canvas) draws the collage, and GSAP owns each animated property. Verify seeks, decoded frames and composited contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

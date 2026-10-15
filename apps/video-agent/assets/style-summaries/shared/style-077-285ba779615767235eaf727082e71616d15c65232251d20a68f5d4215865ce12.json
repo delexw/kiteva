@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-077",
+    "name": "Isometric Illustration (Digital and 3D Aesthetics). This is a supplemental design reference, not a directly named style in the source collection. It is a projection method, and an overhead game view alone does not establish it.",
+    "visualIdentity": "Objects sit on consistent isometric axes with clear scale, depth and occlusion, using limited colors and light shadows. They move, assemble and separate along those axes without perspective shrinkage. Labels stay in a readable 2D layer.",
+    "suitableUses": "Explicit: spatial overviews whose scenes explain themselves, and process or infrastructure explainers when paired with a hybrid style. Inferred: exploded-view reveals fit only when components are separable. Suitability for other topics is unspecified.",
+    "limitations": "Forbidden: perspective shrinkage, free diagonals that break the projection, invented values, 3D-extruded charts and body text on decorative fills. Isometric Motion Graphics is a near-duplicate and is skipped. Source review covered only sampled seconds 1 to 8, with no audio review.",
+    "palette": "Background policy is scene_dependent. The #F3EFE5 swatch is illustrative, not a required canvas, so choose backgrounds from the subject and lighting. Suggested tokens are foreground #2D444D, accent_1 #6E9990 and accent_2 #C98961, with gradients disabled. Foreground on background measures 8.941:1. Accent pairs at 3.237 and 3.537 are decorative only. Task-supplied exact colors override these tokens.",
+    "motionAndInteraction": "Video motion derives from composition time, and live hover, scroll and pointer input applies only to interactive HTML. Optional patterns are motion-009 depth parallax, motion-012 chapter handoffs, motion-015 story steps and motion-017 exploded reveals for separable parts. Keep sharp cuts and reading holds, and use easing only where it helps.",
+    "audio": "Audio is unspecified in the source, and the style imposes no genre, tempo, instrument, voice or mandatory layer. Options include music, voiceover, sung vocals, effects, ambience or silence, chosen by topic. Explicit user audio choices take precedence. Gallery previews may remain silent.",
+    "assetRequirements": "No uploads are mandatory. Needed items are isometric geometry in Three.js or SVG, locally loaded fonts and crop margins for any 2.5D artwork. Creature assets are needed only for motion-009's optional hop. Exported tldraw assets are optional. Any missing asset must be reported.",
+    "combinations": "style-097 adds flat 2D labels and comparisons, with sage and terracotta each keeping one meaning. style-109 adds connectors drawn along isometric axes for process flows. Labels stay screen-aligned, connectors avoid free diagonals and extruded charts are avoided. Use this style alone when scenes explain themselves.",
+    "productionApproach": "HyperFrames is the default pipeline for composition, timing and export, and Remotion is a fallback only when its documented condition is verified. Three.js with OrthographicCamera, or SVG with GSAP, renders the visuals. GSAP owns motion, chroma-js validates colors and contrast, and Motion is optional for DOM. Verify rendered frames and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

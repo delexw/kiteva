@@ -1,0 +1,167 @@
+{
+  "version": 3,
+  "title": "An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The idea",
+      "startSeconds": 0,
+      "endSeconds": 1.0,
+      "purpose": "Show the idea arriving as hand-placed paper: a ransom-note title and a cut-paper lightbulb.",
+      "visuals": [
+        "Stationary slate matte board with shared paper grain and a faint chalk planning grid",
+        "Seven separate paper letter chips spelling 'an idea…', each with its own typeface, cream or charcoal chip and small rotation",
+        "Terracotta cut-paper lightbulb taped at its top, with two charcoal paper base strips",
+        "Rough.js terracotta underline"
+      ],
+      "assets": [
+        "scene.bundle.js (PixiJS 8.22.0 + Rough.js 4.6.6, local esbuild bundle)",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.5,
+          "development": "Letter chips drop in reading order from 1.65x scale with wide offset shadows that tighten as they land. The bulb starts swinging down on its tape hinge.",
+          "captions": [
+            "an idea…"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.5,
+          "endSeconds": 1.0,
+          "development": "The last chips land by 0.87s. The bulb overshoots, swings back and settles at 0.9s. The base strips slide in and the underline starts drawing at 0.82s.",
+          "captions": [
+            "an idea…"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "The parts",
+      "startSeconds": 1.0,
+      "endSeconds": 1.95,
+      "purpose": "Ink the idea, then place the parts of the system as taped cards with hinged label slips.",
+      "visuals": [
+        "Rough.js charcoal ink outline and cream filament drawn on the bulb",
+        "Sage 'people', terracotta 'flow' and sage 'tools' cards, each taped and placed with a lift shadow",
+        "Cream label slips hinged at their top edge, folding down onto each card"
+      ],
+      "assets": [
+        "scene.bundle.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 1.0,
+          "endSeconds": 1.4,
+          "development": "The bulb ink and filament draw in (0.92–1.27s). The cards are placed at 1.00, 1.14 and 1.28s: they lift, tilt and drop, and their contact shadows tighten.",
+          "captions": [
+            "an idea…"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.4,
+          "endSeconds": 1.95,
+          "development": "Each label slip folds down on its hinge (1.40, 1.54, 1.68s), and then its handwritten label is wiped in.",
+          "captions": [
+            "people",
+            "flow",
+            "tools"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Connected",
+      "startSeconds": 1.95,
+      "endSeconds": 3.0,
+      "purpose": "Connect the parts into a system and close on the readable caption.",
+      "visuals": [
+        "Four cream dashed chalk connectors drawn from bulb to cards to the flow card",
+        "Terracotta cut-paper star spun into place with a cream ink outline",
+        "Torn cream caption strip taped at its left corner"
+      ],
+      "assets": [
+        "scene.bundle.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 1.95,
+          "endSeconds": 2.62,
+          "development": "The connectors finish drawing (1.55–2.22s). The star spins down from 0.3x scale and its outline is drawn. The caption strip is placed and its text is wiped in, finishing at 2.62s.",
+          "captions": [
+            "tools",
+            "…becomes a connected system"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.62,
+          "endSeconds": 3.0,
+          "development": "Still hold on the complete, readable composition.",
+          "captions": [
+            "an idea…",
+            "people",
+            "flow",
+            "tools",
+            "…becomes a connected system"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.38
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "The composition is fully settled by 2.62s, before the 2.7s requirement.",
+      "Each label is revealed only after its paper is in place, so no text floats over the empty board.",
+      "Motion overlaps by design (several chips in flight at once) but stays in reading order."
+    ],
+    "justifiedHolds": [
+      "2.62–3.0s: final reading hold on the full composition."
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, voice or effects. There is no authored audio cue sequence.",
+    "Recipe demonstrated: no reviewed preview_recipes were supplied (STYLE.json tech.preview_recipes is null), so the refresh demonstrates the source-frame lessons instead: ransom-note letter chips with tightening drop shadows (background-reference-03), containers before content and an underline drawn after the headline (background-reference-01), and taped, slightly rotated cards on one textured matte surface (background-reference-02).",
+    "Background: a scene-dependent slate matte board (#415A64) replaces the earlier warm cream canvas. The style tokens keep their roles: #F6EDD9 is the paper and chalk colour, #3C4345 the ink, #B97259 and #819777 the cut-paper accents."
+  ]
+}

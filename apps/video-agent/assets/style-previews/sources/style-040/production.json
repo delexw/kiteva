@@ -1,0 +1,27 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Charcoal System",
+  "displayDescription": "Charcoal and white chalk on cool toned paper: a smudged, hatched light bulb draws lines out to hatched nodes, forming a connected system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (offscreen layer canvases: fixed paper, paper-tooth masks, prebuilt smudge masks, per-frame charcoal value layer, separate white-chalk layer)"
+  ],
+  "motionEngine": [
+    "GSAP 3.15.0 (local gsap.min.js): one paused timeline at window.__timelines.video tweens a plain progress-state object and the caption clip-path/opacity; Canvas redraws from that state on every update and on hf-seek"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track, music, voice or sound effects.",
+  "limitations": [
+    "Procedural approximation of charcoal and chalk. Multi-pass strokes are masked by a fixed seeded paper-tooth texture. This is not a simulation of physical pigment transfer or real smudging.",
+    "Smudge and eraser effects are prebuilt blurred masks and destination-out strokes, revealed by radial and path progress.",
+    "Background changed from the earlier warm #EDE7DC swatch to cool blue-grey toned paper (#BFC4C6) under the scene-dependent policy. The medium stays monochrome: charcoal #232426, with white chalk #F3F1EA only on highlights.",
+    "BACKGROUND_REVIEW.json has no matched sources or contact sheets, so no source-frame techniques were applied.",
+    "No preview recipes were supplied. The preview shows the base style implementation.",
+    "Blender was not used, as instructed. Rendering and browser QA are left to the host."
+  ]
+}

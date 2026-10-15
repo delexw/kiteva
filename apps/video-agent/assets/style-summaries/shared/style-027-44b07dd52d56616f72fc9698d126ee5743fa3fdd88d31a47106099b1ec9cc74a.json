@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-027",
+    "name": "Line Art, in the Drawing and Illustration category. The label was normalized from source descriptions and references.",
+    "visualIdentity": "Objects are described through contours, structural lines and limited internal detail. A consistent line-weight hierarchy sits on a simple background, with small accent colors for emphasis. Line components may be revealed or moved while joints stay connected and stroke widths stay controlled.",
+    "suitableUses": "Explicitly suited to elegant product or icon reveals, technical explanation and editorial layouts. Inferred from the visual cues: contour-only subjects where structure matters more than texture. Avoid it where filled shapes, misleading scale or decorative motion would dominate.",
+    "limitations": "Source frames used a flat near-white field, black lines and gray secondary text with no hue accents; these are the author's example, not a rule. Only 1 fps samples from seconds 1 to 8 were reviewed, with no continuous motion, sub-second timing or audio. Sketch or hatching options do not supply authentic pencil, ink or handwriting.",
+    "palette": "Suggested tokens are background #FAF8F1, foreground #273D42 and accent #B77843. They are authored suggestions, and background_policy is scene_dependent, so the field may follow the subject if line contrast stays strong. Foreground on background measures 10.785, and accent on background measures 3.418, so the accent is decorative only. Gradients are disabled. Task-approved exact colors override these tokens.",
+    "motionAndInteraction": "Stroke reveals and moved line components are the core motion, and they must keep connected joints. Optional references are motion-012 (progress-linked chapter handoff), motion-015 (story steps with synchronized copy) and motion-039 (outlined mark with controlled rays). Video derives all state from composition time, while scroll and pointer input apply only to interactive delivery.",
+    "audio": "Audio is unspecified, and no fixed genre, tempo, voice or layer is required. Suggested options include restrained music, voiceover or silence, chosen from the topic and reading needs. Motion-039 has no verified music synchronization, so any sound accent must not compete with narration or reading holds.",
+    "assetRequirements": "No mandatory uploads are specified. The brief should supply the subject, exact copy and any approved mark, and none should be invented. Motion-039 needs an actual central mark or punctuation in the scene. Any voice or music must be supplied or created with authorized local tools.",
+    "combinations": "Style-097 suits mechanism diagrams, where accent #B77843 marks only the active element and outline, structure and detail weights stay consistent. Style-019 suits editorial grids, where #273D42 serves both lines and text and sections avoid colored backgrounds. Avoid pairing with Animated Line Art, which would be a near-duplicate.",
+    "productionApproach": "HyperFrames is the default pipeline for composition, validation and export, and Remotion applies only under its documented fallback condition. SVG draws the line art, GSAP DrawSVGPlugin reveals strokes by length, and one paused GSAP timeline serves as the clock. Rough.js (seeded sketch contours), Paper.js (curve sampling and booleans) and Motion are optional, each with a single owner per animated property."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Connected Idea",
+  "displayDescription": "Cream monoline bulb draws, an arrow hands off, nodes then connectors draw, and a copper route traces the path on a deep teal field.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (native DOM vector line art)",
+    "chroma-js (palette validation and contrast check)"
+  ],
+  "motionEngine": [
+    "GSAP core timeline (stroke-dashoffset path reveals, clip wipe, opacity/scale)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent. No music, voice or sound effects.",
+  "limitations": [
+    "Line reveals use stroke-dasharray/dashoffset under GSAP core rather than DrawSVGPlugin. The visual result is equivalent.",
+    "The lamp glow is a flat copper disc at 20% opacity, an approximation of emitted light. It is not a lighting simulation.",
+    "The dark field reuses the palette foreground token #27434A, with cream #F9F4E7 for lines and type. This inverts the authored scheme and adds no new hue.",
+    "Copper #AA6945 on the dark field measures about 2.3:1, so copper is used only on strokes, never on text.",
+    "Footer step positions are measured from the system monospace font at load time, so spacing can vary slightly with font fallback.",
+    "Not rendered or browser-tested by the agent; host QA is pending."
+  ]
+}

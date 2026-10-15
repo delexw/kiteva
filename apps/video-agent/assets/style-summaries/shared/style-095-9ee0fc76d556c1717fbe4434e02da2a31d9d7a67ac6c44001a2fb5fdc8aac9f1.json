@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-095",
+    "name": "UI Animation / Product Motion Design",
+    "visualIdentity": "A commercial product presentation built from accurate interfaces, real copy and established branding. Cards, figures, charts and interface states are separate elements; causal changes and precise framing explain features without sliding whole screenshots.",
+    "suitableUses": "Explicitly suited to product feature demos and launch reels using real interfaces. Also fits interactive feature tours; workflow or integration explainers can add a supporting diagram when the interface alone cannot show the relationship.",
+    "limitations": "Do not invent interface details, copy, branding or internal product features. Without real product assets, report the gap. Cropping must retain meaningful controls and context. 3D tilt, exploded views and galleries need scene-appropriate content; omit them when they obscure meaning or readability.",
+    "palette": "No intrinsic palette is specified. Brand, task and approved source colors take precedence. Optional new presentation chrome may use background #F7F9FA and foreground #263440, as discrete tokens without gradients. These suggestions do not recolor product UI, imagery or other assets; check contrast in the final composition.",
+    "motionAndInteraction": "Animate explicit interface states with causal timing: a button action, shared-element card expansion, tabular-figure count and chart transition. Use precise wrapper framing; register related layers and reveal labels after their card is complete. For interactive HTML, state toggles should be keyboard accessible and announced; optional crop, graph, map or drag tools apply only when needed. Video motion must be deterministic and seekable, with readable holds.",
+    "audio": "No fixed soundtrack, tempo, voice or sound effect is prescribed. Choose music, narration, accents, ambience or silence for the subject and task; honor supplied audio and keep speech intelligible. Synchronize and mix in the composition pipeline, and verify against picture.",
+    "assetRequirements": "Use supplied product screens, copy, brand tokens and fonts when available; preserve their accuracy. Layered exterior/interior assets are required for the optional registered X-ray reveal, which must not fabricate internals. Product assets are not guaranteed; report their absence rather than substituting a fictional UI.",
+    "combinations": "Works alone for feature demos. Optional style-093 typography can introduce features with brief, subordinate headlines using product copy and type. Optional style-109 line art can connect real UI cards to explain integrations or data flow; keep connectors consistent and tied to actual state changes.",
+    "productionApproach": "Build interface visuals with DOM/HTML/CSS and SVG charts; use GSAP for authored state changes and a paused seekable timeline. HyperFrames owns composition, media/audio synchronization, validation and export; Remotion is a fallback only for a verified HyperFrames limitation. Optional tools serve specific needs: React organizes components, Cytoscape models actual networks, Leaflet handles geographic UI, and tldraw can author diagrams. Verify direct and reverse seeks and inspect rendered frames."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

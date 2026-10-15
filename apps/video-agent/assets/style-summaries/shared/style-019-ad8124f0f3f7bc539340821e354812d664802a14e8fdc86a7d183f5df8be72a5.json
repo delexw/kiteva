@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-019",
+    "name": "Editorial Design, a graphic design style with explicit source provenance.",
+    "visualIdentity": "Magazine or book reading logic on a consistent grid with serif headlines and short body copy. Reveals follow reading order. Transitions use cropping, grouped movement or layout reflow, not whole-page slides. Serif-sans pairings must be purposeful.",
+    "suitableUses": "Explicit: article-like narratives with images and pull quotes. Inferred: feature stories, explainers, case studies and research summaries. It stands alone unless annotations or data panels are needed.",
+    "limitations": "Avoid dashboard chart walls, unsourced numbers and new chart fonts. Notes never sit over body text, and no spread holds more than two. The source review covered only seconds 1–8, so continuous motion and audio are unverified.",
+    "palette": "Background is scene-dependent: choose a quiet page tone from the subject's context, with one dark ink for all type, rules and charts. Suggested #FAF5EA, #252A30 and #A84235 are examples, not approved exact colors. Two-color contrast is 13.297 for text and 5.525 for the accent. Exact task-supplied colors override these suggestions.",
+    "motionAndInteraction": "Video needs no live input; motion is authored on one seekable timeline with readable holds. Optional references are motion-037 phrase step-in and motion-038 punctuation zoom, used only if the scene supports them. Other catalog patterns are candidates only.",
+    "audio": "Unspecified: no genre, tempo, voice or required audio layer is given. Inferred options include restrained music or ambience, optional narration, sparse accents at reveals, or silence for reading holds. Speech must stay intelligible, and no beat synchronization is verified.",
+    "assetRequirements": "Supplied assets are unspecified. Needed: local fonts measured for serif headlines and sans body, real images or clearly labeled illustrations, and actual punctuation for punctuation motion. Never assume photographs or invent copy or brand marks.",
+    "combinations": "Optional style-024 adds handwritten margin notes, with #A84235 markers over images or margins only. Optional style-097 adds infographic sidebars with #252A30 data and #A84235 for one highlighted series, each captioned and sourced. Otherwise it stands alone.",
+    "productionApproach": "HyperFrames is the default for composition, timing, validation and export; Remotion applies only if HyperFrames is unavailable or a verified limitation exists. HTML/CSS and SVG render visuals. GSAP is the single motion owner on one paused timeline. Chroma-js is optional for color checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

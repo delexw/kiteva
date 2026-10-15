@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-096",
+    "name": "Minimalist Product Motion Design. The label was normalized from product-brand references and names a presentation direction, not a historical art movement.",
+    "visualIdentity": "Frames one product and a few meaningful details with generous space, concise copy, precise proportions, and restrained materials and light. Uses smooth close-ups, selective reveals, and deliberate settling while preserving product accuracy.",
+    "suitableUses": "Explicitly suited to product introductions, hero reveals, premium launches, and detail close-ups. Catalog patterns list it as a good fit for product introductions and for gallery or dolly presentations. Inferred: short spec callouts or closing taglines.",
+    "limitations": "Unspecified: scene count, duration limits, and copy length. Explicit: one moving text line at a time, text never overlapping the product silhouette, and no expressive spring or scale on text. Two-color contrast checks do not cover images, video, or animated light.",
+    "palette": "Background policy is scene_dependent. The #F6F2EA background and #2A3030 foreground are optional examples with 12.026:1 contrast, not approved colors. Choose the canvas from subject and mood, keep product and brand colors exact, and leave gradients disabled. Reviewed demos used dark or navy canvases with one accent; those were author choices, not style rules.",
+    "motionAndInteraction": "Smooth, restrained close-ups with selective reveals and deliberate settling; sharp cuts and reading holds are allowed. Interactive delivery may use scroll, swipe, or hover, but video must use seekable composition time only. Optional patterns include exploded reveal, gallery, dolly, and punctuation zoom.",
+    "audio": "Audio is unspecified and not mandatory for this style. Suggestions depend on topic and audience, such as restrained music, clean voiceover, or silence. Previews remain silent. Any music or speech must be authorized and verified against actual timing; no beats or speech timing are assumed.",
+    "assetRequirements": "Source assets are unspecified. Inferred: a product image or prerendered product model, exact copy, and any approved brand marks must come from the task and are never invented. Blender may prerender genuine 3D products when needed. Cropper.js is optional for framing.",
+    "combinations": "Usually best used alone, since restraint is the point. Optional hybrid: style-104 for axial frontal push-ins on hero shots, keeping the two-tone palette and adding no props. Optional style-093 for one spec line at a time, never overlapping the product.",
+    "productionApproach": "Style renderer: SVG for crisp interface elements and Blender for prerendered products. Motion engine: one paused GSAP timeline with one owner per property; Motion or Anime.js are optional. Pipeline: HyperFrames is primary, and Remotion is a fallback only with a recorded, verified reason. chroma-js checks contrast, and Leaflet applies only when geography serves the story."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

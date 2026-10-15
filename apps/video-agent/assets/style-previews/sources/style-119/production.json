@@ -1,0 +1,27 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG",
+    "HTML/CSS"
+  ],
+  "motionEngine": [
+    "GSAP",
+    "GSAP DrawSVGPlugin"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no music, voiceover or sound effects.",
+  "limitations": [
+    "Scene-dependent background: a cool celadon-glaze porcelain inspection plate #E4E9E7 replaces the earlier warm #F0EEE6 swatch (background_policy is scene_dependent). Graphite #222522 linework, green #416B53 pointers and orange #E78636 active-digit marks keep their roles. Contrast: graphite 12.6:1, green text 4.95:1. Orange is used only for marks, never for text.",
+    "BACKGROUND_REVIEW.json found no matching source frames (matchedSources 0) and STYLE.json lists no preview_recipes. No contact sheets existed to read, so the original engraving style is kept and no source observations are claimed.",
+    "Illustrative procedural 2D engraving, not a physical simulation. The gear mesh is shown by touching tick rims, and the carry tooth is a schematic carry mechanism.",
+    "The belt pulley is drawn on the same axle as the units wheel. Belt sag, slip and elasticity are not modelled.",
+    "The rail scale uses an arbitrary 4 px = 1 mm unit for the belt-travel readout.",
+    "The 5 px hatch pattern turns with the wheels, so it needs a moiré check at output size.",
+    "Fonts are local system faces (Georgia; Menlo / SF Mono / Courier New), so glyph metrics vary by host. No Blender or 3D tools were used."
+  ]
+}

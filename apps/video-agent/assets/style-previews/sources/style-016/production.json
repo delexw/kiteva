@@ -1,0 +1,29 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Punk Graphics",
+  "displayDescription": "Ransom-note headline, torn paper and a Rough.js ink network pasted onto cool grey graph paper; the CONNECTED stamp is the punchline.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Rough.js 4.6.6 (seeded rough.svg lines, circles, curve; bundled locally with esbuild to rough.bundle.js)",
+    "Pillow 10.3 preprocessing (torn-paper masks, halftone sheet, graph paper, paper/tape textures, stamp distress)",
+    "HTML/CSS DOM cutout tiles and paper layers"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline registered at window.__timelines.video (sole owner of transforms, opacity, stroke-dashoffset and HUD time proxy)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No soundtrack, voice or sound effects were created.",
+  "limitations": [
+    "Paper, tape, halftone and stamp distress are procedural 2D approximations baked by Pillow; there is no physical paper simulation, real photocopy process or real tearing.",
+    "Paste and slap actions are rigid 2D transforms; nothing peels or folds in 3D.",
+    "Fonts are macOS system faces (Impact, Georgia, Didot, Rockwell, Futura, American Typewriter, Courier New, Marker Felt, Menlo) with generic fallbacks; other systems may substitute them.",
+    "The headline copy was corrected from 'A IDEA TURNS' in the illustration to 'AN IDEA TURNS'.",
+    "The source-frame review covers sampled stills from one reference; motion timing between those samples was inferred, not observed.",
+    "No preview_recipes are defined in STYLE.json, so this preview demonstrates the primary style refreshed from the source-frame evidence."
+  ]
+}

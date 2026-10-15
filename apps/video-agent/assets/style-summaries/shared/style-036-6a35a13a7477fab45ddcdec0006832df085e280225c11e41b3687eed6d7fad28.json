@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-036",
+    "name": "Post-Impressionist Painting (Drawing and Illustration; provenance normalized). The label comes from a Van Gogh Starry Night reference, which does not represent every Post-Impressionist work. Use a specific chosen painting as the reference.",
+    "visualIdentity": "Expressive, directional brushwork, rhythmic color relationships and simplified painted forms. The style is defined by a chosen painting reference, not by generic swirling skies. Explicitly, scenes are built from painted layers with coherent light and color.",
+    "suitableUses": "Explicitly, the style-101 pairing lists cultural storytelling, museum promos and atmospheric intros as best fits for layered scenery. Inferred: single-painting artwork pieces and painterly narratives. Art education and process reels are listed only for the style-109 underdrawing pairing.",
+    "limitations": "Do not claim a filter reproduces the Post-Impressionist movement. Avoid default swirling skies and large parallax that exposes plane edges. Simulated painterly motion is not physical production. The source review sampled only one frame per second from 1 to 8 seconds, with no continuous motion or audio verified.",
+    "palette": "The background is scene_dependent. The tokens #EEE2C2, #344F60, #B58B42, #638873 and #B26B57 are illustrative examples, not approved colors, and no exact colors were supplied. Choose the field from the subject's light. Foreground on background measures 6.696 and passes. Accent pairings (2.768 to 3.174) are decorative only, and gradients are disabled.",
+    "motionAndInteraction": "Explicitly, the style uses animated brush reveals, localized repainting and layer movement with coherent light and color. Optional catalog patterns motion-012 (chaptered handoff) and motion-015 (narrative steps) are used only when they fit the scene. Video runs on composition time. Scroll and reduced-motion states apply only to interactive delivery.",
+    "audio": "Audio is unspecified for this style, and no layer is mandatory. Options include background music, voiceover, sung vocals, sound effects, ambience or silence, chosen per topic and audio requirements. No audio assets were supplied, so mood, tempo and voice are not fixed. Speech must stay intelligible and must not compete with copy.",
+    "assetRequirements": "Layered painting assets are required: prepared layers with alpha transparency, numbered frame sequences or a layer manifest, consistent dimensions and clear naming. Inspect them before composition. No uploaded painting, reference image or typography is specified, and exact copy is unspecified.",
+    "combinations": "The style-101 pairing adds layered scenery depth, with separated painted planes, shared light direction, consistent brush direction per plane and one palette family. The style-109 pairing adds a brief underdrawing line reveal in #344F60 that is fully replaced by paint, keeping the same composition. Avoid line boil and mismatched drawings.",
+    "productionApproach": "HyperFrames is the default export pipeline, not the painting method. Use Canvas 2D for brushes and textures, and GSAP for seekable motion timelines. Use chroma-js only for contrast checks. Remotion is the fallback only when HyperFrames is unavailable or a verified limitation exists. Verify seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

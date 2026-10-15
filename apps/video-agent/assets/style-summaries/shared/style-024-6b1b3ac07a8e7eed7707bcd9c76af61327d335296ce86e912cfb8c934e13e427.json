@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-024",
+    "name": "Handwritten Annotations (Drawing and Illustration category). Explicit name and category from source.",
+    "visualIdentity": "Explicit: handwritten lettering, underlines, arrows, circles and simple diagrams with slightly uneven marker edges. Annotations are drawn in explanatory order, pointing at the subject before each note appears. Ink and accent colors are restricted.",
+    "suitableUses": "Inferred fit: markup over screenshots, document walkthroughs and explainers where a drawn subject needs notes. Listed pairings suggest product callouts, anatomy or mechanism explainers, and finance lessons where a marker highlights a chart's key insight.",
+    "limitations": "Explicit: the style needs a subject to annotate; alone it fits markup or walkthroughs. Avoid hand-drawn wobble on data marks, annotations covering values, too many simultaneous notes, and handwritten paragraphs. Body text should use a readable font, not handwriting.",
+    "palette": "Background is scene_dependent, so #FFFDF7 is only an illustrative swatch; choose the backdrop from scene, lighting and mood. Suggested tokens: foreground #233346 and one accent #B54A3E reserved for annotations. Contrast is 12.639 for foreground on background and 5.144 for accent on background, two-color checks only. Gradients are disabled. Task or approved colors override these suggestions.",
+    "motionAndInteraction": "Explicit: arrows, circles and underlines are sequenced with the explanation, and the target is located before its note writes on. Optional motion references motion-012 (chapter handoff) and motion-015 (narrative steps) fit only if the scene supports their defining action. Interactive hotspot reveal is a suggested HTML pairing, not a source requirement.",
+    "audio": "Unspecified in the source; no audio layer is mandated. Inferred options: restrained music, voiceover, marker or stroke sound effects, ambience or silence. Speech should not compete with note reading time, and sung vocals may distract from essential text. No tempo, instrument or voice is assigned.",
+    "assetRequirements": "No uploads are required by the source. Needs readable body-text fonts and approved handwritten lettering or suitable fonts, because Rough.js cannot generate authentic handwriting. Also needs a subject to annotate, such as a screenshot, chart or line art, and optional editable diagram layers.",
+    "combinations": "Explicit suggestions: style-097 for clean charts the marker explains, with the accent reserved for annotations and one insight per state; style-027 for neutral line art, with arrows landing before each note. Subject marks stay in #233346 without color fills or hand-drawn wobble.",
+    "productionApproach": "HyperFrames is the default for assembly, timing, audio sync, validation and export; Remotion is fallback only with a recorded reason. SVG paths with DrawSVGPlugin or stroke-dashoffset reveal strokes, HTML/CSS sets readable type, optional Rough.js adds seeded contours, and chroma-js checks contrast. Verify composited frames and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

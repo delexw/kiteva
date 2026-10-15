@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-002",
+    "name": "Bauhaus. This is a supplemental design reference, not a directly named style in the source collection. Not every primary-color geometric animation qualifies as Bauhaus.",
+    "visualIdentity": "Explicit: circles, squares, triangles, rules and lettering sit on a shared grid, balanced asymmetrically with deliberate proportions. Forms assemble in rhythmic stages through growth, rotation and interlocking. The 120 px grid, 120 BPM and 20 beats are optional starting values, not defining features.",
+    "suitableUses": "Explicit: posters and identity built from primitives, logo reveals, design-education pieces, brand-film section transitions, music-backed loops, event promos and exhibition openers. Inferred: motion posters and editorial or minimalist geometric layouts, based on compatibility notes. Unspecified: any other subject.",
+    "limitations": "The visual cues were not verified against the source video. Avoid gradient fills, blobby midpoints and distorted lettering. Use only primitives and rules, with no organic shapes. Two-color contrast checks do not verify text over video, textures or animated backgrounds, so recheck composited frames.",
+    "palette": "Suggested tokens, not supplied exact colors: background #FFFFFF, foreground #000000, accent_1 #D62828 red, accent_2 #F2C230 yellow, accent_3 #164B9B blue. Use five discrete flat colors with gradients disabled. Task-provided approved colors override these. Contrast: black on white 21:1, white on accent_1 5.008:1, black on accent_2 12.535:1, white on accent_3 8.354:1.",
+    "motionAndInteraction": "Explicit: video motion must derive from seekable composition time through a paused timeline. Preserve deliberate sharp cuts, impacts, constant-speed sections and reading holds; easing is not required everywhere. Optional motion references 007, 012 and 015 are scene-level choices. References 037 to 039 need the actual phrase or mark. Pointer and scroll input belong only to interactive delivery.",
+    "audio": "Unspecified: no audio asset, voiceover or music is supplied. Inferred suggestion: optional music driving both picture and sound from one beat-event table, or silence to preserve reading holds. Avoid autoplay, live microphone analysis that drifts and full-frame flashing. Beat sync claims require inspected audio.",
+    "assetRequirements": "Unspecified: no user assets, exact copy, fonts, logos or approved marks are supplied. Geometry should be generated from SVG or p5.js primitives. Load fonts before animation starts. Motion references 037 to 039 require actual phrase, punctuation or approved-mark assets in the scene. Do not invent copy or a brand mark.",
+    "combinations": "Explicit: style-100 may supply morphing among circle, square and triangle states for transitions, with flat colors that snap and pivots aligned to the grid. Style-105 may supply only a timing table for music-backed work, with no visuals. Both are optional and must keep the five tokens fixed. Other combinations are unspecified.",
+    "productionApproach": "Explicit: SVG is the style renderer for geometry and text. Optional p5.js handles procedural layers with noLoop and time-derived state. GSAP is the single motion owner for each animated property, on a paused timeline. HyperFrames is the default pipeline for assembly, validation and export. Use Remotion only when HyperFrames is unavailable or blocked by a verified limitation, and record why."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

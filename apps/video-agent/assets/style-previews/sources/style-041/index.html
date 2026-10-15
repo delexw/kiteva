@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>一念 · 萬物相連 — Chinese Calligraphy preview</title>
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #DDE2E1; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* OS-bundled macOS Songti (no downloadable file): declared via local() sources */
+  @font-face {
+    font-family: "Songti TC";
+    src: local("Songti TC Regular"), local("STSongti-TC-Regular"), local("Songti TC"),
+         local("Songti SC Regular"), local("STSongti-SC-Regular"), local("Songti SC");
+    font-weight: 400; font-style: normal; font-display: block;
+  }
+  .zh { font-family: "Songti TC", serif; }
+  .en { font-family: Georgia, "Times New Roman", serif; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- Paper: cool grey washi, stationary vignette -->
+    <radialGradient id="vignette" cx="50%" cy="46%" r="75%">
+      <stop offset="0.55" stop-color="#20211E" stop-opacity="0"/>
+      <stop offset="1" stop-color="#20211E" stop-opacity="0.10"/>
+    </radialGradient>
+    <!-- Ink bloom: the same ink, diluted. Radius/opacity are timeline-owned. -->
+    <radialGradient id="bloomGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#20211E" stop-opacity="0.42"/>
+      <stop offset="0.45" stop-color="#20211E" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#20211E" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="bloomMottle" x="-30%" y="-30%" width="160%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="11" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="70"/>
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <!-- Brush edge: fixed-seed turbulence roughens outlines into fibrous paper -->
+    <filter id="inkEdge" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="5" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="4.5"/>
+    </filter>
+    <filter id="wetBleed" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="2.2"/>
+    </filter>
+    <filter id="sealEdge" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.18" numOctaves="2" seed="3" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5"/>
+    </filter>
+  </defs>
+
+  <!-- Stationary paper ground, fibres, column rules and vignette -->
+  <rect id="paper" width="1280" height="720" fill="#DDE2E1"/>
+  <g id="fibres" fill="none" stroke="#3E4241" stroke-linecap="round"></g>
+  <g id="rules" stroke="#20211E" stroke-width="1" opacity="0.06">
+    <path d="M660 0V720M845 0V720M1200 0V720"/>
+  </g>
+  <rect width="1280" height="720" fill="url(#vignette)"/>
+
+  <!-- Ink blooms (diluted ink soaking into paper) -->
+  <g filter="url(#bloomMottle)">
+    <ellipse id="bloomGlyph" cx="1012" cy="400" rx="230" ry="260" fill="url(#bloomGrad)"/>
+    <ellipse id="bloomSystem" cx="300" cy="420" rx="250" ry="170" fill="url(#bloomGrad)"/>
+  </g>
+
+  <!-- Brush-written glyphs 一 念: separate strokes, built in stroke order -->
+  <g id="glyphs" transform="translate(866 290)"></g>
+
+  <!-- Connected system: ink lines branching from the seed dot -->
+  <g id="system"></g>
+
+  <!-- Annotation columns (printed type, reveal after the glyph) -->
+  <g id="colMain" class="zh" fill="#20211E" font-size="58" text-anchor="middle">
+    <text x="752" y="200">萬</text>
+    <text x="752" y="280">物</text>
+    <text x="752" y="360">相</text>
+    <text x="752" y="440">連</text>
+  </g>
+  <g id="colDate" class="zh" fill="#4A4E4C" font-size="22" text-anchor="middle">
+    <text x="700" y="392">丙</text>
+    <text x="700" y="422">午</text>
+    <text x="700" y="452">秋</text>
+  </g>
+
+  <!-- Vermilion seal: frame and carved character are one group -->
+  <g id="seal">
+    <rect id="sealFrame" x="680" y="474" width="40" height="40" rx="2" fill="#B4382A" filter="url(#sealEdge)"/>
+    <text x="700" y="503" class="zh" font-size="26" fill="#F4F5F2" text-anchor="middle" data-reveal-after="sealFrame">連</text>
+  </g>
+
+  <!-- Caption -->
+  <g id="caption">
+    <text x="120" y="604" class="en" font-size="24" fill="#20211E" letter-spacing="1.5">An idea becomes a connected system</text>
+    <text x="120" y="638" class="zh" font-size="17" fill="#4A4E4C" letter-spacing="4">一念 · 萬物相連</text>
+  </g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="DrawSVGPlugin.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  gsap.registerPlugin(DrawSVGPlugin);
+  const NS = "http://www.w3.org/2000/svg";
+  const INK = "#20211E";
+  const svg = document.getElementById("scene");
+
+  // ---------- deterministic helpers ----------
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function profile(points, t) { // piecewise-linear width profile [[t,w],...]
+    for (let i = 1; i < points.length; i++) if (t <= points[i][0]) { const a = points[i - 1], b = points[i]; const u = (t - a[0]) / Math.max(1e-6, b[0] - a[0]); return a[1] + (b[1] - a[1]) * u; }
+    return points[points.length - 1][1];
+  }
+  const f = (n) => n.toFixed(2);
+
+  // ---------- stationary paper fibres (seeded) ----------
+  (function fibres() {
+    const g = document.getElementById("fibres"); const r = mulberry32(41);
+    for (let i = 0; i < 170; i++) {
+      const x = r() * 1280, y = r() * 720, len = 8 + r() * 34, ang = r() * Math.PI;
+      const bx = x + Math.cos(ang) * len, by = y + Math.sin(ang) * len;
+      const cx = (x + bx) / 2 + (r() - 0.5) * 14, cy = (y + by) / 2 + (r() - 0.5) * 14;
+      el("path", { d: `M${f(x)} ${f(y)}Q${f(cx)} ${f(cy)} ${f(bx)} ${f(by)}`, "stroke-width": f(0.4 + r() * 0.6), opacity: f(0.05 + r() * 0.09) }, g);
+    }
+  })();
+
+  // ---------- brush stroke builder ----------
+  // A stroke = centreline (used by DrawSVG as an expanding mask, in stroke order)
+  //          + a filled brush outline from a width profile (pressure)
+  //          + optional dry-brush split strands at the tail
+  //          + a diluted wet-bleed halo of the same ink.
+  const measure = el("path", {}, svg); measure.setAttribute("visibility", "hidden");
+  function outline(d, prof, opts) {
+    measure.setAttribute("d", d);
+    const L = measure.getTotalLength(); const N = Math.max(24, Math.round(L / 3));
+    const t0 = opts.t0 || 0, t1 = opts.t1 == null ? 1 : opts.t1, off = opts.offset || 0, scale = opts.scale || 1, seed = opts.seed || 1;
+    const pts = [];
+    for (let i = 0; i <= N; i++) { const t = t0 + (t1 - t0) * i / N; pts.push([t, measure.getPointAtLength(L * t)]); }
+    const left = [], right = [];
+    for (let i = 0; i < pts.length; i++) {
+      const p = pts[i][1], a = pts[Math.max(0, i - 1)][1], b = pts[Math.min(pts.length - 1, i + 1)][1];
+      let nx = -(b.y - a.y), ny = b.x - a.x; const m = Math.hypot(nx, ny) || 1; nx /= m; ny /= m;
+      const t = pts[i][0];
+      const rag = 1 + 0.07 * Math.sin(t * 37 + seed * 3.1) + 0.04 * Math.sin(t * 91 + seed);
+      const w = profile(prof, t) * scale * rag / 2;
+      const ox = p.x + nx * off * profile(prof, t), oy = p.y + ny * off * profile(prof, t);
+      left.push([ox + nx * w, oy + ny * w]); right.push([ox - nx * w, oy - ny * w]);
+    }
+    const ring = left.concat(right.reverse());
+    return "M" + ring.map(q => f(q[0]) + " " + f(q[1])).join("L") + "Z";
+  }
+
+  let maskId = 0;
+  function brushStroke(parent, spec) {
+    const id = "m" + (maskId++);
+    const maxW = Math.max.apply(null, spec.w.map(p => p[1]));
+    const mask = el("mask", { id, maskUnits: "userSpaceOnUse", x: -1200, y: -800, width: 3000, height: 2000 }, svg.querySelector("defs"));
+    const reveal = el("path", { d: spec.d, fill: "none", stroke: "#fff", "stroke-width": f(maxW * 1.9 + 8), "stroke-linecap": "round", "stroke-linejoin": "round" }, mask);
+    // userSpaceOnUse mask content already shares the masked group's local coordinates.
+    const g = el("g", { mask: `url(#${id})` }, parent);
+    const bleedG = el("g", { filter: "url(#wetBleed)", opacity: "0.22" }, g);
+    const inkG = el("g", { filter: "url(#inkEdge)", fill: INK }, g);
+    const dry = spec.dry || 0;
+    const mainProf = dry ? spec.w.map(([t, w]) => [t, t > 1 - dry ? w * 0.55 : w]) : spec.w;
+    el("path", { d: outline(spec.d, spec.w, { scale: 1.25, seed: spec.seed }), fill: INK }, bleedG);
+    el("path", { d: outline(spec.d, mainProf, { seed: spec.seed }) }, inkG);
+    if (dry) { // split bristle strands
+      [[-0.36, 0.2, 0.985], [0.34, 0.18, 0.96], [0.12, 0.12, 1.0]].forEach(([o, s, end], k) => {
+        el("path", { d: outline(spec.d, spec.w, { t0: 1 - dry - 0.04, t1: end, offset: o, scale: s, seed: spec.seed + k + 2 }) }, inkG);
+      });
+    }
+    return reveal;
+  }
+
+  // ---------- glyph data: 一 + 念 (今 over 心), hand-authored centrelines ----------
+  // Stroke order (standard): 一: 橫. 念: 丿 撇, ㇏ 捺, 丶 點, ㇇ 橫撇, 心: 丶 點, ㇃ 臥鉤, 丶 點, 丶 點.
+  const glyphs = document.getElementById("glyphs");
+  const strokes = [
+    { name: "一 橫", d: "M18 -104 C70 -112 140 -120 210 -122 C240 -122 262 -118 282 -112", w: [[0, 9], [0.06, 20], [0.2, 15], [0.6, 11], [0.86, 15], [0.95, 19], [1, 6]], seed: 1, dry: 0 },
+    { name: "丿 撇", d: "M150 6 C132 46 98 92 16 136", w: [[0, 8], [0.08, 19], [0.45, 15], [0.8, 8], [1, 1.5]], seed: 2, dry: 0.3 },
+    { name: "㇏ 捺", d: "M146 18 C174 58 214 100 252 118 C266 124 280 127 294 128", w: [[0, 5], [0.3, 9], [0.7, 17], [0.86, 23], [0.94, 14], [1, 2]], seed: 3, dry: 0.16 },
+    { name: "丶 點", d: "M134 70 C146 78 156 88 162 100", w: [[0, 6], [0.4, 16], [0.8, 15], [1, 5]], seed: 4, dry: 0 },
+    { name: "㇇ 橫撇", d: "M96 122 C130 120 162 116 190 114 C176 132 160 148 132 166", w: [[0, 8], [0.08, 13], [0.5, 10], [0.6, 14], [0.8, 10], [1, 2]], seed: 5, dry: 0 },
+    { name: "丶 點", d: "M54 210 C50 228 42 246 30 262", w: [[0, 7], [0.35, 17], [0.75, 15], [1, 6]], seed: 6, dry: 0 },
+    { name: "㇃ 臥鉤", d: "M92 188 C86 240 104 286 160 290 C200 292 232 278 256 252 C246 246 236 240 222 234", w: [[0, 9], [0.1, 16], [0.4, 12], [0.7, 13], [0.82, 16], [0.9, 10], [1, 2]], seed: 7, dry: 0.08 },
+    { name: "丶 點", d: "M138 198 C148 208 156 220 162 234", w: [[0, 6], [0.4, 17], [0.8, 15], [1, 5]], seed: 8, dry: 0 },
+    { name: "丶 點", d: "M204 196 C220 206 236 218 250 234", w: [[0, 6], [0.4, 18], [0.8, 16], [1, 5]], seed: 9, dry: 0 }
+  ];
+  // [start, duration] — brush speed scaled to stroke length/weight; small lifts between strokes
+  const strokeTimes = [[0.2, 0.26], [0.54, 0.2], [0.76, 0.22], [1.0, 0.09], [1.11, 0.2], [1.36, 0.09], [1.47, 0.26], [1.76, 0.09], [1.87, 0.1]];
+
+  // ---------- connected system: tapered ink lines + nodes ----------
+  const system = document.getElementById("system");
+  const links = [
+    { d: "M178 466 Q300 384 420 362 T562 282", w: [[0, 7], [0.2, 4.2], [0.8, 3], [1, 1.6]], seed: 21, t: [1.62, 0.5] },
+    { d: "M302 400 Q318 360 330 330", w: [[0, 3], [1, 1.4]], seed: 22, t: [1.9, 0.22] },
+    { d: "M420 362 Q446 412 470 450", w: [[0, 3.2], [1, 1.4]], seed: 23, t: [1.98, 0.24] },
+    { d: "M470 450 Q520 470 568 488", w: [[0, 2.6], [1, 1.2]], seed: 24, t: [2.18, 0.2] },
+    { d: "M330 330 Q296 300 262 268", w: [[0, 2.6], [1, 1.2]], seed: 25, t: [2.08, 0.2] }
+  ];
+  const nodes = [ // [cx, cy, r, appearAt]
+    [170, 470, 17, 1.5], [302, 400, 5.5, 1.78], [420, 362, 7, 1.9], [562, 282, 6, 2.12],
+    [330, 330, 4.5, 2.12], [470, 450, 5, 2.22], [568, 488, 4.5, 2.38], [262, 268, 4.5, 2.28]
+  ];
+
+  // ---------- build everything once, then the single paused timeline ----------
+  const tl = gsap.timeline({ paused: true });
+
+  // Bloom: forms before the glyph, keeps diffusing slowly through the hold (one owner per property)
+  const bloomG = document.getElementById("bloomGlyph"), bloomS = document.getElementById("bloomSystem");
+  gsap.set([bloomG, bloomS], { transformOrigin: "50% 50%", scale: 0.45, opacity: 0 });
+  tl.to(bloomG, { opacity: 1, duration: 0.45, ease: "sine.inOut" }, 0)
+    .to(bloomG, { opacity: 0.55, duration: 2.0, ease: "sine.inOut" }, 0.7)
+    .to(bloomG, { scale: 1.12, duration: 3.0, ease: "power2.out" }, 0);
+  tl.to(bloomS, { opacity: 0.85, duration: 0.4, ease: "sine.inOut" }, 1.38)
+    .to(bloomS, { opacity: 0.5, duration: 1.0, ease: "sine.inOut" }, 1.9)
+    .to(bloomS, { scale: 1.08, duration: 1.62, ease: "power2.out" }, 1.38);
+
+  // Glyph strokes, strict stroke order
+  strokes.forEach((s, i) => {
+    const reveal = brushStroke(glyphs, s);
+    const [st, du] = strokeTimes[i];
+    gsap.set(reveal, { drawSVG: "0%", visibility: "hidden" });
+    tl.set(reveal, { visibility: "visible" }, st);
+    tl.to(reveal, { drawSVG: "100%", duration: du, ease: du < 0.12 ? "power2.inOut" : "sine.inOut" }, st);
+  });
+
+  // Seed dot and system lines
+  const nodeEls = nodes.map(([cx, cy, r, at]) => {
+    const c = el("circle", { cx, cy, r, fill: INK, filter: "url(#inkEdge)" }, system);
+    gsap.set(c, { transformOrigin: "50% 50%", scale: 0, opacity: 0 });
+    tl.to(c, { scale: 1, opacity: 1, duration: r > 10 ? 0.22 : 0.14, ease: "back.out(1.2)" }, at);
+    return c;
+  });
+  links.forEach((s) => {
+    const reveal = brushStroke(system, s);
+    gsap.set(reveal, { drawSVG: "0%", visibility: "hidden" });
+    tl.set(reveal, { visibility: "visible" }, s.t[0]);
+    tl.to(reveal, { drawSVG: "100%", duration: s.t[1], ease: "power2.inOut" }, s.t[0]);
+  });
+
+  // Annotation columns: fade in after the glyph completes, top to bottom
+  const colChars = Array.from(document.querySelectorAll("#colMain text"));
+  gsap.set(colChars, { opacity: 0, y: -10 });
+  colChars.forEach((c, i) => tl.to(c, { opacity: 1, y: 0, duration: 0.3, ease: "power2.inOut" }, 1.95 + i * 0.08));
+  const dateChars = Array.from(document.querySelectorAll("#colDate text"));
+  gsap.set(dateChars, { opacity: 0 });
+  tl.to(dateChars, { opacity: 1, duration: 0.25, stagger: 0.05, ease: "sine.inOut" }, 2.15);
+
+  // Seal: whole group (frame + carved 連) presses down together
+  const seal = document.getElementById("seal");
+  gsap.set(seal, { transformOrigin: "50% 50%", scale: 1.25, opacity: 0 });
+  tl.to(seal, { scale: 1, opacity: 1, duration: 0.2, ease: "power2.inOut" }, 2.3);
+
+  // Caption
+  const cap = Array.from(document.querySelectorAll("#caption text"));
+  gsap.set(cap, { opacity: 0 });
+  tl.to(cap[0], { opacity: 1, duration: 0.3, ease: "sine.inOut" }, 1.75);
+  tl.to(cap[1], { opacity: 1, duration: 0.3, ease: "sine.inOut" }, 1.95);
+
+  // Composition length = 3 s (hold to end)
+  tl.set({}, {}, 3);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  tl.progress(0).pause(0);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

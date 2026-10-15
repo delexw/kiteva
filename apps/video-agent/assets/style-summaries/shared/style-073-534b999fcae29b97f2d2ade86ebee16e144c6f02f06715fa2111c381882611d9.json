@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-073",
+    "name": "Vaporwave is a supplemental design reference, not a directly named source style. Keep it distinct from fast, driving Synthwave.",
+    "visualIdentity": "Explicit cues: nostalgic consumer imagery, early digital interfaces, sculpture or advertising fragments in a coherent pastel palette with selective distortion. Slow repetition, drift and displaced time keep a recognizable theme.",
+    "suitableUses": "Explicit best-fit notes: slow nostalgic loops, nostalgia-themed music visuals, editorial art, album-art loops and gallery-style pieces. Collage HTML pages with a reduced-motion freeze are also noted. Other audiences or objectives are unspecified.",
+    "limitations": "Avoid fast Synthwave pacing and neon grids. Use only supplied or licensed imagery and no unlicensed logos. Two-color contrast checks do not cover images or video, so recheck composited frames. Simulated appearance is not physical production.",
+    "palette": "Background policy is scene_dependent; #EAE0F0 is only an illustrative swatch, so choose backgrounds from scene and mood. Suggested new-artwork tokens: foreground #474257, accents #CE9BB8, #8DBBB8 and #B2A4D0. Approved exact colors override these. Gradients are disabled. Foreground on background is 7.515. Accent_2 passes at 4.546; accent_1 and accent_3 are decorative only.",
+    "motionAndInteraction": "Slow drift and local distortion are driven from deterministic time, with eased movement and deliberate cuts or reading holds. Use one owner per animated property. Video ignores live input; interactive builds may freeze drift for reduced motion. Optional references are motion-008, motion-012, motion-015 and motion-037 (typography), each only if scene assets support it.",
+    "audio": "No mandatory audio is assigned. Options include music, voiceover, sung vocals, effects, ambience or silence; no genre or tempo is fixed. Music-synchronized animation is compatible. No audio was supplied, so create audio only from the brief and keep speech intelligible.",
+    "assetRequirements": "Supplied or licensed consumer, photographic or interface assets are needed, prepared as alpha layers or numbered frames with a layer manifest. Load fonts and assets before rendering. Asset counts, resolution and copy are unspecified, so do not invent them.",
+    "combinations": "Vaporwave alone suits slow loops. Hybrid style-044 adds supplied collage fragments tinted toward the accents. Hybrid style-104 adds centered, symmetric sculpture staging with mirrored drift. Both keep motion slow and avoid clutter and neon grids.",
+    "productionApproach": "HyperFrames is the default for assembly and export, using a paused GSAP timeline registered in window.__timelines, then check, snapshot and delivery render. Remotion is fallback only when HyperFrames is unavailable or limited, with the reason recorded. Canvas 2D renders visuals; optional PixiJS composites sprites. chroma-js checks contrast. Verify seeks and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

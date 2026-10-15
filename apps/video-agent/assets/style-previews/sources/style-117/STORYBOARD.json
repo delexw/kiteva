@@ -1,0 +1,80 @@
+{
+  "version": 2,
+  "durationSeconds": 3,
+  "format": "structured",
+  "sections": [
+    {
+      "heading": "style-117 Holographic Scanline Illustration — 3 s silent preview",
+      "level": 1,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Subject: an idea becomes a connected system. 1280x720, 30 fps, 3 s, silent.\nRenderer: Canvas 2D (Path2D cached, clipped 1px scanlines, cyan 3px + white 1px contours, stationary faint cyan grid). Motion: GSAP paused timeline owning a state object; render(state) on every update and hf-seek.\nPalette: #07080A background (opaque clear each frame), #45F0DD lines/contours, #FFFFFF cores and title."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "columns": [
+            {
+              "key": "Time",
+              "label": "Time",
+              "alignment": null
+            },
+            {
+              "key": "Beat",
+              "label": "Beat",
+              "alignment": null
+            }
+          ],
+          "rows": [
+            {
+              "Time": "0.05–0.80 s",
+              "Beat": "Idea circle contour draws (setLineDash length progress). Headers and title are standalone and visible throughout."
+            },
+            {
+              "Time": "0.55–1.25 s",
+              "Beat": "Scanlines sweep top-to-bottom inside the circle; inner denser block follows; solid core block steps in at 1.0–1.25 s."
+            },
+            {
+              "Time": "1.25 s",
+              "Beat": "IDEA label (data-reveal-after=\"idea-frame\") appears only after the circle contour and core are complete."
+            },
+            {
+              "Time": "0.90–1.70 s",
+              "Beat": "Eight links draw outward from the idea and around the perimeter."
+            },
+            {
+              "Time": "1.25–1.85 s",
+              "Beat": "Sparse system-field scanlines wipe in behind the links."
+            },
+            {
+              "Time": "1.30–2.05 s",
+              "Beat": "Four hex nodes draw contours, then fill with scanlines."
+            },
+            {
+              "Time": "1.80–2.65 s",
+              "Beat": "Density modulation: core brightens (denser), energy passes to nodes and field, then settles."
+            },
+            {
+              "Time": "2.65–3.00 s",
+              "Beat": "Settled, fully legible hold."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "No arrows are used. No shadowBlur, bloom, particles, clocks or randomness."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

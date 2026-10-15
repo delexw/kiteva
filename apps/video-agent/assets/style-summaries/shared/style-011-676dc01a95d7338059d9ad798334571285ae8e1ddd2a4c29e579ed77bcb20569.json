@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-011",
+    "name": "Pop Art is a supplemental design reference, not a directly named style in the source collection. Comic imagery or halftones alone do not establish it.",
+    "visualIdentity": "Built from mass-culture objects, comic imagery, repeated panels, bold flat color fields and heavy outlines, with optional halftones. Lettering is part of the composition. Repetition, color substitution, scale change and split screens serve one clear focal image.",
+    "suitableUses": "Explicit: the style suits single iconic images, and the source names product promos, campaign headlines, event teasers and music promos as hybrid uses. Inferred: short-copy product or music visuals. Audience and objective are unspecified.",
+    "limitations": "Weak fit for dense explanatory text or gentle illustrative sequences. Avoid thin type, halftones over letterforms, red small text and many simultaneous words. Halftone shading needs aliasing and flicker tests. The palette review sampled only seconds 1–8 and no audio.",
+    "palette": "Background is scene-dependent; choose it from subject, mood and lighting. Suggested tokens (#FFF6D6 ground, #171717 ink, #E8393E, #F1C932, #2671C6) are illustrative, not approved, and task-supplied exact colors override them. Direction: red, yellow and blue with heavy dark outlines. Gradients are disabled. Ink on ground measures 16.566:1; accent_2 with ink measures 11.218:1; accent_1 with ink measures 4.342:1 and is decorative only.",
+    "motionAndInteraction": "Deterministic, time-driven motion with sharp cuts, impacts and reading holds; automatic springs or bounce are not part of the style. Optional references: chapter handoff (motion-012), authored card track (motion-013), story steps (motion-015), phrase scatter (motion-037), punctuation zoom (motion-038), radial burst (motion-039) and word smash cuts (motion-040). Scroll, swipe and lightbox behavior applies only to interactive delivery.",
+    "audio": "Unspecified by the style and optional. Propose audio from topic and motion, such as restrained accents, music, voiceover or silence. Beat-synced timing requires measured audio analysis, which was not verified here. Speech must stay intelligible, and no sound is mandatory.",
+    "assetRequirements": "No uploads are supplied in the metadata. If used, provide actual scene illustrations, glyph or punctuation assets, approved marks, local fonts and any exact colors. Halftone treatments need prepared color separations. Do not invent copy or brand marks.",
+    "combinations": "style-093 (kinetic typography) supports lettering timing; keep outlined lettering in #171717, red off small text and one focal image per frame. style-105 (beat timing) supports repetition and color swaps only with a verified beat table; stagger changes and avoid strobing or autoplay.",
+    "productionApproach": "Style renderer: SVG and Canvas 2D, plus an optional custom luminance halftone shader (three.js). Motion engine: GSAP paused timeline; Motion or mo.js are optional and need deterministic values. Pipeline: HyperFrames by default, with Remotion only under a verified fallback condition. Validate colors with chroma-js."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+html,body{margin:0;width:1280px;height:720px;overflow:hidden;background:#272631}
+#video{position:relative;width:100%;height:100%;overflow:hidden}
+#video canvas,#video svg{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+</style>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-start="0" data-duration="3" data-fps="30">
+  <!-- Stationary night-underpass concrete wall (Canvas 2D, drawn once) -->
+  <canvas id="wall" width="1280" height="720"></canvas>
+  <!-- Seeded spray layer: overspray clouds, drips, arrow, network (Canvas 2D, redrawn from timeline time) -->
+  <canvas id="paint" width="1280" height="720"></canvas>
+  <!-- Lettering layer: main pieces and tag, revealed by spray-pass path masks (SVG) -->
+  <svg id="letters" xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+    <defs>
+      <filter id="rough" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="2" seed="7"/>
+        <feDisplacementMap in="SourceGraphic" scale="26"/>
+      </filter>
+      <filter id="ideaExtrude" x="-10%" y="-10%" width="130%" height="130%">
+        <feDropShadow dx="11" dy="11" stdDeviation="0" flood-color="#BC4861" flood-opacity="1"/>
+      </filter>
+      <filter id="connExtrude" x="-10%" y="-10%" width="130%" height="140%">
+        <feDropShadow dx="6" dy="7" stdDeviation="0" flood-color="#388A8B" flood-opacity="1"/>
+      </filter>
+      <mask id="mIdea" maskUnits="userSpaceOnUse" x="-200" y="-200" width="1700" height="1100">
+        <path id="mIdeaPath" fill="none" stroke="#fff" stroke-width="96" stroke-linecap="round" stroke-linejoin="round" filter="url(#rough)"/>
+      </mask>
+      <mask id="mConn" maskUnits="userSpaceOnUse" x="-200" y="-200" width="1700" height="1100">
+        <path id="mConnPath" fill="none" stroke="#fff" stroke-width="150" stroke-linecap="round" filter="url(#rough)"/>
+      </mask>
+      <mask id="mTag" maskUnits="userSpaceOnUse" x="-200" y="-200" width="1700" height="1100">
+        <path id="mTagPath" fill="none" stroke="#fff" stroke-width="90" stroke-linecap="round" filter="url(#rough)"/>
+      </mask>
+    </defs>
+    <g id="pieceRot" transform="rotate(-6 400 380)">
+      <g id="ideaWrap">
+        <g filter="url(#ideaExtrude)">
+          <text id="ideaText" x="100" y="408" font-family="Impact,Haettenschweiler,'Arial Black',sans-serif" font-size="230" fill="#CEA248" stroke="#E7E1D4" stroke-width="7" paint-order="stroke" stroke-linejoin="round" mask="url(#mIdea)">IDEA</text>
+        </g>
+      </g>
+      <g id="connWrap">
+        <g filter="url(#connExtrude)">
+          <text id="connText" x="130" y="560" font-family="Impact,Haettenschweiler,'Arial Black',sans-serif" font-size="112" letter-spacing="4" fill="#E7E1D4" stroke="#BC4861" stroke-width="12" paint-order="stroke" stroke-linejoin="round" mask="url(#mConn)">CONNECTED</text>
+        </g>
+      </g>
+    </g>
+    <g id="tagWrap">
+      <text id="tagText" x="1010" y="470" font-family="'Marker Felt',Chalkboard,'Comic Sans MS',sans-serif" font-size="54" fill="#E7E1D4" transform="rotate(-10 1010 470)" mask="url(#mTag)">link.up!</text>
+    </g>
+    <text id="footer" x="640" y="680" font-family="'Courier New',Courier,monospace" font-weight="bold" font-size="20" letter-spacing="6" fill="#E7E1D4" text-anchor="middle">AN IDEA BECOMES A CONNECTED SYSTEM</text>
+  </svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+'use strict';
+var W=1280,H=720;
+var C={wall:'#272631',ink:'#272631',cream:'#E7E1D4',pink:'#BC4861',teal:'#388A8B',gold:'#CEA248'};
+function rgba(hex,a){var c=chroma(hex).rgb();return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')';}
+function rng(seed){var s=seed>>>0;return function(){s=(s+0x6D2B79F5)>>>0;var t=s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+function gauss(r){var u=Math.max(1e-6,r()),v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(6.283185*v);}
+function clamp(v){return v<0?0:v>1?1:v;}
+function prog(t,a,b){return clamp((t-a)/(b-a));}
+function easeInOut(x){return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;}
+function backOut(x){var c1=1.7,c3=c1+1;return x<=0?0:1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2);}
+
+// ---------- polyline helpers ----------
+function measure(pts){var L=[0];for(var i=1;i<pts.length;i++){L.push(L[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));}return L;}
+function pointAt(pts,L,s){if(s<=0)return pts[0].concat([pts[1][0]-pts[0][0],pts[1][1]-pts[0][1]]);for(var i=1;i<pts.length;i++){if(L[i]>=s){var k=(s-L[i-1])/((L[i]-L[i-1])||1);var dx=pts[i][0]-pts[i-1][0],dy=pts[i][1]-pts[i-1][1];return[pts[i-1][0]+dx*k,pts[i-1][1]+dy*k,dx,dy];}}var n=pts.length-1;return pts[n].concat([pts[n][0]-pts[n-1][0],pts[n][1]-pts[n-1][1]]);}
+function quad(p0,p1,p2,n){var o=[];for(var i=0;i<=n;i++){var u=i/n,a=(1-u)*(1-u),b=2*(1-u)*u,c=u*u;o.push([a*p0[0]+b*p1[0]+c*p2[0],a*p0[1]+b*p1[1]+c*p2[1]]);}return o;}
+function toD(pts){return 'M'+pts.map(function(p){return p[0]+' '+p[1];}).join('L');}
+
+// ---------- stationary wall (drawn once, never animated) ----------
+(function drawWall(){
+  var g=document.getElementById('wall').getContext('2d');var r=rng(4211);
+  g.fillStyle=C.wall;g.fillRect(0,0,W,H);
+  // broad deterministic damp/stain variation
+  for(var i=0;i<26;i++){var x=r()*W,y=r()*H,rad=120+r()*260;var gr=g.createRadialGradient(x,y,0,x,y,rad);var tone=r()<.5?C.cream:'#000000';gr.addColorStop(0,rgba(tone,tone==='#000000'?.12:.035));gr.addColorStop(1,rgba(tone,0));g.fillStyle=gr;g.fillRect(x-rad,y-rad,rad*2,rad*2);}
+  // concrete grain
+  for(var j=0;j<52000;j++){g.fillStyle=r()<.55?rgba(C.cream,.025+r()*.04):'rgba(0,0,0,'+(.08+r()*.12)+')';g.fillRect(r()*W,r()*H,1+r()*1.6,1+r()*1.6);}
+  // cast slab seams and form-tie holes
+  g.lineWidth=3;g.strokeStyle='rgba(0,0,0,.35)';
+  [0,240,480,720].forEach(function(y){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();});
+  [0,1].forEach(function(row){for(var x=(row?213:0);x<=W;x+=426){g.beginPath();g.moveTo(x,row*240+240);g.lineTo(x,row*240+480);g.stroke();}});
+  g.lineWidth=1;g.strokeStyle=rgba(C.cream,.07);
+  [2,242,482].forEach(function(y){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();});
+  for(var a=0;a<3;a++)for(var b=0;b<6;b++){var hx=71+b*213,hy=60+a*240;g.fillStyle='rgba(0,0,0,.45)';g.beginPath();g.arc(hx,hy,5,0,6.283);g.fill();g.fillStyle=rgba(C.cream,.06);g.beginPath();g.arc(hx+1,hy+1,5,0,3.14);g.fill();}
+})();
+
+// ---------- seeded spray brushes (prepared once) ----------
+// Spray-can path for an overspray cloud: zigzag passes, particles sorted by can travel.
+function cloud(seed,cx,cy,rx,ry,count,passes,rMin,rMax,alpha,color){
+  var r=rng(seed),pts=[];
+  for(var p=0;p<passes;p++){var y=cy-ry*.8+ry*1.6*(p/(passes-1));var x0=cx-rx*.85,x1=cx+rx*.85;if(p%2){var t=x0;x0=x1;x1=t;}pts.push([x0,y],[x1,y+ry*.08]);}
+  var L=measure(pts),total=L[L.length-1],out=[];
+  for(var i=0;i<count;i++){var u=i/count;var q=pointAt(pts,L,u*total);var x=q[0]+gauss(r)*rx*.22,y=q[1]+gauss(r)*ry*.28;var e=((x-cx)*(x-cx))/(rx*rx)+((y-cy)*(y-cy))/(ry*ry);if(e>1.25)continue;out.push({u:u,x:x,y:y,r:rMin+r()*(rMax-rMin),c:rgba(color,alpha*(1-.55*Math.min(1,e)))});}
+  return out;
+}
+var pinkCloud=cloud(42,420,360,390,160,2600,5,8,26,.075,C.pink);
+var tealCloud=cloud(43,1000,225,270,135,2000,4,8,24,.085,C.teal);
+
+// A sprayed stroke: core line + seeded atomised halo distributed along arc length.
+function sprayStroke(seed,strokes,width,color,halo){
+  var r=rng(seed),segs=[],acc=0;
+  strokes.forEach(function(pts){var L=measure(pts);segs.push({pts:pts,L:L,start:acc,len:L[L.length-1]});acc+=L[L.length-1];});
+  var specks=[];var n=Math.round(acc*halo);
+  for(var i=0;i<n;i++){var s=r()*acc;var sg=segs[0];for(var k=0;k<segs.length;k++){if(s>=segs[k].start)sg=segs[k];}var q=pointAt(sg.pts,sg.L,s-sg.start);var len=Math.hypot(q[2],q[3])||1;var nx=-q[3]/len,ny=q[2]/len;var off=gauss(r)*width*.75;specks.push({s:s,x:q[0]+nx*off+gauss(r)*1.5,y:q[1]+ny*off+gauss(r)*1.5,r:.6+r()*2.2,a:.18+r()*.5});}
+  specks.sort(function(a,b){return a.s-b.s;});
+  return {segs:segs,total:acc,width:width,color:color,specks:specks};
+}
+var arrow=sprayStroke(77,[quad([620,300],[700,250],[760,236],40),[[740,214],[772,232],[744,258]]],14,C.pink,1.1);
+var nodes=[[780,230],[900,140],[1060,200],[1180,120],[980,300],[1150,330]];
+var edges=[[0,1],[1,2],[2,3],[1,4],[4,2],[4,5]];
+var net=edges.map(function(e,i){return sprayStroke(90+i,[[nodes[e[0]],nodes[e[1]]]],9,C.teal,1.0);});
+var EDGE_START=1.25,EDGE_STEP=.11,EDGE_DUR=.24;
+var nodeTime=nodes.map(function(_,n){var best=9;edges.forEach(function(e,i){var t0=EDGE_START+i*EDGE_STEP;if(e[0]===n)best=Math.min(best,t0);if(e[1]===n)best=Math.min(best,t0+EDGE_DUR);});return best;});
+var nodeSpecks=nodes.map(function(_,i){var r=rng(300+i),o=[];for(var k=0;k<70;k++){var a=r()*6.283,d=20+Math.abs(gauss(r))*7;o.push([Math.cos(a)*d,Math.sin(a)*d,.6+r()*1.8,.2+r()*.5]);}return o;});
+// Drips under the IDEA piece, in the piece's rotated frame.
+var drips=[[172,402,50,.70],[333,402,62,.80],[520,398,44,.90]];
+
+function drawStroke(g,st,p){
+  var reach=st.total*p;if(reach<=0)return;
+  g.strokeStyle=st.color;g.lineWidth=st.width;g.lineCap='round';g.lineJoin='round';
+  st.segs.forEach(function(sg){var local=reach-sg.start;if(local<=0)return;g.beginPath();g.moveTo(sg.pts[0][0],sg.pts[0][1]);for(var i=1;i<sg.pts.length;i++){if(sg.L[i]<=local){g.lineTo(sg.pts[i][0],sg.pts[i][1]);}else{var q=pointAt(sg.pts,sg.L,local);g.lineTo(q[0],q[1]);break;}}g.stroke();});
+  g.fillStyle=st.color;
+  for(var i=0;i<st.specks.length;i++){var s=st.specks[i];if(s.s>reach)break;g.globalAlpha=s.a;g.beginPath();g.arc(s.x,s.y,s.r,0,6.283);g.fill();}
+  g.globalAlpha=1;
+  // wet nozzle bloom at the advancing tip
+  if(p<1){var sg=st.segs[0];for(var k=0;k<st.segs.length;k++)if(reach>=st.segs[k].start)sg=st.segs[k];var q=pointAt(sg.pts,sg.L,Math.min(sg.len,reach-sg.start));var gr=g.createRadialGradient(q[0],q[1],0,q[0],q[1],st.width*2.4);gr.addColorStop(0,rgba(st.color,.55));gr.addColorStop(1,rgba(st.color,0));g.fillStyle=gr;g.fillRect(q[0]-st.width*3,q[1]-st.width*3,st.width*6,st.width*6);}
+}
+function drawCloud(g,pts,p){if(p<=0)return;for(var i=0;i<pts.length;i++){var c=pts[i];if(c.u>p)break;g.fillStyle=c.c;g.beginPath();g.arc(c.x,c.y,c.r,0,6.283);g.fill();}}
+
+var paint=document.getElementById('paint').getContext('2d');
+function draw(t){
+  var g=paint;g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,W,H);
+  // 1. overspray fields laid down by moving can passes
+  drawCloud(g,pinkCloud,easeInOut(prog(t,0,.7)));
+  drawCloud(g,tealCloud,easeInOut(prog(t,1.0,1.7)));
+  // 2. drips run from the IDEA piece once its fill is wet
+  g.save();g.translate(400,380);g.rotate(-6*Math.PI/180);g.translate(-400,-380);
+  drips.forEach(function(d){var p=easeInOut(prog(t,d[3],d[3]+.5));if(p<=0)return;var len=d[2]*p;g.fillStyle=C.gold;g.beginPath();g.moveTo(d[0]-6,d[1]);g.lineTo(d[0]+6,d[1]);g.lineTo(d[0]+5,d[1]+len);g.arc(d[0],d[1]+len,5.5+1.5*p,0,Math.PI);g.closePath();g.fill();g.fillStyle=rgba(C.cream,.35);g.fillRect(d[0]-3,d[1]+4,2,Math.max(0,len-8));});
+  g.restore();
+  // 3. sprayed arrow shaft then head
+  drawStroke(g,arrow,easeInOut(prog(t,.95,1.45)));
+  // 4. network lines sprayed one after another
+  net.forEach(function(st,i){var a=EDGE_START+i*EDGE_STEP;drawStroke(g,st,easeInOut(prog(t,a,a+EDGE_DUR)));});
+  // 5. nodes pop when a line reaches them
+  nodes.forEach(function(n,i){var p=prog(t,nodeTime[i],nodeTime[i]+.3);if(p<=0)return;var s=backOut(p);
+    g.fillStyle=C.cream;nodeSpecks[i].forEach(function(k){g.globalAlpha=k[3]*Math.min(1,p*2);g.beginPath();g.arc(n[0]+k[0]*s,n[1]+k[1]*s,k[2],0,6.283);g.fill();});g.globalAlpha=1;
+    g.beginPath();g.arc(n[0],n[1],18*s,0,6.283);g.fillStyle=C.gold;g.fill();g.lineWidth=4.5;g.strokeStyle=C.cream;g.stroke();
+    g.beginPath();g.arc(n[0]-5*s,n[1]-5*s,4*s,0,6.283);g.fillStyle=rgba(C.cream,.6);g.fill();});
+}
+
+// ---------- SVG path masks for lettering (prepared once) ----------
+function setMask(id,pts){var el=document.getElementById(id);var L=measure(pts);var len=L[L.length-1];el.setAttribute('d',toD(pts));el.setAttribute('stroke-dasharray',len+' '+(len+10));el.setAttribute('stroke-dashoffset',len);return {el:el,len:len};}
+var mIdea=setMask('mIdeaPath',[[60,215],[560,195],[70,280],[560,262],[70,345],[560,330],[70,410],[560,395],[70,460],[560,450]]);
+var mConn=setMask('mConnPath',[[100,520],[735,500]]);
+var mTag=setMask('mTagPath',[[990,452],[1200,446]]);
+
+// ---------- one paused timeline; GSAP owns every animated property ----------
+var tl=gsap.timeline({paused:true});
+var clockValue=0;
+var clock={t:function(v){if(arguments.length){clockValue=v;draw(v);}return clockValue;}};
+// Canvas paint state is a pure function of this tweened composition time.
+tl.to(clock,{t:3,duration:3,ease:'none'},0);
+// Main piece: IDEA filled by zigzag spray passes.
+tl.to(mIdea.el,{attr:{'stroke-dashoffset':0},duration:.75,ease:'power2.inOut'},.08);
+tl.fromTo('#ideaWrap',{x:-18,y:10,scale:.94,transformOrigin:'50% 50%'},{x:0,y:0,scale:1,duration:.8,ease:'back.out(1.2)'},.05);
+// Second piece: CONNECTED in one long horizontal pass, pushed up into place.
+tl.to(mConn.el,{attr:{'stroke-dashoffset':0},duration:.6,ease:'power2.inOut'},.55);
+tl.fromTo('#connWrap',{x:-40,y:16,rotation:-3,transformOrigin:'30% 50%'},{x:0,y:0,rotation:0,duration:.65,ease:'back.out(1.2)'},.55);
+// Tag: quick marker hand, last beat.
+tl.to(mTag.el,{attr:{'stroke-dashoffset':0},duration:.45,ease:'power2.inOut'},2.0);
+tl.fromTo('#tagWrap',{y:14,rotation:-6,svgOrigin:'1090 450'},{y:0,rotation:0,duration:.5,ease:'back.out(1.2)'},2.0);
+tl.to({},{duration:.001},2.999);
+draw(0);
+window.__timelines=window.__timelines||{};
+window.__timelines.video=tl;
+function resync(){draw(tl.time());}
+window.addEventListener('hf-seek',resync);
+document.addEventListener('hf-seek',resync);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

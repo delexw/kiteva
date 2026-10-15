@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-042",
+    "name": "Graffiti / Street Art is a supplemental Drawing and Illustration reference. The source collection does not name it as a directly named style.",
+    "visualIdentity": "Spray-painted lettering, tags, wall texture, and street graphics share one coherent lettering style and palette. Overspray and layered paint are used selectively, and strokes are revealed or overpainted while the message stays recognizable.",
+    "suitableUses": "Explicitly suited to lettering-focused pieces, with listed fits for music promos, event teasers, and culture explainers. Inferred fit: street-culture topics where wall typography carries the message. Other uses are unspecified.",
+    "limitations": "Overspray and layered paint must stay selective, avoiding random overspray and over-layering. Two-color contrast checks do not verify text over textures or overspray, so each composited pairing needs review. Accent_1 and accent_2 are decorative fills only.",
+    "palette": "Suggested tokens only, used when no approved colors are supplied: background #E7E1D4, foreground #272631, accents #BC4861, #388A8B, #CEA248. Foreground on background measures 11.449:1, and foreground on accent_3 measures 6.312:1. Gradients are disabled, and task colors override these tokens.",
+    "motionAndInteraction": "Motion runs on seekable composition time. Stroke reveals and overpaint timing are the core actions, with deliberate holds for reading. Motion-012, motion-015, motion-037, and motion-038 are optional and need matching scene assets. Interactive behavior is unspecified.",
+    "audio": "Audio is unspecified in the record. Suggest music, voiceover, or silence from the topic and audience, and state assumptions. Music timing is tied only to the style-105 hybrid and needs inspected audio. Keep speech intelligible and avoid clipping.",
+    "assetRequirements": "Prepare tags and main lettering as separate assets, and inspect glyph assets or approved mark geometry first. Load local fonts and assets before rendering. No assets are supplied in the record, so missing ones must be reported.",
+    "combinations": "Style-105 adds music-keyed spray reveals using the primary palette and a readable message. Style-054 adds brief flyer cutaways in the same palette, with the wall remaining the main scene. Avoid mixed palettes and too many inserts.",
+    "productionApproach": "Use HyperFrames for composition and export, and use Remotion only when its fallback condition is verified and recorded. Canvas 2D draws seeded brushes and masks, SVG handles strokes, and GSAP drives a paused timeline. Verify check, snapshot, and forward, backward, and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

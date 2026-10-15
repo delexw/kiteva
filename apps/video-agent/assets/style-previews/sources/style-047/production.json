@@ -1,0 +1,29 @@
+{
+  "displayTitle": "Paper Craft",
+  "displayDescription": "A folded idea card opens and kraft strips unroll, connecting cardboard boxes that fold up from flat nets on a green cutting mat.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186.1 WebGLRenderer (local node_modules, bundled with esbuild into paper-scene.js)",
+    "Canvas 2D seeded procedural textures (paper/kraft fibers, corrugated flutes, cutting-mat grid)"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline (sole owner of all animated state)",
+    "Procedural Paper Curl and Fold Deformation (CPU BufferGeometry deformation from immutable rest vertices: card crease fold, strip unroll coil)",
+    "Rigid hinge pivots for constant-thickness cardboard walls and lid flaps"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent — no audio track.",
+  "limitations": [
+    "Blender, bpy, Cycles and EEVEE were not used, per user instruction. Three.js real-time shading (MeshStandardMaterial, PCF soft shadows) approximates Cycles soft paper lighting, without true subsurface transmission or global illumination.",
+    "The paper fold and strip coil are artistic arc-length-preserving deformations, not a physical paper solver. Card stock is a single-sided surface with no modeled thickness.",
+    "Cardboard panels are rigid boxes with constant thickness. Corner joints overlap slightly rather than being modeled as exact glued tabs.",
+    "Fiber, corrugation and grid detail come from seeded procedural Canvas textures, not photographs.",
+    "No preview_recipes were listed in STYLE.json, and BACKGROUND_REVIEW.json has 0 matched sources and no contact sheets, so no source-frame observations were applied. The green cutting-mat background is a scene-dependent choice made from the craft-table environment.",
+    "Title uses the OS-bundled Impact font via @font-face local('Impact'), with Arial Black declared the same way as a fallback. No font files are bundled, so typography depends on these system fonts being present on the render host."
+  ]
+}

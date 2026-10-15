@@ -1,0 +1,7 @@
+{
+  "provider": "claude",
+  "model": "claude-opus-5-5",
+  "sessionId": "52117c4d-5c02-4570-aef6-69e9973a795d",
+  "catalogHash": "3353cdc50abb3dee780cae32c707d425aef18f2cb87a3efc647c642f4cd267ae",
+  "eyeRepair": true
+}

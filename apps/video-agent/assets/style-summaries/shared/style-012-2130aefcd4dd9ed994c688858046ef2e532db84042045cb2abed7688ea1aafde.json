@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-012",
+    "name": "Op Art. This is a supplemental design reference, not a directly named style in the source collection. A kaleidoscope alone does not establish Op Art.",
+    "visualIdentity": "Explicit: stripes, checkerboards, concentric circles and repeated geometry create optical illusions. Line weight, density and positive-negative relationships are controlled. Animate phase, spacing and deformation at continuous, measured speeds.",
+    "suitableUses": "Explicit: illusion-led pieces where the geometry is the subject. Inferred: exhibition posters, album covers and event key art, using the single poster hybrid when a title must coexist with the field. Interactive HTML is possible with a canvas field.",
+    "limitations": "Explicit: keep text away from the strongest illusion zones and avoid high-frequency flicker. Pairing easily causes flicker or illegibility. Moiré must be inspected at final output size. Unspecified: duration, aspect ratio, resolution and frame rate, since example values are optional.",
+    "palette": "Background policy is scene_dependent. The suggested #FFFFFF background and #000000 foreground are optional authored monochrome tokens, not approved exact colors. Task-supplied colors override them. No gradient is enabled. Use hatching or screen patterns for tone, not accent hues. Black-on-white measures 21:1 in two-color checks, but composited frames must be rechecked.",
+    "motionAndInteraction": "Explicit: constant, measured phase and spacing change, with no high-frequency flicker and no loop jumps. Optional references: motion-039 (radial ring and popper-confetti burst, listed as a good fit for Op Art), motion-002 (vortex passage) and motion-012 (chapter handoff). Interactive delivery should pause on reduced motion and offer a pause control.",
+    "audio": "Unspecified by the source. Music, voiceover, sound effects, ambience or silence may be proposed from topic and audience, with no mandatory genre, tempo or layer. Inferred: restrained or silent audio suits illusion-led work. Beat sync is not claimed without inspected audio.",
+    "assetRequirements": "No uploads are specified. Any optional fonts, copy or approved mark must be loaded and inspected first. Do not invent brand marks or product copy. The illusion field is procedural geometry generated from time, not photographed material. Motion-039 would need approved mark geometry.",
+    "combinations": "Explicit: best used alone for illusion-led pieces. Suggested hybrid: style-103 (motion poster discipline), with a solid black or white text block outside the illusion zones. Rules: strictly black and white, slow constant phase, matched loop endpoints, and no text over stripes.",
+    "productionApproach": "Explicit: Canvas 2D is the style renderer, generating repeated geometry parametrically from shared time. GSAP is the motion engine, using one paused, seekable timeline. HyperFrames is the default pipeline for composition, checks, snapshots and export. Remotion is only a recorded fallback. chroma-js is optional for color validation and contrast checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

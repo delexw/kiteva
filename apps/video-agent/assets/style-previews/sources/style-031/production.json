@@ -1,0 +1,28 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Idea Connects",
+  "displayDescription": "Navy halftone comic: a bulb clicks on, a spark leaps the gutter, and a node network inks on under concentration lines.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (panels, lettering, halftone patterns, masks)",
+    "Rough.js (seeded burst, rays, stamp keylines, spark trail, network edges and nodes)"
+  ],
+  "motionEngine": [
+    "Motion (interpolate/easing utilities evaluate every pose from composition time)",
+    "GSAP (single paused timeline as the seekable HyperFrames clock only)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent. No audio track, music, effects or voice.",
+  "limitations": [
+    "The halftone is a procedural SVG dot-pattern approximation of single-ink print. It has no registration error, ink spread or paper fibre.",
+    "Rough.js lines are seeded and static, so there is no line boil. They approximate inked contours and are not hand drawing.",
+    "PixiJS was reviewed but not used, because the scene has few sprites and SVG covers it.",
+    "Lettering uses OS-bundled macOS Impact and Comic Sans MS (with Chalkboard SE/Chalkboard as fallbacks), declared through @font-face local() rules. These are system stand-ins for hand lettering, and output depends on the render host having these fonts.",
+    "Background evidence comes from one source contact sheet with 8 sampled seconds. The source subject, branding and wording were not copied."
+  ]
+}

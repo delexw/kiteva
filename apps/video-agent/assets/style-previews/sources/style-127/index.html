@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cutaway / Exploded 3D Illustration — style-127 preview</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #101820; overflow: hidden; }
+  #root { position: relative; width: 100%; height: 100%; background: #101820; overflow: hidden; }
+  #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #overlay { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .mono { font-family: Menlo, "DejaVu Sans Mono", Consolas, "Liberation Mono", monospace; }
+  .sans { font-family: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif; }
+</style>
+<script src="gsap.min.js"></script>
+<script src="DrawSVGPlugin.min.js"></script>
+<script src="lens-scene.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="stage" width="1280" height="720"></canvas>
+  <svg id="overlay" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+    <!-- standalone heading (independent timing: always visible) -->
+    <text class="mono" x="70" y="80" font-size="13" fill="#8196A5" letter-spacing="0.5">EXPLODED ASSEMBLY · SECTION A–A · AXIS Z</text>
+
+    <!-- flow legend (standalone, appears with the light path) -->
+    <g id="legend" opacity="0">
+      <text class="mono" x="1040" y="300" font-size="13" fill="#628BF4">SIGNAL</text>
+      <text class="mono" x="1040" y="322" font-size="13" fill="#EF9F5C">ENERGY</text>
+    </g>
+
+    <!-- labels: group transform is reprojected from 3D part anchors on every seek -->
+    <g id="labels"></g>
+
+    <!-- standalone title -->
+    <g class="sans" fill="#EFF4F7">
+      <text x="70" y="616" font-size="36" font-weight="700">An idea becomes</text>
+      <text x="70" y="660" font-size="36" font-weight="300">a connected system</text>
+    </g>
+  </svg>
+</div>
+<script>
+(function () {
+  "use strict";
+  gsap.registerPlugin(DrawSVGPlugin);
+  var NS = "http://www.w3.org/2000/svg";
+  var LS = window.LensScene;
+  var lens = LS.createLensScene(document.getElementById("stage"));
+  var PARTS = LS.PARTS;
+
+  // ---- build label overlay (card -> text, leader -> anchor dot) ----
+  var LEAD = 64; // constant leader length in px; whole label group follows its anchor
+  var labelsG = document.getElementById("labels");
+  var labelGroups = [], cards = [], texts = [], leaders = [], dots = [];
+  PARTS.forEach(function (p, i) {
+    var n = i + 1;
+    var g = document.createElementNS(NS, "g");
+    g.setAttribute("id", "label-" + n);
+    var card = document.createElementNS(NS, "rect");
+    card.setAttribute("id", "card-" + n);
+    card.setAttribute("fill", "#101820");
+    card.setAttribute("stroke", "#8196A5");
+    card.setAttribute("stroke-width", "1");
+    card.setAttribute("rx", "3");
+    var text = document.createElementNS(NS, "text");
+    text.setAttribute("class", "mono");
+    text.setAttribute("font-size", "13");
+    text.setAttribute("fill", "#EFF4F7");
+    text.setAttribute("text-anchor", "end");
+    text.setAttribute("data-reveal-after", "card-" + n);
+    text.textContent = p.label;
+    var leader = document.createElementNS(NS, "path");
+    leader.setAttribute("id", "leader-" + n);
+    leader.setAttribute("d", "M" + (-LEAD - 2) + " 0 H-5");
+    leader.setAttribute("stroke", "#EFF4F7");
+    leader.setAttribute("stroke-width", "1.5");
+    leader.setAttribute("fill", "none");
+    var dot = document.createElementNS(NS, "circle");
+    dot.setAttribute("r", "4");
+    dot.setAttribute("cx", "0");
+    dot.setAttribute("cy", "0");
+    dot.setAttribute("fill", "#EFF4F7");
+    dot.setAttribute("data-arrowhead-for", "leader-" + n);
+    g.appendChild(card); g.appendChild(text); g.appendChild(leader); g.appendChild(dot);
+    labelsG.appendChild(g);
+    var right = -LEAD - 2;
+    text.setAttribute("x", String(right - 12));
+    text.setAttribute("y", "4.5");
+    var w = Math.ceil(p.label.length * 7.9) + 24; // monospace advance (13px) + padding, font-independent
+    card.setAttribute("x", String(right - w));
+    card.setAttribute("y", "-13");
+    card.setAttribute("width", String(w));
+    card.setAttribute("height", "26");
+    labelGroups.push(g); cards.push(card); texts.push(text); leaders.push(leader); dots.push(dot);
+  });
+
+  // ---- GSAP-owned scene state (part offsets, cutaway, camera arc, light path) ----
+  var S = { sep: 0, cut: 2.4, az: 0.62, beam: 0 };
+  var stateTl = gsap.timeline({ paused: true });
+  stateTl
+    .set(S, { sep: 0, cut: 2.4, az: 0.62, beam: 0 }, 0)
+    .to(S, { az: 0.34, duration: 1.2, ease: "sine.inOut" }, 0.3)          // calm camera arc
+    .to(S, { sep: 1, duration: 0.9, ease: "power2.inOut" }, 0.5)          // axial separation
+    .to(S, { cut: 0, duration: 0.7, ease: "sine.inOut" }, 0.65)           // quadrant cutaway sweeps in
+    .to(S, { beam: 1, duration: 0.5, ease: "power2.inOut" }, 1.15)        // light path travels
+    .to(S, { beam: 0, duration: 0.15, ease: "power2.inOut" }, 2.3)
+    .to(S, { cut: 2.4, duration: 0.3, ease: "power2.inOut" }, 2.35)       // section closes
+    .to(S, { sep: 0, duration: 0.35, ease: "power2.inOut" }, 2.35)        // precise reassembly
+    .to(S, { az: 0.62, duration: 0.35, ease: "sine.inOut" }, 2.35)
+    .to({}, { duration: 0.3 }, 2.7);
+
+  function sync(t) {
+    stateTl.totalTime(Math.max(0, Math.min(3, t)), true);
+    var a = lens.render(S);
+    for (var i = 0; i < labelGroups.length; i++) {
+      labelGroups[i].setAttribute("transform", "translate(" + a[i][0].toFixed(2) + " " + a[i][1].toFixed(2) + ")");
+    }
+  }
+
+  // Driver: a function-valued tween property, so every render/seek of the
+  // master timeline (including suppressed-event seeks) re-derives the 3D frame.
+  var clock = { _t: 0, t: function (v) { if (arguments.length) { this._t = v; sync(v); return; } return this._t; } };
+
+  var tl = gsap.timeline({ paused: true });
+  tl.fromTo(clock, { t: 0 }, { t: 3, duration: 3, ease: "none" }, 0);
+
+  // label reveal: card -> text (data-reveal-after) -> leader draw -> anchor dot on arrival
+  for (var i = 0; i < cards.length; i++) {
+    var b = 1.35 + i * 0.09;
+    tl.fromTo(cards[i], { opacity: 0, scaleX: 0, transformOrigin: "100% 50%" }, { opacity: 1, scaleX: 1, duration: 0.2, ease: "power2.inOut" }, b);
+    tl.fromTo(texts[i], { opacity: 0 }, { opacity: 1, duration: 0.1, ease: "sine.inOut" }, b + 0.2);
+    tl.fromTo(leaders[i], { drawSVG: "0% 0%" }, { drawSVG: "0% 100%", duration: 0.24, ease: "power2.inOut" }, b + 0.2);
+    tl.fromTo(dots[i], { opacity: 0 }, { opacity: 1, duration: 0.05, ease: "none" }, b + 0.44);
+    // exit before reassembly: dot -> leader -> text -> card
+    tl.to(dots[i], { opacity: 0, duration: 0.04, ease: "none" }, 2.32);
+    tl.to(leaders[i], { drawSVG: "0% 0%", duration: 0.1, ease: "power2.inOut" }, 2.34);
+    tl.to(texts[i], { opacity: 0, duration: 0.06, ease: "none" }, 2.4);
+    tl.to(cards[i], { opacity: 0, scaleX: 0, duration: 0.12, ease: "power2.inOut" }, 2.46);
+  }
+  tl.fromTo("#legend", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "sine.inOut" }, 1.2);
+  tl.to("#legend", { opacity: 0, duration: 0.15, ease: "sine.inOut" }, 2.32);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  tl.totalTime(0, true);
+  sync(0);
+
+  window.addEventListener("hf-seek", function (e) {
+    var t = e && e.detail && typeof e.detail.time === "number" ? e.detail.time : tl.time();
+    tl.totalTime(t, true);
+    sync(t);
+  });
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

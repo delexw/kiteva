@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Rubber Hose",
+  "displayDescription": "A rubber-hose light bulb crouches, throws cords to four sockets on a dark hatched night stage, lights up and waves.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (procedural rubber-hose character, cords, sockets, iris, cached hatching)",
+    "SVG (stationary banner and caption copy)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline (single owner of composition time; pose schedule and keyed tracks evaluated as pure functions of time)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track.",
+  "limitations": [
+    "Motion (motion.dev) was not used: GSAP alone owns time to keep seeking deterministic; pose interpolation is custom code",
+    "Two-ink monochrome is preserved; the night stage swaps ink/paper roles outside the iris rather than adding hues",
+    "Cooper Black is not guaranteed locally; Georgia bold is the fallback typeface",
+    "Procedural vector drawing approximates hand-inked 1930s cel animation; no line boil or film grain",
+    "BACKGROUND_REVIEW.json had no matched sources, so no source-frame evidence informed the palette",
+    "Blender was not used, as instructed"
+  ]
+}

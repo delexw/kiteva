@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-107",
+    "name": "Mixed-Media Animation. The label was normalized from source descriptions and does not establish that physical stop-motion footage was used.",
+    "visualIdentity": "Explicit: photos, drawings, paper, type and 3D objects are combined in one composition. Shared color, line, texture and lighting rules are set first, then each medium receives a narrative role while keeping its material differences.",
+    "suitableUses": "Explicit: suited to illustrated or editorial narratives that mix heterogeneous media. Inferred: fits explanatory, documentary-style and brand-story pieces built from supplied photos and sketches. Use alone when the assets already share rules.",
+    "limitations": "Explicit: source review covers only sampled frames (seconds 1–8 and motion windows 6–10 or 75–81), with no continuous motion, sub-second timing, audio or verified easing. Rough.js adds no animation, handwriting, paper texture or character poses. Motion references are optional and must match the actual scene.",
+    "palette": "Background is scene_dependent; the warm paper tokens are illustrative, not approved. Suggested tokens: background #F1E6D1, foreground #3B4948, accent_1 #688E87, accent_2 #B97A5C, gradients disabled. Foreground on background measures 7.605. Accents pass only as decorative fills (about 2.8–2.9). Source lesson: keep a 2–3 role system, invert ground and figure between scenes, and choose an accent family suited to the subject. Task-provided exact colors override all of this.",
+    "motionAndInteraction": "Seven optional motion references are listed: chapter handoff (motion-012), narrative steps (015), glitch cut (020, abrasive, omit for calm scenes), phrase scatter (037), punctuation zoom (038), radial logo burst (039) and word smash cuts (040). Motion-040's reference_label names Phrase Scatter, a mismatch to check. Video states must derive from seekable composition time. Scroll and pointer input belong only to interactive delivery.",
+    "audio": "Unspecified: no audio asset or audio direction is supplied, and no soundtrack is mandated. Options include silence, restrained sound accents, ambience or music synchronization, depending on the topic. Beat or speech sync requires inspected audio. Do not claim that audio or narration was created unless it actually was.",
+    "assetRequirements": "Unspecified: the source names no required photos, drawings, paper or 3D files. Preprocess assets for consistent color, edges and dimensions with Pillow or Sharp. Prerender 3D elements as transparent sequences. Keep key subjects and text inside crop margins. Cropper.js prepares framing only and does not extract subjects.",
+    "combinations": "Two optional supporting styles are suggested. Style-024 adds one handwritten annotation layer in approved ink and accent colors, appearing after the medium it describes. Style-101 adds restrained layered parallax with one light direction and small offsets. Add a hybrid only when it has one bounded narrative role.",
+    "productionApproach": "Use HyperFrames as the primary pipeline. Use Remotion only when HyperFrames is unavailable or a verified limit applies, and record the reason. A style renderer such as PixiJS or Canvas/SVG owns the visuals, Rough.js is only for sketch marks, and GSAP owns motion with one owner per property. Check snapshots at key times and watch the decoded video before delivery."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

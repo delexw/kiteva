@@ -1,0 +1,29 @@
+{
+  "displayTitle": "Reaction Captions",
+  "displayDescription": "Navy halftone field; 'IT CLICKS!' sticker caption slams in with squash and wobble, ring pulse and confetti, then dotted links grow into a system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (inline, filter-based sticker keyline + hard shadow)",
+    "HTML/CSS (system fonts Impact and Arial Rounded MT Bold via @font-face local())",
+    "Rough.js 4.6.6 (seeded, paths pre-generated offline and embedded as static SVG data)"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused seekable timeline (window.__timelines.video)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track. Authored cue sequence (visual only): pop 0.12s, slam 0.95s, sticker 1.22s, node arrivals 1.80s and 2.14s.",
+  "limitations": [
+    "Blender was intentionally not used, per user instruction; the scene is flat 2D vector, which matches this style's medium.",
+    "Motion and mo.js from the style recommendation were not used: mo.js is not installed, and GSAP owns every animated property to keep one seekable owner.",
+    "The sticker keyline and hard shadow are approximated with SVG feMorphology/feOffset filters on a single real-font text element, not separately set outline layers.",
+    "Rough.js runs only at authoring time (seed fixed). Its paths are embedded static data, and the doodle wobble is not regenerated at runtime.",
+    "No mascot or footage: safe areas were planned against the 1280x720 frame only, not against real face or subtitle footage.",
+    "Text contrast: cream label on #668FA3 / #A47CA3 is about 3.2:1. It is used only for large bold text with a dark stroke.",
+    "Typography uses OS-bundled macOS fonts (Impact, Arial Rounded MT Bold), declared through @font-face local() sources with no embedded font files. Render hosts without these fonts fall back to Arial Black or a sans-serif."
+  ]
+}

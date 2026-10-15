@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-066",
+    "name": "CRT / Analog Video Effects",
+    "visualIdentity": "An analog-display look built from scanlines, mild color offsets, persistence, screen curvature, and noise. Provenance is explicit. Details scale to output resolution, and distortion stays restrained so main information remains legible.",
+    "suitableUses": "Explicit guidance limits it to a defined analog-display context. Inferred from suggested combinations: retro game trailers, nostalgic tech stories, and in-world broadcasts or terminals. Other uses are unspecified.",
+    "limitations": "Avoid persistent flashes, exaggerated noise, rolling noise bars, and analog distortion on modern screens unless requested. Do not apply it over blurred art or stack it with Glitch Art as a second corruption layer. Essential text must stay legible.",
+    "palette": "Reference-dependent example for new presentation elements only: background #171C24, foreground #E9E5D8, accent #6A9DAA, checked with chroma-js. Approved task or brand colors override these, and gradients are disabled. Source assets stay unrecolored. Contrast is 13.57:1 for foreground on background and 5.713:1 for background on accent, based on two-color checks only.",
+    "motionAndInteraction": "Motion derives from seekable composition time, using seeded deterministic noise rather than wall clocks or per-frame grain. Deliberate cuts and reading holds stay intact. Optional motion-020 glitch cut fits CRT only for intentionally disrupted transitions, with bounded, reversible distortion. Motion-012 and motion-015 are optional, and no motion reference is required. Interactive HTML may disable the effect under reduced motion.",
+    "audio": "No fixed audio is required, and the source assigns no genre, tempo, or voice. Options include restrained sound accents, ambience, music, or silence, chosen from topic and audience, with user-supplied audio honored first. Verify speech intelligibility, audio balance, absence of clipping, and picture synchronization.",
+    "assetRequirements": "Requires high-quality source imagery for postprocessing and authorized footage for video-textured screens. Preload media and wait for decoded frames, since VideoTexture alone does not guarantee export synchronization. Load fonts before rendering. Pixel-art hybrids need native-resolution art. Dimensions, duration, and frame rate are unspecified.",
+    "combinations": "Best used as a finishing pass over clean content. Pixel art (style-057) may supply on-screen content, upscaled by an integer factor. A diegetic monitor housing (style-065) may frame it, with artifacts confined to the screen surface. Never stack two filters on the same content.",
+    "productionApproach": "HyperFrames is the default for scene assembly, timing, synchronization, validation, and export. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists, and the reason must be recorded. WebGL, GLSL, and Three.js render visuals. Deliverables include the video, source, contact sheet, parameters, and render instructions, with missing assets stated."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

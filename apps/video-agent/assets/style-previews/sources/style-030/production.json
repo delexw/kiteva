@@ -1,0 +1,28 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Lit Village",
+  "displayDescription": "Dusk storybook scene: Mira waters a glowing idea-flower, and light arcs connect and light up the village houses.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D",
+    "Rough.js 4.6.6 (local esbuild bundle rough.bundle.js, fixed seeds, cached drawables)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline (window.__timelines.video), one tween per state property; Canvas redrawn from timeline state on update and hf-seek"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "The scene is illustrative and procedural. The paper grain is a seeded static noise overlay, and the glows are canvas radial gradients and shadow blur, not physical lighting.",
+    "The dusk sky, moon, lavender hills, ridge and foliage-dark colours are scene-dependent choices informed by the source lighting-state lesson. The style tokens keep their roles: ink outlines, terracotta hero, sage hill/can, gold light/houses, cream lettering/windows.",
+    "PixiJS was not needed: there are no large sprite or particle sets.",
+    "The camera move is limited to a 14px parallax settle of the near foliage, so the stationary background is not moved.",
+    "Rough.js contains Math.random only as a fallback when no seed is set; every drawable here has an explicit seed.",
+    "The source review covered sampled stills only. The motion timing here is authored, not copied."
+  ]
+}

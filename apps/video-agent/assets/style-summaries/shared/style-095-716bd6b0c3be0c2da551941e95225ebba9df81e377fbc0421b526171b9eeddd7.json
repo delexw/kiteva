@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-095",
+    "name": "UI Animation / Product Motion Design",
+    "visualIdentity": "Explicit commercial presentation format built on accurate product interfaces, real copy and established branding. Cards, numbers, charts and states animate as separate elements to explain features through causal state changes.",
+    "suitableUses": "Explicit: feature demos built from real interfaces. Inferred: product launches, feature release reels, and integration or workflow explainers where supporting diagrams clarify real UI states.",
+    "limitations": "Needs real product assets; if absent, report the gap rather than inventing UI. Do not invent internals or repeatedly slide whole screenshots. Brand colors override the palette. Live drag, scroll or hover applies only to interactive delivery.",
+    "palette": "Background policy is scene_dependent. #F7F9FA and #263440 are optional example tokens for new presentation chrome only, and brand colors override them fully. Gradients are disabled. Recheck contrast on composited frames.",
+    "motionAndInteraction": "Causal sequence: tap 0–0.5s, card expands as a shared element 0.5–1.4s, numbers and chart update 1.4–2.4s, then hold. The camera is a wrapper transform, and card labels reveal after their container. Optional motion references need scene support.",
+    "audio": "Unspecified by this style; audio direction is topic-driven. Restrained accents, ambience or silence may suit feature demos. No mandatory music or voice is required, and any speech must stay intelligible.",
+    "assetRequirements": "Real product screenshots or components, brand tokens, fonts and exact copy. X-ray reveals need exterior and interior layers registered to one transform. Otherwise report the gap; optional OpenScreen recordings require authorization.",
+    "combinations": "Works alone. style-093 adds headline cards between states; style-109 adds connectors between UI cards. Keep supporting styles subordinate, reuse product type and palette, and never invent UI copy.",
+    "productionApproach": "HyperFrames is primary: a paused GSAP timeline registered in window.__timelines, validated by check and snapshot, then rendered for delivery. HTML/CSS and SVG render the UI, and GSAP owns motion. Remotion applies only under the verified fallback condition."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-094",
+    "name": "Abstract Motion Graphics, explicitly named in the source under Motion Design and Cinematography. The source directly describes this visual direction, so the name and direction are explicit facts.",
+    "visualIdentity": "A continuous system of few shapes and limited colors, with deliberate proportions and centers of gravity. Repetition, division, merging, rotation and varied timing make each state lead into the next. Structural motif takes priority over decoration.",
+    "suitableUses": "The source calls this style strongest as a self-contained shape system. Explicit suggested uses are brand idents, loop backgrounds and abstract section transitions. Music visuals and event openers appear only in a music-timing pairing, so they are hybrid suggestions.",
+    "limitations": "Avoid unrelated particles or light effects, crossfades posing as morphs, unrelated glow and rapid full-frame flashing on beats. Two-color contrast checks do not guarantee readability over animated or textured fields. Source frame review sampled only seconds 1–8 and no audio.",
+    "palette": "Background policy is scene_dependent, so choose the background from subject, lighting and mood; the #F6F0E2 background is only an illustrative swatch. Suggested tokens are foreground #283D47, accent_1 #458784 and accent_2 #D28456, with no gradient. Foreground on background measures 9.997:1. Accents fall short for body text (3.66 and 3.88), so use them as decorative fills. Source lessons are flat dominant fields per section, 1–3 accents and dark and light neutrals. No task-supplied exact colors appear in this metadata.",
+    "motionAndInteraction": "Video motion runs on seekable composition time with varied timing and state-to-state handoffs. Source frame review shows flat fields with hard full-bleed cuts between scenes. Optional motion references (pinned hero, chaptered handoff, punctuation zoom, logo burst) need matching scene assets. HTML variants may use hover or section morphs with a scrubber and a static reduced-motion state; this is suggested, not required.",
+    "audio": "Audio is unspecified for this style, and no audio layer is mandatory. Suggested options include background music, voiceover, sound effects, ambience or silence, chosen per topic. Music-synchronized accents require measured timing from inspected audio. No audio is supplied or claimed.",
+    "assetRequirements": "No mandatory uploads are specified. Punctuation Zoom needs a real punctuation mark in the scene, and Radial Logo Burst needs an approved mark. Fonts and geometry should load before construction. Exact copy, subject, duration and aspect ratio are unspecified in the metadata.",
+    "combinations": "Style-100 adds contour-matched morphs for transitions while keeping color roles fixed per shape family. Style-105 adds musical-section timing that changes density and returns to the base motif at section ends. Optional libraries add capability: Paper.js for morphs, p5.js for procedural layers, Delaunator for meshes and mo.js for bursts.",
+    "productionApproach": "Select visuals first: SVG is the recommended renderer, with optional p5.js or Paper.js layers. GSAP is the required paused, seekable motion timeline, and Motion, mo.js or Anime.js are optional. HyperFrames assembles and exports, and Remotion is only a conditional fallback. Seed randomness, cache simulations and verify direct, backward and out-of-order seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,13 @@
+{
+  "styleId": "style-076",
+  "name": "Neumorphism. Supplemental design reference, not a directly named style in the source collection.",
+  "visualIdentity": "Raised or inset surfaces near the background color, with paired soft highlights and shadows under one consistent light direction. Color stays restrained, but state differences remain clear.",
+  "suitableUses": "Listed good fits: editorial narratives, product explainers, document or process sequences, and flat vector, collage, sticker, or motion-poster layouts. Inferred: simple control panels where pressed and released states carry the story.",
+  "limitations": "Adapt or omit when the stack hides content viewers need, overlap obscures provenance or comparison labels, or fixed print geometry cannot accommodate stacking. Shadow depth alone should not signal state, and interfaces or data must never be invented.",
+  "palette": "Suggested only: background #E7EBED, foreground #303D49, accent #506F86, gradients disabled. Foreground on background measures 9.264:1. Accent on background measures 4.421:1, so it is decorative only. Supplied exact colors override these, and assets must not be recolored. Validate with chroma.js.",
+  "motionAndInteraction": "Press and release are animated through apparent depth and shadow changes, keeping text, edge, and control contrast intact. Five optional motion references (card stacking, voice-card tilt, chapter handoff, swipe carousel, scroll storytelling) need scene-fit screening. Video runs from composition time.",
+  "audio": "Unspecified by the style; no soundtrack genre or mandatory audio layer is assigned. Choose music, voiceover, effects, ambience, or silence from the topic, honoring user requirements first. Keep speech intelligible and verify balance and picture sync.",
+  "assetRequirements": "No assets are supplied. Exact copy, source artwork, fonts, and authorized audio are needed and should be loaded before rendering. Galleries require accurate image dimensions. Data values must be supplied, never invented, and stateful simulations should be cached.",
+  "combinations": "Use alone for simple controls. Hybrid with style-095 for state-change choreography, using a single shared-element move and a reduced-motion fallback. Hybrid with style-097 for inset data readouts, using supplied values and flat data marks without neumorphic depth.",
+  "productionApproach": "HTML/CSS renders surfaces, shadows, and layout. GSAP owns a paused, seekable timeline; Motion is optional. HyperFrames handles assembly, sync, validation, and export unless it is unavailable or a verified limitation requires Remotion, which must be recorded. Inspect key frames and the full decoded video before delivery."
+}

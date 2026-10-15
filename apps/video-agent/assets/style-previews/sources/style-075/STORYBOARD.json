@@ -1,0 +1,135 @@
+{
+ "version": 3,
+ "title": "Idea → Connected System (Skeuomorphic Patch Panel)",
+ "durationSeconds": 3,
+ "scenes": [
+  {
+   "id": "scene-1",
+   "title": "Spark switch",
+   "startSeconds": 0,
+   "endSeconds": 0.6,
+   "purpose": "The idea starts as a physical toggle that powers the panel.",
+   "visuals": [
+    "Walnut-framed brushed-faceplate patch panel on a cool charcoal stage",
+    "Toggle lever flips from down to up on its pivot boss",
+    "Amber pilot lamp lights when the lever seats",
+    "OUT plug seats and its jack ring glows green"
+   ],
+   "assets": [
+    "index.html",
+    "gsap.min.js",
+    "chroma.min.js"
+   ],
+   "beats": [
+    {
+     "startSeconds": 0,
+     "endSeconds": 0.6,
+     "development": "The lever swings up from 0.12s to 0.5s, the ON lamp lights at 0.42s and the OUT plug seats at 0.52s.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-2",
+   "title": "Patching the system",
+   "startSeconds": 0.6,
+   "endSeconds": 1.85,
+   "purpose": "Five patch cables connect the idea to LOGIC, MEMORY, NETWORK, PEOPLE and OUTPUT.",
+   "visuals": [
+    "Stroked cables draw from jack to jack",
+    "A plug seats as each cable arrives",
+    "Each connected jack gets a green ring and halo",
+    "The LINKS readout counts from 0/5 to 5/5"
+   ],
+   "assets": [
+    "index.html"
+   ],
+   "beats": [
+    {
+     "startSeconds": 0.6,
+     "endSeconds": 1.2,
+     "development": "OUT→LOGIC and OUT→MEMORY draw, both plugs seat, and the readout reaches 2/5.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 1.2,
+     "endSeconds": 1.85,
+     "development": "LOGIC→NETWORK, MEMORY→PEOPLE and NETWORK→OUTPUT complete the system. The readout reaches 5/5 at 1.8s and SPARE stays empty.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-3",
+   "title": "System online",
+   "startSeconds": 1.85,
+   "endSeconds": 3,
+   "purpose": "Confirm the working system with a frame-wide state signal, then hold the readable panel.",
+   "visuals": [
+    "Marquee bulbs chase left-to-right along the top rail, then right-to-left along the bottom rail",
+    "The full, settled panel with all labels readable"
+   ],
+   "assets": [
+    "index.html"
+   ],
+   "beats": [
+    {
+     "startSeconds": 1.85,
+     "endSeconds": 2.6,
+     "development": "The marquee bulbs light in a circuit around the frame and settle fully lit by about 2.57s.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 2.6,
+     "endSeconds": 3,
+     "development": "Hold on the complete, connected panel.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.4
+    }
+   ]
+  }
+ ],
+ "pacingAudit": {
+  "findings": [
+   "All motion settles by 2.6s, before the 2.7s target.",
+   "Each action is tied to a state change: lever → lamp, cable → plug → jack light → counter, and completion → marquee."
+  ],
+  "justifiedHolds": [
+   "2.6–3.0s: final reading hold on the completed panel."
+  ]
+ },
+ "notes": [
+  "Silent preview with no audio track.",
+  "There is no authored cue sequence; the silent visual actions follow a cause→effect order adapted from the background review (stateful object, readout ticks on story beats, semantic green for success).",
+  "Source slot-machine subject, branding and wording are not copied."
+ ]
+}

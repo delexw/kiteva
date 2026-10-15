@@ -1,0 +1,33 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Liquid Glass",
+  "displayDescription": "A refractive glass droplet swells over a striped board and branches into four connected glass nodes.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js r186 WebGLRenderer",
+    "MeshPhysicalMaterial (transmission, ior, thickness, attenuation, dispersion, clearcoat)",
+    "Three.js internal offscreen transmission render target",
+    "RoomEnvironment PMREM reflections",
+    "Canvas 2D backdrop texture (built once)",
+    "HTML/CSS typography"
+  ],
+  "motionEngine": [
+    "GSAP 3.15 paused timeline at window.__timelines.video (sole owner of state proxy and text properties)",
+    "Deterministic vertex displacement computed from tl.time()"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent: no audio track.",
+  "limitations": [
+    "Real-time rasterized transmission, not path-traced: one refraction through screen space, so other glass objects are not seen through glass and there are no caustics.",
+    "Dispersion is three.js's per-channel IOR offset, kept low.",
+    "The liquid wobble is analytic vertex displacement, not fluid simulation.",
+    "Blender, Cycles and EEVEE were not used, per the user's instruction.",
+    "No preview_recipes were supplied in STYLE.json, so this refresh shows the primary style with a new scene-dependent background.",
+    "The renderer was not run by the agent; host QA is pending."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-084",
+    "name": "Cutout Animation",
+    "visualIdentity": "Photographic cutouts, paper, drawn objects and lettering share a theme. Preserve cut edges, slight paper thickness and consistent contact shadows; define pivots and occlusion. The label is normalized; photography or digital simulation may be used.",
+    "suitableUses": "Explicitly suggested hybrids suit activist or cultural explainers, music promos, editorial shorts, scene openers and narrative transitions. More generally, the layered materials support themed visual storytelling; this broader fit is inferred.",
+    "limitations": "Avoid joint gaps, intersections and conflicting shadows. Keep parallax limited so pieces stay in contact. The source does not establish one canonical palette, cadence or production method; simulated paper or physics is not proof of physical production or validated physics.",
+    "palette": "Reference-dependent example for new presentation elements only: background #F0E5D0, foreground #3B3C34, accent #987A5C. Preserve supplied, brand, source and semantic colors and subject materials. No gradient; use discrete tokens. The accent is decorative, not suitable for normal text on itself. Recheck contrast in the composed scene.",
+    "motionAndInteraction": "Prepare masks and paper edges; organize pieces around pivots. Use placing, peeling, hinges, pose replacement and limited parallax, with held poses or continuous keyframes as appropriate. A 12 fps art cadence is optional and can repeat at higher delivery rates; do not impose stop-motion stepping. For video, derive every state from seekable time and verify reverse and direct seeks. HTML may use scroll steps or capped pointer/scroll parallax; support keyboard, static and reduced-motion states.",
+    "audio": "No fixed genre, tempo, voice or required audio layer is specified. Choose music, narration, effects, ambience or silence for the topic and task; honor explicit audio choices. Do not assume beat sync. Assemble and synchronize audio in the composition/export pipeline.",
+    "assetRequirements": "Inspect supplied assets and exact copy; none are specified as mandatory. Prepare cutout masks, paper edges and pivot groupings. Preserve source photo and artwork colors. Load local fonts/assets and use fixed or seeded textures. Suggested paper tokens are optional, not source colors.",
+    "combinations": "Can work alone when photos and drawn pieces share a theme. Optional photocopy/zine typography (style-054) applies grain and cut lettering to new type only; fixed grain, readable headlines, no red accent. Optional limited parallax (style-101) suits openers/transitions; maintain shadow direction, crop margins, pivots and contact.",
+    "productionApproach": "Choose visual renderer and motion engine for style fidelity first; PixiJS may composite 2D layers, Rough.js is optional for suitable sketch marks, and GSAP can provide a paused seekable timeline. Python/Pillow or Node/Sharp can preprocess assets. HyperFrames owns composition, timing, sync, validation and export; Remotion is only a documented fallback if HyperFrames is unavailable or blocked by a verified limitation. These are suggestions, not verified source tools."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

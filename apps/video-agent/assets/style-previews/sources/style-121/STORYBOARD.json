@@ -1,0 +1,88 @@
+{
+  "version": 2,
+  "durationSeconds": 3,
+  "format": "structured",
+  "sections": [
+    {
+      "heading": "style-121 Chalk on Black Paper — 3 s silent preview",
+      "level": 1,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Subject: an idea becomes a connected system. 1280×720, 30 fps, 3 s, silent.\nStyle renderer: Canvas 2D. Motion engine: GSAP. Pipeline: HyperFrames.\nRenderer details (seeded paper and tooth textures built once; per-dab chalk strokes rebuilt every frame). Motion: GSAP paused timeline "
+            },
+            {
+              "type": "inlineCode",
+              "value": "window.__timelines.video"
+            },
+            {
+              "type": "text",
+              "value": ", redraws on update and on "
+            },
+            {
+              "type": "inlineCode",
+              "value": "hf-seek"
+            },
+            {
+              "type": "text",
+              "value": ".\nPalette: background #15141A, chalk #F1EBDD (pale passes about 0.2–0.36 alpha, opaque accents about 0.9)."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "columns": [
+            {
+              "key": "Time",
+              "label": "Time",
+              "alignment": null
+            },
+            {
+              "key": "Beat",
+              "label": "Beat",
+              "alignment": null
+            }
+          ],
+          "rows": [
+            {
+              "Time": "0.00–0.85",
+              "Beat": "Heading \"An idea becomes / a connected system\" wipes in with chalk. Pale halo, outline and glow hatching sketch the light bulb."
+            },
+            {
+              "Time": "0.60–1.45",
+              "Beat": "Opaque bulb outline, base lines, filament, rays and the heading underline go in. Caption \"one spark\" wipes in."
+            },
+            {
+              "Time": "1.25–1.84",
+              "Beat": "Dashed chalk arrow shaft draws toward the network. Its two head strokes start only at 1.70 s, after the shaft is done."
+            },
+            {
+              "Time": "1.32–2.30",
+              "Beat": "Pale edge halos and edges sketch the network, then opaque node rings and dots go in one after another."
+            },
+            {
+              "Time": "1.95–2.60",
+              "Beat": "A wide pale halo and an opaque line mark the main path. Caption \"many links\" wipes in."
+            },
+            {
+              "Time": "2.60–3.00",
+              "Beat": "Everything holds still and readable."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Limitations: noise2D is an inline seeded Perlin stand-in (@remotion/noise is not installed locally). The chalk and paper tooth are procedural approximations."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

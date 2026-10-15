@@ -1,0 +1,29 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Grunge",
+  "displayDescription": "Distressed IDEA ink surfaces, a rough dashed network wires out from a rust dot, and a torn SYSTEM paste-up lands on cold xerox stock.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (precomputed paper grain, ink textures, distress masks, local threshold reveals)",
+    "Rough.js 4.6.6 (seeded rough linework: links, X nodes, origin dot, stains, tape, plate)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline at window.__timelines.video (single owner of composition time; Canvas redrawn as a pure function of timeline time, plus hf-seek redraw)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track, music, voice or sound effects.",
+  "limitations": [
+    "Blender was not used, per user instruction; the scene is built in Canvas 2D and Rough.js.",
+    "Paper grain, toner dropout, scratches and stains are seeded procedural approximations, not scanned photocopy or real paper textures.",
+    "The torn plate edge and wipe are 2D clip approximations. There is no physical paper simulation.",
+    "BACKGROUND_REVIEW.json listed no matched sources or contact sheets, so the cool xerox-grey background is an authored scene-dependent choice, not one taken from source frames.",
+    "Display type depends on locally installed Impact/Courier New, with system fallbacks.",
+    "No preview_recipes are defined in STYLE.json, so the preview shows the primary Grunge technique.",
+    "Not rendered or browser-tested by the agent; host QA is pending."
+  ]
+}

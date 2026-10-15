@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-131",
+    "name": "Ukiyo-e Woodblock Print (Illustration and Art Media). Provenance is extracted from sampled Fable gallery video frames, inspected 2026-10-13. The art-medium label is an authored classification, not a claim about the creator's production technique.",
+    "visualIdentity": "Explicit: fine dark key-block contours over flat registered color planes, asymmetric cropped compositions, patterned waves and clouds, and restrained sky gradation on warm print paper. A specific Japanese print reference must be selected, not generic carved monochrome texture.",
+    "suitableUses": "Explicit: original video or interactive HTML work needing a woodblock-print look with layered, registered color. Inferred: scenes featuring waves, clouds, mountains, or lateral passages, where the plate-separation model suits the subject. Halftone and hatching idioms were rejected as non-woodblock.",
+    "limitations": "Explicit: no blur and no volumetric light. Procedural plates are approximations, and a simulated appearance is not evidence of physical production or validated physics. Exact hex values are suggested defaults, not measured source values. Runtime tool availability is unverified, and the source prompt is partial.",
+    "palette": "Authored fallback roles: paper background #F0E6C9, key block and foreground #283C49, indigo #385F84, blue #6E9FB3, rose #C58B95, ochre #BCA16C. Approved task or reference colors take precedence. Sky gradation is a restrained ink ramp between existing indigo, blue and background tokens, never a rainbow. Caption contrast must reach 4.5 on the actual textured field.",
+    "motionAndInteraction": "Explicit: MorphSVG moves through three authored, compatible wave-crest states, with the key block and color plates driven by one progress value. Petals drift along a lateral path with slight rotation, the cloud band pans slowly, and the paper stays fixed. Sharp cuts, holds, and constant-speed passages are allowed. Interaction behavior is unspecified.",
+    "audio": "Unspecified by the style; the medium does not imply a historical soundtrack. Suggested options cover background music, voiceover, ambience, or silence, chosen per task. Supplied audio must be honored. Speech must stay intelligible, with no clipping or competing vocals. Only silent catalog previews were available.",
+    "assetRequirements": "Explicit: a seeded Canvas 2D paper-fibre texture, generated once and reused as a fixed multiply mask over the plates. Optional: approved layered PNG or SVG separated plates, prepared with Pillow, that keep registration. Local fonts and assets must load before rendering. No reference print or approved palette was supplied. Source frames must not be copied.",
+    "combinations": "Optional example: style-053 may add a secondary illustrative detail, but Ukiyo-e must stay dominant and its approved palette must be preserved. Avoid generic effects replacing carved mark-making, and avoid invented historical text. Video: share seekable timing. HTML: keep accessible caption text and reduced motion. No motion references were selected.",
+    "productionApproach": "Style renderer: SVG for the key block and registered plates, and Canvas 2D for the paper fibre. Motion engine: a single paused GSAP timeline with MorphSVGPlugin, keeping one owner per property. chroma.js is optional for the sky ramp and contrast checks. HyperFrames handles assembly, sync, and export, with Remotion only for a verified limitation."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

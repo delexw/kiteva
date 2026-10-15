@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-102",
+    "name": "Kaleidoscopic Animation, in the Motion Design and Cinematography category. The label was normalized from an explicit kaleidoscope effect description.",
+    "visualIdentity": "Artwork centers on one fixed point with a deliberate number of mirrored sectors. Rotation and shape changes keep symmetry, with density, speed and palette kept coherent. Medium and materials are unspecified.",
+    "suitableUses": "Explicit: ambient visuals alone; music visuals and VJ loops with style-105; gala openers and luxury event loops with style-006. Inferred: symmetrical abstract backdrops. Motion-002 suits a meaningful chapter passage, not decorative spinning.",
+    "limitations": "Keep text out of repeated sectors, and avoid center jumps or rapid flicker. Dense reading during travel passages is unsuitable. Duration, aspect ratio, resolution, frame rate and rotation speed are unspecified.",
+    "palette": "Background is scene_dependent, and the palette is an unapproved suggestion of violet, teal and amber fields. Tokens: foreground #F4E8D4, accents #9E7FB9, #5EA7A0, #D8A169; background #201D32 is illustrative only. Two-color checks give foreground 13.513 and accents 4.824 to 7.186 against background. Task colors override these; gradients are disabled.",
+    "motionAndInteraction": "Video motion derives from shared composition time, with rotation and phase driven by one center and fixed symmetry. Optional references: motion-002 vortex passage, motion-012 chapter handoff, and motion-039 radial burst only when a real mark exists. Scroll or pointer input applies only to interactive delivery.",
+    "audio": "No audio is mandated or specified. Inferred: music-synced sector changes suit this style when measured audio exists (style-105). Narration or sung vocals depend on the topic. Silence is valid; do not claim beat sync without audio analysis.",
+    "assetRequirements": "No mandatory assets are specified. Optional inputs: a style-006 deco motif source, a style-105 beat map, and an approved mark for motion-039; never invent a brand mark. Subject and exact copy are unspecified; load local fonts first.",
+    "combinations": "Works alone for ambient visuals. Pair with style-105 for beat-timed sector changes at section boundaries. Pair with style-006 for gold deco motifs inside mirrored sectors, avoiding indiscriminate sparkle. Motion-002, motion-012 and motion-039 are optional transitions.",
+    "productionApproach": "HyperFrames is the default pipeline; Remotion is a fallback only when its documented condition is verified and recorded. Canvas 2D, WebGL or GLSL render the sectors, with GLSL as motion engine. GSAP sequences the paused timeline; chroma-js is optional for contrast checks. Verify seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

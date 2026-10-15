@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-083",
+    "name": "Stop-Motion Animation (Animation Techniques). This is a supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Physical-looking objects with stable materials, light, contact shadows, and space. Held frames and incremental poses communicate weight. Controlled craft is kept without seeking accidental defects. Photographed stop motion must stay distinct from digital simulation.",
+    "suitableUses": "Explicitly listed: craft brand films, product launches built from photographed sequences, process documentaries, and educational craft content. Pure craft pieces are also named. Other uses are inferred from these, not stated in the source.",
+    "limitations": "Authentic stop motion requires frame-by-frame photography, and code can only simulate its look. No renderer is listed. Without photographed frames, report the gap or use a clearly labeled Blender simulation. Simulated appearance is not evidence of physical production or validated physics.",
+    "palette": "Reference-dependent example for new presentation elements only: background #ECE4D4, foreground #3C443C, accent_1 #917F67. Foreground on background is 7.972:1. Accent on background is 3.057:1, so it is decorative only. Gradients are disabled. Task colors override these tokens, and photographed objects are never recolored.",
+    "motionAndInteraction": "Motion follows the planned exposure cadence with held states, and delivery frame rate may be higher than exposure rate. No automatic in-betweens, springs, or bounce are added. Optional references are motion-009 parallax, motion-012 chaptered handoff, and motion-015 storytelling, used only if the scene supports them. Scroll interaction applies only to web delivery; video needs none.",
+    "audio": "No fixed audio direction is specified. Music, voiceover, sung vocals, sound effects, ambience, or silence are options to choose per topic and audience. User audio requirements come first, and no audio assets are supplied. Verify speech intelligibility, balance, absence of clipping, and picture synchronization.",
+    "assetRequirements": "Photographed stop-motion frames or prepared layers are required. Use numbered sequences or alpha-channel layers with consistent dimensions, clear naming, and a layer manifest. Inspect assets before composition, and load fonts and assets locally first. Audio must be task-provided or authorized. This source supplies no assets.",
+    "combinations": "Style-093 adds real-font title and caption moves stepped on the photographed exposure cadence, kept out of contact shadows. Style-024 adds handwritten process callouts only during held frames, using #3C443C with #917F67 as the sole accent. Avoid smooth 60 fps text over 12 fps footage and spring presets on every letter.",
+    "productionApproach": "Authentic production repositions objects, photographs each frame, then aligns and corrects the sequence. Any Blender bpy discrete-keyframe output must be labeled as simulation. HyperFrames handles composition and export only, with Remotion as a fallback only for a recorded, verified limitation. Use Pillow for compositing, FFmpeg for encoding, and inspect decoded frames, sync, and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

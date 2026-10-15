@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-068",
+    "name": "Glassmorphism, a normalized label from a frosted-glass interface description. Category: Digital and 3D Aesthetics. Negative examples are not positive evidence.",
+    "visualIdentity": "Translucent frosted panels with thin borders, soft shadows, and restrained highlights. Background color shows through without reducing text contrast. Avoid excessive blur layers.",
+    "suitableUses": "Explicit fits: editorial narratives, product explainers, evidence or process sequences, and flat vector, collage, sticker, or motion-poster layouts. Inferred fits: simple layered UI cards over color, or hybrids showing product states or data.",
+    "limitations": "Omit or adapt when the stack hides content viewers must read, overlap obscures provenance or comparison labels, or fixed print geometry is required. Avoid blur on blur and low-contrast white text. Two-color ratios do not validate glass; check composited frames.",
+    "palette": "Suggested, not approved: background #182837, foreground #F6F7F0, accent_1 #7AAEB4, accent_2 #A698C5. Task-supplied exact colors override these and keep their roles. Opaque checks: foreground on background 13.94:1; background on accent_1 6.112:1 and accent_2 5.666:1. Optional lab gradient between accents appears only behind glass.",
+    "motionAndInteraction": "Animate panels, masks, and modest parallax with smooth authored movement, while keeping sharp cuts and reading holds. Video state derives from composition time; hover and scroll apply only to interactive delivery. No automatic springs or bounce. Motion references are optional and none is required.",
+    "audio": "Unspecified by this style; no genre, tempo, voice, or mandatory layer is assigned. Consider music, voiceover, sound effects, ambience, or silence based on the topic. Honor explicit user audio, avoid inventing assets, and verify speech intelligibility, balance, clipping, and sync.",
+    "assetRequirements": "Subject, copy, assets, duration, aspect ratio, resolution, frame rate, and output directory are unspecified and must come from the task. Use authorized assets, load local fonts before capture, seed randomness, and cache stateful simulations.",
+    "combinations": "Glassmorphism alone suits simple layered cards over color. Suggested hybrids: style-095 for state transitions in app demos or onboarding, and style-097 for charts in dashboards. Keep at most two stacked blur layers and avoid other translucent or aurora styles.",
+    "productionApproach": "HyperFrames is the default pipeline, using data-composition-id and one paused GSAP timeline in window.__timelines, then check, snapshot, and render. Remotion is fallback only when HyperFrames is unavailable or a verified limitation exists, with the reason recorded. HTML/CSS backdrop-filter and SVG render visuals; Motion is optional. Verify decoded frames, audio sync, and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

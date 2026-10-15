@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-084",
+    "name": "Cutout Animation (Animation Techniques category). The label was normalized from source descriptions, and the source video's exact technique is not verified.",
+    "visualIdentity": "Layered photographic cutouts, paper, drawn objects and lettering around one shared theme. Keep cut edges, slight paper thickness and consistent contact shadows. Define pivots and occlusion before any placing, peeling or hinged movement.",
+    "suitableUses": "Explicit: use alone when photos and drawn pieces already share a theme; hybrids suit punchier headlines or measured depth. Inferred from sampled sources: narrative vignettes and explainer collages with pieces placed around one subject.",
+    "limitations": "Motion and audio beyond sampled seconds 1–8 of two sources were not verified. Matter.js is 2D rigid-body only, and paper curl is an artistic deformation, not a physical solver. Rough.js adds no poses or paper texture. Avoid joint gaps, intersections and conflicting shadows.",
+    "palette": "Background policy is scene_dependent, chosen from subject, setting and mood. Example tokens #F0E5D0, #3B3C34 and #987A5C are optional, for new presentation elements only; approved exact colors override them. Foreground/background contrast is 8.94; accent on background is 3.19, decorative only. Keep light fields' torn rim readable with a darker backing or contact shadow. Gradients are off.",
+    "motionAndInteraction": "Hinged pose replacement, placing, peeling, torn-paper wipes and limited parallax. Optional references: gaze tracking (needs eye layers or a rig), chaptered transition, narrative steps, phrase scatter and punctuation zoom (each needs matching scene assets). Video uses composition time; pointer or scroll applies only to HTML, with a static reduced-motion state.",
+    "audio": "Unspecified; no audio layer is mandatory for this style. Topic-dependent options include silence, restrained accents at pose changes or wipes, or narration. No source audio was verified. Create or source only authorized audio, and report any capability gap rather than claiming a soundtrack.",
+    "assetRequirements": "No uploads are mandatory. Needed: cutout masks with preserved edges, paper-edge treatment, pivot-organized pieces, exact copy and fonts. Optional: eye layers or a rig for gaze, and phrase glyphs or punctuation marks for the referenced motions.",
+    "combinations": "style-054 adds photocopy grain and cut headline lettering; omit its red accent and keep grain fixed. style-101 adds limited parallax; shadows shift consistently and pivots stay unchanged. Source cutout colors are always preserved, and photocopy treatment never applies to source photos.",
+    "productionApproach": "Default pipeline is HyperFrames: one paused GSAP timeline registered in window.__timelines, then check, snapshot and render. Use Remotion only if HyperFrames is unavailable or a verified limitation exists. Visuals use Canvas/SVG or PixiJS with GSAP timing, Matter.js precomputed states, and Pillow preprocessing; seed randomness and avoid wall-clock loops."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

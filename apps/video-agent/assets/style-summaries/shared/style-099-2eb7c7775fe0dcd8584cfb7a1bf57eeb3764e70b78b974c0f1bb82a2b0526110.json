@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-099",
+    "name": "Continuous Shot, normalized from a request for one continuous shot in Motion Design and Cinematography.",
+    "visualIdentity": "One unbroken camera path preserves subjects, lighting and occlusion through continuous space. Structure comes from internal action, scale change or transformation, with deliberate pauses. Medium is unspecified.",
+    "suitableUses": "Explicitly suits any single unbroken camera journey. Inferred from suggested combinations: company tours, process walkthroughs, manifesto films and immersive landing pages. Topic and audience are unspecified.",
+    "limitations": "No hidden cuts, unexplained resets, wall crossings or discontinuities are allowed. Avoid overdetailed sets, oblique text angles and dense text during travel. Source reviews sampled one frame per second, so continuous motion is unverified.",
+    "palette": "Background is scene_dependent, derived from subject, lighting and mood rather than a default cream. Source reviews show color follows each scene's key light and materials. Example tokens #F2EBDD, #343E43 and #8D957D are unapproved. Foreground/background contrast is 9.239:1; accent on foreground is 3.511:1, decorative only.",
+    "motionAndInteraction": "One camera path with no cuts, moving through scale change or internal action with deliberate holds. Optional references: vortex, orbit, storytelling, dolly, punctuation zoom and lighting progression; none is required. Suggested HTML (diorama combination): scroll-driven camera spline with keyboard navigation and a static fallback.",
+    "audio": "Unspecified: the style defines no audio and source reviews did not verify any. Suggest music, narration or silence from the topic; none is mandatory. Accents may mark transformations or holds without beat-cutting. Any soundtrack must be created or supplied.",
+    "assetRequirements": "Unspecified: no subject, copy, models or uploads are supplied. Preload local fonts and assets. Camera travel needs real 3D depth or baked assets; flat image scaling is a zoom, not a dolly. Orbit references need full geometry.",
+    "combinations": "Diorama (style-079) gives a bounded miniature environment with one camera spline. Spatial typography (style-093) places phrases on surfaces, facing the camera at reading moments. Three.js stays the single renderer.",
+    "productionApproach": "HyperFrames handles composition, timing and export; Remotion is fallback only with a recorded reason. Three.js owns camera, geometry and materials; GSAP owns one paused, seekable timeline; chroma.js is optional. Compute camera pose from time. Verify direct and backward seeks and endpoints."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

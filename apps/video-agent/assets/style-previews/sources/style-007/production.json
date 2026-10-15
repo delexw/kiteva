@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Nouveau Bloom",
+  "displayDescription": "A seed-idea sprouts vines, then blooms, and one tendril links them into a connected system inside a night-garden Art Nouveau frame.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (native browser vector: paths, <use> ornament groups, textPath, masks, fixed-seed feTurbulence grain)"
+  ],
+  "motionEngine": [
+    "GSAP 3.15 paused timeline",
+    "GSAP DrawSVGPlugin (local copy of node_modules/gsap/dist/DrawSVGPlugin.min.js)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track, music, voice or sound effects.",
+  "limitations": [
+    "No reviewed source frames matched this style (BACKGROUND_REVIEW.json: 0 sources, no contact sheets) and STYLE.json lists no preview_recipes; the refresh shows a scene-dependent dark-ground alternative based on the original style definition, with no source observations.",
+    "Ground #1F3128 is a deeper shade in the #293E32 ink family, chosen for a night-garden lithograph mood. It replaces the earlier cream example swatch, as background_policy is scene_dependent. Cream #F3ECD9 now acts as the print-light ink for lettering (contrast 11.65:1).",
+    "The nimbus uses #788659 at 32% alpha over the ground; this is deterministic transparency, not a new base hue.",
+    "Lithographic paper grain is a stationary procedural SVG feTurbulence approximation (fixed seed), not scanned print texture.",
+    "Typography uses OS-bundled macOS Didot, with Bodoni 72, Iowan Old Style and Georgia as fallbacks. @font-face src: local() declarations point to these installed faces; no font files are embedded, so a renderer without these system faces falls back to Georgia/serif.",
+    "Motion is not used because the engine is GSAP-only, giving one owner per property; no Blender or 3D renderer was used, per user instruction.",
+    "Rendering and browser QA have not been run by the agent; the host performs them."
+  ]
+}

@@ -1,0 +1,197 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#141A33}
+#root{position:relative;width:100%;height:100%;overflow:hidden}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block}
+.title{font-family:Georgia,"Times New Roman",serif}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Light reveal mask: a solid disc grown from the bulb separates the lit fog band from the unlit one -->
+    <mask id="lightMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720">
+      <rect width="1280" height="720" fill="#000"/>
+      <circle id="lightDisc" cx="364" cy="296" r="0" fill="#fff"/>
+    </mask>
+  </defs>
+
+  <!-- Layer 0: stationary sky and stars -->
+  <rect id="sky" width="1280" height="720" fill="#141A33"/>
+  <g id="stars" fill="#8E97BF"></g>
+
+  <!-- Layer 1: fog band (dim base + masked lit value step) -->
+  <path id="fogDim" fill="#232A4C" d="M0 300 C 260 278 520 318 760 296 S 1120 276 1280 292 V720 H0 Z"/>
+  <path id="fogLit" fill="#3E4770" mask="url(#lightMask)" d="M0 300 C 260 278 520 318 760 296 S 1120 276 1280 292 V720 H0 Z"/>
+
+  <!-- Layer 2: far ridge "system" (Paper.js compound contour with window cutouts) -->
+  <g id="ridgeGroup">
+    <path id="ridge" fill="#1E2443" fill-rule="evenodd" d=""/>
+    <g id="windows" fill="#F4B860"></g>
+  </g>
+
+  <!-- Layer 3: connection strings of light -->
+  <g id="links" fill="none" stroke="#F4B860" stroke-width="2.6" stroke-linecap="round" opacity="0.9"></g>
+
+  <!-- Layer 4: near hill + figure, single foreground value -->
+  <path id="nearHill" fill="#0A0D1C" d="M0 572 C 180 540 330 548 470 584 S 820 676 1000 668 S 1200 660 1280 664 V720 H0 Z"/>
+  <path id="figureBody" fill="#0A0D1C" d=""/>
+  <g id="armPose">
+    <g id="bloom" opacity="0">
+      <circle cx="364" cy="296" r="74" fill="#F4B860" opacity="0.10"/>
+      <circle cx="364" cy="296" r="46" fill="#F4B860" opacity="0.20"/>
+    </g>
+    <path id="armShape" fill="#0A0D1C" d=""/>
+    <circle id="bulbLit" cx="364" cy="296" r="21" fill="#F4B860" opacity="0"/>
+    <path id="filament" d="M354 300 l5 -10 5 10 5 -10 5 10" fill="none" stroke="#0A0D1C" stroke-width="3" stroke-linejoin="round" opacity="0"/>
+  </g>
+
+  <!-- Layer 5: type in negative space (standalone heading) -->
+  <g id="titleGroup" opacity="0">
+    <text class="title" x="80" y="124" font-size="60" font-weight="700" letter-spacing="10" fill="#EEF0F6">AN IDEA</text>
+    <rect x="82" y="146" width="96" height="2" fill="#EEF0F6"/>
+  </g>
+  <text id="subtitle" class="title" x="82" y="194" font-size="30" font-style="italic" fill="#CDD3EA" opacity="0">becomes a connected system</text>
+</svg>
+</div>
+<script src="paper-core.min.js"></script>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  const NS='http://www.w3.org/2000/svg';
+  const PAL={sky:'#141A33',fogDim:'#232A4C',fogLit:'#3E4770',ridge:'#1E2443',ink:'#0A0D1C',light:'#F4B860',text:'#EEF0F6',textSoft:'#CDD3EA'};
+  for(const k in PAL){ if(!chroma.valid(PAL[k])) throw Error('Invalid palette token '+k); PAL[k]=chroma(PAL[k]).hex(); }
+  // Recorded contrast (informational only; nothing is recoloured)
+  document.getElementById('root').setAttribute('data-contrast-title', chroma.contrast(PAL.text,PAL.sky).toFixed(2));
+  document.getElementById('root').setAttribute('data-contrast-subtitle', chroma.contrast(PAL.textSoft,PAL.sky).toFixed(2));
+
+  // ---------- Deterministic stationary stars (seeded LCG) ----------
+  let seed=43;
+  const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+  const stars=document.getElementById('stars');
+  for(let i=0;i<34;i++){
+    const x=40+rnd()*1200, y=24+rnd()*240, r=0.8+rnd()*1.3;
+    if(x<720 && y<230) continue; // keep the title's negative space clean
+    const c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',x.toFixed(1));c.setAttribute('cy',y.toFixed(1));c.setAttribute('r',r.toFixed(2));
+    c.setAttribute('opacity',(0.35+rnd()*0.4).toFixed(2));
+    stars.appendChild(c);
+  }
+
+  // ---------- Paper.js: build filled compound silhouettes from fixed rest geometry ----------
+  paper.setup(new paper.Size(1280,720));
+  const P=paper;
+  const unite=(a,b)=>{const r=a.unite(b);a.remove();b.remove();return r;};
+  const subtract=(a,b)=>{const r=a.subtract(b);a.remove();b.remove();return r;};
+
+  // Far ridge with five structures = nodes of the system. Window centres are reused for links.
+  let ridge=new P.Path('M0 720 V500 C 140 488 260 470 420 476 C 560 482 640 452 780 456 C 900 460 980 440 1100 446 C 1180 450 1240 458 1280 462 V720 Z');
+  const nodes=[];
+  function house(cx,base,w,h,roof){
+    const body=new P.Path.Rectangle(new P.Rectangle(cx-w/2,base-h,w,h+40));
+    const top=new P.Path([[cx-w/2-8,base-h],[cx,base-h-roof],[cx+w/2+8,base-h]]);top.closed=true;
+    return unite(body,top);
+  }
+  function tower(cx,base,w,h){
+    const shaft=new P.Path([[cx-w/2,base+40],[cx-w/2+5,base-h],[cx+w/2-5,base-h],[cx+w/2,base+40]]);shaft.closed=true;
+    const cap=new P.Path.Rectangle(new P.Rectangle(cx-w/2-6,base-h-10,w+12,10));
+    const mast=new P.Path.Rectangle(new P.Rectangle(cx-2,base-h-38,4,30));
+    return unite(unite(shaft,cap),mast);
+  }
+  const specs=[
+    {kind:'house',cx:560,base:480,w:58,h:40,roof:30,win:[560,462]},
+    {kind:'tower',cx:712,base:462,w:34,h:84,win:[712,404]},
+    {kind:'house',cx:866,base:458,w:66,h:44,roof:32,win:[866,438]},
+    {kind:'tower',cx:1008,base:446,w:38,h:108,win:[1008,366]},
+    {kind:'house',cx:1150,base:450,w:56,h:38,roof:28,win:[1150,432]}
+  ];
+  for(const s of specs){
+    const shape=s.kind==='house'?house(s.cx,s.base,s.w,s.h,s.roof):tower(s.cx,s.base,s.w,s.h);
+    ridge=unite(ridge,shape);
+    const hole=new P.Path.Rectangle(new P.Rectangle(s.win[0]-7,s.win[1]-8,14,16));
+    ridge=subtract(ridge,hole); // negative cutout: the fog shows through until the node is lit
+    nodes.push({x:s.win[0],y:s.win[1]});
+  }
+  document.getElementById('ridge').setAttribute('d',ridge.pathData);
+
+  // Figure body: head, torso, separated legs and a static left arm (one compound contour)
+  let body=new P.Path.Circle(new P.Point(300,398),20);
+  const parts=[
+    [[296,414],[304,414],[306,426],[294,426]],
+    [[283,424],[318,424],[314,496],[287,496]],
+    [[287,490],[300,490],[294,568],[280,568]],
+    [[304,490],[316,490],[324,568],[310,568]],
+    [[282,428],[291,434],[273,494],[263,490]]
+  ];
+  for(const pts of parts){const p=new P.Path(pts);p.closed=true;body=unite(body,p);}
+  document.getElementById('figureBody').setAttribute('d',body.pathData);
+
+  // Raised arm + hand + bulb silhouette: one pose group, pivot at the shoulder (314,432)
+  let arm=new P.Path([[309,428],[320,435],[361,330],[351,325]]);arm.closed=true;
+  arm=unite(arm,new P.Path.Circle(new P.Point(356,324),7.5));
+  arm=unite(arm,new P.Path.Rectangle(new P.Rectangle(354,312,20,14),new P.Size(3,3)));
+  arm=unite(arm,new P.Path.Circle(new P.Point(364,296),24));
+  document.getElementById('armShape').setAttribute('d',arm.pathData);
+  P.project.clear();
+
+  // Lit window overlays (inside ridge group so they travel with it)
+  const winG=document.getElementById('windows');
+  const winEls=nodes.map(n=>{const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',n.x-7);r.setAttribute('y',n.y-8);r.setAttribute('width',14);r.setAttribute('height',16);r.setAttribute('opacity','0');winG.appendChild(r);return r;});
+
+  // Connection strings: bulb -> n0 -> n1 -> n2 -> n3 -> n4, plus one cross-link n1 -> n3
+  const linkG=document.getElementById('links');
+  const bulb={x:384,y:304};
+  function sag(a,b,dip){const mx=(a.x+b.x)/2,my=(a.y+b.y)/2+dip;return `M${a.x} ${a.y} Q${mx} ${my} ${b.x} ${b.y}`;}
+  const segDefs=[
+    {d:sag(bulb,nodes[0],60),start:1.30,dur:0.30,to:0},
+    {d:sag(nodes[0],nodes[1],34),start:1.56,dur:0.20,to:1},
+    {d:sag(nodes[1],nodes[2],40),start:1.72,dur:0.20,to:2},
+    {d:sag(nodes[2],nodes[3],38),start:1.88,dur:0.20,to:3},
+    {d:sag(nodes[3],nodes[4],44),start:2.04,dur:0.20,to:4},
+    {d:sag(nodes[1],nodes[3],-70),start:2.00,dur:0.30,to:null}
+  ];
+  const segEls=segDefs.map(s=>{const p=document.createElementNS(NS,'path');p.setAttribute('d',s.d);linkG.appendChild(p);
+    const L=p.getTotalLength();p.style.strokeDasharray=L+' '+(L+4);p.style.strokeDashoffset=L;return {el:p,L,s};});
+
+  // ---------- GSAP: single owner for every animated property ----------
+  const tl=gsap.timeline({paused:true,defaults:{immediateRender:false}});
+  const arm$=document.getElementById('armPose');
+  gsap.set(arm$,{rotation:118,svgOrigin:'314 432'});
+  gsap.set('#ridgeGroup',{y:44});
+
+  // Standalone heading
+  tl.fromTo('#titleGroup',{opacity:0},{opacity:1,duration:0.4,ease:'sine.out'},0.0);
+  // Pose: anticipation dip, then raise the idea with a short follow-through
+  tl.fromTo(arm$,{rotation:118},{rotation:126,duration:0.16,ease:'sine.inOut',svgOrigin:'314 432'},0.10);
+  tl.fromTo(arm$,{rotation:126},{rotation:-6,duration:0.50,ease:'power2.out',svgOrigin:'314 432'},0.26);
+  tl.fromTo(arm$,{rotation:-6},{rotation:0,duration:0.20,ease:'sine.inOut',svgOrigin:'314 432'},0.76);
+  // The idea lights: warm glass, filament cut-out, bloom tied to the bulb
+  tl.fromTo('#bulbLit',{opacity:0},{opacity:1,duration:0.14,ease:'steps(3)'},0.74);
+  tl.fromTo('#filament',{opacity:0},{opacity:1,duration:0.14,ease:'steps(3)'},0.74);
+  tl.fromTo('#bloom',{opacity:0,scale:0.6,svgOrigin:'364 296'},{opacity:1,scale:1,svgOrigin:'364 296',duration:0.36,ease:'power2.out'},0.78);
+  // Light spreads: masked fog value step grows from the bulb; the system rises out of the dark
+  tl.fromTo('#lightDisc',{attr:{r:0}},{attr:{r:1250},duration:0.85,ease:'power2.inOut'},0.82);
+  tl.fromTo('#ridgeGroup',{y:44},{y:0,duration:0.55,ease:'power2.out'},0.86);
+  // Connections draw; each window lights only when its string arrives
+  for(const g of segEls){
+    tl.fromTo(g.el,{strokeDashoffset:g.L},{strokeDashoffset:0,duration:g.s.dur,ease:'sine.inOut'},g.s.start);
+    if(g.s.to!==null) tl.fromTo(winEls[g.s.to],{opacity:0},{opacity:1,duration:0.08,ease:'steps(2)'},g.s.start+g.s.dur);
+  }
+  // Subtitle once the system is complete enough to name
+  tl.fromTo('#subtitle',{opacity:0,y:8},{opacity:1,y:0,duration:0.36,ease:'power2.out'},1.95);
+  tl.to({}, {duration:0.001},2.999);
+  tl.seek(0);
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+  window.addEventListener('hf-seek',e=>{const t=e&&e.detail&&typeof e.detail.time==='number'?e.detail.time:null;if(t!==null)tl.seek(t,false);});
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

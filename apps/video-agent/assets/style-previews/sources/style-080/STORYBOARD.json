@@ -1,0 +1,51 @@
+{
+  "version": 3,
+  "title": "An Idea Becomes a Connected System — Frame-by-Frame Pixel Study",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Charge and release",
+      "startSeconds": 0,
+      "endSeconds": 0.75,
+      "purpose": "The idea (pixel bulb) charges on a stepped rune ring, then releases with a full-frame palette flash.",
+      "visuals": ["Dithered dusk-lake environment", "Bulb sprite with #BF7C65 filament", "Gold rune ring growing in stepped drawings", "Lavender-grey palette flash on drawings 7-8"],
+      "assets": [],
+      "beats": [
+        {"startSeconds": 0, "endSeconds": 0.5, "development": "Idle dim bulb, then ring grows 6→19px and bulb warms in three key drawings with rising sparks.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 0.5, "endSeconds": 0.75, "development": "Bulb fully lit with rays; release squash/stretch while the environment swaps to a flat flash palette.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Spark connects",
+      "startSeconds": 0.75,
+      "endSeconds": 2.083,
+      "purpose": "The scene re-tints to the connected palette; a spark arcs to the core node and links draw out to satellites.",
+      "visuals": ["Stepped spark projectile with key-pose tail", "Core node pop (small, overshoot, settle)", "Bresenham links revealing pixel by pixel", "Satellite nodes (#72929A) appear when links arrive", "Title types letter by letter between gold rules"],
+      "assets": [],
+      "beats": [
+        {"startSeconds": 0.75, "endSeconds": 1.167, "development": "Spark arcs from bulb to core in five keys; core pops; title begins typing.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 1.167, "endSeconds": 2.083, "development": "Title completes at 1.5s and holds; three links draw to satellites; NODES/LINKS tally climbs.", "captions": ["AN IDEA BECOMES A CONNECTED SYSTEM"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.58}
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "System escalates and settles",
+      "startSeconds": 2.083,
+      "endSeconds": 3,
+      "purpose": "Outer nodes and cross-links close the network, a surge palette and system ring escalate the effect, then the final drawing holds.",
+      "visuals": ["Outer node pops and cross-links", "One-drawing surge palette at 2.25s", "System ring outline expanding then thinning", "Final drawing 33 held from 2.667s"],
+      "assets": [],
+      "beats": [
+        {"startSeconds": 2.083, "endSeconds": 2.667, "development": "Cross-links and outer nodes complete the network; burst pixels and ring escalate, then thin.", "captions": ["AN IDEA BECOMES A CONNECTED SYSTEM", "NODES 6/6", "LINKS 8/8"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.5},
+        {"startSeconds": 2.667, "endSeconds": 3, "development": "Settled final drawing held: complete system, title and tally readable.", "captions": ["AN IDEA BECOMES A CONNECTED SYSTEM", "NODES 6/6", "LINKS 8/8"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.333}
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": ["Drawings change on twos (12/s) and are composited at 30 fps; the final drawing holds from 2.667s so the frame is settled before 2.7s.", "Title is fully legible from 1.5s to 3.0s (1.5s hold)."],
+    "justifiedHolds": ["Final 0.333s hold lets the completed system and copy read."]
+  },
+  "notes": ["Silent preview.", "Recipe demonstrated: source-frame lessons from BACKGROUND_REVIEW (charge → release flash → global re-tint → effect → tally, letter-by-letter banner, dithered gradients, mirrored slice reflections) applied to a new dusk-lake palette and the idea-to-system subject."]
+}

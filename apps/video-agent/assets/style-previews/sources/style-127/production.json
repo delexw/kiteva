@@ -1,0 +1,29 @@
+{
+  "displayTitle": "Lens Cutaway",
+  "displayDescription": "A procedural 3D lens mechanism explodes along its optical axis, opens a quadrant cutaway, shows a signal-to-energy light path, then reassembles.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js",
+    "PBR Materials",
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP",
+    "GSAP DrawSVGPlugin"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview. No music, voice or sound effects.",
+  "limitations": [
+    "Illustrative procedural scene: housing, lens ring, retaining rings, aperture stop and node plate are built from Three.js ExtrudeGeometry/Sphere/Cylinder primitives, not CAD or glTF parts.",
+    "Glass uses MeshPhysicalMaterial screen-space transmission; this approximates glass and is not physically accurate refraction or lens optics.",
+    "PBR reflections come from a procedural RoomEnvironment through PMREMGenerator, not a captured HDRI.",
+    "The cutaway uses two world-space clipping planes (localClippingEnabled, clipIntersection) plus explicit cut-face cap rectangles recomputed from the cut position; caps use a flat hatch texture, which stretches slightly while the section sweeps.",
+    "The light path is a set of straight TubeGeometry segments (discrete #628BF4 signal segments, then #EF9F5C after the aperture focus). It is a diagram, not simulated light transport.",
+    "Card widths come from a fixed monospace advance estimate, so a fallback font with a different advance may change the padding a little.",
+    "The bundled Three.js file (lens-scene.js) contains Math.random for object UUIDs and requestAnimationFrame for setAnimationLoop. Neither is used for rendering or timing: every frame is derived from timeline time."
+  ]
+}

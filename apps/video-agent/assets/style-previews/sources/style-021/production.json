@@ -1,0 +1,29 @@
+{
+  "displayTitle": "Idea Network",
+  "displayDescription": "A marker draws a light-bulb idea on cool notebook paper, then links five sage-washed nodes into a connected system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (procedural pressure-varied brush ribbons, pigment-wash textures, notebook paper texture) in scene.js — bottom layer",
+    "Canvas 2D marker/pen prop layer above the artwork",
+    "DOM text with clip-path write-on for the lettering — top layer"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline built inline in index.html and registered at window.__timelines.video; it owns composition time and every element's state in scene.js is a pure function of that time, using gsap.parseEase cues"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track, music, voice or sound effects.",
+  "limitations": [
+    "Layered artwork animated by progressive stroke-on and wash-bloom reveals; frames are not independently redrawn and there is no line boil.",
+    "Pressure variation is a procedural approximation (seeded width curve with tapers), not captured stylus pressure or scanned drawn assets.",
+    "Watercolor washes are procedural approximations (translucent fill, seeded mottling, darker wet edge, granulation); no fluid simulation.",
+    "Paper grain, dot grid and the marker prop are code-drawn; the marker shadow is a flat approximation, not lit 3D.",
+    "Lettering uses OS-bundled handwriting fonts declared via @font-face local() (Marker Felt, then Chalkboard SE, then Comic Sans MS); where none is installed the browser falls back to a generic cursive/sans-serif and glyph shapes differ.",
+    "STYLE.json lists no tech.preview_recipes; this refresh demonstrates the source-frame background review instead (cool notebook paper rather than the earlier warm cream).",
+    "Marker sits beneath the lettering layer, so while it writes the heading and caption the newly revealed letters draw over the marker tip. No Blender, bpy, Cycles or EEVEE was used."
+  ]
+}

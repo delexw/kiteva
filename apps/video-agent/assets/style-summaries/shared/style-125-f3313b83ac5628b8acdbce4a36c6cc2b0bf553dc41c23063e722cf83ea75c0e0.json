@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-125",
+    "name": "Ancient Greek Vase Painting. Category: Printmaking and Craft Materials. Provenance: extracted, added in the 2026-10-12 repository sync.",
+    "visualIdentity": "Explicit: terracotta vessels carry dark painted figures, ornamental registers and a continuous narrative around a curved surface. Profile, painted bands and silhouettes must stay coherent. Authored detail uses #F3DFC0 lines on a #BA642F ground. No specific historical technique is claimed.",
+    "suitableUses": "Explicit: suited to a vessel or object whose narrative wraps around its form, previewed as a 3-second rotation with figures resolving. Inferred: ceramic, ancient-art or object-storytelling briefs in video or interactive HTML with a 3D vessel. Subject, audience and objective are unspecified.",
+    "limitations": "Figure silhouettes must be authored, and no layered painting assets were supplied. A flat SVG unroll loses curvature, Blender is unavailable, and toon shading would cartoonize the piece. Soft shadows do not establish photorealism. The single reference poster does not verify every scene.",
+    "palette": "Background policy is scene_dependent, status style_compatible_suggestion, not an approved palette. Authored fallbacks: background #100D09, foreground #F3DFC0, vessel material #BA642F. Terracotta is the vessel, not the scene background. Foreground-on-background contrast is 14.884, gradients are disabled, and task-provided exact colors override these values.",
+    "motionAndInteraction": "Explicit: GSAP owns the vessel rotation and a slow camera orbit on one paused, registered timeline. A texture-space mask reveals figures progressively in register order. The 3-second preview rotates about 90° as figures resolve; the full video continues through the narrative with optional close-ups. No user interactions are specified.",
+    "audio": "Unspecified: no audio direction is fixed, and no music, voice or effects are required. Topic-specific options include background music, voiceover, sound effects, ambience or silence. Silence is valid. No audio asset is supplied, so any soundtrack must be authored or authorized, and explicit user audio choices take priority.",
+    "assetRequirements": "No uploads are required. Figure silhouettes and ornamental bands must be authored as paths. The painted wrap texture should be about 4096 px wide to stay sharp at close-up. Fonts and assets must load locally before rendering. No motion reference candidates are supplied, so none is selected.",
+    "combinations": "Suggested secondary: style-043 (painted story figures), used only for painted figures within the primary scene. Keep style-125 dominant, do not import its palette, and do not replace the verified background. Avoid competing full-scene treatments. For HTML, keep motion optional for reduced-motion preferences.",
+    "productionApproach": "Style renderer: Three.js (LatheGeometry vessel, MeshStandardMaterial, lighting, tone mapping) with Canvas 2D for the painted texture. Motion engine: GSAP. Pipeline: HyperFrames by default, with Remotion only if HyperFrames is unavailable or a verified limitation exists. chroma.js optionally validates colors. Task placeholders (subject, duration, format, audio) are unresolved."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-096",
+    "name": "Minimalist Product Motion Design",
+    "visualIdentity": "A normalized product presentation direction: one accurately represented product, a few meaningful details, generous space, concise copy, precise proportions, and restrained materials and light. It is descriptive, not a historical movement.",
+    "suitableUses": "Suited by inference to premium product launches, hero reveals, detail views, spec callouts, and closing taglines. For interactive HTML, a centered hero or scroll-linked reveal can preserve the same focus and restraint.",
+    "limitations": "Keep the product and its brand colors accurate; adapt presentation principles without copying campaign shots. Avoid clutter, theatrical props, text over the product silhouette, and unsupported motion references. The palette example is not canonical.",
+    "palette": "Preserve supplied, brand, reference, and asset colors exactly. The optional fallback for new presentation elements is a discrete warm-white #F6F2EA background and charcoal #2A3030 foreground; no gradient. These are suggestions, not intrinsic style colors. Check contrast in the final composite.",
+    "motionAndInteraction": "Use smooth close-ups, selective reveals, purposeful detail or camera moves, and deliberate settling; keep motion restrained and copy readable. Video state must be deterministic and seekable. Optional references, only when supported by the actual scene, include a clean chapter handoff, component reveal, or subtle letter drift. For HTML, scroll-linked reveals and a lightbox are possible; provide reduced-motion behavior and usable navigation.",
+    "audio": "No fixed genre, tempo, voice, or audio layer is specified. Choose music, narration, effects, ambience, or silence for the topic and audience; honor supplied choices and assets. Do not assume beat synchronization without measured audio.",
+    "assetRequirements": "Use available product imagery or geometry and exact copy where supplied; inspect accuracy, framing, and motion margins. SVG can provide crisp interface shapes, strokes, and masks; Blender can model, light, animate, and prerender genuine 3D products. Cropping tools prepare framing but cannot create missing artwork or extract subjects.",
+    "combinations": "Usually strongest alone. Optional style-104 adds axial symmetry and frontal hero framing without extra props or colors. Optional style-093 adds a few short spec lines, one moving line at a time, kept clear of the product; avoid expressive spring or scale motion on text.",
+    "productionApproach": "Select the visual renderer and motion engine for the assets and required fidelity; keep each animated property to one owner. Use shared composition time for reproducible states. HyperFrames owns assembly, timing, synchronization, validation, and export; Remotion is a fallback only if HyperFrames is unavailable or a verified limitation requires it. Optional gallery, crop, color, or interaction tools do not define the style."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

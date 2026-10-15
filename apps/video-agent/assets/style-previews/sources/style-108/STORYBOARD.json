@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "title": "An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Isometric assembly",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Show one idea block landing on a shared isometric slab and connecting to four parts of a system, built along fixed iso axes under a locked orthographic camera.",
+      "visuals": [
+        "Stationary deep slate night field #0E181E",
+        "Three.js true-isometric orthographic diorama: terracotta strata base and 4x4 slate tiles with fine iso grid",
+        "Cream-topped terracotta IDEA core block with idea disc",
+        "Four cream-topped teal satellite blocks with contact shadows",
+        "Terracotta links on the ground axes, teal flow pulses with additive halo",
+        "Fixed 2D copy column and dark rounded label tags"
+      ],
+      "assets": ["iso-scene.js (esbuild bundle of src/scene.mjs + three)", "gsap.min.js", "chroma.min.js"],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.95,
+          "development": "Strata base rises; 16 slab tiles drop in along the vertical axis back-to-front; kicker and headline lines reveal in the 2D layer.",
+          "captions": ["ISOMETRIC STUDY · 30°", "An idea", "becomes a", "connected", "system."],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.95,
+          "endSeconds": 1.35,
+          "development": "Terracotta rule and body copy reveal; the IDEA core block drops straight down onto the slab with its contact shadow tightening; IDEA tag appears.",
+          "captions": ["One core block, four links, shared axes.", "IDEA"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.35,
+          "endSeconds": 2.15,
+          "development": "Four links extrude outward along the iso ground axes with junction dots; satellite blocks rise out of the slab along +Y and their tags appear.",
+          "captions": ["PEOPLE", "TOOLS", "DATA", "FLOW"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.15,
+          "endSeconds": 3,
+          "development": "Teal flow pulses finish travelling core to satellites and each satellite cap lights on arrival (settled by 2.65s); the complete scene holds.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.35
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": ["All motion settles by 2.65s; 0.35s final hold of the complete readable scene."],
+    "justifiedHolds": ["2.65-3.0s closing hold so the full composition reads as settled."]
+  },
+  "notes": ["Silent preview: no music, voice or effects.", "No reviewed preview recipe was supplied; the preview demonstrates the primary style with a scene-dependent night background informed by BACKGROUND_REVIEW.json."]
+}

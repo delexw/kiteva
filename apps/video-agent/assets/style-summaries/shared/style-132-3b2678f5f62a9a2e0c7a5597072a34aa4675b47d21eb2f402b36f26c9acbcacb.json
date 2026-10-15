@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-132",
+    "name": "Cubist Painted Collage",
+    "visualIdentity": "Explicit: intersecting planar facets show one subject from several viewpoints, with compressed space, muted ochre, gray and umber paint, and selective printed-paper fragments. Subject anchors must stay recognizable. Low-poly 3D alone does not establish Cubism.",
+    "suitableUses": "Explicit: the preview is a still life (guitar, bottle, glass, table edge). Inferred: suited to art-led object studies, editorial or explainer motion needing a painterly multi-view look. Audience and objective are unspecified.",
+    "limitations": "Explicit: frame review covered one frame per second from 1–8 seconds only, with no continuous motion, sub-second timing, audio or later scenes verified. Source colors are not measured. Krita plane textures are runtime-unverified. Captions over textured fields need contrast checks.",
+    "palette": "Explicit: no approved exact palette is supplied, and background_policy is scene_dependent, so the paper, rock or painted field should be chosen from the scene. Authored fallback tokens are background #DED5BB (illustrative only), foreground #332E29, ochre #AD9369, gray #85867D, umber #705F4B, paper #ECE4D0. Gradients are disabled; use pigment layering. Normal text targets 4.5:1 contrast against the composited background. Approved task colors take precedence.",
+    "motionAndInteraction": "Explicit preview motion: 0–1.2s facets slide into registration from per-view offsets; 1.2–2.0s the bottle's profile and top-view facets trade opacity and offset; 2.0–3.0s a readable hold. No random shattering or perspective camera. Optional motion-037 fits only if scene assets support word dispersal. Interaction is unspecified; drive state from composition time.",
+    "audio": "Unspecified in the source beyond suggestions. Music, voiceover, sung vocals, effects, ambience or silence may be chosen per task, and no soundtrack was supplied or verified. Inferred: restrained or quiet ambience suits the medium, and silence is valid around reading holds. Do not assume a historical soundtrack or default to instrumental music. Keep speech intelligible.",
+    "assetRequirements": "Explicit: the preview needs no uploads, since facets are procedurally built from authored multi-view outlines, with seeded Canvas scumble textures and optional printed-paper words approved by the user. Full video may use approved printed-paper scans, hand-drawn cutouts prepared by image tools, or photographed physical collage frames. Do not copy source characters or branded material.",
+    "combinations": "Explicit: style-045 is the only suggested supporting style, as a secondary detail, and its role is described only generally. Cubist Painted Collage must remain dominant with approved colors preserved. Avoid generic effects replacing its mark-making and avoid invented historical text. For motion-037, the listed good fits include Hand-drawn Collage, Paper Cutout Illustration and Editorial Design.",
+    "productionApproach": "Style renderer: SVG facet paths and seeded Canvas 2D textures, with Paper.js used only at build time for boolean outline geometry. Motion engine: one seekable paused GSAP timeline with a single owner per property. Render pipeline: HyperFrames primary; Remotion fallback only with a recorded reason. Verify forward, backward and direct seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

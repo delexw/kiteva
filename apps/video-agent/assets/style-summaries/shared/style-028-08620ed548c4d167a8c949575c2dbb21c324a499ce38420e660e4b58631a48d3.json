@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-028",
+    "name": "Flat Vector Illustration",
+    "visualIdentity": "Supplemental flat vector reference, not a named source-collection style. Clear flat color fields, simplified figures, consistent corner radii, three to five main colors plus one fixed accent.",
+    "suitableUses": "Explicitly suited to explainers and brand pieces. Inferred from compatibility lists: product introductions, editorial narratives, kinetic phrase cards, logo reveals and chaptered transitions.",
+    "limitations": "Avoid photoreal reflections, complex materials, inconsistent shadows and true 3D. Gaze tracking needs eye layers or a rig, and some motions need actual phrases, punctuation or marks. Source sampling was limited.",
+    "palette": "Scene-dependent; background #F7F3E9 is illustrative only. Suggested tokens: foreground #243746, accent_1 #267D82, accent_2 #DD7353 (fixed CTA accent), accent_3 #EAC664. Foreground on background is 11.083:1. Accent_1 and accent_2 are decorative only. Approved colors override; gradients are disabled.",
+    "motionAndInteraction": "Uses masks, decomposition and meaningful morphs, with staged entrances and held key text. Video runs on seekable composition time; scroll or pointer behavior is interactive-only. Motion references are optional and need matching scene assets. Motion-040 metadata labels conflict.",
+    "audio": "Unspecified; no audio was supplied or verified. Silence is valid. Music, voiceover or effects are optional suggestions. Beat-linked motion (039, 040) needs inspected audio first; no beat timing is claimed.",
+    "assetRequirements": "No uploads were specified; all are optional. Local fonts, SVG geometry and approved marks may help. Do not invent product copy or brand marks. Eye layers or a rig are needed only for gaze motion.",
+    "combinations": "Style-095 adds UI inside flat devices; keep #DD7353 for CTAs, with no glass or realistic shadows. Style-097 adds flat charts using primary tokens, at most three series and no invented data. Avoid gradients and 3D bars.",
+    "productionApproach": "SVG renders the visuals and a GSAP paused timeline drives motion, with optional PixiJS, tldraw, mo.js or Anime.js. HyperFrames handles composition and export; Remotion is fallback only with a recorded reason. Verify seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

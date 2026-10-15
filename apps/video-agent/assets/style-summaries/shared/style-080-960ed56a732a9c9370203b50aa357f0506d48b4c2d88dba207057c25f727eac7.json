@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-080",
+    "name": "Frame-by-Frame Animation is a supplemental design reference, not a directly named style in the source collection. The source does not prove independent redrawing.",
+    "visualIdentity": "Explicit: frames are drawn individually with consistent character proportions and intentional line variation. Key drawings, in-betweens and exposure holds are planned. Animation on twos at 24 fps uses 12 distinct drawings per second.",
+    "suitableUses": "Explicit: character performance shots, or hybrids with separate background art or living holds, when drawn frames exist or are produced. Inferred from the compatibility list: cel, stop-motion-style, cutout and kinetic typography work.",
+    "limitations": "Explicit: moving one image or adding random jitter does not count as frame-by-frame. Output frame rate is not drawing rate. Rough.js and p5.js do not supply authentic poses or animation. Sketch treatment must not touch grids, UI, pixel clusters or existing assets unless authorized.",
+    "palette": "Reference-dependent example; task-provided or approved palettes override it. Discrete tokens: background #F5EEDC, foreground #303C44, accent_1 #72929A, accent_2 #BF7C65. Gradients are disabled. Foreground on background measures 9.78:1. Accents are decorative only, since they fall below 4.5:1 for body text. Recheck composited frames.",
+    "motionAndInteraction": "Motion follows the planned exposure rate, with held states; delivery rate may be higher. Interpolated poses, springs and bounce are not generated automatically. Optional motion references (gaze tracking, chaptered transitions, storytelling, phrase scatter, punctuation zoom, radial burst) apply only when scene assets support them. HTML may add play, pause and frame-step controls with reduced-motion support.",
+    "audio": "Unspecified by the source; the style mandates no audio layer. Suggestions depend on topic and audience and may include music, voiceover, effects, ambience or silence. Honor explicit requests and supplied assets first. Music timing is not assumed without inspected audio analysis, and assumptions must be stated when inputs are absent.",
+    "assetRequirements": "Prepared independently drawn frames or layers need alpha transparency, consistent dimensions and clear numbered naming, with a layer manifest. Optional Rough.js contours need fixed nonzero seeds and cached geometry. Typography references need actual glyphs or approved marks. Fonts and assets must load before rendering. Missing assets are unspecified and must be reported.",
+    "combinations": "Explicit: style-037 supplies static watercolor plates, with washes kept separate from line work and never boiling during action. style-092 supplies two or three aligned line-boil variants during holds only, locked under reduced motion. Avoid random stains, muddied silhouettes, illegible lettering boil and mismatched paper textures.",
+    "productionApproach": "Style renderer: Canvas 2D for brushes and bitmaps, with optional PixiJS, Rough.js or p5.js. Motion engine: one paused GSAP timeline with one owner per property. Pipeline: HyperFrames by default, with Remotion only under a verified fallback condition. Verify forward, backward and direct seeks, decoded frames and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

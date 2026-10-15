@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-016",
+    "name": "Punk Graphics. This is a supplemental design reference and is not claimed as a directly named style in the source collection.",
+    "visualIdentity": "Explicit: cutout lettering, torn paper, tape, photocopy grain and handwritten marks in a deliberately irregular paste-up layout. The headline stays prominent, the palette stays limited, and each material keeps its own edge and texture.",
+    "suitableUses": "Explicit guidance: use Punk alone for posters, title cards and short protest-style edits where cutout chaos is the message. Hybrids suit slogans needing timed delivery or photos needing one consistent print treatment.",
+    "limitations": "Avoid ransom lettering that buries the key word, uniform spring animation and random per-frame jitter. Motion is limited to paste, tear and peel without smooth tracking or blur. Rough.js does not supply handwriting or authentic paper media. Glitch cuts suit only disrupted scenes, not calm editorial ones.",
+    "palette": "Suggested tokens, not approved exact colors: background #EFE9D9, foreground #171717, accent #C63A3A, gradients disabled. The background is scene-dependent and may change to suit the setting. Task-supplied exact colors override these. Foreground-on-background contrast is 14.793; the red accent on background is 4.26 and is decorative only. Sampled reference colors (seconds 1 to 8 of two examples) are author choices, not style constants; chips should contrast with the chosen ground.",
+    "motionAndInteraction": "Explicit: paste, tear and peel with small placement imperfections, with no smooth tracking, blur, springs or per-frame jitter. Optional references, used only when scene assets support the action: motion-037 (peeling cutout letters before a headline), motion-038 (cut-paper period connection), motion-020 (glitch cut, not for calm scenes), motion-012 and motion-015 (chapter or story structure). Video uses composition time; scroll is optional interactive delivery.",
+    "audio": "Unspecified: the style sets no audio requirement, and no soundtrack, voice or sound effects are supplied. Suggested direction, inferred from topic: restrained accents, ambience or silence, with music that does not compete with narration. Silent previews are acceptable. Do not sync beats without actual audio analysis.",
+    "assetRequirements": "Unspecified: no uploaded assets, exact copy, fonts, photos or task palette are supplied. Needed: torn-paper and cutout masks preprocessed with Pillow using fixed seeds, local fonts and assets loaded before rendering, and inspected glyph or mark geometry. Do not invent copy or brand marks.",
+    "combinations": "Explicit: style-093 supplies headline and slogan timing with word-level paste holds and no springy motion. Style-050 supplies monochrome halftone for cutout photos, using #171717 dots on #EFE9D9 only, while headline cutouts stay solid. Red marks at most one word per slogan.",
+    "productionApproach": "Explicit: HyperFrames is the default pipeline for composition and export; Remotion is used only if the documented fallback condition is verified. Pillow prepares masks and textures, and GSAP owns the paused, seekable timeline. Rough.js (sketch marks) and chroma-js (color validation) are optional. Verify decoded frames, audio sync and forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

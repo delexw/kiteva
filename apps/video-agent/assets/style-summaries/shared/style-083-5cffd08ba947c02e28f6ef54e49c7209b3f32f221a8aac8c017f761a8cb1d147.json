@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-083",
+    "name": "Stop-Motion Animation; category Animation Techniques. Supplemental reference, not a directly named style in the source collection.",
+    "visualIdentity": "Physical-looking objects with stable materials, light, contact shadows, and space. Weight comes from held frames and incremental poses, with controlled craft. Authentic results need frame-by-frame photography; code only simulates the look.",
+    "suitableUses": "Explicit: craft brand films and product launches built from photographed sequences, plus process documentaries and educational craft content. Inferred: tactile, object-led pieces where held exposures carry meaning. Non-physical subjects are unspecified.",
+    "limitations": "No listed renderer exists, and photographed frames are required. Without them, report the gap or use a clearly labeled Blender simulation. Simulated appearance is not proof of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
+    "palette": "Reference-dependent example tokens: background #ECE4D4, foreground #3C443C, accent_1 #917F67; no gradient. Apply only to new presentation elements; task colors override them, and photographed objects stay unrecolored. Foreground on background is 7.972:1; accent_1 under background text is 3.057:1, decorative only. Checks are two-color only; verify composited frames.",
+    "motionAndInteraction": "Video motion derives from seekable composition time; pointer or scroll input applies only to interactive delivery. Exposure rate may differ from delivery frame rate, and holds stay intact with no automatic springs or extra in-betweens. Optional references 037, 038, 009, 012, and 015 need scene-fit screening; none is required.",
+    "audio": "Unspecified by the source, and no audio layer is mandatory. Inferred options are music, voiceover, sound effects, ambience, or silence, chosen for topic and reading holds. Explicit user audio takes priority, and assets are never invented. Verify speech clarity, balance, absence of clipping, and picture sync.",
+    "assetRequirements": "Photographed frames as numbered sequences with alpha channels, consistent dimensions, and a layer manifest. Load fonts and assets before composition. Pillow handles crops and transparent compositing; FFmpeg encodes at the intended frame rate. Inspect crop margins and missing items before use.",
+    "combinations": "style-093 steps kinetic headlines on the exposure cadence, clear of contact shadows and key objects. style-024 adds callouts on held frames only, in #3C443C ink with #917F67 as the sole accent. Arrowheads and callout text stay hidden until their shaft or container completes. Use alone for pure craft pieces.",
+    "productionApproach": "Default HyperFrames: composition attributes, clip timing, and one paused GSAP timeline registered in window.__timelines, then checked, snapshotted, and rendered. Remotion only with a recorded verified reason. Photographs or a labeled simulation own visuals; GSAP owns motion. Check decoded frames, audio sync, and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

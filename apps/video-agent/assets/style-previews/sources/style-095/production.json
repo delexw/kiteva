@@ -1,0 +1,26 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "HTML/CSS",
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview. No audio track. Authored visual cue sequence: tap 0-0.5s, card expansion 0.5-1.4s, X-ray lens opens at 1.2s and sweeps down the wiring zone to 2.0s, links complete at 1.85s, 2.1s and 2.35s, lens settles over the routes and ports 2.0-2.4s, toast 2.1-2.45s, hold to 3s.",
+  "limitations": [
+    "No real product assets, brand tokens or fonts were supplied. The UI is rebuilt as DOM from the copy and layout in ILLUSTRATION.svg, using only the neutral #F7F9FA / #263440 tokens and system fonts.",
+    "This preview demonstrates the registered_xray recipe with procedural layers. No supplied exterior/interior media exist, so both are authored DOM/SVG views of the same card. The interior shows only structure the scene already implies: an entry spine, three row nodes, routes and edge ports matching the three external links, plus dashed guides registered to the exterior row dividers. It makes no claim about a real product's internals.",
+    "Exterior and interior share one coordinate box and one transform parent (#idea-content, plus the #idea press scale and the camera scale). The reveal is a feathered CSS radial mask-image whose position and radius are CSS variables tweened on the paused GSAP timeline. No pointer input is used. The interior layer carries no text, and the lens stays in the card's label-free right half (centre x>=240, radius<=118), so every label stays on the exterior with AA contrast.",
+    "The X-ray is a flat 2D mask reveal. There is no lighting, depth or material transmission.",
+    "No chart data was supplied, so no chart is shown. The metric update is the link-count badge (0 to 3 links, tabular figures, swapped by timeline opacity sets). The path change is the internal routes and external links drawing.",
+    "The rows inside the card (Tasks, Calendar, Team) and the 'Selected' footer repeat or describe the illustration's link targets. They are not taken from a real product screen.",
+    "The FLIP shared-element expansion is measured once at build (collapsed slot rect and expanded card rect). It plays back as animated clip-path insets plus a translate of the card content; no layout properties are tweened.",
+    "Rendering and browser QA are run by the host; the agent did not render."
+  ]
+}

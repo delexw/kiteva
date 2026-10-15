@@ -1,0 +1,25 @@
+{
+  "displayTitle": "Ink Network",
+  "displayDescription": "Chinese ink wash on cool dawn xuan paper: one dry-brush stroke grows into a branch whose twigs and ink blooms connect into a system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (seeded bristle-dab brush masks, baked blurred wash layers, stippled granular fill, baked xuan-paper fibre texture)",
+    "DOM text (Palatino/Georgia serif)"
+  ],
+  "motionEngine": [
+    "GSAP 3.15.0 local paused timeline at window.__timelines.video (sole owner of canvas state object and text opacity/blur)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Ink, paper absorption and bloom diffusion are procedural Canvas 2D approximations (seeded dabs, blur filters, radial gradients), not scanned ink assets or a fluid simulation.",
+    "STYLE.json tech.preview_recipes is empty; the refresh demonstrates the source-frame review's ink construction order instead of a named recipe.",
+    "Background moved from the prior warm swatch #F4EFDF to scene-dependent cool grey-white xuan paper #E7EAE7 (dawn mood); ink token #242724 preserved; the far wash uses a diluted cool blue-grey cast of the same ink.",
+    "Blender was not used, per user instruction. Rendering and browser QA are left to the host."
+  ]
+}

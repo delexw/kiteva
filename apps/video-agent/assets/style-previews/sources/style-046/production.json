@@ -1,0 +1,28 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Paper Idea",
+  "displayDescription": "Cut-paper bulb lights stepped indigo sheets, then a pinned paper arm rig fans out into a connected node system and a caption card unfolds.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (layered cut-paper sheets, seeded scissor-cut contours, static-layer feDropShadow contact shadows)"
+  ],
+  "motionEngine": [
+    "GSAP (single paused seekable timeline tweening pose values)",
+    "Procedural Paper Curl and Fold Deformation (2D hinge-fold approximation of the caption flap: cos-projected scale plus angle-dependent shading, evaluated from timeline time)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track. Intended (not produced) cue sequence: soft paper slide at 0.0 s, three light paper taps as sheets drop at 0.55/0.66/0.77 s, card unfold rustle at 1.86 s.",
+  "limitations": [
+    "Paper material is a procedural approximation: flat matte SVG fills, thin cream edges and drop-shadow filters; no scanned paper texture or fibre grain.",
+    "The caption fold is a 2D projected hinge (scaleY = cos angle with shading), not a 3D mesh or physical paper simulation; Three.js was not needed.",
+    "PixiJS, Paper.js and Motion were reviewed but not used; native SVG covers the flat layered cut-paper scene.",
+    "Background is a scene-dependent night-indigo stacked-sheet ramp informed by BACKGROUND_REVIEW (deepest sheet as base, quantised bands); it is not the prior cream swatch and not a copy of the source fractal.",
+    "No preview_recipes were listed in STYLE.json, so no additional recipe is demonstrated; the refresh demonstrates the stepped-sheet background construction and the jointed rig.",
+    "Silent: no soundtrack or voice was produced."
+  ]
+}

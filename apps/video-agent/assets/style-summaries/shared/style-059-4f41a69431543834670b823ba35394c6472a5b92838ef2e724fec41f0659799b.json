@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-059",
+    "name": "Low-Poly 3D",
+    "visualIdentity": "Deliberately limited meshes with readable silhouettes, faceted shading and selected color fields. Joints and ground contact must stay credible, camera framing must stay clear, and 3D motion must stay stable. Polygon reduction stops before the subject becomes unrecognizable. Explicit provenance.",
+    "suitableUses": "Explicit: faceted characters and objects with clear silhouettes, and terrain or spatial explanations only from verified geometry. Inferred: bounded miniature stages for travel or game-world teasers. Camera dolly and orbit patterns list this style as a good fit. Other audiences are unspecified.",
+    "limitations": "Avoid smoothed normals, realistic textures and over-reduced polygons. Delaunator handles only unconstrained 2D triangulation, not arbitrary 3D meshing. The source review sampled one frame per second from seconds 1 to 8 of two examples, with no continuous motion or audio. Flat image scaling is not a dolly, and orbit needs real 3D depth.",
+    "palette": "Background is scene-dependent, and the palette status is a style-compatible suggestion, not an approved palette. Illustrative tokens: background #F1EBDF, foreground #34484C, accent_1 #799C8C, accent_2 #C28A68. Foreground on background reaches 8.124:1 for body text. Accents at 3.19 and 3.27 are decorative only. Task-provided exact colors override these, and no gradient is enabled. Source hues were subject choices, not style rules; keep the value range and one complementary accent.",
+    "motionAndInteraction": "Use smooth authored movement where the action benefits, and keep deliberate cuts, impacts and reading holds. Candidate patterns: camera dolly (needs real depth), camera orbit around a fixed subject, turntable orbit (needs complete geometry), gaze (needs a rig) and parallax (needs layers). Pointer and scroll input apply only to interactive delivery; video uses composition time.",
+    "audio": "Audio direction is unspecified for this style. It sets no fixed genre, tempo, voice or required layer. Music, voiceover, sound effects, ambience or silence should follow the topic, narration needs and reading holds. Gallery previews of camera patterns remain silent by default. Music or voice must not compete with narration or essential text.",
+    "assetRequirements": "No mandatory uploads are specified. The style needs authored or Blender-built 3D geometry, materials and lighting, plus locally loaded fonts and assets. Turntable orbit needs complete views, gaze needs an eye rig, and parallax needs layered depth assets. Interactive pairings may use prerendered EEVEE frames.",
+    "combinations": "Miniature stage (style-079) suits a bounded low-poly island with an elevated camera; in HTML, use prerendered turntable frames with hotspots. Terrain (style-097) suits faceted elevation from verified data, with stated vertical exaggeration and labels in a 2D layer. Low-Poly alone suits faceted characters or objects with clear silhouettes.",
+    "productionApproach": "Style renderer and motion engine: Blender with bundled Python bpy and EEVEE handle modeling, materials, lighting, animation and offline renders. Pipeline: HyperFrames is primary, and Remotion is used only on a verified fallback condition. chroma.js is optional for palette checks. Three.js, PixiJS or Motion serve interactive or 3D-specific needs only."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

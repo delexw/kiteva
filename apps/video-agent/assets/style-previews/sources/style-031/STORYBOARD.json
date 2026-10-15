@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "title": "Comic Book Art — An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The idea clicks",
+      "startSeconds": 0,
+      "endSeconds": 0.76,
+      "purpose": "Show the idea arriving in panel 1 through key-pose changes on a bulb and a single CLICK! sound-effect stamp.",
+      "visuals": ["Navy ink ground with a stationary blue halftone screen", "Panel 1: cool newsprint paper with a yellow halftone screen", "Bulb squashes, stretches and settles, then lights as its glass switches from paper to yellow", "Red Rough.js burst and ink rays pop behind the bulb", "CLICK! lands as a red double-keyline stamp with navy lettering"],
+      "assets": ["index.html", "comic-vendor.js (local bundle of Rough.js and Motion utilities)"],
+      "beats": [
+        {"startSeconds": 0, "endSeconds": 0.5, "development": "Bulb anticipates with a squash, stretches up and settles. At 0.30 s the glass lights yellow, and the burst and rays pop.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 0.5, "endSeconds": 0.76, "development": "CLICK! stamp slaps down from 1.4× scale and settles by 0.70 s. It then stays fully legible through the end.", "captions": ["CLICK!"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.06}
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Meanwhile, it connects",
+      "startSeconds": 0.76,
+      "endSeconds": 1.72,
+      "purpose": "Carry the idea across the gutter and assemble it into a network.",
+      "visuals": ["A yellow spark with ink speed lines arcs out of panel 1, across the gutter, into the hub node", "Yellow caption box drops in; its label appears only after the box has settled", "Hub node pops lit yellow, Rough.js edges ink on in authored order, and blue nodes pop as each edge reaches them"],
+      "assets": ["index.html"],
+      "beats": [
+        {"startSeconds": 0.76, "endSeconds": 1.16, "development": "Spark leaps the gutter and lands in the hub (1.04 s). The caption box arrives and its text appears at 1.08–1.16 s.", "captions": ["MEANWHILE… IT CONNECTS!"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 1.16, "endSeconds": 1.72, "development": "Seven edges draw in sequence and four nodes pop to complete the system.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.56}
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "All systems linked",
+      "startSeconds": 1.72,
+      "endSeconds": 3,
+      "purpose": "Land the result with one impact accent and a readable dialogue line, then hold.",
+      "visuals": ["Tapered ink concentration lines rush inward once, converging on the network", "Network jolts to 1.05× and settles", "White speech bubble grows from its tail on the far node; its dialogue appears after the bubble is complete"],
+      "assets": ["index.html"],
+      "beats": [
+        {"startSeconds": 1.72, "endSeconds": 1.98, "development": "Climax: concentration lines burst and the system jolts.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 1.98, "endSeconds": 2.3, "development": "Speech bubble grows from the node, then 'All systems linked!' appears.", "captions": ["All systems linked!"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 2.3, "endSeconds": 3, "development": "Settled hold. All copy is fully legible and nothing moves.", "captions": ["CLICK!", "MEANWHILE… IT CONNECTS!", "All systems linked!"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.7}
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Each beat has one primary focus: bulb, then stamp, spark, network, climax lines and finally the bubble.",
+      "CLICK! is legible from 0.70 s, the caption from 1.16 s and the dialogue from 2.30 s. All are settled by 2.3 s, before the 2.7 s requirement.",
+      "Concentration lines are used once, at the climax only, following the reviewed source technique."
+    ],
+    "justifiedHolds": [
+      "2.3–3.0 s: a final still hold so all three pieces of copy can be read together."
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, effects or voice are present.",
+    "Background refresh: per BACKGROUND_REVIEW.json, the warm cream swatch is replaced with a scene-dependent deep-navy single-ink halftone ground (#1C2230 with #3768A1 dots). Paper panels stay the brightest plane, and red #C9403C is reserved for the one 'hit' stamp role.",
+    "No optional preview recipe was supplied (tech.preview_recipes is absent or empty). This refresh demonstrates the reviewed source-frame techniques instead."
+  ]
+}

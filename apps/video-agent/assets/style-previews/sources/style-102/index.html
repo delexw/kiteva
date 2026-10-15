@@ -1,0 +1,57 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:1280px;height:720px;overflow:hidden}svg{width:1280px;height:720px;display:block}</style></head><body><div data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30"><svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720"><defs><g id="h"><path d="M0 0L330 0L305 126Z" fill="#9E7FB9" opacity=".16"></path><path d="M60 0L150 0L128 36Z" fill="#5EA7A0"></path><path d="M180 0L245 58L305 0" fill="none" stroke="#F4E8D4" stroke-width="2"></path><circle cx="180" r="13" fill="#D8A169"></circle><circle cx="245" cy="58" r="8" fill="#F4E8D4"></circle><path d="M100 42Q200 70 268 108" fill="none" stroke="#9E7FB9" stroke-width="3"></path><circle cx="305" r="7" fill="#5EA7A0"></circle><circle cx="268" cy="108" r="5" fill="#D8A169"></circle></g><g id="s"><use href="#h"></use><use href="#h" transform="scale(1 -1)"></use></g></defs><rect width="1280" height="720" fill="#201D32" data-demo-actor="demo-actor-1"></rect><g transform="translate(860 360)" data-demo-actor="demo-actor-2"><circle r="340" fill="none" stroke="#9E7FB9" stroke-width="2" opacity=".5" data-demo-actor="demo-actor-3"></circle><use href="#s" data-demo-actor="demo-actor-4"></use><use href="#s" transform="rotate(45)" data-demo-actor="demo-actor-5"></use><use href="#s" transform="rotate(90)" data-demo-actor="demo-actor-6"></use><use href="#s" transform="rotate(135)" data-demo-actor="demo-actor-7"></use><use href="#s" transform="rotate(180)" data-demo-actor="demo-actor-8"></use><use href="#s" transform="rotate(225)" data-demo-actor="demo-actor-9"></use><use href="#s" transform="rotate(270)" data-demo-actor="demo-actor-10"></use><use href="#s" transform="rotate(315)" data-demo-actor="demo-actor-11"></use><circle r="120" fill="none" stroke="#5EA7A0" stroke-width="2" stroke-dasharray="3 9" data-demo-actor="demo-actor-12"></circle><circle r="30" fill="#F4E8D4" data-demo-actor="demo-actor-13"></circle><circle r="14" fill="#D8A169" data-demo-actor="demo-actor-14"></circle></g><text x="80" y="200" font-family="Helvetica, Arial, sans-serif" font-size="14" letter-spacing="5" fill="#5EA7A0" data-demo-actor="demo-actor-15">8 MIRRORED SECTORS</text><text x="76" y="290" font-family="Georgia, serif" font-size="72" fill="#F4E8D4" data-demo-actor="demo-actor-16">An idea</text><text x="80" y="345" font-family="Georgia, serif" font-style="italic" font-size="34" fill="#D8A169" data-demo-actor="demo-actor-17">becomes a</text><text x="80" y="390" font-family="Georgia, serif" font-style="italic" font-size="34" fill="#D8A169" data-demo-actor="demo-actor-18">connected system</text><text x="80" y="450" font-family="Helvetica, Arial, sans-serif" font-size="15" letter-spacing="3" fill="#9E7FB9" data-demo-actor="demo-actor-19">ONE CENTRE - MANY REFLECTIONS</text></svg></div><script src="gsap.min.js"></script><script src="chroma.min.js"></script><script>
+const plan={"styleId":"style-102","selectedReferenceIds":[],"rationale":"The mandala is a single group (actor-2) that holds the outer ring, 8 mirrored sectors and the centre. Its bounding box is centred exactly on the shared centre (860,360). Animating the sectors one by one would scale or rotate each around its own centre and break the symmetry. So the whole mandala group is the one owner of the motion: it turns in from -15° (a third of a 45° sector period) and scales up from 0.8 around the fixed centre. This keeps all 8 reflections in sync and the centre never jumps. Text sits outside the repeated sectors, so the headline and its italic follow-up lines slide in from the left in a stagger after the pattern lands. The two small labels stay still. Neither the vortex passage nor the chapter handoff is supported by this single-scene pattern, so no reference is used.","tracks":[{"actorId":"demo-actor-2","role":"Whole kaleidoscope turns and expands into place around its fixed centre","action":"reveal","start":0,"duration":0.8,"ease":"power2.inOut","pose":{"x":0,"y":0,"scale":0.8,"rotation":-15,"opacity":0}},{"actorId":"demo-actor-16","role":"Headline 'An idea' slides in","action":"reveal","start":0.75,"duration":0.5,"ease":"power2.inOut","pose":{"x":-32,"y":0,"scale":1,"rotation":0,"opacity":0}},{"actorId":"demo-actor-17","role":"'becomes a' follows","action":"reveal","start":1.05,"duration":0.5,"ease":"power2.inOut","pose":{"x":-28,"y":0,"scale":1,"rotation":0,"opacity":0}},{"actorId":"demo-actor-18","role":"'connected system' completes the line","action":"reveal","start":1.3,"duration":0.5,"ease":"power2.inOut","pose":{"x":-28,"y":0,"scale":1,"rotation":0,"opacity":0}}]};
+const svg=document.querySelector('svg');
+const foreground="#F4E8D4";
+const background="#201D32";
+const seenText=new Map();
+Array.from(svg.querySelectorAll('text')).forEach(el=>{
+ const label=el.textContent.trim();const prior=seenText.get(label);
+ if(prior && Math.abs(Number(prior.getAttribute('x'))-Number(el.getAttribute('x')))<12 && Math.abs(Number(prior.getAttribute('y'))-Number(el.getAttribute('y')))<12) {
+  const selected=typeof plan!=='undefined' && plan.tracks.some(track=>track.actorId===prior.getAttribute('data-demo-actor'));
+  if(selected){el.remove();return;}
+  prior.remove();
+ }
+ seenText.set(label,el);
+ // Preserve authored baselines. Tight headline leading can overlap font em-boxes
+ // without overlapping visible glyphs; annotate only baseline gaps of at least one em.
+ const fontSize=Number(getComputedStyle(el).fontSize.replace('px',''));
+ const fill=getComputedStyle(el).fill;
+ if(fontSize<24 && chroma.valid(fill) && chroma(fill).hex()!==chroma(background).hex() && chroma.contrast(fill,background)<4.5){el.setAttribute('fill',foreground);el.setAttribute('opacity','1');el.setAttribute('fill-opacity','1');}
+ if(fontSize>=36){
+  for(const sibling of Array.from(el.parentElement.querySelectorAll(':scope > text'))){
+   if(sibling===el)continue;
+   const gap=Math.abs(Number(sibling.getAttribute('y'))-Number(el.getAttribute('y')));
+   if(gap>=fontSize && gap<=fontSize*1.3 && Math.abs(Number(sibling.getAttribute('x'))-Number(el.getAttribute('x')))<12){el.setAttribute('data-layout-allow-overlap','true');sibling.setAttribute('data-layout-allow-overlap','true');}
+  }
+ }
+ // Outlined display lettering needs a readable fill as well as its decorative outline.
+ if(el.getAttribute('stroke') && el.getAttribute('stroke')!=='none') {el.setAttribute('fill',foreground);el.setAttribute('stroke',background);}
+});
+
+const timeline=gsap.timeline({paused:true});
+const chosen=plan.tracks.map(track=>({track,element:document.querySelector('[data-demo-actor="'+track.actorId+'"]')}));
+if(chosen.some(item=>!item.element))throw Error('Motion references an absent actor');
+for(const item of chosen){
+ if(chosen.some(other=>other!==item&&other.element.contains(item.element)))throw Error('Nested motion actors would double-transform artwork');
+ const el=item.element;
+ if(el.tagName==='rect' && Number(el.getAttribute('width'))>=1200 && Number(el.getAttribute('height'))>=650)throw Error('Background cannot be a motion actor');
+ const wrapper=document.createElementNS('http://www.w3.org/2000/svg','g');
+ el.parentNode.insertBefore(wrapper,el);wrapper.appendChild(el);
+ wrapper.setAttribute('data-demo-motion',item.track.actorId);
+ // Animate a neutral wrapper, never overwrite the artwork's authored matrix.
+ gsap.set(wrapper,{transformOrigin:'50% 50%'});
+ if(item.track.action==='reveal'){
+   gsap.set(wrapper,item.track.pose);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:item.track.ease},item.track.start);
+ }else if(item.track.action==='draw'){
+   const paths=Array.from(el.matches('path,line,polyline,polygon')?[el]:el.querySelectorAll('path,line,polyline,polygon'));
+   const drawable=paths.filter(p=>getComputedStyle(p).fill==='none' && getComputedStyle(p).stroke!=='none' && typeof p.getTotalLength==='function');
+   if(!drawable.length)throw Error('Draw action needs visible unfilled stroked paths');
+   for(const path of drawable){const length=path.getTotalLength();gsap.set(path,{strokeDasharray:length,strokeDashoffset:length});timeline.to(path,{strokeDashoffset:0,duration:item.track.duration,ease:item.track.ease},item.track.start);}
+ }else{
+   timeline.to(wrapper,{...item.track.pose,duration:item.track.duration,ease:item.track.ease},item.track.start);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:'sine.inOut'},Math.min(2.7-item.track.duration,item.track.start+item.track.duration+.2));
+ }
+}
+timeline.to({}, {duration:.001},2.999);window.__timelines={video:timeline};
+</script></body></html>

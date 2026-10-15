@@ -1,0 +1,227 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Halftone Printing — an idea becomes a connected system</title>
+<style>
+  @font-face{font-family:"PrintDisplay";src:local("Impact"),local("Impact Regular"),local("Haettenschweiler"),local("Arial Narrow Bold"),local("ArialNarrow-Bold");font-weight:700;font-style:normal}
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#253E56}
+  #root{position:relative;width:100%;height:100%;overflow:hidden;background:#253E56}
+  #print{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+  .type{position:absolute;left:0;width:100%;text-align:center;margin:0;
+    font-family:"PrintDisplay","Helvetica Neue",Arial,sans-serif;
+    font-weight:700;text-transform:uppercase}
+  #headline{top:5.2%;font-size:72px;line-height:86px;letter-spacing:2px;color:#F8EFD9}
+  #captionBar{position:absolute;left:20.3125%;top:87.2%;width:59.375%;height:58px;background:#F8EFD9;transform-origin:50% 50%}
+  #caption{position:absolute;left:0;top:0;width:100%;height:58px;line-height:58px;text-align:center;font-size:27px;letter-spacing:2px;white-space:nowrap;color:#253E56;
+    font-family:"PrintDisplay","Helvetica Neue",Arial,sans-serif;font-weight:700}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="print" width="1280" height="720" aria-label="Halftone print of a red idea sphere linking to four dotted nodes"></canvas>
+  <h1 id="headline" class="type">ONE IDEA. FOUR LINKS.</h1>
+  <div id="captionBar"><div id="caption" data-reveal-after="captionBar">AN IDEA BECOMES A CONNECTED SYSTEM</div></div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  // ---- Resolved scene palette (three discrete inks, no gradients) ----
+  // Polarity flip learned from the reviewed source frames: the dark key ink becomes
+  // the full-bleed printed ground; the paper token becomes the light ink/paper planes;
+  // red stays the single spot ink reserved for the idea.
+  const INK = { ground:'#253E56', paper:'#F8EFD9', spot:'#C25143' };
+  if(!Object.values(INK).every(c=>chroma.valid(c))) throw Error('Invalid palette token');
+  // Text pairs used: paper on navy (headline) and navy on paper (caption bar), both 9.6:1.
+  const textContrast = Math.min(chroma.contrast(INK.paper,INK.ground), chroma.contrast(INK.ground,INK.paper));
+  if(textContrast < 4.5) throw Error('Text contrast below target');
+
+  const W=1280,H=720;
+  const cv=document.getElementById('print');
+  const ctx=cv.getContext('2d');
+
+  // ---- Scene geometry (from ILLUSTRATION composition) ----
+  const HUB={x:640,y:385,r:165};
+  const NODES=[{x:200,y:220},{x:1080,y:220},{x:1080,y:540},{x:200,y:540}].map(n=>({...n,r:70}));
+  const LINKS=NODES.map(n=>{
+    const dx=n.x-HUB.x, dy=n.y-HUB.y, d=Math.hypot(dx,dy), ux=dx/d, uy=dy/d;
+    return {x0:HUB.x+ux*(HUB.r+6), y0:HUB.y+uy*(HUB.r+6), x1:n.x-ux*(n.r+6), y1:n.y-uy*(n.r+6)};
+  });
+
+  // ---- Fixed halftone screens: pitch, angle and local coordinates never change ----
+  function buildScreen(pitch, angleDeg, bounds){
+    const a=angleDeg*Math.PI/180, c=Math.cos(a), s=Math.sin(a);
+    const pts=[]; const cx=W/2, cy=H/2; const R=Math.hypot(W,H)/2+pitch;
+    const n=Math.ceil(R/pitch);
+    for(let i=-n;i<=n;i++)for(let j=-n;j<=n;j++){
+      const x=cx+(i*c-j*s)*pitch, y=cy+(i*s+j*c)*pitch;
+      if(x<bounds.x0||x>bounds.x1||y<bounds.y0||y>bounds.y1)continue;
+      pts.push(x,y);
+    }
+    return {pitch, pts:new Float32Array(pts)};
+  }
+  const full={x0:-8,y0:-8,x1:W+8,y1:H+8};
+  const hubBox={x0:HUB.x-HUB.r-12,y0:HUB.y-HUB.r-12,x1:HUB.x+HUB.r+12,y1:HUB.y+HUB.r+12};
+  const SCREEN_SPOT  = buildScreen(10, 15, hubBox);   // red separation, 15°
+  const SCREEN_HI    = buildScreen(8, 45, hubBox);    // paper highlight separation, 45°
+  const SCREEN_PAPER = buildScreen(10, 45, full);     // paper-ink separation (nodes, halo, floor), 45°
+  const SCREEN_GRAIN = buildScreen(4, 0, full);       // stationary stock grain
+
+  const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+  const smooth=(e0,e1,v)=>{const t=clamp((v-e0)/(e1-e0),0,1);return t*t*(3-2*t);};
+
+  // Sphere luminance (Lambert) from a seekable light direction.
+  function sphereLum(px,py,cx,cy,r,L){
+    const nx=(px-cx)/r, ny=(py-cy)/r, q=nx*nx+ny*ny;
+    if(q>=1) return -1;
+    const nz=Math.sqrt(1-q);
+    return Math.max(0, nx*L[0]+ny*L[1]+nz*L[2]);
+  }
+  function lightVec(t){ // t: 0 = frontal flat light, 1 = raking upper-left key
+    const lx=-0.62*t, ly=-0.58*t, lz=1-0.45*t, m=Math.hypot(lx,ly,lz);
+    return [lx/m,ly/m,lz/m];
+  }
+
+  // Dot radius from ink coverage (area-proportional).
+  function dotR(cov,pitch){ return cov<=0.02?0:Math.sqrt(clamp(cov,0,1)/Math.PI)*pitch*1.12; }
+
+  // Static base layer: ground, grain and halftone floor band (never animated).
+  const base=document.createElement('canvas'); base.width=W; base.height=H;
+  (function paintBase(){
+    const b=base.getContext('2d');
+    b.fillStyle=INK.ground; b.fillRect(0,0,W,H);
+    // deterministic stock grain: hashed per fixed cell, no Math.random
+    b.fillStyle=INK.paper; b.globalAlpha=0.07; b.beginPath();
+    const g=SCREEN_GRAIN.pts;
+    for(let k=0;k<g.length;k+=2){
+      const h=Math.sin((g[k]*12.9898+g[k+1]*78.233))*43758.5453; const f=h-Math.floor(h);
+      if(f>0.55){ b.moveTo(g[k]+0.7,g[k+1]); b.arc(g[k],g[k+1],0.7,0,Math.PI*2); }
+    }
+    b.fill(); b.globalAlpha=1;
+    // printed floor band: paper-ink dot density rising toward the bottom edge
+    b.fillStyle=INK.paper; b.beginPath();
+    const p=SCREEN_PAPER.pts;
+    for(let k=0;k<p.length;k+=2){
+      const y=p[k+1]; const cov=0.30*smooth(560,720,y);
+      const r=dotR(cov,SCREEN_PAPER.pitch); if(r<=0)continue;
+      b.moveTo(p[k]+r,y); b.arc(p[k],y,r,0,Math.PI*2);
+    }
+    b.globalAlpha=0.55; b.fill(); b.globalAlpha=1;
+  })();
+
+  // ---- Seekable state: owned exclusively by the GSAP timeline ----
+  const S={hub:0, light:0, halo:0, l0:0,l1:0,l2:0,l3:0, n0:0,n1:0,n2:0,n3:0};
+
+  function render(){
+    ctx.drawImage(base,0,0);
+    const L=lightVec(S.light);
+
+    // Halo: paper-ink radial screen behind the idea (mask radius grows; dots fixed)
+    if(S.halo>0.001){
+      ctx.fillStyle=INK.paper; ctx.globalAlpha=0.5; ctx.beginPath();
+      const p=SCREEN_PAPER.pts, reach=HUB.r+95*S.halo;
+      for(let k=0;k<p.length;k+=2){
+        const x=p[k],y=p[k+1]; const d=Math.hypot(x-HUB.x,y-HUB.y);
+        if(d<HUB.r+4||d>reach+12)continue;
+        const cov=0.34*(1-smooth(HUB.r,HUB.r+95,d))*(1-smooth(reach-14,reach+10,d))*S.halo;
+        const r=dotR(cov,SCREEN_PAPER.pitch); if(r<=0)continue;
+        ctx.moveTo(x+r,y); ctx.arc(x,y,r,0,Math.PI*2);
+      }
+      ctx.fill(); ctx.globalAlpha=1;
+    }
+
+    // Links: solid paper-ink rules drawn outward from the hub (no arrowheads)
+    ctx.strokeStyle=INK.paper; ctx.lineWidth=8; ctx.lineCap='butt';
+    LINKS.forEach((ln,i)=>{
+      const t=S['l'+i]; if(t<=0.001)return;
+      ctx.beginPath(); ctx.moveTo(ln.x0,ln.y0);
+      ctx.lineTo(ln.x0+(ln.x1-ln.x0)*t, ln.y0+(ln.y1-ln.y0)*t); ctx.stroke();
+    });
+
+    // Hub: red separation from sphere luminance (dark side = heavy coverage)
+    if(S.hub>0.001){
+      const mask=HUB.r*S.hub;
+      ctx.fillStyle=INK.spot; ctx.beginPath();
+      const p=SCREEN_SPOT.pts;
+      for(let k=0;k<p.length;k+=2){
+        const x=p[k],y=p[k+1]; const d=Math.hypot(x-HUB.x,y-HUB.y);
+        if(d>mask+6)continue;
+        const lum=sphereLum(x,y,HUB.x,HUB.y,HUB.r,L); if(lum<0)continue;
+        const cov=(0.18+0.82*Math.pow(1-lum,0.8))*(1-smooth(mask-16,mask+6,d))*1.0;
+        const r=Math.min(dotR(cov,SCREEN_SPOT.pitch), HUB.r-d+1); if(r<=0)continue;
+        ctx.moveTo(x+r,y); ctx.arc(x,y,r,0,Math.PI*2);
+      }
+      ctx.fill();
+      // paper highlight separation at a different fixed angle
+      ctx.fillStyle=INK.paper; ctx.beginPath();
+      const h=SCREEN_HI.pts;
+      for(let k=0;k<h.length;k+=2){
+        const x=h[k],y=h[k+1]; const d=Math.hypot(x-HUB.x,y-HUB.y);
+        if(d>mask)continue;
+        const lum=sphereLum(x,y,HUB.x,HUB.y,HUB.r,L); if(lum<0)continue;
+        const cov=0.62*smooth(0.72,0.98,lum)*(1-smooth(mask-16,mask+4,d));
+        const r=dotR(cov,SCREEN_HI.pitch); if(r<=0)continue;
+        ctx.moveTo(x+r,y); ctx.arc(x,y,r,0,Math.PI*2);
+      }
+      ctx.fill();
+      // outline plate follows the reveal
+      ctx.strokeStyle=INK.paper; ctx.lineWidth=7; ctx.beginPath();
+      ctx.arc(HUB.x,HUB.y,Math.min(mask,HUB.r),0,Math.PI*2); ctx.stroke();
+    }
+
+    // Nodes: paper-ink separation from sphere luminance, radial mask reveal
+    NODES.forEach((n,i)=>{
+      const t=S['n'+i]; if(t<=0.001)return;
+      const mask=n.r*t;
+      ctx.fillStyle=INK.paper; ctx.beginPath();
+      const p=SCREEN_PAPER.pts;
+      for(let k=0;k<p.length;k+=2){
+        const x=p[k],y=p[k+1];
+        if(Math.abs(x-n.x)>n.r+8||Math.abs(y-n.y)>n.r+8)continue;
+        const d=Math.hypot(x-n.x,y-n.y); if(d>mask+4)continue;
+        const lum=sphereLum(x,y,n.x,n.y,n.r,L); if(lum<0)continue;
+        const cov=(0.06+0.5*lum*lum)*(1-smooth(mask-12,mask+4,d));
+        const r=Math.min(dotR(cov,SCREEN_PAPER.pitch), n.r-d-3); if(r<=0)continue;
+        ctx.moveTo(x+r,y); ctx.arc(x,y,r,0,Math.PI*2);
+      }
+      ctx.fill();
+      // outline plate sweeps closed as the node prints
+      const a0=Math.atan2(HUB.y-n.y,HUB.x-n.x);
+      ctx.strokeStyle=INK.paper; ctx.lineWidth=6; ctx.beginPath();
+      ctx.arc(n.x,n.y,n.r,a0,a0+Math.PI*2*clamp(t*1.15,0,1)); ctx.stroke();
+    });
+  }
+
+  // ---- Timeline (sole motion owner) ----
+  const tl=gsap.timeline({paused:true, onUpdate:render});
+  const hl=document.getElementById('headline');
+  const bar=document.getElementById('captionBar');
+  const cap=document.getElementById('caption');
+  gsap.set(hl,{clipPath:'inset(0% 100% 0% 0%)'});
+  gsap.set(bar,{scaleX:0});
+  gsap.set(cap,{opacity:0});
+
+  tl.to(hl,{clipPath:'inset(0% 0% 0% 0%)',duration:0.45,ease:'power2.inOut'},0.1);
+  tl.to(S,{hub:1,duration:0.7,ease:'power3.out'},0.05);
+  tl.to(S,{halo:1,duration:0.6,ease:'sine.inOut'},0.35);
+  tl.to(S,{light:1,duration:0.9,ease:'sine.inOut'},0.45);
+  const order=[0,1,2,3];
+  order.forEach((i,k)=>{
+    const st=0.85+k*0.14;
+    tl.to(S,{['l'+i]:1,duration:0.36,ease:'power2.inOut'},st);
+    tl.to(S,{['n'+i]:1,duration:0.42,ease:'power2.out'},st+0.3);
+  });
+  tl.to(bar,{scaleX:1,duration:0.32,ease:'power2.inOut'},1.45);
+  tl.to(cap,{opacity:1,duration:0.18,ease:'sine.inOut'},1.78);
+  tl.to({}, {duration:0.001}, 2.999);
+
+  render();
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+  // Redraw from shared timeline time on every host seek (direct, backward, out-of-order).
+  window.addEventListener('hf-seek',()=>{ render(); });
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

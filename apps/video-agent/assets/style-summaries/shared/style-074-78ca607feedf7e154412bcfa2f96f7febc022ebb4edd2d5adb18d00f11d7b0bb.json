@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-074",
+    "name": "Y2K Design (Digital and 3D Aesthetics). It is a supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Turn-of-the-millennium digital optimism: chrome type, transparent plastic, rounded devices, early web elements and bright accents. Material rules must stay coherent, and metallic highlights must not overpower the message.",
+    "suitableUses": "Explicitly suited to optimistic brand moments with chrome and plastic. Inferred fit: product introductions and explanatory narratives. Playful teasers and retro app launches need supporting styles.",
+    "limitations": "Explicit: avoid metallic glare obscuring words, avoid glassmorphism blur, and never squash text. Omit glitch cuts for calm editorial scenes. Unspecified: aspect ratio, duration, audience and copy volume.",
+    "palette": "Background is scene-dependent; #E9EDF0 is an illustrative swatch only. Suggested tokens: foreground #293341, accent_1 #7497D0 (decorative only, 4.306:1 with foreground), accent_2 #DB8CBB, accent_3 #A5C365. Exact task colors override these; gradients are disabled.",
+    "motionAndInteraction": "Animate rotations, elastic reveals and interface assembly, keeping deliberate sharp cuts and reading holds. Video motion follows composition time. Explicitly listed references: motion-020, 037, 038, 039 and 040. Motion-012 and 015 are generic, and motion-014 is not listed for this style.",
+    "audio": "Unspecified for this style. Generic direction: choose music, voiceover, effects, ambience or silence from the topic and audience, with no fixed genre, tempo or voice assigned. Silence is valid. Do not claim beat or speech synchronization without inspected audio.",
+    "assetRequirements": "Metallic type and plastic objects need 3D materials and lighting; interface elements need real DOM or SVG. Load local fonts and assets before rendering. Do not invent brand marks or copy; no source assets are supplied with this style.",
+    "combinations": "Y2K alone suits optimistic brand moments. Style-095 adds interface assembly and state transitions: keep chrome to one hero and avoid glassmorphism. Style-106 adds elastic squash for plastic devices: preserve volume, never squash text, and share one timing family.",
+    "productionApproach": "Three.js renders chrome and plastic objects; HTML/CSS and SVG render interface elements. A paused GSAP timeline owns motion, with one owner per property; optional Motion requires verified synchronization. HyperFrames is the default pipeline, and Remotion is used only as a recorded fallback. chroma-js validates colors and composited contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

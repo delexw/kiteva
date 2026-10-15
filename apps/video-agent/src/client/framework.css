@@ -1,0 +1,24 @@
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";
+@source "./";
+@theme inline {
+  --color-background: #ffffff;
+  --color-foreground: #18243b;
+  --color-primary: #3455db;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #eef2fb;
+  --color-secondary-foreground: #18243b;
+  --color-muted: #eef2fb;
+  --color-muted-foreground: #5c6a80;
+  --color-accent: #eef2fb;
+  --color-accent-foreground: #2845b5;
+  --color-border: #dce3f0;
+  --color-input: #dce3f0;
+  --color-ring: #3455db;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #18243b;
+  --color-destructive: #b42318;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}

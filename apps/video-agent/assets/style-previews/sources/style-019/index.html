@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Editorial Design — An idea becomes a connected system</title>
+<style>
+  /* Resolved scene palette (scene_dependent): cool blue-grey drafting stock,
+     deep navy ink, the style's single vermilion accent kept for the spark role. */
+  :root{
+    --page:#E4E9EE; --ink:#1B2838; --accent:#A84235; --wash:#D3DBE3;
+    --serif:Georgia,"Times New Roman",serif;
+    --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:var(--page)}
+  #video{position:relative;width:100%;height:100%;overflow:hidden;background:var(--page)}
+  #stage{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:hidden;background:var(--page);color:var(--ink)}
+  .abs{position:absolute}
+  #paper{left:0;top:0;width:1280px;height:720px}
+  .kicker{font-family:var(--sans);font-size:12px;letter-spacing:3px;line-height:16px;top:56px;white-space:nowrap}
+  .rule{height:0;border-top:1.5px solid var(--ink)}
+  .mask{position:absolute;overflow:hidden}
+  .mask > span{display:block;white-space:nowrap;will-change:transform}
+  .hl{font-family:var(--serif);font-size:66px;line-height:74px;height:78px}
+  .hl em{color:var(--accent);font-style:italic}
+  .body{font-family:var(--sans);font-size:15px;line-height:22px;height:22px}
+  #caption{font-family:var(--serif);font-style:italic;font-size:14px;line-height:20px;height:20px}
+  #accentRule{height:3px;background:var(--accent);width:60px;transform-origin:0 50%}
+  #folio{font-family:var(--serif);font-size:13px;line-height:16px;right:80px;top:654px}
+  #fig{left:0;top:0;width:1280px;height:720px;overflow:visible}
+</style>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+ <div id="stage">
+  <!-- Stationary page: faint drafting grid printed on the stock (never animated). -->
+  <svg id="paper" class="abs" viewBox="0 0 1280 720" aria-hidden="true">
+   <defs>
+    <pattern id="draft" width="24" height="24" patternUnits="userSpaceOnUse">
+     <path d="M24 0H0V24" fill="none" stroke="#1B2838" stroke-width="0.5" opacity="0.07"/>
+    </pattern>
+   </defs>
+   <rect width="1280" height="720" fill="#E4E9EE"/>
+   <rect width="1280" height="720" fill="url(#draft)"/>
+  </svg>
+
+  <div class="abs kicker" style="left:80px">THE SYSTEMS ISSUE</div>
+  <div class="abs kicker" style="right:80px">NO. 19 — AUTUMN</div>
+  <div class="abs rule" style="left:80px;top:86px;width:1120px"></div>
+
+  <!-- Headline column (grid cols 1–6). Lines revealed through their own masks. -->
+  <div id="headline">
+   <div class="mask hl" data-hl="0"><span>An idea</span></div>
+   <div class="mask hl" data-hl="1"><span>becomes a</span></div>
+   <div class="mask hl" data-hl="2"><span><em>connected</em></span></div>
+   <div class="mask hl" data-hl="3"><span>system.</span></div>
+  </div>
+  <div id="accentRule" class="abs"></div>
+
+  <!-- Two body columns (cols 1–3 and 4–6). -->
+  <div id="bodycopy">
+   <div class="mask body" data-col="0"><span>Every network begins</span></div>
+   <div class="mask body" data-col="0"><span>as a single point of</span></div>
+   <div class="mask body" data-col="0"><span>thought, then learns</span></div>
+   <div class="mask body" data-col="0"><span>to reach outward.</span></div>
+   <div class="mask body" data-col="1"><span>Links multiply, the</span></div>
+   <div class="mask body" data-col="1"><span>pattern holds, and the</span></div>
+   <div class="mask body" data-col="1"><span>whole grows larger</span></div>
+   <div class="mask body" data-col="1"><span>than its parts.</span></div>
+  </div>
+
+  <!-- Figure (image grid cols 7–12): panel, links, nodes, hub. -->
+  <svg id="fig" class="abs" viewBox="0 0 1280 720">
+   <defs>
+    <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+     <line x1="0" y1="0" x2="0" y2="7" stroke="#1B2838" stroke-width="1" opacity="0.16"/>
+    </pattern>
+    <clipPath id="panelClip"><circle id="panelClipCircle" cx="934" cy="336" r="0"/></clipPath>
+   </defs>
+   <g id="panel" clip-path="url(#panelClip)">
+    <rect id="panelWash" fill="#D3DBE3"/>
+    <rect id="panelHatch" fill="url(#hatch)"/>
+    <rect id="panelFrame" fill="none" stroke="#1B2838" stroke-width="1"/>
+   </g>
+   <g id="links" fill="none" stroke="#1B2838" stroke-width="2" stroke-linecap="round"></g>
+   <g id="nodes"></g>
+   <circle id="hub" r="22" fill="#A84235"/>
+  </svg>
+
+  <div class="mask abs" id="captionMask" data-reveal-after="panel"><span id="caption">Fig. 1 — From a single spark to a working structure.</span></div>
+
+  <div class="abs rule" style="left:80px;top:640px;width:1120px;border-top-width:0.75px"></div>
+  <div id="folio" class="abs">19</div>
+ </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="motion-utils.js"></script>
+<script>
+(function(){
+ const M = window.EdMotion;              // Motion: easing curves + interpolation (sole motion math owner)
+ const SVGNS = 'http://www.w3.org/2000/svg';
+ const PAL = {page:'#E4E9EE', ink:'#1B2838', accent:'#A84235', wash:'#D3DBE3'};
+ // Validate resolved palette with chroma-js (no recoloring; record ratios).
+ const contrast = {
+  inkOnPage: chroma.contrast(PAL.ink, PAL.page),
+  accentOnPage: chroma.contrast(PAL.accent, PAL.page),
+  inkOnWash: chroma.contrast(PAL.ink, PAL.wash)
+ };
+ document.getElementById('video').dataset.contrast = JSON.stringify(contrast);
+
+ // ---------- Shared grid ----------
+ const G = {margin:80, cols:12, gutter:24, width:1120};
+ G.col = (G.width - G.gutter*(G.cols-1))/G.cols;
+ const colX = i => G.margin + i*(G.col+G.gutter);
+ const spanW = n => n*G.col + (n-1)*G.gutter;
+ const HEAD = {x:colX(0), w:spanW(6), top:118};
+ const BODY = [{x:colX(0), w:spanW(3)}, {x:colX(3), w:spanW(3)}];
+ const FIG  = {x:colX(6), w:spanW(6), y:118, h:432};
+
+ // ---------- Measure actual fonts ----------
+ const ctx = document.createElement('canvas').getContext('2d');
+ function measure(el){
+  const cs = getComputedStyle(el);
+  ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  return ctx.measureText(el.textContent).width;
+ }
+ const hlMasks = Array.from(document.querySelectorAll('.hl'));
+ let hlSize = 66;
+ const widest = Math.max(...hlMasks.map(m => measure(m.firstElementChild.firstElementChild || m.firstElementChild)));
+ if (widest > HEAD.w) hlSize = Math.floor(66 * HEAD.w / widest);
+ const hlLead = Math.round(hlSize*1.1);
+ hlMasks.forEach((m,i)=>{
+  m.style.fontSize = hlSize+'px'; m.style.lineHeight = hlLead+'px'; m.style.height = (hlLead+8)+'px';
+  m.style.left = HEAD.x+'px'; m.style.top = (HEAD.top + i*hlLead)+'px'; m.style.width = HEAD.w+'px';
+ });
+ const headBottom = HEAD.top + hlMasks.length*hlLead + 8;
+ const rule = document.getElementById('accentRule');
+ rule.style.left = HEAD.x+'px'; rule.style.top = (headBottom+16)+'px';
+
+ const bodyMasks = Array.from(document.querySelectorAll('.body'));
+ const bodyTop = headBottom + 44;
+ const rows = [0,0];
+ bodyMasks.forEach(m=>{
+  const c = Number(m.dataset.col), w = measure(m.firstElementChild);
+  if (w > BODY[c].w) m.firstElementChild.style.fontSize = Math.floor(15*BODY[c].w/w)+'px';
+  m.style.left = BODY[c].x+'px'; m.style.width = BODY[c].w+'px';
+  m.style.top = (bodyTop + rows[c]*22)+'px'; m.dataset.row = rows[c]++;
+ });
+
+ // Figure geometry on the image grid.
+ const HUB = {x: FIG.x + FIG.w/2, y: FIG.y + FIG.h*0.48};
+ [['panelWash'],['panelHatch'],['panelFrame']].forEach(([id])=>{
+  const r = document.getElementById(id);
+  r.setAttribute('x',FIG.x); r.setAttribute('y',FIG.y); r.setAttribute('width',FIG.w); r.setAttribute('height',FIG.h);
+ });
+ const clipC = document.getElementById('panelClipCircle');
+ clipC.setAttribute('cx',HUB.x); clipC.setAttribute('cy',HUB.y);
+ const clipMax = Math.hypot(Math.max(HUB.x-FIG.x, FIG.x+FIG.w-HUB.x)+2, Math.max(HUB.y-FIG.y, FIG.y+FIG.h-HUB.y)+2);
+ const capMask = document.getElementById('captionMask');
+ capMask.style.left = FIG.x+'px'; capMask.style.top = (FIG.y+FIG.h+14)+'px'; capMask.style.width = FIG.w+'px'; capMask.style.height='22px';
+
+ const NODE_OFF = [[0,-160],[-160,-118],[164,-128],[-196,8],[196,8],[-128,132],[152,140]];
+ const nodes = NODE_OFF.map(([dx,dy]) => ({x:HUB.x+dx, y:HUB.y+dy}));
+ const linksG = document.getElementById('links'), nodesG = document.getElementById('nodes');
+ function mkLine(pts){
+  const p = document.createElementNS(SVGNS,'polyline');
+  p.setAttribute('points', pts.map(q=>q.x+','+q.y).join(' '));
+  p.setAttribute('pathLength','1'); p.setAttribute('stroke-dasharray','1 1'); p.setAttribute('stroke-dashoffset','1');
+  linksG.appendChild(p); return p;
+ }
+ const spokes = nodes.map(n => mkLine([HUB, n]));
+ const rim = [mkLine([nodes[1], nodes[0], nodes[2]]), mkLine([nodes[5], nodes[6]]), mkLine([nodes[3], nodes[5]]), mkLine([nodes[4], nodes[6]])];
+ const nodeEls = nodes.map(n=>{
+  const c = document.createElementNS(SVGNS,'circle');
+  c.setAttribute('r','9'); c.setAttribute('fill',PAL.page); c.setAttribute('stroke',PAL.ink); c.setAttribute('stroke-width','2');
+  c.setAttribute('cx',n.x); c.setAttribute('cy',n.y); nodesG.appendChild(c); return c;
+ });
+ const hub = document.getElementById('hub');
+ const START = {x:640, y:372};   // the lone idea, centered on the empty spread
+
+ // ---------- Timing (seconds) ----------
+ const T = {
+  spark:[0.08,0.42], travel:[0.40,1.08], panel:[0.46,1.10],
+  hl:{start:0.50, step:0.10, dur:0.46},
+  spokes:{start:1.10, step:0.06, dur:0.34}, node:0.12,
+  rim:{start:1.62, step:0.08, dur:0.30},
+  rule:[1.50,1.78], body:{start:1.62, step:0.045, dur:0.32, colLag:0.14},
+  caption:[2.12,2.44]
+ };
+ const easeIO = M.cubicBezier(0.65,0,0.35,1);   // grouped travel / masks
+ const easeOut = M.cubicBezier(0.22,1,0.36,1);  // line reveals settle
+ const easeDraw = M.cubicBezier(0.45,0,0.25,1);
+ const seg = (t,a,b,e) => { const p = M.clamp(0,1,M.progress(a,b,t)); return e ? e(p) : p; };
+ const fmt = v => Math.round(v*100)/100;
+
+ function render(t){
+  // Spark appears, then the grouped reflow carries it to the figure hub.
+  const s = seg(t, T.spark[0], T.spark[1], M.backOut);
+  const tr = seg(t, T.travel[0], T.travel[1], easeIO);
+  const hx = M.mix(START.x, HUB.x, tr), hy = M.mix(START.y, HUB.y, tr);
+  const hr = M.mix(30, 22, tr) * Math.max(0, s);
+  hub.setAttribute('cx', fmt(hx)); hub.setAttribute('cy', fmt(hy)); hub.setAttribute('r', fmt(Math.max(0,hr)));
+  hub.setAttribute('opacity', t < T.spark[0] ? 0 : 1);
+  // Figure panel opens as a circular mask from the hub outward.
+  clipC.setAttribute('r', fmt(clipMax * seg(t, T.panel[0], T.panel[1], easeIO)));
+  // Headline lines rise through masks in reading order.
+  hlMasks.forEach((m,i)=>{
+   const a = T.hl.start + i*T.hl.step, p = seg(t, a, a+T.hl.dur, easeOut);
+   m.firstElementChild.style.transform = `translate3d(0,${fmt((1-p)*105)}%,0)`;
+  });
+  // Spokes draw outward; each node appears only after its spoke reaches it.
+  spokes.forEach((sp,i)=>{
+   const a = T.spokes.start + i*T.spokes.step, p = seg(t, a, a+T.spokes.dur, easeDraw);
+   sp.setAttribute('stroke-dashoffset', fmt(1-p)); sp.setAttribute('opacity', p>0 ? 1 : 0);
+   const np = seg(t, a+T.spokes.dur, a+T.spokes.dur+T.node, easeOut);
+   nodeEls[i].setAttribute('r', fmt(9*np)); nodeEls[i].setAttribute('opacity', np>0 ? 1 : 0);
+  });
+  rim.forEach((r,i)=>{
+   const a = T.rim.start + i*T.rim.step, p = seg(t, a, a+T.rim.dur, easeDraw);
+   r.setAttribute('stroke-dashoffset', fmt(1-p)); r.setAttribute('opacity', p>0 ? 1 : 0);
+  });
+  rule.style.transform = `scaleX(${fmt(seg(t, T.rule[0], T.rule[1], easeIO))})`;
+  bodyMasks.forEach(m=>{
+   const c = Number(m.dataset.col), r = Number(m.dataset.row);
+   const a = T.body.start + c*T.body.colLag + r*T.body.step, p = seg(t, a, a+T.body.dur, easeOut);
+   m.firstElementChild.style.transform = `translate3d(0,${fmt((1-p)*110)}%,0)`;
+  });
+  // Caption belongs to the figure: hidden until the panel mask is complete.
+  const cp = t >= T.panel[1] ? seg(t, T.caption[0], T.caption[1], easeOut) : 0;
+  capMask.firstElementChild.style.transform = `translate3d(0,${fmt((1-cp)*110)}%,0)`;
+ }
+
+ // ---------- One paused GSAP timeline owns composition time ----------
+ const clock = {t:0};
+ const tl = gsap.timeline({paused:true, onUpdate:()=>render(tl.time())});
+ tl.to(clock, {t:3, duration:3, ease:'none', onUpdate:()=>render(clock.t)}, 0);
+ window.__timelines = window.__timelines || {};
+ window.__timelines.video = tl;
+ window.addEventListener('hf-seek', e => {
+  const time = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : tl.time();
+  render(Math.max(0, Math.min(3, time)));
+ });
+ render(0);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

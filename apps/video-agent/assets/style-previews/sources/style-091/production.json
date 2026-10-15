@@ -1,0 +1,27 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Rigged Idea",
+  "displayDescription": "A rigged character swings its arm up and points as a glowing node network assembles on a twilight storybook stage.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (inline, hand-authored rig hierarchy)"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline (window.__timelines.video)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent; no audio track.",
+  "limitations": [
+    "Flat 2D SVG puppet rig. Light effects are translucent cream overlays, not physical lighting.",
+    "The paper grain is a static seeded feTurbulence overlay, an approximation of a painted texture.",
+    "Background colours (#162430, #1C2F3C, #25404D, #1F3644, #1A2C2F) are a new scene-dependent twilight state; the character, node and lettering keep the approved tokens #2C4249, #7A9A91, #C7876F and #F4EDDF.",
+    "Rim light (cream stroke at 50% opacity) was added behind the ink legs so they separate from the dark sky.",
+    "PixiJS, Rough.js and Motion are installed but were not needed; Blender was not used, as instructed.",
+    "Not rendered or browser-tested by the agent."
+  ]
+}

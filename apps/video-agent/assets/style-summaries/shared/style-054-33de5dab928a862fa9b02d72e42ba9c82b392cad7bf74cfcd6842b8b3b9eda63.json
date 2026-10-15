@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-054",
+    "name": "Photocopy Art / Zine Design. Supplemental design reference in the Printmaking and Craft Materials category. The source does not name it as a directly named style.",
+    "visualIdentity": "Explicit cues: high-contrast photographs, photocopy grain, cutout headlines, tape or staples, and irregular page layouts. Keep one information center, use monochrome with an optional accent, and keep grain and torn edges fixed.",
+    "suitableUses": "Explicit best-fit uses: activist explainers, DIY guides, community announcements, band promos, lyric zines, and music event recaps. Inferred suitability: raw page collages and zine-style explainers with one focal point. Supporting styles are optional.",
+    "limitations": "The renderer stack is empty, so assets must be preprocessed, for example with Pillow, and composited in the chosen framework. Two-color contrast checks do not verify text over grain, textures, or video. Grain must not be reseeded. Unspecified: fonts, page sizes, and aspect ratios.",
+    "palette": "Background policy is scene_dependent, and the palette is a style-compatible suggestion rather than approved exact colors. Suggested tokens: background #FFFFFF, foreground #000000, and optional accent_1 #BF3232; omit the accent for fully monochrome. Black on white is 21:1 and accent on white is 5.649:1. Gradients are disabled. Task or approved colors override these tokens.",
+    "motionAndInteraction": "Explicit cues: animate page changes, pasting, and recomposition while keeping lettering readable. Optional motion references are motion-007, 008, 012, and 015 for layout or narrative, plus motion-037, 038, and 040 for headline dispersal, punctuation crops, and designed cuts. Choose none when a reference does not fit the scene. Web delivery may use scroll; video uses composition time.",
+    "audio": "No audio is specified for this style, and audio is optional. Suggested only: a beat-locked paste rhythm from a verified beat table, or restrained ambience or silence. Voiceover and sung vocals are unspecified. Do not infer beats without audio analysis, and do not trigger sound for every paste.",
+    "assetRequirements": "Assets must be supplied or created: high-contrast photographs or imagery, cut headline lettering, torn-edge and grain textures, and tape or staple elements. Preprocessing is required, with Pillow in Python or Sharp in Node.js. Source assets and exact copy are unspecified in the input.",
+    "combinations": "Photocopy/Zine alone suits raw collages. Style-024 may add black or optional red marker arrows and circles at one focal point, with readable body text. Style-105 may add beat-locked paste and page-turn timing with fixed grain and reading holds. Avoid a third ink color, full-frame flashing, and pasting everything at once.",
+    "productionApproach": "Use HyperFrames as the primary render pipeline with data-composition-id, class=\"clip\" timing, and one paused GSAP timeline registered in window.__timelines. Validate and export with its check, snapshot, and render commands. Use Remotion only under the documented fallback condition. The style renderer is not fixed: Canvas 2D, DOM, or SVG are options, with Pillow preprocessing and GSAP as the single motion owner."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-094",
+    "name": "Abstract Motion Graphics, in the Motion Design and Cinematography category. Name and category are explicit, and the provenance is explicit.",
+    "visualIdentity": "Explicitly a continuous system of a few shapes and limited colors, built on deliberate proportions and centers of gravity. Repetition, division, merging and rotation link each state to the next. Unrelated particles or light effects are avoided.",
+    "suitableUses": "Explicit fits in the source include brand idents, loop backgrounds, abstract section transitions and music visuals or event openers. Inferred fits include motion posters and product UI motion. Interactive HTML is suggested only as a morphing SVG motif.",
+    "limitations": "Avoid unrelated particles and light effects, and use glow only when it is tied to the motif. Two-color palette checks do not verify text over video, textures or animated light. Motion-014 proposes glow and emission, which conflicts with this rule. Fluid physics and 3D surface meshing are unsupported by this style.",
+    "palette": "Suggested fallback only, used when no approved palette exists: background #F6F0E2, foreground #283D47, accent_1 #458784, accent_2 #D28456. Foreground on background measures 9.997:1 for normal text. Background on accent_1 measures 3.658 and foreground on accent_2 measures 3.881, so accents are decorative fills only. Gradients are disabled, and task-supplied colors override these tokens.",
+    "motionAndInteraction": "Explicitly, shapes repeat, divide, merge and rotate on varied timing, with each state leading into the next. Video motion must be driven only by seekable composition time. Suggested HTML use is a morphing SVG or Paper.js motif that is scrubbed by timeline and static under reduced motion.",
+    "audio": "Unspecified: no audio or soundtrack was supplied, and none is mandated. Choose per topic from music, voiceover, sung vocals, effects, ambience or silence. If music is used, a precomputed beat map should drive accents, avoiding full-frame flashing, and speech must stay intelligible.",
+    "assetRequirements": "Unspecified: approved assets, exact copy, duration, aspect ratio, resolution and frame rate were not supplied. Needed are the motif geometry and loaded fonts. Inspected punctuation or mark assets are required if Punctuation Zoom or Radial Logo Burst is used.",
+    "combinations": "Strongest as a self-contained shape system. Style-100 adds contour-matched morphs with fixed teal and orange color roles, and crossfades must not pass as morphs. Style-105 adds beat-map timing and returns to the base motif at section ends. Motion-038 and 039 explicitly list this style, while motion-012 and 007 are inferred fits.",
+    "productionApproach": "SVG is the primary style renderer for shapes, masks and stroke drawing, with p5.js or Paper.js optional for procedural or vector geometry. GSAP is the primary motion engine, with Motion, mo.js or Anime.js optional and one owner per animated property. HyperFrames handles assembly and export, and Remotion requires a recorded fallback reason. chroma-js validates colors."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,26 @@
+{
+  "displayTitle": "Infinite Zoom",
+  "displayDescription": "A copper portal idea grows connections, then a spiral camera zooms through two nested worlds (x1 to x9) to a matched loop framing.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (procedural nested-world lens scene with per-level camera matrices)",
+    "HTML/CSS + inline SVG (stationary text, ruler and scale readout layer)"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline (window.__timelines.video)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track, music, sound effects or voice.",
+  "limitations": [
+    "Illustrative procedural 2D scene: depth comes from a log-scale camera transform and value dimming of deeper worlds, not real 3D geometry or physical lighting. The portal glow is a bounded Canvas shadow, not bloom.",
+    "Blender was excluded by user instruction. Three.js and PixiJS were not needed because the self-similar vector worlds render cleanly in Canvas 2D.",
+    "The loop matches World 1's composition after its connections are built, not the t=0 frame where the connections are still drawing.",
+    "Palette is scene-dependent: a dark teal-black lens stage, a blue-grey connection family and a single copper accent for the portal and scale data. These follow the reviewed source lessons (dark value-driven stage, one semantic accent) and copy no source subjects or hues exactly.",
+    "Only sampled reference frames were reviewed. Rendering and browser QA are left to the host."
+  ]
+}

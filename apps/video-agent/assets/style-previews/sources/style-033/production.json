@@ -1,0 +1,26 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Anime Idea",
+  "displayDescription": "Anime character moves from a thinking pose to a close-up spark to raising an idea that draws out into a connected network.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Inline SVG (hand-authored cel character poses, close-up card, network)",
+    "chroma-js (palette token validation)"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline at window.__timelines.video (hard-cut pose sets, scale pops, stroke-dash draws)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent; no audio track.",
+  "limitations": [
+    "Character poses are vector SVG drawings authored in code, not hand-drawn Krita frames. Cel shading is limited to flat shadow shapes.",
+    "The background is one stationary navy/teal stripe field. The source's per-bar background recolor is not shown, so the background stays stationary.",
+    "Not rendered or browser-tested by the agent; host QA is still pending.",
+    "Blender not used, per instruction."
+  ]
+}

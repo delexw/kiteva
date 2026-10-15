@@ -1,0 +1,21 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No soundtrack or voice was created.",
+  "limitations": [
+    "Silent by request.",
+    "I didn't render this or run it in a browser. The host will run all visual and seek QA.",
+    "The face and hand are a simplified graphic manga style drawn in code. They are not at illustrator-level detail."
+  ]
+}

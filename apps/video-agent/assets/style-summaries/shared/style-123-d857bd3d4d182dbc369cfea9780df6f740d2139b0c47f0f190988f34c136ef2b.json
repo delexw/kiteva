@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-123",
+    "name": "Pop-Up Book Animation",
+    "visualIdentity": "Folded paper structures rise from hinged pages with visible tabs, paper thickness, contact shadows and consistent creases. Page mechanics drive the reveal. Category is Printmaking and Craft Materials, so the medium reads as physical paper craft shown as a miniature 3D book.",
+    "suitableUses": "Explicitly suited to briefs needing physical fold construction or a page-mechanics reveal. Inferred: topics where depth and layered structure clarify the subject. Interactive HTML suitability is inferred; source production guidance covers video only. Specific subjects and audiences are unspecified.",
+    "limitations": "True 3D is required because depth, paper thickness and hinge mechanics are defining; flat SVG cutouts would fake it. The procedural curl is artistic, not a physical paper solver. Hinge constraints must be authored per structure, and shadow resolution must be tuned to avoid acne on thin boards. Source evidence is one poster and 1–8 second samples; full-video scene verification is absent.",
+    "palette": "Suggested background #F1E5CE and foreground #342B25 are illustrative scene-dependent suggestions, not approved exact colors. The source names no page or scene color. Warm paper is book material, distinct from any environment background. Opaque contrast is 11.091:1. Gradients are disabled, and no source-measured background was adopted.",
+    "motionAndInteraction": "GSAP owns one page-opening angle θ and the camera dolly on a paused, registered timeline. Transforms are evaluated from θ, so seeks are exact. The preview opens 20° to 180° as a V-fold rises with shadows. The full video adds pages, each with its own θ track. No motion reference is selected. Reduced-motion handling for HTML is unspecified for this style.",
+    "audio": "The source gives no style-specific audio choice. Audio direction is open: background music, voiceover, sound effects, ambience or silence, chosen from topic, audience and motion beats. No fixed genre, tempo or voice is assigned. Honor user audio choices. Real audio must be sourced or created separately; none is specified here.",
+    "assetRequirements": "No mandatory uploads are specified. Page paper textures, printed linework and panel labels are generated in Canvas 2D, with labels living in panel textures. Local fonts and assets must load before rendering, and paper grain must be seeded. Exact copy, subject, duration, aspect ratio and frame rate are unspecified placeholders. Available library IDs and motion candidates are empty.",
+    "combinations": "Suggested supporting style-047 provides physical fold construction while style-123 stays dominant. Do not import its palette or replace the verified background. Keep one geometry, typography and material system. Avoid competing full-scene treatments and unrelated decorative motion. Only this supporting pairing is authored in the source.",
+    "productionApproach": "Style renderer: Three.js with soft surface lighting, using BoxGeometry pages, a seeded CanvasTexture paper, soft key and fill light, PCFSoftShadowMap and an explicit ACES tone map. Motion engine: GSAP plus procedural paper curl. Canvas 2D draws linework; chroma.js is optional for color checks. HyperFrames exports by default, with Remotion only for a recorded verified fallback. Verify seeks, decoded frames and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,87 @@
+{
+  "version": 3,
+  "title": "An Idea, Connected. (Luxury Editorial, night refresh)",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The idea ignites",
+      "startSeconds": 0,
+      "endSeconds": 1.1,
+      "purpose": "Establish the quiet ink-navy stage and show a single idea (the amber hub) and a typed headline starting the system.",
+      "visuals": [
+        "Stationary ink-navy field with a cool steel radial glow behind the diagram and a faint dot grid",
+        "Amber eyebrow 'MAISON · VOLUME XX' fades in",
+        "Amber hub appears; a lighter disc expands from it through a circular mask",
+        "'An Idea,' typed character by character behind an amber caret, which disappears when the line completes",
+        "Five spokes draw outward from the hub; each bone node appears only when its spoke reaches it"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.85,
+          "development": "Eyebrow and hub appear; the headline types out 'An Idea,' with a leading amber caret, and the disc of the system begins to expand.",
+          "captions": ["MAISON · VOLUME XX", "An Idea,"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.85,
+          "endSeconds": 1.1,
+          "development": "The caret is gone, spokes reach their nodes and 'Connected.' begins its masked wipe.",
+          "captions": [],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "The system closes",
+      "startSeconds": 1.1,
+      "endSeconds": 3,
+      "purpose": "Complete the connected system and the editorial lockup, then hold everything settled for reading.",
+      "visuals": [
+        "The steel-to-bone gradient ring draws clockwise from the top node; then the outer steel hairline frame draws",
+        "Amber rule grows from its left anchor; body copy and 'EST. MMXXVI' fade in",
+        "Tracked ring words appear on the inner right arc once the outer frame is complete",
+        "Slow camera push on the diagram and gentle counter-drift on the copy, both settling at 2.6 s"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 1.1,
+          "endSeconds": 2.25,
+          "development": "Ring and outer frame close the system; the rule, body copy, EST line and ambient ring words complete the lockup in order.",
+          "captions": ["Connected.", "One thought, quietly drawn into an enduring system.", "EST. MMXXVI", "FORM · MATERIAL · LIGHT · VOICE · CRAFT"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.25,
+          "endSeconds": 3,
+          "development": "Camera and ring rotation ease to rest by 2.6 s; the whole composition holds still and legible.",
+          "captions": [],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0.75
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Typing at 0.075 s per character fits the brief while keeping the luxury cadence measured.",
+      "Containers are drawn before their labels: the ring words appear only after the outer frame finishes at 1.8 s.",
+      "Everything is settled by 2.6 s, inside the 2.7 s legibility requirement."
+    ],
+    "justifiedHolds": [
+      "2.25–3.0 s: a still hold so the full headline, body copy and system diagram can be read together."
+    ]
+  },
+  "notes": [
+    "Silent preview: no audio was created.",
+    "Palette refreshed from the source-frame review (ink-navy field, steel glow, bone type, amber accent). There is no approved task palette.",
+    "GSAP is the single motion owner; Motion is not used because its seek integration is unverified."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-061",
+    "name": "Photorealism (Digital and 3D Aesthetics category, explicit provenance). Source states it directly; a photoreal look does not prove footage was filmed.",
+    "visualIdentity": "Photoreal rendering with credible scale, roughness, contact shadows, reflections, lighting and depth of field. Objects need weight, plausible acceleration and consistent contact. Avoid floating geometry, unexplained highlights, intersections and excessive blur.",
+    "suitableUses": "Explicit: product hero shots and material studies where plausible light and contact are the whole message. Inferred: launch films and physical-goods pages. Hybrids with thin measured overlays suit technical explainers. Non-physical subjects are unspecified.",
+    "limitations": "The Blender/Cycles full-quality route, with baked simulation, is unavailable and is reported as missing. The browser preview is a bounded Three.js approximation without traced caustics. Renders show simulated appearance, not validated physics. Contrast checks cover two colors only.",
+    "palette": "Background is scene-dependent: choose it from the subject's real environment and light. Example tokens #F0EDE5, #2B302F and #827D6D are unapproved suggestions, and task-supplied colors override them. Foreground on background measures 11.458. Accent #827D6D on background measures 3.517, so it is decorative only. Source reviews favor a quiet background, a materially lit hero and one rare accent. Gradients are disabled.",
+    "motionAndInteraction": "Video uses a paused GSAP timeline for a measured dolly or arc camera and an eased object settle; the 3s preview uses a slow 10° arc with focus pull. Optional patterns: 012 and 015 for chapters or stories, 018 only with real images and captions, and 019 and 021 only with real depth. Orbit the camera, not the subject. Interactive delivery adds scroll or pointer input.",
+    "audio": "Audio is unspecified, and no layer is mandatory. Topic-based options include restrained music, narration or ambience, with silence valid around reading holds and sound accents reserved for key actions. Reference patterns keep previews silent. No audio assets are specified.",
+    "assetRequirements": "No assets are specified. Needs include 3D product or scene models, PBR materials for brushed metal and transmissive glass, and environment lighting; the preview builds its lighting procedurally. Real photographs are not assumed, and font files are unspecified.",
+    "combinations": "Style-097 adds measured SVG callouts over the render, revealed only after camera holds, in #2B302F with #827D6D accents. Style-096 adds motion pacing and one sans-serif type. Avoid glow, UI chrome and rapid cuts. Interactive HTML can scrub frame sequences with keyboard-focusable hotspots and reduced-motion stills.",
+    "productionApproach": "Three.js with PBR materials and postprocessing (ACES, BokehPass, OutputPass) is the style renderer, and GSAP is the motion engine. HyperFrames is the default render pipeline; Remotion is fallback only when HyperFrames is unavailable or a verified limit applies. chroma-js is optional for contrast checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-034",
+    "name": "Rubber Hose Animation, Drawing and Illustration category. The label was normalized from a Cuphead-inspired reference, not an explicitly named source style.",
+    "visualIdentity": "Rounded figures with flexible tube-like limbs, bold silhouettes and expressive poses. Anticipation, arcs and clear reactions keep character identity stable. Avoid arbitrary limb deformation.",
+    "suitableUses": "Character gags and illustrated mascots; looping brand characters with beat-locked timing; retro shorts with intertitles. Rubber hose works well alone for character gags. These uses are inferred from the source; audience and objective are unspecified.",
+    "limitations": "Audio must not be required to understand content. Avoid identical bounces on every object, arbitrary limb stretching and text-heavy cards. Dimensions, aspect ratios and reference numbers are optional examples, not requirements.",
+    "palette": "Background is scene-dependent. The authored #F4ECD9 background and #1C1B18 foreground are illustrative suggestions, not approved exact colors, and none were supplied. Keep one monochrome ink with hatching for tone. Two-color contrast is 14.636:1; verify composited frames.",
+    "motionAndInteraction": "Optional references: motion-006 bounded pupil gaze (needs eye layers or a rig), motion-012 progress-linked chapter handoff, and motion-015 story-step orchestration. None is required. Video follows composition time; pointer or scroll applies only to interactive delivery.",
+    "audio": "No audio is specified, and none was reviewed in the source. Suggested direction: silence or restrained accents on key actions, with music only where poses lock to beats. Voiceover language, tone and sung vocals are unspecified. Speech must stay intelligible.",
+    "assetRequirements": "No uploads or exact copy were supplied, so characters and scenes must derive from the brief. Gaze motion needs separate eye layers or a rig. Load fonts and assets before rendering. The source review covered sampled seconds 1 to 8 only.",
+    "combinations": "style-105 adds beat-keyed poses for music or mascot loops. style-052 adds letterpress intertitles in the black-on-cream system. These are documented suggestions, unverified for any project. Avoid colored inks on cards.",
+    "productionApproach": "HyperFrames is the default for scene assembly, timing, sync and export; Remotion is only under its documented fallback condition. Canvas 2D and SVG draw the style, GSAP owns seekable timing, Motion is optional for DOM or SVG, and chroma.js checks contrast. Verify direct seeks and frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

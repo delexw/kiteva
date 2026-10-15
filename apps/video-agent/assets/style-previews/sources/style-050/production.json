@@ -1,0 +1,28 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Halftone System",
+  "displayDescription": "Navy-ground halftone print: a red idea sphere prints in dots, the light rakes across it, and four links print out to dotted nodes.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D",
+    "Luminance-Based Halftone Shading (procedural Lambert sphere luminance mapped to area-proportional dots on fixed-angle screens)",
+    "HTML/CSS system typography (unhalftoned)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline (window.__timelines.video) — sole owner of scene state, headline clip-path, caption bar scaleX and caption opacity"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No music, voice or sound effects are included.",
+  "limitations": [
+    "Illustrative procedural print simulation: ink overprint, paper stock and dot gain are approximated with flat Canvas 2D fills, not physically modelled.",
+    "Sphere shading is a simple Lambert luminance field used only to drive dot coverage; no real 3D render or photograph is used.",
+    "No preview recipe was supplied (tech.preview_recipes empty), so the refresh demonstrates the reviewed source-frame lessons: polarity-flipped ground and luminance-driven dots on fixed screens.",
+    "Silent: no soundtrack was requested for this preview.",
+    "Typography uses a declared @font-face 'PrintDisplay' mapped to local system fonts (Impact, Haettenschweiler, Arial Narrow Bold), falling back to Helvetica Neue/Arial bold; the caption bar is sized to fit either face."
+  ]
+}

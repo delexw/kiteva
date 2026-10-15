@@ -1,0 +1,216 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>style-081 Traditional Cel Animation: an idea becomes a connected system</title>
+<style>
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#161B35}
+#root{position:relative;width:100%;height:100%;overflow:hidden;background:#161B35}
+#cels{position:absolute;left:0;top:0;width:100%;height:100%}
+#cels canvas{display:block;width:100%;height:100%}
+.hl{position:absolute;left:80px;margin:0;font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:52px;line-height:60px;white-space:nowrap;letter-spacing:0}
+#l1{top:62px;color:#F6EDD8}
+#l2{top:120px;color:#BE795F}
+#cap{position:absolute;right:80px;bottom:28px;margin:0;font-family:"Courier New",Courier,monospace;font-size:14px;line-height:18px;color:#F6EDD8;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <div id="cels"></div>
+  <p class="hl" id="l1">An idea becomes</p>
+  <p class="hl" id="l2">a connected system</p>
+  <p id="cap">BG-01 fixed · CEL-A char · digital cel simulation</p>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="pixi.min.js"></script>
+<script>
+(function(){
+// ---------- resolved scene palette (night rooftop) ----------
+// Approved style tokens keep their roles: ink #263746, cel paint #BE795F, slate #718E9D, light #F6EDD8.
+// Scene-dependent night set bands are flat fills (no gradients), lower in saturation than the character.
+const C={ink:'#263746',skin:'#BE795F',slate:'#718E9D',light:'#F6EDD8',
+  sky0:'#161B35',sky1:'#1F2546',sky2:'#2A3157',city:'#3A4468',ledge:'#4A5674',floor:'#2E3550'};
+for(const k in C){ if(!chroma.valid(C[k])) throw Error('invalid color '+k); C[k]=chroma(C[k]).hex(); }
+if(chroma.contrast(C.skin,C.sky0)<4.5||chroma.contrast(C.light,C.sky0)<4.5||chroma.contrast(C.light,C.floor)<4.5) throw Error('headline/caption pair below 4.5:1');
+
+const BULB={x:470,y:290};
+const NODES=[{x:690,y:210},{x:880,y:250},{x:1030,y:140},{x:790,y:360},{x:1100,y:330}];
+// edges: [fromPoint, toPoint, startFraction, endFraction] of the network drawing progress
+const P=i=>i<0?BULB:NODES[i];
+const EDGES=[[-1,0,0,.3],[0,1,.3,.55],[0,3,.3,.55],[1,2,.55,.8],[3,2,.55,.85],[1,3,.55,.75],[3,4,.55,.8]];
+
+// ---------- shared motion state: GSAP timeline is the single owner of these values ----------
+let dirty=false, renderFn=null;
+const raw={pose:0,bulb:0,glow:0,spark:0,draw:0,n0:0,n1:0,n2:0,n3:0,n4:0};
+const state=new Proxy(raw,{set(t,k,v){t[k]=v;if(!dirty){dirty=true;queueMicrotask(()=>{dirty=false;renderFn&&renderFn();});}return true;}});
+
+const tl=gsap.timeline({paused:true,onUpdate:()=>renderFn&&renderFn()});
+// Headline lettering: hard-edged wipe in drawn steps (fully opaque glyphs, no fades)
+tl.fromTo('#l1',{clipPath:'inset(0% 100% 0% 0%)'},{clipPath:'inset(0% 0% 0% 0%)',duration:.5,ease:'steps(6)'},0.1);
+// Character exposures (distinct drawings swapped, not tweened): think -> anticipation -> eureka -> proud
+tl.set(state,{pose:1},0.6);
+tl.set(state,{pose:2},0.8);
+tl.set(state,{pose:3},1.95);
+// Idea bulb cel and its flat glow cel pop in three drawings
+tl.to(state,{bulb:3,duration:.2,ease:'steps(3)'},0.8);
+tl.to(state,{glow:1,duration:.2,ease:'steps(3)'},0.8);
+tl.set(state,{spark:1},0.8);
+tl.set(state,{spark:0},1.3);
+// Network linework drawn on twos (14 drawings over 0.9s)
+tl.to(state,{draw:1,duration:.9,ease:'steps(14)'},1.0);
+// Node cels pop when their line arrives (3 drawings each)
+[[0,1.27],[1,1.5],[3,1.5],[2,1.73],[4,1.73]].forEach(([i,t])=>tl.to(state,{['n'+i]:3,duration:.2,ease:'steps(3)'},t));
+tl.fromTo('#l2',{clipPath:'inset(0% 100% 0% 0%)'},{clipPath:'inset(0% 0% 0% 0%)',duration:.45,ease:'steps(7)'},2.0);
+tl.to({}, {duration:.001},2.999);
+
+// ---------- PixiJS cel renderer ----------
+const INK4={width:4,color:C.ink,join:'round',cap:'round'};
+function plate(){ // BG-01: fixed background painting, drawn once, never transformed
+  const g=new PIXI.Graphics();
+  g.rect(0,0,1280,240).fill(C.sky0);
+  g.rect(0,240,1280,140).fill(C.sky1);
+  g.rect(0,380,1280,140).fill(C.sky2);
+  g.circle(1180,86,48).fill({color:C.light,alpha:.10});
+  g.circle(1180,86,30).fill(C.light).stroke(INK4);
+  g.circle(1190,80,22).fill(C.sky0);           // flat crescent cut
+  const stars=[[700,40],[760,96],[830,30],[940,70],[990,40],[1080,60],[900,150],[1240,180],[650,300],[1000,230],[1180,250],[560,360],[620,250],[940,330],[1220,380]];
+  for(const [x,y] of stars) g.circle(x,y,2).fill({color:C.light,alpha:.7});
+  // skyline silhouettes (set kept lower in detail than the character)
+  const blds=[[0,430,120],[120,450,90],[560,440,80],[640,410,110],[750,455,70],[820,420,100],[920,445,80],[1000,415,120],[1120,440,70],[1190,425,90]];
+  for(const [x,top,w] of blds){
+    g.rect(x,top,w,520-top).fill(C.city);
+    for(let wy=top+14;wy<505;wy+=22) for(let wx=x+12;wx<x+w-12;wx+=20){
+      if(((wx*7+wy*13)%5)<2) g.rect(wx,wy,8,10).fill({color:C.slate,alpha:.75});
+    }
+  }
+  // water tower
+  g.rect(130,346,80,56).fill(C.city).stroke({width:3,color:C.ink});
+  g.poly([126,346,170,320,214,346]).fill(C.city).stroke({width:3,color:C.ink});
+  g.moveTo(140,402).lineTo(132,452).moveTo(200,402).lineTo(208,452).stroke({width:5,color:C.city});
+  // parapet and roof floor
+  g.rect(0,520,1280,40).fill(C.ledge);
+  g.moveTo(0,521).lineTo(1280,521).stroke({width:3,color:C.ink});
+  g.rect(0,560,1280,160).fill(C.floor);
+  g.moveTo(0,560).lineTo(1280,560).stroke({width:3,color:C.ink});
+  for(const y of [600,648,706]) g.moveTo(0,y).lineTo(1280,y).stroke({width:2,color:C.ink});
+  for(let k=-8;k<=8;k++) g.moveTo(640+k*80,560).lineTo(640+k*170,720).stroke({width:2,color:C.ink});
+  return g;
+}
+function outlinedLimb(g,pts){ // two-pass cel limb: ink outline under paint
+  const draw=()=>{g.moveTo(pts[0],pts[1]).bezierCurveTo(pts[2],pts[3],pts[4],pts[5],pts[6],pts[7]);};
+  draw(); g.stroke({width:13,color:C.ink,cap:'round'});
+  draw(); g.stroke({width:6,color:C.skin,cap:'round'});
+}
+function hand(g,x,y){ g.circle(x,y,9).fill(C.skin).stroke({width:3,color:C.ink}); }
+function bodyHead(g,hx,hy){
+  g.moveTo(330,600).bezierCurveTo(300,510,330,420,400,420).bezierCurveTo(470,420,500,510,470,600).closePath().fill(C.skin);
+  g.moveTo(420,425).bezierCurveTo(460,445,480,515,470,600).lineTo(430,600).bezierCurveTo(450,530,440,470,420,425).closePath().fill({color:C.ink,alpha:.22});
+  g.moveTo(330,600).bezierCurveTo(300,510,330,420,400,420).bezierCurveTo(470,420,500,510,470,600).closePath().stroke(INK4);
+  g.circle(hx,hy,62).fill(C.skin);
+  const dx=hx-390,dy=hy-380;
+  g.moveTo(420+dx,330+dy).bezierCurveTo(450+dx,350+dy,460+dx,390+dy,440+dx,425+dy).bezierCurveTo(420+dx,440+dy,400+dx,440+dy,390+dx,440+dy).bezierCurveTo(430+dx,410+dy,435+dx,360+dy,420+dx,330+dy).closePath().fill({color:C.ink,alpha:.22});
+  g.circle(hx,hy,62).stroke(INK4);
+}
+function pose(id){ // CEL-A: one independently drawn character drawing per pose
+  const g=new PIXI.Graphics();
+  if(id===0){ // thinking
+    const hx=384,hy=382; bodyHead(g,hx,hy);
+    g.circle(hx-15,hy-12,8).fill(C.ink); g.circle(hx+23,hy-12,8).fill(C.ink);
+    g.moveTo(hx-8,hy+26).lineTo(hx+12,hy+22).stroke(INK4);
+    outlinedLimb(g,[445,480,482,462,474,428,440,436]); hand(g,438,436);
+    for(const [x,y,r] of [[452,306,5],[472,286,7],[498,262,9]]) g.circle(x,y,r).fill(C.light).stroke({width:3,color:C.ink});
+  }else if(id===1){ // anticipation squash
+    const hx=390,hy=390; bodyHead(g,hx,hy);
+    g.moveTo(hx-30,hy-16).lineTo(hx-16,hy-9).lineTo(hx-30,hy-2).stroke(INK4);
+    g.moveTo(hx+30,hy-16).lineTo(hx+16,hy-9).lineTo(hx+30,hy-2).stroke(INK4);
+    g.moveTo(hx-10,hy+24).lineTo(hx+10,hy+24).stroke(INK4);
+    outlinedLimb(g,[445,482,472,500,472,530,456,550]); hand(g,456,552);
+  }else if(id===2){ // eureka: arm up holding the idea
+    const hx=392,hy=374; bodyHead(g,hx,hy);
+    for(const ex of [hx-19,hx+21]){ g.circle(ex,hy-10,11).fill(C.ink); g.circle(ex+3,hy-14,3.5).fill(C.light); }
+    g.moveTo(hx-14,hy+20).quadraticCurveTo(hx,hy+42,hx+14,hy+20).closePath().fill(C.ink);
+    outlinedLimb(g,[440,472,462,432,466,372,470,330]); hand(g,470,330);
+  }else{ // proud: presents the connected system
+    const hx=390,hy=378; bodyHead(g,hx,hy);
+    g.moveTo(hx-30,hy-6).quadraticCurveTo(hx-19,hy-20,hx-8,hy-6).stroke(INK4);
+    g.moveTo(hx+10,hy-6).quadraticCurveTo(hx+21,hy-20,hx+32,hy-6).stroke(INK4);
+    g.moveTo(hx-18,hy+16).quadraticCurveTo(hx,hy+40,hx+18,hy+16).closePath().fill(C.ink);
+    outlinedLimb(g,[440,472,462,432,466,372,470,330]); hand(g,470,330);
+    outlinedLimb(g,[338,478,305,470,290,445,282,418]); hand(g,281,414);
+  }
+  return g;
+}
+function bulbCel(){
+  const c=new PIXI.Container(); const g=new PIXI.Graphics();
+  g.roundRect(-12,24,24,18,4).fill(C.slate).stroke({width:3,color:C.ink});
+  g.circle(0,0,30).fill(C.light).stroke(INK4);
+  g.moveTo(-15,0).arc(0,0,15,Math.PI,0,true).closePath().fill(C.skin);
+  c.addChild(g); c.position.set(BULB.x,BULB.y); return c;
+}
+function glowCel(){
+  const c=new PIXI.Container(); const g=new PIXI.Graphics();
+  g.circle(0,0,100).fill({color:C.light,alpha:.14});
+  g.circle(0,0,72).fill({color:C.light,alpha:.16});
+  g.circle(0,0,50).fill({color:C.light,alpha:.22});
+  c.addChild(g); c.position.set(BULB.x,BULB.y); return c;
+}
+function sparkCel(){ // drawn punctuation: radiating ticks and motion arcs (strokes, no blur)
+  const g=new PIXI.Graphics();
+  for(let i=0;i<8;i++){const a=i*Math.PI/4+Math.PI/8;g.moveTo(BULB.x+Math.cos(a)*42,BULB.y+Math.sin(a)*42).lineTo(BULB.x+Math.cos(a)*58,BULB.y+Math.sin(a)*58);}
+  g.stroke({width:4,color:C.light,cap:'round'});
+  g.moveTo(500,476).quadraticCurveTo(522,424,506,372).moveTo(522,500).quadraticCurveTo(548,430,528,366).stroke({width:3,color:C.light,cap:'round'});
+  return g;
+}
+function nodeCel(p){
+  const c=new PIXI.Container(); const g=new PIXI.Graphics();
+  g.circle(0,0,38).fill({color:C.light,alpha:.16});
+  g.circle(0,0,20).fill(C.light);
+  g.moveTo(-17,6).quadraticCurveTo(0,26,17,6).quadraticCurveTo(2,16,-17,6).closePath().fill(C.slate);
+  g.circle(0,0,20).stroke(INK4);
+  c.addChild(g); c.position.set(p.x,p.y); return c;
+}
+const EXPOSE=[0,.55,1.18,1]; // drawing scales for the 3-drawing pop
+
+(async function(){
+  const app=new PIXI.Application();
+  await app.init({width:1280,height:720,resolution:1,antialias:true,autoStart:false,sharedTicker:false,preference:'webgl',preserveDrawingBuffer:true,backgroundColor:C.sky0});
+  app.ticker && app.ticker.stop();
+  document.getElementById('cels').appendChild(app.canvas);
+  const stage=app.stage;
+  const bg=plate(); stage.addChild(bg);
+  const glow=glowCel(); stage.addChild(glow);
+  const lines=new PIXI.Graphics(); stage.addChild(lines);
+  const nodes=NODES.map(p=>{const n=nodeCel(p);stage.addChild(n);return n;});
+  const contact=new PIXI.Graphics(); contact.ellipse(390,612,110,14).fill({color:C.ink,alpha:.45}); stage.addChild(contact);
+  const poses=[0,1,2,3].map(i=>{const p=pose(i);stage.addChild(p);return p;});
+  const spark=sparkCel(); stage.addChild(spark);
+  const bulb=bulbCel(); stage.addChild(bulb);
+
+  renderFn=function(){
+    const s=raw;
+    poses.forEach((p,i)=>p.visible=(i===Math.round(s.pose)));
+    const bq=Math.round(s.bulb); bulb.visible=bq>0; bulb.scale.set(EXPOSE[bq]);
+    glow.visible=s.glow>0; glow.alpha=s.glow; glow.scale.set(.6+.4*s.glow);
+    spark.visible=s.spark>=1;
+    lines.clear();
+    for(const [a,b,st,en] of EDGES){
+      const k=Math.max(0,Math.min(1,(s.draw-st)/(en-st))); if(k<=0) continue;
+      const A=P(a),B=P(b),x=A.x+(B.x-A.x)*k,y=A.y+(B.y-A.y)*k;
+      lines.moveTo(A.x,A.y).lineTo(x,y).stroke({width:11,color:C.slate,alpha:.5,cap:'round'});
+      lines.moveTo(A.x,A.y).lineTo(x,y).stroke({width:4,color:C.light,cap:'round'});
+    }
+    nodes.forEach((n,i)=>{const q=Math.round(s['n'+i]);n.visible=q>0;n.scale.set(EXPOSE[q]);});
+    app.renderer.render(stage);
+  };
+  const onSeek=()=>renderFn();
+  window.addEventListener('hf-seek',onSeek); document.addEventListener('hf-seek',onSeek);
+  tl.progress(1).progress(0); // initialize all tween start states, then return to frame 0
+  renderFn();
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+})();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

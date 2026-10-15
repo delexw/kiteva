@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-122",
+    "name": "Sand-on-Light-Table Animation is a Drawing and Illustration style extracted in the 2026-10-12 repository sync. Provenance is extracted, not a verified scene catalogue entry.",
+    "visualIdentity": "Explicit: a backlit warm light table with dark granular sand silhouettes, scraped negative-space lines and changing sand density. Light passes through gaps rather than lighting a white page. Source stills show granular marks on a glowing field, but no scrape lines or visible backlit gaps.",
+    "suitableUses": "Explicit: suited to shapes that form, thin and get scraped through. Inferred: silhouette or numeral motifs, reveal-and-erase concepts and commemorative or historical themes. Source palette notes call the warm field suitable for historical topics, but this is not a requirement.",
+    "limitations": "Appearance is illustrative granular rendering, not a physics simulation or photographed stop-motion. Grain needs checks for temporal flicker and compression banding. The poster verifies only one reference frame, so scene backgrounds are unverified. Sampled stills cover seconds 1 to 8 only.",
+    "palette": "Background is scene_dependent. #F5E3B5 (light) and #3A291B (sand) are authored suggestions, not approved exact colors, and the background is a lit field, not a flat page. For new subjects, keep one dark grain color and adjust only light temperature and brightness. Text contrast is 10.931:1 on opaque pairs only, so composited frames must be verified. No gradient is enabled.",
+    "motionAndInteraction": "Motion is driven by morph between mask states, scrape-line progress and sand pour radius on a shared timeline. The 3-second preview thins a silhouette, cuts a finger-scrape line, then transitions to the next form. Interaction is unspecified. Restrained motion with deliberate holds is advised. Reduced-motion options are advised for HTML.",
+    "audio": "Audio is unspecified by the style. Inferred options include subtle ambience, grain or scrape sound effects tied to visible actions, and optional music or voiceover depending on the brief. No genre, tempo or voice is fixed. Silence is valid. No audio was reviewed.",
+    "assetRequirements": "No supplied assets are required. Canvas 2D masks, scrape polylines and seeded grain are generated during production. Photographed stop-motion frames are unavailable. Fonts and any supplied artwork must be loaded locally before rendering. Exact copy and subject assets are unspecified.",
+    "combinations": "Optional secondary style-043 may supply granular silhouettes only in supporting roles. The primary background and foreground must remain dominant, and the secondary palette must not be imported. Avoid competing full-scene treatments, accent or subject materials replacing the background, and unrelated decorative motion.",
+    "productionApproach": "Style renderer: Three.js fullscreen ShaderMaterial with GLSL, fed by Canvas 2D masks. Motion engine: GSAP paused timeline updating shader uniforms. Pipeline: HyperFrames by default; Remotion only on a recorded verified reason. chroma.js is optional for contrast checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,42 @@
+# Local experiments and generated project artifacts
+/exports/
+/renders/
+/snapshots/
+/videos/
+/work/
+
+# Keep only the runtime catalogs and historical fixtures required by tests.
+/outputs/*
+!/outputs/video-style-catalog.json
+!/outputs/motion-pattern-catalog.json
+!/outputs/fable-review/
+/outputs/fable-review/*
+!/outputs/fable-review/motion-reference-review/
+/outputs/fable-review/motion-reference-review/*
+!/outputs/fable-review/motion-reference-review/styles-before.json
+!/outputs/fable-review/motion-reference-review/review.json
+!/outputs/word-smash-cuts-review/
+/outputs/word-smash-cuts-review/*
+!/outputs/word-smash-cuts-review/review.json
+
+# Dependencies, builds, local data, credentials, and temporary tooling state
+node_modules/
+dist/
+.data/
+user-data/
+.env
+.env.*
+!.env.example
+.DS_Store
+.claude/
+.codex/
+.cache/
+.vite/
+.idea/
+.vscode/
+.test-results/
+test-results/
+playwright-report/
+coverage/
+*.log
+*.tsbuildinfo

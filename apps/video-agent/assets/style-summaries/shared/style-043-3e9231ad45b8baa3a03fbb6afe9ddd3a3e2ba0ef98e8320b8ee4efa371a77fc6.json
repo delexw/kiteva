@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-043",
+    "name": "Silhouette Illustration, in the Drawing and Illustration category. The label was normalized from an explicit flat black silhouette description.",
+    "visualIdentity": "Explicit: outlines, poses and negative space carry the image, using a limited set of solid colors and clear depth layers. Detail may be omitted when the silhouette still reads. Limbs stay separated and contrast stays sufficient through movement.",
+    "suitableUses": "Explicit: strong alone for symbolic narratives; pairings cite storytelling intros, ambient scenes and title sequences. Inferred: fit for other subjects, such as explanatory content, is unspecified. Motion-039 lists this style as compatible.",
+    "limitations": "Explicit: gradient fills are disabled for this palette, and the style-101 pairing avoids overlapping silhouettes and fast moves. Two-color contrast checks do not verify text over texture, video or animated light. Recheck representative composited frames.",
+    "palette": "Suggested only, not approved: background #F5E9CF, foreground #253442, accent_1 #647F81, three discrete solid tokens with gradients disabled. Foreground on background is 10.579:1, passing normal text. Accent on background is 3.563:1, so it is decorative only. Task-supplied exact colors override these tokens.",
+    "motionAndInteraction": "Explicit: use smooth authored movement where it helps, but keep sharp cuts, impacts, constant-speed sections and reading holds. Do not add springs or bounce automatically. Video follows composition time. Scroll is optional interactive delivery with a reduced-motion fallback.",
+    "audio": "Unspecified: no audio is mandated, and no genre, tempo, voice or sound layer is assigned to this style. Options include music, voiceover, effects, ambience or silence. Keep speech intelligible, do not invent audio assets, and do not claim music synchronization without inspected audio.",
+    "assetRequirements": "Unspecified: no approved artwork, fonts, brand mark or audio is supplied. Needed: filled silhouette contours, pose groups with explicit pivots, and masks. Local fonts and assets must load before rendering. Motion-039 requires inspected approved mark geometry.",
+    "combinations": "Style-101 adds slow depth planes with stable outlines and HTML scroll parallax. Style-093 adds negative-space title typography at a slow rhythm, avoiding type over figures and added accents. Motion-012, motion-015 and motion-039 are optional motion references only.",
+    "productionApproach": "HyperFrames is the primary composition and export pipeline; Remotion is fallback only under a recorded, verified limitation. SVG or Paper.js draws silhouettes, GSAP owns a paused registered timeline, and Motion is optional. Run hyperframes check and snapshot key moments, then render at delivery quality."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

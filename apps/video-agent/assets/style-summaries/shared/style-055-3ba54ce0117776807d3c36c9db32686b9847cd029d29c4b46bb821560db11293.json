@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-055",
+    "name": "Sticker Collage",
+    "visualIdentity": "Cutout stickers sit on paper, notebook pages, or another simple surface. Consistent white borders and light contact shadows anchor each piece; preserve clean cutout edges and a coherent handmade collage feel. The style name is normalized.",
+    "suitableUses": "Explicitly suited to playful arrangements of existing subjects. Inferred fits include kids’ content, casual brands, study notes, travel journals, and onboarding when stickers organize the message. For interactive HTML, stickers can act as accessible buttons.",
+    "limitations": "Keep border width and cutout quality consistent; avoid floating stickers, arbitrary shaking, or excessive annotations. Sketch effects are optional and should not roughen every edge. No canonical palette, fixed audio, or source toolchain is specified.",
+    "palette": "When no approved palette exists, suggested tokens are paper cream #F3EBD9 (background), deep teal #273F49 (foreground), white #FFFFFF (sticker border), coral #D78267, and sage #77A397 (decorative fills). Use discrete colors, no gradient; keep accents subordinate. Coral and sage with deep teal do not meet the stated normal-text contrast target, so place text on a suitable existing backing. Preserve supplied colors and semantic roles.",
+    "motionAndInteraction": "Place, lift or peel, repeat, and slightly rotate sticker layers while keeping their surface contact and shadows. Expand alpha masks for uniform white borders. For video, derive all updates from seekable time; cache or bake stateful motion and verify direct, backward, and repeated seeks. Interactive HTML may use hover/focus lift with accessible labels. Optional shallow 2D settling needs fixed-step cached poses for video; curl is an authored deformation, not physical paper simulation.",
+    "audio": "No fixed audio treatment is specified. Choose music, voice, effects, ambience, or silence for the topic and audience; supplied audio and explicit requirements take priority. Do not assume beats or claim generated audio without an actual asset. Mix and synchronize in the composition pipeline.",
+    "assetRequirements": "Use supplied artwork when available; optional uploads are not required. New stickers need transparent cutouts or alpha masks; borders and light shadows can be generated from masks. SVG suits crisp shapes and masks; Canvas or PixiJS can composite many stickers. Pillow or Node-only Sharp can preprocess assets. Suggested palette colors apply only when no approved colors exist.",
+    "combinations": "Pair with doodle characters (style-025) for expressive sticker subjects, retaining constant white borders, foreground linework, and coral/sage fills. Pair with notebook annotations (style-024) for guided notes; keep arrows on paper, clear of stickers, short, and readable. These are optional combinations, not requirements.",
+    "productionApproach": "Choose SVG, Canvas, or PixiJS for style rendering and a seekable motion layer suited to the action; GSAP is the documented timeline route. Optional Rough.js, mo.js, paper curl, or Matter.js each have stated limits and must remain deterministic for video. HyperFrames owns composition, synchronization, validation, and export; Remotion is a fallback only for verified HyperFrames unavailability or limitation. Keep visual and motion work separate from that pipeline."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

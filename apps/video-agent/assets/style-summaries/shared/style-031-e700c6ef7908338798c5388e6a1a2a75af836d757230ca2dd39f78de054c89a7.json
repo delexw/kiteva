@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-031",
+    "name": "Comic Book Art, category Drawing and Illustration. Provenance is explicit: the source directly names and describes this visual direction.",
+    "visualIdentity": "Explicit comic style built on panel layouts, bold contours, exaggerated poses, speed lines and purposeful sound-effect lettering. Use one coherent drawing and printing language. Elements may cross panel borders, but conflicting comic traditions must not be mixed.",
+    "suitableUses": "Explicit: narrative panels and character action, recommended alone unless panels must carry real data or lettering needs its own motion system. Inferred: comic-native openers, action cutdowns with SFX title lettering, and panel-based explainers. Other audience and topic limits are unspecified.",
+    "limitations": "Explicit: dialogue must stay accurate and readable, and manga marks must not be imposed on unrelated media. Rough.js cannot supply handwriting, authentic ink, halftone, paper texture or character poses. Source review covered only sampled seconds 1–8 of two examples; no audio or later scenes were verified.",
+    "palette": "Background policy is scene_dependent, so choose it from subject, lighting and mood. Illustrative, unapproved tokens: background #FFF2D9, foreground #1C2230, accents #C9403C, #E1B744, #3768A1; gradients are disabled. Foreground on background is 14.35:1, but accent_1 fails body text at 4.43:1. Exact task-provided colors override these tokens.",
+    "motionAndInteraction": "Video motion should run on one paused, seekable GSAP timeline; live pointer or scroll input is unnecessary. Preferred reference is motion-016, a cinematic opening with separate subjects, speed-line accents and punch-in lettering. Optional references are motion-037, -038, -039 and -040; motion-040's label is inconsistent with its name. Motion-006, -012, -013 and -015 need rigs or interactive delivery.",
+    "audio": "Unspecified: no audio was supplied or mandated. A proposed default is silence or restrained impact accents, ink or page sounds, and optional instrumental pacing; genre, tempo and voice are not specified by the style. Never claim beat or speech synchronization without measured audio.",
+    "assetRequirements": "No uploads or exact copy were supplied, so these remain unspecified. Separable layers are needed for subjects, panels, speed lines, lettering and masks, with transparency and consistent dimensions. Inspect the actual illustration before choosing motion references, and do not invent brand marks or copy.",
+    "combinations": "style-097 places inked data charts inside panels using only palette tokens and comic contour weight, avoiding glossy gradients and speed lines on static values. style-093 adds kinetic SFX and caption typography in hand-lettered forms, landing accents on key poses. Avoid mixing manga and Western SFX conventions.",
+    "productionApproach": "SVG layers form the style renderer, with optional PixiJS for many sprites and Rough.js only for deliberate sketch contours. GSAP owns motion; Motion is optional and needs verified seeking. HyperFrames is the primary pipeline (check, snapshot, render); Remotion is a fallback requiring a recorded reason. chroma-js validates contrast on composited frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

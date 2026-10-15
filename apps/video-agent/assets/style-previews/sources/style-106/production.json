@@ -1,0 +1,24 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview with no audio track. Cue sequence, visual only: anticipation 0.0s, launch 0.22s, ball impact 1.08s, rebound landing 1.30s, block launch 1.58s, block impact 2.02s, jelly wobble 2.07–2.54s, connections drawn 2.05–2.6s, hold to 3.0s.",
+  "limitations": [
+    "Demonstrates the soft_body_glass recipe's soft-body half only: contact-aware deformation (pivot at the contact point plus a contact-flattened silhouette), area-preserving squash/stretch/shear, coloured floor glow and a damped jelly settle. Clear-glass transmission (Liquid Glass 069) was not requested and is not shown.",
+    "Analytic shape-key soft-body approximation, not a measured or XPBD physical simulation. Three.js MeshPhysicalMaterial and baked XPBD states are not used in this preview.",
+    "Apparent area of the transform is exactly preserved (rotate · scale(1/s, s) · skewX, each with determinant 1), asserted at 17 sampled seeks. The contact-flattening path morph adds a small, unmeasured area change.",
+    "Gloss, subsurface glow and floor light spill are painted SVG gradients and translucent ellipses, not a lighting model. Specular streaks are rigidly attached to the deforming body layer.",
+    "Flight paths are piecewise parabolas (constant-speed x, power2 y), not integrated gravity. The dotted trail's mask reveal only approximates the ball's arc-length speed.",
+    "Scene-dependent background: a cool icy gray-white studio sweep (#DCE4E4–#EEF2F1 wall, #D8E0DF–#C9D4D3 floor) replaces the earlier cream example, following the reviewed jelly-source lesson of a lighter, less saturated set than the saturated actors. Approved body colours #66978E and #C78461, floor line #32444A and ink text #32444A are kept.",
+    "Not rendered or browser-tested by the agent; host QA is authoritative."
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Painterly System",
+  "displayDescription": "A terracotta idea rises from a hazy dawn lake and grows ink connections to sage nodes, each confirmed by a ripple ring.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js WebGL with custom painterly ShaderMaterials (fallback for Blender/EEVEE, which could not start in this sandbox)",
+    "Seeded Canvas 2D brush texture, generated once"
+  ],
+  "motionEngine": [
+    "Deterministic keyframe functions in src/scene.js evaluated from composition time",
+    "GSAP paused timeline (master clock and DOM copy only)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Blender, bpy and EEVEE/Cycles were the reviewed renderers but could not be used: Blender 5.2.2 crashes during the Metal GPU check (MTLBackend::metal_is_supported) inside the sandbox, even in background mode. The scene is a Three.js WebGL equivalent.",
+    "Painterly look is approximated with stylized shaders: three-band toon shading, a seeded brush texture triplanar-mapped and locked to the surfaces, faceted normals and no specular highlights.",
+    "Cast shadows are analytic projections onto the water plane (soft ellipses and capsules), not shadow maps; there are no shadows on the shore or ridges.",
+    "There are no water reflections. Haze is an exponential distance fog, not volumetric.",
+    "Text is set in the system Georgia font as HTML over the WebGL canvas.",
+    "No rendering or browser QA was run by the agent."
+  ]
+}

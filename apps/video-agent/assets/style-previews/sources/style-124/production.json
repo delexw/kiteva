@@ -1,0 +1,21 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": ["Canvas 2D"],
+  "motionEngine": ["GSAP"],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview: no audio track, music, voiceover or sound effects.",
+  "limitations": [
+    "Tissue paper is a procedural 2D approximation: translucency is source-over alpha compositing (layer globalAlpha 0.55 x per-piece foreground tint), not physical light transmission or scattering.",
+    "Torn edges are seeded value-noise perturbations of authored polygons, cached once as Path2D; no physical tearing or fibre-pull simulation.",
+    "Fibre texture is a seeded offscreen speckle and short-stroke canvas multiplied into each piece; it only darkens (no lighter fibre highlights) and does not respond to light direction.",
+    "No approved tissue hue tokens were supplied, so all tissue colours are alpha tints of #F2EEE1 on #172D3A, and fibre greys are chroma.mix blends of those two tokens. The scene is monochrome blue-grey, not multicoloured tissue.",
+    "Paper folding and curl (procedural_paper_curl) are not implemented; pieces are flat sheets that slide, rotate and scale into place.",
+    "Canvas is a fixed 1280x720 backing store with no devicePixelRatio upscaling.",
+    "Copy is HTML text in system fonts (Avenir Next / Helvetica Neue fallback), so exact rendering depends on the host's fonts. Token contrast is 12.28:1; the subtitle at 0.82 opacity is estimated at about 5.9:1 over the tinted band and has not been measured in rendered frames.",
+    "Not rendered or browser-tested by the agent; host QA pending."
+  ]
+}

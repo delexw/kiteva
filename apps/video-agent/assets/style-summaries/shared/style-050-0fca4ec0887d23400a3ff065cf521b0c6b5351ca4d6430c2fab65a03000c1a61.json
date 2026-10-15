@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-050",
+    "name": "Halftone Printing (Printmaking and Craft Materials). Provenance is explicit: the source directly names and describes this visual direction, so the core visual rules are authored, not inferred.",
+    "visualIdentity": "Tone is expressed through dot size or density, with consistent dot shape, spacing and angle. Halftones combine with limited color separations, clear outlines and paper texture. Dots stay anchored to the artwork during motion, and the pattern is never randomized.",
+    "suitableUses": "Explicitly suited to tonal imagery where the halftone is the content. Inferred from the suggested combinations: editorial feature stories, documentary intros, archival explainers and comic-print product spins. Fit for other topics is unspecified.",
+    "limitations": "Scaling must be inspected for moire and lost text detail, and dot frequency must survive the output resolution. Body copy must not be halftoned, and text should stay crisp and separate from the dot screen. Two-color contrast checks do not verify text over textures or video.",
+    "palette": "These are suggested tokens, not approved colors: background #F8EFD9 (layout base), foreground #253E56 (dark blue), accent_1 #C25143 (red). Gradients are disabled, and inks must stay discrete. Foreground on background measures 9.642, and red on background (4.029) is decorative only. Task-supplied exact colors override these.",
+    "motionAndInteraction": "Dot spacing, angle and local coordinates stay fixed; animate content and masks instead of the dot pattern. Video motion must derive from seekable composition time. Motion references 012, 015 and 037 to 040 are optional candidates, and none is required. Motion-038 enlarges dots by re-rendering, not by bitmap magnification. Motion-040's reference_label names a different reference, so verify its identity before use. Interactive behavior is unspecified.",
+    "audio": "Audio is unspecified by the source, and no fixed music, voice or sound-effect layer is assigned to the style. Any suggestion must be based on topic, audience and storyboard. Music timing must come from inspected audio, since the motion-reference reviews did not verify beat synchronization. Speech must stay intelligible.",
+    "assetRequirements": "Source artwork is needed so halftone separations can be generated from its luminance. Approved exact colors or brand palettes should be supplied; otherwise the suggested tokens apply. Motion references require actual scene subjects such as phrases, punctuation or approved marks, and no copy or brand mark should be invented. Fonts and assets must load locally before rendering.",
+    "combinations": "Editorial grid (style-019) gives halftoned images a reading order, with text kept unhalftoned and red used for at most one emphasis per view. Toon lighting (style-060) supplies luminance for 3D forms, which must use only the paper, blue and red tokens. Halftone alone suits tonal imagery. Sliding pages and glossy reflections should be avoided.",
+    "productionApproach": "The style renderer owns the dots: Canvas 2D, or a luminance-based halftone shader in three.js that generates separations. GSAP runs as the motion engine on one paused, seekable timeline. HyperFrames is the default pipeline for composition, sync and export; Remotion is fallback only with a recorded reason. Pillow, Sharp and chroma-js are supporting tools."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

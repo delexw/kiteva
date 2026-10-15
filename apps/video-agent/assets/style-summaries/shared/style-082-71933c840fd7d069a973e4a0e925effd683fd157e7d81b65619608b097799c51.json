@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-082",
+    "name": "Hand-Drawn Stop-Motion Style, in the Animation Techniques category, with explicit provenance. The source directly describes this visual direction.",
+    "visualIdentity": "Drawn paper assets with clear lines and limited colors change through deliberate replacement or repositioning between held frames. Anticipation, weight and settling are preserved. Small drawing variations must stay reproducible. The look is simulated, not physical stop-motion photography.",
+    "suitableUses": "Explicitly suited to short charming loops used alone. Listed hybrid uses are craft tutorials, recipe explainers, personal brand stories, lyric-free music videos, jingles and social loops. Interactive HTML use is not stated; it is only inferable from the stepped-frame model.",
+    "limitations": "Must be labeled a simulated treatment, never physical stop-motion photography. Rough.js provides no animation, handwriting, brush pressure, paper texture or character poses, and hachure fills are not authentic pencil or print. Avoid smooth tweens over stepped drawings, per-render jitter and long hand-lettered copy.",
+    "palette": "Optional suggested tokens, not supplied colors: background #F7EEDD, foreground #344344, accent_1 #B6785D and accent_2 #819B81. These are four discrete colors with no gradient. Foreground on background (8.969:1) suits body text, while accent pairs (3.125:1 and 3.414:1) are decorative only. Task-supplied colors override these, and assets must never be recolored.",
+    "motionAndInteraction": "Motion is stepped: held frames change by replacement or repositioning, and exposure rate may be lower than delivery frame rate. Do not auto-interpolate poses or add springs or bounce. Line boil uses prepared fixed-seed variants chosen by exposure time. Verify forward, backward and direct seeks. Optional references (motion-006, 012, 015, 037, 038, 039) need supporting scene assets. Base interactivity is unspecified.",
+    "audio": "Audio is unspecified by the style, and no audio layer is mandatory. A music-led piece may snap replacement holds to a saved beat table, not to live audio analysis. Keep a reading pause after text changes and keep speech intelligible. Use only task-provided or authorized audio assets.",
+    "assetRequirements": "Drawn layers or numbered frames need alpha transparency, consistent dimensions, clear naming and a layer manifest, and must be inspected before composition. Fonts and assets should load locally first. Phrase or punctuation references need actual approved glyphs or marks. No asset set is supplied by this source.",
+    "combinations": "Style-024 adds hand-lettered labels in the same ink, stepped on the same exposures, with accent_1 reserved for single emphasis. Arrowheads appear only after their shafts finish, and labels stay hidden until their container completes. Style-105 schedules holds on a verified beat table, with HTML mute and pause controls. Use hybrids only when they keep the handmade cadence.",
+    "productionApproach": "HyperFrames is the default for composition, timing, validation and export, and Remotion is a fallback only for a verified, recorded limitation. Canvas 2D, optional PixiJS and cached, seeded Rough.js geometry own the drawing. A paused GSAP timeline owns motion, since the style itself names no motion engine. Verify key frames and decoded video against these constraints."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

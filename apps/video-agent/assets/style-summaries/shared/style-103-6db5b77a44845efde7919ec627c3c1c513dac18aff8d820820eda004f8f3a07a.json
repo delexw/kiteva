@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-103",
+    "name": "Motion Poster",
+    "visualIdentity": "A complete static poster comes first, with clear headline, imagery, supporting information and negative space. Motion then adds local loops, layout changes or controlled boundary crossings while keeping useful still frames. The label was normalized from a street-poster description.",
+    "suitableUses": "Explicitly suited to announcements. Compatibility lists name Motion Poster alongside editorial, minimalist, Swiss, Bauhaus, Constructivism, screen-print and street-art styles. Inferred: event, film and social posters where one readable headline carries the message.",
+    "limitations": "The static poster must be complete before motion, with reading holds for important text. Palette checks cover two colors only and do not prove readability over imagery or video. Reference motion must fit the actual assets, and choosing none is valid. Duration, aspect ratio, resolution and frame rate are unspecified.",
+    "palette": "A reference-dependent example, not a canonical palette. Tokens: background #F4EDDF, foreground #273B44, accent_1 #B66A4B, three discrete colors with gradients disabled. Foreground on background measures 10.04:1. Accent on background measures 3.499:1 and is decorative only. Task-supplied exact colors override these.",
+    "motionAndInteraction": "Motion is authored from deterministic composition time through local loops, layout changes and controlled boundary crossings. Optional references: motion-007 pinned recomposition, motion-037 phrase scatter, motion-038 punctuation zoom, motion-039 radial logo burst and motion-040 word smash cuts. Motion-040's reference label wrongly reads Phrase Scatter. Scroll or pointer input applies only to web delivery. Loop endpoints must match.",
+    "audio": "Audio is unspecified, and the style requires no audio layer. Music, voiceover, sound effects or silence may be suggested from the topic, but none may compete with narration or essential text. Beat synchronization is unverified because source reviews assessed visuals only. Use only authorized audio assets.",
+    "assetRequirements": "No assets were supplied. Needed: approved headline copy, imagery, supporting information, the approved palette, and inspected glyph or mark geometry for any punctuation or emblem. Imagery needs intrinsic dimensions and readable crops. Fonts and assets must load before composition. Do not invent copy or brand marks.",
+    "combinations": "Style-051 (screen printing) adds spot-color ink layers using primary tokens: navy, rust and cream, with gradients avoided. Style-101 adds subtle image-area parallax while text stays static, and headline parallax is avoided. Motion Poster alone suits announcements, and hybrids should keep still frames useful.",
+    "productionApproach": "HyperFrames is the default for composition and export; Remotion is used only with a recorded fallback reason. Build the static poster in HTML/CSS and SVG first, then animate with one paused GSAP timeline, or optionally Motion, mo.js or Anime.js with single property owners. Use chroma-js for palette checks, and verify with check, snapshot and seek tests."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

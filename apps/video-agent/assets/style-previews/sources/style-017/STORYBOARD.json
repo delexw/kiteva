@@ -1,0 +1,13 @@
+{"version":3,"title":"Grunge — an idea becomes a connected system","durationSeconds":3,
+"scenes":[{"id":"scene-1","title":"Idea wires into a system","startSeconds":0,"endSeconds":3,
+"purpose":"Show a single distressed idea branching into a connected network that resolves as a torn SYSTEM paste-up on worn xerox stock.",
+"visuals":["Stationary cool-grey photocopy substrate with seeded grain, scratches, rust ring stains, smear and tape","IDEA wordmark in charcoal ink with precomputed toner dropout and erasure scratches","Rust origin dot, rough dashed links and scratched X nodes (Rough.js, seeded)","Typewritten line 'becomes a connected_'","Rust SYSTEM plate with torn edge and distressed light lettering","Footer 'NO.017 / WIRED FROM ONE THOUGHT'"],
+"assets":["gsap.min.js","chroma.min.js","rough.js"],
+"beats":[
+{"startSeconds":0,"endSeconds":0.95,"development":"Charcoal IDEA ink surfaces locally through a precomputed noise-threshold distress mask. The rust origin dot stamps in at 0.8 s.","captions":["IDEA"],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0},
+{"startSeconds":0.95,"endSeconds":1.62,"development":"Rough dashed links grow outward from the dot in waves. Each X node stamps when its first link arrives. 'becomes a connected_' types on.","captions":["becomes a connected_"],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0},
+{"startSeconds":1.62,"endSeconds":2.45,"development":"The last links reach the far node. The rust plate is revealed by a torn-paper wipe, and only once the plate is complete does the SYSTEM lettering surface through its distress mask.","captions":["SYSTEM"],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0},
+{"startSeconds":2.45,"endSeconds":3,"development":"Full composition settled and legible: reading hold with no motion.","captions":["IDEA","becomes a connected_","SYSTEM","NO.017 / WIRED FROM ONE THOUGHT"],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0.55}
+]}],
+"pacingAudit":{"findings":["IDEA, network and SYSTEM plate each get their own reveal window, so attention moves left to right along the network.","All motion is complete by 2.45 s, before the 2.7 s settle requirement.","Background and grain stay stationary. Distress shows only as local reveals."],"justifiedHolds":["2.45–3.0 s final hold lets the viewer read the full sentence IDEA / becomes a connected / SYSTEM."]},
+"notes":["Silent preview.","Renderers: Canvas 2D + Rough.js. Motion owner: GSAP paused timeline. Pipeline: HyperFrames.","Scene-dependent palette refresh: cool xerox stock #C9CDCA, charcoal ink #25282B, oxidized rust #8C5140, plate lettering #EFEEE7.","BACKGROUND_REVIEW had no matched sources or contact sheets; no source observations were used."]}

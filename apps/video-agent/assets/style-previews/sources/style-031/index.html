@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Comic Book Art — An idea becomes a connected system</title>
+<style>
+  /* OS-bundled macOS fonts: declared via local() so the renderer resolves them without downloads. */
+  @font-face { font-family: "Impact"; src: local("Impact"); font-weight: 400; font-style: normal; }
+  @font-face { font-family: "Comic Sans MS"; src: local("Comic Sans MS Bold"), local("ComicSansMS-Bold"), local("Comic Sans MS"); font-weight: 700; font-style: normal; }
+  @font-face { font-family: "Chalkboard SE"; src: local("Chalkboard SE Bold"), local("ChalkboardSE-Bold"), local("Chalkboard SE"); font-weight: 700; font-style: normal; }
+  @font-face { font-family: "Chalkboard"; src: local("Chalkboard Bold"), local("Chalkboard-Bold"), local("Chalkboard"); font-weight: 700; font-style: normal; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #1C2230; }
+  #video { position: relative; width: 100%; height: 100%; }
+  #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .sfx { font-family: Impact, "Arial Black", "Helvetica Neue", sans-serif; }
+  .letter { font-family: "Comic Sans MS", "Chalkboard SE", Chalkboard, "Trebuchet MS", sans-serif; font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- Single-ink halftone screens; userSpaceOnUse keeps dots locked to the artwork, never to motion. -->
+    <pattern id="dots-ground" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+      <circle cx="5.5" cy="5.5" r="2.3" fill="#3768A1"/>
+    </pattern>
+    <pattern id="dots-idea" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <circle cx="6" cy="6" r="2.6" fill="#E1B744"/>
+    </pattern>
+    <pattern id="dots-floor" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+      <circle cx="5" cy="5" r="1.9" fill="#3768A1"/>
+    </pattern>
+    <clipPath id="clip-p1"><polygon points="40,40 470,40 430,680 40,680"/></clipPath>
+    <clipPath id="clip-p2"><polygon points="500,40 1240,40 1240,680 460,680"/></clipPath>
+  </defs>
+
+  <!-- BACKGROUND (stationary): deep navy ink ground with a blue dot screen -->
+  <g id="background">
+    <rect x="0" y="0" width="1280" height="720" fill="#1C2230"/>
+    <rect x="0" y="0" width="1280" height="720" fill="url(#dots-ground)" opacity="0.55"/>
+  </g>
+
+  <!-- PANELS (stationary paper planes, the brightest surfaces) -->
+  <g id="panels" stroke="#0E1119" stroke-width="8" stroke-linejoin="round">
+    <polygon id="panel-1" points="40,40 470,40 430,680 40,680" fill="#EEF1F5"/>
+    <polygon points="40,40 470,40 430,680 40,680" fill="url(#dots-idea)" stroke="none"/>
+    <polygon id="panel-2" points="500,40 1240,40 1240,680 460,680" fill="#EEF1F5"/>
+    <g clip-path="url(#clip-p2)"><rect x="440" y="604" width="820" height="80" fill="url(#dots-floor)" stroke="none" opacity="0.8"/></g>
+  </g>
+
+  <!-- PANEL 1 CHARACTER: the idea bulb -->
+  <g id="p1-art" clip-path="url(#clip-p1)">
+    <g id="burst"></g>
+    <g id="rays"></g>
+    <g id="bulb">
+      <circle id="bulb-glass" cx="240" cy="300" r="60" fill="#EEF1F5" stroke="#1C2230" stroke-width="7"/>
+      <path id="filament" d="M222 318 L232 296 L240 318 L248 296 L258 318" fill="none" stroke="#1C2230" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+      <rect x="214" y="360" width="52" height="36" rx="4" fill="#1C2230"/>
+      <rect x="220" y="370" width="40" height="5" fill="#3768A1"/>
+      <rect x="220" y="382" width="40" height="5" fill="#3768A1"/>
+    </g>
+  </g>
+
+  <!-- PANEL 2 SPEED LINES (one-time climax accent), behind the network -->
+  <g clip-path="url(#clip-p2)"><g id="conc"></g></g>
+
+  <!-- PANEL 2 CHARACTER: the connected system -->
+  <g id="network">
+    <g id="edges"></g>
+    <g id="nodes"></g>
+  </g>
+
+  <!-- LETTERING (real text; separate from panels and characters) -->
+  <g id="stamp">
+    <g id="stamp-ink"></g>
+    <text id="stamp-text" class="sfx" x="242" y="592" text-anchor="middle" font-size="92" fill="#1C2230" data-reveal-after="stamp-ink">CLICK!</text>
+  </g>
+
+  <g id="caption">
+    <rect id="caption-box" x="540" y="70" width="420" height="70" fill="#E1B744" stroke="#0E1119" stroke-width="6"/>
+    <text id="caption-text" class="sfx" x="560" y="118" font-size="34" fill="#1C2230" data-reveal-after="caption-box">MEANWHILE… IT CONNECTS!</text>
+  </g>
+
+  <g id="bubble">
+    <path id="bubble-shape" d="M968 586 H1196 Q1214 586 1214 604 V638 Q1214 656 1196 656 H968 Q950 656 950 638 V604 Q950 586 968 586 Z M1098 587 L1124 540 L1124 587 Z" fill="#FFFFFF" stroke="#1C2230" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M1100 589 L1122 589" stroke="#FFFFFF" stroke-width="6"/>
+    <text id="bubble-text" class="letter" x="1082" y="629" text-anchor="middle" font-size="24" fill="#1C2230" data-reveal-after="bubble-shape">All systems linked!</text>
+  </g>
+
+  <!-- TRAVELLING SPARK: crosses the gutter from panel 1 into panel 2 -->
+  <g id="spark">
+    <g id="spark-trail"></g>
+    <polygon id="spark-star" points="0,-26 7,-8 26,-10 11,3 18,22 0,11 -18,22 -11,3 -26,-10 -7,-8" fill="#E1B744" stroke="#1C2230" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="comic-vendor.js"></script>
+<script>
+(function () {
+  'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  var V = window.ComicVendor, rough = V.rough, M = V.motion;
+  var C = { ground: '#1C2230', ink: '#1C2230', keyline: '#0E1119', paper: '#EEF1F5', bubble: '#FFFFFF', red: '#C9403C', yellow: '#E1B744', blue: '#3768A1' };
+  // Validate resolved palette pairs once (chroma-js); contrast is reported, never auto-recoloured.
+  window.__paletteAudit = [['ink', 'paper'], ['ink', 'yellow'], ['ink', 'bubble']].map(function (p) {
+    return { pair: p.join('/'), ratio: +chroma.contrast(C[p[0]], C[p[1]]).toFixed(2) };
+  });
+
+  var gen = rough.generator();
+  function el(tag, attrs, parent) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function roughInto(parent, drawable, extra) {
+    var out = [];
+    gen.toPaths(drawable).forEach(function (p) {
+      var a = { d: p.d, stroke: p.stroke, 'stroke-width': p.strokeWidth, fill: p.fill || 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
+      for (var k in extra || {}) a[k] = extra[k];
+      out.push(el('path', a, parent));
+    });
+    return out;
+  }
+  function $(id) { return document.getElementById(id); }
+
+  // ---------- Build cached geometry once (fixed Rough.js seeds) ----------
+  var burstPts = [[240,170],[270,240],[340,220],[300,280],[370,330],[290,340],[300,420],[240,370],[180,420],[190,340],[110,330],[180,280],[140,220],[210,240]];
+  roughInto($('burst'), gen.polygon(burstPts, { seed: 31, roughness: 1.1, bowing: 0.6, stroke: C.keyline, strokeWidth: 6, fill: C.red, fillStyle: 'solid' }));
+
+  // Light rays around the bulb (ink strokes) — appear when the idea lights.
+  for (var r = 0; r < 8; r++) {
+    var a = (r / 8) * Math.PI * 2 + 0.2;
+    roughInto($('rays'), gen.line(240 + Math.cos(a) * 82, 300 + Math.sin(a) * 82, 240 + Math.cos(a) * 112, 300 + Math.sin(a) * 112,
+      { seed: 100 + r, roughness: 0.8, stroke: C.ink, strokeWidth: 5, disableMultiStroke: true }));
+  }
+
+  // Stamp ink: double keyline in the red spot ink (single fixed role: the "hit" impression).
+  var stampInk = $('stamp-ink');
+  roughInto(stampInk, gen.rectangle(92, 498, 300, 118, { seed: 41, roughness: 1.2, stroke: C.red, strokeWidth: 7, disableMultiStroke: true }));
+  roughInto(stampInk, gen.rectangle(104, 510, 276, 94, { seed: 42, roughness: 1.0, stroke: C.red, strokeWidth: 3, disableMultiStroke: true }));
+
+  // Spark trail speed lines (local space, pointing back along -x).
+  [[-34, -10, -96], [-36, 0, -124], [-34, 10, -92]].forEach(function (s, i) {
+    roughInto($('spark-trail'), gen.line(s[0], s[1], s[2], s[1] * 1.8, { seed: 60 + i, roughness: 0.6, stroke: C.ink, strokeWidth: 4, disableMultiStroke: true }));
+  });
+
+  // Network: nodes + edges with authored draw cues.
+  var N = { hub: [700, 380], a: [880, 220], b: [1080, 300], d: [1140, 500], e: [900, 540] };
+  var EDGES = [
+    ['hub', 'a', 1.18, 0.18], ['hub', 'e', 1.24, 0.18], ['a', 'b', 1.36, 0.16], ['e', 'd', 1.42, 0.16],
+    ['b', 'd', 1.52, 0.14], ['a', 'e', 1.58, 0.14], ['hub', 'd', 1.62, 0.14]
+  ];
+  var NODE_POP = { hub: 1.04, a: 1.34, e: 1.40, b: 1.50, d: 1.56 };
+  var edgeEls = EDGES.map(function (e, i) {
+    var p0 = N[e[0]], p1 = N[e[1]];
+    var paths = roughInto($('edges'), gen.line(p0[0], p0[1], p1[0], p1[1], { seed: 200 + i, roughness: 0.9, bowing: 1.2, stroke: C.ink, strokeWidth: 9, disableMultiStroke: true }), { pathLength: 1, 'stroke-dasharray': '1 1' });
+    return { paths: paths, start: e[2], dur: e[3] };
+  });
+  var nodeEls = {};
+  Object.keys(N).forEach(function (k, i) {
+    var g = el('g', { 'data-node': k }, $('nodes'));
+    var fill = k === 'hub' ? C.yellow : C.blue;
+    roughInto(g, gen.circle(N[k][0], N[k][1], k === 'hub' ? 72 : 60, { seed: 300 + i, roughness: 0.7, stroke: C.keyline, strokeWidth: 6, fill: fill, fillStyle: 'solid' }));
+    nodeEls[k] = g;
+  });
+
+  // Concentration lines: tapered ink wedges converging on the system centroid (seeded LCG).
+  var seed = 7;
+  function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+  var CX = 960, CY = 400, concEls = [];
+  for (var i = 0; i < 34; i++) {
+    var ang = (i / 34) * Math.PI * 2 + (rnd() - 0.5) * 0.12;
+    var inner = 1.0 + rnd() * 0.18, w = 4 + rnd() * 7;
+    var ix = CX + Math.cos(ang) * 290 * inner, iy = CY + Math.sin(ang) * 235 * inner;
+    var ox = CX + Math.cos(ang) * 760, oy = CY + Math.sin(ang) * 760;
+    var nx = -Math.sin(ang) * w, ny = Math.cos(ang) * w;
+    concEls.push({ el: el('polygon', { points: [ix, iy, ox + nx, oy + ny, ox - nx, oy - ny].map(function (v) { return v.toFixed(1); }).join(' '), fill: C.ink }, $('conc')), at: 1.74 + rnd() * 0.12 });
+  }
+
+  // ---------- Pure time -> pose evaluation (Motion utilities own every value) ----------
+  function seg(t, t0, t1, ease) { var p = M.clamp(0, 1, (t - t0) / (t1 - t0)); return ease ? ease(p) : p; }
+  function kf(t, times, values, ease) { return M.interpolate(times, values, { clamp: true, ease: ease })(t); }
+  function tf(node, x, y, sx, sy, rot, ox, oy) {
+    node.setAttribute('transform', 'translate(' + (x + ox).toFixed(2) + ' ' + (y + oy).toFixed(2) + ') rotate(' + rot.toFixed(2) + ') scale(' + sx.toFixed(4) + ' ' + sy.toFixed(4) + ') translate(' + (-ox) + ' ' + (-oy) + ')');
+  }
+  function op(node, v) { node.setAttribute('opacity', M.clamp(0, 1, v).toFixed(3)); }
+  var back = M.backOut, io = M.easeInOut, out = M.easeOut;
+
+  var bulb = $('bulb'), glass = $('bulb-glass'), burst = $('burst'), rays = $('rays');
+  var stamp = $('stamp'), stampText = $('stamp-text');
+  var caption = $('caption'), capText = $('caption-text'), capBox = $('caption-box');
+  var bubble = $('bubble'), bubbleText = $('bubble-text');
+  var spark = $('spark'), network = $('network'), conc = $('conc');
+
+  function render(t) {
+    t = M.clamp(0, 3, t);
+    // Beat 1 — the idea: bulb anticipates (squash), stretches up, settles; lights on a key-pose change.
+    var sy = kf(t, [0, 0.12, 0.24, 0.36, 0.46], [0.55, 0.78, 1.14, 0.95, 1]);
+    var sx = kf(t, [0, 0.12, 0.24, 0.36, 0.46], [0.9, 1.12, 0.9, 1.04, 1]);
+    var by = kf(t, [0, 0.24, 0.46], [46, -14, 0], io);
+    tf(bulb, 0, by, sx, sy, 0, 240, 396);
+    op(bulb, seg(t, 0, 0.1));
+    var lit = t >= 0.3;
+    glass.setAttribute('fill', lit ? C.yellow : C.paper);
+    var bs = t < 0.3 ? 0 : kf(t, [0.3, 0.5, 0.62], [0.35, 1.1, 1], out);
+    tf(burst, 0, 0, bs, bs, kf(t, [0.3, 0.62], [-24, 0], out), 240, 300);
+    op(burst, t < 0.3 ? 0 : 1);
+    var rs = kf(t, [0.32, 0.5], [0.7, 1], back);
+    tf(rays, 0, 0, rs, rs, 0, 240, 300);
+    op(rays, seg(t, 0.32, 0.4));
+
+    // Beat 1b — CLICK! stamp slaps onto panel 1 (impact, then a long reading hold).
+    var ss = kf(t, [0.5, 0.62, 0.7], [1.4, 0.95, 1], out);
+    tf(stamp, 0, 0, ss, ss, kf(t, [0.5, 0.7], [-18, -8], out), 242, 557);
+    op(stamp, seg(t, 0.5, 0.56));
+    op(stampText, seg(t, 0.58, 0.62));
+
+    // Beat 2 — the spark leaps the gutter along an arc into the hub.
+    var sp = seg(t, 0.76, 1.08, io);
+    var p0 = [300, 270], c = [470, 150], p1 = [700, 380];
+    var u = 1 - sp;
+    var x = u * u * p0[0] + 2 * u * sp * c[0] + sp * sp * p1[0];
+    var y = u * u * p0[1] + 2 * u * sp * c[1] + sp * sp * p1[1];
+    var dx = 2 * u * (c[0] - p0[0]) + 2 * sp * (p1[0] - c[0]);
+    var dy = 2 * u * (c[1] - p0[1]) + 2 * sp * (p1[1] - c[1]);
+    var spS = kf(t, [0.76, 0.84, 1.04, 1.1], [0.5, 1.15, 1, 0.4]);
+    tf(spark, x, y, spS, spS, Math.atan2(dy, dx) * 180 / Math.PI, 0, 0);
+    op(spark, t >= 0.76 && t < 1.1 ? 1 : 0);
+
+    // Scene caption box arrives as attention moves to panel 2; label waits for its box.
+    tf(caption, 0, kf(t, [0.86, 1.08], [-34, 0], back), 1, 1, 0, 750, 105);
+    op(capBox, seg(t, 0.86, 0.94));
+    op(caption, t >= 0.86 ? 1 : 0);
+    op(capText, seg(t, 1.08, 1.16));
+
+    // Beat 3 — nodes pop when an edge reaches them; edges ink on in authored order.
+    Object.keys(nodeEls).forEach(function (k) {
+      var t0 = NODE_POP[k];
+      var s = t < t0 ? 0 : kf(t, [t0, t0 + 0.12, t0 + 0.2], [0.2, 1.18, 1], out);
+      tf(nodeEls[k], 0, 0, s, s, 0, N[k][0], N[k][1]);
+      op(nodeEls[k], t < t0 ? 0 : 1);
+    });
+    edgeEls.forEach(function (e) {
+      var p = seg(t, e.start, e.start + e.dur, io);
+      e.paths.forEach(function (pth) { pth.setAttribute('stroke-dashoffset', (1 - p).toFixed(4)); op(pth, p > 0 ? 1 : 0); });
+    });
+
+    // Beat 4 — climax: concentration lines rush inward once, the whole system jolts and settles.
+    var cs = kf(t, [1.72, 1.96], [1.22, 1], out);
+    tf(conc, 0, 0, cs, cs, 0, CX, CY);
+    concEls.forEach(function (c) { op(c.el, seg(t, c.at, c.at + 0.06)); });
+    var js = kf(t, [1.72, 1.82, 1.98], [1, 1.05, 1], io);
+    tf(network, 0, 0, js, js, 0, CX, CY);
+
+    // Beat 5 — speech bubble grows from its tail; dialogue appears once the bubble is complete.
+    var bsc = kf(t, [1.98, 2.14, 2.22], [0.3, 1.06, 1], out);
+    tf(bubble, 0, 0, bsc, bsc, 0, 1124, 560);
+    op(bubble, t >= 1.98 ? 1 : 0);
+    op(bubbleText, seg(t, 2.22, 2.3));
+  }
+
+  // ---------- Single paused GSAP timeline: the shared seekable clock ----------
+  var clock = { t: 0 };
+  var tl = gsap.timeline({ paused: true, onUpdate: function () { render(tl.time()); } });
+  tl.to(clock, { t: 3, duration: 3, ease: 'none' }, 0);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  window.addEventListener('hf-seek', function (ev) {
+    var d = ev && ev.detail;
+    var time = d && typeof d.time === 'number' ? d.time : tl.time();
+    render(time);
+  });
+  window.__renderAt = render;
+  render(0);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

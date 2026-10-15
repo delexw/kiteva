@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Blueprint Drafting Animation — An idea becomes a connected system</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #1B3ED2; overflow: hidden; }
+  #root { position: relative; width: 100%; height: 100%; background: #1B3ED2; }
+  #root svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .mono { font-family: "Courier New", Menlo, Monaco, "DejaVu Sans Mono", monospace; }
+</style>
+<script src="gsap.min.js"></script>
+<script src="DrawSVGPlugin.min.js"></script>
+<script src="chroma.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <svg id="dwg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet" role="img"
+       aria-label="Blueprint drawing: an idea (a bulb-shaped part) connected by arrows to INPUT, CORE, LINK and OUTPUT blocks, with dimensions">
+    <defs id="defs">
+      <pattern id="gridMinor" width="20" height="20" patternUnits="userSpaceOnUse">
+        <path d="M20 0H0V20" fill="none" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="0.6"/>
+      </pattern>
+      <pattern id="gridMajor" width="100" height="100" patternUnits="userSpaceOnUse">
+        <path d="M100 0H0V100" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="1"/>
+      </pattern>
+      <!-- 45° section hatching, 1px lines, 7 unit pitch (10.5px at 1080p) -->
+      <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <path d="M0 0V7" stroke="#FFFFFF" stroke-width="1"/>
+      </pattern>
+    </defs>
+    <!-- opaque full-bleed scene field: stationary -->
+    <rect id="field" x="0" y="0" width="1280" height="720" fill="#1B3ED2"/>
+    <g id="grid" opacity="0">
+      <rect width="1280" height="720" fill="url(#gridMinor)"/>
+      <rect width="1280" height="720" fill="url(#gridMajor)"/>
+    </g>
+    <g id="hatchLayer"></g>
+    <g id="hiddenLayer"></g>
+    <g id="outlineLayer" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="miter"></g>
+    <g id="connLayer" fill="none" stroke="#FFFFFF" stroke-width="2"></g>
+    <g id="dimLayer" fill="none" stroke="#FFFFFF" stroke-width="1"></g>
+    <g id="headLayer" fill="#FFFFFF" stroke="none"></g>
+    <g id="labelLayer" class="mono" fill="#FFFFFF"></g>
+  </svg>
+</div>
+<script>
+(function () {
+  "use strict";
+  gsap.registerPlugin(DrawSVGPlugin);
+  var NS = "http://www.w3.org/2000/svg";
+  var BG = "#1B3ED2", FG = "#FFFFFF";
+  var CONTRAST = chroma.contrast(FG, BG); // 7.876… → 7.88
+  document.getElementById("root").setAttribute("data-contrast-fg-bg", CONTRAST.toFixed(2));
+
+  // ---------- single measured spec (drafting units: 1 unit = 1 mm, scale 1:1) ----------
+  var SPEC = {
+    idea: { cx: 260, cy: 330, r: 90, wall: 8 },
+    base: { x: 225, y: 420, w: 70, h: 54 },
+    filament: { x0: 240, x1: 280, y: 418, rise: 66, peak: 30 },
+    node: { w: 120, h: 68, header: 14 },
+    nodes: [
+      { id: "node-1", name: "INPUT",  cx: 760,  cy: 206 },
+      { id: "node-2", name: "CORE",   cx: 960,  cy: 340 },
+      { id: "node-3", name: "LINK",   cx: 760,  cy: 470 },
+      { id: "node-4", name: "OUTPUT", cx: 1060, cy: 550 }
+    ]
+  };
+  var I = SPEC.idea, B = SPEC.base, N = SPEC.node;
+  function node(i) { return SPEC.nodes[i]; }
+  function nL(n) { return n.cx - N.w / 2; } function nR(n) { return n.cx + N.w / 2; }
+  function nT(n) { return n.cy - N.h / 2; } function nB(n) { return n.cy + N.h / 2; }
+
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function $(id) { return document.getElementById(id); }
+  var defs = $("defs"), Lh = $("hatchLayer"), Lhid = $("hiddenLayer"), Lo = $("outlineLayer"),
+      Lc = $("connLayer"), Ld = $("dimLayer"), Lah = $("headLayer"), Llab = $("labelLayer");
+
+  // filled drafting arrowhead, tip at (x,y), pointing along unit (dx,dy)
+  function headPath(x, y, dx, dy, len, half) {
+    var bx = x - dx * len, by = y - dy * len, px = -dy * half, py = dx * half;
+    return "M" + x + " " + y + "L" + (bx + px).toFixed(2) + " " + (by + py).toFixed(2) +
+           "L" + (bx - px).toFixed(2) + " " + (by - py).toFixed(2) + "Z";
+  }
+  function unit(x0, y0, x1, y1) { var L = Math.hypot(x1 - x0, y1 - y0); return [(x1 - x0) / L, (y1 - y0) / L]; }
+  function text(str, x, y, size, anchor, parent, extra) {
+    var t = el("text", Object.assign({ x: x, y: y, "font-size": size, "text-anchor": anchor || "middle" }, extra || {}), parent);
+    t.textContent = str; return t;
+  }
+
+  // ---------- section hatching (closed regions, wiped by clip rects) ----------
+  var wipes = [];
+  function hatchRegion(id, d, bbox) {
+    var cp = el("clipPath", { id: "wipe-" + id, clipPathUnits: "userSpaceOnUse" }, defs);
+    var r = el("rect", { x: bbox[0] - 2, y: bbox[1] - 2, width: 0, height: bbox[3] + 4 }, cp);
+    var g = el("g", { "clip-path": "url(#wipe-" + id + ")" }, Lh);
+    el("path", { d: d, fill: "url(#hatch)", "fill-rule": "evenodd", stroke: "none" }, g);
+    wipes.push({ rect: r, w: bbox[2] + 4 });
+    return g;
+  }
+  // bulb wall in section (annulus r..r-wall)
+  var ri = I.r - I.wall;
+  var ringD = "M" + (I.cx + I.r) + " " + I.cy + "A" + I.r + " " + I.r + " 0 1 0 " + (I.cx - I.r) + " " + I.cy +
+              "A" + I.r + " " + I.r + " 0 1 0 " + (I.cx + I.r) + " " + I.cy + "Z" +
+              "M" + (I.cx + ri) + " " + I.cy + "A" + ri + " " + ri + " 0 1 0 " + (I.cx - ri) + " " + I.cy +
+              "A" + ri + " " + ri + " 0 1 0 " + (I.cx + ri) + " " + I.cy + "Z";
+  hatchRegion("ring", ringD, [I.cx - I.r, I.cy - I.r, 2 * I.r, 2 * I.r]);
+  hatchRegion("base", "M" + B.x + " " + B.y + "h" + B.w + "v" + B.h + "h" + (-B.w) + "Z", [B.x, B.y, B.w, B.h]);
+
+  // ---------- object outlines (2.5px) ----------
+  var outlines = [];
+  outlines.push(el("circle", { cx: I.cx, cy: I.cy, r: I.r }, Lo));
+  outlines.push(el("circle", { cx: I.cx, cy: I.cy, r: ri, "stroke-width": 1.5 }, Lo));
+  outlines.push(el("rect", { x: B.x, y: B.y, width: B.w, height: B.h }, Lo));
+
+  // ---------- hidden edges: fully drawn dashed paths revealed by a drawSVG mask ----------
+  var hiddenMasks = [];
+  function hidden(id, d) {
+    var m = el("mask", { id: "mask-" + id, maskUnits: "userSpaceOnUse", x: 0, y: 0, width: 1280, height: 720 }, defs);
+    var mp = el("path", { d: d, fill: "none", stroke: "#FFFFFF", "stroke-width": 8, "stroke-linecap": "square" }, m);
+    el("path", { id: id, d: d, fill: "none", stroke: FG, "stroke-width": 1.5, "stroke-dasharray": "8 6", mask: "url(#mask-" + id + ")" }, Lhid);
+    hiddenMasks.push(mp);
+  }
+  var F = SPEC.filament;
+  hidden("hid-filament", "M" + F.x0 + " " + F.y + "v" + (-F.rise) + "l" + (F.x1 - F.x0) / 2 + " " + (-F.peak) +
+         "l" + (F.x1 - F.x0) / 2 + " " + F.peak + "v" + F.rise);
+
+  // ---------- nodes (containers) – labels reveal after container ----------
+  var nodeBoxes = [], nodeHatch = [];
+  SPEC.nodes.forEach(function (n) {
+    var hg = hatchRegion(n.id + "-hdr", "M" + nL(n) + " " + nT(n) + "h" + N.w + "v" + N.header + "h" + (-N.w) + "Z",
+                         [nL(n), nT(n), N.w, N.header]);
+    nodeHatch.push(hg);
+    var box = el("path", { id: n.id, d: "M" + nL(n) + " " + nT(n) + "H" + nR(n) + "V" + nB(n) + "H" + nL(n) + "Z" +
+                           "M" + nL(n) + " " + (nT(n) + N.header) + "H" + nR(n) }, Lo);
+    nodeBoxes.push(box);
+    n.label = text(n.name, n.cx, n.cy + 12, 17, "middle", Llab, { "data-reveal-after": n.id, "font-weight": "bold", "letter-spacing": 1.5 });
+  });
+
+  // system links between blocks (hidden-edge style)
+  hidden("hid-link-1", "M" + nR(node(0)) + " " + node(0).cy + "H" + node(1).cx + "V" + nT(node(1)));
+  hidden("hid-link-2", "M" + nR(node(2)) + " " + node(2).cy + "H" + node(1).cx + "V" + nB(node(1)));
+  hidden("hid-link-3", "M" + nR(node(1)) + " " + node(1).cy + "H" + node(3).cx + "V" + nT(node(3)));
+
+  // ---------- connector arrows: idea → blocks (heads separate, data-arrowhead-for) ----------
+  var conns = [];
+  [[-12, node(0), "L"], [0, node(1), "L"], [12, node(2), "L"]].forEach(function (c, i) {
+    var a = c[0] * Math.PI / 180;
+    var x0 = +(I.cx + I.r * Math.cos(a) + 4).toFixed(2), y0 = +(I.cy + I.r * Math.sin(a)).toFixed(2);
+    var x1 = nL(c[1]) - 4, y1 = c[1].cy + (i === 0 ? 10 : i === 2 ? -10 : 0);
+    var id = "conn-" + (i + 1);
+    var shaft = el("path", { id: id, d: "M" + x0 + " " + y0 + "L" + x1 + " " + y1 }, Lc);
+    var u = unit(x0, y0, x1, y1);
+    var head = el("path", { d: headPath(x1, y1, u[0], u[1], 14, 5), "data-arrowhead-for": id }, Lah);
+    conns.push({ shaft: shaft, heads: [head] });
+  });
+
+  // ---------- dimensions: extension lines + center-out shaft + two heads + computed label ----------
+  var dims = [];
+  function dim(n, ext, a, b, label) {
+    var id = "dim-" + n;
+    var exts = ext.map(function (d) { return el("path", { d: d, "stroke-width": 1 }, Ld); });
+    var shaft = el("path", { id: id, d: "M" + a[0] + " " + a[1] + "L" + b[0] + " " + b[1], "stroke-width": 1 }, Ld);
+    var u = unit(a[0], a[1], b[0], b[1]);
+    var h1 = el("path", { d: headPath(a[0], a[1], -u[0], -u[1], 11, 3.5), "data-arrowhead-for": id }, Lah);
+    var h2 = el("path", { d: headPath(b[0], b[1], u[0], u[1], 11, 3.5), "data-arrowhead-for": id }, Lah);
+    var lab = text(label.str, label.x, label.y, 16, label.anchor || "middle", Llab, { "data-reveal-after": id });
+    dims.push({ id: id, exts: exts, shaft: shaft, heads: [h1, h2], label: lab });
+  }
+  // dim-1: Ø of the idea
+  var d1y = I.cy - I.r - 44;
+  dim(1, ["M" + (I.cx - I.r) + " " + (I.cy - 24) + "V" + (d1y - 12), "M" + (I.cx + I.r) + " " + (I.cy - 24) + "V" + (d1y - 12)],
+      [I.cx - I.r, d1y], [I.cx + I.r, d1y], { str: "Ø " + (2 * I.r), x: I.cx, y: d1y - 8 });
+  // dim-2: base height (right side)
+  var d2x = B.x + B.w + 32;
+  dim(2, ["M" + (B.x + B.w + 6) + " " + B.y + "H" + (d2x + 10), "M" + (B.x + B.w + 6) + " " + (B.y + B.h) + "H" + (d2x + 10)],
+      [d2x, B.y], [d2x, B.y + B.h], { str: String(B.h), x: d2x + 10, y: B.y + B.h / 2 + 6, anchor: "start" });
+  // dim-3: base width (below)
+  var d3y = B.y + B.h + 28;
+  dim(3, ["M" + B.x + " " + (B.y + B.h + 6) + "V" + (d3y + 10), "M" + (B.x + B.w) + " " + (B.y + B.h + 6) + "V" + (d3y + 10)],
+      [B.x, d3y], [B.x + B.w, d3y], { str: String(B.w), x: B.x + B.w / 2, y: d3y + 22 });
+  // dim-4: block width (OUTPUT, below)
+  var n4 = node(3), d4y = nB(n4) + 26;
+  dim(4, ["M" + nL(n4) + " " + (nB(n4) + 6) + "V" + (d4y + 10), "M" + nR(n4) + " " + (nB(n4) + 6) + "V" + (d4y + 10)],
+      [nL(n4), d4y], [nR(n4), d4y], { str: String(N.w), x: n4.cx, y: d4y + 22 });
+
+  // ---------- standalone heading, figure caption, title block ----------
+  var title = el("g", { opacity: 0 }, Llab);
+  text("AN IDEA BECOMES", 60, 80, 30, "start", title, { "font-weight": "bold", "letter-spacing": 3 });
+  text("A CONNECTED SYSTEM", 60, 116, 30, "start", title, { "font-weight": "bold", "letter-spacing": 3 });
+  var caption = text("FIG.1 — IDEA", I.cx, 572, 16, "middle", Llab, { opacity: 0 });
+  var tbBox = el("path", { id: "tblock", d: "M60 616H420V688H60ZM60 646H420M260 646V688", "stroke-width": 2 }, Lo);
+  var tbText = el("g", { "data-reveal-after": "tblock" }, Llab);
+  text("PROJECT: IDEA → SYSTEM", 72, 637, 14, "start", tbText);
+  text("DWG NO. 116", 72, 673, 14, "start", tbText);
+  text("SCALE 1:1  mm", 272, 673, 14, "start", tbText);
+
+  // ---------- initial hidden states ----------
+  gsap.set(Lah.querySelectorAll("[data-arrowhead-for]"), { autoAlpha: 0 });
+  gsap.set(Llab.querySelectorAll("[data-reveal-after]"), { autoAlpha: 0 });
+
+  // ---------- one paused timeline ----------
+  var tl = gsap.timeline({ paused: true, defaults: { ease: "power2.inOut" } });
+  var headTimes = {};
+  function draw(target, at, dur, from) {
+    tl.fromTo(target, { drawSVG: from || "0% 0%" }, { drawSVG: "0% 100%", duration: dur, ease: "power2.inOut" }, at);
+    return at + dur;
+  }
+
+  // 1. grid + heading
+  tl.fromTo("#grid", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "sine.inOut" }, 0);
+  tl.fromTo(title, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "sine.inOut" }, 0.1);
+  // 2. outlines of the idea part
+  draw(outlines[0], 0.25, 0.55);
+  draw(outlines[1], 0.35, 0.45);
+  draw(outlines[2], 0.45, 0.4);
+  // 3. hidden filament (mask draws over pre-dashed path)
+  draw(hiddenMasks[0], 0.8, 0.3);
+  // 4. hatch wipes for part section
+  tl.to(wipes[0].rect, { attr: { width: wipes[0].w }, duration: 0.35, ease: "power2.inOut" }, 0.85);
+  tl.to(wipes[1].rect, { attr: { width: wipes[1].w }, duration: 0.25, ease: "power2.inOut" }, 0.95);
+  tl.fromTo(caption, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "sine.inOut" }, 1.1);
+  // connectors + blocks
+  conns.forEach(function (c, i) {
+    var t0 = 1.0 + i * 0.08, end = draw(c.shaft, t0, 0.4);
+    c.heads.forEach(function (h) { tl.set(h, { autoAlpha: 1 }, end); });
+    headTimes[c.shaft.id] = +end.toFixed(3);
+  });
+  nodeBoxes.forEach(function (b, i) {
+    var t0 = 1.15 + i * 0.1, end = draw(b, t0, 0.35);
+    tl.to(wipes[2 + i].rect, { attr: { width: wipes[2 + i].w }, duration: 0.2, ease: "power2.inOut" }, end - 0.05);
+    tl.set(SPEC.nodes[i].label, { autoAlpha: 1 }, end + 0.15);
+  });
+  draw(hiddenMasks[1], 1.6, 0.3);
+  draw(hiddenMasks[2], 1.65, 0.3);
+  draw(hiddenMasks[3], 1.75, 0.3);
+  // 5. dimensions: extension lines, then shaft from centre out to both arrow ends
+  dims.forEach(function (d, i) {
+    var t0 = 1.45 + i * 0.15;
+    d.exts.forEach(function (e) { draw(e, t0, 0.2); });
+    var end = draw(d.shaft, t0 + 0.15, 0.3, "50% 50%");
+    d.heads.forEach(function (h) { tl.set(h, { autoAlpha: 1 }, end); });
+    tl.set(d.label, { autoAlpha: 1 }, end + 0.05);
+    headTimes[d.id] = +end.toFixed(3);
+  });
+  // title block
+  var tbEnd = draw(tbBox, 2.0, 0.35);
+  tl.set(tbText, { autoAlpha: 1 }, tbEnd + 0.03);
+  // hold settled frame to 3.0 s
+  tl.to({}, { duration: 3 - tl.duration() }, tl.duration());
+
+  window.__headTimes = headTimes; // e.g. dim-4 ≈ 2.35 s, all settled ≤ 2.45 s
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  tl.seek(0, false);
+  window.addEventListener("hf-seek", function (e) {
+    var t = e && e.detail && typeof e.detail.time === "number" ? e.detail.time : null;
+    if (t !== null) tl.seek(t, false);
+  });
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

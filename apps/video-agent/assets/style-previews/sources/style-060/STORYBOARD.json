@@ -1,0 +1,163 @@
+{
+ "version": 3,
+ "title": "IDEA → SYSTEM — Cel-Shaded 3D reward preview",
+ "durationSeconds": 3,
+ "scenes": [
+  {
+   "id": "scene-1",
+   "title": "Idle spark",
+   "startSeconds": 0,
+   "endSeconds": 0.6,
+   "purpose": "Introduce the lone idea as a rounded cel-shaded sphere on a cool studio cyclorama, framed close by the camera.",
+   "visuals": [
+    "Toon-shaded accent_1 sphere with a foreground shadow crescent and a background highlight band",
+    "Constant 3 px depth/normal contour",
+    "Foreground ground-shadow ellipse",
+    "Stationary cool mint studio cyclorama: flat wall #C9E0DA over a floor band #AFCFC8 (lowest 24% of frame); ground shadow sits on the floor band"
+   ],
+   "assets": [
+    "scene.bundle.js (Three.js procedural geometry)"
+   ],
+   "beats": [
+    {
+     "startSeconds": 0,
+     "endSeconds": 0.6,
+     "development": "Finite idle bob (one sine cycle) that returns to rest before the state change.",
+     "captions": [
+      "IDEA → SYSTEM",
+      "one spark, many links — drawn in light and line"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.6
+    }
+   ]
+  },
+  {
+   "id": "scene-2",
+   "title": "Rarity upgrade",
+   "startSeconds": 0.6,
+   "endSeconds": 1.2,
+   "purpose": "Show the idea gaining value through discrete tier steps.",
+   "visuals": [
+    "0.8s: halo backing appears (background tone)",
+    "1.0s: sphere steps to accent_2 and halo to accent_1, with a scale pop",
+    "1.2s: discrete background-tone rim band switches on"
+   ],
+   "assets": [],
+   "beats": [
+    {
+     "startSeconds": 0.6,
+     "endSeconds": 1.2,
+     "development": "Rarity uniform steps 0→3 (steps(3) ease), coordinating material, rim light and backing tone with no interpolation.",
+     "captions": [
+      "IDEA → SYSTEM",
+      "one spark, many links — drawn in light and line"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-3",
+   "title": "Charge",
+   "startSeconds": 1.2,
+   "endSeconds": 1.8,
+   "purpose": "Build anticipation before the burst.",
+   "visuals": [
+    "Squash to 1.16×/0.8×",
+    "Timeline-time tremble",
+    "Camera dollies in from z 9.5 to 8.6"
+   ],
+   "assets": [],
+   "beats": [
+    {
+     "startSeconds": 1.2,
+     "endSeconds": 1.8,
+     "development": "Hero squashes and trembles while the camera pushes in.",
+     "captions": [
+      "IDEA → SYSTEM",
+      "one spark, many links — drawn in light and line"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-4",
+   "title": "Burst and isolated reveal",
+   "startSeconds": 1.8,
+   "endSeconds": 3,
+   "purpose": "The idea bursts into a connected system on a clean glow card.",
+   "visuals": [
+    "1.8s: stretch release; ground shadow removed; 16 seeded particles launched outside the silhouette",
+    "1.8–2.35s: camera pulls back to frame the system",
+    "1.95–2.3s: stepped glow card expands behind the hero",
+    "1.84–2.38s: three accent_1 nodes travel out along hub bonds",
+    "2.15–2.5s: background-tone network bonds connect the nodes",
+    "2.5–3.0s: settled hold"
+   ],
+   "assets": [],
+   "beats": [
+    {
+     "startSeconds": 1.8,
+     "endSeconds": 2.5,
+     "development": "Burst, reveal and connection of the system.",
+     "captions": [
+      "IDEA → SYSTEM",
+      "one spark, many links — drawn in light and line"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 2.5,
+     "endSeconds": 3,
+     "development": "Complete readable scene holds.",
+     "captions": [
+      "IDEA → SYSTEM",
+      "one spark, many links — drawn in light and line"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.5
+    }
+   ]
+  }
+ ],
+ "pacingAudit": {
+  "findings": [
+   "Copy is visible for the full 3s; all motion settles by 2.5s, before the 2.7s target.",
+   "Each stage keeps a single focal point: the hero until the burst, then the connected system."
+  ],
+  "justifiedHolds": [
+   "2.5–3.0s settled hold so the completed system and caption can be read."
+  ]
+ },
+ "notes": [
+  "Silent preview; the authored cue sequence is listed in production.json.",
+  "The full video would extend each stage and add a collection step in which the system shrinks into a tally card with an HTML number label marked data-reveal-after.",
+  "Palette: background #F4ECD9, foreground #26394A, accent_1 #547E8F, accent_2 #BA7461. Scene background: wall #C9E0DA and floor #AFCFC8 (scene-dependent, from the BACKGROUND_REVIEW lessons). The background never changes.",
+  "Recipe demonstrated: cartoon_reward. The visible actions are idle bob, then discrete rarity tiers (material, rim and halo backing), charge squash, burst with seeded particles outside the silhouette, an isolated reveal on the glow card with the floor shadow hidden, and a settled hold. The collection step is reserved for the full video."
+ ]
+}

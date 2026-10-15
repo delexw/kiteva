@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-130",
+    "name": "Illuminated Manuscript: category Illustration and Art Media, extracted from sampled Fable frames and added 2026-10-13. Art-medium labels are authored classifications, and hex values are suggested defaults, not measured source values.",
+    "visualIdentity": "A parchment page with a framed original miniature, a red, blue and green vine border, a decorated vector-interlace initial, and restrained gilded highlights. It is organized as a manuscript page, not a generic paper scene.",
+    "suitableUses": "Inferred suitability: silent or full video and interactive HTML showing a manuscript-page illustration beside verified text. The intended audience, subject and objective are unspecified in the source.",
+    "limitations": "Only verified copy may appear; otherwise the text column shows blank ruling, never pseudo-script. No calligraphy assets are supplied. The page turn is an optional full-video option outside the preview, and its runtime is unverified.",
+    "palette": "The background is scene-dependent, so #EFE4C8 is only an example parchment swatch. Suggested roles are foreground #352D27, gold #B89B51, red #A5433C, blue #3C5487 and green #66825D. Approved task colors take precedence, gradients are disabled, and normal text should reach 4.5:1 contrast on the composited background.",
+    "motionAndInteraction": "Preview timing: the initial outlines then fills (0–0.9s); the border draws with leaf fills (0.6–1.6s); the miniature frame completes before its art reveals (1.2–2.2s); a gold sweep and one small gesture occur (2.2–2.8s), then a hold. All motion runs on one paused GSAP timeline.",
+    "audio": "Unspecified: no audio is mandated or supplied for this style. Music, voiceover, ambience or silence are optional choices, and no historical soundtrack is assumed. Honor any supplied audio, and silence is a valid option.",
+    "assetRequirements": "No uploads are required. Optional inputs are verified calligraphy text, approved parchment scans and original miniature art. Do not copy source characters or branded material, and load local fonts and assets before rendering.",
+    "combinations": "The style-031 entry is an example supporting medium for a secondary detail, and its role is unspecified. Keep the manuscript composition and approved palette dominant. Avoid generic effects that replace the mark-making and avoid invented historical text.",
+    "productionApproach": "SVG and HTML/CSS render the art and text, and GSAP with DrawSVGPlugin drives motion. HyperFrames handles composition and export by default, with Remotion as a fallback only for a recorded limitation. Verify direct and backward seeks; tool runtime availability is unverified."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

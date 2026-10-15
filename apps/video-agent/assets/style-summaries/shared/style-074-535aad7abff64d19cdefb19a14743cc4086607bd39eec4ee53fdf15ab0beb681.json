@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-074",
+    "name": "Y2K Design (category: Digital and 3D Aesthetics). Supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Turn-of-the-millennium digital optimism built from chrome type, transparent plastic, rounded devices, early web elements and bright accents. Material rules must stay coherent, and metallic highlights must never overpower the message.",
+    "suitableUses": "Explicitly suggested for optimistic brand moments featuring chrome and plastic. Inferred from the hybrid suggestions: retro-themed app launches, campaign microsites, playful product teasers and social ads. Inferred poor fit: calm editorial or text-heavy explanatory work.",
+    "limitations": "Metallic highlights must not obscure words, and one chrome hero element is the recommended maximum. Do not squash text. Avoid glassmorphism blur in hybrids. Two-color contrast checks do not verify text over chrome, transparency or video. Exact dimensions, duration, resolution and frame rate are unspecified.",
+    "palette": "Suggested, not supplied: background #E9EDF0 for layout, foreground #293341 for text, and accents #7497D0, #DB8CBB and #A5C365. Gradients are disabled. Approved task colors override these values. Foreground on background measures 10.849. Accent_2 and accent_3 pass normal text with foreground (5.158 and 6.443), while accent_1 (4.306) is decorative only.",
+    "motionAndInteraction": "Motion centers on rotations, elastic reveals and interface assembly, with restrained settling. Optional references are motion-037 (chrome glyphs leaving and reassembling), motion-038 (rounded punctuation linking scenes), motion-039 (emblem with radial accents) and motion-040 (short chrome cards). Choosing none is valid. Motion-020 glitch cut suits this style only for disrupted scenes. Interaction is unspecified for video; buttons need a reduced-motion option.",
+    "audio": "Audio direction is unspecified in the source, and no genre, tempo, instrument or voice is assigned. Propose a direction from the topic and motion cadence, stating assumptions. Use only authorized audio. Do not claim beat synchronization without inspected audio analysis, and keep speech intelligible.",
+    "assetRequirements": "Requires chrome and plastic 3D materials for metallic type and rounded devices, plus real DOM or SVG interface elements. Load local fonts and assets before rendering. Inspect actual glyph or mark geometry before choosing a renderer. Do not invent product copy or brand marks. Reference motions need matching glyphs, punctuation or emblems in the scene.",
+    "combinations": "style-095 adds interface assembly and state transitions for functioning early-web UI, using primary tokens and one chrome hero. style-106 adds volume-preserving squash-and-stretch for plastic buttons and landings, applied with one timing family. Avoid applying a uniform spring to everything, and avoid mixing glassmorphism blur into hybrids.",
+    "productionApproach": "HyperFrames is the default pipeline for composition, timing, validation and export only. Remotion is a fallback only when a verified limitation applies, and the reason must be recorded. Three.js owns chrome and plastic objects, while HTML/CSS and SVG own interface elements. GSAP drives one paused, registered timeline, with Motion and chroma-js optional. Verify forward, backward and direct seeks, and inspect composited frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

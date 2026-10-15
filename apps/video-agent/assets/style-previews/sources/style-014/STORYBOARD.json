@@ -1,0 +1,78 @@
+{
+  "version": 3,
+  "title": "Surrealism — An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The egg that holds its own weather",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Under one consistent dusk key light, a floating porcelain egg (the idea) opens to show its own weather, and that weather sends out tethered satellites that link into a system.",
+      "visuals": [
+        "Stationary dusk sky (CSS gradient) registered to a fixed-orientation Three.js camera horizon at 488px",
+        "Dark furrowed plain receiving soft shadow-mapped shadows from floating objects",
+        "Lathed porcelain egg (MeshPhysicalMaterial clearcoat/sheen) split into a cup and a hinged cap",
+        "Copper inner sun with a point light, and a slate-blue cloud of spheres inside the shell",
+        "Four clearcoat satellites (slate blue / copper) with pale tethers and two cross links",
+        "A distant free-standing door frame that makes the scale ambiguous",
+        "Cream Georgia title copy at the left; pale blue-grey subtitle"
+      ],
+      "assets": [
+        "index.html",
+        "scene.js (esbuild bundle of scene.src.js + three r186)",
+        "gsap.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.9,
+          "development": "A small egg drifts down from above and grows to full size, floating above its own shadow. The camera begins a slow dolly in. 'An idea' and 'becomes' fade up.",
+          "captions": ["An idea", "becomes"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.9,
+          "endSeconds": 1.6,
+          "development": "The cap tips open on its left hinge and stays hovering. A copper sun rises inside the cup and lights its inner wall, and a slate-blue cloud swells beside it.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.6,
+          "endSeconds": 2.5,
+          "development": "Four satellites leave the inner sun on tethers, one after another, and settle around the egg. Two cross links draw between them to close the system. 'A CONNECTED SYSTEM' and the subtitle appear.",
+          "captions": ["A CONNECTED SYSTEM", "the egg that holds its own weather"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.5,
+          "endSeconds": 3,
+          "development": "Settled hold: the full tableau and all copy are still and readable.",
+          "captions": ["An idea", "becomes", "A CONNECTED SYSTEM", "the egg that holds its own weather"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.5
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "One focus at a time: the egg's arrival (0–0.9s), then the opening and the weather (0.8–1.6s), then the system spreading out (1.3–2.5s).",
+      "Satellite departures are staggered by 0.12s, so the eye follows them outward and they do not all pop at once.",
+      "Every tween ends by 2.5s, so the frame is settled before 2.7s."
+    ],
+    "justifiedHolds": [
+      "2.5–3.0s: a still hold so the full system and four lines of copy can be read; the headline has been readable since about 1.0s."
+    ]
+  },
+  "notes": [
+    "Silent preview: no audio track, music, effects or speech.",
+    "Background refresh: a scene-specific dusk sky over a dark plain replaces the earlier warm #EDE5D7 canvas. #EDE5D7 is kept as the porcelain shell material and the title colour.",
+    "BACKGROUND_REVIEW.json lists no matched sources or contact sheets, so no source-frame observations were applied.",
+    "STYLE.json tech.preview_recipes is absent, so no reviewed recipe is demonstrated beyond the background refresh."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-057",
+    "name": "Pixel Art (Digital and 3D Aesthetics category; explicit provenance).",
+    "visualIdentity": "Low logical-resolution pixel art with a limited palette, whole-pixel placement and deliberate pixel clusters, explicitly requested as a 16-bit sprite look. The 320 x 180 canvas and 32-color palette are optional examples only.",
+    "suitableUses": "Explicitly suited to sprites and scenes on a fixed logical grid. Documented pairings suggest chiptune videos, game trailers, looping social clips and 2:1 isometric city-builder or map explainers. Other uses are inferred from the medium, not stated.",
+    "limitations": "32 colors is not a universal 16-bit rule. Smoothing and non-integer scaling are disallowed, and post-effects that blend palette indices should be avoided. Isometric use excludes perspective 3D and arbitrary sprite rotation. Source-video details remain unverified.",
+    "palette": "Six suggested base colors, not supplied exact values: background #18253A, foreground #F3EBD3, accent_1 #426A76, accent_2 #8AA386, accent_3 #D3A45E, accent_4 #B56D6F. Task or brand colors override them. Gradients are disabled. Passing text pairs: foreground/background 12.923, foreground/accent_1 4.961, background/accent_2 5.616, background/accent_3 6.773. accent_4 fails normal body text at 3.944 and is decorative only.",
+    "motionAndInteraction": "Animate key poses with few in-between frames and held readable states; delivery frame rate may exceed the exposure rate. Cycle palette indices for water, neon or day-night changes without moving silhouette pixels. Keep placement whole-pixel and scaling integer. Avoid springs or bounce. Motion references are optional and apply only where scene assets support their action. Reduced motion freezes palette cycling in HTML delivery.",
+    "audio": "Audio is unspecified and not mandatory. A documented option pairs the style with style-105, using a beat table to schedule key poses and palette rotations while holding sprites during quiet passages. Do not claim beat synchronization without inspected audio. Verify speech intelligibility and picture sync.",
+    "assetRequirements": "Indexed sprites or pixel clusters at integer coordinates on a fixed-resolution offscreen canvas, with palette indices kept separate from colors. Aseprite can supply palettes, tags and sprite sheets. Gaze motion needs eye layers or a rig. Fonts, typography and source artwork are unspecified and must be supplied.",
+    "combinations": "Use alone for fixed-grid sprites and scenes. With style-105, schedule poses and palette cycles from a beat table. With style-077, build 2:1 pixel isometric tiles, keep labels in a separate crisp text layer and use the six-color palette. Avoid hybrids that blend palette indices or introduce live analysis drift.",
+    "productionApproach": "Canvas 2D is the recommended style renderer for pixel drawing; PixiJS or p5.js are optional, with nearest-neighbor and explicit repaint rules. GSAP owns the paused, seekable motion timeline. chroma-js validates palette values and contrast. HyperFrames is the default pipeline; Remotion is fallback only with a recorded reason. Verify forward, backward and direct seeks, plus decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

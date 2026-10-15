@@ -1,0 +1,25 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Memphis System",
+  "displayDescription": "An idea sticker spawns a linked Memphis network on a deep-indigo halftone field with ring pulse and confetti.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Flat digital vector approximation of Memphis print graphics; no paper or ink texture simulated.",
+    "Background moved from the cream example swatch to a scene-dependent deep indigo; accent tokens #ED718E, #3DBAB1, #F4C64F and ink #202039 keep their roles, with white keylines added for contrast on the dark field.",
+    "Motion and mo.js were reviewed but not used; GSAP alone owns every animated property, and confetti trajectories are authored constants.",
+    "Uses system Arial Black / Arial fonts."
+  ]
+}

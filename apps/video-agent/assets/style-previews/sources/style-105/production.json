@@ -1,0 +1,25 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent. No music, effects or voice. The notes C3, G3 and E4 are shown only visually, from a hand-authored demo cue table.",
+  "limitations": [
+    "Silent preview: there is no audio track, and notes are shown only visually.",
+    "The cue table (demo-cues.json, also embedded in index.html) was written by hand and is labeled 'demo, not analyzed'. Its per-cue bass/transient/treble values are authored, not measured. No librosa or NumPy analysis was run, and no real track is implied.",
+    "Ball flight is an illustrative procedural approximation: power2 eases stand in for gravity on each arc, and apex timing is split by the square root of drop height. It is not a physics simulation.",
+    "Bar compression, ball squash, the bar brightening (pale-core overlay at 0.7 alpha), piston extension, aperture-blade rotation and halo brightness are stylized 2D SVG approximations, not acoustic, elastic or optical models.",
+    "The background moved from the earlier warm #F3EBDD swatch to a cool drafting-sheet grey (#DFE6E8) with a stationary grid. This follows palette.background_policy = scene_dependent and the light-ground option in BACKGROUND_REVIEW (dim mid-tone hardware, impacts as pulses). The ink #293B44 ball and the #628C98 / #BA7B61 bar assignments are unchanged.",
+    "Blender was not used, as instructed. Three.js, PixiJS, Paper.js and Rough.js are installed but were not needed; the scene is flat SVG with GSAP motion.",
+    "A full video would replace the demo cues with offline librosa beat_track/onset_detect and NumPy band RMS, verified by hand, and would place audio at audioPlaceAt (contact minus a 12 ms sample attack) via HyperFrames."
+  ]
+}

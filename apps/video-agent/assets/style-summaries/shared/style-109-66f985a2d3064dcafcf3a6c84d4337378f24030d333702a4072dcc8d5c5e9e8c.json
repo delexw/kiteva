@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-109",
+    "name": "Animated Line Art (Motion Design and Cinematography). Supplemental style developed from a user-requested direction. Distinct from static line art and line boil.",
+    "visualIdentity": "Built from contours, connectors, arrows and paths with consistent widths, caps and joins. Objects appear first, then relationships are drawn, traced or reorganized. Completed structures must stay readable, avoiding tangles and endless repetition.",
+    "suitableUses": "Explicit: the source says it works alone for diagrams and contour reveals. Inferred: explanatory videos, process maps and interactive HTML diagrams that reveal steps in reading order. Node-edge graphs fit when layouts are cached first.",
+    "limitations": "Explicit: no arbitrary tangles or endless repeated drawing, and generated path order is not an authored sequence. Rough.js, p5.js and Paper.js add no authentic pencil, ink or hand-drawn poses. Two-color contrast checks do not verify text over video or textures.",
+    "palette": "Suggested, not approved: background #F9F4E7 for layout, foreground #27434A for structure and body text, accent_1 #AA6945 as one subordinate explanatory accent. Discrete tokens only; gradients are disabled. Foreground on background is 9.619:1 and passes normal text. Accent on background is 3.971:1, so it is decorative only. Task-supplied colors override these, and assets must never be recolored.",
+    "motionAndInteraction": "Paths reveal with stroke-dasharray, stroke-dashoffset or DrawSVGPlugin, sequenced by explanation. Labels stay hidden until their path or container completes. Arrowheads stay hidden until the shaft reaches its endpoint, timed on the same seekable timeline. Hover and scroll apply only to interactive delivery. Optional motion references 012, 015, 038 and 039 need supporting scene assets.",
+    "audio": "Unspecified by the source; no audio layer is mandated. Inferred options: restrained music, narration or silence during reading holds, chosen per topic. Music synchronization is not assumed without inspected audio analysis. Line-draw sound effects are unspecified. Do not invent audio assets.",
+    "assetRequirements": "The source supplies no assets. Inspect approved mark geometry, glyphs and diagram data before use. Load fonts and geometry before construction. Cache graph positions with validated node and edge IDs, and seed any random parameters. Report missing assets rather than replacing them.",
+    "combinations": "Explicit suggestions: style-001 Swiss grid typography, with foreground labels and the accent used only on the active path. Also style-024 handwritten annotations, added after structures complete, at most one per idea. Use a hybrid when an authoritative layout or warmer voice is needed; otherwise the style works alone.",
+    "productionApproach": "Style renderer: native SVG paths, adding Rough.js, Paper.js, p5.js, Cytoscape.js or tldraw only where needed. Motion engine: GSAP DrawSVGPlugin or dash offsets, with one owner per animated property. Pipeline: HyperFrames by default, with Remotion only under its recorded fallback condition. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

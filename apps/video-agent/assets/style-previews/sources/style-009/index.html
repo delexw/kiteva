@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#22313B}
+  #root{position:relative;width:100%;height:100%;overflow:hidden;background:#22313B}
+  #root > svg, #root > canvas{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+  #grain{pointer-events:none}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+
+  <!-- Layer A: stationary dusk ground + geometric/organic colour fields (SVG) -->
+  <svg id="fields" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+    <rect x="0" y="0" width="1280" height="720" fill="#22313B"/>
+    <!-- teal geometric quarter field behind the system -->
+    <g id="tealField"><circle cx="1210" cy="690" r="350" fill="#357B78"/></g>
+    <!-- mustard organic kidney field behind the figure -->
+    <g id="mustardField"><path d="M150 560c-60-120 10-300 160-330c150-30 250 70 230 200c-20 140-160 210-260 190c-60-12-110-30-130-60z" fill="#C49A35"/></g>
+    <!-- boomerang accents -->
+    <g id="leafA"><path d="M1140 240q30 -40 60 0q-30 -16 -60 0z" fill="#357B78" transform="rotate(-20 1170 240)"/></g>
+    <g id="leafB"><path d="M190 200q30 -40 60 0q-30 -16 -60 0z" fill="#A64E3D" transform="rotate(25 220 200)"/></g>
+  </svg>
+
+  <!-- Layer B: Canvas 2D atomic starburst, redrawn from timeline time -->
+  <canvas id="rays" width="1280" height="720"></canvas>
+
+  <!-- Layer C: figure, idea, system (SVG) -->
+  <svg id="scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+    <!-- system links (drawn) -->
+    <g fill="none" stroke="#F3E9D5" stroke-width="4" stroke-linecap="round">
+      <path id="link1" d="M556 268C680 200 760 220 840 300"/>
+      <path id="link2" d="M840 300C920 380 1000 420 1100 360"/>
+      <path id="link3" d="M840 300L900 520"/>
+      <path id="link4" d="M900 520L1100 360"/>
+      <path id="link5" d="M900 520L700 560"/>
+    </g>
+    <!-- nodes: cream rim + token fill -->
+    <g id="node1"><circle cx="840" cy="300" r="21" fill="#F3E9D5"/><circle cx="840" cy="300" r="15" fill="#A64E3D"/></g>
+    <g id="node3"><circle cx="900" cy="520" r="21" fill="#F3E9D5"/><circle cx="900" cy="520" r="15" fill="#C49A35"/></g>
+    <g id="node2"><circle cx="1100" cy="360" r="21" fill="#F3E9D5"/><circle cx="1100" cy="360" r="15" fill="#357B78"/></g>
+    <g id="node4"><circle cx="700" cy="560" r="21" fill="#F3E9D5"/><circle cx="700" cy="560" r="15" fill="#357B78"/></g>
+
+    <!-- figure -->
+    <g id="figure">
+      <path id="body" d="M280 600c0-120 30-200 90-200s90 80 90 200z" fill="#357B78"/>
+      <g id="arm"><path d="M412 430L482 334" stroke="#332C26" stroke-width="14" stroke-linecap="round" fill="none"/></g>
+      <g id="head"><circle cx="370" cy="350" r="44" fill="#332C26"/><path d="M342 336q28 -26 58 -6" stroke="#C49A35" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    </g>
+
+    <!-- the idea: cream halo + brick star -->
+    <g id="halo"><circle cx="500" cy="290" r="66" fill="#F3E9D5"/></g>
+    <g id="star"><path transform="translate(500 290)" d="M0 -46L10 -12L44 -15L16 7L30 40L0 20L-30 40L-16 7L-44 -15L-10 -12Z" fill="#A64E3D"/></g>
+
+  </svg>
+
+  <!-- Layer D: fixed seeded print grain (stationary, drawn once) -->
+  <canvas id="grain" width="1280" height="720"></canvas>
+
+  <!-- Layer E: copy sits above the grain in its own zone for full legibility -->
+  <svg id="copy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" style="pointer-events:none">
+    <!-- copy -->
+    <g id="headline">
+      <text x="640" y="118" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="46" fill="#F3E9D5">One bright idea,</text>
+    </g>
+    <g id="subhead">
+      <text x="640" y="168" font-family="Futura, Avenir, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="700" font-size="30" fill="#C49A35" letter-spacing="6">A CONNECTED SYSTEM</text>
+    </g>
+    <g id="tagline">
+      <text x="120" y="676" font-family="Futura, Avenir, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" fill="#F3E9D5" letter-spacing="5">DESIGNED FOR LIVING TOGETHER</text>
+    </g>
+  </svg>
+</div>
+
+<script src="gsap.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var W=1280,H=720;
+  var C={bg:'#22313B',ink:'#332C26',cream:'#F3E9D5',mustard:'#C49A35',brick:'#A64E3D',teal:'#357B78'};
+
+  // ---- seeded print grain (fixed texture, never animated) ----
+  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  (function drawGrain(){
+    var g=document.getElementById('grain').getContext('2d');
+    var rnd=mulberry32(9009);
+    g.clearRect(0,0,W,H);
+    for(var i=0;i<14000;i++){
+      var x=rnd()*W,y=rnd()*H,r=0.4+rnd()*0.8,light=rnd()<0.55;
+      g.fillStyle=light?'rgba(243,233,213,0.07)':'rgba(20,18,16,0.10)';
+      g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();
+    }
+  })();
+
+  // ---- Canvas starburst: pure function of composition time ----
+  var rays=document.getElementById('rays').getContext('2d');
+  var burstEase=gsap.parseEase('back.out(1.4)');
+  function clamp01(v){return v<0?0:v>1?1:v;}
+  function drawRays(t){
+    rays.clearRect(0,0,W,H);
+    var p=clamp01((t-1.05)/0.55);
+    if(p<=0)return;
+    var e=burstEase(p);
+    var cx=500,cy=290,n=12,inner=70,outer=inner+70*e;
+    var rot=(-12+12*clamp01((t-1.05)/0.9))*Math.PI/180;
+    for(var i=0;i<n;i++){
+      var a=rot+i*Math.PI*2/n,len=(i%2?0.62:1)*(outer-inner)+inner,hw=(i%2?0.05:0.075);
+      rays.fillStyle=i%2?C.cream:C.mustard;
+      rays.beginPath();
+      rays.moveTo(cx+Math.cos(a-hw)*inner,cy+Math.sin(a-hw)*inner);
+      rays.lineTo(cx+Math.cos(a)*len,cy+Math.sin(a)*len);
+      rays.lineTo(cx+Math.cos(a+hw)*inner,cy+Math.sin(a+hw)*inner);
+      rays.closePath();rays.fill();
+    }
+  }
+
+  // ---- GSAP timeline: owns every SVG transform/opacity/dash ----
+  var tl=gsap.timeline({paused:true,onUpdate:function(){drawRays(tl.time());}});
+
+  // 1. Colour fields establish the poster (0 - 0.7)
+  tl.fromTo('#mustardField',{scale:0.55,rotation:-14,opacity:0,svgOrigin:'345 425'},{scale:1,rotation:0,opacity:1,duration:0.7,ease:'power2.inOut'},0);
+  tl.fromTo('#tealField',{scale:0.2,opacity:0,svgOrigin:'1280 720'},{scale:1,opacity:1,duration:0.75,ease:'power2.inOut'},0.1);
+  tl.fromTo('#headline',{x:-28,opacity:0},{x:0,opacity:1,duration:0.45,ease:'power2.out'},0.15);
+  tl.fromTo('#subhead',{x:-28,opacity:0},{x:0,opacity:1,duration:0.45,ease:'power2.out'},0.3);
+
+  // 2. Figure rises, head settles, arm swings up with a dip of anticipation (0.35 - 1.1)
+  tl.fromTo('#body',{y:60,opacity:0},{y:0,opacity:1,duration:0.5,ease:'back.out(1.2)'},0.35);
+  tl.fromTo('#head',{y:-40,opacity:0},{y:0,opacity:1,duration:0.45,ease:'back.out(1.2)'},0.5);
+  tl.fromTo('#arm',{rotation:110,opacity:0,svgOrigin:'412 430'},{rotation:125,opacity:1,duration:0.2,ease:'sine.inOut'},0.62);
+  tl.to('#arm',{rotation:0,duration:0.38,ease:'back.out(1.6)',svgOrigin:'412 430'},0.82);
+
+  // 3. The idea ignites at the raised hand (1.0 - 1.5); canvas rays follow from t
+  tl.fromTo('#halo',{scale:0,svgOrigin:'500 290'},{scale:1,duration:0.4,ease:'back.out(1.6)'},1.0);
+  tl.fromTo('#star',{scale:0.3,rotation:-90,opacity:0,svgOrigin:'500 290'},{scale:1,rotation:0,opacity:1,duration:0.5,ease:'back.out(1.4)'},1.05);
+
+  // 4. The idea becomes a system: links draw, nodes pop on arrival (1.35 - 2.35)
+  var links=[['#link1',1.35,0.32,'#node1'],['#link2',1.67,0.3,'#node2'],['#link3',1.7,0.28,'#node3'],['#link4',1.98,0.24,null],['#link5',1.98,0.26,'#node4']];
+  var nodeCentres={'#node1':'840 300','#node2':'1100 360','#node3':'900 520','#node4':'700 560'};
+  links.forEach(function(l){
+    var path=document.querySelector(l[0]),len=Math.ceil(path.getTotalLength())+2;
+    tl.fromTo(path,{strokeDasharray:len,strokeDashoffset:len},{strokeDashoffset:0,duration:l[2],ease:'power2.inOut'},l[1]);
+    if(l[3])tl.fromTo(l[3],{scale:0,svgOrigin:nodeCentres[l[3]]},{scale:1,duration:0.3,ease:'back.out(1.8)'},l[1]+l[2]-0.04);
+  });
+
+  // 5. Supporting accents and tagline settle (1.9 - 2.5)
+  tl.fromTo('#leafA',{rotation:-30,opacity:0,svgOrigin:'1170 230'},{rotation:0,opacity:1,duration:0.45,ease:'back.out(1.2)'},1.9);
+  tl.fromTo('#leafB',{rotation:30,opacity:0,svgOrigin:'220 190'},{rotation:0,opacity:1,duration:0.45,ease:'back.out(1.2)'},1.95);
+  tl.fromTo('#tagline',{y:10,opacity:0},{y:0,opacity:1,duration:0.4,ease:'power2.out'},2.0);
+
+  // Hold to the full duration (settled by ~2.45s)
+  tl.to({}, {duration:0.001}, 2.999);
+
+  tl.seek(0,false);drawRays(0);
+  window.addEventListener('hf-seek',function(ev){
+    var t=ev&&ev.detail&&typeof ev.detail.time==='number'?ev.detail.time:tl.time();
+    drawRays(t);
+  });
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

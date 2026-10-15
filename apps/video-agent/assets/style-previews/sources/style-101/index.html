@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>An idea becomes a connected system — 2.5D Parallax</title>
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #0D1824; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #0D1824; }
+  #stage { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #stage canvas { width: 100% !important; height: 100% !important; display: block; }
+  .headline { position: absolute; left: 80px; top: 64px; margin: 0;
+    font-family: "Trebuchet MS", Helvetica, Arial, sans-serif; font-weight: 700;
+    font-size: 48px; line-height: 56px; color: #EFE7D6; letter-spacing: 0.2px; }
+  .headline span { display: block; opacity: 0; will-change: transform, opacity; }
+  .depth-key { position: absolute; left: 80px; top: 676px; margin: 0;
+    font-family: Helvetica, Arial, sans-serif; font-size: 13px; line-height: 16px;
+    letter-spacing: 3px; color: #EFE7D6; opacity: 0; white-space: pre; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <div id="stage" aria-hidden="true"></div>
+  <h1 class="headline"><span id="line1">An idea becomes</span><span id="line2">a connected system</span></h1>
+  <p class="depth-key" id="depthKey">FG 1.0x   MG 0.6x   BG 0.25x</p>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="pixi.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var W = 1280, H = 720, CX = 640, CY = 360, DUR = 3;
+
+  // ---- Resolved scene palette (dusk valley; scene-dependent, not the prior cream canvas) ----
+  var C = {
+    skyTop: '#0D1824', skyMid: '#172A3A', skyHorizon: '#2A4352',
+    ridge: '#263C4F', ridgeRim: '#34506A',
+    farHill: '#1A2C3A', midHill: '#13212C', pole: '#0A131A',
+    ground: '#091117', nearFg: '#04080B',
+    wire: '#E9C47E', wireDim: '#3E5562',
+    lampOff: '#2C3B44', lampCore: '#EFE7D6', glow: '#F4CF86',
+    sage: '#8A9C85', windowOff: '#22313A', windowOn: '#F2C879', cottage: '#101C24',
+    text: '#EFE7D6'
+  };
+  // Contrast record (chroma.js): headline cream on sky top/mid.
+  window.__contrast = {
+    headlineOnSkyTop: chroma.contrast(C.text, C.skyTop),
+    headlineOnSkyMid: chroma.contrast(C.text, C.skyMid),
+    keyOnGround: chroma.contrast(C.text, C.ground)
+  };
+  function hex(c) { return parseInt(chroma(c).hex().slice(1), 16); }
+
+  // ---- deterministic helpers ----
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function seg(t, a, b) { return clamp((t - a) / (b - a), 0, 1); }
+  var eSine = gsap.parseEase('sine.inOut'), eP2 = gsap.parseEase('power2.inOut'),
+      eBack = gsap.parseEase('back.out(1.7)'), eOut = gsap.parseEase('power2.out');
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function quad(p0, c, p1, n) { var o = []; for (var i = 0; i <= n; i++) { var s = i / n, u = 1 - s;
+    o.push([u*u*p0[0] + 2*u*s*c[0] + s*s*p1[0], u*u*p0[1] + 2*u*s*c[1] + s*s*p1[1]]); } return o; }
+  function hillPts(segs, x0, x1) { // segs: [[p0,c,p1],...]
+    var pts = [[x0, segs[0][0][1]]];
+    segs.forEach(function (s) { pts = pts.concat(quad(s[0], s[1], s[2], 48)); });
+    pts.push([x1, segs[segs.length - 1][2][1]]);
+    return pts;
+  }
+  function yAt(pts, x) { for (var i = 1; i < pts.length; i++) { if (pts[i][0] >= x) { var a = pts[i-1], b = pts[i];
+    var k = (x - a[0]) / ((b[0] - a[0]) || 1); return a[1] + (b[1] - a[1]) * k; } } return pts[pts.length-1][1]; }
+
+  // ---- Layer depth table: factor = share of the shared camera move; margin = artwork beyond crop ----
+  var DEPTH = { sky: 0, ridge: 0.25, far: 0.45, mid: 0.6, fg: 1.0, near: 1.5 };
+  var CAM = { x0: 34, x1: -34, y1: -9, zoom: 0.045, settle: 2.6 };
+  // Max layer shift = 34*f px + zoom growth; every layer is authored at least 200px past each edge.
+
+  // ---- Geometry (screen-at-rest coordinates) ----
+  var farHill = hillPts([[[-200, 470], [200, 410], [600, 455]], [[600, 455], [1000, 500], [1500, 440]]], -260, 1560);
+  var midHill = hillPts([[[-200, 560], [240, 450], [560, 520]], [[560, 520], [880, 590], [1500, 500]]], -260, 1560);
+  var fgGround = hillPts([[[-220, 640], [300, 590], [700, 650]], [[700, 650], [1100, 710], [1520, 620]]], -280, 1580);
+  var POLES = [120, 380, 640, 900, 1160].map(function (x) { return { x: x, y: yAt(midHill, x) + 6 }; });
+  POLES.forEach(function (p) { p.lx = p.x; p.ly = p.y - 138; });
+  var COTTAGES = [{ x: 300, from: 1 }, { x: 760, from: 2 }, { x: 1010, from: 3 }].map(function (c) {
+    return { x: c.x, y: yAt(farHill, c.x) + 4, from: c.from }; });
+  var BULB = { x: 1130, y: 262, r: 26 };
+
+  // ---- Timing (seconds) ----
+  var T = { bulbOn: 0.12, bulbFull: 0.55, wireA: 0.6, wireB: 2.15, branchDur: 0.28, settle: 2.6 };
+
+  var state = { ready: false, t: 0 };
+  var app, L = {}, dyn = {};
+
+  function layerXform(f, t) {
+    var c = eSine(seg(t, 0, CAM.settle));
+    var camX = CAM.x0 + (CAM.x1 - CAM.x0) * c, camY = CAM.y1 * c, z = 1 + CAM.zoom * c;
+    return { x: CX + camX * f, y: CY + camY * f, s: 1 + (z - 1) * f };
+  }
+  function toScreen(f, p, t) { var m = layerXform(f, t); return [(p[0] - CX) * m.s + m.x, (p[1] - CY) * m.s + m.y]; }
+
+  function makeCanvasTex(w, h, paint) { var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    paint(cv.getContext('2d')); return PIXI.Texture.from(cv); }
+
+  function build() {
+    var stage = app.stage;
+    // Sky plate + stationary grain (depth 0, never moves)
+    var skyTex = makeCanvasTex(W, H, function (g) {
+      var gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, C.skyTop); gr.addColorStop(0.42, C.skyMid);
+      gr.addColorStop(0.62, C.skyHorizon); gr.addColorStop(1, C.skyMid); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      var r = mulberry32(101); // faint fixed stars, away from headline block
+      for (var i = 0; i < 70; i++) { var x = r() * W, y = r() * 300; if (x < 640 && y < 200) continue;
+        g.fillStyle = 'rgba(239,231,214,' + (0.15 + r() * 0.35).toFixed(3) + ')'; g.fillRect(x, y, 1.6, 1.6); }
+    });
+    L.sky = new PIXI.Sprite(skyTex); stage.addChild(L.sky);
+
+    function layer(name) { var c = new PIXI.Container(); c.pivot.set(CX, CY); stage.addChild(c); L[name] = c; return c; }
+
+    // BG ridge (0.25x)
+    var ridge = layer('ridge'), rg = new PIXI.Graphics();
+    var rp = [[-320, 720], [-320, 380], [-120, 330], [60, 372], [230, 306], [420, 362], [560, 318], [720, 368],
+      [880, 296], [1040, 350], [1200, 312], [1380, 360], [1600, 330], [1600, 720]];
+    rg.poly(rp.flat()).fill({ color: hex(C.ridge) });
+    rg.moveTo(rp[1][0], rp[1][1]); for (var i = 2; i < rp.length - 1; i++) rg.lineTo(rp[i][0], rp[i][1]);
+    rg.stroke({ width: 2, color: hex(C.ridgeRim), alpha: 0.9 });
+    ridge.addChild(rg);
+
+    // Far hills + cottages (0.45x)
+    var far = layer('far'), fh = new PIXI.Graphics();
+    fh.poly(farHill.concat([[1560, 760], [-260, 760]]).flat()).fill({ color: hex(C.farHill) });
+    far.addChild(fh);
+    dyn.windows = [];
+    COTTAGES.forEach(function (c) {
+      var g = new PIXI.Graphics();
+      g.rect(c.x - 16, c.y - 20, 32, 20).fill({ color: hex(C.cottage) });
+      g.poly([c.x - 20, c.y - 20, c.x, c.y - 36, c.x + 20, c.y - 20]).fill({ color: hex(C.cottage) });
+      far.addChild(g);
+      var wOff = new PIXI.Graphics().rect(c.x - 6, c.y - 14, 12, 9).fill({ color: hex(C.windowOff) });
+      var wOn = new PIXI.Graphics().rect(c.x - 6, c.y - 14, 12, 9).fill({ color: hex(C.windowOn) });
+      var halo = new PIXI.Sprite(dyn.glowTex); halo.anchor.set(0.5); halo.position.set(c.x, c.y - 10);
+      halo.width = halo.height = 90; halo.tint = hex(C.glow); halo.blendMode = 'add';
+      far.addChild(wOff, halo, wOn); dyn.windows.push({ on: wOn, halo: halo });
+    });
+
+    // Branch wires live between far hills and MG hill, so the MG hill occludes their lower ends.
+    dyn.branch = new PIXI.Graphics(); stage.addChild(dyn.branch);
+
+    // MG hill + poles (0.6x)
+    var mid = layer('mid'), mh = new PIXI.Graphics();
+    mh.poly(midHill.concat([[1560, 780], [-260, 780]]).flat()).fill({ color: hex(C.midHill) });
+    mid.addChild(mh);
+    dyn.lamps = [];
+    POLES.forEach(function (p) {
+      var g = new PIXI.Graphics();
+      g.moveTo(p.x, p.y).lineTo(p.x, p.y - 130).stroke({ width: 5, color: hex(C.pole) });
+      g.moveTo(p.x - 16, p.y - 100).lineTo(p.x + 16, p.y - 100).stroke({ width: 4, color: hex(C.pole) });
+      g.circle(p.lx, p.ly, 11).fill({ color: hex(C.lampOff) }).stroke({ width: 4, color: hex(C.pole) });
+      mid.addChild(g);
+      var halo = new PIXI.Sprite(dyn.glowTex); halo.anchor.set(0.5); halo.position.set(p.lx, p.ly);
+      halo.tint = hex(C.glow); halo.blendMode = 'add';
+      var core = new PIXI.Graphics().circle(0, 0, 9).fill({ color: hex(C.lampCore) });
+      core.position.set(p.lx, p.ly);
+      var pool = new PIXI.Sprite(dyn.glowTex); pool.anchor.set(0.5); pool.position.set(p.x, p.y + 2);
+      pool.tint = hex(C.glow); pool.blendMode = 'add';
+      mid.addChild(pool, halo, core); dyn.lamps.push({ halo: halo, core: core, pool: pool });
+    });
+
+    // Main wire (screen space, recomputed per frame from layer transforms)
+    dyn.wire = new PIXI.Graphics(); stage.addChild(dyn.wire);
+
+    // FG ground + idea post (1.0x)
+    var fg = layer('fg'), fgG = new PIXI.Graphics();
+    fgG.poly(fgGround.concat([[1580, 800], [-280, 800]]).flat()).fill({ color: hex(C.ground) });
+    fgG.moveTo(1220, 760).lineTo(1220, 230).lineTo(BULB.x, 230).stroke({ width: 14, color: hex(C.ground), join: 'miter' });
+    fgG.moveTo(BULB.x, 230).lineTo(BULB.x, BULB.y - BULB.r).stroke({ width: 6, color: hex(C.ground) });
+    fg.addChild(fgG);
+    dyn.bulbGlow = new PIXI.Sprite(dyn.glowTex); dyn.bulbGlow.anchor.set(0.5); dyn.bulbGlow.position.set(BULB.x, BULB.y);
+    dyn.bulbGlow.tint = hex(C.glow); dyn.bulbGlow.blendMode = 'add';
+    dyn.bulbOff = new PIXI.Graphics().circle(BULB.x, BULB.y, BULB.r).fill({ color: hex(C.lampOff) }).stroke({ width: 6, color: hex(C.ground) });
+    dyn.bulbOn = new PIXI.Graphics().circle(BULB.x, BULB.y, BULB.r - 3).fill({ color: hex(C.lampCore) });
+    dyn.ring = new PIXI.Graphics();
+    for (var d = 0; d < 18; d++) { var a0 = d / 18 * Math.PI * 2, a1 = a0 + Math.PI * 2 / 18 * 0.45;
+      dyn.ring.moveTo(Math.cos(a0) * 46, Math.sin(a0) * 46).arc(0, 0, 46, a0, a1); }
+    dyn.ring.stroke({ width: 3, color: hex(C.sage) });
+    dyn.ring.position.set(BULB.x, BULB.y);
+    fg.addChild(dyn.bulbGlow, dyn.bulbOff, dyn.bulbOn, dyn.ring);
+
+    // Near-FG defocused grass (1.5x) — kept clear of the depth key text
+    var near = layer('near'), ng = new PIXI.Graphics(), rr = mulberry32(7);
+    function tuft(x0, x1, base) { for (var x = x0; x < x1; x += 9) { var h = 40 + rr() * 70, lean = (rr() - 0.5) * 30;
+      ng.poly([x - 6, base, x + lean, base - h, x + 6, base]).fill({ color: hex(C.nearFg) }); }
+      ng.rect(x0 - 10, base - 4, x1 - x0 + 20, 80).fill({ color: hex(C.nearFg) }); }
+    tuft(-260, 40, 735); tuft(760, 1000, 745); tuft(1420, 1560, 735);
+    ng.filters = [new PIXI.BlurFilter({ strength: 7, quality: 3 })];
+    near.addChild(ng);
+  }
+
+  function drawWire(t) {
+    var w = dyn.wire; w.clear();
+    var W0 = eP2(seg(t, T.wireA, T.wireB)) * 5; // 5 spans: bulb->P5, P5->P4 ... P2->P1
+    var nodes = [toScreen(DEPTH.fg, [BULB.x, BULB.y + BULB.r], t)];
+    for (var i = POLES.length - 1; i >= 0; i--) nodes.push(toScreen(DEPTH.mid, [POLES[i].lx, POLES[i].ly], t));
+    for (var s = 0; s < 5; s++) {
+      var k = clamp(W0 - s, 0, 1); if (k <= 0) break;
+      var a = nodes[s], b = nodes[s + 1], sag = s === 0 ? 10 : 30;
+      var c = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2 + sag];
+      var pts = quad(a, c, b, 32), n = Math.max(1, Math.round(32 * k));
+      w.moveTo(pts[0][0], pts[0][1]); for (var j = 1; j <= n; j++) w.lineTo(pts[j][0], pts[j][1]);
+    }
+    w.stroke({ width: 2.5, color: hex(C.wire), alpha: 0.95, cap: 'round', join: 'round' });
+    return W0;
+  }
+
+  function draw(t) {
+    if (!state.ready) return;
+    t = clamp(t, 0, DUR);
+    ['ridge', 'far', 'mid', 'fg', 'near'].forEach(function (n) { var m = layerXform(DEPTH[n], t);
+      L[n].position.set(m.x, m.y); L[n].scale.set(m.s); });
+
+    // Idea ignites: deterministic flicker, then steady
+    var b = seg(t, T.bulbOn, T.bulbFull), fl = t < 0.4 ? (Math.sin(t * 95) > -0.2 ? 1 : 0.35) : 1;
+    var bi = eOut(b) * fl;
+    dyn.bulbOn.alpha = bi; dyn.bulbGlow.alpha = 0.85 * bi;
+    var gs = 260 + 120 * eOut(b) + 40 * eSine(seg(t, 2.15, 2.6));
+    dyn.bulbGlow.width = dyn.bulbGlow.height = gs;
+    dyn.ring.alpha = 0.9 * eOut(seg(t, 0.35, 0.8));
+    dyn.ring.rotation = (t / DUR) * Math.PI * 0.6 - 0.3 * eOut(seg(t, 0.35, 0.8));
+    dyn.ring.scale.set(0.7 + 0.3 * eBack(seg(t, 0.35, 0.8)));
+
+    var W0 = drawWire(t);
+    var bg = dyn.branch; bg.clear(); var anyBranch = false;
+    // Pole i is reached when the wire completes span (5 - i); lamp pop is keyed to that arrival time.
+    dyn.lamps.forEach(function (lp, i) {
+      var arrive = arrivalTime(5 - i);
+      var since = t >= arrive ? 1 : 0, pop = eBack(seg(t, arrive, arrive + 0.3));
+      lp.core.alpha = since; lp.core.scale.set(0.4 + 0.6 * pop);
+      lp.halo.alpha = 0.8 * since; lp.halo.width = lp.halo.height = 60 + 60 * pop;
+      lp.pool.alpha = 0.4 * since * pop; lp.pool.width = 170 * pop + 1; lp.pool.height = 28;
+    });
+    COTTAGES.forEach(function (c, k) {
+      var start = arrivalTime(5 - c.from) + 0.08, pr = eOut(seg(t, start, start + T.branchDur));
+      if (pr > 0) { anyBranch = true;
+        var a = toScreen(DEPTH.mid, [POLES[c.from].lx, POLES[c.from].ly], t), e = toScreen(DEPTH.far, [c.x, c.y - 30], t);
+        var pts = quad(a, [(a[0] + e[0]) / 2, Math.max(a[1], e[1]) + 18], e, 24), n = Math.max(1, Math.round(24 * pr));
+        bg.moveTo(pts[0][0], pts[0][1]); for (var j = 1; j <= n; j++) bg.lineTo(pts[j][0], pts[j][1]); }
+      var lit = t >= start + T.branchDur ? 1 : 0, wpop = eOut(seg(t, start + T.branchDur, start + T.branchDur + 0.25));
+      dyn.windows[k].on.alpha = lit * wpop; dyn.windows[k].halo.alpha = 0.6 * lit * wpop;
+    });
+    if (anyBranch) bg.stroke({ width: 1.6, color: hex(C.wire), alpha: 0.75, cap: 'round' });
+
+    app.renderer.render(app.stage);
+  }
+  function arrivalTime(spanCount) { // first t at which wire progress W0 >= spanCount (bisection on the eased curve)
+    var target = spanCount / 5; if (target >= 1) return T.wireB;
+    var lo = 0, hi = 1; for (var i = 0; i < 30; i++) { var m = (lo + hi) / 2; if (eP2(m) < target) lo = m; else hi = m; }
+    return T.wireA + hi * (T.wireB - T.wireA);
+  }
+
+  // ---- Single GSAP timeline: owns composition time (proxy) + DOM headline/key opacity & y ----
+  var proxy = { _t: 0 };
+  Object.defineProperty(proxy, 't', { get: function () { return this._t; }, set: function (v) { this._t = v; state.t = v; draw(v); } });
+  var tl = gsap.timeline({ paused: true });
+  tl.to(proxy, { t: DUR, duration: DUR, ease: 'none' }, 0);
+  tl.fromTo('#line1', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.25);
+  tl.fromTo('#line2', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.45);
+  tl.fromTo('#depthKey', { opacity: 0 }, { opacity: 0.85, duration: 0.4, ease: 'sine.inOut' }, 1.0);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+
+  function redrawFromTimeline() { draw(tl.time()); }
+  window.addEventListener('hf-seek', function (e) {
+    var v = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : null;
+    if (v !== null) tl.seek(v, false); redrawFromTimeline();
+  });
+  document.addEventListener('hf-seek', redrawFromTimeline);
+
+  // ---- Renderer init (async WebGL); ticker disabled, all frames rendered on seek ----
+  (async function init() {
+    app = new PIXI.Application();
+    await app.init({ width: W, height: H, background: hex(C.skyTop), antialias: true, autoStart: false,
+      sharedTicker: false, preference: 'webgl', preserveDrawingBuffer: true, resolution: 1, autoDensity: false });
+    app.ticker.stop();
+    dyn.glowTex = makeCanvasTex(256, 256, function (g) {
+      var gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+      gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,0.55)');
+      gr.addColorStop(0.6, 'rgba(255,255,255,0.12)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, 256, 256); });
+    document.getElementById('stage').appendChild(app.canvas);
+    build();
+    state.ready = true;
+    redrawFromTimeline();
+    window.__sceneReady = true;
+  })();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

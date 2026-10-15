@@ -1,0 +1,31 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Torn Collage",
+  "displayDescription": "A pencil idea on newsprint tears away to reveal a slate print layer where cut-paper nodes are threaded into a system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "PixiJS 8.22 (official prebuilt browser build, WebGL, manual app.render, ticker stopped)",
+    "Rough.js 4.6.6 generator (seeded pencil and outline geometry)",
+    "Canvas 2D (one-time seeded paper and dot-screen textures)",
+    "HTML/CSS typography"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline at window.__timelines.video: tweens the DOM typography and runs one full-length proxy tween whose onUpdate redraws the Pixi scene from tl.time()",
+    "Pixi scene state is a pure function of composition time, using GSAP parseEase eases; it is also redrawn on hf-seek via waitUntil"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track.",
+  "limitations": [
+    "Paper, tape, halftone and thread are procedural 2D approximations. No photographed or scanned material, no physical stop-motion and no 3D prerender are used.",
+    "The paper tear is a rigid rotation and translation of one cut polygon with a fibre band. There is no paper bending or curl simulation.",
+    "Shadows are flat offset alpha polygons, not lit.",
+    "Blender was intentionally not used, as instructed.",
+    "No reviewed preview recipe was supplied, so source-frame techniques are shown instead.",
+    "pixi.min.js is PixiJS's own prebuilt browser build, copied locally from node_modules and loaded as a separate script. scene.bundle.js is an esbuild bundle of src/scene.js plus roughjs, with PIXI taken from the global. Pixi internals use Math.random, performance.now and Date.now for IDs and its ticker; the ticker is stopped and visual state does not depend on them."
+  ]
+}

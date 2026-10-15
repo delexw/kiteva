@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plate 119 — An Idea Becomes a Connected System</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 1280px; height: 720px; overflow: hidden; background: #E4E9E7; }
+  #video { position: relative; width: 100%; height: 100%; background: #E4E9E7; overflow: hidden;
+    font-family: Georgia, "Times New Roman", serif; color: #222522; }
+  #plate { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; }
+  .num { font-family: Menlo, "SF Mono", "Courier New", monospace; font-variant-numeric: tabular-nums; }
+  #readout-card { position: absolute; left: 720px; top: 160px; width: 480px; height: 156px; box-sizing: border-box;
+    border: 2px solid #222522; background: #E4E9E7; padding: 14px 22px; }
+  #readout-card::after { content: ""; position: absolute; inset: 5px; border: 1px solid #222522; pointer-events: none; }
+  .card-label { font-size: 13px; letter-spacing: 4px; text-transform: uppercase; }
+  .card-row { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 6px; }
+  #count { font-size: 64px; line-height: 70px; letter-spacing: 2px; }
+  #count .unit-digit { border-bottom: 5px solid #E78636; }
+  .stats { font-size: 15px; line-height: 24px; text-align: right; }
+  .stats b { font-weight: 700; display: inline-block; min-width: 4.4ch; text-align: right; }
+</style>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="plate" xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)">
+      <path d="M0 0V5" stroke="#222522" stroke-width=".8"/>
+    </pattern>
+  </defs>
+  <rect id="field" width="1280" height="720" fill="#E4E9E7"/>
+
+  <!-- standalone heading (independent timing) -->
+  <g id="heading" font-family="Georgia, 'Times New Roman', serif" text-anchor="end">
+    <text x="1220" y="92" font-size="32" font-style="italic" fill="#222522">An Idea Becomes a Connected System</text>
+    <text x="1220" y="126" font-size="13" letter-spacing="5" fill="#416B53">PLATE 119 — ENGRAVED TRANSMISSION</text>
+  </g>
+  <path id="heading-rule" class="eng" d="M760 140H1220" stroke="#222522" stroke-width="1" fill="none"/>
+
+  <!-- inspection rail -->
+  <g id="rail">
+    <path class="eng" d="M60 560H1220" stroke="#222522" stroke-width="3" fill="none"/>
+    <path id="rail-notches" class="fadeIn" d="M60 572H1220" stroke="#222522" stroke-width="10" stroke-dasharray="1 19" fill="none"/>
+    <path class="eng" d="M60 584H1220" stroke="#222522" stroke-width="1" fill="none"/>
+    <g id="rail-scale" class="num fadeIn" font-size="11" fill="#222522" text-anchor="middle"></g>
+  </g>
+
+  <!-- belt (behind wheels: pulley P1 sits coaxially behind units wheel A) -->
+  <g id="belt">
+    <path id="belt-band" class="eng" d="M240 344A36 36 0 0 0 240 416H1040A36 36 0 0 0 1040 344Z" fill="none" stroke="#222522" stroke-width="13"/>
+    <path id="belt-inner" class="fadeIn" d="M240 344A36 36 0 0 0 240 416H1040A36 36 0 0 0 1040 344Z" fill="none" stroke="#E4E9E7" stroke-width="8"/>
+    <path id="belt-teeth" class="fadeIn" d="M240 344A36 36 0 0 0 240 416H1040A36 36 0 0 0 1040 344Z" fill="none" stroke="#222522" stroke-width="8" stroke-dasharray="2 8"/>
+  </g>
+
+  <g id="wheels"></g>
+
+  <!-- carriage on rail, clamped to belt bottom run -->
+  <g id="carriage">
+    <g id="carriage-body">
+      <rect class="eng" x="-10" y="406" width="20" height="20" fill="#E4E9E7" stroke="#222522" stroke-width="2"/>
+      <path class="eng" d="M-3 426V520M3 426V520" stroke="#222522" stroke-width="1.5" fill="none"/>
+      <rect id="carriage-box" class="eng" x="-62" y="520" width="124" height="36" fill="#E4E9E7" stroke="#222522" stroke-width="2"/>
+      <rect class="fadeIn" x="-56" y="525" width="30" height="26" fill="url(#hatch)"/>
+      <rect class="fadeIn" x="26" y="525" width="30" height="26" fill="url(#hatch)"/>
+      <path class="eng" d="M0 556V594" stroke="#416B53" stroke-width="3" fill="none"/>
+    </g>
+    <text data-reveal-after="carriage-box" x="0" y="543" font-size="11" letter-spacing="2" text-anchor="middle" fill="#222522" font-family="Georgia, serif">SLIDE</text>
+  </g>
+
+  <!-- inspection pointers: shaft + separate head -->
+  <g id="pointers">
+    <path id="ptrA-shaft" class="ptr-shaft" d="M240 226V264" stroke="#416B53" stroke-width="4" fill="none"/>
+    <path data-arrowhead-for="ptrA-shaft" class="ptr-head" d="M231 262L249 262L240 277Z" fill="#416B53"/>
+    <path id="ptrT-shaft" class="ptr-shaft" d="M467 62V98" stroke="#416B53" stroke-width="4" fill="none"/>
+    <path data-arrowhead-for="ptrT-shaft" class="ptr-head" d="M458 96L476 96L467 111Z" fill="#416B53"/>
+  </g>
+
+  <!-- captions owned by their wheel groups -->
+  <g font-family="Georgia, 'Times New Roman', serif" fill="#222522" font-size="14" letter-spacing="3">
+    <text data-reveal-after="wheelA" x="240" y="512" text-anchor="middle">I · UNITS — THE IDEA</text>
+    <text data-reveal-after="wheelT" x="572" y="204" text-anchor="start">II · TENS</text>
+    <text data-reveal-after="wheelB" x="402" y="322" text-anchor="start" font-size="11" letter-spacing="2">CARRY PINION</text>
+    <text data-reveal-after="pulleyP" x="1040" y="458" text-anchor="middle">III · BELT TRANSFER</text>
+    <text data-reveal-after="rail" x="640" y="650" text-anchor="middle" font-size="13">IV · INSPECTION RAIL — THE CONNECTED SYSTEM</text>
+  </g>
+</svg>
+
+<div id="readout-card">
+  <div class="card-label" data-reveal-after="readout-card">Register · carry inspection</div>
+  <div class="card-row" data-reveal-after="readout-card">
+    <div id="count" class="num"><span id="c-tens">1</span><span id="c-units" class="unit-digit">6</span></div>
+    <div class="stats num">CRANK <b id="r-crank">216°</b><br>PINION <b id="r-pinion">-432°</b><br>BELT <b id="r-belt">+0.0</b> mm</div>
+  </div>
+</div>
+</div>
+
+<script src="gsap.min.js"></script>
+<script src="DrawSVGPlugin.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function () {
+  gsap.registerPlugin(DrawSVGPlugin);
+  var NS = "http://www.w3.org/2000/svg";
+  var C = { bg: "#E4E9E7", fg: "#222522", green: "#416B53", orange: "#E78636" };
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function annulus(cx, cy, r1, r2) {
+    function c(r) { return "M" + (cx - r) + " " + cy + "a" + r + " " + r + " 0 1 0 " + (2 * r) + " 0a" + r + " " + r + " 0 1 0 " + (-2 * r) + " 0Z"; }
+    return c(r2) + c(r1);
+  }
+
+  // Rail scale (static)
+  var scale = document.getElementById("rail-scale");
+  for (var x = 100, n = 0; x <= 1180; x += 80, n += 20) {
+    var t = el("text", { x: x, y: 608 }, scale); t.textContent = String(n).padStart(3, "0");
+  }
+
+  // ---- Wheel builder: engraved number wheel ----
+  var wheelsLayer = document.getElementById("wheels");
+  function buildWheel(id, cx, cy, R, opts) {
+    var g = el("g", { id: id + "-wrap" }, wheelsLayer);
+    var rot = el("g", { id: id, class: "wheel" }, g);
+    var circ = 2 * Math.PI * (R - 4);
+    var teeth = opts.teeth;
+    el("circle", { class: "fadeIn", cx: cx, cy: cy, r: R - 4, fill: "none", stroke: C.fg, "stroke-width": 9,
+      "stroke-dasharray": (circ / teeth * 0.5).toFixed(3) + " " + (circ / teeth * 0.5).toFixed(3) }, rot);
+    el("circle", { class: "eng", cx: cx, cy: cy, r: R - 9, fill: C.bg, stroke: C.fg, "stroke-width": 2 }, rot);
+    // radial tick paths
+    var d = "", ticks = opts.digits ? 50 : 24;
+    for (var i = 0; i < ticks; i++) {
+      var a = i / ticks * Math.PI * 2, major = opts.digits && i % 5 === 0;
+      var r1 = R - 10, r2 = R - (major ? 22 : 16);
+      d += "M" + (cx + Math.sin(a) * r1).toFixed(2) + " " + (cy - Math.cos(a) * r1).toFixed(2) +
+           "L" + (cx + Math.sin(a) * r2).toFixed(2) + " " + (cy - Math.cos(a) * r2).toFixed(2);
+    }
+    el("path", { class: "eng", d: d, stroke: C.fg, "stroke-width": 1.2, fill: "none" }, rot);
+    // bevel: hatch clipped to annulus
+    var bi = R * (opts.digits ? 0.3 : 0.32), bo = R * (opts.digits ? 0.5 : 0.7);
+    var clip = el("clipPath", { id: id + "-bevel" }, rot);
+    el("path", { d: annulus(cx, cy, bi, bo), "clip-rule": "evenodd" }, clip);
+    el("rect", { class: "fadeIn", x: cx - bo, y: cy - bo, width: 2 * bo, height: 2 * bo, fill: "url(#hatch)",
+      "clip-path": "url(#" + id + "-bevel)" }, rot);
+    el("circle", { class: "eng", cx: cx, cy: cy, r: bo, fill: "none", stroke: C.fg, "stroke-width": 1.5 }, rot);
+    el("circle", { class: "eng", cx: cx, cy: cy, r: bi, fill: C.bg, stroke: C.fg, "stroke-width": 1.5 }, rot);
+    // spokes (show rotation clearly)
+    var sp = "";
+    for (var s = 0; s < 4; s++) {
+      var sa = s * Math.PI / 2 + Math.PI / 4;
+      sp += "M" + (cx + Math.sin(sa) * R * 0.12).toFixed(2) + " " + (cy - Math.cos(sa) * R * 0.12).toFixed(2) +
+            "L" + (cx + Math.sin(sa) * bi).toFixed(2) + " " + (cy - Math.cos(sa) * bi).toFixed(2);
+    }
+    el("path", { class: "eng", d: sp, stroke: C.fg, "stroke-width": 2, fill: "none" }, rot);
+    if (opts.carryTooth) {
+      el("path", { class: "eng", d: "M" + (cx - 5) + " " + (cy - R + 2) + "L" + (cx - 5) + " " + (cy - R - 8) + "L" + (cx + 5) + " " + (cy - R - 8) + "L" + (cx + 5) + " " + (cy - R + 2),
+        fill: C.fg, stroke: C.fg, "stroke-width": 1.5 }, rot);
+    }
+    el("circle", { class: "eng", cx: cx, cy: cy, r: R * 0.12, fill: C.bg, stroke: C.fg, "stroke-width": 2 }, rot);
+    el("circle", { class: "fadeIn", cx: cx, cy: cy, r: 4.5, fill: C.fg }, rot);
+    if (opts.digits) {
+      var dg = el("g", { "data-reveal-after": id, class: "num", "font-size": opts.fs, fill: C.fg, "text-anchor": "middle",
+        style: "font-variant-numeric: tabular-nums", "font-family": "Menlo, 'SF Mono', 'Courier New', monospace" }, rot);
+      var rr = R - 34;
+      for (var k = 0; k < 10; k++) {
+        var tx = el("text", { x: cx, y: cy - rr + opts.fs * 0.36, transform: "rotate(" + (-k * 36) + " " + cx + " " + cy + ")" }, dg);
+        tx.textContent = String(k);
+      }
+    }
+    return rot;
+  }
+
+  // Geometry (px). A meshes B (150 = 100+50); B meshes T only via carry tooth (140 = 50+90).
+  var A = { cx: 240, cy: 380, R: 100 }, B = { cx: 346, cy: 274, R: 50 }, T = { cx: 467, cy: 204, R: 90 };
+  var P = { cx: 1040, cy: 380, R: 36 }, rPulley = 36;
+  var gA = buildWheel("wheelA", A.cx, A.cy, A.R, { digits: true, teeth: 60, fs: 21 });
+  var gB = buildWheel("wheelB", B.cx, B.cy, B.R, { digits: false, teeth: 30, carryTooth: true });
+  var gT = buildWheel("wheelT", T.cx, T.cy, T.R, { digits: true, teeth: 54, fs: 19 });
+  var gP = buildWheel("pulleyP", P.cx, P.cy, P.R, { digits: false, teeth: 20 });
+  // A's front shaft boss shows it shares an axle with belt pulley P1 (behind)
+  // Stationary inspection windows (orange = active digit)
+  var win = el("g", { id: "windows" }, document.getElementById("plate"));
+  el("circle", { id: "winA", class: "eng", cx: A.cx, cy: A.cy - (A.R - 34), r: 17, fill: "none", stroke: C.orange, "stroke-width": 3 }, win);
+  el("circle", { id: "winT", class: "eng", cx: T.cx, cy: T.cy - (T.R - 34), r: 16, fill: "none", stroke: C.orange, "stroke-width": 3 }, win);
+  document.getElementById("plate").appendChild(document.getElementById("pointers"));
+
+  // ---- Kinematics: every part derived from the single driver `drive` ----
+  var rA = A.R, rB = B.R, START = 216, END = 360;
+  var state = { drive: START };
+  var beltTeeth = document.getElementById("belt-teeth");
+  var carriage = document.getElementById("carriage");
+  var cTens = document.getElementById("c-tens"), cUnits = document.getElementById("c-units");
+  var rCrank = document.getElementById("r-crank"), rPin = document.getElementById("r-pinion"), rBelt = document.getElementById("r-belt");
+  var CARRIAGE_X0 = 720;
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function render() {
+    var d = state.drive;
+    gA.setAttribute("transform", "rotate(" + d.toFixed(3) + " " + A.cx + " " + A.cy + ")");
+    var rotB = -d * (rA / rB);
+    gB.setAttribute("transform", "rotate(" + rotB.toFixed(3) + " " + B.cx + " " + B.cy + ")");
+    // carry: during the units 9→0 step the carry tooth advances tens one detent (36°)
+    var carry = clamp((d - 324) / 36, 0, 1);
+    var rotT = 36 * (1 + carry);
+    gT.setAttribute("transform", "rotate(" + rotT.toFixed(3) + " " + T.cx + " " + T.cy + ")");
+    // belt on P1 (radius rPulley, coaxial with A)
+    var travel = (d - START) * rPulley * Math.PI / 180;
+    beltTeeth.setAttribute("stroke-dashoffset", (d * rPulley * Math.PI / 180).toFixed(3));
+    gP.setAttribute("transform", "rotate(" + (d * rPulley / P.R).toFixed(3) + " " + P.cx + " " + P.cy + ")");
+    // carriage clamped to bottom run (moves leftward for clockwise crank)
+    carriage.setAttribute("transform", "translate(" + (CARRIAGE_X0 - travel).toFixed(3) + " 0)");
+    // readouts
+    var units = Math.round(d / 36) % 10, tens = 1 + (carry >= 0.5 ? 1 : 0);
+    cTens.textContent = String(tens); cUnits.textContent = String(units);
+    rCrank.textContent = Math.round(d) + "°";
+    rPin.textContent = Math.round(rotB) + "°";
+    rBelt.textContent = "−" + (travel / 4).toFixed(1);
+  }
+
+  // ---- Timeline ----
+  var tl = gsap.timeline({ paused: true, onUpdate: render });
+  var engs = gsap.utils.toArray(".eng");
+  tl.fromTo("#heading", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "sine.inOut" }, 0);
+  tl.fromTo(engs, { drawSVG: "0%" }, { drawSVG: "100%", duration: 0.7, ease: "power2.inOut", stagger: { amount: 0.25 } }, 0.05);
+  tl.fromTo(".fadeIn", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "sine.inOut" }, 0.55);
+  // readout card frame reveal, then its labels
+  tl.fromTo("#readout-card", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.45, ease: "power2.inOut" }, 0.55);
+  // container-owned labels: hidden until their container completes (~1.0s)
+  tl.fromTo("[data-reveal-after]", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "sine.inOut" }, 1.02);
+  // pointers: shaft draws, then head appears exactly at shaft completion
+  tl.fromTo(".ptr-shaft", { drawSVG: "0%" }, { drawSVG: "100%", duration: 0.25, ease: "power2.inOut" }, 0.95);
+  tl.fromTo(".ptr-head", { opacity: 0 }, { opacity: 1, duration: 0.01, ease: "none" }, 1.2);
+  // the single driver: four detent steps 6→7→8→9→0 (the last step carries the tens)
+  for (var s = 0; s < 4; s++) {
+    tl.fromTo(state, { drive: START + s * 36 }, { drive: START + (s + 1) * 36, duration: 0.36, ease: "power2.inOut", immediateRender: false }, 1.15 + s * 0.36);
+  }
+  tl.set({}, {}, 3);
+  render();
+  tl.progress(0).pause();
+  render();
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  window.addEventListener("hf-seek", function (e) {
+    var t = e && e.detail && typeof e.detail.time === "number" ? e.detail.time : null;
+    if (t !== null) tl.seek(t, false);
+    render();
+  });
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

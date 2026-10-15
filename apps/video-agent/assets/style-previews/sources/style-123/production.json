@@ -1,0 +1,32 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js",
+    "Soft Surface Lighting and Material Detail"
+  ],
+  "motionEngine": [
+    "GSAP",
+    "Procedural Paper Curl and Fold Deformation"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent. No music, voice or sound effects.",
+  "limitations": [
+    "Three.js usage: perspective WebGLRenderer with BoxGeometry/ExtrudeGeometry paper boards; Canvas 2D is used only to author static seeded CanvasTextures (paper grain, printed linework, panel labels) and a non-color roughnessMap. Soft surface lighting: MeshStandardMaterial, ambient + key + fill, PCFSoftShadowMap, ACESFilmicToneMapping, sRGB output.",
+    "Motion: GSAP owns θ and the camera dolly on one paused timeline authored inline in index.html and registered at window.__timelines.video; the Procedural Paper Curl and Fold Deformation technique (in scene.bundle.js) derives the V-fold (tabulated closed-loop solution), card hinges and page curl (rest vertices × bend(θ), computeVertexNormals) from θ.",
+    "Illustrative procedural scene, not a physical simulation: pop-up panels are rigid thin boards; the V-fold uses an exact rigid closed-loop hinge solution, but paper stretch, glue compliance and contact between parts are not modeled.",
+    "The four LINK/NODE cards are single-hinge panels whose lift angle is an authored smoothstep of θ (an approximation of a pull-strip mechanism), not a solved linkage.",
+    "Paper curl on the swinging page is a procedural quadratic bend proportional to sin(180°−θ), not cloth/XPBD; it returns to flat by the end.",
+    "Paper and ink albedos are pre-compensated through the ACES curve (paper #efc18a, ink #2e2824, cloth #5d382b in texture/material space) so surfaces under nominal light render near #F1E5CE / #342B25 / #8A4A36; lit and shadowed faces deviate by design.",
+    "Scene-dependent palette refresh: the environment is a stationary deep-slate night-desk field (#22303A, CSS) behind a transparent WebGL canvas, separate from the paper material; a ShadowMaterial ground only darkens it with contact shadows. Heading #F1E5CE on #22303A (10.85:1), kicker #C3BDAD (7.22:1).",
+    "Near-closed frames may show slight inter-penetration of folded panels inside the closed book (hidden by the cover).",
+    "Typography: \"PopupSerif\" @font-face resolves via src: local() to installed Baskerville, falling back to Georgia/Times New Roman; panel label textures are re-printed after document.fonts.ready with identical seeds.",
+    "Preview covers a single spread; additional pages with their own θ tracks are reserved for the full video.",
+    "All dependencies are local separate files: gsap.min.js, chroma.min.js and scene.bundle.js (src/main.js + three from node_modules, bundled with local esbuild). Three.js internals referencing Math.random (UUIDs) or requestAnimationFrame (unused animation loop) live only in that vendor bundle; the scene never calls setAnimationLoop and renders only from timeline evaluation.",
+    "Source-frame evidence: BACKGROUND_REVIEW.json reports 0 matched sources and no local contact sheets, so no source observations were used; the original pop-up craft (paper boards, tabs, creases, contact shadows) is preserved and the dark background is an authored scene choice. STYLE.json lists no preview_recipes, so the preview demonstrates the primary V-fold page-opening recipe.",
+    "Blender was not used; all rendering is Three.js/WebGL in the browser."
+  ]
+}

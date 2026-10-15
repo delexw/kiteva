@@ -1,0 +1,28 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Paper System",
+  "displayDescription": "Hand-drawn stop-motion: a taped paper idea card branches into three pencil boxes that link into a system on blue-grey graph paper.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D",
+    "Rough.js (local esbuild bundle rough.bundle.js)",
+    "HTML text overlay"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline (window.__timelines.video) as sole time owner; render(t) samples held drawings at 10 per second"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent: no audio track.",
+  "limitations": [
+    "Paper, graphite, tape and highlighter are procedural Canvas/Rough.js approximations, not photographed paper stop-motion",
+    "Line variation comes from three fixed-seed drawing variants per object, not true hand-redrawn frames",
+    "PixiJS was reviewed but not needed for this flat paper scene",
+    "Both heading lines are graphite ink, not terracotta, because terracotta on the scene paper is only about 3.2:1; terracotta is kept for the bulb and the underline",
+    "Handwriting uses an @font-face alias 'HandNote' that resolves to the local system fonts Chalkboard SE, then Comic Sans MS (src: local(); no font file is bundled), so glyphs can differ on machines without those fonts"
+  ]
+}

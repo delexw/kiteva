@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-107",
+    "name": "Mixed-Media Animation (Motion Design and Cinematography category). The label was normalized from source descriptions.",
+    "visualIdentity": "Shared color, line, texture and lighting rules are set before photos, drawings, paper, type or 3D objects are mixed. Each medium keeps a narrative role and its material difference within one coherent whole.",
+    "suitableUses": "Explicit compatibility: product and editorial introductions, explanatory narratives, and chaptered abstract or cinematic sequences. Inferred from the pairings: research summaries and brand stories built from supplied photos and sketches.",
+    "limitations": "This is not proof of physical stop-motion footage. Rough.js adds sketch contours and hachure only, not handwriting, paper texture or character poses. Simulated motion is not validated physics. Duration, aspect ratio and resolution are unspecified.",
+    "palette": "Optional example only: background #F1E6D1, foreground #3B4948, accent_1 #688E87 and accent_2 #B97A5C as decorative fills. Approved task or brand colors override it. Gradients are disabled. Foreground on background measures 7.605:1; accent pairings fail body-text targets.",
+    "motionAndInteraction": "Motion stays style-native and keeps sharp cuts and reading holds rather than easing everything. Reference motions 012, 015, 020 and 037 to 040 are optional and need matching scene assets. Video uses one paused seekable timeline; hover, scroll and drag are interactive-only.",
+    "audio": "Audio is unspecified in the source and no audio asset is supplied. Options are optional music, voiceover, effects, ambience or silence, chosen from the topic. Music timing requires inspected audio. Keep speech intelligible and avoid competing vocals.",
+    "assetRequirements": "Preprocess photos, drawings and paper for consistent color, edges and dimensions. Prerender 3D elements as transparent sequences. Preserve originals, record crop recipes, and inspect glyph or mark geometry first. Do not invent copy or brand marks.",
+    "combinations": "Use this style alone when supplied media already share rules. Optional hybrids: style-024 for handwritten annotation labels in palette colors after their medium appears, and style-101 for small-offset parallax with one light direction.",
+    "productionApproach": "HyperFrames is the default for composition, timing, sync and export, using one paused GSAP timeline registered in window.__timelines. Remotion is fallback only, with a recorded reason. PixiJS or DOM/SVG/Canvas render visuals; Pillow or Sharp preprocess assets; chroma-js checks colors."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

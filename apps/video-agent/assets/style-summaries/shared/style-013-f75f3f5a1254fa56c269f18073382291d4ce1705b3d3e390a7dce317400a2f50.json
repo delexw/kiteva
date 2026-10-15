@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-013",
+    "name": "Psychedelic Art. Category: Graphic Design and Design Movements. Provenance: explicit; the source directly names and describes this visual direction.",
+    "visualIdentity": "Explicit cues: flowing curves, saturated waves, vortices and looping geometry in an organized color palette. Distorted lettering may support the image, but key information needs stable reading moments. Morphs and color movement should grow from one visual theme.",
+    "suitableUses": "Explicit: ambient visuals, psychedelic and demoscene imagery, and surreal abstract passages. Inferred from source combination guidance: music videos, festival visuals, album visualizers and concert posters. Chapter transitions suit only meaningful passages.",
+    "limitations": "Distorted or fast-moving lettering must not carry key information. Avoid beat-strobing color, unrelated stacked effects and live audio drift. Omit vortex transit when viewers must read dense text during travel. Physical fluid accuracy is not claimed.",
+    "palette": "Background policy is scene_dependent: #201337 is an illustrative swatch, so choose the canvas from subject, lighting and mood. Unapproved suggested tokens are foreground #FFF3DB, accent_1 #D957A5, accent_2 #DA873F and accent_3 #7464D2, in violet, pink and amber waves. Task-provided exact colors override them. Foreground on #201337 measures 15.785:1; accent_3 text measures 4.247:1, fails the 4.5:1 normal-text target, and is decorative only. Two-color checks must be rechecked in composited frames.",
+    "motionAndInteraction": "Explicit: continuous morphs and color flow around one theme, with sharp cuts and reading holds allowed. Video state derives from composition time; scroll or pointer behavior belongs only to interactive delivery. Optional motion references include vortex transit, chaptered handoff, orb deformation, storytelling, phrase scatter, punctuation zoom and radial logo burst. None is required, and each must match the scene.",
+    "audio": "Unspecified: the source names no mandatory music, voice, genre, tempo or sound effects. Music-driven morphs fit a sectioned track, and silence is valid. Beat or speech synchronization requires measured audio analysis, which is not supplied. Any audio must be authorized or made with available local tools.",
+    "assetRequirements": "The source requires no uploads. Typography-led motion needs inspected glyph assets or approved mark geometry before use. Local fonts and assets must load before rendering. Exact copy and approved colors, if supplied, override the suggested tokens and must keep their role assignments.",
+    "combinations": "Psychedelic art alone suits ambient visuals; hybrids are optional and should keep the violet, pink and amber system. Style-105 adds section timing for morphs and stable title holds on #201337. Style-007 adds Nouveau-curved borders in #FFF3DB or psychedelic accents, with DOM lettering on solid backing. Botanical earth palettes and dense ornament are avoided.",
+    "productionApproach": "HyperFrames is the primary composition and export pipeline; Remotion is fallback only when HyperFrames is unavailable or a verified limitation exists. Full-screen WebGL, GLSL or Three.js shaders render the style from a shared time uniform. GSAP paused timelines own motion, chroma-js validates colors, and readable text is composited separately."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,143 @@
+{
+ "version": 3,
+ "title": "Mid-Century Modern \u2014 One bright idea, a connected system",
+ "durationSeconds": 3,
+ "scenes": [
+  {
+   "id": "scene-1",
+   "title": "Poster fields and figure",
+   "startSeconds": 0,
+   "endSeconds": 1.0,
+   "purpose": "Set up a dusk-slate mid-century poster: an organic mustard field, a geometric teal quarter-field, the headline, and a simple figure rising into frame.",
+   "visuals": [
+    "Dusk slate #22313B background stays still",
+    "Mustard kidney field scales and turns in",
+    "Teal quarter-circle grows from the lower-right corner",
+    "Teal body rises, ink head settles, arm dips then starts its swing",
+    "Seeded cream and ink print grain, stationary"
+   ],
+   "assets": [],
+   "beats": [
+    {
+     "startSeconds": 0,
+     "endSeconds": 0.6,
+     "development": "The colour fields establish the composition. Headline 'One bright idea,' and subhead 'A CONNECTED SYSTEM' slide in.",
+     "captions": [
+      "One bright idea,",
+      "A CONNECTED SYSTEM"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 0.6,
+     "endSeconds": 1.0,
+     "development": "The figure rises onto the mustard field. The head settles and the arm dips down in anticipation.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-2",
+   "title": "The idea ignites",
+   "startSeconds": 1.0,
+   "endSeconds": 1.4,
+   "purpose": "The raised hand produces the idea: a cream halo, a brick-red star and a Canvas 2D atomic starburst.",
+   "visuals": [
+    "Arm finishes its swing up",
+    "Cream halo pops",
+    "Brick star spins in",
+    "Canvas mustard and cream rays grow and turn"
+   ],
+   "assets": [],
+   "beats": [
+    {
+     "startSeconds": 1.0,
+     "endSeconds": 1.4,
+     "development": "The star appears at the hand and the starburst rays extend.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-3",
+   "title": "Idea becomes a system",
+   "startSeconds": 1.4,
+   "endSeconds": 3.0,
+   "purpose": "Cream links draw out from the star, and nodes pop in as each line arrives. The poster then settles and holds so the copy can be read.",
+   "visuals": [
+    "Five cream links draw in sequence via stroke-dashoffset",
+    "Brick, teal and mustard nodes with cream rims pop in on arrival",
+    "Boomerang accents settle",
+    "Tagline fades up"
+   ],
+   "assets": [],
+   "beats": [
+    {
+     "startSeconds": 1.4,
+     "endSeconds": 2.45,
+     "development": "The network grows from the idea into four connected nodes. The accents and the tagline 'DESIGNED FOR LIVING TOGETHER' settle.",
+     "captions": [
+      "DESIGNED FOR LIVING TOGETHER"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 2.45,
+     "endSeconds": 3.0,
+     "development": "Settled poster hold. All copy is legible.",
+     "captions": [
+      "One bright idea,",
+      "A CONNECTED SYSTEM",
+      "DESIGNED FOR LIVING TOGETHER"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.55
+    }
+   ]
+  }
+ ],
+ "pacingAudit": {
+  "findings": [
+   "The colour fields and headline arrive in the first 0.6s, so the viewer gets the context first.",
+   "The arm gets anticipation (a dip) before its swing, and the star ignites on the swing's follow-through.",
+   "Links draw one after another so the eye follows the network from the star to the farthest node.",
+   "Everything is settled by about 2.45s, before the 2.7s requirement."
+  ],
+  "justifiedHolds": [
+   "2.45\u20133.0s hold so the full composition and all three lines of copy can be read."
+  ]
+ },
+ "notes": [
+  "Silent preview: no audio track.",
+  "No reviewed preview recipes were supplied (empty list). This preview shows the base style implementation: geometric and organic paths, layered figure and props, and seeded grain.",
+  "BACKGROUND_REVIEW.json lists 0 matched sources and no contact sheets. The scene-dependent dusk-slate background comes from the brief's subject and mood, not from source evidence.",
+  "Blender is not used, per the user instruction.",
+  "Layering: colour fields (SVG), then Canvas starburst, then figure and system (SVG), then seeded grain (Canvas), then copy (SVG). The copy sits above the grain so no text is occluded."
+ ]
+}

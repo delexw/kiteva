@@ -1,0 +1,5524 @@
+[
+  {
+    "styleId": "style-001",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "0d1f88f973c1108879b48d500f538bf24acc326e822c58fb206ac2aa44344178",
+    "video": "style-001.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T09:48:50.572Z",
+    "renderMs": 13796,
+    "illustrationPlan": {
+      "styleId": "style-001",
+      "selectedReferenceIds": [],
+      "rationale": "Swiss grid poster: a fixed left headline and footer columns, with an orthogonal diagram on the right that runs from red point A into a node network. The last render failed on a text-overlap check involving the 'system.' headline line and a footer label, so this plan leaves all type and rules untouched. Motion sits only in the diagram, about 20% of the frame, and follows its own logic. Point A pops in, then the orthogonal link group draws along the grid axes, then the square and circle nodes settle onto their shared alignment points. All of it is fully at rest by 1.7 s. The connections stay continuous. No reference is needed for this restrained build.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-32",
+          "role": "Red origin point A pops in",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "Orthogonal link paths draw out from A",
+          "action": "draw",
+          "start": 0.4,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-19",
+          "role": "Square and circle nodes settle on alignment points",
+          "action": "reveal",
+          "start": 1.15,
+          "duration": 0.5,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.022239583333333333,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-004",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "967b34f6b67697cb950a177150d36080e0d4ecda71cd81a80045438664d69dd0",
+    "video": "style-004.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T09:53:27.226Z",
+    "renderMs": 13702,
+    "illustrationPlan": {
+      "styleId": "style-004",
+      "selectedReferenceIds": [],
+      "rationale": "Suprematist composition on an open white field: a red circle, a large tilted black rectangle, a blue square, a long yellow bar and a short red bar, joined by thin connecting lines. The motion is slow and measured, using position, rotation and proportion. The circle grows in, the black rectangle settles in from a slight extra tilt, and the blue square drifts down from the upper right. Then the yellow and red bars slide into alignment. All five forms are filled shapes, so they use reveal and no draw is used, which fixes the previous error. The thin lines, text, cross and small accents stay still. Everything holds from about 1.8s. No reference fits these abstract forms.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-2",
+          "role": "red circle grows in at the top left",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.6,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-6",
+          "role": "black rectangle settles in from a slight extra tilt",
+          "action": "reveal",
+          "start": 0.25,
+          "duration": 0.7,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": -10,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-8",
+          "role": "blue square drifts down into balance",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.6,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 40,
+            "y": -32,
+            "scale": 1,
+            "rotation": 12,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-7",
+          "role": "yellow bar slides in from the left",
+          "action": "reveal",
+          "start": 0.9,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -48,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-9",
+          "role": "red bar slides in from the right",
+          "action": "reveal",
+          "start": 1.15,
+          "duration": 0.55,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 44,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.10314236111111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-006",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "694df6e8acb06abc60ee8c68620d96ba2c924715bb0b6ae9cf1b429e732e7749",
+    "video": "style-006.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:44:16.920Z",
+    "renderMs": 13690,
+    "illustrationPlan": {
+      "styleId": "style-006",
+      "selectedReferenceIds": [],
+      "rationale": "Art Deco frontispiece: a symmetrical arch with a sunburst, a stepped ziggurat, a gold medallion on a stem, diamond nodes linked by fine lines, and the centred title. The motion is a controlled build towards the centre. The outer and inner arch outlines (actors 13 and 14, which have explicit fill='none' and a stroke) draw on. Then the ziggurat rises, the medallion ring, gold disc and inner diamond reveal together, and the diamond nodes settle. The title appears last for a readable hold. The earlier draw error came from children that rely on the group's fill, so draw is now only used on the two arch paths. The sunburst, frame, corners and side towers stay still. No reference fits.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-13",
+          "role": "outer arch outline draws on",
+          "action": "draw",
+          "start": 0,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-14",
+          "role": "inner arch outline draws on just after",
+          "action": "draw",
+          "start": 0.15,
+          "duration": 0.75,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-20",
+          "role": "stepped ziggurat rises into place",
+          "action": "reveal",
+          "start": 0.5,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 30,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-28",
+          "role": "medallion ring opens",
+          "action": "reveal",
+          "start": 0.9,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-29",
+          "role": "gold medallion disc reveals",
+          "action": "reveal",
+          "start": 0.95,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-30",
+          "role": "inner diamond lands with the medallion",
+          "action": "reveal",
+          "start": 1,
+          "duration": 0.45,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-31",
+          "role": "diamond nodes settle along the network",
+          "action": "reveal",
+          "start": 1.25,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-44",
+          "role": "'A CONNECTED SYSTEM' title rises in for the hold",
+          "action": "reveal",
+          "start": 1.55,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 20,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.04161458333333334,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-007",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "df3af7c587e19b201f0f5da3066694692b5d35aeb4492b45c8b922d46836a57b",
+    "video": "style-007.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:06:31.766Z",
+    "renderMs": 30781,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.1307465277777778,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-008",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "fa7ece33b70b54be622b3ed340db863937c7a2dd833c9faafb663bdfbcf9c19c",
+    "video": "style-008.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:44:30.403Z",
+    "renderMs": 14094,
+    "illustrationPlan": {
+      "styleId": "style-008",
+      "selectedReferenceIds": [
+        "motion-015"
+      ],
+      "rationale": "The figure is a three-stage diagram: Idea, then Link, then System. The motion tells it left to right in that order (motion-015 storytelling as timed steps). First the large blue idea dot assembles and its dashed halo settles. Then the link line slides in and its two end nodes pop on. Last, the network edges draw (actor-20 is the only explicitly unfilled stroked path, so it is the only draw track; actor-17 has a computed black fill, so it uses reveal) and the blue hub punches in at the centre. Headline, rules, grid and labels stay still. The arrows are not drawn, because their unfilled stroke is only inherited and was the likely cause of the earlier draw failure. Everything is back at its authored pose by 2.3s.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-16",
+          "role": "Stage 1 idea dot assembles",
+          "action": "reveal",
+          "start": 0.1,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-15",
+          "role": "Dashed halo contracts onto idea",
+          "action": "reveal",
+          "start": 0.3,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1.2,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-17",
+          "role": "Stage 2 link line slides in",
+          "action": "reveal",
+          "start": 0.7,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -40,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-18",
+          "role": "Link origin node pops",
+          "action": "reveal",
+          "start": 0.75,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-19",
+          "role": "Link end node pops",
+          "action": "reveal",
+          "start": 1,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-20",
+          "role": "Stage 3 network edges draw",
+          "action": "draw",
+          "start": 1.2,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-26",
+          "role": "System hub punches in",
+          "action": "reveal",
+          "start": 1.8,
+          "duration": 0.45,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.02046875,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-010",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "663b874ecf077201bb22c346f3435e4328cac74162f745619c443c03e017ba63",
+    "video": "style-010.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:30:49.205Z",
+    "renderMs": 14679,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.2760763888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-002",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "a54380dc03146755592a4b254fa5c2488237f5f6f41da9291e784a78efecc33b",
+    "video": "style-002.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T09:48:53.074Z",
+    "renderMs": 13404,
+    "illustrationPlan": {
+      "styleId": "style-002",
+      "selectedReferenceIds": [],
+      "rationale": "Bauhaus poster on a 120 px grid: a red ring, a yellow square holding an outlined diamond, a blue triangle and a red semicircle, all joined by a black orthogonal connector with round nodes. The poster builds up in rhythmic stages. The ring grows in, then the stroked connector draws from it, then the yellow square grows with the diamond turning into place on the same beat, and finally the triangle grows. The diamond keeps its authored rotate(45) inside a wrapper. The triangle and semicircle touch the baseline, so they get no translation, and the semicircle and nodes stay fixed as anchors. The grid, background and type stay fixed. No reference fits this poster assembly.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-3",
+          "role": "Red ring grows in as the single idea",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-9",
+          "role": "Black connector draws from ring to the other forms",
+          "action": "draw",
+          "start": 0.4,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-5",
+          "role": "Yellow square grows at the connector's end",
+          "action": "reveal",
+          "start": 0.85,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": -15,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-6",
+          "role": "Diamond rotates into its square",
+          "action": "reveal",
+          "start": 0.95,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 15,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-7",
+          "role": "Blue triangle grows on the baseline",
+          "action": "reveal",
+          "start": 1.25,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.10138888888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-003",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "6063e502f563c7419656a451c91ddfb66817cf94afa1c03bc14e98b98d729f02",
+    "video": "style-003.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:32:57.992Z",
+    "renderMs": 19336,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.3024826388888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-005",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "c569314357aec640e87812e4353e5a854d65cc3115f4075c0a2f7a470c591f3b",
+    "video": "style-005.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T09:48:16.037Z",
+    "renderMs": 12883,
+    "illustrationPlan": {
+      "styleId": "style-005",
+      "selectedReferenceIds": [],
+      "rationale": "De Stijl grid: thick black rules divide the frame into cells holding red, blue and yellow fields, with the headline in the central white cell. Only the colour fields and the headline move. Each field slides along a horizontal or vertical axis into its cell, under the fixed black grid, which is drawn above the fields. The red field enters from the left edge, the blue from the top edge, and the lower yellow fields from the left and the bottom. Then the three headline lines step in one after another. There are no diagonals or rotation. The grid group, junction squares, black block, NO. 05 and white field stay still. Everything is settled by 1.75s. No reference fits, because this is one scene.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-2",
+          "role": "Red field slides in from the left edge",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -48,
+            "y": 0,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-3",
+          "role": "Blue field drops down from the top edge",
+          "action": "reveal",
+          "start": 0.25,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": -40,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-4",
+          "role": "Lower-left yellow field slides in horizontally",
+          "action": "reveal",
+          "start": 0.5,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -40,
+            "y": 0,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-6",
+          "role": "Lower-right yellow field rises in from the bottom edge",
+          "action": "reveal",
+          "start": 0.7,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 40,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-21",
+          "role": "AN IDEA headline appears",
+          "action": "reveal",
+          "start": 1,
+          "duration": 0.45,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -24,
+            "y": 0,
+            "scale": 0.9,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-22",
+          "role": "DIVIDES INTO line appears",
+          "action": "reveal",
+          "start": 1.15,
+          "duration": 0.45,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -24,
+            "y": 0,
+            "scale": 0.9,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-23",
+          "role": "A CONNECTED SYSTEM line appears",
+          "action": "reveal",
+          "start": 1.3,
+          "duration": 0.45,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -24,
+            "y": 0,
+            "scale": 0.9,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.2018923611111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-009",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "f218a81c30c8ed0f7754c7a03aec2d041f01c3cd3f3302b8405e7063389199b0",
+    "video": "style-009.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:06:10.655Z",
+    "renderMs": 19269,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.3314236111111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-011",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "d9e455afd983f54064985294da66b839945f313db3bf676195874e8184615a30",
+    "video": "style-011.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:52:41.892Z",
+    "renderMs": 18348,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.5140104166666667,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-012",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "c1c04d46f32bf432059d4f349da2f032cb790329df38f3cdb53331572ee8f58f",
+    "video": "style-012.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T09:52:59.134Z",
+    "renderMs": 12143,
+    "illustrationPlan": {
+      "styleId": "style-012",
+      "selectedReferenceIds": [],
+      "rationale": "The artwork is two clipped halves of the same set of rings, with the right half offset 24px. Moving only the right half's rings (actor-5, inside its fixed clip group) by -24px lines both halves up into one clean set of circles. When they return, the split illusion snaps back. It's a measured, continuous phase shift with no flicker. To echo the change, the vertical stripe block and the skewed stripe block slide 28px in opposite directions in sequence, which shifts their relationship to the checkerboard. The skewed block's own transform is kept inside its wrapper. The text and clip frames stay fixed. A vortex passage (motion-002) or chapter handoff (motion-012) isn't supported by this single scene, so no reference is used. Everything returns to its authored pose by about 2.1s.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-5",
+          "role": "Right-half rings slide to line up with the left half, then return",
+          "action": "transform",
+          "start": 0.2,
+          "duration": 0.8,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": -24,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-6",
+          "role": "Vertical stripe field shifts phase to the right",
+          "action": "transform",
+          "start": 0.6,
+          "duration": 0.7,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 28,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-8",
+          "role": "Skewed stripe band counter-shifts against checkerboard",
+          "action": "transform",
+          "start": 0.9,
+          "duration": 0.6,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": -28,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.15291666666666667,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-013",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "96140d780ad17c3616eb2afcb65767971998c8b7d1413e9e0e7f034841dfe30b",
+    "video": "style-013.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T09:53:07.886Z",
+    "renderMs": 14736,
+    "illustrationPlan": {
+      "styleId": "style-013",
+      "selectedReferenceIds": [],
+      "rationale": "This scene is built on one idea: a spark that radiates into a network. The off-centre set of rings (the ring group as one layer) swirls open from a smaller, slightly rotated pose, so the uneven rings show a psychedelic vortex turn. The cream centre spark then pops. The four flowing connection curves draw outward, and the four end nodes pop in one after another. The wave bands, background and lettering stay fixed so the copy has a stable reading moment. The rings aren't an orb, and there's no chapter passage, so motion-014 and motion-002 don't fit. Everything is settled by 2.1s.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-8",
+          "role": "Ring vortex swirls open into place",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.8,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.75,
+            "rotation": -15,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-15",
+          "role": "Central spark pops at vortex core",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-17",
+          "role": "Flowing connection curves draw outward from spark",
+          "action": "draw",
+          "start": 0.9,
+          "duration": 0.8,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-19",
+          "role": "Upper-left node appears at curve end",
+          "action": "reveal",
+          "start": 1.4,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-18",
+          "role": "Upper-right node appears",
+          "action": "reveal",
+          "start": 1.5,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-21",
+          "role": "Lower-left node appears",
+          "action": "reveal",
+          "start": 1.6,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-20",
+          "role": "Lower-right node completes the system",
+          "action": "reveal",
+          "start": 1.7,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.17456597222222223,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-018",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "96960e2b78240f30342d97300853c546ea952ed38bab7cd47c1081b5b4d43e3f",
+    "video": "style-018.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:08:35.374Z",
+    "renderMs": 13154,
+    "illustrationPlan": {
+      "styleId": "style-018",
+      "selectedReferenceIds": [
+        "motion-015"
+      ],
+      "rationale": "Minimal line diagram: an idea assembles into a connected system, told as staged steps (motion-015). Frame 0 is a deliberate scattered state. The scene's parts are already present but displaced: each sits up to 48px off its authored spot at 0.65 scale and full opacity. The parts then assemble in order. First the idea dot and 01 IDEA label glide home, and the stroked unfilled connector (3) draws. Next the top, bottom and right nodes lock onto their diamond vertices. The unfilled diamond and output edges (4) then draw between the landed nodes, and the green output node docks. Last, the 02 SYSTEM label slides in and the caption rises and scales into its line. Because the start state differs from the final scene both where the objects were and where they land, this roughly doubles the visible change compared with fading in from blank. That matters because the sparse line art had capped the score at 1.75%. Background, accent rule, left junction and parent group 2 stay still. All offsets stay within the canvas, and the complete authored scene holds from 2.4s.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-5",
+          "role": "Green idea dot starts small and offset left, then glides and grows onto the line origin",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": -48,
+            "y": 0,
+            "scale": 0.65,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "01 IDEA label starts reduced and offset left, then slides into the top-left",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -48,
+            "y": 0,
+            "scale": 0.65,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-3",
+          "role": "Stroked unfilled connector line draws from the idea to the network",
+          "action": "draw",
+          "start": 0.5,
+          "duration": 0.7,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-7",
+          "role": "Top node starts floating 48px above and locks onto its diamond vertex",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": -48,
+            "scale": 0.65,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-8",
+          "role": "Bottom node starts 48px below and locks onto its diamond vertex",
+          "action": "reveal",
+          "start": 0.7,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 48,
+            "scale": 0.65,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-9",
+          "role": "Right junction node starts 48px right and locks onto the closing vertex",
+          "action": "reveal",
+          "start": 0.8,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 48,
+            "y": 0,
+            "scale": 0.65,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-4",
+          "role": "Unfilled stroked diamond edges and output edge draw between the landed nodes",
+          "action": "draw",
+          "start": 1.2,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-10",
+          "role": "Green output node starts 48px out and docks at the end of the output edge",
+          "action": "reveal",
+          "start": 1.7,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 48,
+            "y": 0,
+            "scale": 0.65,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-14",
+          "role": "02 SYSTEM label starts reduced and offset right, then slides into the top-right",
+          "action": "reveal",
+          "start": 1.6,
+          "duration": 0.7,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 48,
+            "y": 0,
+            "scale": 0.65,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-12",
+          "role": "Concluding caption starts small and 48px low, then rises and scales into its authored line",
+          "action": "reveal",
+          "start": 1.6,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 48,
+            "scale": 0.65,
+            "rotation": 0,
+            "opacity": 1
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.021319444444444443,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-019",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "69ffd796ad201243330aed74602c7a1f8761e63f052a6a6acf87b2da94bce593",
+    "video": "style-019.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:31:51.036Z",
+    "renderMs": 13131,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.06107638888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-021",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "bdc75116b0e3edf4a50eccb9be1e00394da8e8ea26035f63515338d8bd6e1839",
+    "video": "style-021.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:03:20.157Z",
+    "renderMs": 16080,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.09015625,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-022",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "8d7856b2a8c0683c94f076f4314e9b5a1dc7ee3c8f860146f55f8c2a9bcd92eb",
+    "video": "style-022.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:19:50.965Z",
+    "renderMs": 15579,
+    "illustrationPlan": {
+      "styleId": "style-022",
+      "selectedReferenceIds": [],
+      "rationale": "Style-022 Pencil Drawing. A graphite study on static cool bristol paper (#ECEEF0, graphite #383838), drawn with Canvas 2D and Rough.js. Construction guides and an exploratory contour come first, then the committed sphere contour. Layered hatching (midtone, shadow crescent, core cross-hatch), stump smudge and a hachure cast shadow follow. Pencil connectors then draw outward and each node is sketched as its line arrives. Finally the handwritten notes wipe in. A single paused GSAP timeline owns all draw-progress state, and the canvas redraws from it on update and on hf-seek. The tracks below describe the cues already built into index.html. They do not add another animation layer.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-1",
+          "role": "Canvas pencil drawing: guides, contours, hatching, connectors and nodes are revealed in drawing order (progress state owned by the GSAP timeline)",
+          "action": "draw",
+          "start": 0,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-2",
+          "role": "Note 'fig. a — the idea' wiped in like a pencil line",
+          "action": "reveal",
+          "start": 0.5,
+          "duration": 0.4,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0.55
+          }
+        },
+        {
+          "actorId": "demo-actor-3",
+          "role": "Caption wiped in, then held for reading from 2.2 s",
+          "action": "reveal",
+          "start": 1.68,
+          "duration": 0.52,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0.55
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.04265625,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-023",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "179b7689b4d8e54da82771417c739127d4d7d84e4470dffe5d70c085f1b79ee1",
+    "video": "style-023.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T09:56:33.620Z",
+    "renderMs": 13508,
+    "illustrationPlan": {
+      "styleId": "style-023",
+      "selectedReferenceIds": [],
+      "rationale": "A blue-ink ballpoint sketch: a light bulb with repeated contours on the left, a curved network of six sketched nodes on the right, and an italic headline with a pen underline. There is one scene and no chapter change, so I picked no reference. The scene builds like a sketchbook drawing. The main bulb contour appears first; it is a <use> clone, so it reveals rather than risking an unreliable dash on the clone. Then the stroked rays, filament and base lines are drawn, and the network curves are drawn across. The nodes appear in a stagger from the central hub outward, and the text group fades in at the end. The paper, shading hatch, the duplicate bulb contours and the duplicate network clone stay still.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-3",
+          "role": "Primary bulb contour sketches in",
+          "action": "reveal",
+          "start": 0.05,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.82,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-8",
+          "role": "Ink rays, filament and base lines are drawn",
+          "action": "draw",
+          "start": 0.3,
+          "duration": 0.6,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-10",
+          "role": "Network ink curves are drawn from the bulb across the system",
+          "action": "draw",
+          "start": 0.7,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-14",
+          "role": "Central hub node appears",
+          "action": "reveal",
+          "start": 0.95,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "Upper-left node appears",
+          "action": "reveal",
+          "start": 1.1,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-15",
+          "role": "Lower-left node appears",
+          "action": "reveal",
+          "start": 1.25,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-16",
+          "role": "Upper-right node appears",
+          "action": "reveal",
+          "start": 1.4,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-17",
+          "role": "Lower-right node appears",
+          "action": "reveal",
+          "start": 1.5,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-18",
+          "role": "Far-right node completes the network",
+          "action": "reveal",
+          "start": 1.65,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-19",
+          "role": "Headline and figure caption appear on the closing beat",
+          "action": "reveal",
+          "start": 1.8,
+          "duration": 0.55,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 20,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.029618055555555557,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-024",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "67e858828d5329848cf6e546b9da012f9ca1633a028666a147ce74a5d18482e0",
+    "video": "style-024.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:44:43.866Z",
+    "renderMs": 12615,
+    "illustrationPlan": {
+      "styleId": "style-024",
+      "selectedReferenceIds": [
+        "motion-015"
+      ],
+      "rationale": "The image is a marker-style explainer: idea box → people/tools/data boxes → system circle, with red notes ① ② ③. The motion follows that story (motion-015 narrative steps). First the navy connector arrows draw across (group 21, unfilled strokes). Then the red circle draws around 'idea', its pointer arrow draws and note ① appears. Note ② appears over the boxes, the arrow to 'system' draws and note ③ appears. The red underlines draw last. The boxes, labels, title, footnote, paper and checkmark stay still, so the layout is always recognisable. Everything is in place by 2.4s and holds until 3s.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-21",
+          "role": "Connector arrows from idea through the parts to system draw in, left to right",
+          "action": "draw",
+          "start": 0.1,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-30",
+          "role": "Red marker circle drawn around the idea box",
+          "action": "draw",
+          "start": 0.6,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-31",
+          "role": "Arrow from note ① up to the circled idea",
+          "action": "draw",
+          "start": 1,
+          "duration": 0.3,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-11",
+          "role": "Note ① 'it starts as one spark' rises into place",
+          "action": "reveal",
+          "start": 1.1,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 16,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-12",
+          "role": "Note ② 'break it into parts' appears above the boxes",
+          "action": "reveal",
+          "start": 1.4,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": -16,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-33",
+          "role": "Arrow from note ③ up to the system circle",
+          "action": "draw",
+          "start": 1.6,
+          "duration": 0.3,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "Note ③ 'now every part talks!' rises into place",
+          "action": "reveal",
+          "start": 1.8,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 16,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-34",
+          "role": "Red marker underlines under the title and note ③ draw last",
+          "action": "draw",
+          "start": 1.8,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.03279513888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-025",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "70e71bcbef95e43e8e1c68b61370f5707fbc73702f6d9ff3c72dbb9f9be3c212",
+    "video": "style-025.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:32:16.016Z",
+    "renderMs": 18351,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.08526041666666667,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-014",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "af6e42f1d87af4c0c3e7015e80d21e64797a54e1b15bf2908d1b03fd81a54340",
+    "video": "style-014.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:08:58.438Z",
+    "renderMs": 19846,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.1290798611111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-016",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "2bf70cec128b54c0c35b186a133f1476c6887f098abe9d7a06887fc6ad15831b",
+    "video": "style-016.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:52:34.557Z",
+    "renderMs": 18118,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.39526041666666667,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-020",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "77fb7d6c5e533c9a26bbabbc57e89cafd9f2d14e6e23fc8c5b8075167e68ed0b",
+    "video": "style-020.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:31:40.006Z",
+    "renderMs": 29141,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.048003472222222225,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-026",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "7b10e83da000dd7875392054895becbb51bb6fa6c29fcac3140e0f58c2bb4dac",
+    "video": "style-026.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:44:57.196Z",
+    "renderMs": 12857,
+    "illustrationPlan": {
+      "styleId": "style-026",
+      "selectedReferenceIds": [
+        "motion-015"
+      ],
+      "rationale": "Whiteboard explainer revealed in causal order: the lightbulb is hand-drawn (step 1), the connector arrows draw, the three part-squares drop in one by one with the small blue flick arrow (step 2), the pentagon network draws and its blue hub lands (step 3), and finally the dashed 'learn, then redraw' loop appears. Title, numbers and labels stay static and readable. Long strokes and three sizeable squares give clear change at card size; all settle by ~2.4s.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-18",
+          "role": "Lightbulb drawn by hand",
+          "action": "draw",
+          "start": 0,
+          "duration": 0.7,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-19",
+          "role": "Connector and arrow draw between steps",
+          "action": "draw",
+          "start": 0.55,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-21",
+          "role": "Part square 1 drops in",
+          "action": "reveal",
+          "start": 0.75,
+          "duration": 0.35,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": -24,
+            "scale": 0.75,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-22",
+          "role": "Part square 2 drops in",
+          "action": "reveal",
+          "start": 0.9,
+          "duration": 0.35,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": -24,
+            "scale": 0.75,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-23",
+          "role": "Part square 3 drops in",
+          "action": "reveal",
+          "start": 1.05,
+          "duration": 0.35,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": -24,
+            "scale": 0.75,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-31",
+          "role": "Blue flick arrow draws",
+          "action": "draw",
+          "start": 1.1,
+          "duration": 0.35,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-20",
+          "role": "Network edges draw",
+          "action": "draw",
+          "start": 1.25,
+          "duration": 0.7,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-29",
+          "role": "Blue hub node lands",
+          "action": "reveal",
+          "start": 1.65,
+          "duration": 0.35,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-30",
+          "role": "Dashed feedback loop appears",
+          "action": "reveal",
+          "start": 1.8,
+          "duration": 0.55,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 16,
+            "scale": 0.9,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.021111111111111112,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-027",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "9722f5c23191f280c49429e98546fe85b8061a86693fdbf965dd310bce9a4be6",
+    "video": "style-027.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:34:47.417Z",
+    "renderMs": 18323,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.10901041666666667,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-029",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "c71d54440aa613253e188f2d183e9055f00390052bc7fa4e414056c6729c35d3",
+    "video": "style-029.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:50:59.493Z",
+    "renderMs": 21388,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.07654513888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-031",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "1710c5c7931785b14f611715a96ffeced497e21c2dc26bcd101ab13712e09b0a",
+    "video": "style-031.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:37:18.426Z",
+    "renderMs": 13723,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.17171875,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-034",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "bc70380e214e5e17a185eaf08aa8bfdb6bc5191ff96819f391a374ff24943fef",
+    "video": "style-034.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:07:36.839Z",
+    "renderMs": 14158,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.19734375,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-017",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "49b114b79ec55e03639e0e6b8e25ba304dc1faee963ac2aa89fa5c2292a60ca7",
+    "video": "style-017.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:06:15.506Z",
+    "renderMs": 23442,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.16914930555555555,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-036",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "880413bf1915475c122c15ba53be66682ca091537d204678e24602a255eab6d8",
+    "video": "style-036.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:07:55.384Z",
+    "renderMs": 15032,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.27944444444444444,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-037",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "2befb9a8007495c3210853c699e2114ed63c468ae96de89a6c2a0a0f355f8ca7",
+    "video": "style-037.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:55:02.447Z",
+    "renderMs": 18945,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.24661458333333333,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-038",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "6ea996c73ed6224afd53a296c7822ac8e8cd81281fb5edb7f02c7d6e3c3fe2b2",
+    "video": "style-038.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:06:53.690Z",
+    "renderMs": 15004,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.14390625,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-041",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "ee0f40e1f66005cc2e83e6643292a3b04826cdbd478545432c1db5994cd29de3",
+    "video": "style-041.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:11:26.018Z",
+    "renderMs": 18142,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.05866319444444444,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-040",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "ff7f88d7f0798d9c406add50f843282b90c52293e59eb9a74371511711eb7a82",
+    "video": "style-040.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:09:43.583Z",
+    "renderMs": 24395,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.13598958333333333,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-043",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "a9ab1e5a440587eaa92eee5a33a6683b1b05c1fa76ffca35e93527a0756b62d6",
+    "video": "style-043.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:36:39.265Z",
+    "renderMs": 19680,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.22753472222222224,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-044",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "f7e1b161085d745c54a4eb24b3c95d9e0f42e70417d6b771f302eb83e632e3f6",
+    "video": "style-044.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:15:04.187Z",
+    "renderMs": 28727,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.47196180555555556,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-047",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "d9591a3d7e3a2e96ea3c39b3c23894a965e89d2cc309f5f2e84ed9cc5dd49085",
+    "video": "style-047.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:13:32.443Z",
+    "renderMs": 16794,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.2508680555555556,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-046",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "e3c926f47e5453d444744bb97ea5e6c0808b716971bc95495f52b726afa1b548",
+    "video": "style-046.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:37:49.496Z",
+    "renderMs": 16400,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.3784895833333333,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-048",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "aac7abe0ac8535fa7abda9d8b57c4edb72b2d266ec9c37058e7daffac1d1f2bf",
+    "video": "style-048.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:15:43.238Z",
+    "renderMs": 20810,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.06704861111111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-051",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "2e08e2feba9cff10836bb524ca7e20efcc24568782396e8ae739971851d6d4ff",
+    "video": "style-051.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:58:20.058Z",
+    "renderMs": 16597,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.63140625,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-050",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "05c3f9c4d5c57c15f26f7b77359359901c16bf2e05884b9011c77be9b863af32",
+    "video": "style-050.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:38:39.355Z",
+    "renderMs": 18471,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.2664236111111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-053",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "6060278e18314abcc31307cb39582061f2981ed405fc109c1574f74ba9419083",
+    "video": "style-053.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:13:53.837Z",
+    "renderMs": 14659,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.37895833333333334,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-052",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "da6019304793db500ebc741b5fd209caa05ee62989b1adc9c9448c40fcc2691c",
+    "video": "style-052.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:14:20.152Z",
+    "renderMs": 14271,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.03557291666666667,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-054",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "dc80a0a392dbd0b778504066d2a34d5046735c9bd9e78e7f0f223deed7540ce9",
+    "video": "style-054.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T10:03:24.443Z",
+    "renderMs": 19294,
+    "illustrationPlan": {
+      "styleId": "style-054",
+      "selectedReferenceIds": [
+        "motion-015"
+      ],
+      "rationale": "Zine paste-up. The photocopied bulb card is pasted onto the page: it drops in slightly rotated and smaller, then settles at its authored tilt. The two tape strips then stick down at its corners. The cut-out headline block slaps on next, followed by the staples that pin it. Finally the red string draws between the black pin dots, which stay in place as the fixed points being connected. The beats are spark, headline, then web (motion-015). The paper and noise texture stay fixed, and the ISSUE 01 caption stays readable. Everything is in its original pose by about 1.8s.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-3",
+          "role": "Photocopied bulb card pasted onto the page",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": -24,
+            "y": -30,
+            "scale": 0.85,
+            "rotation": -6,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-11",
+          "role": "Left tape strip sticks down over the card corner",
+          "action": "reveal",
+          "start": 0.4,
+          "duration": 0.3,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -20,
+            "y": -16,
+            "scale": 1.15,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-12",
+          "role": "Right tape strip sticks down",
+          "action": "reveal",
+          "start": 0.5,
+          "duration": 0.3,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 20,
+            "y": -16,
+            "scale": 1.15,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-19",
+          "role": "Cut-out headline blocks slap onto the page",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.45,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": -20,
+            "scale": 0.8,
+            "rotation": 4,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-28",
+          "role": "Staple pins the AN block",
+          "action": "reveal",
+          "start": 1,
+          "duration": 0.25,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-29",
+          "role": "Staple pins the A WEB block",
+          "action": "reveal",
+          "start": 1.08,
+          "duration": 0.25,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "Red string draws out from the card through the pin dots",
+          "action": "draw",
+          "start": 1,
+          "duration": 0.8,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.17675347222222224,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-055",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "f91d8ff43837f5f5265709c296ceba2dfd8844d09d96e10978c6415d46812d63",
+    "video": "style-055.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:58:47.725Z",
+    "renderMs": 17354,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.1850173611111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-056",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "da165661fc133b682c20d602d9a1cda3b6b6e75a56e7937e5cf3a8e93df6bd9e",
+    "video": "style-056.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:44:14.366Z",
+    "renderMs": 21965,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.9164756944444444,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-057",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "fe60654a08ca52294c1ff718da0a2caad0ffbad8e777a84ff824cc9d2fa91398",
+    "video": "style-057.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T10:05:25.606Z",
+    "renderMs": 13562,
+    "illustrationPlan": {
+      "styleId": "style-057",
+      "selectedReferenceIds": [],
+      "rationale": "The pixel art shows a chunky lightbulb with rays, a pink filament, a wire circuit drawn with right-angle rects and five square nodes, above an IDEA.EXE terminal line. All motion uses steps(6), so it moves in a few key poses rather than smoothly, as the style asks. All x/y offsets are 0 because these layers sit inside the scale(8) pixel group; only stepped scale and opacity are used, which keeps pixels on the grid. The bulb boots in, the filament lights up, the circuit appears, the nodes come on one by one along the wires, and the terminal title types in last. The star field, the background and the separator stay fixed. No reference fits: there is no face for gaze tracking and no chapter handoff.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-4",
+          "role": "Bulb body and rays boot in with stepped scale",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.5,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-16",
+          "role": "Filament lights up inside the bulb",
+          "action": "reveal",
+          "start": 0.4,
+          "duration": 0.3,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-23",
+          "role": "Circuit wiring powers on",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.5,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-36",
+          "role": "First node comes online",
+          "action": "reveal",
+          "start": 0.95,
+          "duration": 0.35,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-37",
+          "role": "Center node comes online",
+          "action": "reveal",
+          "start": 1.1,
+          "duration": 0.35,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-38",
+          "role": "Top-right node comes online",
+          "action": "reveal",
+          "start": 1.25,
+          "duration": 0.35,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-39",
+          "role": "Lower node comes online",
+          "action": "reveal",
+          "start": 1.4,
+          "duration": 0.35,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-40",
+          "role": "Right node comes online",
+          "action": "reveal",
+          "start": 1.55,
+          "duration": 0.35,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-45",
+          "role": "Terminal headline types in on the final beat",
+          "action": "reveal",
+          "start": 1.8,
+          "duration": 0.5,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -24,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.06440972222222222,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-059",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "5dbc8436112ebf656ac17cd46413b904fec5ed643b205de5be40db3add34d690",
+    "video": "style-059.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:13:30.562Z",
+    "renderMs": 16586,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.21736111111111112,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-061",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "e75a2b94f234e44c5795daa254e08b24c2e03f111e0928ce8f7ef0f564595bbf",
+    "video": "style-061.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:43:07.532Z",
+    "renderMs": 23233,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.27630208333333334,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-062",
+    "catalogHash": "c1aa010ea8eae6cbed68a1b66ddb8222143ea71f7095a96f8cd0819ecbf7ef03",
+    "sourceHash": "5f4951d9b0644b39749a9ea5c4ad1fa0308205367ee58220b908bb39d308ef3e",
+    "video": "style-062.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-13T03:54:14.984Z",
+    "renderMs": 14278,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.19229166666666667,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-063",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "67ec04c1036b952a6b7affa8c83a4bb536637356f4d30a02826e376baa269040",
+    "video": "style-063.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:51:25.121Z",
+    "renderMs": 15551,
+    "illustrationPlan": {
+      "styleId": "style-063",
+      "selectedReferenceIds": [
+        "motion-015"
+      ],
+      "rationale": "I looked at the PNG and the SVG. The scene is a phosphor oscilloscope: one impulse turns into a sustained waveform, and five peak nodes are linked by dotted lines. The story follows the caption 'pulse → signal → linked nodes' (motion-015, storytelling in steps). The last render failed because draw was used. The waveform actors are <use> clones and the link path has its own dash pattern, so this plan uses reveal only. The bright main trace (actor-8) sweeps in from the left. Its two dimmer persistence copies (7, 6) follow slightly later, like phosphor afterglow. The waveform spans most of the 1120x480 graticule, so the change is easy to see at card size. The impulse dot pops first. The five nodes then lock on in time order along the signal, and the dotted network fades in last. The grid, axes, frame and all labels stay still. Every actor is a child of the glow group (actor-5), and that group itself is not animated. All motion settles by 2.1s and holds.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-8",
+          "role": "Main glowing trace sweeps in from the left as the signal starts",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.7,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": -44,
+            "y": 0,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-15",
+          "role": "Impulse peak dot fires as the trigger point",
+          "action": "reveal",
+          "start": 0.1,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-7",
+          "role": "First persistence afterglow trails behind the trace",
+          "action": "reveal",
+          "start": 0.2,
+          "duration": 0.6,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": -44,
+            "y": 0,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-6",
+          "role": "Faintest persistence afterglow trails further behind",
+          "action": "reveal",
+          "start": 0.35,
+          "duration": 0.6,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": -44,
+            "y": 0,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-10",
+          "role": "First peak node locks on",
+          "action": "reveal",
+          "start": 0.85,
+          "duration": 0.35,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-11",
+          "role": "Trough node locks on",
+          "action": "reveal",
+          "start": 1,
+          "duration": 0.35,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-12",
+          "role": "Middle peak node locks on",
+          "action": "reveal",
+          "start": 1.15,
+          "duration": 0.35,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "Second trough node locks on",
+          "action": "reveal",
+          "start": 1.3,
+          "duration": 0.35,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-14",
+          "role": "Final N=5 node locks on",
+          "action": "reveal",
+          "start": 1.45,
+          "duration": 0.35,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-9",
+          "role": "Dotted links between nodes appear to complete the connected system",
+          "action": "reveal",
+          "start": 1.65,
+          "duration": 0.45,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.9,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.042916666666666665,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-035",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "b0926da8c6b9a4e117536cdda9b5b2d9c02c49232e47f9a177e5f0ad1912af6c",
+    "video": "style-035.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:53:25.556Z",
+    "renderMs": 16425,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.1920486111111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-067",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "acfafb27be3b0d9f9a407120da77689e49911467f8d860ad07ea96435b92befc",
+    "video": "style-067.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T10:07:29.875Z",
+    "renderMs": 15042,
+    "illustrationPlan": {
+      "styleId": "style-067",
+      "selectedReferenceIds": [],
+      "rationale": "The artwork already shows its fault model: one strip (rows 290–326) of the headline-and-network symbol is displaced +48px with RGB copies, plus a block of corruption and status lines. The motion stages the interruption and its readout. First the checker damage block (actor-8) and the SIGNAL INTERRUPTED label (actor-14) snap in. Then the displaced strip group (actor-4) snaps back toward alignment in hard steps and glitches out to its authored displacement. Next the lower slice (actor-3: the bottom of CONNECTED, SYSTEM. and the lower network) gets a brief stepped offset. The teal fill block (actor-9) pops in, and RECONSTRUCTED 100% (actor-15) lands last. The strip group is animated as a whole, never with its children. The background and divider lines stay fixed, and everything holds from about 1.9s. No chapter handoff exists, so the references were omitted.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-8",
+          "role": "Checker block-damage tile flickers into the corrupted strip",
+          "action": "reveal",
+          "start": 0.1,
+          "duration": 0.3,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-14",
+          "role": "SIGNAL INTERRUPTED status label appears as the fault begins",
+          "action": "reveal",
+          "start": 0.2,
+          "duration": 0.4,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -16,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-4",
+          "role": "Displaced RGB strip snaps toward alignment and back out to its authored +48px displacement",
+          "action": "transform",
+          "start": 0.4,
+          "duration": 0.6,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -40,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-3",
+          "role": "Lower clip slice (SYSTEM. and lower network) shears briefly sideways as a second strip offset",
+          "action": "transform",
+          "start": 1,
+          "duration": 0.4,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -28,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-9",
+          "role": "Teal data block pops into the damaged row",
+          "action": "reveal",
+          "start": 0.9,
+          "duration": 0.3,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 24,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-15",
+          "role": "RECONSTRUCTED 100% readout lands to close the fault cycle",
+          "action": "reveal",
+          "start": 1.4,
+          "duration": 0.5,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -16,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.09645833333333333,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-068",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "a0df4d4f2895ffa5c900c58d6cb097d3486fe28be7028ca6abbc3bd2d8b1702b",
+    "video": "style-068.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T10:07:43.801Z",
+    "renderMs": 14581,
+    "illustrationPlan": {
+      "styleId": "style-068",
+      "selectedReferenceIds": [],
+      "rationale": "A glassmorphism system map. A text panel on the left introduces four frosted node cards on the right, linked by dashed connectors over blurred colour orbs. The headline (actor-18) rises in first to set up the idea. Then the four glass cards rise and settle one at a time in connection order (top, right, bottom-left, bottom-right). Each card is one <use>, so its dot and bars move with its frosted body. The dashed connector group (actor-6) fades in last so the links appear once both ends are present. It fades rather than draws because the authored dasharray would clash with a draw. The left glass panel, the background and the blurred orbs stay fixed, so the backdrop showing through stays stable. The card-stacking and carousel references were rejected because these cards never overlap or slide along a track. Tilt was rejected because there is no hover-card subject.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-18",
+          "role": "Headline 'An idea becomes / a connected system' rises into the anchored glass panel",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 20,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-11",
+          "role": "Top glass node card floats up into place",
+          "action": "reveal",
+          "start": 0.35,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 32,
+            "scale": 0.82,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-12",
+          "role": "Right glass node card follows",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 32,
+            "scale": 0.82,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "Bottom-left glass node card follows",
+          "action": "reveal",
+          "start": 0.85,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 32,
+            "scale": 0.82,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-14",
+          "role": "Bottom-right glass node card completes the set",
+          "action": "reveal",
+          "start": 1.1,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 32,
+            "scale": 0.82,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-6",
+          "role": "Dashed connectors fade in once all cards are seated, linking the system",
+          "action": "reveal",
+          "start": 1.5,
+          "duration": 0.5,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.030694444444444444,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-070",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "258762192078634a5b46bba7ee6b83919e5dd3bfb9f9b0181b67e3f8a77ea664",
+    "video": "style-070.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T10:07:50.520Z",
+    "renderMs": 14767,
+    "illustrationPlan": {
+      "styleId": "style-070",
+      "selectedReferenceIds": [],
+      "rationale": "Pearlescent silk ribbons sweep across the frame, with pearls resting on and below them, joined by thin threads. The surface is revealed through measured flow. The main iridescent band (actor-2) slides in from the left as it fades up, like silk unfurling. Its paler inner layer (actor-3) follows a beat later for depth. The bright sheen edge (actor-4, a stroked unfilled path) then draws along the top of the silk. Next the pearls appear in a stagger: first the free pearl at left, then the pearls resting on the ribbon. The two threads (actors 5 and 6, stroked) draw toward the lower-right pearl, which forms last as the point where they meet. The serif headline and caption never move. The morphing-orb reference was rejected because the pearls are small rigid beads, not a deforming orb. Tilt and chapter handoffs aren't supported by this single scene.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-2",
+          "role": "Main iridescent silk band flows in from the left and settles",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -48,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-3",
+          "role": "Pale inner silk fold follows for layered depth",
+          "action": "reveal",
+          "start": 0.2,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -32,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-4",
+          "role": "Bright sheen edge draws along the top of the silk",
+          "action": "draw",
+          "start": 0.5,
+          "duration": 0.7,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-9",
+          "role": "Left pearl (thread origin) forms",
+          "action": "reveal",
+          "start": 0.8,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-11",
+          "role": "Pearl resting on the left ribbon crest forms",
+          "action": "reveal",
+          "start": 0.95,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-7",
+          "role": "Central pearl on the ribbon forms",
+          "action": "reveal",
+          "start": 1.1,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-10",
+          "role": "Upper-right pearl on the ribbon forms",
+          "action": "reveal",
+          "start": 1.25,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-5",
+          "role": "Lilac thread draws from the left pearl toward the lower-right pearl",
+          "action": "draw",
+          "start": 1.2,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-6",
+          "role": "Sage thread draws from the central pearl to the same node",
+          "action": "draw",
+          "start": 1.35,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-8",
+          "role": "Lower-right pearl forms where both threads meet, completing the system",
+          "action": "reveal",
+          "start": 1.65,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.17284722222222224,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-072",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "552c556a81a4fe905a8b13116a2cf75456b47307cc59f34a5dbeba33118a139b",
+    "video": "style-072.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T10:08:34.967Z",
+    "renderMs": 13826,
+    "illustrationPlan": {
+      "styleId": "style-072",
+      "selectedReferenceIds": [],
+      "rationale": "Read the PNG and SVG. The image is a striped synthwave sun behind outlined mountains, a pink perspective grid, and a cyan network running from a beacon at the sun's centre down to nodes on the grid, with the title above. The motion builds toward the horizon: the sun rises from behind the dark floor and mountains (they hide it naturally) and its stripes rise with it. Then the beacon lights, the cyan network draws down the grid, and its nodes pop in from the horizon outward on the beat. Finally the title and subtitle punch in. The grid, mountains, stars and background stay still. No reference used, since this is a single scene with no chapter change.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-8",
+          "role": "Striped sun rises from behind the horizon floor",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 48,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0.2
+          }
+        },
+        {
+          "actorId": "demo-actor-16",
+          "role": "Beacon at the sun's centre lights",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.35,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-15",
+          "role": "Cyan network line draws down the grid",
+          "action": "draw",
+          "start": 0.75,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-18",
+          "role": "Horizon junction node",
+          "action": "reveal",
+          "start": 1,
+          "duration": 0.3,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-19",
+          "role": "Left mid node",
+          "action": "reveal",
+          "start": 1.2,
+          "duration": 0.3,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-20",
+          "role": "Right mid node",
+          "action": "reveal",
+          "start": 1.25,
+          "duration": 0.3,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-21",
+          "role": "Left foreground node",
+          "action": "reveal",
+          "start": 1.45,
+          "duration": 0.3,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-22",
+          "role": "Right foreground node",
+          "action": "reveal",
+          "start": 1.5,
+          "duration": 0.3,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-23",
+          "role": "Title AN IDEA BECOMES punches in",
+          "action": "reveal",
+          "start": 1.55,
+          "duration": 0.45,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-24",
+          "role": "Subtitle settles in under the title",
+          "action": "reveal",
+          "start": 1.8,
+          "duration": 0.45,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": -16,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.13159722222222223,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-073",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "189e34b4004dc90b5427464703a84b912f4fffc8dccbae1a9d9eb376d01caa87",
+    "video": "style-073.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T10:08:40.026Z",
+    "renderMs": 13638,
+    "illustrationPlan": {
+      "styleId": "style-073",
+      "selectedReferenceIds": [],
+      "rationale": "Read the PNG and SVG. The image is a tilted retro idea.exe window, a dotted network over a pastel striped sun, a classical column, and the 'connected system' headline with two coloured echo copies behind it. The motion is slow, drifting vaporwave assembly. The window drifts in from the left, keeping its authored tilt through the wrapper. Its connector node appears, the dotted network draws across the sun, and the network nodes appear softly one by one. The two echo copies slide out from behind the headline, which itself stays readable and still. Sun, stripes, column, checker floor, scanlines and caption stay put. No reference used: 008 needs several stacked cards, and 012 and 015 need multiple chapters.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-19",
+          "role": "Retro idea.exe window drifts in from the left with its tilt preserved",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.8,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": -40,
+            "y": 0,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-29",
+          "role": "Window connector node appears",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.4,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-18",
+          "role": "Dotted network line draws across the sun",
+          "action": "draw",
+          "start": 0.75,
+          "duration": 0.8,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-30",
+          "role": "Top-left network node",
+          "action": "reveal",
+          "start": 1,
+          "duration": 0.4,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-31",
+          "role": "Central hub node",
+          "action": "reveal",
+          "start": 1.15,
+          "duration": 0.4,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-32",
+          "role": "Top-right node",
+          "action": "reveal",
+          "start": 1.3,
+          "duration": 0.4,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-33",
+          "role": "Lower-left node",
+          "action": "reveal",
+          "start": 1.45,
+          "duration": 0.4,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-34",
+          "role": "Lower-right node",
+          "action": "reveal",
+          "start": 1.6,
+          "duration": 0.4,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-36",
+          "role": "Pink headline echo slides out from behind",
+          "action": "reveal",
+          "start": 1.5,
+          "duration": 0.7,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": -32,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-35",
+          "role": "Lavender headline echo trails further behind",
+          "action": "reveal",
+          "start": 1.7,
+          "duration": 0.7,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": -40,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.06963541666666667,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-077",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "209e10fd9fc229a68d955b976f8d4d878c379267ab5916b58256f63064ff7021",
+    "video": "style-077.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:20:21.124Z",
+    "renderMs": 17276,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.10076388888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-078",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "72d601504a7edd60e79edb333fd1f0b30e53f7525284e03f805d2037af8dd4d2",
+    "video": "style-078.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:46:15.160Z",
+    "renderMs": 15878,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.2606423611111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-082",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "7846533ec751f23edb86532b19c7d7bc3bd738ee4f96e624377f59d68f6af406",
+    "video": "style-082.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:41:46.738Z",
+    "renderMs": 15445,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.11395833333333333,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-083",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "39a61388f3320fb030b17322b30e10f85542ba8ceb2c433a5efbcd88192b7260",
+    "video": "style-083.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:20:33.368Z",
+    "renderMs": 17238,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.18684027777777779,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-084",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "afd92a9410b7c3282a49358b050cf786b2d5cfde7ab820bc2280f52d2c11e424",
+    "video": "style-084.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:24:00.062Z",
+    "renderMs": 14409,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.22003472222222223,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-085",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "d213c098995e0dc1b0a34ae7c697cd6d0c15a282a9a4ea426cb7260d0febff2a",
+    "video": "style-085.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:23:22.135Z",
+    "renderMs": 18846,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.75265625,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-086",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "74770502f8a4c2b948c6181af7792f2ee3e66c55243e9ba49c1b4b9016140bc7",
+    "video": "style-086.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:23:49.233Z",
+    "renderMs": 18295,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.25755208333333335,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-089",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "dc312b45471b462c2d51b63f9f38584f0848605b364c84603781b1e07359dbdd",
+    "video": "style-089.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:25:16.000Z",
+    "renderMs": 16778,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.12039930555555556,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-088",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "ec53538ff9b2bfca7b53d6ae3b75319d029972e0c14677d6012a41910808e98a",
+    "video": "style-088.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:25:23.482Z",
+    "renderMs": 16911,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.10654513888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-093",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "365d3253ed1a4350daed7e14d24c1da978859717ed1fdf8386af7da47dfbddfa",
+    "video": "style-093.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:26:28.923Z",
+    "renderMs": 18196,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.2173263888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-098",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "8dc3632a4ce197052f793f8056f5e15d6e9c0124a4d89f0d238eb7ed308950fe",
+    "video": "style-098.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:28:54.024Z",
+    "renderMs": 15223,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.2218402777777778,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-102",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "5528c11bd9958d58c00f34d371899cfc15ba6452c494f2cfbf8727a4484f3b92",
+    "video": "style-102.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T10:15:57.605Z",
+    "renderMs": 14369,
+    "illustrationPlan": {
+      "styleId": "style-102",
+      "selectedReferenceIds": [],
+      "rationale": "The mandala is a single group (actor-2) that holds the outer ring, 8 mirrored sectors and the centre. Its bounding box is centred exactly on the shared centre (860,360). Animating the sectors one by one would scale or rotate each around its own centre and break the symmetry. So the whole mandala group is the one owner of the motion: it turns in from -15° (a third of a 45° sector period) and scales up from 0.8 around the fixed centre. This keeps all 8 reflections in sync and the centre never jumps. Text sits outside the repeated sectors, so the headline and its italic follow-up lines slide in from the left in a stagger after the pattern lands. The two small labels stay still. Neither the vortex passage nor the chapter handoff is supported by this single-scene pattern, so no reference is used.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-2",
+          "role": "Whole kaleidoscope turns and expands into place around its fixed centre",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": -15,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-16",
+          "role": "Headline 'An idea' slides in",
+          "action": "reveal",
+          "start": 0.75,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -32,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-17",
+          "role": "'becomes a' follows",
+          "action": "reveal",
+          "start": 1.05,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -28,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-18",
+          "role": "'connected system' completes the line",
+          "action": "reveal",
+          "start": 1.3,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -28,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.10487847222222223,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-103",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "deb1f70a3a45bd9a6b3908e0ff05d5d74898c5b034a16e41cb0be8418f2c72d2",
+    "video": "style-103.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:29:59.264Z",
+    "renderMs": 16311,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.23737847222222222,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-105",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "917035836b72a4fa18daaf4c045ff63709303c03b179212558101db5d74b7ab0",
+    "video": "style-105.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:31:38.513Z",
+    "renderMs": 14891,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.2304861111111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-107",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "f1d80b79b04b35f43ff8d250e6c2a58bf0bc40b284f4ca451367b8c5b8a018b6",
+    "video": "style-107.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:36:32.186Z",
+    "renderMs": 16045,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.5523784722222222,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-114",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "59a4314fb7a33e82276146600bf05dbeccd5e6e4a0b8b9686ba2208d7e43c3ba",
+    "video": "style-114.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:55:49.407Z",
+    "renderMs": 13070,
+    "illustrationPlan": {
+      "styleId": "style-114",
+      "selectedReferenceIds": [],
+      "rationale": "Both droplet groups use a goo filter, so moving individual blobs inside them makes them merge and pull apart like liquid. The top drop falls in along its thread first. Then the main blob bulges as the drop lands. Next the blue satellites, then the pink one, split off from the mass and settle into place. Each white highlight shares its droplet's pose and timing so it never floats on its own. The text column and the puddle stay still. I rejected motion-003 because its growth front across a receiving surface isn't in this artwork. I rejected motion-014 because this is several droplets splitting, not one deforming orb.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-3",
+          "role": "Falling drop slides down into place along its thread",
+          "action": "reveal",
+          "start": 0.1,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": -40,
+            "scale": 0.8,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-19",
+          "role": "Highlight on the falling drop",
+          "action": "reveal",
+          "start": 0.1,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": -40,
+            "scale": 0.8,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-5",
+          "role": "Main blob bulges as the drop lands",
+          "action": "transform",
+          "start": 0.55,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-15",
+          "role": "Main blob highlight, moves with the bulge",
+          "action": "transform",
+          "start": 0.55,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": -6,
+            "y": -6,
+            "scale": 1.18,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-7",
+          "role": "Right blue droplet splits off from the main blob",
+          "action": "reveal",
+          "start": 0.95,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": -48,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-16",
+          "role": "Highlight on the right droplet",
+          "action": "reveal",
+          "start": 0.95,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": -48,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-8",
+          "role": "Lower blue droplet stretches out and splits off",
+          "action": "reveal",
+          "start": 1.15,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": -24,
+            "y": -40,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-17",
+          "role": "Highlight on the lower droplet",
+          "action": "reveal",
+          "start": 1.15,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": -24,
+            "y": -40,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-12",
+          "role": "Large pink droplet gathers at the end of the stream",
+          "action": "reveal",
+          "start": 1.4,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": -36,
+            "y": -36,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-18",
+          "role": "Highlight on the pink droplet",
+          "action": "reveal",
+          "start": 1.4,
+          "duration": 0.6,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": -36,
+            "y": -36,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.03564236111111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-066",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "d01f994ff630545f161d2138efbc2a9ddd591c050834b50c3fee426e1227855c",
+    "video": "style-066.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:52:07.703Z",
+    "renderMs": 14424,
+    "illustrationPlan": {
+      "styleId": "style-066",
+      "selectedReferenceIds": [],
+      "rationale": "I looked at the PNG and the SVG. A CRT screen shows a hub-and-spoke network with the channel/play labels and a caption. All screen content sits in two <use> layers of the same symbol: a cyan colour-offset ghost (actor-5) and the main cream image (actor-6). The previous plan changed only 1.96% of pixels, which was too subtle. This plan uses a strong CRT power-on instead. The main image grows in from 80% scale and zero opacity. The cyan ghost arrives in stepped frames from a 30px horizontal offset and settles into its authored 4px offset, which reads as colour channels coming into alignment. The faint tracking band (actor-7) rolls once, like vertical-hold settling. Together these change most of the screen. Scanlines, noise, vignette, glass glare and bezel stay still. All text returns to full legibility by 1.6s and holds.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-5",
+          "role": "Cyan chroma ghost converges from a wide offset in stepped CRT frames",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.7,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 30,
+            "y": 0,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-6",
+          "role": "Main phosphor image powers on, growing from the screen centre",
+          "action": "reveal",
+          "start": 0.15,
+          "duration": 0.75,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-7",
+          "role": "Tracking band rolls once as vertical hold settles",
+          "action": "transform",
+          "start": 0.9,
+          "duration": 0.7,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": -48,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.0228125,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-069",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "6eee760fdc7012f47ebf96ffd5b448dbf2775cbb414abb8bfdf9572286c8309b",
+    "video": "style-069.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:17:00.657Z",
+    "renderMs": 20527,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.13821180555555557,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-074",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "2ea305d8b5663a866f08f63b6e4e7cce34700d5175a1b4b95643fe8abe612c40",
+    "video": "style-074.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T10:27:28.643Z",
+    "renderMs": 14646,
+    "illustrationPlan": {
+      "styleId": "style-074",
+      "selectedReferenceIds": [],
+      "rationale": "This is a Y2K system map: a chrome 'idea.sys' title, a large glossy IDEA planet with a pink orbit ring, plastic tubes running to three glossy planets (share, build, link), a tilted NEW! sticker and a progress bar. The motion is an elastic interface build. The orbit ring swings 12° around the planet, the plastic tubes appear, the three planets pop in one after another with back.out (each glint moves with its own planet), and the NEW! sticker gives a bounded pop. The previous draw failed because the tubes are <use> elements, so they use reveal here. The title, labels, progress bar, sparkles and dotted background stay fixed and readable. All motion finishes by about 1.9s. No reference applies: motion-014 needs a single deforming orb, and nothing here has chapters or story copy.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-7",
+          "role": "Pink orbit ring swings around the IDEA planet",
+          "action": "transform",
+          "start": 0.1,
+          "duration": 0.8,
+          "ease": "sine.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 12,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-5",
+          "role": "Translucent blue tube casing appears",
+          "action": "reveal",
+          "start": 0.3,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-6",
+          "role": "White tube core appears with casing",
+          "action": "reveal",
+          "start": 0.3,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-11",
+          "role": "Pink share planet elastic pop-in",
+          "action": "reveal",
+          "start": 0.65,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-12",
+          "role": "Share planet glint follows",
+          "action": "reveal",
+          "start": 0.65,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "Green build planet elastic pop-in",
+          "action": "reveal",
+          "start": 0.9,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-14",
+          "role": "Build planet glint follows",
+          "action": "reveal",
+          "start": 0.9,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-15",
+          "role": "Blue link planet elastic pop-in",
+          "action": "reveal",
+          "start": 1.15,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-16",
+          "role": "Link planet glint follows",
+          "action": "reveal",
+          "start": 1.15,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-21",
+          "role": "NEW! sticker bounded pop",
+          "action": "transform",
+          "start": 1.4,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1.2,
+            "rotation": 8,
+            "opacity": 1
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.03920138888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-076",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "851e0e1ed13380744e1b5c47ce1edbe2b422ca4abb12e67856dcef0b77b2062f",
+    "video": "style-076.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:52:51.431Z",
+    "renderMs": 15426,
+    "illustrationPlan": {
+      "styleId": "style-076",
+      "selectedReferenceIds": [],
+      "rationale": "This is a soft neumorphic control surface: a large raised IDEA ring button, inset connection channels, and INPUT, LOGIC and STORE modules plus an inset LIVE module. The last plan was too subtle (1.87% changed pixels), so this one is stronger. The IDEA ring (shadow layer and gradient overlay animated together) presses in to 82% and releases. Then the three raised modules rise 40px from scale 0.75 in sequence, so their shadows sweep visibly. The dark line icons and the blue share icon then pop in, which adds high-contrast change at card size. The background, title, channels, LIVE inset, labels and toggle stay fixed. All motion finishes by about 2.0s. No reference applies: this is a single control panel, not card stacking, tilt or a carousel.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-7",
+          "role": "IDEA ring button raised body presses in and releases",
+          "action": "transform",
+          "start": 0.15,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.82,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-8",
+          "role": "IDEA ring gradient face presses with body",
+          "action": "transform",
+          "start": 0.15,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.82,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-11",
+          "role": "INPUT module raised shadow body rises in",
+          "action": "reveal",
+          "start": 0.55,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 40,
+            "scale": 0.75,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-12",
+          "role": "INPUT module face rises with body",
+          "action": "reveal",
+          "start": 0.55,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 40,
+            "scale": 0.75,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "LOGIC module raised shadow body rises in",
+          "action": "reveal",
+          "start": 0.8,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 40,
+            "scale": 0.75,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-14",
+          "role": "LOGIC module face rises with body",
+          "action": "reveal",
+          "start": 0.8,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 40,
+            "scale": 0.75,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-15",
+          "role": "STORE module raised shadow body rises in",
+          "action": "reveal",
+          "start": 1.05,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 40,
+            "scale": 0.75,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-16",
+          "role": "STORE module face rises with body",
+          "action": "reveal",
+          "start": 1.05,
+          "duration": 0.55,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 40,
+            "scale": 0.75,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-18",
+          "role": "Module line icons (circle, square, bars) appear",
+          "action": "reveal",
+          "start": 1.4,
+          "duration": 0.45,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-22",
+          "role": "LIVE share icon pops on as the active path completes",
+          "action": "reveal",
+          "start": 1.6,
+          "duration": 0.45,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.0685763888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-080",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "cf5768316992df3183fb3020ddeedaf20b6d92e7208f4067f122424b068a744d",
+    "video": "style-080.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:19:13.735Z",
+    "renderMs": 12434,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.9602951388888888,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-090",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "5550b5f640da242f512a7424fad6bceb88c47088ee8c49a2d1363b8ceb226c53",
+    "video": "style-090.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:24:30.255Z",
+    "renderMs": 12430,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.07282986111111112,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-071",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "7bd5a4d31a7f4ade26229141b8db2730692a8a28ef4afe4d27088f7d3fde437d",
+    "video": "style-071.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:52:21.644Z",
+    "renderMs": 12958,
+    "illustrationPlan": {
+      "styleId": "style-071",
+      "selectedReferenceIds": [],
+      "rationale": "The cyberpunk city's signal system comes online. The amber uplink hub pops in, and the solid glowing cable draws out from it across the rooftops. The dashed secondary cable then fades in, and its two endpoint nodes connect. Next, the window lights of the three central towers flicker on in a steps(6) cadence like a powering grid. This is the large-area change that fixes the previous too-subtle 1.94% result. The pink NODE neon sign and its lettering flicker on last. Window patterns and the neon only animate opacity, so they stay aligned with their building silhouettes. The parent glow groups (17, 21) are not animated. The dashed cable uses reveal so the dash pattern isn't lost. The title box, ground line and remaining nodes stay put. No reference fits, since this is a single-scene signal activation.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-26",
+          "role": "Amber uplink hub pops on",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.45,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-18",
+          "role": "Solid signal cable draws across the rooftops",
+          "action": "draw",
+          "start": 0.2,
+          "duration": 0.8,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-19",
+          "role": "Dashed secondary links fade in from the hub",
+          "action": "reveal",
+          "start": 0.5,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-23",
+          "role": "Left dashed endpoint node connects",
+          "action": "reveal",
+          "start": 0.9,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-24",
+          "role": "Right dashed endpoint node connects",
+          "action": "reveal",
+          "start": 1,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-12",
+          "role": "Central tower window lights flicker on",
+          "action": "reveal",
+          "start": 1,
+          "duration": 0.5,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "Right-centre tower window lights flicker on",
+          "action": "reveal",
+          "start": 1.2,
+          "duration": 0.5,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-11",
+          "role": "Left-centre tower window lights flicker on",
+          "action": "reveal",
+          "start": 1.4,
+          "duration": 0.5,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-27",
+          "role": "Pink neon sign frame flickers on",
+          "action": "reveal",
+          "start": 1.6,
+          "duration": 0.5,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-28",
+          "role": "NODE neon lettering flickers on with the frame",
+          "action": "reveal",
+          "start": 1.7,
+          "duration": 0.5,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.04498263888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-092",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "43e0de01cb8796b55de57b6f086b6d31d6906c2178053f8eba52cffdd7b2ed49",
+    "video": "style-092.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:26:12.050Z",
+    "renderMs": 14609,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.07670138888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-094",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "702d711827a69584562126092b921b9f9c613cf6db2bb00d2a678d476d16bde0",
+    "video": "style-094.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:27:34.168Z",
+    "renderMs": 15471,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.13960069444444445,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-096",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "084ef4f98d33d0b6c53d4fc3c46aa731f108f5af0b03125b2f400ef0489c3d69",
+    "video": "style-096.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:28:36.992Z",
+    "renderMs": 18445,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.0728125,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-100",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "f104c83997dd10d0eeb295b943079a026e6c2957b9bfcc35429ac754bd99decd",
+    "video": "style-100.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:28:06.773Z",
+    "renderMs": 17689,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.03387152777777778,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-115",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "c9277b82b125728c9bd8640e39ea2e889e72963ed997c65300a1cb4d964f6f0d",
+    "video": "style-115.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:35:42.772Z",
+    "renderMs": 14401,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.17328125,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-112",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "c28290cce8252d766a1a2f5ceeec0680c3f9528ecbf1e47cd3b95d17797dbeae",
+    "video": "style-112.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T10:41:05.434Z",
+    "renderMs": 13793,
+    "illustrationPlan": {
+      "styleId": "style-112",
+      "selectedReferenceIds": [],
+      "rationale": "The last plan was too subtle, so this one makes the HUD's start-up and acquisition the main event. The radar rings scale in, the six spoke lines draw out from the locked core to the node squares, and then the node labels light up. Then the readouts respond to the scan: the SYSTEM SCAN and LINK INTEGRITY panel text slides in, the integrity ring rotates in, and the assembly bar fills in. Panel frames, corner brackets, the grid and the disclaimer stay anchored. Node squares stay fixed as spoke endpoints so the connections stay intact. The large text and ring areas push changed pixels well past the threshold. Everything finishes by 2.05s.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-9",
+          "role": "Middle radar ring powers up",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-12",
+          "role": "Six scan spokes draw from core to nodes",
+          "action": "draw",
+          "start": 0.05,
+          "duration": 0.75,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "Core reticle locks on",
+          "action": "reveal",
+          "start": 0.2,
+          "duration": 0.45,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-10",
+          "role": "Dashed acquisition ring spins into place",
+          "action": "reveal",
+          "start": 0.35,
+          "duration": 0.55,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": -15,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-41",
+          "role": "Node and lock labels appear as nodes are acquired",
+          "action": "reveal",
+          "start": 0.85,
+          "duration": 0.45,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-31",
+          "role": "Panel readouts slide in after acquisition",
+          "action": "reveal",
+          "start": 1.15,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 16,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-25",
+          "role": "Link integrity ring rotates into its 86% state",
+          "action": "reveal",
+          "start": 1.35,
+          "duration": 0.55,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": -15,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-26",
+          "role": "Assembly progress bar fills in",
+          "action": "reveal",
+          "start": 1.55,
+          "duration": 0.5,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -24,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.02020833333333333,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-113",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "73ae19bcc494f880c05753380caeb9b05b79a0baec0a7fd1326c573dcab18065",
+    "video": "style-113.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-10T10:41:11.961Z",
+    "renderMs": 15151,
+    "illustrationPlan": {
+      "styleId": "style-113",
+      "selectedReferenceIds": [],
+      "rationale": "The last plan was too subtle, so this one is a large, precise reveal. The frosted panel stays anchored over the still aurora, and its contents assemble. The headline block rises in first, then the core disc and its dot pop in at the centre. The four glass chips glide inward from their corners, and the four connector lines draw from core to chips to finish the 'connected system'. No card stack, carousel, tilt or orb deformation is depicted, so no reference fits. The headline is large, so its reveal alone gives a strong change at card size. Everything is in place by 2.2s for a readable hold.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-19",
+          "role": "Headline copy block rises in",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 24,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-12",
+          "role": "Core disc shadow appears under the glass core",
+          "action": "reveal",
+          "start": 0.4,
+          "duration": 0.45,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-13",
+          "role": "Glass core disc pops in",
+          "action": "reveal",
+          "start": 0.45,
+          "duration": 0.45,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-14",
+          "role": "Core spark dot lights",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.35,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-15",
+          "role": "Top-left chip glides into place",
+          "action": "reveal",
+          "start": 0.8,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -40,
+            "y": -30,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-16",
+          "role": "Top-right chip glides into place",
+          "action": "reveal",
+          "start": 0.95,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 40,
+            "y": -30,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-17",
+          "role": "Bottom-left chip glides into place",
+          "action": "reveal",
+          "start": 1.1,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": -40,
+            "y": 30,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-18",
+          "role": "Bottom-right chip glides into place",
+          "action": "reveal",
+          "start": 1.25,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 40,
+            "y": 30,
+            "scale": 0.85,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-10",
+          "role": "Connector lines draw from core to each chip",
+          "action": "draw",
+          "start": 1.5,
+          "duration": 0.7,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.04560763888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-049",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "9ce51e34d5c9dd4a243b2e2a36362caa2d1c65b6cb8d3a38796ba1cb0fe59b08",
+    "video": "style-049.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:57:41.093Z",
+    "renderMs": 17816,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.21567708333333332,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-099",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "dca5fc895a18c1d1b6b1ea7e62813a4aa19247bd328e21045c30db7941841e9a",
+    "video": "style-099.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:29:09.069Z",
+    "renderMs": 15834,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.7038020833333334,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-101",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "c8b2866e2350f03404257995cf310ab97fcbcf142c9e9ae43b9047362efdd863",
+    "video": "style-101.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:30:46.629Z",
+    "renderMs": 15933,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.12751736111111112,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-097",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "e6ec87d368d69daacad3c5c4cf7b14dc7ff55b1903791f779a299662b65982be",
+    "video": "style-097.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:28:29.139Z",
+    "renderMs": 18987,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.10590277777777778,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-087",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "2e06f985188ad58d822136a74726e428549957b9edd15bca5b227111a5593fca",
+    "video": "style-087.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:24:46.038Z",
+    "renderMs": 16933,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.0940625,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-095",
+    "catalogHash": "c1aa010ea8eae6cbed68a1b66ddb8222143ea71f7095a96f8cd0819ecbf7ef03",
+    "sourceHash": "8388924218776f3aaab722cbe4e4d7c51bddffcc04be17b2e91583a538c122e9",
+    "video": "style-095.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-13T04:01:32.136Z",
+    "renderMs": 75472,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.139375,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-015",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "a54e25dcfd9953ebe46abdcb2dd0c1e46803a2cae47a244ed82fba494f2e813f",
+    "video": "style-015.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:49:20.146Z",
+    "renderMs": 14818,
+    "illustrationPlan": {
+      "styleId": "style-015",
+      "selectedReferenceIds": [],
+      "rationale": "Brutalist web page: the IDEA = SYSTEM headline, a CORE hub, and four node_*.html windows joined by thick wiring. Motion is hard stepped cuts in reading order. IDEA, the lime bar and = SYSTEM slam in from the left with steps(6), offset 24px so they stay inside the canvas. The CORE block pops in. The network path is a truly unfilled 6px black stroke, and it draws out from the core. The four windows then cut in one after another. The header bar, with STATUS: LIVE in lime on black, and the black connect --all block stay static so their text never sits on a missing backing. The full scene is readable by about 2.2s.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-7",
+          "role": "IDEA headline hard-cuts in from the left",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.4,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -24,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-8",
+          "role": "Lime highlight bar slams in",
+          "action": "reveal",
+          "start": 0.25,
+          "duration": 0.4,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -24,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-9",
+          "role": "= SYSTEM lettering lands on the bar",
+          "action": "reveal",
+          "start": 0.4,
+          "duration": 0.4,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -24,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-23",
+          "role": "CORE block pops in as the hub",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-18",
+          "role": "Thick unfilled network wiring draws out from the core",
+          "action": "draw",
+          "start": 0.85,
+          "duration": 0.7,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 1
+          }
+        },
+        {
+          "actorId": "demo-actor-19",
+          "role": "node_a window cuts in",
+          "action": "reveal",
+          "start": 1.2,
+          "duration": 0.35,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": -24,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-20",
+          "role": "node_b window cuts in",
+          "action": "reveal",
+          "start": 1.4,
+          "duration": 0.35,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": -24,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-21",
+          "role": "node_c window cuts in",
+          "action": "reveal",
+          "start": 1.6,
+          "duration": 0.35,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 24,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-22",
+          "role": "node_d window cuts in, completing the network",
+          "action": "reveal",
+          "start": 1.8,
+          "duration": 0.4,
+          "ease": "steps(6)",
+          "pose": {
+            "x": 0,
+            "y": 24,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.16788194444444443,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-028",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "6952bc6ad6c53dcd929e13799e8fbc504e7e3153d833e325d4a2b98dfd581d22",
+    "video": "style-028.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:33:36.681Z",
+    "renderMs": 17106,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.15414930555555556,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-030",
+    "catalogHash": "ce4dc9d4a904a1b506af85b093e6c0dd130e67e058fc2c0035125f87e62836ab",
+    "sourceHash": "7fd54d446c860bf44d15b82d55e62dce3f1ce6a05e6840301a0e900a53b1e5a8",
+    "video": "style-030.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T03:37:00.172Z",
+    "renderMs": 19450,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.11630208333333333,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-033",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "f9cfdc45ecce21cfda93f61ea35824a0f462d59b3703593fa2d3d07c797c5a17",
+    "video": "style-033.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:05:21.432Z",
+    "renderMs": 22834,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.2224826388888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-042",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "9447e53920f714f24f60478e00a825eae904f3028727b6b21a90043028f92ea2",
+    "video": "style-042.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:10:28.284Z",
+    "renderMs": 19450,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.3213888888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-039",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "85ac95f3e81e370e4e0f9ea8d79a86040d4319cc2353cef5593a79ec7ad28f33",
+    "video": "style-039.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:10:26.601Z",
+    "renderMs": 15923,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.38479166666666664,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-045",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "083ecb9ad99cec0c47ca2280eb22ed97d73094a5abd6f7c24895b9469f69686f",
+    "video": "style-045.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:10:51.375Z",
+    "renderMs": 16249,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.18296875,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-058",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "ff6b517681a81a7b6ebe5d9c12e1662897a325c7d2e6ec647a811e3e12309d01",
+    "video": "style-058.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:15:14.801Z",
+    "renderMs": 17618,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.11328125,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-064",
+    "catalogHash": "65a7d24df853310487333dc7e9df3f281f47418a93e8a265bcd8b20059d1fa29",
+    "sourceHash": "6615df0f17ec13d7cb9d9ae367dfb4eac269932a1d633e9e53985df3aada88bc",
+    "video": "style-064.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-11T02:51:39.496Z",
+    "renderMs": 13439,
+    "illustrationPlan": {
+      "styleId": "style-064",
+      "selectedReferenceIds": [],
+      "rationale": "Demoscene tunnel of links: the pink core flashes in, then the nested rotated squares open outward one by one with a counter-rotation, like a rotating-geometry tunnel effect. The node network, which sits inside the tunnel group, snaps in next. The three bitmap title lines slide in from the left in stepped increments, one after another. The background, raster bars, scroller and subtitle stay where they are. Title lettering uses solid palette cream #F3EACF for readable contrast. The greetings scroller is set at 24px so the full copy fits the raster band. Everything is settled by about 1.6s.",
+      "tracks": [
+        {
+          "actorId": "demo-actor-16",
+          "role": "Central core flashes in as the tunnel's origin",
+          "action": "reveal",
+          "start": 0,
+          "duration": 0.4,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-9",
+          "role": "Innermost tunnel square opens",
+          "action": "reveal",
+          "start": 0.15,
+          "duration": 0.45,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": -15,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-7",
+          "role": "Middle tunnel square opens with counter-rotation",
+          "action": "reveal",
+          "start": 0.3,
+          "duration": 0.5,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": -15,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-5",
+          "role": "Outer pink tunnel square opens",
+          "action": "reveal",
+          "start": 0.45,
+          "duration": 0.55,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.75,
+            "rotation": -12,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-3",
+          "role": "Largest tunnel ring expands last",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.6,
+          "ease": "power2.inOut",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.8,
+            "rotation": -10,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-10",
+          "role": "Node network snaps into the tunnel",
+          "action": "reveal",
+          "start": 0.9,
+          "duration": 0.5,
+          "ease": "back.out(1.2)",
+          "pose": {
+            "x": 0,
+            "y": 0,
+            "scale": 0.7,
+            "rotation": 15,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-19",
+          "role": "Bitmap title line 1 slides in",
+          "action": "reveal",
+          "start": 0.2,
+          "duration": 0.45,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -40,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-20",
+          "role": "Bitmap title line 2 slides in",
+          "action": "reveal",
+          "start": 0.4,
+          "duration": 0.45,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -40,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        },
+        {
+          "actorId": "demo-actor-21",
+          "role": "Bitmap title line 3 slides in",
+          "action": "reveal",
+          "start": 0.6,
+          "duration": 0.45,
+          "ease": "steps(6)",
+          "pose": {
+            "x": -40,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0,
+            "opacity": 0
+          }
+        }
+      ]
+    },
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.05623263888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-060",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "cf2b104e778f3ee7135c2a57a33c452882defcb57658790fefba829607c807a7",
+    "video": "style-060.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:14:22.650Z",
+    "renderMs": 12548,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.24177083333333332,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-065",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "dca34855a9a31182136c35e155bf1aa70c5306a82cddbad98f6d48515249f94c",
+    "video": "style-065.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:19:42.962Z",
+    "renderMs": 19341,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.1142013888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-075",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "1785d792bb611d0ccedcdc6252994e0eb678c93c089d93cfb5eeee5e9ef75c14",
+    "video": "style-075.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:17:58.372Z",
+    "renderMs": 25595,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.06664930555555555,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-079",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "c9d797cb2599a51b0da67d80c0f4bde890dd21882590ae79961520fc015f7131",
+    "video": "style-079.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:19:46.721Z",
+    "renderMs": 18240,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.08739583333333334,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-081",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "1be57e66f05492bbcbfa7ba3ecc40915942a30fefb77a63d51f9f29968467d38",
+    "video": "style-081.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:20:55.280Z",
+    "renderMs": 14935,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.07427083333333333,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-091",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "680d55472a3a368225e5f04baf0f2bd22a16296e77135b5d581e36f55fb0d35d",
+    "video": "style-091.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:24:21.219Z",
+    "renderMs": 15526,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.06651041666666667,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-106",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "524d2c36ff840f5a3675748a84041c38347bfbd859b4addfd234a8f568b50c23",
+    "video": "style-106.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:32:49.371Z",
+    "renderMs": 14636,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.05631944444444444,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-104",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "382751004f1507d4757f71f95c00eaf4446a30931c3b49d9d0e8618b498e4f1c",
+    "video": "style-104.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:34:01.853Z",
+    "renderMs": 14839,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.6677256944444444,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-109",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "d2856da1caef2cf361bf1f91a91e0c56037d36d29c6b296244f4baed8fa2e652",
+    "video": "style-109.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:31:46.900Z",
+    "renderMs": 13883,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.04842013888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-108",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "d90b55a6dfc119b584969d1ef9ebcc757e3d2b676e76e3a4de5562160cdb031a",
+    "video": "style-108.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:34:36.712Z",
+    "renderMs": 14889,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.14112847222222222,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-110",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "9de33984c120c3337a6c625f9a692a6870f11028f88361a994f7743d1d3725bb",
+    "video": "style-110.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:35:18.264Z",
+    "renderMs": 18837,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.18911458333333334,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-111",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "49f7b46430f439f81cd0687d478a6aee90b388a39988317258a296a0d3008a8f",
+    "video": "style-111.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:36:34.741Z",
+    "renderMs": 14972,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.1402951388888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-117",
+    "catalogHash": "b3a203ebe386fccc4dcbe761ea598a4c196309e3d10a923c227c955b584c3afb",
+    "sourceHash": "b0747dd3c8a6e1dc159575f9bbd3e8b40fe160588fe6c1373128055f318d3688",
+    "video": "style-117.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-12T08:50:17.763Z",
+    "renderMs": 14350,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.22371527777777778,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-116",
+    "catalogHash": "b3a203ebe386fccc4dcbe761ea598a4c196309e3d10a923c227c955b584c3afb",
+    "sourceHash": "a0be6f6123e95fcdde45146c6cd0a900243e8262cf5f1391b13e8ad428267b3c",
+    "video": "style-116.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-12T08:51:13.707Z",
+    "renderMs": 14013,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.07269097222222222,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-118",
+    "catalogHash": "b3a203ebe386fccc4dcbe761ea598a4c196309e3d10a923c227c955b584c3afb",
+    "sourceHash": "63d68f2d7c4d5ec42baa01dd1758146bb7ab1f9292c598a6f56002cf3fb39c28",
+    "video": "style-118.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-12T08:51:32.467Z",
+    "renderMs": 11654,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.22418402777777777,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-121",
+    "catalogHash": "b338514a824965a1e8e12c359ecf895f54d80ad777eb082fa11dd8c94f9bb4c8",
+    "sourceHash": "ea9897d66c24d4a3ce93db86e1146701af5f26bed2e1dbd1dae74b13ee97ffb2",
+    "video": "style-121.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-12T08:55:52.630Z",
+    "renderMs": 16883,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.08831597222222222,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-122",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "91f3bec8c0671e8f3763e60c15dbac042fb9ef75f08f090e7943e82915080699",
+    "video": "style-122.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:34:55.222Z",
+    "renderMs": 14748,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.22095486111111112,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-119",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "e3186f6fface90225cc8f38d7b5b0647a371b6d18ed62a0dca3c7595994d2a8f",
+    "video": "style-119.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:33:13.092Z",
+    "renderMs": 17546,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.09940972222222222,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-120",
+    "catalogHash": "b338514a824965a1e8e12c359ecf895f54d80ad777eb082fa11dd8c94f9bb4c8",
+    "sourceHash": "640fbda3dee8af715c287c1552271698a9fe7fbcdb7ba51df07ad36fcde0aec7",
+    "video": "style-120.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-12T08:56:50.611Z",
+    "renderMs": 16481,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.22196180555555556,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-124",
+    "catalogHash": "b338514a824965a1e8e12c359ecf895f54d80ad777eb082fa11dd8c94f9bb4c8",
+    "sourceHash": "9179251a4eb28c70bdd67fd913374114da18ea6af0b086cbe743fd87ab1bb930",
+    "video": "style-124.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-12T08:59:50.215Z",
+    "renderMs": 15697,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.21883680555555557,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-126",
+    "catalogHash": "b338514a824965a1e8e12c359ecf895f54d80ad777eb082fa11dd8c94f9bb4c8",
+    "sourceHash": "557a8503b20efdbd2d88a441f488a6a270879432f580e731baf518db505a673b",
+    "video": "style-126.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-12T09:01:11.974Z",
+    "renderMs": 19513,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.3567013888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-125",
+    "catalogHash": "b338514a824965a1e8e12c359ecf895f54d80ad777eb082fa11dd8c94f9bb4c8",
+    "sourceHash": "18141c1ef2d4244121ffc514613763b17d346fe6953eadaf02f5df2b4c0a84a8",
+    "video": "style-125.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-12T09:06:36.156Z",
+    "renderMs": 15895,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.10041666666666667,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-123",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "77c7856f39a2a7ce0b9b515efb017780f0286b90d6ba1df7a828624fe55523df",
+    "video": "style-123.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:35:41.848Z",
+    "renderMs": 15855,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.2390451388888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-128",
+    "catalogHash": "c1aa010ea8eae6cbed68a1b66ddb8222143ea71f7095a96f8cd0819ecbf7ef03",
+    "sourceHash": "1d70559426ecf5432443c208b9c596732ce4b7abbac9ddd1b3e06d5cdea77589",
+    "video": "style-128.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-13T03:53:01.043Z",
+    "renderMs": 11678,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.11894097222222222,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-127",
+    "catalogHash": "c1aa010ea8eae6cbed68a1b66ddb8222143ea71f7095a96f8cd0819ecbf7ef03",
+    "sourceHash": "92c1bb9f74edb400fe4d724f56ca23b0302a84ed0339c62c0f640a032f4fcd5b",
+    "video": "style-127.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-13T03:54:09.684Z",
+    "renderMs": 18900,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.11623263888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-133",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "209487c457742d875b598fdf8cdd463c2ed4f9cbce2e4a2d6cef0839f6109af4",
+    "video": "style-133.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:39:34.150Z",
+    "renderMs": 15004,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.6367534722222222,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-132",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "cfed2ef2323e2a994af75da37ab887a65795ccc7cd7334bec3fc20c1adf9c84e",
+    "video": "style-132.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:37:26.640Z",
+    "renderMs": 18257,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.5745138888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-130",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "7e444c94dc2d0cead5c5f757cad543b6abeca221d179bb8a4d60da6c03609168",
+    "video": "style-130.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:39:41.710Z",
+    "renderMs": 18406,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.3842013888888889,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-131",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "f0e225ac681ba94e7bad777fd559777ca36265117e9995cfc4bcb6ff447d7078",
+    "video": "style-131.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:36:44.623Z",
+    "renderMs": 17287,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.17666666666666667,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-129",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "0dbd960821d8040182a6210a0ffc3ae4e6210c7e8af738f078d84b8f04db776b",
+    "video": "style-129.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:36:00.454Z",
+    "renderMs": 26830,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.0895486111111111,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-135",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "31a5c551a9a1237c2ce29d0d944462af7ad8863d7b406a1247ac159b4242d666",
+    "video": "style-135.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:37:56.180Z",
+    "renderMs": 14435,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.13197916666666668,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-134",
+    "catalogHash": "e96aa37924bc509b770a19aefeb83771380306e3cf4377c30e70aba551f36031",
+    "sourceHash": "2aeecc35c7c64928f3fdf6ef454d89f3fe625bd0729992003b200b4a5c192e58",
+    "video": "style-134.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-15T04:37:37.304Z",
+    "renderMs": 13580,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.16236111111111112,
+    "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-136",
+    "catalogHash": "c30ec1204a2ab05c07f65d5e737398eb2901ccafa80fc48db1ba915acc3fcf28",
+    "sourceHash": "e89ec0d8f0e10895ca78ff98244a257f9ecc3b78e9e922976d349c7a112f44b5",
+    "video": "style-136.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-14T19:58:17.020Z",
+    "renderMs": 5494,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.12147569444444445,
+    "model": "application-authored"
+  },
+  {
+    "styleId": "style-032",
+    "catalogHash": "3353cdc50abb3dee780cae32c707d425aef18f2cb87a3efc647c642f4cd267ae",
+    "sourceHash": "5c6f3c8e9336ff79a179f0600ed25e801262d98fd5a42f47948ffafcf55513a3",
+    "video": "style-032.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-14T21:39:42.488Z",
+    "renderMs": 16667,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.2501909722222222,
+    "model": "claude-opus-5-5"
+  }
+]

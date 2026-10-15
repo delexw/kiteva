@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-021",
+    "name": "Hand-drawn Illustration, in the Drawing and Illustration category with explicit provenance.",
+    "visualIdentity": "Pressure-varied linework with small irregularities, limited color fills, subtle paper texture and consistent character proportions. Random jitter alone does not qualify as this style.",
+    "suitableUses": "Explicitly suits narrative or warm brand pieces on their own. Supported combinations add recipe, travel and process explainers, illustrated brand loops and title art; these extra uses are inferred.",
+    "limitations": "Procedural jitter cannot replace authentic drawing, and Rough.js cannot supply handwriting, paper texture or character poses. Source palette review covered only seconds 1–8 at one frame per second, with no audio.",
+    "palette": "Background is scene-dependent and should be chosen from subject and mood. Suggested tokens are #F7EFDF background, #343E42 foreground, and #BC705A and #758D72 accents. Foreground-on-background contrast is 9.597:1; accents suit decorative fills only. Approved colors override these, and gradients are off.",
+    "motionAndInteraction": "Use smooth authored movement where it helps, keeping deliberate cuts, impacts and reading holds, with no automatic springs or bounce. Gaze, chapter and story motions are optional and need suitable layers or scene fit. Hotspot notes must stay focusable.",
+    "audio": "The style assigns no audio; music, voiceover, sung vocals, effects, ambience or silence are all optional and topic-dependent. No genre, tempo or voice is specified or mandated, and explicit user audio choices take precedence.",
+    "assetRequirements": "Needs drawn assets, pressure-sensitive brushes or layered artwork, delivered as transparent PNG sequences with consistent dimensions and clear names. Fonts must load before rendering. Gaze motion requires separate eye layers or a rig.",
+    "combinations": "Line-boil support (style-092) cycles two or three fixed line variants during holds, with fills unchanged. Callout support (style-024) adds #343E42 notes, #BC705A underlines and matching arrows, with no third accent. Supporting style IDs are referenced only, not defined here.",
+    "productionApproach": "HyperFrames is the default pipeline; Remotion is fallback only with a recorded reason. Canvas 2D is the primary renderer, with optional Rough.js sketch contours, PixiJS layers or Paper.js editable strokes. GSAP provides seekable timing, and chroma.js checks contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

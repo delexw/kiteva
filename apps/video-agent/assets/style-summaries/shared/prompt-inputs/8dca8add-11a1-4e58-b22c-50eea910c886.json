@@ -1,0 +1,1606 @@
+{
+  "originalSource": {
+    "style": {
+      "id": "style-107",
+      "category": "Motion Design and Cinematography",
+      "name_en": "Mixed-Media Animation",
+      "provenance": "normalized",
+      "visual_cues": "Establish shared color, line, texture, and lighting rules before mixing photos, drawings, paper, type, or 3D objects. Give each medium a narrative role and connect them through composition, direction, and intentional transitions. Retain medium differences within a coherent whole.",
+      "note": "The label has been normalized from source descriptions or references. A mixed-media request does not establish that physical stop-motion footage was used.",
+      "tech": {
+        "recommended_stack": [
+          {
+            "name": "HyperFrames",
+            "kind": "npm_cli_framework",
+            "package": "hyperframes",
+            "runtime": "HTML composition in browser; CLI orchestration in Node.js",
+            "purpose": "Primary pipeline for scene assembly, seekable composition timing, media and audio synchronization, validation, and final export. Visual construction and motion design remain owned by the selected style renderer and motion engine.",
+            "suggested_apis": [
+              "data-composition-id",
+              "data-width / data-height",
+              "data-start / data-duration",
+              "class=\"clip\"",
+              "window.__timelines[compositionId]",
+              "npx hyperframes check",
+              "npx hyperframes snapshot --at <seconds>",
+              "npx hyperframes render --output <video.mp4>"
+            ],
+            "optional": false,
+            "docs_url": "https://hyperframes.heygen.com/developers",
+            "suggested_libraries": [
+              {
+                "name": "GSAP",
+                "package": "gsap",
+                "purpose": "Build a paused, seekable timeline and register it with HyperFrames after construction is complete.",
+                "suggested_apis": [
+                  "gsap.timeline({ paused: true })",
+                  "fromTo",
+                  "to",
+                  "set",
+                  "addLabel"
+                ],
+                "runtime": "browser",
+                "docs_url": "https://gsap.com/docs/v3/"
+              }
+            ],
+            "style_application": "Compose the output of the selected visual and motion layers. Supply seekable time or integrate baked assets; do not replace the style-specific rendering or motion method with framework defaults.",
+            "selection_guidance": "Use HyperFrames by default. Fall back to Remotion only when the documented fallback condition is met, and record the reason. Do not mix framework APIs.",
+            "priority": "primary",
+            "production_roles": [
+              "render_pipeline"
+            ],
+            "role": "composition_and_export_pipeline"
+          },
+          {
+            "name": "Python",
+            "kind": "language_runtime",
+            "package": null,
+            "runtime": "Python process, not browser",
+            "purpose": "Preprocess assets, calculate data, and manage frame sequences in a Python process, separate from browser code.",
+            "suggested_apis": [
+              "pathlib.Path",
+              "json",
+              "subprocess.run"
+            ],
+            "optional": false,
+            "docs_url": "https://docs.python.org/3/",
+            "style_application": "Apply this tool to Mixed-Media Animation according to visual_cues and tech.implementation.",
+            "production_roles": [
+              "supporting_tool"
+            ]
+          },
+          {
+            "name": "Pillow",
+            "kind": "python_library",
+            "package": "Pillow",
+            "runtime": "Python process",
+            "purpose": "Crop, resize, composite transparent images, create masks, and generate pixel textures.",
+            "suggested_apis": [
+              "PIL.Image",
+              "PIL.ImageDraw",
+              "Image.alpha_composite",
+              "Image.resize",
+              "ImageFilter"
+            ],
+            "optional": false,
+            "docs_url": "https://pillow.readthedocs.io/en/stable/",
+            "style_application": "Apply this tool to Mixed-Media Animation according to visual_cues and tech.implementation.",
+            "production_roles": [
+              "supporting_tool"
+            ]
+          },
+          {
+            "name": "Remotion",
+            "kind": "npm_library",
+            "package": "remotion",
+            "runtime": "React in browser; rendering orchestrated by Node.js",
+            "purpose": "Conditional fallback pipeline for scene assembly, seekable composition timing, media and audio synchronization, validation, and final export. Visual construction and motion design remain owned by the selected style renderer and motion engine.",
+            "suggested_apis": [
+              "Composition",
+              "Sequence",
+              "useCurrentFrame",
+              "useVideoConfig",
+              "interpolate",
+              "spring"
+            ],
+            "optional": true,
+            "docs_url": "https://www.remotion.dev/docs/",
+            "style_application": "Compose the output of the selected visual and motion layers. Supply seekable time or integrate baked assets; do not replace the style-specific rendering or motion method with framework defaults.",
+            "priority": "fallback",
+            "selection_guidance": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
+            "production_roles": [
+              "render_pipeline"
+            ],
+            "role": "composition_and_export_pipeline"
+          },
+          {
+            "name": "Sharp",
+            "kind": "npm_library",
+            "package": "sharp",
+            "runtime": "Node.js only, never browser",
+            "purpose": "Preprocess high-resolution collage assets, crop, resize, and composite masks in Node.js. This is a Node.js alternative to Pillow, not a browser library.",
+            "suggested_apis": [
+              "sharp(input).resize()",
+              "extract",
+              "composite",
+              "png"
+            ],
+            "optional": true,
+            "docs_url": "https://sharp.pixelplumbing.com/",
+            "production_roles": [
+              "supporting_tool"
+            ]
+          },
+          {
+            "name": "@remotion/renderer",
+            "kind": "npm_library",
+            "package": "@remotion/renderer",
+            "runtime": "Node.js only",
+            "purpose": "Render compositions from Node.js only when the Remotion fallback route is selected. Do not use it as a HyperFrames renderer or browser-side encoder.",
+            "suggested_apis": [
+              "selectComposition",
+              "renderMedia",
+              "renderStill"
+            ],
+            "optional": true,
+            "docs_url": "https://www.remotion.dev/docs/renderer",
+            "priority": "fallback_dependency",
+            "production_roles": [
+              "render_pipeline"
+            ]
+          },
+          {
+            "name": "PixiJS",
+            "package": "pixi.js",
+            "runtime": "browser",
+            "role": "2d_rendering",
+            "purpose": "Optional 2D scene renderer for Mixed-Media Animation using layered artwork, sprites, masks, and explicit frame-time transforms. Preserve original texture, linework, and cadence.",
+            "suggested_apis": [
+              "Application",
+              "Container",
+              "Sprite",
+              "Graphics",
+              "Assets"
+            ],
+            "integration_guidance": "Initialize the renderer and preload assets. Disable autonomous ticker playback for export; derive transforms and effects from composition time before rendering.",
+            "optional": true,
+            "docs_url": "https://pixijs.com/8.x/guides/getting-started/quick-start",
+            "kind": "npm_library",
+            "production_roles": [
+              "style_renderer"
+            ]
+          },
+          {
+            "name": "chroma.js",
+            "kind": "npm_library",
+            "package": "chroma-js",
+            "runtime": "browser and Node.js",
+            "role": "color_processing",
+            "purpose": "Optionally validate colors, derive controlled palette variants, interpolate colors, and check foreground/background contrast.",
+            "suggested_apis": [
+              "chroma.valid",
+              "chroma.scale",
+              "scale.mode('lab')",
+              "scale.colors",
+              "chroma.mix",
+              "chroma.contrast",
+              "chroma(color).hex()",
+              "chroma(color).css()"
+            ],
+            "integration_guidance": "Start with task-provided colors and the style visual_cues. Keep a shared, deterministic palette and named color tokens. Generate gradients or interpolate colors only when the style permits them; keep limited-palette, monochrome, pixel, and print treatments discrete where required. Evaluate animated color from shared composition time. Check contrast against the actual composited background; a two-color ratio alone does not verify text over transparency, gradients, textures, or video. Pass output through the selected renderer's color API and preserve its color-space handling. Native CSS/SVG colors remain sufficient when no color processing is needed.",
+            "optional": true,
+            "docs_url": "https://gka.github.io/chroma.js/",
+            "style_application": "Read palette.tokens, palette.constraints and palette.agent_instruction for Mixed-Media Animation. Validate approved colors and assess readable existing token pairs with chroma-js. Use palette.gradient only when enabled and appropriate. Preserve task/reference colors exactly; optional suggested tokens are fallback inputs, not permission to recolor assets.",
+            "production_roles": [
+              "supporting_tool"
+            ]
+          },
+          {
+            "name": "Rough.js",
+            "kind": "npm_library",
+            "package": "roughjs",
+            "runtime": "browser Canvas or SVG; generator geometry can also be prepared in Node.js",
+            "role": "sketch_rendering",
+            "purpose": "Optionally generate hand-drawn-like geometric contours and patterned or solid fills for styles that explicitly support sketch-like artwork.",
+            "suggested_apis": [
+              "rough.canvas(canvasElement)",
+              "rough.svg(svgRoot)",
+              "rough.generator()",
+              "line",
+              "rectangle",
+              "circle",
+              "ellipse",
+              "polygon",
+              "curve",
+              "path",
+              "generator.toPaths(drawable)",
+              "roughness",
+              "bowing",
+              "stroke",
+              "strokeWidth",
+              "fill",
+              "fillStyle",
+              "hachureAngle",
+              "hachureGap",
+              "fillWeight",
+              "seed"
+            ],
+            "import_guidance": "Use roughjs/bundled/rough.esm.js for browser ESM, roughjs/bundled/rough.cjs.js for Node.js CommonJS, or roughjs/bundled/rough.js for a browser script. Keep DOM, SVG and Canvas operations in the browser; Node.js may prepare generator drawables or path data without DOM access.",
+            "integration_guidance": "Assign each object a stable nonzero integer seed in the documented range and cache generated paths or drawables. Drive transforms, masks, reveals and pose selection from shared seekable composition time using the selected animation owner. Fixed geometry should not be randomly regenerated each frame. For deliberate line boil, prepare and inspect a small set of fixed-seed contour variants and select them deterministically by exposure time. Use approved palette tokens directly for stroke and fill. Rough.js does not provide animation, handwriting, pressure-sensitive brush simulation, paper texture or character poses. Hachure and pattern fills do not establish authentic pencil, ink-wash, halftone or print materials. Animate stroke and fill reveals separately when necessary; generated path order is not an authored drawing sequence.",
+            "optional": true,
+            "docs_url": "https://github.com/rough-stuff/rough/wiki",
+            "selection_guidance": "Use only where the style and brief call for sketch-like contours, hachure or doodles. Do not apply roughness to precise grids, clean vectors, product UI, pixel clusters, photorealistic materials or existing assets unless that specific treatment is authorized.",
+            "style_application": "Generate a distinct sketch layer within the shared mixed-media system. Retain photographic, painted and 3D material identities and the approved common palette.",
+            "production_roles": [
+              "style_renderer"
+            ]
+          },
+          {
+            "name": "PhotoSwipe",
+            "kind": "npm_library",
+            "package": "photoswipe",
+            "runtime": "browser; initialize only after the gallery DOM is mounted",
+            "role": "interactive_image_lightbox",
+            "purpose": "Optional image-gallery dialog with swipe navigation, zoom, pan and thumbnail opening or closing transitions for interactive web delivery.",
+            "suggested_apis": [
+              "PhotoSwipeLightbox",
+              "gallery",
+              "children",
+              "pswpModule",
+              "lightbox.init()",
+              "lightbox.loadAndOpen(index)",
+              "lightbox.destroy()",
+              "lightbox.pswp.goTo(index)",
+              "lightbox.pswp.zoomTo(...)",
+              "data-pswp-width",
+              "data-pswp-height",
+              "data-pswp-srcset"
+            ],
+            "import_guidance": "Use PhotoSwipeLightbox from 'photoswipe/lightbox', load 'photoswipe/style.css', and set pswpModule to () => import('photoswipe'). Check exports and API signatures against the installed version.",
+            "integration_guidance": "Use for interactive image viewing only when the task includes a web gallery or lightbox. Define accurate intrinsic image dimensions and responsive sources. Retain direct image links as a fallback, meaningful image alternatives, usable keyboard navigation, focus return and reduced-motion behavior. Initialize after mounting and destroy on cleanup; access the core instance only after opening. Preserve original image colors and established palette tokens when styling controls. PhotoSwipe owns its dialog gestures and transitions; do not attach another animation owner to those properties. Captions require a deliberate custom UI or suitable plugin rather than assuming a built-in caption feature.",
+            "video_guidance": "PhotoSwipe is not a video renderer or a composition-time animation engine. For rendered video, recreate the chosen thumbnail expansion, swipe, zoom, pan and reading holds as authored DOM/SVG/Canvas transforms driven by GSAP and the selected framework clock. Do not depend on live touch input, dynamic dialog state or asynchronous lightbox transitions for exported frames. Preserve HyperFrames as primary and Remotion as the existing conditional fallback.",
+            "selection_guidance": "Designed primarily as an image lightbox dialog, not a general inline carousel. Use native scroll snapping or a suitable carousel library for inline cards, mixed interactive card content or persistent neighboring cards. PhotoSwipe does not generate the artwork or determine its visual style.",
+            "optional": true,
+            "docs_url": "https://photoswipe.com/getting-started/",
+            "methods_docs_url": "https://photoswipe.com/methods/",
+            "style_application": "Inspect original photographs, illustrations or exported still frames from the mixed-media composition. Preserve each source medium and approved colors; animate the actual media sequence separately.",
+            "production_roles": [
+              "supporting_tool"
+            ]
+          },
+          {
+            "name": "Cropper.js",
+            "kind": "npm_library",
+            "package": "cropperjs",
+            "runtime": "browser; initialize after the image and editing container are mounted",
+            "role": "image_crop_authoring",
+            "purpose": "Optionally author image crop regions and export prepared raster assets for layouts or video compositions. This is an asset-preparation or interactive editing tool, not a style generator or video animation engine.",
+            "api_version_guidance": "The documented 2.x API uses Cropper custom elements and CropperSelection.$toCanvas(). Verify the installed version before implementation; do not mix it with 1.x methods such as getCroppedCanvas().",
+            "suggested_apis": [
+              "new Cropper(imageElement, options)",
+              "container",
+              "template",
+              "cropper.getCropperImage()",
+              "cropper.getCropperSelection()",
+              "selection.aspectRatio",
+              "selection.x",
+              "selection.y",
+              "selection.width",
+              "selection.height",
+              "selection.$toCanvas(options)"
+            ],
+            "import_guidance": "Import Cropper from 'cropperjs' and follow the installed 2.x documentation for its custom elements. Keep DOM, image loading, selection controls and Canvas export in the browser; initialize client-side rather than during server rendering.",
+            "integration_guidance": "Await image readiness, select the intended aspect ratio and framing, and export the selection through the documented asynchronous Canvas API at appropriate output dimensions. Preserve the original asset and store the crop recipe separately: source identity, intrinsic dimensions, selection rectangle, image transform, editor coordinate system, output dimensions and any required overscan. Selection coordinates are in the editor layout, not automatically original-image pixel coordinates; account for transforms and coordinate mapping before reproducing a crop elsewhere. Confirm image permissions and cross-origin Canvas export availability before relying on export. Avoid unnecessary upscaling, repeated lossy encoding and destructive replacement of the source.",
+            "color_guidance": "Crop and frame only. Preserve the approved palette and original image treatment; do not apply filters, tinting, grading or automatic palette changes. Resampling, Canvas color conversion and encoding can affect pixel values, so do not promise byte-identical colors after export. Inspect representative output colors and prefer non-destructive source-plus-crop rendering when exact source preservation is required.",
+            "video_guidance": "Finish crop authoring before rendering. Load the exported asset or a reproducible source-plus-crop recipe into the composition, then animate framing, masks and pan or zoom with GSAP or the selected framework timeline. Do not drive exported frames from live crop handles or mutable editor state. Keep HyperFrames primary and Remotion under its existing fallback condition.",
+            "selection_guidance": "Use when interactive crop authoring is useful. Native CSS object-fit/object-position, SVG clipping or Canvas source rectangles are sufficient for simple predetermined framing. Cropping does not remove backgrounds, create subject cutouts, separate parallax layers or fill missing artwork. Keep important faces, labels, product features and motion margins inside the intended frame.",
+            "optional": true,
+            "docs_url": "https://fengyuanchen.github.io/cropperjs/api/",
+            "selection_docs_url": "https://fengyuanchen.github.io/cropperjs/api/cropper-selection.html",
+            "style_application": "Prepare photographic and raster-art regions for a mixed-media composition, retaining each source medium and consistent layout margins. Use separate masking or segmentation tools for irregular cutouts.",
+            "production_roles": [
+              "supporting_tool"
+            ]
+          },
+          {
+            "name": "Dragula",
+            "kind": "npm_library",
+            "package": "dragula",
+            "runtime": "browser; initialize after DOM mount",
+            "role": "drag_and_drop_interaction",
+            "optional": true,
+            "purpose": "Reorder DOM items or move/copy them between configured containers in interactive delivery or an accompanying editor.",
+            "suggested_apis": [
+              "dragula(containers, options)",
+              "moves",
+              "accepts",
+              "copy",
+              "direction",
+              "revertOnSpill",
+              "drake.on(\"drag\", handler)",
+              "drake.on(\"drop\", handler)",
+              "drake.on(\"cancel\", handler)",
+              "drake.destroy()"
+            ],
+            "integration_guidance": "Include the required Dragula CSS. Use explicit containers, drag handles and acceptance rules. Persist stable item IDs and final ordering in application state on drop, and reconcile DOM mutations with the framework without competing ownership. Initialize after mount and destroy on teardown. Provide keyboard or button-based alternatives and meaningful status announcements; pointer/touch support alone does not establish keyboard accessibility. Use an existing suitable animation dependency for optional settling, with one owner per property.",
+            "constraints": "Dragula manages DOM drag/drop interaction and drop feedback, not general animation, physics, 3D picking or freeform canvas positioning. Verify package/version compatibility and maintenance suitability before installation. For video, author cursor paths, lifted cards, placeholders, reordering and settling from seekable composition time instead of running live Dragula input. Preserve HyperFrames as primary, Remotion as conditional fallback, approved palettes and shared_motion_guidance.",
+            "verification": "For interactive delivery, verify reorder, container transfer, allowed/rejected drops, cancellation, touch, state persistence, keyboard alternatives and cleanup. For video, compare repeated and out-of-order seeking and inspect decoded motion.",
+            "docs_url": "https://github.com/bevacqua/dragula#readme",
+            "style_application": "Optional reordering of asset cards in an accompanying browser editor; not freeform collage positioning.",
+            "production_roles": [
+              "supporting_tool"
+            ]
+          }
+        ],
+        "implementation": "Preprocess photography, drawings, and paper assets for consistent color, edges, and dimensions. Prerender 3D elements as transparent sequences when needed and composite them with text and images.",
+        "alternatives": [
+          "Canvas 2D + GSAP",
+          "Remotion"
+        ],
+        "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
+        "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
+        "framework_selection": {
+          "default": "HyperFrames",
+          "fallback": "Remotion",
+          "fallback_condition": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
+          "scope": "Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method."
+        },
+        "available_library_ids": [
+          "three_js",
+          "pixi_js",
+          "gsap",
+          "motion",
+          "tldraw",
+          "chroma_js",
+          "rough_js",
+          "photoswipe",
+          "cropper_js",
+          "dragula"
+        ],
+        "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
+        "motion_guidance": {
+          "shared_reference": "shared_motion_guidance",
+          "application": "Apply shared movement quality to Mixed-Media Animation without weakening its visual_cues, materials, typography or existing motion_references.",
+          "cadence_guidance": "Use smooth, coherent authored movement where the action benefits from it. Preserve deliberate sharp cuts, impacts, constant-speed sections and reading holds; not every transition needs easing.",
+          "implementation": "Prefer existing timeline and renderer dependencies. Evaluate key states at requested composition time, maintain a single property owner, and cache or deterministically replay stateful motion. Do not introduce a library solely to add generic smoothing."
+        },
+        "style_renderer": {
+          "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
+          "recommended_stack_refs": [
+            "PixiJS",
+            "Rough.js"
+          ]
+        },
+        "motion_engine": {
+          "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
+          "recommended_stack_refs": []
+        },
+        "production_policy_ref": "production_policy"
+      },
+      "executable_prompt_template": "Replace all double-brace placeholders with task inputs before execution. Use documented defaults only for omitted optional inputs and state the assumptions.\nCreate a Mixed-Media Animation video about {{subject}} for {{audience_and_objective}}. Use {{assets_and_exact_copy}}. Deliver a video of {{duration_seconds}} seconds, with aspect ratio {{aspect_ratio}}, resolution {{resolution}}, and frame rate {{frame_rate}}. Follow {{audio_or_rhythm_requirements}} and save deliverables to {{output_directory}}.\nUse {{render_pipeline}} for composition and export only. If omitted, resolve it to tech.framework_selection.default. Check the primary framework first; use tech.framework_selection.fallback only when the documented fallback_condition is met, and record the verified reason. An existing React project alone is not sufficient reason to switch.\n1. Inspect the project, available tools, assets, exact wording, and input formats. Reuse suitable existing components. Treat visual_cues as art-direction constraints and choose only the tech.recommended_stack entries needed for the selected framework and asset-generation method. Example dimensions, palette sizes, beats, and scenes apply only when the task adopts them.\n2. Write a short storyboard with explicit time ranges. Give each section one main idea, a clear focal point, and enough reading or observation time. Plan staging around this style's visual rules: Establish shared color, line, texture, and lighting rules before mixing photos, drawings, paper, type, or 3D objects. Give each medium a narrative role and connect them through composition, direction, and intentional transitions. Retain medium differences within a coherent whole. Add secondary styles only when their materials, composition, and movement remain compatible.\n3. Implement the style-specific technique: Preprocess photography, drawings, and paper assets for consistent color, edges, and dimensions. Prerender 3D elements as transparent sequences when needed and composite them with text and images. Keep Canvas, DOM, and WebGL in the browser and file processing in Node.js or Python. Drive visual updates from shared, seekable video time; load fonts and assets, seed randomness, and cache stateful simulation. Centralize colors, fonts, dimensions, camera settings, and timing. Build representative frames and key actions before expanding the sequence.\n4. Follow only the tech.render_pipeline route for {{render_pipeline}}. Distinguish drawing or pose-exposure rate from delivery frame rate. Use task-provided or authorized audio, and synchronize picture and sound against the same time data. Match composition and velocity at loop boundaries.\n5. Render and inspect actual opening, key-action, transition, and closing frames, then watch the decoded video. Check the style-specific constraints in visual_cues, readable text, correct glyphs, stable materials and outlines, missing assets, crop margins, timing, dimensions, and audio synchronization. Fix issues and rerender until the relevant checks pass; compilation alone is insufficient.\n6. Deliver the video, editable source or project, a key-frame contact sheet, chosen parameters, and reproducible render instructions. State any missing assets or unverified limitations. Distinguish photographed production from simulated appearance.\nFramework contract: select the packages, runtime, timeline registration, validation commands, and renderer that actually belong to {{render_pipeline}}. Do not mix another framework's hooks, composition lifecycle, or renderer. Specialist modeling, photography, drawing, and scientific computation can produce inputs for the selected video framework without being replaced by it.\nPalette contract: read palette before implementation. Use its suggested tokens only when task, brand, or reference colors are absent. Keep supplied exact colors, source artwork, existing semantic assignments, and style color-family and color-count constraints unchanged. Use chroma-js to validate and normalize equivalent color values, select readable existing foreground/background pairs, and interpolate only when palette.gradient is enabled. Do not recolor assets or add hues to improve contrast; change text placement, an existing backing color, or typography instead. Follow palette.agent_instruction and inspect actual composited frames.\nOptional sketch rendering: when the brief calls for sketch-like marks, consult the Rough.js entry in tech.recommended_stack. Use package roughjs to generate seeded Canvas/SVG geometry, preserve the resolved palette, and follow its style_application and integration_guidance. Cache shapes; let the selected timeline animate transforms, masks, reveals or authored pose variants. Rough.js does not supply handwriting, authentic drawing media, a character rig or frame-by-frame poses. Keep precise text, measured geometry and approved source assets intact.\nOptional PhotoSwipe gallery: use the PhotoSwipe entry in tech only when interactive web delivery requires an image lightbox. Follow its style_application, import_guidance, integration_guidance and selection_guidance. Supply accurate image dimensions, responsive sources, fallback links and usable navigation; preserve image colors and the resolved palette. For video, follow video_guidance and author swipe, zoom and thumbnail transitions on the shared composition timeline instead of running a live lightbox.\nOptional crop preparation: consult Cropper.js in tech.recommended_stack when raster assets need interactive crop authoring. Follow its style_application, api_version_guidance, integration_guidance and color_guidance. Preserve original assets, approved colors, essential subject context and motion overscan; record the source, selection, transforms, coordinate system and output size. Await export and inspect actual framing and image quality. For video, follow video_guidance and use a saved asset or reproducible crop recipe on the shared composition timeline. Cropper.js does not supply subject extraction, background removal or missing parallax artwork.\nShared movement quality: follow shared_motion_guidance and tech.motion_guidance. Design coherent trajectories, acceleration, transitions and settling with readable holds. Use time-based interpolation and authored easing when appropriate; preserve deliberate cuts, impacts, stepped exposure, whole-pixel placement and line-boil cadence. Do not automatically add springs, bounce, floating or extra in-between poses. Derive state from composition time; bake or deterministically replay any stateful smoothing, physics or camera damping. Verify direct, backward and out-of-order seeks plus the decoded sequence and loop seams. Keep the existing palette and style-specific motion direction intact.\nDragula option: For interactive delivery or an accompanying editor, optionally select Dragula from tech.recommended_stack. Optional reordering of asset cards in an accompanying browser editor; not freeform collage positioning. Follow its integration_guidance, constraints and verification. For rendered video, use authored timeline gestures and deterministic layout states; do not depend on live dragging. Preserve palette tokens, style cadence and the selected framework render_pipeline.\nProduction ownership: follow production_policy. Choose the style_renderer and motion_engine from the style and motion requirements first, and state the selected tools and their responsibilities. Build the visuals and movement with those tools according to tech.implementation and visual_cues. Use {{render_pipeline}} only for scene assembly, seekable composition timing, media and audio synchronization, validation, and export. Keep specialist rendering and motion logic in their own layers; do not substitute generic framework text, DOM transitions, or framework animation helpers merely because the pipeline is available. Native DOM or SVG is appropriate when it actually satisfies the style. Integrate deterministic time-driven layers or baked assets, and verify representative visuals and motion before assembling the full video.\nAudio direction: follow audio_direction. Based on {{subject}}, {{audience_and_objective}}, the storyboard, visual_cues, and motion direction, suggest suitable background music, voiceover, sung vocals, sound effects, ambience, or silence. Honor {{audio_or_rhythm_requirements}} first. State the proposed choices and why they fit this topic and style; suggest mood, texture, energy, tempo where useful, voice language and delivery where useful, and scene-level audio changes. Do not impose a fixed soundtrack rule or include every layer. Source or create authorized assets, then use {{render_pipeline}} for assembly, synchronization, mixing, and export. Verify speech intelligibility, audio balance, absence of clipping, and picture synchronization in the final video.",
+      "motion_references": {
+        "catalog_file": "motion-pattern-catalog.json",
+        "required": false,
+        "selection_policy": "Optional candidates are screened for natural style compatibility. Before selection, inspect the actual scene illustration, assets, geometry and narrative beat. Keep only references whose defining action is supported by that scene. Choosing no reference is valid. Do not infer motion from a similar label; do not replace the existing style motion direction.",
+        "candidates": [
+          {
+            "motion_id": "motion-012",
+            "usage_guidance": "Consider a progress-controlled handoff between outgoing and incoming chapters with synchronized copy and readable endpoints. Choose one compatible transition treatment and make both forward and backward state evaluation coherent."
+          },
+          {
+            "motion_id": "motion-015",
+            "usage_guidance": "Consider meaningful narrative steps with synchronized copy and visual states, plus optional within-step progress or sticky graphics. Use only scene-level motions that serve the story, and schedule the same states by time for video."
+          },
+          {
+            "motion_id": "motion-020",
+            "usage_guidance": "For intentionally digital, disrupted or abrasive transitions. Omit for calm editorial scenes or when distortion undermines communication."
+          },
+          {
+            "motion_id": "motion-037",
+            "usage_guidance": "Give outgoing and incoming typography a narrative role inside the shared color and texture system. Optional only when actual scene assets support the defining action; preserve the style palette and medium and choose no reference when unsuitable.",
+            "review_evidence": "outputs/fable-review/motion-reference-review/review.json",
+            "reviewed_style_cues_sha256": "901e2ca0b3561c0b0ff05c76cb906abb82e200198555d364d8b9751edc5cbfb2"
+          },
+          {
+            "motion_id": "motion-038",
+            "usage_guidance": "A punctuation element can bridge media through shared composition and direction while retaining material differences. Optional only when actual scene assets support the defining action; preserve the style palette and medium and choose no reference when unsuitable.",
+            "review_evidence": "outputs/fable-review/motion-reference-review/review.json",
+            "reviewed_style_cues_sha256": "901e2ca0b3561c0b0ff05c76cb906abb82e200198555d364d8b9751edc5cbfb2"
+          },
+          {
+            "motion_id": "motion-039",
+            "usage_guidance": "A focal mark can connect paper type and particles when each medium has a defined narrative role. Optional only when actual scene assets support the defining action; preserve the style palette and medium and choose no reference when unsuitable.",
+            "review_evidence": "outputs/fable-review/motion-reference-review/review.json",
+            "reviewed_style_cues_sha256": "901e2ca0b3561c0b0ff05c76cb906abb82e200198555d364d8b9751edc5cbfb2"
+          },
+          {
+            "motion_id": "motion-040",
+            "usage_guidance": "Use word cards as the typography role within the shared media palette; preserve texture/material distinctions through intentional cuts, not random visual mixtures. Optional only when concise text serves the actual scene; use approved colors and preserve this style’s visual rules."
+          }
+        ],
+        "agent_instruction": "Read the actual illustration and complete pattern description, motion_sequence and video_adaptation. Identify which scene elements implement that action. Reject unsupported geometry, absent subjects, unintended depth, broken contact points or unrelated interactions. Select none when no candidate fits; use restrained style-native motion instead. Preserve authored transforms, fixed backgrounds and reading layers."
+      },
+      "palette": {
+        "source_frame_review": {
+          "reviewed_at": "2026-10-15T04:08:42.176Z",
+          "sample_window_seconds": [
+            1,
+            8
+          ],
+          "source_review_complete": true,
+          "sampling_limitation": "One frame at each available second 01–08. No continuous motion, sub-second timing, audio or later scenes verified. Color families are visual observations; whole-frame measured dominant colors are not semantic background tokens.",
+          "guidance": "Choose scene-dependent backgrounds and readable coordinated colors. Separate material colors, source demonstration choices and surrounding UI/letterboxing. Existing swatches are examples, not permanent canvas restrictions. Keep explicit user-approved colors and medium-defining constraints. Only sampled seconds, not continuous motion or audio, were visually reviewed.",
+          "sources": [
+            {
+              "source_url": "https://skillry.dev/ai-videos/opus-5-5/ambiguous-ai-505873",
+              "observed_seconds": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+              ],
+              "confidence": "high",
+              "style_evidence": "Every letter switches medium: halftone print, comic burst, faux-3D extrusion, torn paper, liquid glass over smoke, minimal ink line. A shared black/off-white/orange system and a single centered letter tie them together.",
+              "palette_lesson": "Across scenes the constant is a restricted system: a near-black ink, a pale paper/off-white, and one hot red-orange accent. The roles invert from scene to scene. Black ground with a pale letter → orange ground with a black letter → paper ground with a black letter and orange offsets → a muted rust/charcoal fluid where the orange family is desaturated. The specific red-orange and warm paper are this author's example choices. The craft rule is the 2–3 role system plus the ground/figure inversion from letter to letter. For a new subject, pick one saturated accent family that suits the theme. Examples: cobalt, acid green, magenta, teal or deep ultramarine. Pair it with a dark ink and a light ground chosen for the scene, such as cool gray concrete, newsprint gray, slate, or a cream tone only where it fits. Keep high contrast between letter and ground in every scene, and recheck it on textured or fluid backgrounds."
+            },
+            {
+              "source_url": "https://skillry.dev/ai-videos/opus-5-5/boona11-415751",
+              "observed_seconds": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+              ],
+              "confidence": "high",
+              "style_evidence": "Painted terrain is deliberately combined with crisp cel/3D-like game sprites, vector reticles, outlined UI captions and a museum-label card. Each medium has a distinct role.",
+              "palette_lesson": "Here the colours come from the subject: a beach at low tide gives turquoise/cyan sea, white foam and warm sand-ochre ground, with small saturated sprite accents (red/white umbrellas, purple pearls, green props) and cream plus golden-yellow caption type. Those hues are this author's choice for a beach, not rules of the style. The style constraints are different: (1) opaque paint covers the whole frame with no blank canvas showing; (2) each terrain zone gets a limited family of 2–3 close values built from overlapping knife slabs; (3) the brightest impasto (here the white foam) carries the relief highlights; (4) game sprites use small, saturated, high-chroma accents so they read against broad painted masses; (5) UI type is cream or white with dark outlines so it stays legible over any paint. For a new subject, take the terrain families from that environment and re-check caption contrast against the busiest area."
+            }
+          ]
+        },
+        "background_policy": "scene_dependent",
+        "status": "reference_dependent_example",
+        "scope": "new_artwork_when_no_approved_palette_is_supplied",
+        "direction": "Shared warm paper, cool ink and earth accents; preserve medium-specific source colors",
+        "generator": {
+          "library": "chroma-js",
+          "version": "3.2.0",
+          "operations": [
+            "chroma.valid",
+            "chroma(color).hex()",
+            "chroma.contrast"
+          ]
+        },
+        "tokens": {
+          "background": "#F1E6D1",
+          "foreground": "#3B4948",
+          "accent_1": "#688E87",
+          "accent_2": "#B97A5C"
+        },
+        "base_colors": [
+          "#F1E6D1",
+          "#3B4948",
+          "#688E87",
+          "#B97A5C"
+        ],
+        "base_color_count": 4,
+        "constraints": [
+          "These hex values are authored suggestions, not previously supplied exact colors or canonical style definitions.",
+          "Task-provided exact colors and approved reference palettes override these suggestions; preserve their values and role assignments.",
+          "Normalize equivalent color notation only; never darken, desaturate, replace, or expand approved colors automatically.",
+          "Treat background and foreground as layout roles, not an instruction to recolor the subject or its materials.",
+          "Preserve the color families and limits stated in visual_cues. Lighting, texture, transparency, and material reflections must remain coherent.",
+          "Resolve the actual scene or subject palette from the selected reference. This example is optional and does not establish an intrinsic palette for the style."
+        ],
+        "gradient": {
+          "enabled": false,
+          "instruction": "Use discrete base tokens. No gradient is added by this palette proposal."
+        },
+        "contrast_checks": {
+          "background": "opaque_sRGB",
+          "normal_text_target": 4.5,
+          "foreground_on_background": 7.605,
+          "suggested_text_pairs": [
+            {
+              "background_token": "background",
+              "foreground_token": "foreground",
+              "contrast_ratio": 7.605,
+              "meets_normal_text_target": true,
+              "use": "Candidate opaque text pairing; verify final size and compositing."
+            },
+            {
+              "background_token": "foreground",
+              "foreground_token": "background",
+              "contrast_ratio": 7.605,
+              "meets_normal_text_target": true,
+              "use": "Candidate opaque text pairing; verify final size and compositing."
+            },
+            {
+              "background_token": "accent_1",
+              "foreground_token": "background",
+              "contrast_ratio": 2.924,
+              "meets_normal_text_target": false,
+              "use": "Decorative fill only; place body text on the main background instead."
+            },
+            {
+              "background_token": "accent_2",
+              "foreground_token": "background",
+              "contrast_ratio": 2.829,
+              "meets_normal_text_target": false,
+              "use": "Decorative fill only; place body text on the main background instead."
+            }
+          ],
+          "limitation": "Two-color checks only. Not a guarantee of complete accessibility or readability over images, textures, glass, video, outlines or animated lighting. Recheck every actual foreground/background pairing in representative frames."
+        },
+        "composition_guidance": "Use one dominant background and a clear foreground hierarchy. Keep accents subordinate except where the style calls for bold geometric fields. Preserve exact anchors; improve balance through area, spacing and placement rather than hue substitution. Gradient samples and material lighting are not extra base-color licenses.",
+        "agent_instruction": "Resolve colors in this order: task-provided exact palette, established brand or approved source palette, existing semantic color mappings, then this optional example. Read visual_cues and palette.constraints. Preserve approved anchor values, color families, ink counts and asset colors. Use chroma-js for validation, equivalent normalization and contrast assessment; evaluate gradients only when enabled and appropriate. Select readable token pairs from contrast_checks, otherwise move text onto an existing contrasting backing. Record the resolved tokens and inspect actual composited frames before rendering."
+      },
+      "audio_direction": {
+        "prompt": "Based on the topic, audience, objective, narrative, and the visual and motion characteristics of Mixed-Media Animation, suggest an appropriate audio direction. Consider background music, voiceover, sung vocals, sound effects, ambience, or intentional silence. Explain which choices support this particular video; do not assign a fixed genre, tempo, instrument, voice, or mandatory audio layer to the style.",
+        "suggestion_dimensions": [
+          "Whether background music is useful, and its suggested mood, texture, energy, tempo range, and progression.",
+          "Whether voiceover helps explain the topic, and its suggested language, tone, pace, and placement.",
+          "Whether sung vocals support the topic or distract from narration and essential text.",
+          "Whether sound effects, ambience, or silence clarify key actions, transitions, and reading holds.",
+          "How audio changes across scenes, supports motion cadence, and leaves space for speech and comprehension."
+        ],
+        "selection_guidance": "Treat these as task-specific suggestions, not requirements to include every audio layer. Honor explicit user audio choices and supplied assets. When inputs are absent, propose a coherent direction and state assumptions; do not silently default to instrumental music or invent available audio assets.",
+        "integration_guidance": "Select or create authorized audio assets separately from visual construction and motion design. Use render_pipeline to assemble, synchronize, mix, and export audio with picture. Keep speech intelligible, avoid clipping and competing vocals, and inspect the delivered audio and picture together."
+      },
+      "suggested_combinations": {
+        "selection_guidance": "Mixed-Media already blends sources, so use it alone when the supplied photos, drawings and paper already share rules; add a hybrid only to give one unifying job, such as annotation or depth, a clearly bounded owner.",
+        "suggestions": [
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-024",
+                "role": "Annotation layer: handwritten labels, circles and arrows that link photo, paper and drawn elements to the narrative."
+              }
+            ],
+            "rationale": "A single handwritten voice stitches different media together and explains why each one is on screen, without adding another material.",
+            "best_for": "Documentary-style brand stories and research summaries built from supplied photos and sketches.",
+            "video_application": "Composite the preprocessed media in PixiJS, then reveal Rough.js-style annotations in #3B4948 and #B97A5C after each medium settles, pointing at the detail being narrated.",
+            "html_application": "Scroll-stepped story sections where annotations draw in as each panel enters; annotation text is mirrored in real captions for accessibility.",
+            "consistency_rules": [
+              "Annotations use only #3B4948, #688E87 or #B97A5C on the #F1E6D1 ground.",
+              "One handwriting stroke width and one hand-style for the whole piece.",
+              "Annotations appear after the medium they describe, never before."
+            ],
+            "avoid": [
+              "Using handwriting as a fourth decorative texture with no reference.",
+              "Retinting supplied photos outside the primary palette grade."
+            ]
+          },
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-101",
+                "role": "Camera and spatial treatment: restrained layered parallax that separates photo, paper and drawn planes."
+              }
+            ],
+            "rationale": "Parallax depth turns flat collage layers into a single, readable space and gives the shared composition a consistent motion direction.",
+            "best_for": "Opening sequences and chapter transitions in heritage, culture or editorial pieces.",
+            "video_application": "Assign each medium a fixed depth plane and move the camera slowly in one consistent direction, using depth to hand off between narrative media at chapter breaks.",
+            "html_application": "Pointer or scroll-driven parallax capped to small offsets, disabled under reduced motion, with layers as positioned images and real text above them.",
+            "consistency_rules": [
+              "Depth order maps to narrative role, not to the medium's file type.",
+              "One light direction and shadow softness across all planes.",
+              "Parallax offsets stay small so edges never reveal blank canvas."
+            ],
+            "avoid": [
+              "Mismatched per-layer motion directions.",
+              "Deep camera moves that need missing background plates."
+            ]
+          }
+        ]
+      }
+    },
+    "productionPolicy": {
+      "principle": "Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique.",
+      "style_renderer": "Owns visual construction: drawing, geometry, materials, lighting, typography, masks, textures, and specialist asset generation. Use the style-specific recommended technologies and implementation guidance.",
+      "motion_engine": "Owns trajectories, transforms, easing, transitions, deformation, and simulation. Select engines or algorithms appropriate to the action, with one owner for each animated property.",
+      "render_pipeline": "Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
+      "integration": "Visual and motion layers expose deterministic state at composition time, or supply baked assets or frame sequences. The pipeline supplies seekable time and composes their output. Timeline registration and frame hooks are integration adapters, not substitutes for style-specific rendering or motion.",
+      "selection": "Choose only needed stack entries. A technology may serve multiple roles, but document its actual responsibility. Optional authoring, interaction, color, and preprocessing tools are not mandatory renderers or motion engines."
+    },
+    "motionReferences": [
+      {
+        "id": "motion-012",
+        "name": "Scroll-Driven Chaptered Scene Transition",
+        "category": "scene_transition",
+        "description": "Scroll progress coordinates a handoff between narrative chapters. An outgoing scene yields to an incoming scene through a chosen fade, wipe, panel rotation, or shared-element move; text and media states change with the same progress. Clear start and end states preserve reading order in both scroll directions.",
+        "motion_sequence": [
+          "Establish the outgoing chapter and a readable closing state.",
+          "Across a defined progress window, coordinate outgoing and incoming scene states with one selected transition treatment and synchronized copy.",
+          "Resolve the incoming chapter into its readable state before beginning the next handoff; reversing progress retraces the same transition."
+        ],
+        "video_adaptation": "Schedule chapter windows and transition intervals on composition time. Explicitly choose the handoff type. If the style requires a continuous shot, use a coherent camera or spatial handoff instead of an incompatible cut.",
+        "tech": {
+          "suggested_libraries": [
+            {
+              "name": "GSAP",
+              "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
+              "package": "gsap",
+              "production_roles": [
+                "motion_engine"
+              ],
+              "runtime": "browser",
+              "optional": false,
+              "docs_url": "https://gsap.com/docs/v3/",
+              "suggested_apis": [
+                "gsap.timeline({ paused: true })",
+                "fromTo",
+                "to",
+                "seek"
+              ]
+            },
+            {
+              "name": "GSAP ScrollTrigger",
+              "purpose": "Optional interactive-web adapter: bind normalized progress to scroll. Do not require live scrolling for video export.",
+              "package": "gsap",
+              "production_roles": [
+                "supporting_tool"
+              ],
+              "runtime": "browser",
+              "optional": true,
+              "docs_url": "https://gsap.com/docs/v3/Plugins/ScrollTrigger/",
+              "suggested_apis": [
+                "gsap.registerPlugin(ScrollTrigger)",
+                "ScrollTrigger.create",
+                "scrub",
+                "progress"
+              ]
+            },
+            {
+              "name": "PixiJS",
+              "purpose": "Optional 2D implementation of Scroll-Driven Chaptered Scene Transition using sprites, graphics, masks, or layered containers. Preserve the selected style; use Three.js when true 3D geometry is required.",
+              "role": "2d_rendering",
+              "package": "pixi.js",
+              "production_roles": [
+                "style_renderer"
+              ],
+              "runtime": "browser",
+              "optional": true,
+              "docs_url": "https://pixijs.com/8.x/guides/getting-started/quick-start",
+              "suggested_apis": [
+                "Application",
+                "Container",
+                "Sprite",
+                "Graphics",
+                "Assets",
+                "Application.init",
+                "Application.stop",
+                "Application.render"
+              ],
+              "integration_guidance": "Use a private ticker and disable autoplay with autoStart: false and sharedTicker: false; stop any already-started application. Load assets, derive scene state directly from composition time, and call app.render() explicitly on updates and seeks. Calling ticker.update() alone does not make cumulative simulation seekable.",
+              "kind": "npm_library"
+            },
+            {
+              "name": "Motion",
+              "purpose": "Optional DOM or SVG implementation of Scroll-Driven Chaptered Scene Transition using controlled keyframes or sequences. Verify synchronization with the selected video framework before adopting this route.",
+              "role": "animation_library",
+              "package": "motion",
+              "production_roles": [
+                "motion_engine"
+              ],
+              "runtime": "browser; motion/react for mounted React components",
+              "optional": true,
+              "docs_url": "https://motion.dev/docs/animate",
+              "suggested_apis": [
+                "animate",
+                "stagger",
+                "animation.pause()",
+                "animation.time"
+              ],
+              "integration_guidance": "Use the JavaScript entry point for HTML compositions. Pause playback and set animation.time in seconds from composition time, then verify that forward, backward, and direct seeks update the visible result. Motion is an optional animation layer, not a drop-in replacement for the HyperFrames GSAP registration contract; keep the registered GSAP timeline as the framework clock and explicitly synchronize Motion. Use motion/react only within mounted React components.",
+              "kind": "npm_library"
+            },
+            {
+              "name": "tldraw",
+              "purpose": "Optionally author diagram, annotation, or card assets for Scroll-Driven Chaptered Scene Transition. Export layers or structured scene data; animate them using the video timeline.",
+              "role": "diagram_authoring",
+              "package": "tldraw",
+              "production_roles": [
+                "style_renderer"
+              ],
+              "runtime": "mounted React editor in browser; exported assets for video composition",
+              "optional": true,
+              "docs_url": "https://tldraw.dev/quick-start",
+              "suggested_apis": [
+                "Tldraw",
+                "editor",
+                "editor.getSvgString",
+                "editor.toImage"
+              ],
+              "integration_guidance": "Author diagrams and artwork in a mounted React editor, then export SVG or raster assets using editor.getSvgString or editor.toImage. Await export and split layers deliberately when separate animation is required; a flattened image does not preserve editable shapes. Animate those assets in the chosen framework. Verify signatures against the installed SDK; tldraw is not a video renderer or an automatic timeline adapter.",
+              "kind": "npm_library"
+            }
+          ],
+          "implementation": "Use defined outgoing and incoming scene layers with bounded opacity, mask, or transform states. Tie the full handoff to normalized progress, including copy visibility, rather than firing unrelated enter/exit animations. Interactive output can scrub a GSAP timeline over a finite scroll interval; video uses composition time. Keep framework-owned clip visibility separate from inner transition layers and evaluate reverse or direct seeks without stale scene state.",
+          "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
+          "available_library_ids": [
+            "three_js",
+            "pixi_js",
+            "gsap",
+            "motion",
+            "tldraw"
+          ],
+          "style_renderer": {
+            "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
+            "recommended_stack_refs": [
+              "PixiJS",
+              "tldraw"
+            ]
+          },
+          "motion_engine": {
+            "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
+            "recommended_stack_refs": [
+              "GSAP",
+              "Motion"
+            ]
+          },
+          "production_policy_ref": "production_policy"
+        },
+        "compatibility": {
+          "good_fit": [
+            "Product and editorial introductions",
+            "Explanatory and illustrated narratives",
+            "Abstract motion or cinematic sequences with meaningful chapters"
+          ],
+          "adapt_or_omit_when": [
+            "The topic is too short to need chapter boundaries.",
+            "Transitions obscure a causal relationship or introduce an unexplained scene change.",
+            "A cut or reset violates a continuous-shot or loop requirement."
+          ]
+        },
+        "executable_prompt_template": "Optionally apply {{motion_pattern}} to chapters of {{subject}} in {{visual_style}}, using {{render_pipeline}}. Through {{motion_parameters}}, define chapter states, a bounded handoff window, one style-compatible transition, copy synchronization, and reading holds. Derive outgoing and incoming layers from the same progress so forward and backward movement stay coherent. Use scrubbed scroll progress for interactive delivery or composition time for video. Fade, wipe, panel rotation, and shared-element movement are optional treatments; choose deliberately rather than combining all of them. Resolve library choices from this pattern's tech guidance and library_options, and follow render_contract for the selected framework. Choose parameters from the topic and style. For Canvas or WebGL, verify explicit repaint on direct seek as well as sequential playback.\nProduction ownership: follow production_policy. Choose the style_renderer and motion_engine from the style and motion requirements first, and state the selected tools and their responsibilities. Build the visuals and movement with those tools according to tech.implementation and visual_cues. Use {{render_pipeline}} only for scene assembly, seekable composition timing, media and audio synchronization, validation, and export. Keep specialist rendering and motion logic in their own layers; do not substitute generic framework text, DOM transitions, or framework animation helpers merely because the pipeline is available. Native DOM or SVG is appropriate when it actually satisfies the style. Integrate deterministic time-driven layers or baked assets, and verify representative visuals and motion before assembling the full video.",
+        "reference_label": "Scroll-Driven Chaptered Scene Transition",
+        "interaction": {
+          "input": "scroll_progress",
+          "progress_driver": "Map finite scroll segments to chapter states and transition progress. Provide meaningful boundaries and stable states between them.",
+          "exit_behavior": "Backward scrolling restores the corresponding chapter deterministically; avoid depending on one-time entry callbacks."
+        },
+        "suggested_controls": [
+          "chapter_order",
+          "chapter_states",
+          "transition_type",
+          "shared_anchor",
+          "transition_progress",
+          "scene_windows",
+          "reading_holds",
+          "camera_handoff"
+        ],
+        "audio_direction_prompt": "Based on the topic, mood, medium, and existing audio requirements, suggest whether this action benefits from a restrained sound accent, ambience, music synchronization, or silence. Do not attach a mandatory sound to the pattern or compete with narration.",
+        "verification": [
+          "Seek directly to the start, intermediate states, and end, then compare them with sequential playback.",
+          "Check legibility, composition, material consistency, clipping, and visual continuity.",
+          "For interactive delivery, check the applicable hover, scroll, keyboard, touch, and reduced-motion behavior; video export must remain independent of live input.",
+          "Inspect both sides of every handoff for blank frames, unwanted overlap, lost anchors, and readable chapter titles.",
+          "Seek into each transition directly and verify that both scenes render in the intended state."
+        ],
+        "adaptation_guidance": "Progress-linked timelines and coordinated outgoing/incoming scenes support this motion semantically. Cross-fading and rotating panels are examples, not required choreography. Pick a handoff compatible with the style; chapter count, progress windows, pauses, and camera movement are design choices. A progress-scrubbed transition differs from merely triggering independent autoplay at a threshold."
+      },
+      {
+        "id": "motion-015",
+        "name": "Scroll-Driven Storytelling",
+        "category": "narrative_orchestration",
+        "description": "Coordinate a complete narrative through a series of progress-driven states, aligning copy, imagery, diagrams, and camera framing with the story. This is an orchestration pattern: it may reference compatible chapter transitions, pinned heroes, or card reveals but does not require all of them.",
+        "motion_sequence": [
+          "Define the question or premise and introduce the story's focal subject.",
+          "Advance through purposeful stages that reveal context, mechanism, comparison, or consequence.",
+          "Resolve the story into a conclusion with enough reading time and a coherent final state."
+        ],
+        "video_adaptation": "Turn the progress journey into a timed storyboard with explicit scene windows and reading holds. Use a master progress parameter or finite scene-local parameters evaluated from time. A video tells the same story without requiring the viewer to scroll.",
+        "tech": {
+          "suggested_libraries": [
+            {
+              "name": "GSAP",
+              "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
+              "package": "gsap",
+              "production_roles": [
+                "motion_engine"
+              ],
+              "runtime": "browser",
+              "optional": false,
+              "docs_url": "https://gsap.com/docs/v3/",
+              "suggested_apis": [
+                "gsap.timeline({ paused: true })",
+                "fromTo",
+                "to",
+                "seek"
+              ]
+            },
+            {
+              "name": "GSAP ScrollTrigger",
+              "purpose": "Optional interactive-web adapter: bind normalized progress to scroll. Do not require live scrolling for video export.",
+              "package": "gsap",
+              "production_roles": [
+                "supporting_tool"
+              ],
+              "runtime": "browser",
+              "optional": true,
+              "docs_url": "https://gsap.com/docs/v3/Plugins/ScrollTrigger/",
+              "suggested_apis": [
+                "gsap.registerPlugin(ScrollTrigger)",
+                "ScrollTrigger.create",
+                "scrub",
+                "progress"
+              ]
+            },
+            {
+              "name": "PixiJS",
+              "purpose": "Optional 2D implementation of Scroll-Driven Storytelling using sprites, graphics, masks, or layered containers. Preserve the selected style; use Three.js when true 3D geometry is required.",
+              "role": "2d_rendering",
+              "package": "pixi.js",
+              "production_roles": [
+                "style_renderer"
+              ],
+              "runtime": "browser",
+              "optional": true,
+              "docs_url": "https://pixijs.com/8.x/guides/getting-started/quick-start",
+              "suggested_apis": [
+                "Application",
+                "Container",
+                "Sprite",
+                "Graphics",
+                "Assets",
+                "Application.init",
+                "Application.stop",
+                "Application.render"
+              ],
+              "integration_guidance": "Use a private ticker and disable autoplay with autoStart: false and sharedTicker: false; stop any already-started application. Load assets, derive scene state directly from composition time, and call app.render() explicitly on updates and seeks. Calling ticker.update() alone does not make cumulative simulation seekable.",
+              "kind": "npm_library"
+            },
+            {
+              "name": "Motion",
+              "purpose": "Optional DOM or SVG implementation of Scroll-Driven Storytelling using controlled keyframes or sequences. Verify synchronization with the selected video framework before adopting this route.",
+              "role": "animation_library",
+              "package": "motion",
+              "production_roles": [
+                "motion_engine"
+              ],
+              "runtime": "browser; motion/react for mounted React components",
+              "optional": true,
+              "docs_url": "https://motion.dev/docs/animate",
+              "suggested_apis": [
+                "animate",
+                "stagger",
+                "animation.pause()",
+                "animation.time"
+              ],
+              "integration_guidance": "Use the JavaScript entry point for HTML compositions. Pause playback and set animation.time in seconds from composition time, then verify that forward, backward, and direct seeks update the visible result. Motion is an optional animation layer, not a drop-in replacement for the HyperFrames GSAP registration contract; keep the registered GSAP timeline as the framework clock and explicitly synchronize Motion. Use motion/react only within mounted React components.",
+              "kind": "npm_library"
+            },
+            {
+              "name": "tldraw",
+              "purpose": "Optionally author diagram, annotation, or card assets for Scroll-Driven Storytelling. Export layers or structured scene data; animate them using the video timeline.",
+              "role": "diagram_authoring",
+              "package": "tldraw",
+              "production_roles": [
+                "style_renderer"
+              ],
+              "runtime": "mounted React editor in browser; exported assets for video composition",
+              "optional": true,
+              "docs_url": "https://tldraw.dev/quick-start",
+              "suggested_apis": [
+                "Tldraw",
+                "editor",
+                "editor.getSvgString",
+                "editor.toImage"
+              ],
+              "integration_guidance": "Author diagrams and artwork in a mounted React editor, then export SVG or raster assets using editor.getSvgString or editor.toImage. Await export and split layers deliberately when separate animation is required; a flattened image does not preserve editable shapes. Animate those assets in the chosen framework. Verify signatures against the installed SDK; tldraw is not a video renderer or an automatic timeline adapter.",
+              "kind": "npm_library"
+            }
+          ],
+          "implementation": "Define meaningful story steps, the visual state for each step, and optional continuous progress inside a step. Interactive delivery can use ScrollTrigger timelines or an existing step/progress observer such as Scrollama, with CSS sticky when a graphic should remain visible. Keep copy and graphics synchronized through the same story state. For video, schedule steps and within-step progress on the framework timeline with reading holds; evaluate the full visible state directly on each seek.",
+          "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
+          "available_library_ids": [
+            "three_js",
+            "pixi_js",
+            "gsap",
+            "motion",
+            "tldraw"
+          ],
+          "style_renderer": {
+            "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
+            "recommended_stack_refs": [
+              "PixiJS",
+              "tldraw"
+            ]
+          },
+          "motion_engine": {
+            "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
+            "recommended_stack_refs": [
+              "GSAP",
+              "Motion"
+            ]
+          },
+          "production_policy_ref": "production_policy"
+        },
+        "compatibility": {
+          "good_fit": [
+            "Product introductions and explanatory narratives",
+            "Editorial and data storytelling",
+            "Illustrated or cinematic sequences with a coherent beginning, development, and conclusion"
+          ],
+          "adapt_or_omit_when": [
+            "There is no meaningful narrative progression to organize.",
+            "Scroll-driven spectacle replaces an explanation or hides essential copy.",
+            "Nested patterns produce conflicting progress drivers, projection, material rules, or unreadable motion."
+          ]
+        },
+        "executable_prompt_template": "Consider {{motion_pattern}} to organize {{subject}} in {{visual_style}} with {{render_pipeline}}. Through {{motion_parameters}}, define a premise, meaningful story steps, corresponding copy and visual states, optional within-step progress, and a conclusion. Let scroll select or advance these states in interactive delivery; schedule the same journey with reading holds for video. Use sticky graphics, camera movement, or other catalog motions only when they serve the topic. Preserve reading order and state coherence on backward and direct seeks rather than combining unrelated effects. Resolve library choices from this pattern's tech guidance and library_options, and follow render_contract for the selected framework. Choose parameters from the topic and style. For Canvas or WebGL, verify explicit repaint on direct seek as well as sequential playback.\nProduction ownership: follow production_policy. Choose the style_renderer and motion_engine from the style and motion requirements first, and state the selected tools and their responsibilities. Build the visuals and movement with those tools according to tech.implementation and visual_cues. Use {{render_pipeline}} only for scene assembly, seekable composition timing, media and audio synchronization, validation, and export. Keep specialist rendering and motion logic in their own layers; do not substitute generic framework text, DOM transitions, or framework animation helpers merely because the pipeline is available. Native DOM or SVG is appropriate when it actually satisfies the style. Integrate deterministic time-driven layers or baked assets, and verify representative visuals and motion before assembling the full video.",
+        "reference_label": "Scroll-Driven Storytelling",
+        "interaction": {
+          "input": "scroll_progress",
+          "progress_driver": "Map a finite scroll journey to ordered narrative states and optional chapter-local progress. Provide accessible reading order and usable static or reduced-motion states.",
+          "exit_behavior": "Backward scrolling returns to the matching narrative state without contradictory copy or duplicated content."
+        },
+        "suggested_controls": [
+          "story_objective",
+          "narrative_stages",
+          "stage_boundaries",
+          "progress_mapping",
+          "reading_holds",
+          "shared_subject",
+          "optional_pattern_ids",
+          "ending_state"
+        ],
+        "audio_direction_prompt": "Based on the topic, mood, medium, and existing audio requirements, suggest whether this action benefits from a restrained sound accent, ambience, music synchronization, or silence. Do not attach a mandatory sound to the pattern or compete with narration.",
+        "verification": [
+          "Seek directly to the start, intermediate states, and end, then compare them with sequential playback.",
+          "Check legibility, composition, material consistency, clipping, and visual continuity.",
+          "For interactive delivery, check the applicable hover, scroll, keyboard, touch, and reduced-motion behavior; video export must remain independent of live input.",
+          "Check that each stage contributes a clear idea and that copy matches the visible state.",
+          "Verify direct seeking at stage boundaries and optional nested-pattern handoffs without conflicting time drivers."
+        ],
+        "adaptation_guidance": "Step-based visual updates and optional within-step progress are documented scrollytelling mechanics. Narration structure, camera motion, media choice, sticky framing, and pacing depend on the topic. A whole story coordinates multiple meaningful states; it is broader than one chapter transition and does not require all catalog effects."
+      },
+      {
+        "id": "motion-020",
+        "name": "Scroll-Driven Glitch Cut",
+        "category": "scene_transition",
+        "description": "Establish readable outgoing and incoming scene endpoints. Cross a narrow progress interval with bounded slice offsets or channel displacement, then replace the scene. Resolve distortion promptly into a stable readable incoming scene; support reversible scrubbing and a reduced-motion cut.",
+        "motion_sequence": [
+          "Establish readable outgoing and incoming scene endpoints.",
+          "Cross a narrow progress interval with bounded slice offsets or channel displacement, then replace the scene.",
+          "Resolve distortion promptly into a stable readable incoming scene; support reversible scrubbing and a reduced-motion cut."
+        ],
+        "video_adaptation": "Replace live input with an authored deterministic progress or camera path on the composition timeline. Keep preview silent and endpoints readable.",
+        "tech": {
+          "suggested_libraries": [
+            {
+              "name": "GSAP",
+              "purpose": "Controlled animation for Scroll-Driven Glitch Cut; one owner per property.",
+              "package": "gsap",
+              "production_roles": [
+                "motion_engine"
+              ],
+              "runtime": "browser",
+              "optional": false,
+              "docs_url": "https://gsap.com/docs/v3/",
+              "suggested_apis": [
+                "gsap.timeline({ paused: true })",
+                "fromTo",
+                "to",
+                "seek"
+              ]
+            },
+            {
+              "name": "Motion",
+              "purpose": "Controlled animation for Scroll-Driven Glitch Cut; one owner per property.",
+              "role": "animation_library",
+              "package": "motion",
+              "production_roles": [
+                "motion_engine"
+              ],
+              "runtime": "browser; motion/react for mounted React components",
+              "optional": true,
+              "docs_url": "https://motion.dev/docs/animate",
+              "suggested_apis": [
+                "animate",
+                "stagger",
+                "animation.pause()",
+                "animation.time"
+              ],
+              "integration_guidance": "Use the JavaScript entry point for HTML compositions. Pause playback and set animation.time in seconds from composition time, then verify that forward, backward, and direct seeks update the visible result. Motion is an optional animation layer, not a drop-in replacement for the HyperFrames GSAP registration contract; keep the registered GSAP timeline as the framework clock and explicitly synchronize Motion. Use motion/react only within mounted React components.",
+              "kind": "npm_library"
+            }
+          ],
+          "implementation": "For a lightweight transition, layer duplicate DOM images/text and briefly clip and offset slices with CSS transforms. A shader is optional. Tie distortion and scene replacement to bounded progress; preserve clean readable endpoints and avoid flashing.",
+          "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
+          "available_library_ids": [
+            "three_js",
+            "pixi_js",
+            "gsap",
+            "motion",
+            "tldraw"
+          ],
+          "style_renderer": {
+            "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
+            "recommended_stack_refs": []
+          },
+          "motion_engine": {
+            "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
+            "recommended_stack_refs": [
+              "GSAP",
+              "Motion"
+            ]
+          },
+          "production_policy_ref": "production_policy"
+        },
+        "compatibility": {
+          "good_fit": [
+            "Brutalist Web Design",
+            "Punk Graphics",
+            "Grunge",
+            "Demoscene Graphics",
+            "CRT / Analog Video Effects",
+            "Glitch Art",
+            "Cyberpunk",
+            "Y2K Design",
+            "Mixed-Media Animation"
+          ],
+          "adapt_or_omit_when": [
+            "For intentionally digital, disrupted or abrasive transitions. Omit for calm editorial scenes or when distortion undermines communication."
+          ]
+        },
+        "executable_prompt_template": "Build Scroll-Driven Glitch Cut for {{subject}} in {{visual_style}}. Inspect actual assets before choosing this motion. For intentionally digital, disrupted or abrasive transitions. Omit for calm editorial scenes or when distortion undermines communication. Establish readable outgoing and incoming scene endpoints. Cross a narrow progress interval with bounded slice offsets or channel displacement, then replace the scene. Resolve distortion promptly into a stable readable incoming scene; support reversible scrubbing and a reduced-motion cut. Resolve {{motion_parameters}} explicitly. Preserve the approved palette and visual direction. For a lightweight transition, layer duplicate DOM images/text and briefly clip and offset slices with CSS transforms. A shader is optional. Tie distortion and scene replacement to bounded progress; preserve clean readable endpoints and avoid flashing. Limit distortion to the transition band, preserve text outside it and avoid rapid flashing. Use {{render_pipeline}} only for composition and export: HyperFrames first, Remotion conditional fallback. Suggest audio from the topic and validate direct seeks.",
+        "reference_label": "Scroll-Driven Glitch Cut",
+        "interaction": {
+          "input": "scroll_with_keyboard_navigation",
+          "progress_driver": "Normalize the interactive input to bounded progress; keep property ownership explicit and endpoints reversible.",
+          "exit_behavior": "Resolve distortion promptly into a stable readable incoming scene; support reversible scrubbing and a reduced-motion cut."
+        },
+        "suggested_controls": [
+          "progress",
+          "intensity",
+          "settling_duration",
+          "reading_hold",
+          "reduced_motion"
+        ],
+        "audio_direction_prompt": "Based on topic and audience, suggest suitable instrumental background music, effects, narration or vocals when useful. Do not prescribe a fixed soundtrack; gallery previews remain silent.",
+        "verification": [
+          "Verify the defining motion is visible at thumbnail size.",
+          "Check readable endpoints, reverse progress, keyboard access and reduced motion.",
+          "Verify deterministic video seeks and preservation of approved geometry."
+        ],
+        "adaptation_guidance": "For intentionally digital, disrupted or abrasive transitions. Omit for calm editorial scenes or when distortion undermines communication."
+      },
+      {
+        "id": "motion-037",
+        "name": "Phrase Scatter & Step-In",
+        "category": "typography",
+        "description": "Preserve a readable starting phrase, then release outgoing glyphs with bounded rotation/downward displacement. Reveal the incoming phrase in deliberate word-sized steps; differentiate the emphasis word and hold the conclusion. Choose pauses from meaning; use verified audio timing only when available.",
+        "motion_sequence": [
+          "Hold a readable outgoing phrase with intact glyphs.",
+          "Release its separate glyphs with bounded rotation and downward drift while the incoming phrase enters in deliberate word steps.",
+          "Hold the complete incoming phrase and its emphasis word without lingering fragments."
+        ],
+        "video_adaptation": "Preserve the action defined by the inspected 6–10 second reference, adapting material and cadence to the approved style. Drive all layers from deterministic composition time; do not assume beat synchronization without actual audio analysis.",
+        "tech": {
+          "suggested_libraries": [
+            {
+              "name": "GSAP",
+              "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
+              "package": "gsap",
+              "production_roles": [
+                "motion_engine"
+              ],
+              "runtime": "browser",
+              "optional": false,
+              "docs_url": "https://gsap.com/docs/v3/",
+              "suggested_apis": [
+                "gsap.timeline({ paused: true })",
+                "fromTo",
+                "to",
+                "seek"
+              ]
+            }
+          ],
+          "implementation": "Preserve a readable starting phrase, then release outgoing glyphs with bounded rotation/downward displacement. Reveal the incoming phrase in deliberate word-sized steps; differentiate the emphasis word and hold the conclusion. Choose pauses from meaning; use verified audio timing only when available. Use the selected style renderer and one seekable timeline. Inspect glyph assets or approved mark geometry first. Preview is a schematic Canvas study, not the source video or a prescribed production renderer.",
+          "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
+          "available_library_ids": [
+            "gsap"
+          ],
+          "style_renderer": {
+            "selection_basis": "Preserve the chosen visual medium and inspect actual geometry/assets before selecting a renderer.",
+            "recommended_stack_refs": []
+          },
+          "motion_engine": {
+            "selection_basis": "Use one owner per animated property and a paused seekable composition timeline.",
+            "recommended_stack_refs": [
+              "GSAP"
+            ]
+          },
+          "production_policy_ref": "production_policy"
+        },
+        "compatibility": {
+          "good_fit": [
+            "Bauhaus",
+            "Constructivism",
+            "Modernist Graphic Design",
+            "Memphis Design",
+            "Pop Art",
+            "Psychedelic Art",
+            "Brutalist Web Design",
+            "Punk Graphics",
+            "Minimalism",
+            "Editorial Design",
+            "Flat Vector Illustration",
+            "Comic Book Art",
+            "Manga",
+            "Graffiti / Street Art",
+            "Vintage Photo Collage",
+            "Hand-drawn Collage",
+            "Paper Cutout Illustration",
+            "Risograph Printing",
+            "Halftone Printing",
+            "Screen Printing",
+            "Photocopy Art / Zine Design",
+            "Sticker Collage",
+            "Pixel Art",
+            "Particle Art",
+            "Demoscene Graphics",
+            "CRT / Analog Video Effects",
+            "Glitch Art",
+            "Cyberpunk",
+            "Synthwave",
+            "Vaporwave",
+            "Y2K Design",
+            "Frame-by-Frame Animation",
+            "Traditional Cel Animation",
+            "Hand-Drawn Stop-Motion Style",
+            "Stop-Motion Animation",
+            "Cutout Animation",
+            "Object Animation",
+            "Kinetic Typography",
+            "UI Animation / Product Motion Design",
+            "Minimalist Product Motion Design",
+            "Scientific Visualization / Data Storytelling",
+            "Motion Poster",
+            "Music-Synchronized Animation",
+            "Mixed-Media Animation",
+            "Futuristic UI (FUI) / HUD Design",
+            "Aurora Gradients / Glassmorphism",
+            "Animated Reaction Captions",
+            "Cubist Painted Collage"
+          ],
+          "adapt_or_omit_when": [
+            "Use only when the actual scene has the phrase, punctuation or approved mark needed for this action.",
+            "Read the selected style-specific usage guidance; retain its palette, medium, geometry and reading holds."
+          ]
+        },
+        "executable_prompt_template": "Build Phrase Scatter & Step-In for {{subject}} in {{visual_style}}. Preserve a readable starting phrase, then release outgoing glyphs with bounded rotation/downward displacement. Reveal the incoming phrase in deliberate word-sized steps; differentiate the emphasis word and hold the conclusion. Choose pauses from meaning; use verified audio timing only when available. Read the selected style's motion reference usage_guidance and preserve its medium, palette, typography and geometry. Inspect actual assets; do not invent product copy or a brand mark. Resolve {{motion_parameters}} and meaningful reading holds. Use {{render_pipeline}} for composition/export only. Verify direct, forward and reverse seeks. Use music timing only after inspecting actual audio.",
+        "reference_label": "Phrase Scatter & Step-In",
+        "interaction": {
+          "input": "authored_time_or_optional_interactive_progress",
+          "progress_driver": "Drive each state from deterministic composition time. Adapt pointer or other interaction only when the delivery requires it.",
+          "exit_behavior": "Settle into a readable final state; reduced motion shows the completed composition."
+        },
+        "suggested_controls": [
+          "entrance_duration",
+          "action_duration",
+          "reading_hold",
+          "emphasis_units",
+          "intensity",
+          "approved_palette",
+          "reduced_motion"
+        ],
+        "audio_direction_prompt": "Based on the topic, mood, medium, and existing audio requirements, suggest whether this action benefits from a restrained sound accent, ambience, music synchronization, or silence. Do not attach a mandatory sound to the pattern or compete with narration.",
+        "verification": [
+          "Verify the defining phrase, punctuation or central mark remains identifiable through the action.",
+          "Check reading holds, final alignment and clear scene endpoints.",
+          "Check deterministic forward, backward and direct seeks.",
+          "Verify material preservation against the selected style-specific reference guidance."
+        ],
+        "adaptation_guidance": "Select only approved style references from the complete 135-style, three-motion compatibility review. References describe optional compatible actions, not a requirement to use the source aesthetic.",
+        "source_evidence": {
+          "review_window_seconds": [
+            6,
+            10
+          ],
+          "source_urls": [
+            "https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"
+          ],
+          "sampling": "64 chronologically inspected frames at 16 fps; approximate timing, no verified source easing or music synchronization."
+        }
+      },
+      {
+        "id": "motion-038",
+        "name": "Punctuation Zoom",
+        "category": "transition",
+        "description": "Use actual punctuation as a persistent shared element. Move the view toward it, enlarge it until it occludes the scene and reveal the next composition underneath. Do not substitute an unrelated rectangle or generic fade.",
+        "motion_sequence": [
+          "Establish a readable sentence with an actual punctuation mark as its final visible shared element.",
+          "Move the view toward the mark and enlarge it continuously until it occludes the frame.",
+          "Reveal the next scene inside the same punctuation field and hold a clear incoming composition."
+        ],
+        "video_adaptation": "Preserve the action defined by the inspected 6–10 second reference, adapting material and cadence to the approved style. Drive all layers from deterministic composition time; do not assume beat synchronization without actual audio analysis.",
+        "tech": {
+          "suggested_libraries": [
+            {
+              "name": "GSAP",
+              "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
+              "package": "gsap",
+              "production_roles": [
+                "motion_engine"
+              ],
+              "runtime": "browser",
+              "optional": false,
+              "docs_url": "https://gsap.com/docs/v3/",
+              "suggested_apis": [
+                "gsap.timeline({ paused: true })",
+                "fromTo",
+                "to",
+                "seek"
+              ]
+            }
+          ],
+          "implementation": "Use actual punctuation as a persistent shared element. Move the view toward it, enlarge it until it occludes the scene and reveal the next composition underneath. Do not substitute an unrelated rectangle or generic fade. Use the selected style renderer and one seekable timeline. Inspect glyph assets or approved mark geometry first. Preview is a schematic Canvas study, not the source video or a prescribed production renderer.",
+          "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
+          "available_library_ids": [
+            "gsap"
+          ],
+          "style_renderer": {
+            "selection_basis": "Preserve the chosen visual medium and inspect actual geometry/assets before selecting a renderer.",
+            "recommended_stack_refs": []
+          },
+          "motion_engine": {
+            "selection_basis": "Use one owner per animated property and a paused seekable composition timeline.",
+            "recommended_stack_refs": [
+              "GSAP"
+            ]
+          },
+          "production_policy_ref": "production_policy"
+        },
+        "compatibility": {
+          "good_fit": [
+            "International Typographic Style (Swiss Style)",
+            "Bauhaus",
+            "Constructivism",
+            "Modernist Graphic Design",
+            "Memphis Design",
+            "Pop Art",
+            "Psychedelic Art",
+            "Surrealism",
+            "Brutalist Web Design",
+            "Punk Graphics",
+            "Minimalism",
+            "Editorial Design",
+            "Luxury Editorial",
+            "Flat Vector Illustration",
+            "Geometric Illustration",
+            "Comic Book Art",
+            "Manga",
+            "Graffiti / Street Art",
+            "Vintage Photo Collage",
+            "Hand-drawn Collage",
+            "Paper Cutout Illustration",
+            "Risograph Printing",
+            "Halftone Printing",
+            "Screen Printing",
+            "Photocopy Art / Zine Design",
+            "Sticker Collage",
+            "Pixel Art",
+            "Particle Art",
+            "Demoscene Graphics",
+            "Glitch Art",
+            "Glassmorphism",
+            "Liquid Glass",
+            "Synthwave",
+            "Y2K Design",
+            "Frame-by-Frame Animation",
+            "Traditional Cel Animation",
+            "Hand-Drawn Stop-Motion Style",
+            "Stop-Motion Animation",
+            "Cutout Animation",
+            "Object Animation",
+            "Kinetic Typography",
+            "Abstract Motion Graphics",
+            "UI Animation / Product Motion Design",
+            "Minimalist Product Motion Design",
+            "Infinite Zoom",
+            "Continuous Shot",
+            "Shape Morphing",
+            "Motion Poster",
+            "Music-Synchronized Animation",
+            "Mixed-Media Animation",
+            "Animated Line Art",
+            "3D Motion Graphics",
+            "Futuristic UI (FUI) / HUD Design",
+            "Aurora Gradients / Glassmorphism",
+            "Liquid Motion",
+            "Raymarched Fractal Landscapes"
+          ],
+          "adapt_or_omit_when": [
+            "Use only when the actual scene has the phrase, punctuation or approved mark needed for this action.",
+            "Read the selected style-specific usage guidance; retain its palette, medium, geometry and reading holds."
+          ]
+        },
+        "executable_prompt_template": "Build Punctuation Zoom for {{subject}} in {{visual_style}}. Use actual punctuation as a persistent shared element. Move the view toward it, enlarge it until it occludes the scene and reveal the next composition underneath. Do not substitute an unrelated rectangle or generic fade. Read the selected style's motion reference usage_guidance and preserve its medium, palette, typography and geometry. Inspect actual assets; do not invent product copy or a brand mark. Resolve {{motion_parameters}} and meaningful reading holds. Use {{render_pipeline}} for composition/export only. Verify direct, forward and reverse seeks. Use music timing only after inspecting actual audio.",
+        "reference_label": "Punctuation Zoom",
+        "interaction": {
+          "input": "authored_time_or_optional_interactive_progress",
+          "progress_driver": "Drive each state from deterministic composition time. Adapt pointer or other interaction only when the delivery requires it.",
+          "exit_behavior": "Settle into a readable final state; reduced motion shows the completed composition."
+        },
+        "suggested_controls": [
+          "entrance_duration",
+          "action_duration",
+          "reading_hold",
+          "emphasis_units",
+          "intensity",
+          "approved_palette",
+          "reduced_motion"
+        ],
+        "audio_direction_prompt": "Based on the topic, mood, medium, and existing audio requirements, suggest whether this action benefits from a restrained sound accent, ambience, music synchronization, or silence. Do not attach a mandatory sound to the pattern or compete with narration.",
+        "verification": [
+          "Verify the defining phrase, punctuation or central mark remains identifiable through the action.",
+          "Check reading holds, final alignment and clear scene endpoints.",
+          "Check deterministic forward, backward and direct seeks.",
+          "Verify material preservation against the selected style-specific reference guidance."
+        ],
+        "adaptation_guidance": "Select only approved style references from the complete 135-style, three-motion compatibility review. References describe optional compatible actions, not a requirement to use the source aesthetic.",
+        "source_evidence": {
+          "review_window_seconds": [
+            6,
+            10
+          ],
+          "source_urls": [
+            "https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"
+          ],
+          "sampling": "64 chronologically inspected frames at 16 fps; approximate timing, no verified source easing or music synchronization."
+        }
+      },
+      {
+        "id": "motion-039",
+        "name": "Radial Logo Burst",
+        "category": "brand_reveal",
+        "description": "Stage a central mark, repeated outward white circular waves at a deliberate pulse tempo, coordinated rays and a compact party-popper burst of white and dark squares, triangles, circles and crosses. Keep tumbling confetti close around the icon; a strong sudden forward impulse toward the viewer slows into a very brief airborne hang, then a natural gravity-driven fall, never a canvas-wide distribution. Use an expanding circular mask for palette inversion while retaining the mark center. Let the burst decay into a stable logo hold; keep later particles subordinate. Use the icon center as the popper exit: pieces begin tiny at that point, shoot forward toward the viewer with a small spread around the center, never an upward launch, increase in apparent size, overlap in front of the icon, briefly hang and then fall. Keep the burst compact; express depth with coherent perspective scale and layer ordering.",
+        "motion_sequence": [
+          "Establish one centered approved mark and its initial field.",
+          "Release successive soft circular waves from the fixed mark center at regular beat intervals. Emit a compact cluster of varied white and dark confetti shapes around the icon: a powerful quick forward launch toward the viewer, rotation and tumbling, a very short airborne hang, then a natural accelerating downward fall. Keep confetti local to the icon even as waves expand beyond it. Use the icon center as the popper exit: pieces begin tiny at that point, shoot forward toward the viewer with a small spread around the center, never an upward launch, increase in apparent size, overlap in front of the icon, briefly hang and then fall. Keep the burst compact; express depth with coherent perspective scale and layer ordering.",
+          "Expand a circular mask to invert the field and mark palette, then let accents decay into a stable identity hold."
+        ],
+        "video_adaptation": "Preserve the action defined by the inspected 6–10 second reference, adapting material and cadence to the approved style. Drive all layers from deterministic composition time; do not assume beat synchronization without actual audio analysis.",
+        "tech": {
+          "suggested_libraries": [
+            {
+              "name": "GSAP",
+              "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
+              "package": "gsap",
+              "production_roles": [
+                "motion_engine"
+              ],
+              "runtime": "browser",
+              "optional": false,
+              "docs_url": "https://gsap.com/docs/v3/",
+              "suggested_apis": [
+                "gsap.timeline({ paused: true })",
+                "fromTo",
+                "to",
+                "seek"
+              ]
+            }
+          ],
+          "implementation": "Stage a central mark, synchronized expanding rays/ring and restrained particle release. Use an expanding circular mask for palette inversion while retaining the mark center. Let the burst decay into a stable logo hold; keep later particles subordinate. Use the selected style renderer and one seekable timeline. Inspect glyph assets or approved mark geometry first. Preview is a schematic Canvas study, not the source video or a prescribed production renderer.",
+          "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
+          "available_library_ids": [
+            "gsap"
+          ],
+          "style_renderer": {
+            "selection_basis": "Preserve the chosen visual medium and inspect actual geometry/assets before selecting a renderer.",
+            "recommended_stack_refs": []
+          },
+          "motion_engine": {
+            "selection_basis": "Use one owner per animated property and a paused seekable composition timeline.",
+            "recommended_stack_refs": [
+              "GSAP"
+            ]
+          },
+          "production_policy_ref": "production_policy"
+        },
+        "compatibility": {
+          "good_fit": [
+            "Bauhaus",
+            "Constructivism",
+            "Art Deco",
+            "Memphis Design",
+            "Pop Art",
+            "Op Art",
+            "Psychedelic Art",
+            "Line Art",
+            "Flat Vector Illustration",
+            "Geometric Illustration",
+            "Comic Book Art",
+            "Manga",
+            "Silhouette Illustration",
+            "Risograph Printing",
+            "Halftone Printing",
+            "Screen Printing",
+            "Pixel Art",
+            "Particle Art",
+            "Oscilloscope Graphics",
+            "Demoscene Graphics",
+            "Retrofuturism",
+            "Cyberpunk",
+            "Synthwave",
+            "Y2K Design",
+            "Frame-by-Frame Animation",
+            "Traditional Cel Animation",
+            "Hand-Drawn Stop-Motion Style",
+            "Abstract Motion Graphics",
+            "UI Animation / Product Motion Design",
+            "Shape Morphing",
+            "Kaleidoscopic Animation",
+            "Motion Poster",
+            "Symmetrical Cinematic Composition",
+            "Music-Synchronized Animation",
+            "Mixed-Media Animation",
+            "Animated Line Art",
+            "3D Motion Graphics",
+            "Futuristic UI (FUI) / HUD Design"
+          ],
+          "adapt_or_omit_when": [
+            "Use only when the actual scene has the phrase, punctuation or approved mark needed for this action.",
+            "Read the selected style-specific usage guidance; retain its palette, medium, geometry and reading holds."
+          ]
+        },
+        "executable_prompt_template": "Build Radial Logo Burst for {{subject}} in {{visual_style}}. Stage a central mark, repeated outward white circular waves at a deliberate pulse tempo, coordinated rays and a compact party-popper burst of white and dark squares, triangles, circles and crosses. Keep tumbling confetti close around the icon; a strong sudden forward impulse toward the viewer slows into a very brief airborne hang, then a natural gravity-driven fall, never a canvas-wide distribution. Use an expanding circular mask for palette inversion while retaining the mark center. Let the burst decay into a stable logo hold; keep later particles subordinate. Read the selected style's motion reference usage_guidance and preserve its medium, palette, typography and geometry. Inspect actual assets; do not invent product copy or a brand mark. Resolve {{motion_parameters}} and meaningful reading holds. Use {{render_pipeline}} for composition/export only. Verify direct, forward and reverse seeks. Use music timing only after inspecting actual audio. Use the icon center as the popper exit: pieces begin tiny at that point, shoot forward toward the viewer with a small spread around the center, never an upward launch, increase in apparent size, overlap in front of the icon, briefly hang and then fall. Keep the burst compact; express depth with coherent perspective scale and layer ordering.",
+        "reference_label": "Radial Logo Burst",
+        "interaction": {
+          "input": "authored_time_or_optional_interactive_progress",
+          "progress_driver": "Drive each state from deterministic composition time. Adapt pointer or other interaction only when the delivery requires it.",
+          "exit_behavior": "Settle into a readable final state; reduced motion shows the completed composition."
+        },
+        "suggested_controls": [
+          "entrance_duration",
+          "action_duration",
+          "reading_hold",
+          "emphasis_units",
+          "intensity",
+          "approved_palette",
+          "reduced_motion"
+        ],
+        "audio_direction_prompt": "Based on the topic, mood, medium, and existing audio requirements, suggest whether this action benefits from a restrained sound accent, ambience, music synchronization, or silence. Do not attach a mandatory sound to the pattern or compete with narration.",
+        "verification": [
+          "Verify the defining phrase, punctuation or central mark remains identifiable through the action.",
+          "Check reading holds, final alignment and clear scene endpoints.",
+          "Check deterministic forward, backward and direct seeks.",
+          "Verify material preservation against the selected style-specific reference guidance.",
+          "Verify repeated wave releases, simultaneous concentric fronts, outward travel and individual fading; resolve to a clean final hold. Do not claim audio synchronization without inspected audio."
+        ],
+        "adaptation_guidance": "Select only approved style references from the complete 135-style, three-motion compatibility review. References describe optional compatible actions, not a requirement to use the source aesthetic.",
+        "source_evidence": {
+          "review_window_seconds": [
+            6,
+            10
+          ],
+          "source_urls": [
+            "https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"
+          ],
+          "sampling": "64 chronologically inspected frames at 16 fps; approximate timing, no verified source easing or music synchronization."
+        }
+      },
+      {
+        "id": "motion-040",
+        "name": "Word Smash Cuts",
+        "category": "typography",
+        "description": "Replace short words or phrases through clean, rapid cuts, changing the full-screen background and foreground contrast on each phrase. Build anticipation with a brief punctuation sequence, then increase typographic scale for emphasis. Keep readable holds and avoid automatic glitch or spring effects.",
+        "motion_sequence": [
+          "Hold a short lead-in; optional punctuation steps build anticipation without moving the layout.",
+          "Cut directly between word cards with coordinated background and foreground color changes. Use varying but readable phrase holds.",
+          "Let an emphasis phrase fill or deliberately cross the frame edges, then hold a clear final message."
+        ],
+        "video_adaptation": "Schedule hard word-card cuts and coordinated color changes on the composition timeline. Keep the typography crisp and the palette approved. Match actual music beats only when audio timing has been inspected; this source review assessed visual frames only.",
+        "tech": {
+          "suggested_libraries": [
+            {
+              "name": "GSAP",
+              "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
+              "package": "gsap",
+              "production_roles": [
+                "motion_engine"
+              ],
+              "runtime": "browser",
+              "optional": false,
+              "docs_url": "https://gsap.com/docs/v3/",
+              "suggested_apis": [
+                "gsap.timeline({ paused: true })",
+                "fromTo",
+                "to",
+                "seek"
+              ]
+            }
+          ],
+          "implementation": "Preserve a readable starting phrase, then release outgoing glyphs with bounded rotation/downward displacement. Reveal the incoming phrase in deliberate word-sized steps; differentiate the emphasis word and hold the conclusion. Choose pauses from meaning; use verified audio timing only when available. Use the selected style renderer and one seekable timeline. Inspect glyph assets or approved mark geometry first. Preview is a schematic Canvas study, not the source video or a prescribed production renderer.",
+          "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
+          "available_library_ids": [
+            "gsap"
+          ],
+          "style_renderer": {
+            "selection_basis": "Preserve the chosen visual medium and inspect actual geometry/assets before selecting a renderer.",
+            "recommended_stack_refs": []
+          },
+          "motion_engine": {
+            "selection_basis": "Use one owner per animated property and a paused seekable composition timeline.",
+            "recommended_stack_refs": [
+              "GSAP"
+            ]
+          },
+          "production_policy_ref": "production_policy"
+        },
+        "compatibility": {
+          "good_fit": [
+            "Constructivism",
+            "De Stijl",
+            "Memphis Design",
+            "Pop Art",
+            "Brutalist Web Design",
+            "Minimalism",
+            "Flat Vector Illustration",
+            "Comic Book Art",
+            "Risograph Printing",
+            "Halftone Printing",
+            "Screen Printing",
+            "Photocopy Art / Zine Design",
+            "Pixel Art",
+            "Demoscene Graphics",
+            "CRT / Analog Video Effects",
+            "Y2K Design",
+            "Kinetic Typography",
+            "Motion Poster",
+            "Music-Synchronized Animation",
+            "Mixed-Media Animation"
+          ],
+          "adapt_or_omit_when": [
+            "Use when concise copy can carry the story and the selected style permits abrupt color-field changes.",
+            "Omit for dense explanatory text or gentle illustrative sequences.",
+            "Use approved palette colors; the reference lime and magenta are examples, not mandatory colors."
+          ]
+        },
+        "executable_prompt_template": "Build Word Smash Cuts for {{subject}} in {{visual_style}}. Use concise word/phrase cards with crisp typography, direct cuts and coordinated contrasting background changes. Start with an optional short anticipation/punctuation beat, then use quick readable holds and an oversized emphasis phrase. Preserve the selected palette and reading order; do not add glitches, bouncing or slides unless requested. Schedule deterministic states from composition time and verify seeks before/at/after every cut. Use actual audio beat timing only if inspected. Use {{render_pipeline}} for composition and export.",
+        "reference_label": "Phrase Scatter & Step-In",
+        "interaction": {
+          "input": "authored_time_or_optional_interactive_progress",
+          "progress_driver": "Drive each state from deterministic composition time. Adapt pointer or other interaction only when the delivery requires it.",
+          "exit_behavior": "Settle into a readable final state; reduced motion shows the completed composition."
+        },
+        "suggested_controls": [
+          "entrance_duration",
+          "action_duration",
+          "reading_hold",
+          "emphasis_units",
+          "intensity",
+          "approved_palette",
+          "reduced_motion"
+        ],
+        "audio_direction_prompt": "Based on the topic, mood, medium, and existing audio requirements, suggest whether this action benefits from a restrained sound accent, ambience, music synchronization, or silence. Do not attach a mandatory sound to the pattern or compete with narration.",
+        "verification": [
+          "Verify copy and background change at exactly the same scheduled cut.",
+          "Verify phrases hold long enough to read and meaningful emphasis drives scale changes.",
+          "Check deterministic direct/backward seeks and stable final frame."
+        ],
+        "adaptation_guidance": "Screened against all 135 styles. Use style-specific motion reference guidance; preserve each medium/palette and select only if the scene has appropriate concise copy.",
+        "source_evidence": {
+          "source_file": "User-supplied recording.mp4",
+          "review_window_seconds": [
+            75,
+            81
+          ],
+          "sampling": "72 artwork-only frames at 12 fps. Presenter area excluded; no audio beat synchronization verified.",
+          "observed": "Lead-in on lime with incremental ellipsis; cream headline on near-black, black word on lime, cream word on magenta, oversized green wording against near-black. Sharp changes with reading holds.",
+          "exact_hex_from_source": false
+        }
+      }
+    ]
+  }
+}

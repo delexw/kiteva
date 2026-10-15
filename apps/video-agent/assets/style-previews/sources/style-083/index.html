@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Stop-Motion Animation — An idea becomes a connected system</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: #B7C9B3; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  #set { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .overlay { position: absolute; color: #3C443C; }
+  #title { left: 80px; top: 70px; }
+  .head { font-family: Georgia, 'Times New Roman', serif; font-size: 48px; line-height: 56px; margin: 0; white-space: nowrap; }
+  .head.italic { font-style: italic; }
+  .slate { font-family: 'Courier New', Courier, monospace; font-size: 15px; font-weight: 700; letter-spacing: 3px; margin-top: 18px; white-space: nowrap; }
+  #strip { left: 840px; top: 56px; width: 384px; }
+  #strip svg { display: block; width: 384px; height: 92px; }
+  #stripLabel { font-family: 'Courier New', Courier, monospace; font-size: 14px; font-weight: 700; letter-spacing: 3px; margin-top: 12px; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="set" width="1280" height="720"></canvas>
+
+  <!-- Digital title layer, kept separate from the clay set (as in the reviewed source). -->
+  <div id="title" class="overlay">
+    <p class="head" id="line1">An idea becomes</p>
+    <p class="head italic" id="line2">a connected system.</p>
+    <div class="slate" id="slate">SC.04 — TK.2 — FRAME <span id="frameNo">0112</span>/0240</div>
+  </div>
+
+  <!-- Exposure-sheet strip: each cell is filled when the clay ball reaches that key pose. -->
+  <div id="strip" class="overlay">
+    <svg viewBox="0 0 384 92" xmlns="http://www.w3.org/2000/svg">
+      <rect width="384" height="92" fill="#3C443C"/>
+      <g fill="#B7C9B3">
+        <rect x="8" y="12" width="86" height="68"/><rect x="102" y="12" width="86" height="68"/>
+        <rect x="196" y="12" width="86" height="68"/><rect x="290" y="12" width="86" height="68"/>
+      </g>
+      <g fill="#ECE4D4">
+        <rect x="2" y="30" width="4" height="6"/><rect x="2" y="56" width="4" height="6"/>
+        <rect x="96" y="30" width="4" height="6"/><rect x="96" y="56" width="4" height="6"/>
+        <rect x="190" y="30" width="4" height="6"/><rect x="190" y="56" width="4" height="6"/>
+        <rect x="284" y="30" width="4" height="6"/><rect x="284" y="56" width="4" height="6"/>
+        <rect x="378" y="30" width="4" height="6"/><rect x="378" y="56" width="4" height="6"/>
+      </g>
+      <g fill="#C79A22">
+        <circle class="pose" cx="51" cy="28" r="11"/>
+        <circle class="pose" cx="145" cy="50" r="11"/>
+        <ellipse class="pose" cx="239" cy="70" rx="13" ry="8.5"/>
+        <circle class="pose" cx="333" cy="67" r="11"/>
+      </g>
+      <g fill="none" stroke="#3C443C" stroke-width="2">
+        <line x1="8" y1="79" x2="94" y2="79"/><line x1="102" y1="79" x2="188" y2="79"/>
+        <line x1="196" y1="79" x2="282" y2="79"/><line x1="290" y1="79" x2="376" y2="79"/>
+      </g>
+    </svg>
+    <div id="stripLabel">4 POSES · HELD ON TWOS</div>
+  </div>
+</div>
+
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="scene.bundle.js"></script>
+<script>
+(function () {
+  var DURATION = 3;
+  var POSE_TIMES = [0.08, 0.33, 0.5, 0.75];   // ball key poses shown in the exposure strip
+  var SETTLE_EXPOSURE = 28;                   // 2.33 s: last block has finished its landing squash
+
+  // Contrast audit on the resolved scene palette (painted sage wall, ink text).
+  var ink = '#3C443C', wallCenter = '#B7C9B3', wallEdge = chroma.mix('#B7C9B3', '#78917A', 0.2, 'rgb').hex();
+  document.getElementById('root').setAttribute('data-contrast-min', chroma.contrast(ink, wallEdge).toFixed(2));
+
+  var canvas = document.getElementById('set');
+  var set = window.StopMotionScene.createScene(canvas);
+  var poses = Array.prototype.slice.call(document.querySelectorAll('.pose'));
+  var frameNo = document.getElementById('frameNo');
+
+  // DOM state derived from the same quantized composition time as the WebGL set.
+  function draw(t) {
+    var time = Math.min(DURATION, Math.max(0, t || 0));
+    var ex = set.render(time);
+    var tq = ex / window.StopMotionScene.EXPOSURES_PER_SECOND;
+    for (var i = 0; i < poses.length; i++) poses[i].setAttribute('opacity', tq >= POSE_TIMES[i] ? '1' : '0');
+    var f = 112 + 2 * Math.min(ex, SETTLE_EXPOSURE);
+    frameNo.textContent = ('0000' + f).slice(-4);
+  }
+
+  // One paused, seekable GSAP timeline owns composition time and the title-layer moves.
+  var clock = { t: 0 };
+  var tl = gsap.timeline({ paused: true, onUpdate: function () { draw(tl.time()); } });
+  tl.to(clock, { t: DURATION, duration: DURATION, ease: 'none', onUpdate: function () { draw(clock.t); } }, 0);
+  // Title moves step on the same 12-exposure cadence (steps) and are fully settled by 0.6 s.
+  tl.fromTo('#line1', { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.25, ease: 'steps(3)' }, 0.0);
+  tl.fromTo('#line2', { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.25, ease: 'steps(3)' }, 0.17);
+  tl.fromTo('#slate', { opacity: 0 }, { opacity: 1, duration: 0.17, ease: 'steps(2)' }, 0.42);
+  tl.fromTo('#strip', { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.17, ease: 'steps(2)' }, 0.0);
+  tl.set({}, {}, DURATION);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+
+  // Redraw on every host seek (direct, backward or out of order) from timeline time.
+  window.addEventListener('hf-seek', function (e) {
+    var t = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : tl.time();
+    if (Math.abs(tl.time() - t) > 1e-6) tl.seek(t, false);
+    draw(t);
+  });
+  draw(0);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

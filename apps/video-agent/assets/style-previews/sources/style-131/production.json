@@ -1,0 +1,27 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG",
+    "Canvas 2D"
+  ],
+  "motionEngine": [
+    "GSAP",
+    "GSAP MorphSVGPlugin"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview: no music, voice or sound effects.",
+  "limitations": [
+    "Original illustrative study in the Edo wave-print idiom; it is not a copy of any particular historical print.",
+    "Paper fibre is a seeded procedural Canvas 2D approximation, generated once and applied as a fixed multiply layer; it does not simulate real washi, pigment absorption or baren pressure.",
+    "Variable-width key-block rims are approximated by a dark key fill under a slightly inset, 1-2px offset colour plate plus a fine key contour, not by carved-outline offset geometry.",
+    "Bokashi sky is a 9-step chroma.js lab ramp between the indigo, blue and paper tokens; the horizon akabokashi is a 5-step lab ramp from paper toward a 42% paper/persimmon mix. Both are rendered as hard-stepped SVG gradients approximating hand-wiped bokashi.",
+    "Wave motion is a MorphSVG interpolation between three authored crest states; foam claws and spray are stylised and time-derived, not fluid simulation.",
+    "The cartouche seal is a geometric carved mark rather than a glyph, so it does not depend on a CJK font.",
+    "Title typography uses an @font-face alias 'Print Mincho' that maps to locally installed Mincho/serif faces via local(); if none of them is installed, Georgia/serif is used.",
+    "Scene palette: cool rice-white paper #E4E8E2 and persimmon #C8553D are authored for this dawn scene from the background review's colour-family suggestion, not sampled from a source. Key #283C49, indigo, blue, rose and ochre are kept from the style tokens."
+  ]
+}

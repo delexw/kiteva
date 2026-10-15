@@ -1,0 +1,28 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js",
+    "GLSL",
+    "Canvas 2D"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview: no music, voice or sound effects.",
+  "limitations": [
+    "No Blender, bpy, Cycles or EEVEE was used, as instructed. Every renderer comes from TECHNOLOGY_POOL.json and is installed locally: Three.js 0.186.1 (bundled with esbuild into three.bundle.js), GLSL ShaderMaterial, Canvas 2D and GSAP.",
+    "STYLE.json lists no preview recipes, and BACKGROUND_REVIEW.json found no matched sources and lists no contact sheets. This refresh therefore shows the primary style implementation with a scene-dependent background. No source frames were observed or copied.",
+    "The background is now a deep grey limestone chamber (#7E7B72, with deep shadow #4E4B44 and calcite flowstone #D9D5CA) instead of the earlier warm #AF845A swatch, as allowed by background_policy scene_dependent. The pigment roles stay the same: red #984B32, charcoal #3B2B21, ochre staining #C49B6B, chalk #DDD0B4 and text #2B211A.",
+    "The rock relief is a procedural 2.5D GLSL height field on a fixed full-frame quad: seeded fBm, a ridge, ledges, a groove, cavities stretched along the bedding, and vertical calcite drip streaks. It is not scanned or photographed rock.",
+    "The lighting is an approximation of one hand-held torch: a single warm light with mild distance falloff, a slight warm tint and finite-difference normals. There are no shadows, no flicker and no glow or bloom. The light tint shifts the shaded rock slightly away from the flat swatch hex.",
+    "The pigment is an approximation: Canvas 2D dab strokes with seeded edge noise baked in, offset by the relief gradient, absorbed less in cavities and grooves, and tinted by the local albedo. It is not real mineral pigment.",
+    "The bison, horse, hand stencil and links are original drawings. On-screen text says the scene is a procedural approximation, not archaeological footage.",
+    "The caption and disclosure are HTML text on a calcite #D9D5CA backing, which is a modern caption area. The caption font, Gill Sans, comes with macOS and is declared with @font-face local(). It falls back to Avenir Next, then Trebuchet MS, then sans-serif.",
+    "The full-video routes (cached render targets, offline NumPy height and order maps) are not built in this preview."
+  ]
+}

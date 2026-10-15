@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-136",
+    "name": "Manga Production Theatre is an authored Illustration and Art Media style, application-derived from a code-driven manga storyboard viewer. It is not extracted from external reference footage.",
+    "visualIdentity": "Mostly black-and-white backstage manga in one continuous film set. Faceless white round-headed characters have short bodies and pointed feet. Bold ink outlines and halftone scenery are central, and a director speaks beside a shadowed presentation board while crew work.",
+    "suitableUses": "Explicitly suited to timed, storyboard-driven explainers in video or interactive viewers that show a persistent director and visible crew work. The combination guidance names tutorials and process explainers. Behind-the-scenes narratives are an inferred fit.",
+    "limitations": "Crew are omitted when unsupported and must never imply real production footage. Characters stay faceless with no jointed limbs. The opening title is optional and opening-only, never repeated per scene. Orange must not appear in body text or permanent reaction rays. Audience, duration and resolution are unspecified and belong to delivery settings.",
+    "palette": "The background policy is scene_dependent, so the white background is an illustrative suggestion, not an approved exact color. Choose backgrounds from the scene. Example roles are background #FFFFFF, foreground #151515 and reaction #F47B45, which is for small activity signals only. Gradients are disabled. The 17.928 contrast covers only that two-color pair, so recheck contrast in composited frames.",
+    "motionAndInteraction": "Scenery and boards travel right to left, while crew make timed trips to work positions and return. The director gives a brief 1–3 degree nod at cue changes. Each crew role runs an independent cue-based schedule, and idle crew stay still during reading holds. Interactive viewers use a bounded scrolling stage with orange progress. Optional references are motion-012 for scene handoffs, motion-029 for ink reveals and motion-036 for an opening-only title.",
+    "audio": "The source leaves audio unspecified beyond an optional documentary narration, an unobtrusive instrumental bed or silence. The default is a silent catalog preview. Do not add a sound for every word or reveal. Pulses should sync only to verified soundtrack timing. Sound-crew actions remain visual, and no speech should be invented.",
+    "assetRequirements": "No uploads are required. Local fonts and assets must load before composition. Use structured, timed scene and beat JSON with exact copy, actions, props, captions, and camera and lighting cues. Do not add unvalidated fields to STORYBOARD.json. Authorized audio is needed only when the brief requests sound.",
+    "combinations": "The backstage comic stays dominant. The only suggested supporting style is style-024, for short handwritten director annotations that appear only while explaining the current action and never cover the board. Rough.js, Anime.js, PixiJS, Matter.js and chroma.js are optional and role-specific.",
+    "productionApproach": "HTML/CSS and SVG build the comic layers. GSAP drives one paused, seekable master timeline, and Anime.js may replace it only after seek verification. HyperFrames owns composition and export. Remotion is a fallback only for a recorded, verified limitation. Verify direct and backward seeks, role timings, frozen idle crew, non-overlapping callouts and composited contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

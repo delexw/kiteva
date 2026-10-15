@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Ink Bloom",
+  "displayDescription": "An ink bloom on cool grey washi, then 一念 brushed stroke by stroke, branching into a connected ink network with a vermilion seal.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (procedural filled brush outlines, masks, feTurbulence paper/ink-edge filters, radial-gradient ink blooms)"
+  ],
+  "motionEngine": [
+    "GSAP 3.15 paused timeline",
+    "GSAP DrawSVGPlugin (stroke-order centreline mask reveals)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track.",
+  "limitations": [
+    "The glyph strokes are hand-authored centrelines with pressure-width profiles in standard stroke order. They are not traced from a verified calligraphy exemplar or a stroke-order database, since none is available locally.",
+    "Ink, dry-brush bristle splits, wet bleed and paper fibres are procedural SVG approximations, not physical ink simulation.",
+    "萬物相連, 丙午秋, the seal character and the captions are system Songti/Georgia type, revealed as complete characters. They are annotation type, not brush-written.",
+    "Blender was not used, at the user's instruction.",
+    "STYLE.json has no tech.preview_recipes. The refresh demonstrates the source-frame recipe from BACKGROUND_REVIEW: ink-bloom-led glyph construction.",
+    "Typography: macOS's built-in Songti is declared through @font-face local() sources (Songti TC, falling back to Songti SC), because it has no downloadable font file. On a renderer without Songti, the CJK annotation type falls back to a generic serif."
+  ]
+}

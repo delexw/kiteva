@@ -1,0 +1,34 @@
+{
+  "displayTitle": "Connected System",
+  "displayDescription": "A copper core and four satin nodes assemble on a slate plinth, with a weighted camera orbit, before the headline settles.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186 WebGLRenderer (local node_modules, bundled with local esbuild into scene.bundle.js)",
+    "Soft Surface Lighting and Material Detail: MeshPhysicalMaterial copper, satin and rod materials, RoomEnvironment PMREM reflections, PCFSoftShadowMap key light from upper left, NeutralToneMapping, deterministic roughness map, canvas radial contact shadows, fog depth",
+    "HTML/CSS DOM typography over a transparent WebGL canvas"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline (single time source; owns DOM copy opacity and translate)",
+    "Extended Position-Based Dynamics (XPBD), custom minimal solver: compliant attachment plus a unilateral rod-length contact and floor contact, baked at load at a fixed 240 Hz and sampled by time",
+    "Procedural part assembly in the glTF scene-assembly pattern: fixed key states for core, rods and nodes evaluated at composition time",
+    "Authored deterministic camera navigation, standing in for live orbit/raycast controls in a video"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent; no audio track.",
+  "limitations": [
+    "Blender, bpy, Cycles and EEVEE were not used, as the user instructed. Real-time Three.js PBR rasterisation approximates the offline path-traced look: no global illumination, caustics or ray-traced reflections. Reflections come from a procedural RoomEnvironment probe.",
+    "No glTF asset files were supplied, so the geometry is procedural Three.js primitives. Part animation follows the glTF assembly pattern but no GLTFLoader is used.",
+    "XPBD is a small custom point-mass solver (attachment compliance 0.0055, damping 9/s, reduced gravity), not a maintained library. It is a stylised, physically approximate settle, eased to exact seats from 2.2–2.5s.",
+    "Raycast Object Interaction is represented only by its video-delivery equivalent, an authored deterministic camera path. No pointer raycasting happens in the export.",
+    "Video-Textured Screens and CRT Overlays were not used: the subject has no screen and no footage was supplied, and adding a CRT surface would not serve the scene.",
+    "Contact shadows are canvas radial-gradient decals combined with soft shadow maps. They approximate ambient occlusion.",
+    "The Three.js bundle contains Math.random, used only for internal object UUIDs. It does not affect any rendered pixel.",
+    "Stage colour and lighting were chosen from the background review's role lessons. Tone mapping slightly alters the rendered material colours relative to the palette hex values.",
+    "No rendering or browser test was run by the agent; the host QA is authoritative."
+  ]
+}

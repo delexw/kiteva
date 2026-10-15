@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cave Wall Painting — An idea becomes a connected system</title>
+<style>
+  /* OS-bundled macOS fonts (no downloadable file): declared via local(). */
+  @font-face { font-family: "Gill Sans"; src: local("Gill Sans"), local("GillSans"); font-weight: 400; }
+  @font-face { font-family: "Gill Sans"; src: local("Gill Sans Bold"), local("GillSans-Bold"); font-weight: 700; }
+  @font-face { font-family: "Gill Sans MT"; src: local("Gill Sans MT"), local("Gill Sans"); font-weight: 400; }
+  @font-face { font-family: "Gill Sans MT"; src: local("Gill Sans MT Bold"), local("Gill Sans Bold"); font-weight: 700; }
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #7E7B72; overflow: hidden; }
+  #video { position: relative; width: 100%; height: 100%; background: #7E7B72; overflow: hidden; }
+  #rock { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  /* Distinct modern caption area on a calcite-white backing (not painted on the rock). */
+  #caption {
+    position: absolute; left: 64px; top: 548px; width: 500px; box-sizing: border-box;
+    padding: 18px 26px 18px 24px; background: #D9D5CA; border-left: 6px solid #984B32;
+    font-family: "Gill Sans", "Gill Sans MT", "Avenir Next", "Trebuchet MS", sans-serif; color: #2B211A;
+  }
+  #caption h1 { margin: 0; font-size: 44px; line-height: 50px; font-weight: 700; letter-spacing: 1px; color: #2B211A; }
+  #caption p { margin: 4px 0 0 0; font-size: 30px; line-height: 36px; letter-spacing: 3px; color: #2B211A; }
+  #disclosure {
+    position: absolute; right: 40px; bottom: 28px; padding: 6px 12px; background: #D9D5CA;
+    font-family: "Gill Sans", "Gill Sans MT", "Avenir Next", "Trebuchet MS", sans-serif;
+    font-size: 15px; line-height: 20px; color: #2B211A; letter-spacing: 0.3px;
+  }
+</style>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="three.bundle.js"></script>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="rock" width="1280" height="720"></canvas>
+  <div id="caption">
+    <h1>AN IDEA BECOMES</h1>
+    <p>a connected system</p>
+  </div>
+  <div id="disclosure">Procedural rock &amp; pigment approximation — not archaeological footage</div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var W = 1280, H = 720;
+  // Scene-dependent palette (refresh): a deep, torch-lit grey limestone chamber instead of the prior warm #AF845A swatch.
+  // Pigment roles (red #984B32, charcoal #3B2B21), ochre staining #C49B6B, chalk #DDD0B4 and text #2B211A are kept.
+  var PAL = { background: '#7E7B72', limestoneDeep: '#4E4B44', calcite: '#D9D5CA', foreground: '#2B211A', ochre: '#C49B6B', red: '#984B32', charcoal: '#3B2B21', chalk: '#DDD0B4' };
+  if (window.chroma && chroma.contrast(PAL.foreground, PAL.calcite) < 4.5) throw new Error('caption contrast');
+  if (window.chroma) { Object.keys(PAL).forEach(function (k) { if (!chroma.valid(PAL[k])) throw new Error('bad palette ' + k); }); }
+
+  // ---------- seeded PRNG (no unseeded randomness) ----------
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  var rnd = mulberry32(135135);
+
+  // ---------- Canvas 2D pigment + stroke-order maps (drawn once) ----------
+  function mk(fillWhite) { var c = document.createElement('canvas'); c.width = W; c.height = H; var x = c.getContext('2d', { willReadFrequently: true }); if (fillWhite) { x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); } return x; }
+  var covC = mk(false), covR = mk(false), ordC = mk(true), ordR = mk(true);
+  function grey(o) { var v = Math.max(0, Math.min(254, Math.round(o * 254))); return 'rgb(' + v + ',' + v + ',' + v + ')'; }
+  function dab(ctx, x, y, r, style, alpha) { ctx.globalAlpha = alpha; ctx.fillStyle = style; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
+  function resample(pts, step) {
+    var out = [], total = 0, seg = [];
+    for (var i = 1; i < pts.length; i++) { var d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); seg.push(d); total += d; }
+    var n = Math.max(2, Math.ceil(total / step));
+    for (var k = 0; k <= n; k++) {
+      var s = total * k / n, j = 0; while (j < seg.length - 1 && s > seg[j]) { s -= seg[j]; j++; }
+      var f = seg[j] ? Math.min(1, s / seg[j]) : 0;
+      out.push([pts[j][0] + (pts[j + 1][0] - pts[j][0]) * f, pts[j][1] + (pts[j + 1][1] - pts[j][1]) * f, k / n]);
+    }
+    return out;
+  }
+  // A drawn charcoal/red line: order increases along the path so the mark is laid down end to end.
+  function stroke(cov, ord, pts, width, o0, o1) {
+    var s = resample(pts, 1.4);
+    for (var i = 0; i < s.length; i++) {
+      var t = s[i][2], taper = Math.pow(Math.sin(Math.PI * (0.08 + 0.84 * t)), 0.5);
+      var r = width * 0.5 * (0.6 + 0.4 * taper) * (0.8 + 0.4 * rnd());
+      var jx = (rnd() - 0.5) * 1.6, jy = (rnd() - 0.5) * 1.6;
+      dab(ord, s[i][0] + jx, s[i][1] + jy, r + 2.5, grey(o0 + (o1 - o0) * t), 1);
+      dab(cov, s[i][0] + jx, s[i][1] + jy, r, '#fff', 0.55 + 0.4 * rnd());
+    }
+  }
+  function strokes(cov, ord, list, width, o0, o1) { var n = list.length; for (var i = 0; i < n; i++) stroke(cov, ord, list[i], width, o0 + (o1 - o0) * i / n, o0 + (o1 - o0) * (i + 1) / n); }
+  function polyPath(pts) { var p = new Path2D(); p.moveTo(pts[0][0], pts[0][1]); for (var i = 1; i < pts.length; i++) p.lineTo(pts[i][0], pts[i][1]); p.closePath(); return p; }
+  // Rubbed pigment fill applied in a few diagonal hand passes (bands) inside a contour.
+  function rubFill(cov, ord, path, box, o0, o1, bands, fadeY) {
+    var x0 = box[0], y0 = box[1], x1 = box[2], y1 = box[3];
+    for (var y = y0; y < y1; y += 3) for (var x = x0; x < x1; x += 3) {
+      var px = x + (rnd() - 0.5) * 3, py = y + (rnd() - 0.5) * 3;
+      if (!cov.isPointInPath(path, px, py)) continue;
+      var diag = ((px - x0) + 0.45 * (py - y0)) / ((x1 - x0) + 0.45 * (y1 - y0));
+      var band = Math.min(bands - 1, Math.floor(diag * bands)), inBand = diag * bands - band;
+      var dens = 1 - fadeY * Math.max(0, (py - y0) / (y1 - y0) - 0.35);
+      if (rnd() > 0.35 + 0.6 * dens) continue;
+      dab(ord, px, py, 3.2, grey(o0 + (o1 - o0) * (band + inBand * 0.85) / bands), 1);
+      dab(cov, px, py, 2.2 + 2.2 * rnd(), '#fff', (0.25 + 0.4 * rnd()) * Math.max(0.25, dens));
+    }
+  }
+
+  // ---- Hand stencil (red mineral spray around a negative hand) — the "idea" ----
+  var HX = 232, HY = 300;
+  function handShape(ctx) {
+    ctx.save(); ctx.translate(HX, HY); ctx.rotate(-0.08); ctx.fillStyle = '#000'; ctx.globalAlpha = 1;
+    function cap(x, y, w, h, a) { ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.beginPath(); ctx.roundRect(-w / 2, -h, w, h, w / 2); ctx.fill(); ctx.restore(); }
+    ctx.beginPath(); ctx.ellipse(0, 18, 36, 44, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(-22, 40, 44, 52, 10); ctx.fill();
+    cap(-27, -2, 15, 62, -0.16); cap(-9, -10, 16, 80, -0.05); cap(10, -8, 16, 74, 0.05); cap(27, 0, 14, 56, 0.17);
+    cap(33, 34, 15, 52, 1.05);
+    ctx.restore();
+  }
+  (function spray() {
+    var puffs = 9;
+    for (var p = 0; p < puffs; p++) {
+      var ang = -Math.PI * 0.75 + p * (Math.PI * 2 / puffs), cx = HX + Math.cos(ang) * 58, cy = HY + 10 + Math.sin(ang) * 66;
+      var o = 0.015 + 0.24 * p / puffs;
+      for (var i = 0; i < 420; i++) {
+        var a = rnd() * Math.PI * 2, rr = Math.sqrt(-2 * Math.log(1 - rnd() * 0.999)) * 46;
+        var x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr * 1.1;
+        dab(ordR, x, y, 4, grey(o + 0.025 * rnd()), 1);
+        dab(covR, x, y, 1.5 + 4 * rnd(), '#fff', 0.2 + 0.3 * rnd());
+      }
+    }
+    covR.globalCompositeOperation = 'destination-out'; handShape(covR); covR.globalCompositeOperation = 'source-over';
+  })();
+
+  // ---- red finger-dot trail from hand toward the bison ----
+  [[392, 262], [438, 250], [486, 246]].forEach(function (d, i) {
+    for (var k = 0; k < 40; k++) { var a = rnd() * 6.283, r = rnd() * 9; dab(ordR, d[0] + Math.cos(a) * r, d[1] + Math.sin(a) * r, 5, grey(0.27 + 0.03 * i), 1); dab(covR, d[0] + Math.cos(a) * r, d[1] + Math.sin(a) * r, 3 + 3 * rnd(), '#fff', 0.35 + 0.3 * rnd()); }
+  });
+
+  // ---- Bison (original contour, facing left, head low) ----
+  var bisonBack = [[838, 268], [805, 246], [760, 232], [712, 214], [668, 194], [628, 198], [596, 218], [570, 244], [548, 272], [533, 302], [528, 330]];
+  var bisonJaw = [[528, 330], [545, 346], [565, 354], [578, 374], [592, 360], [608, 356]];
+  var bisonBelly = [[612, 370], [660, 388], [720, 393], [780, 383], [820, 362], [838, 330], [841, 296], [838, 268]];
+  var bisonBody = polyPath(bisonBack.concat(bisonJaw.slice(1), bisonBelly));
+  rubFill(covR, ordR, bisonBody, [520, 188, 846, 396], 0.52, 0.70, 5, 0.9);
+  strokes(covC, ordC, [bisonBack, bisonJaw, bisonBelly], 7, 0.33, 0.50);
+  strokes(covC, ordC, [
+    [[576, 242], [563, 220], [576, 203]],                  // horn
+    [[614, 368], [608, 405], [602, 442]], [[642, 382], [644, 412], [648, 443]],   // fore legs
+    [[772, 386], [778, 416], [784, 446]], [[814, 370], [828, 405], [836, 438]],   // hind legs
+    [[840, 274], [858, 302], [853, 332]],                  // tail
+    [[660, 205], [652, 228]], [[684, 208], [676, 232]], [[708, 218], [700, 240]] // hump hair marks
+  ], 5.5, 0.50, 0.62);
+
+  // ---- Horse (original contour, facing right) ----
+  strokes(covC, ordC, [
+    [[935, 250], [960, 232], [1010, 226], [1060, 228], [1100, 214], [1125, 185], [1140, 160], [1158, 148], [1180, 156], [1189, 172], [1176, 181]],
+    [[1176, 181], [1160, 185], [1146, 202], [1136, 230], [1128, 258], [1110, 280]],
+    [[1110, 280], [1060, 292], [1000, 290], [955, 278], [938, 262], [935, 250]]
+  ], 6.5, 0.62, 0.76);
+  strokes(covC, ordC, [
+    [[1108, 282], [1116, 315], [1121, 342]], [[1090, 288], [1088, 320], [1084, 343]],
+    [[966, 282], [958, 312], [950, 338]], [[986, 288], [989, 318], [991, 342]],
+    [[935, 253], [916, 272], [906, 302]],
+    [[1104, 206], [1092, 196]], [[1116, 190], [1103, 181]], [[1128, 172], [1117, 163]], [[1144, 154], [1137, 144]]
+  ], 5, 0.76, 0.84);
+
+  // ---- System: charcoal links + red pigment nodes ----
+  strokes(covC, ordC, [
+    [[846, 300], [870, 290], [900, 276], [930, 264]],              // bison -> horse
+    [[700, 398], [697, 430], [694, 462], [692, 490]],              // bison -> node 1
+    [[704, 500], [760, 497], [820, 495], [884, 492]],              // node 1 -> node 2
+    [[790, 452], [826, 468], [868, 484]],                          // bison hind leg -> node 2
+    [[912, 486], [960, 470], [1010, 452], [1062, 432]],            // node 2 -> node 3
+    [[1082, 414], [1086, 388], [1088, 356]]                        // node 3 -> horse
+  ], 4.5, 0.84, 0.95);
+  [[692, 500], [898, 490], [1074, 424]].forEach(function (d, i) {
+    for (var k = 0; k < 60; k++) { var a = rnd() * 6.283, r = Math.sqrt(rnd()) * 11; dab(ordR, d[0] + Math.cos(a) * r, d[1] + Math.sin(a) * r, 5, grey(0.93 + 0.025 * i), 1); dab(covR, d[0] + Math.cos(a) * r, d[1] + Math.sin(a) * r, 3 + 3 * rnd(), '#fff', 0.35 + 0.35 * rnd()); }
+  });
+
+  // ---- baked seeded edge noise: nibble pigment edges and interiors ----
+  [covC, covR].forEach(function (ctx) {
+    ctx.globalCompositeOperation = 'destination-out';
+    for (var i = 0; i < 9000; i++) dab(ctx, rnd() * W, rnd() * H, 0.6 + 1.6 * rnd(), '#000', 0.35 + 0.5 * rnd());
+    ctx.globalCompositeOperation = 'source-over';
+  });
+
+  var a1 = covC.getImageData(0, 0, W, H).data, a2 = covR.getImageData(0, 0, W, H).data, o1 = ordC.getImageData(0, 0, W, H).data, o2 = ordR.getImageData(0, 0, W, H).data;
+  var pack = new Uint8Array(W * H * 4);
+  for (var i = 0; i < W * H; i++) { var q = i * 4; pack[q] = a1[q + 3]; pack[q + 1] = a2[q + 3]; pack[q + 2] = o1[q]; pack[q + 3] = o2[q]; }
+  var pigTex = new THREE.DataTexture(pack, W, H, THREE.RGBAFormat, THREE.UnsignedByteType);
+  pigTex.flipY = false; pigTex.magFilter = THREE.LinearFilter; pigTex.minFilter = THREE.LinearFilter; pigTex.generateMipmaps = false; pigTex.needsUpdate = true;
+
+  // ---------- Three.js full-frame quad + GLSL rock ----------
+  var canvas = document.getElementById('rock');
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false, alpha: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(1); renderer.setSize(W, H, false); renderer.autoClear = true;
+  var scene = new THREE.Scene(); var cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  function v3(hex) { var c = new THREE.Color(); c.setHex(parseInt(hex.slice(1), 16), THREE.NoColorSpace); return new THREE.Vector3(c.r, c.g, c.b); }
+  var uniforms = {
+    uMap: { value: pigTex }, uRes: { value: new THREE.Vector2(W, H) }, uReveal: { value: 0 }, uLight: { value: new THREE.Vector2(-0.6, 0.45) },
+    uBase: { value: v3(PAL.background) }, uOchre: { value: v3(PAL.ochre) }, uChalk: { value: v3(PAL.chalk) }, uRed: { value: v3(PAL.red) }, uChar: { value: v3(PAL.charcoal) }, uDeep: { value: v3(PAL.limestoneDeep) }, uCalc: { value: v3(PAL.calcite) }
+  };
+  var frag = [
+    'precision highp float;',
+    'uniform sampler2D uMap; uniform vec2 uRes; uniform float uReveal; uniform vec2 uLight;',
+    'uniform vec3 uBase, uOchre, uChalk, uRed, uChar, uDeep, uCalc;',
+    'varying vec2 vUv;',
+    'float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }',
+    'float vn(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f*f*(3.0-2.0*f);',
+    '  return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), u.x), mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), u.x), u.y); }',
+    'const mat2 R = mat2(0.80, 0.60, -0.60, 0.80);',
+    'float fbm3(vec2 p){ float s=0.0, a=0.5; for(int i=0;i<3;i++){ s += a*vn(p); p = R*p*2.03 + 17.1; a *= 0.5; } return s/0.875; }',
+    'float fbm4(vec2 p){ float s=0.0, a=0.5; for(int i=0;i<4;i++){ s += a*vn(p); p = R*p*2.01 + 5.7; a *= 0.5; } return s/0.9375; }',
+    'float segD(vec2 p, vec2 a, vec2 b){ vec2 pa=p-a, ba=b-a; float h=clamp(dot(pa,ba)/dot(ba,ba),0.0,1.0); return length(pa-ba*h); }',
+    // macro relief (also drives pigment UV offset): broad bulges + a rounded ridge crossing the bison
+    'float hMacro(vec2 P){',
+    '  float big = fbm3(P/420.0 + 3.1) * 0.55;',
+    '  float d = segD(P, vec2(540.0, 450.0), vec2(790.0, 150.0));',
+    '  float ridge = 0.30 * exp(-d*d/(2.0*30.0*30.0));',
+    '  float d2 = segD(P, vec2(980.0, 120.0), vec2(1230.0, 340.0));',
+    '  float swell = 0.18 * exp(-d2*d2/(2.0*45.0*45.0));',
+    '  return big + ridge + swell; }',
+    'float cavity(vec2 P){',
+    '  vec2 Q = vec2(P.x/2.6 + 0.35*P.y, P.y);',
+    '  float cl = smoothstep(0.45, 0.80, fbm3(Q/80.0 + 9.0));',
+    '  float small = smoothstep(0.72, 0.90, fbm3(Q/6.0 + 31.0)) * cl;',
+    '  float pits = smoothstep(0.82, 0.95, fbm3(Q/18.0 + 71.0)) * 0.7;',
+    '  return clamp(small + pits, 0.0, 1.0); }',
+    'float groove(vec2 P){ float cy = 200.0 + 0.55*(P.x-880.0) + 10.0*sin(P.x/23.0); float d = abs(P.y - cy);',
+    '  return exp(-d*d/(2.0*2.2*2.2)) * smoothstep(870.0, 900.0, P.x) * (1.0 - smoothstep(1150.0, 1180.0, P.x)); }',
+    'float ledge(vec2 P){',
+    '  float c1 = 468.0 + 22.0*sin(P.x/150.0) + 9.0*sin(P.x/41.0);',
+    '  float l1 = smoothstep(-5.0, 5.0, P.y - c1) * (1.0 - smoothstep(520.0, 580.0, P.x));',
+    '  float c2 = 128.0 + 16.0*sin(P.x/120.0 + 1.0) + 6.0*sin(P.x/33.0);',
+    '  float l2 = smoothstep(-5.0, 5.0, P.y - c2) * smoothstep(860.0, 920.0, P.x);',
+    '  return -0.14*l1 - 0.12*(1.0 - l2); }',
+    'float hMicro(vec2 P){ return fbm4(P/90.0 + 7.3)*0.25 + vn(R*P/9.0)*0.06 + vn(P/3.5 + 2.0)*0.03 + ledge(P) - 0.12*cavity(P) - 0.07*groove(P); }',
+    'void main(){',
+    '  vec2 P = vec2(vUv.x * uRes.x, (1.0 - vUv.y) * uRes.y);',
+    '  vec2 ex = vec2(1.5, 0.0), ey = vec2(0.0, 1.5);',
+    '  vec2 gM = vec2(hMacro(P+ex) - hMacro(P-ex), hMacro(P+ey) - hMacro(P-ey)) / 3.0;',
+    '  vec2 gm = vec2(hMicro(P+ex) - hMicro(P-ex), hMicro(P+ey) - hMicro(P-ey)) / 3.0;',
+    '  vec2 g = gM + gm;',
+    // normal in canvas space (y down) -> flip y so light vectors read naturally
+    '  vec3 N = normalize(vec3(-g.x * 60.0, g.y * 60.0, 1.0));',
+    '  vec2 lp = vec2(0.5 + 0.5*uLight.x, 0.5 - 0.5*uLight.y) * uRes;',
+    '  vec3 L = normalize(vec3((lp - P) * vec2(1.0, -1.0) / uRes.x * 1.6, 0.78));',
+    '  float fall = 0.80 + 0.20 * (1.0 - smoothstep(200.0, 1250.0, distance(P, lp)));',
+    '  float cav = cavity(P);',
+    '  float shade = 1.0 + 0.55 * (dot(N, L) - L.z);',
+    '  shade *= 1.0 - 0.30 * cav;',
+    // albedo: base with ochre and chalk mineral variation, darker grit in cavities
+    '  vec3 alb = uBase;',
+    // calcite flowstone: vertical drip curtains (stationary), iron-ochre staining, chalky crust, dark fissure grit
+    '  float drip = smoothstep(0.55, 0.85, fbm3(vec2(P.x/38.0, P.y/420.0) + 2.0)) * smoothstep(0.35, 0.65, fbm3(P/300.0 + 8.0));',
+    '  alb = mix(alb, uCalc, 0.55 * drip);',
+    '  alb = mix(alb, uOchre, 0.40 * smoothstep(0.62, 0.85, fbm3(P/220.0 + 3.0)));',
+    '  alb = mix(alb, uChalk, 0.30 * smoothstep(0.76, 0.93, fbm4(P/40.0 + 11.0)));',
+    '  alb = mix(alb, uDeep, 0.55 * cav);',
+    // pigment sampled at a relief-offset position so marks follow the rock
+    '  vec2 Pp = P + gM * 2000.0 + gm * 140.0;',
+    '  vec4 m = texture2D(uMap, Pp / uRes);',
+    '  float cv = clamp((uReveal - m.b) / 0.02, 0.0, 1.0);',
+    '  float rv = clamp((uReveal - m.a) / 0.02, 0.0, 1.0);',
+    '  float absorb = (1.0 - 0.72 * cav) * (1.0 - 0.85 * groove(P)) * (0.80 + 0.26 * vn(R*P/3.1 + 5.0));',
+    '  float ca = clamp(m.r * 1.2, 0.0, 1.0) * cv * absorb;',
+    '  float ra = clamp(m.g * 1.15, 0.0, 1.0) * rv * absorb * 0.94;',
+    '  vec3 tint = alb / uBase;',
+    '  vec3 col = mix(alb, uRed * tint, ra);',
+    '  col = mix(col, uChar * tint, ca);',
+    '  col *= shade * fall * vec3(1.05, 1.0, 0.92);',
+    '  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);',
+    '}'
+  ].join('\n');
+  var mat = new THREE.ShaderMaterial({
+    uniforms: uniforms, fragmentShader: frag, depthTest: false, depthWrite: false,
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }'
+  });
+  var quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat); quad.frustumCulled = false; scene.add(quad);
+
+  // ---------- GSAP-owned uniform proxy; every update renders synchronously ----------
+  var proxy = { reveal: 0, lx: -0.6, ly: 0.45 };
+  function render() {
+    uniforms.uReveal.value = proxy.reveal;
+    uniforms.uLight.value.set(proxy.lx, proxy.ly);
+    renderer.render(scene, cam);
+  }
+  var tl = gsap.timeline({ paused: true, onUpdate: render });
+  tl.fromTo(proxy, { reveal: 0 }, { reveal: 1.08, duration: 1.75, ease: 'none' }, 0.05);
+  tl.fromTo(proxy, { lx: -0.6, ly: 0.45 }, { lx: 0.7, ly: 0.3, duration: 0.85, ease: 'sine.inOut', immediateRender: false }, 1.75);
+  tl.set({}, {}, 3);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  window.addEventListener('hf-seek', function (e) {
+    var t = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : null;
+    if (t !== null) tl.seek(t, false);
+    render();
+  });
+  tl.seek(0, false);
+  render();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

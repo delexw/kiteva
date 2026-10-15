@@ -1,0 +1,89 @@
+{
+  "version": 3,
+  "title": "An idea becomes a connected system — Impressionist river at dusk",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Dusk river, linked lilies",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Paint a broken-colour dusk river on a toned ground, then carry brushed sunlight from lily pad to lily pad so one idea becomes a connected system.",
+      "visuals": [
+        "Stationary toned slate-teal ground #53686B under broad underpainting scumbles",
+        "Dusk sky: deeper blue overhead, rose band toward the horizon, sunlight glow around a low sun at (930,196)",
+        "Backlit far trees: dark foliage and ink dabs with rose and sunlight rims facing the sun",
+        "Dark bank at the horizon line y≈342",
+        "Water of long horizontal strokes mirroring the rose and sky, with tree shadow near the bank",
+        "Sun-glitter column and ripple glints redrawn from time",
+        "Five notched lily pads with cast shadows; rose blossoms open as the light reaches them",
+        "Foreground reeds at lower left",
+        "Cream title plate at upper left and footer plate at lower right"
+      ],
+      "assets": [
+        "index.html",
+        "scene.js (procedural Canvas 2D scene)",
+        "gsap.min.js (local)",
+        "chroma.min.js (local)"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 1,
+          "development": "Regional paint-on by per-dab thresholds against timeline progress: underpainting, then sky left to right, sun, trees, bank, water, reflections, lily pads and reeds. The title plate wipes in from 0.1 to 0.55s; its text fades in from 0.58s, after the plate is complete.",
+          "captions": [
+            "An idea becomes",
+            "a connected system"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1,
+          "endSeconds": 2.2,
+          "development": "Brushed sunlight dabs travel pad to pad around a closed loop (no arrowheads). Each rose bud blooms when the light reaches its pad. The reflections shimmer and the reeds sway.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.2,
+          "endSeconds": 3,
+          "development": "The footer plate fades in from 2.2 to 2.5s, and the shimmer and sway ease out by 2.6s. The finished painting then holds.",
+          "captions": [
+            "EN PLEIN AIR · AFTER MONET, GIVERNY"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.4
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "The paint-on transforms the whole frame from the bare ground in the first second, well over 8% of the pixels.",
+      "All motion is settled by 2.6s, before the 2.7s legibility deadline."
+    ],
+    "justifiedHolds": [
+      "2.6–3.0s: closing hold on the finished painting so the copy can be read."
+    ]
+  },
+  "notes": [
+    "Silent preview.",
+    "Refresh: scene-dependent dusk palette on a toned ground instead of cream paper. No preview_recipes are defined in STYLE.json, and BACKGROUND_REVIEW.json has 0 matched sources.",
+    "Procedural approximation. No blur or swirl filters are used, and the ground stays stationary.",
+    "scene.js renders the canvas as a pure function of time. The paused GSAP timeline registered inline in index.html drives it on onUpdate and on hf-seek."
+  ]
+}

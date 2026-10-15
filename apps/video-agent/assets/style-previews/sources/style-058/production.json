@@ -1,0 +1,31 @@
+{
+  "displayTitle": "Voxel System",
+  "displayDescription": "A glowing idea block grows, cube by cube, into a lit, connected voxel system on a night-slate isometric stage.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js r186 WebGLRenderer",
+    "InstancedMesh (single unit BoxGeometry)",
+    "OrthographicCamera (exact isometric)",
+    "custom GLSL ShaderMaterial (flat key light, local light pool, edge lines)",
+    "HTML/CSS copy panel"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline (window.__timelines.video) owning scene time and copy tweens"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent: no audio track.",
+  "limitations": [
+    "The lighting is an authored shader approximation: one fixed key light, ambient light, a falloff-only warm point pool and a glow term. There are no shadows, global illumination or physically based materials.",
+    "Block edges are drawn per face from UVs, so they are not geometric bevels.",
+    "The background is scene-dependent: the palette foreground slate #30444C is used as a night stage, chosen from the source-frame review. It is not the earlier cream swatch.",
+    "SYSTEM is set in cream rather than teal, because teal against both cream and slate measures below 3:1. Teal is kept as the SYSTEM rule and the path blocks.",
+    "No reviewed preview recipe was supplied, so none is demonstrated.",
+    "three.js may call Math.random only to generate internal object UUIDs. This does not affect pixels.",
+    "Not rendered or browser-tested by the agent. Host QA is pending."
+  ]
+}

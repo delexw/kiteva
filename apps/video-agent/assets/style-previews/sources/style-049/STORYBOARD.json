@@ -1,0 +1,101 @@
+{
+ "version": 3,
+ "title": "Idea → System (Risograph Printing, style-049)",
+ "durationSeconds": 3,
+ "scenes": [
+  {
+   "id": "scene-1",
+   "title": "Two-ink print run: idea to connected system",
+   "startSeconds": 0,
+   "endSeconds": 3,
+   "purpose": "Show an idea (a halftone disc holding a bulb mark) printed as a two-ink riso sheet that becomes a connected network. The sheet is built separation by separation on cool blue-grey recycled stock.",
+   "visuals": [
+    "Cool blue-grey recycled paper (#DDE3E2) with fixed fibre flecks and a soft vignette, all stationary",
+    "Coral ink separation: diagonal hatch band, halftone idea disc, idea block and offset node discs",
+    "Blue ink separation: ring, bulb mark, network links, nodes and headline, at a fixed +5/-4 px registration offset",
+    "Multiply overprint, so blue over coral prints darker",
+    "A fixed seeded grain mask with dropouts on each ink, plus static rough-edge displacement",
+    "A paper knockout box in the hatch band holding the caption"
+   ],
+   "assets": [
+    "assets/grain-coral.png",
+    "assets/grain-blue.png",
+    "assets/paper-fibre.png",
+    "motion-kit.js"
+   ],
+   "beats": [
+    {
+     "startSeconds": 0,
+     "endSeconds": 0.62,
+     "development": "Coral drum pass: a roller wipe prints the coral hatch band, halftone disc and idea block from left to right. 'IDEA' is set in coral and then overprinted in blue, settling into register.",
+     "captions": [
+      "IDEA"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 0.62,
+     "endSeconds": 1.0,
+     "development": "The blue ring draws around the halftone disc, and the bulb mark and base strokes draw inside the idea.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 1.0,
+     "endSeconds": 1.85,
+     "development": "The '→' word is set. Links draw outward from the idea; each node stamps first in coral, then in blue with an offset that settles into a stable registration. 'SYSTEM' completes the headline, and the paper knockout box opens in the hatch band.",
+     "captions": [
+      "IDEA → SYSTEM"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 1.85,
+     "endSeconds": 3,
+     "development": "The caption appears inside the completed knockout box. The finished two-ink sheet holds still for reading.",
+     "captions": [
+      "AN IDEA BECOMES A CONNECTED SYSTEM — 2 INKS / BLUE + CORAL"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 1.0
+    }
+   ]
+  }
+ ],
+ "pacingAudit": {
+  "findings": [
+   "The headline is built additively at 0.30, 1.00 and 1.48 s, following the network build, which is the primary focus.",
+   "All motion ends by 2.0 s, which is well before the 2.7 s settle requirement.",
+   "Grain, paper and the registration offset stay stationary, with no per-frame re-randomisation."
+  ],
+  "justifiedHolds": [
+   "2.0–3.0 s: the completed sheet holds still so the headline and the 58-character caption can be read."
+  ]
+ },
+ "notes": [
+  "Silent preview: no music, effects or voice.",
+  "No tech.preview_recipes were supplied, so this refresh demonstrates the primary implementation (limited ink separations, fixed grain, controlled registration offsets, animated layer reveals) together with the source-frame lessons: multiply overprint, stable grain with dropouts, a hatch motif with a paper knockout box, and an additive word build.",
+  "The background was changed from the prior warm cream to cool recycled stock, a tech/explainer choice listed in BACKGROUND_REVIEW. The two inks keep their roles: blue for type and lines, coral for pattern and fields.",
+  "The ink, grain and overprint are procedural SVG approximations, not a physical print.",
+  "Headline misregistration: the coral pass reuses the blue glyph outlines through SVG <use> clones placed at a fixed (+5,+8) px offset. The only readable headline text is the blue ink type (about 7:1 contrast on paper), and the coral layer is decorative ink, not a duplicate text block."
+ ]
+}

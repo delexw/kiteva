@@ -1,0 +1,35 @@
+{
+  "version": 3,
+  "title": "Paper Cutout: An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Idea lights and connects",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Show a cut-paper idea (bulb) lighting a stack of paper sheets, then swinging out a pinned paper arm rig that fans into a connected system, closing on a readable caption card.",
+      "visuals": [
+        "Night-indigo base sheet with three stepped lighter indigo cut-paper bands around the bulb",
+        "Sage ground sheet with cream edge",
+        "Terracotta bulb cutout with cream window, ink base plates and drawn filament",
+        "Ink paper strips joined by cream paper-fastener pins to sage, terracotta and ink node discs",
+        "Cream caption card with a hinged bottom flap and ink lettering"
+      ],
+      "assets": ["ILLUSTRATION.svg (composition and colour reference)", "background-reference-01.webp (stepped-sheet construction reference only)"],
+      "beats": [
+        {"startSeconds": 0, "endSeconds": 0.45, "development": "Bulb cutout lowers onto the paper stack, pivoting on its base plates and settling.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 0.45, "endSeconds": 0.9, "development": "Filament cut-line draws; three lighter indigo sheets drop in one after another around the bulb like stepped light.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 0.9, "endSeconds": 1.3, "development": "Link arm swings out on the bulb's shoulder pin, carrying the first sage node into place.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 1.3, "endSeconds": 1.72, "development": "Child arms fan open from the first node's pin, then grandchild arms open from their parents, forming the network.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 1.72, "endSeconds": 2.43, "development": "Caption card is placed, its bottom flap unfolds from the back side, then its lettering appears once the card is complete.", "captions": ["An idea becomes", "a connected system"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 2.43, "endSeconds": 3, "development": "Full composition holds settled for reading.", "captions": ["An idea becomes", "a connected system"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.57}
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": ["Each development has one focal action; the rig cascades parent to child so eye trace runs left to right.", "All motion settles by 2.43 s, before the 2.7 s requirement."],
+    "justifiedHolds": ["2.43-3.0 s closing hold lets the five-word caption be read on a settled card."]
+  },
+  "notes": ["Silent preview.", "Background follows a scene-dependent stacked-sheet ramp; object colours keep the illustration's terracotta, sage, ink and cream assignments."]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-095",
+    "name": "UI Animation / Product Motion Design",
+    "visualIdentity": "Commercial product-presentation style built on accurate interfaces, real copy, and established branding. Cards, numbers, charts, and states are separate animatable elements. The source describes it as a presentation format, not a historical art movement.",
+    "suitableUses": "Explicit: feature demos built from real interfaces. Inferred: launch reels, workflow or integration explainers, map-based product interfaces, and audio-product demos with real audio content.",
+    "limitations": "Do not invent interfaces, UI copy, or missing product context. Avoid repeatedly sliding whole screenshots. Live hover, drag, or scroll input belongs only to interactive delivery, never exported video. Tilt or depth must not hide readable text or controls.",
+    "palette": "Optional neutral tokens for new presentation elements only: background #F7F9FA and foreground #263440, with no gradient. Contrast of 12.069:1 is a two-color check only and does not verify text over images or video. Brand or task colors override these, and source assets are never recolored.",
+    "motionAndInteraction": "Motion follows causal state changes, shared-element transitions, and precise camera framing. Optional catalog patterns include card stacking, voice-card tilt, chaptered handoffs, swipe carousels, scroll storytelling, exploded reveals, and image galleries. Each is used only when it fits the scene and its content.",
+    "audio": "Not specified by the style; choices depend on topic and audience. Options include background music, voiceover, sound effects, ambience, or silence. User-supplied audio takes priority. Speech must stay intelligible, avoid clipping, and remain synchronized with the picture.",
+    "assetRequirements": "Requires accurate product interfaces, real copy, and established brand assets. Missing assets must be supplied rather than invented. Map tiles and photographs need authorized sources and attribution. Fonts and geometry must load before rendering begins.",
+    "combinations": "UI Animation works alone for feature demos. Optional supports are style-093 for headline cards between interface states and style-109 for connector diagrams showing data flow. Supporting styles must not invent UI, and connectors must correspond to real state changes.",
+    "productionApproach": "Style renderers (SVG or DOM, optionally tldraw, Cytoscape.js, or Leaflet) build the interfaces. One motion engine, GSAP by default, owns each animated property. HyperFrames is the default pipeline; Remotion is a documented fallback only. Verify direct seeks, decoded frames, and audio sync before delivery."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

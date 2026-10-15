@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-089",
+    "name": "Pixilation (supplemental design reference; not a directly named source-collection style).",
+    "visualIdentity": "Live performers are photographed frame by frame in deliberate poses, with scene and costume continuity. Motion reads as stepped slides and abrupt position changes. It is not pixel art or simply low-frame-rate footage.",
+    "suitableUses": "Explicit: recommended alone for surreal performance; hybrids are suggested for music videos, energetic social campaigns, campaign spots and event promos. Inferred: other performance-led pieces that need photographed poses.",
+    "limitations": "Requires real performers; low-frame-rate footage is not a substitute. No style renderer or motion engine is listed. The source review sampled only one frame per second across 1–8 seconds, so no continuous motion, audio, later scenes or palette match was verified.",
+    "palette": "Background policy is scene_dependent. Example tokens #EEE7DC, #343C43 and #8A9288 are non-binding suggestions, not approved colors, and apply only to new presentation elements. #343C43 on #EEE7DC gives 9.127:1 for text; #8A9288 (3.495:1) is decorative only. Gradients are disabled.",
+    "motionAndInteraction": "Motion follows planned pose exposures with readable direction and holds. Delivery frame rate may exceed exposure rate, and in-between poses are not automatically generated. Optional references motion-012 and motion-015 are screened for fit, and choosing none is valid. HTML may add pause control and reduced-motion stills.",
+    "audio": "Unspecified: no genre, tempo, voice or mandatory layer is set, and no audio is supplied. Music, voiceover, sung vocals, effects, ambience or silence may be chosen by topic. Beat-timed jumps need a verified beat table, and silence is valid.",
+    "assetRequirements": "Real-performer numbered frame sequences or layers with consistent dimensions, transparency where layered, and a layer manifest. Costume and lighting continuity are required. Local fonts and assets must be loaded and inspected before composition. No uploads are specified.",
+    "combinations": "style-105 adds beat-aligned exposure holds and position jumps. style-093 adds kinetic type stepping with poses, using only #343C43 text and #8A9288 accent. Avoid low-fps faking, beat flashing, continuity breaks and covering faces.",
+    "productionApproach": "HyperFrames is the default for composition, timing, sync and export; Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists. Photographed frames supply visuals. Python prepares sequences, FFmpeg encodes at delivery rate, and GSAP drives a paused timeline. Pose exposure rate stays separate from delivery frame rate."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

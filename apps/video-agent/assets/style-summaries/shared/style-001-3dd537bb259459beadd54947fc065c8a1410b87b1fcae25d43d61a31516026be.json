@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-001",
+    "name": "International Typographic Style (Swiss Style). This is a supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Column grid, baseline alignment, repeated spacing, asymmetric layout and generous negative space. Left-aligned sans-serif type with clear size hierarchy, black and white with restrained accent, and grid-aligned photography.",
+    "suitableUses": "Explicitly suited to posters, identity work and typographic statements where grid and type carry everything. Data explainers and headline motion are explicit hybrid uses. Other applications, such as product or editorial video, are inferred, not stated.",
+    "limitations": "Duration, aspect ratio, resolution and frame rate are unspecified. Avoid script or display faces, multi-hue palettes, centered or rotated chart labels, and springs or overshoot. Two-color contrast checks do not cover images, video or animated backgrounds.",
+    "palette": "Black and white with one restrained red accent. Suggested tokens apply only when no approved colors are supplied: #FFFFFF background, #000000 foreground, #D32F2F accent_1. Gradients are disabled. Accent on background measures 4.979:1, meeting the 4.5 normal-text target. Task-supplied exact colors override these tokens.",
+    "motionAndInteraction": "Elements animate along layout axes and settle on shared alignment points without changing reading order. Keep deliberate cuts, constant-speed sections and reading holds, and do not add springs or bounce. Reduced-motion variants show the final static layout. Optional references motion-007, 012, 013, 015 and 038 need fit checks; none is required.",
+    "audio": "Audio is unspecified, and no genre, tempo, voice or mandatory layer is assigned. Suggest music, voiceover, effects, ambience or silence from topic, audience and motion cadence, stating assumptions. Honor user audio first. Verify speech intelligibility, balance, absence of clipping and picture sync.",
+    "assetRequirements": "Exact copy, subject and supplied assets are unspecified. Fonts must be loaded locally before rendering, and the typeface is unspecified. Charts need real or clearly labeled illustrative data. Punctuation Zoom requires an actual punctuation mark in the scene. Audio must be task-provided or authorized.",
+    "combinations": "Style-097 adds grid-drawn charts, with red reserved for the series under discussion. Style-093 adds headline motion, with red on one keyword per scene. Both hybrids keep black, white and the single red accent unchanged and add no new hues.",
+    "productionApproach": "HyperFrames handles composition timing, audio sync, validation and export. Remotion is a fallback only for verified limitations, and the reason must be recorded. HTML/CSS and SVG render visuals, one paused GSAP timeline owns motion, and chroma.js is optional for color checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

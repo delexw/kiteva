@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="style-id" content="style-022">
+<meta name="style-name" content="Pencil Drawing">
+<title>Pencil Drawing — an idea becomes a connected system</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #ECEEF0; }
+  #video { position: relative; width: 100%; height: 100%; overflow: hidden; background: #ECEEF0; }
+  #video canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  .note {
+    position: absolute; margin: 0; white-space: nowrap; color: #383838;
+    font-family: Georgia, "Times New Roman", Times, serif; font-style: italic; font-weight: 400;
+    line-height: 1.25; clip-path: inset(-30% 100% -30% 0%);
+  }
+  #fig-label { left: 18.75%; top: 22.6%; font-size: 15px; letter-spacing: 0.02em; }
+  #caption { left: 7.8125%; top: 85.3%; font-size: 22px; }
+</style>
+</head>
+<body>
+<div id="video" data-style-id="style-022" data-style-name="Pencil Drawing" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="paper" width="1280" height="720" aria-hidden="true"></canvas>
+  <canvas id="drawing" data-demo-actor="demo-actor-1" width="1280" height="720" aria-hidden="true"></canvas>
+  <p class="note" id="fig-label" data-demo-actor="demo-actor-2">fig. a — the idea</p>
+  <p class="note" id="caption" data-demo-actor="demo-actor-3">study no. 4 — an idea becomes a connected system</p>
+</div>
+<script type="application/json" id="style-plan">{"styleId":"style-022","styleName":"Pencil Drawing","styleRenderer":["Canvas 2D","Rough.js"],"motionEngine":["GSAP"],"pipeline":"HyperFrames"}</script>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="rough.js"></script>
+<script>
+(function () {
+  'use strict';
+  // ---------- Centralised tokens ----------
+  const STYLE_ID = 'style-022'; // Pencil Drawing
+  window.__styleId = STYLE_ID;
+  const W = 1280, H = 720, DURATION = 3;
+  // Scene palette (monochrome graphite on cool bristol paper; refresh away from warm paper).
+  const PAL = { paper: chroma('#ECEEF0').hex(), graphite: chroma('#383838').hex() };
+  const CONTRAST = chroma.contrast(PAL.graphite, PAL.paper); // ~10.1 : 1 for opaque text
+  document.getElementById('video').setAttribute('data-text-contrast', CONTRAST.toFixed(2));
+  const INK = chroma(PAL.graphite).rgb();
+  const ink = (a) => 'rgba(' + INK[0] + ',' + INK[1] + ',' + INK[2] + ',' + a.toFixed(3) + ')';
+
+  function mulberry32(seed) {
+    let s = seed >>> 0;
+    return function () {
+      s = (s + 0x6D2B79F5) >>> 0;
+      let t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const clamp01 = (v) => v < 0 ? 0 : v > 1 ? 1 : v;
+  function makeCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+
+  // ---------- Paper substrate (static, built once) ----------
+  function buildPaper() {
+    const c = document.getElementById('paper');
+    const g = c.getContext('2d');
+    const rnd = mulberry32(2207);
+    const base = chroma(PAL.paper).rgb();
+    // low-frequency mottling lattice
+    const CELL = 48, gw = Math.ceil(W / CELL) + 2, gh = Math.ceil(H / CELL) + 2;
+    const lat = new Float32Array(gw * gh);
+    for (let i = 0; i < lat.length; i++) lat[i] = rnd() * 2 - 1;
+    const img = g.createImageData(W, H);
+    const d = img.data;
+    let fiber = 0;
+    for (let y = 0; y < H; y++) {
+      fiber = 0;
+      for (let x = 0; x < W; x++) {
+        const fx = x / CELL, fy = y / CELL, ix = Math.floor(fx), iy = Math.floor(fy);
+        const tx = fx - ix, ty = fy - iy;
+        const sx = tx * tx * (3 - 2 * tx), sy = ty * ty * (3 - 2 * ty);
+        const a = lat[iy * gw + ix], b = lat[iy * gw + ix + 1], cc = lat[(iy + 1) * gw + ix], dd = lat[(iy + 1) * gw + ix + 1];
+        const mott = (a + (b - a) * sx) * (1 - sy) + (cc + (dd - cc) * sx) * sy;
+        fiber = fiber * 0.82 + (rnd() * 2 - 1) * 0.18; // short horizontal fibres
+        const v = mott * 3.2 + fiber * 4.0 + (rnd() * 2 - 1) * 2.2;
+        const k = (y * W + x) * 4;
+        d[k] = base[0] + v; d[k + 1] = base[1] + v; d[k + 2] = base[2] + v * 0.9; d[k + 3] = 255;
+      }
+    }
+    g.putImageData(img, 0, 0);
+    // fine drafting grid in the same graphite pigment
+    g.lineWidth = 1;
+    for (let x = 32; x < W; x += 32) { g.strokeStyle = ink(x % 160 === 0 ? 0.085 : 0.045); g.beginPath(); g.moveTo(x + 0.5, 0); g.lineTo(x + 0.5, H); g.stroke(); }
+    for (let y = 40; y < H; y += 32) { g.strokeStyle = ink((y - 40) % 160 === 0 ? 0.085 : 0.045); g.beginPath(); g.moveTo(0, y + 0.5); g.lineTo(W, y + 0.5); g.stroke(); }
+  }
+
+  // ---------- Graphite tooth mask (static) ----------
+  function buildTooth() {
+    const c = makeCanvas(W, H), g = c.getContext('2d');
+    const rnd = mulberry32(9071);
+    const img = g.createImageData(W, H), d = img.data;
+    const row = new Float32Array(W);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const n = rnd();
+        row[x] = y === 0 ? n : row[x] * 0.35 + n * 0.65; // slight vertical coherence
+        const along = x > 0 ? (row[x] * 0.6 + row[x - 1] * 0.4) : row[x];
+        const a = 0.5 + 0.5 * Math.pow(along, 0.55);
+        const k = (y * W + x) * 4;
+        d[k] = 0; d[k + 1] = 0; d[k + 2] = 0; d[k + 3] = Math.round(255 * a);
+      }
+    }
+    g.putImageData(img, 0, 0);
+    return c;
+  }
+
+  // ---------- Stroke model ----------
+  function mkStroke(pts, opt, rnd) {
+    const cum = [0];
+    for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    const press = [];
+    for (let i = 0; i < pts.length; i++) press.push(0.86 + rnd() * 0.24); // fixed seeded pressure variant
+    return { pts, cum, len: cum[cum.length - 1], w: opt.w, a: opt.a, taper: opt.taper !== false, press };
+  }
+  function flatten(drawable, kinds) {
+    const out = [];
+    for (const set of drawable.sets) {
+      if (kinds && kinds.indexOf(set.type) < 0) continue;
+      let cur = null, px = 0, py = 0;
+      for (const op of set.ops) {
+        const d = op.data;
+        if (op.op === 'move') { if (cur && cur.length > 1) out.push(cur); cur = [[d[0], d[1]]]; px = d[0]; py = d[1]; }
+        else if (op.op === 'lineTo') { cur.push([d[0], d[1]]); px = d[0]; py = d[1]; }
+        else if (op.op === 'bcurveTo') {
+          const n = 10;
+          for (let i = 1; i <= n; i++) {
+            const t = i / n, m = 1 - t;
+            cur.push([m * m * m * px + 3 * m * m * t * d[0] + 3 * m * t * t * d[2] + t * t * t * d[4],
+                      m * m * m * py + 3 * m * m * t * d[1] + 3 * m * t * t * d[3] + t * t * t * d[5]]);
+          }
+          px = d[4]; py = d[5];
+        }
+      }
+      if (cur && cur.length > 1) out.push(cur);
+    }
+    return out;
+  }
+  function group(polys, opt, seed) {
+    const rnd = mulberry32(seed);
+    const strokes = polys.map((p) => mkStroke(p, opt, rnd));
+    let total = 0; for (const s of strokes) total += s.len;
+    return { strokes, total };
+  }
+  function drawStroke(g, s, prog, alphaMul) {
+    if (prog <= 0 || s.len <= 0) return;
+    const L = Math.min(1, prog) * s.len;
+    const pts = s.pts, cum = s.cum;
+    const CH = 4;
+    for (let i = 0; i < pts.length - 1 && cum[i] < L; i += CH) {
+      const j = Math.min(i + CH, pts.length - 1);
+      const u = (cum[i] + Math.min(cum[j], L)) * 0.5 / s.len;
+      const taper = s.taper ? Math.pow(Math.sin(Math.PI * (0.06 + 0.88 * u)), 0.6) : 1;
+      const p = taper * s.press[i];
+      g.lineWidth = s.w * (0.55 + 0.45 * p);
+      g.strokeStyle = ink(s.a * alphaMul * (0.55 + 0.45 * p));
+      g.beginPath();
+      g.moveTo(pts[i][0], pts[i][1]);
+      for (let k = i + 1; k <= j; k++) {
+        if (cum[k] <= L) { g.lineTo(pts[k][0], pts[k][1]); }
+        else {
+          const f = (L - cum[k - 1]) / (cum[k] - cum[k - 1]);
+          g.lineTo(pts[k - 1][0] + (pts[k][0] - pts[k - 1][0]) * f, pts[k - 1][1] + (pts[k][1] - pts[k - 1][1]) * f);
+          break;
+        }
+      }
+      g.stroke();
+    }
+  }
+  // sequential: one pencil travelling through strokes in authored order
+  function drawSequential(g, grp, p, am) {
+    if (p <= 0) return;
+    let budget = clamp01(p) * grp.total;
+    for (const s of grp.strokes) { if (budget <= 0) break; drawStroke(g, s, budget / s.len, am == null ? 1 : am); budget -= s.len; }
+  }
+  // parallel: both rough passes advance together (reads as one double line)
+  function drawParallel(g, grp, p, am) { if (p <= 0) return; for (const s of grp.strokes) drawStroke(g, s, p, am == null ? 1 : am); }
+  // staggered: hatch lines laid one after another with a small overlap window
+  function drawStagger(g, grp, p, am) {
+    if (p <= 0) return;
+    const n = grp.strokes.length, ov = 3, t = clamp01(p) * (n + ov);
+    for (let i = 0; i < n; i++) { const q = (t - i) / ov; if (q <= 0) break; drawStroke(g, grp.strokes[i], q, am == null ? 1 : am); }
+  }
+
+  // ---------- Designed hatching (fixed angle, gap, bow; seeded endpoint variants) ----------
+  function hatch(test, box, angleDeg, gap, seed, alphaFn) {
+    const rnd = mulberry32(seed);
+    const a = angleDeg * Math.PI / 180, dx = Math.cos(a), dy = Math.sin(a), nx = -dy, ny = dx;
+    const cx = (box[0] + box[2]) / 2, cy = (box[1] + box[3]) / 2;
+    const R = Math.hypot(box[2] - box[0], box[3] - box[1]) / 2 + 2;
+    const runs = [];
+    for (let o = -R; o <= R; o += gap) {
+      let run = null;
+      for (let t = -R; t <= R; t += 3) {
+        const x = cx + nx * o + dx * t, y = cy + ny * o + dy * t;
+        if (test(x, y)) { if (!run) run = []; run.push([x, y]); }
+        else if (run) { if (run.length > 2) runs.push(run); run = null; }
+      }
+      if (run && run.length > 2) runs.push(run);
+    }
+    return runs.map((run) => {
+      const trimA = Math.floor(rnd() * 2), trimB = Math.floor(rnd() * 2);
+      const r2 = run.slice(trimA, run.length - trimB);
+      const bow = (rnd() - 0.5) * 1.4, n = r2.length - 1;
+      const pts = r2.map((p, i) => { const u = n ? i / n : 0, b = Math.sin(Math.PI * u) * bow; return [p[0] + nx * b, p[1] + ny * b]; });
+      const mid = pts[Math.floor(pts.length / 2)];
+      return { pts, k: alphaFn ? alphaFn(mid[0], mid[1]) : 1 };
+    });
+  }
+  function hatchGroup(runs, opt, seed) {
+    const rnd = mulberry32(seed);
+    const strokes = runs.map((r) => mkStroke(r.pts, { w: opt.w, a: opt.a * r.k, taper: true }, rnd));
+    let total = 0; for (const s of strokes) total += s.len;
+    return { strokes, total };
+  }
+  const inC = (c) => (x, y) => (x - c.x) * (x - c.x) + (y - c.y) * (y - c.y) <= c.r * c.r;
+
+  // ---------- Scene geometry ----------
+  const S = { x: 330, y: 330, r: 112 };          // the idea (sphere)
+  const LIGHT = { x: 298, y: 296, r: 104 };      // lit region (light from upper-left)
+  const CORE = { x: 304, y: 302, r: 116 };       // core shadow boundary
+  const HIGH = { x: 290, y: 288, r: 40 };        // highlight left as paper
+  const NODES = [
+    { x: 700, y: 200, r: 26 }, { x: 960, y: 262, r: 26 }, { x: 820, y: 420, r: 26 },
+    { x: 1080, y: 440, r: 26 }, { x: 1110, y: 180, r: 26 }
+  ];
+  const EDGES = [[-1, 0], [-1, 1], [-1, 2], [2, 3], [1, 4], [1, 3]];
+
+  const gen = rough.generator();
+  const G = {};
+  function buildGeometry() {
+    G.guideH = group(flatten(gen.line(160, 330, 1180, 330, { roughness: 0.35, bowing: 0.4, seed: 11, disableMultiStroke: true })), { w: 0.7, a: 0.22, taper: false }, 101);
+    G.guideV = group(flatten(gen.line(330, 170, 330, 500, { roughness: 0.35, bowing: 0.4, seed: 12, disableMultiStroke: true })), { w: 0.7, a: 0.22, taper: false }, 102);
+    G.explore = group(flatten(gen.circle(S.x + 2, S.y - 1, S.r * 2 + 10, { roughness: 1.3, bowing: 1.2, seed: 21, curveStepCount: 12 })), { w: 0.7, a: 0.32 }, 103);
+    G.contour = group(flatten(gen.circle(S.x, S.y, S.r * 2, { roughness: 0.55, bowing: 0.5, seed: 22, curveStepCount: 14 })), { w: 1.9, a: 0.86 }, 104);
+    // layered hatching: midtone over whole sphere except highlight, shadow crescent, core cross-hatch
+    G.mid = hatchGroup(hatch((x, y) => inC(S)(x, y) && !inC(HIGH)(x, y), [S.x - S.r, S.y - S.r, S.x + S.r, S.y + S.r], 40, 6.2, 31,
+      (x, y) => 0.45 + 0.55 * clamp01((Math.hypot(x - HIGH.x, y - HIGH.y) - HIGH.r) / 110)), { w: 0.75, a: 0.42 }, 105);
+    G.shadow = hatchGroup(hatch((x, y) => inC(S)(x, y) && !inC(LIGHT)(x, y), [S.x - S.r, S.y - S.r, S.x + S.r, S.y + S.r], 40, 3.1, 32), { w: 0.85, a: 0.6 }, 106);
+    G.core = hatchGroup(hatch((x, y) => inC({ x: S.x, y: S.y, r: S.r - 3 })(x, y) && !inC(CORE)(x, y), [S.x - S.r, S.y - S.r, S.x + S.r, S.y + S.r], -35, 3.4, 33), { w: 0.8, a: 0.55 }, 107);
+    G.cast = group(flatten(gen.ellipse(372, 458, 240, 30, { fill: PAL.graphite, fillStyle: 'hachure', hachureAngle: -35, hachureGap: 3.4, fillWeight: 0.7, stroke: 'none', roughness: 0.8, seed: 41 }), ['fillSketch']), { w: 0.75, a: 0.5 }, 108);
+    G.nodes = NODES.map((n, i) => ({
+      explore: group(flatten(gen.circle(n.x + 1, n.y - 1, n.r * 2 + 3, { roughness: 1.1, bowing: 1, seed: 51 + i })), { w: 0.6, a: 0.36 }, 120 + i),
+      contour: group(flatten(gen.circle(n.x, n.y, n.r * 2, { roughness: 0.5, bowing: 0.5, seed: 61 + i })), { w: 1.4, a: 0.84 }, 130 + i),
+      shade: hatchGroup(hatch((x, y) => inC({ x: n.x, y: n.y, r: n.r - 1.5 })(x, y) && !inC({ x: n.x - 7, y: n.y - 7, r: n.r - 1 })(x, y),
+        [n.x - n.r, n.y - n.r, n.x + n.r, n.y + n.r], 40, 2.7, 71 + i), { w: 0.7, a: 0.55 }, 140 + i)
+    }));
+    G.edges = EDGES.map((e, i) => {
+      const A = e[0] < 0 ? S : NODES[e[0]], B = NODES[e[1]];
+      const dx = B.x - A.x, dy = B.y - A.y, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
+      const x1 = A.x + ux * (A.r - 3), y1 = A.y + uy * (A.r - 3), x2 = B.x - ux * (B.r - 1), y2 = B.y - uy * (B.r - 1);
+      const main = group(flatten(gen.line(x1, y1, x2, y2, { roughness: 0.45, bowing: 0.7, seed: 81 + i })), { w: 1.0, a: 0.8 }, 150 + i);
+      const echo = i % 2 === 0 ? group(flatten(gen.line(x1 - uy * 3.5, y1 + ux * 3.5, x2 - uy * 3.5, y2 + ux * 3.5, { roughness: 0.6, bowing: 0.9, seed: 91 + i, disableMultiStroke: true })), { w: 0.6, a: 0.3 }, 160 + i) : null;
+      return { main, echo, x1, y1, x2, y2, ux, uy, L: Math.hypot(x2 - x1, y2 - y1) };
+    });
+  }
+
+  // ---------- Stump smudge sprites: marks laid at quarter resolution, upscaled = blended graphite ----------
+  function smudgeSprite(paint) {
+    const q = makeCanvas(W / 4, H / 4), qg = q.getContext('2d');
+    qg.scale(0.25, 0.25); qg.lineCap = 'round';
+    paint(qg);
+    const c = makeCanvas(W, H), g = c.getContext('2d');
+    g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    g.drawImage(q, 0, 0, W, H);
+    return c;
+  }
+  function paintRuns(g, grp, width, alpha) {
+    g.lineWidth = width; g.strokeStyle = ink(alpha);
+    for (const s of grp.strokes) { g.beginPath(); g.moveTo(s.pts[0][0], s.pts[0][1]); for (const p of s.pts) g.lineTo(p[0], p[1]); g.stroke(); }
+  }
+  let SP = {};
+  function buildSprites() {
+    SP.sphere = smudgeSprite((g) => { paintRuns(g, G.mid, 6, 0.05); paintRuns(g, G.shadow, 7, 0.06); });
+    SP.cast = smudgeSprite((g) => { paintRuns(g, G.cast, 8, 0.08); });
+    SP.halo = smudgeSprite((g) => {
+      g.lineWidth = 16; g.strokeStyle = ink(0.11);
+      for (const e of G.edges) { g.beginPath(); g.moveTo(e.x1, e.y1); g.lineTo(e.x2, e.y2); g.stroke(); }
+    });
+    SP.nodes = smudgeSprite((g) => {
+      for (const n of NODES) { g.lineWidth = 9; g.strokeStyle = ink(0.10); g.beginPath(); g.arc(n.x, n.y, n.r, 0, Math.PI * 2); g.stroke(); }
+      for (const nd of G.nodes) paintRuns(g, nd.shade, 6, 0.07);
+    });
+  }
+
+  // ---------- Motion state: GSAP is the single owner of every property ----------
+  const st = {
+    guide: 0, explore: 0, contour: 0, mid: 0, shadow: 0, core: 0, tone: 0, cast: 0,
+    e0: 0, e1: 0, e2: 0, e3: 0, e4: 0, e5: 0,
+    n0: 0, n1: 0, n2: 0, n3: 0, n4: 0, s0: 0, s1: 0, s2: 0, s3: 0, s4: 0
+  };
+
+  let layer, lg, tooth, out;
+  function render() {
+    // 1) graphite marks on an isolated layer
+    lg.setTransform(1, 0, 0, 1, 0, 0);
+    lg.globalCompositeOperation = 'source-over';
+    lg.clearRect(0, 0, W, H);
+    lg.lineCap = 'butt'; lg.lineJoin = 'round';
+    drawSequential(lg, G.guideH, st.guide);
+    drawSequential(lg, G.guideV, clamp01(st.guide * 1.4 - 0.2));
+    drawStagger(lg, G.cast, st.cast);
+    drawSequential(lg, G.explore, st.explore);
+    drawStagger(lg, G.mid, st.mid);
+    drawStagger(lg, G.shadow, st.shadow);
+    drawStagger(lg, G.core, st.core);
+    drawSequential(lg, G.contour, st.contour);
+    G.edges.forEach((e, i) => { const p = st['e' + i]; drawParallel(lg, e.main, p); if (e.echo) drawParallel(lg, e.echo, clamp01(p * 1.15 - 0.15)); });
+    G.nodes.forEach((nd, i) => {
+      const p = st['n' + i];
+      drawSequential(lg, nd.explore, clamp01(p * 1.6));
+      drawSequential(lg, nd.contour, clamp01(p * 1.25 - 0.25));
+      drawStagger(lg, nd.shade, st['s' + i]);
+    });
+    // 2) paper tooth breaks up the graphite (static mask, never moves)
+    lg.globalCompositeOperation = 'destination-in';
+    lg.drawImage(tooth, 0, 0);
+    lg.globalCompositeOperation = 'source-over';
+
+    // 3) composite: stump smudges under the crisp marks
+    out.clearRect(0, 0, W, H);
+    out.globalAlpha = clamp01(st.cast); out.drawImage(SP.cast, 0, 0);
+    out.globalAlpha = clamp01(st.tone); out.drawImage(SP.sphere, 0, 0);
+    out.globalAlpha = 1;
+    // connector halos revealed with each line's pencil tip
+    out.save(); out.beginPath();
+    let any = false;
+    G.edges.forEach((e, i) => {
+      const p = clamp01(st['e' + i]); if (p <= 0) return; any = true;
+      const len = e.L * p + 6, hw = 22, px = -e.uy * hw, py = e.ux * hw;
+      const sx = e.x1 - e.ux * 6, sy = e.y1 - e.uy * 6, ex = sx + e.ux * len, ey = sy + e.uy * len;
+      out.moveTo(sx + px, sy + py); out.lineTo(ex + px, ey + py); out.lineTo(ex - px, ey - py); out.lineTo(sx - px, sy - py); out.closePath();
+    });
+    if (any) { out.clip(); out.drawImage(SP.halo, 0, 0); }
+    out.restore();
+    NODES.forEach((n, i) => {
+      const a = clamp01(st['n' + i] * 0.6 + st['s' + i] * 0.4); if (a <= 0) return;
+      const b = n.r + 18; out.globalAlpha = a;
+      out.drawImage(SP.nodes, n.x - b, n.y - b, b * 2, b * 2, n.x - b, n.y - b, b * 2, b * 2);
+    });
+    out.globalAlpha = 1;
+    out.drawImage(layer, 0, 0);
+  }
+
+  // ---------- Build (preload) everything, then the timeline ----------
+  buildPaper();
+  tooth = buildTooth();
+  buildGeometry();
+  buildSprites();
+  layer = makeCanvas(W, H); lg = layer.getContext('2d');
+  out = document.getElementById('drawing').getContext('2d');
+
+  const tl = gsap.timeline({ paused: true, onUpdate: render });
+  const T = (prop, start, dur, ease) => tl.fromTo(st, { [prop]: 0 }, { [prop]: 1, duration: dur, ease: ease || 'sine.inOut' }, start);
+  // construction
+  T('guide', 0.00, 0.42, 'sine.inOut');
+  T('explore', 0.04, 0.42, 'power1.inOut');
+  T('contour', 0.24, 0.50, 'power2.inOut');
+  // layered hatching builds the idea's volume
+  T('mid', 0.42, 0.55, 'sine.inOut');
+  T('tone', 0.50, 0.65, 'sine.inOut');
+  T('shadow', 0.56, 0.54, 'sine.inOut');
+  T('cast', 0.70, 0.42, 'sine.inOut');
+  T('core', 0.82, 0.40, 'sine.inOut');
+  // connections reach out; each node is drawn as its line arrives
+  T('e0', 0.95, 0.36, 'power2.inOut');
+  T('e1', 1.00, 0.46, 'power2.inOut');
+  T('e2', 1.05, 0.34, 'power2.inOut');
+  T('n0', 1.24, 0.28, 'power1.out');
+  T('n2', 1.32, 0.28, 'power1.out');
+  T('n1', 1.40, 0.28, 'power1.out');
+  T('e3', 1.50, 0.28, 'power2.inOut');
+  T('e4', 1.55, 0.25, 'power2.inOut');
+  T('e5', 1.60, 0.28, 'power2.inOut');
+  T('n3', 1.74, 0.28, 'power1.out');
+  T('n4', 1.76, 0.28, 'power1.out');
+  T('s0', 1.44, 0.26); T('s2', 1.52, 0.26); T('s1', 1.60, 0.26); T('s3', 1.96, 0.26); T('s4', 1.98, 0.26);
+  // handwritten notes: wiped in like a pencil line, then held fully legible
+  const wipe = (el, start, dur) => tl.fromTo(el,
+    { clipPath: 'inset(-30% 100% -30% 0%)', opacity: 0.55 },
+    { clipPath: 'inset(-30% -4% -30% 0%)', opacity: 1, duration: dur, ease: 'power1.inOut' }, start);
+  wipe(document.getElementById('fig-label'), 0.50, 0.40);
+  wipe(document.getElementById('caption'), 1.68, 0.52);
+  tl.set({}, {}, DURATION); // timeline spans exactly 3 s; settled from 2.24 s
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  const redraw = () => render();
+  window.addEventListener('hf-seek', redraw);
+  document.addEventListener('hf-seek', redraw);
+  tl.progress(1).progress(0); // prime start values, then rest at t=0
+  render();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

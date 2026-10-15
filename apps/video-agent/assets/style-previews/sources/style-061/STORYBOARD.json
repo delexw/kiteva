@@ -1,0 +1,85 @@
+{
+  "version": 3,
+  "title": "Photorealism — An idea becomes a connected system (caustic optics study)",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Glass idea, water ripple, connected system",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Shows the caustic_optics recipe inside a photoreal PBR still life. A glass sphere (the idea) settles in a shallow water film, and its ripple carries light and metal links out to three steel nodes.",
+      "visuals": [
+        "Scene-dependent dark slate studio sweep #151C1F (exact clear colour, solved through inverse ACES/sRGB) with fog dissolving the floor into it",
+        "Slate floor #3A4446 under a transmissive water film (MeshPhysicalMaterial, IOR 1.33, analytic ripple normals)",
+        "Glass idea sphere (transmission 1, IOR 1.5) with an analytic ball-lens footprint and a focused light spot on the floor",
+        "Three brushed-steel nodes (MeshPhysicalMaterial, metalness 1, anisotropy) with PCF soft shadows and analytic contact shadows",
+        "Floor caustics computed from the same height field as the water normals and the key-light direction (approximation, not path-traced)",
+        "Four darker brushed-steel rods linking the nodes",
+        "BokehPass focus pull; OutputPass applies ACES Filmic and sRGB",
+        "DOM Georgia copy in #ECE9E2 with a #93A5A4 rule"
+      ],
+      "assets": [
+        "scene.bundle.js",
+        "src/scene.js",
+        "src/entry.js",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.85,
+          "development": "The glass idea rolls in through the water film without slipping and decelerates to rest. Calm caustic filaments drift on the floor while the copy fades in.",
+          "captions": [
+            "STUDY Nº 61 — STILL LIFE",
+            "An idea becomes",
+            "a connected system."
+          ],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.85,
+          "endSeconds": 1.85,
+          "development": "A ripple spreads from the rest point. Its caustic rings sweep across the floor and the rods A–B and A–C grow at the ripple front. The key light keeps swinging, so the shadows, caustics and glass focus spot shift together.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.85,
+          "endSeconds": 2.6,
+          "development": "The outer links B–D and C–D close the system. The ripple passes the far node and dies away, the water eases to rest, and the 10° camera arc and the focus pull finish.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.6,
+          "endSeconds": 3,
+          "development": "Settled hold. The connected system and its frozen caustic pattern are readable, with no motion.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.4
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Single 3 s scene. All motion, including the water, ends by 2.6 s, inside the 2.7 s settle limit.",
+      "Copy is fully visible by 0.8 s and stays readable for more than 2 s.",
+      "Each beat has one focal action: the roll-in, then the ripple carrying the links, then the system closing."
+    ],
+    "justifiedHolds": [
+      "2.6–3.0 s settled hold, so the final still life can be read"
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, effects or voice.",
+    "Recipe shown: caustic_optics. Floor caustics use 1/(1+k·∇²h) from the analytic water height field, sampled where the key-light ray enters the water, so they move with both the ripple and the swinging light. This is an approximation, not path-traced.",
+    "The background follows the scene_dependent policy. A dark slate sweep replaces the prior warm #F0EDE5 swatch so that the transmitted light reads, as the reference review's 'quiet dark field, materially lit hero, one rare light accent' hierarchy suggests. No source subject, branding or lettering was copied.",
+    "The full-quality Blender/Cycles route is unavailable and is reported as missing."
+  ]
+}

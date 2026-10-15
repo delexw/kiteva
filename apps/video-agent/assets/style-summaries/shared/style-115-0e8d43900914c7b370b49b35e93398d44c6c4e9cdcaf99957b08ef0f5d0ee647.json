@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-115",
+    "name": "Animated Reaction Captions",
+    "visualIdentity": "Expressive display captions with consistent layered outlines, hard shadows, reaction stickers and small doodles. Each emotion gets its own color and motion, using springy entrances, squash and wobble tied to reactions or verbal stress. Sampled source frames show a dark stroke, white halo and drop shadow.",
+    "suitableUses": "Explicitly for short emphasis and reaction captions, a descriptive broadcast-style treatment distinct from continuous dialogue subtitles or general kinetic typography. Inferred fit: vertical short-form clips. The 9:16 framing is only an optional example.",
+    "limitations": "Faces, dialogue subtitles and platform overlays must stay unobstructed, and reading holds outrank beat density. Two-color contrast checks do not verify text over footage. The source review covered only sampled seconds 1 to 8, so audio and continuous motion are unverified.",
+    "palette": "No approved palette was supplied, so the background is scene-dependent and should follow topic and mood rather than a default cream. Non-binding suggestions are background #FFF5E5, foreground #282E3B, and accents #DA855C, #668FA3 and #A47CA3. Foreground-on-background contrast is 12.592. Accent_2 and accent_3 against foreground (3.9 and 3.879) are decorative fills only. Gradients are disabled.",
+    "motionAndInteraction": "Springy entrances, squash, bounce and wobble follow reactions or verbal stress, then hold readable. Optional motion-037 (Phrase Scatter and Step-In) releases outgoing glyphs with bounded rotation while words step in, but only where scene assets support it. Interaction is authored time; its reduced-motion note shows the completed composition.",
+    "audio": "Audio is unspecified for this style. Propose topic-driven music, voiceover, effects or silence without a fixed genre or tempo. Music timing applies only to a supplied soundtrack that drives reactions, not speech. Avoid a sound for every caption entrance.",
+    "assetRequirements": "No user assets are specified. The style needs real fonts, SVG strokes or aligned text copies for outlines and shadows, and reusable lettering, sticker and doodle components. The source mascot and confetti are examples only, not requirements.",
+    "combinations": "Reaction captions are usually best used alone. Optional style-105 pairing adds beat-locked caption pops only when a supplied soundtrack drives the reactions. Keep #282E3B outlines and emotion accents, hold full phrases, and avoid popping a caption on every beat.",
+    "productionApproach": "HyperFrames is the default pipeline for composition, timing, validation and export; Remotion is fallback only for a verified limitation. HTML/CSS and SVG render the captions, GSAP owns the paused seekable timeline, and Rough.js, mo.js, PixiJS or Motion are optional layers."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

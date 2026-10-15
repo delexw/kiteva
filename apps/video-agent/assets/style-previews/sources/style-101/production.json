@@ -1,0 +1,29 @@
+{
+  "displayTitle": "Parallax Network",
+  "displayDescription": "Dusk valley in six parallax depth layers: an idea lamp ignites and a wire lights poles and cottages into a connected system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "PixiJS 8.22 (WebGL, local pixi.min.js) layered parallax scene",
+    "Canvas 2D generated textures (sky plate, stationary star grain, radial glow sprite)",
+    "HTML/CSS headline and depth-key overlay"
+  ],
+  "motionEngine": [
+    "GSAP timeline (local gsap.min.js) at window.__timelines.video: owns composition time proxy and DOM text opacity/y",
+    "Deterministic per-layer camera/lighting functions of timeline time using GSAP parseEase"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "2.5D layered parallax only; no 3D modeling, Blender, or physical lighting. Glows are additive radial sprites, not light transport.",
+    "Defocus on the near-foreground grass is a static Pixi BlurFilter approximation of depth of field.",
+    "Wire sag is a quadratic approximation, not a catenary simulation.",
+    "Dusk palette is scene-dependent and chosen from the source-frame review lessons (dark low-value environment with a warm light as luminance anchor); the earlier cream #EFE7D6 canvas is kept only as headline/key text color.",
+    "PixiJS initialises asynchronously; frames render once the WebGL renderer is ready and on every timeline seek/hf-seek.",
+    "Silent preview: no soundtrack or voice."
+  ]
+}

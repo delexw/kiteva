@@ -1,0 +1,115 @@
+{
+  "version": 3,
+  "title": "Mosaic — An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The idea is set",
+      "startSeconds": 0,
+      "endSeconds": 0.9,
+      "purpose": "Light rises on a midnight-slate tessera panel while the bulb's tiles flip face-up, so the idea forms out of loose bisque.",
+      "visuals": [
+        "Dark slate wall with a stone-tile panel: an outer slate band, a limestone dotted rule and an inner terracotta band",
+        "Midnight-slate field tesserae with 16 sparse gold star tiles",
+        "Teal glass disc tiles flip from unglazed bisque to glaze in a wave outward from the centre",
+        "Gold-leaf bulb, slate filament and terracotta base tiles flip on the vertical axis just behind the disc wave"
+      ],
+      "assets": [
+        "scene/mosaic.js (procedural tesserae, bundled to mosaic.bundle.js)"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.55,
+          "development": "Fade up from darkness: the key light, hemisphere fill and environment go from 12% to full. The teal disc flip wave starts at 0.16 s.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.55,
+          "endSeconds": 0.9,
+          "development": "Gold bulb tiles lift, flip and land in their exact cells. The disc wave reaches the rim.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Connections are laid",
+      "startSeconds": 0.9,
+      "endSeconds": 2.1,
+      "purpose": "Loose terracotta tesserae travel into their stored cells in order of network distance from the bulb, and each gold node flips in as its link arrives.",
+      "visuals": [
+        "61 link tiles start scattered and rotated on top of the field, then lift, travel and settle exactly",
+        "Six gold-core nodes with slate rings flip in from centre to rim as the cascade reaches them",
+        "A polished dark stone title slab stays still; the title fades in on it"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 0.9,
+          "endSeconds": 1.5,
+          "development": "Links from the bulb to the first nodes settle. Nodes A and D flip in.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.5,
+          "endSeconds": 2.1,
+          "development": "The cascade reaches hub B, then E, C and F. The last tile lands at 2.06 s. The title fades in from 1.5 s, the subtitle from 1.68 s.",
+          "captions": [
+            "AN IDEA BECOMES",
+            "A CONNECTED SYSTEM"
+          ],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "The system holds",
+      "startSeconds": 2.1,
+      "endSeconds": 3,
+      "purpose": "A settled, readable hold on the complete mosaic and title.",
+      "visuals": [
+        "All tiles sit in their exact grid cells",
+        "Highlight drift slows and stops at 2.3 s"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 2.1,
+          "endSeconds": 3,
+          "development": "Hold. The key light and environment rotation ease to rest by 2.3 s, then the frame is fully static.",
+          "captions": [
+            "AN IDEA BECOMES",
+            "A CONNECTED SYSTEM"
+          ],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.9
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "The flip waves are staggered by distance, so glints pass across one region at a time rather than sparkling everywhere at once.",
+      "Link travel follows network distance from the bulb, so eye trace runs from the idea out to the system.",
+      "Motion ends at 2.06 s and lighting drift at 2.3 s, so the frame is settled before 2.7 s."
+    ],
+    "justifiedHolds": [
+      "2.1–3.0 s: about 1 s of fully legible title exposure on the finished system (the title has been fully opaque since 1.9 s, the subtitle since 2.08 s)."
+    ]
+  },
+  "notes": [
+    "Silent preview: there is no audio track, music, effects or speech.",
+    "Rendered with Three.js InstancedMesh and PBR materials. The reviewed Blender/Cycles route could not launch in this sandbox.",
+    "No preview recipe was supplied (tech.preview_recipes is empty), so this refresh demonstrates the primary Mosaic style with a new scene-dependent night-slate background."
+  ]
+}

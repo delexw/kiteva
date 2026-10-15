@@ -1,0 +1,49 @@
+{
+  "version": 3,
+  "title": "Idea / System",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Form",
+      "startSeconds": 0,
+      "endSeconds": 0.6,
+      "purpose": "Show the idea as one solid form on a quiet dark field.",
+      "visuals": ["Stationary slate-teal vignette field with a ruler axis", "HUD corner brackets, chapter counter, timecode and pips", "Cream disc grows at x=220"],
+      "assets": [],
+      "beats": [
+        {"startSeconds": 0, "endSeconds": 0.6, "development": "The cream FORM disc grows from a compact seed with a slight overshoot. The 01 FORM caption fades in.", "captions": ["IDEA / SYSTEM", "01 FORM"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Divide",
+      "startSeconds": 0.6,
+      "endSeconds": 1.3,
+      "purpose": "The single form divides into two complementary parts.",
+      "visuals": ["Teal and orange half-discs slide out from behind the disc and morph along a crossing path to x=520/560", "Stepped outline echo bands trail the halves"],
+      "assets": [],
+      "beats": [
+        {"startSeconds": 0.6, "endSeconds": 1.3, "development": "The halves split, pass each other in an arc and settle as the DIVIDE pair. The HUD switches to chapter 02 and the 02 DIVIDE caption appears.", "captions": ["02 DIVIDE"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Connect",
+      "startSeconds": 1.3,
+      "endSeconds": 3,
+      "purpose": "The parts become a connected system, then hold for reading.",
+      "visuals": ["Diamond frame rotates and draws into place", "Grid lines and teal diagonals draw", "Eight nodes fly from the halves to lattice positions", "Cream hub lands and the reserved orange ring draws around it"],
+      "assets": [],
+      "beats": [
+        {"startSeconds": 1.3, "endSeconds": 2.45, "development": "Nodes arc out of the halves into the lattice while the grid and diagonals draw. The hub lands, the orange ring closes and the 03 CONNECT caption appears.", "captions": ["03 CONNECT"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 2.45, "endSeconds": 3, "development": "Settled hold. All three states and their captions can be read together.", "captions": ["01 FORM", "02 DIVIDE", "03 CONNECT"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.55}
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": ["Each state hands off to the next. Halves come out of the disc and nodes come out of the halves, so the eye moves left to right along one axis.", "All motion is finished by 2.45 s, before the 2.7 s settle limit."],
+    "justifiedHolds": ["2.45-3.0 s: final hold so the whole system and its three captions can be read."]
+  },
+  "notes": ["Silent preview.", "Background follows the BACKGROUND_REVIEW source frames (quiet low-chroma field, light ink, one hot accent reserved for the active hub) and is not the prior cream swatch.", "HUD readouts are fictional design elements."]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-131",
+    "name": "Ukiyo-e Woodblock Print (Illustration and Art Media; provenance extracted). The medium label is an authored classification, not a claim about the creator's production technique.",
+    "visualIdentity": "Dark key-block contours (#283C49) over flat registered color planes on warm print paper. Asymmetric cropped compositions with patterned waves, clouds and restrained sky gradation. Pick a specific Japanese print reference, not generic carved monochrome texture.",
+    "suitableUses": "Explicit use cases are unspecified. Inferred suitability, not source-stated: flat graphic landscape, wave, cloud or seasonal scenes in video or interactive HTML that need a printed-art identity. The source also reuses this plate model for further prints and lateral passages.",
+    "limitations": "No blur or volumetric light. Halftone and hatching were rejected as non-woodblock idioms. Hex values are suggested defaults, not measured source values. Review covered sampled seconds 1–8 only; motion continuity, audio and runtime tool availability were not verified.",
+    "palette": "Background is scene-dependent; the #F0E6C9 warm paper is only an illustrative example. Key block #283C49 and plates indigo #385F84, blue #6E9FB3, rose #C58B95 and ochre #BCA16C hold named roles. Approved task or reference colors override these. A restrained ink-sky gradient is allowed only between existing tokens, with no rainbow gradients. Keep text at 4.5:1 contrast on the textured composite.",
+    "motionAndInteraction": "Three authored, compatible wave-crest states morph via MorphSVG, with key block and plates driven by one progress value. Petals drift laterally with slight rotation, the cloud band pans slowly, and the paper stays fixed. Keep sharp cuts and reading holds. HTML interaction is unspecified; reduced motion is recommended.",
+    "audio": "Unspecified. The medium does not imply a soundtrack, so do not assume historical music. Suggest task-appropriate music, voiceover, ambience or silence from the brief. No audio was reviewed. Honor user audio, keep speech intelligible and avoid competing vocals.",
+    "assetRequirements": "No uploads are required. Optional approved layered PNG/SVG plate layers, prepared with Pillow, may replace procedural plates while keeping registration. Generate the paper fibre once from a fixed seed and load local fonts first. Do not copy source characters or branded material.",
+    "combinations": "Optional supporting style-053 for one secondary illustrative detail only; the print medium stays dominant and approved colors are kept. Avoid generic effects replacing key-block mark-making and invented historical text. Compatibility guidance is authored, not verified.",
+    "productionApproach": "SVG plates and key block, plus Canvas 2D paper fibre, form the style renderer. One paused GSAP timeline with MorphSVGPlugin is the motion owner. HyperFrames is the default pipeline; Remotion is only for a verified limitation. chroma.js is optional for palette and contrast checks. Verify decoded frames, audio sync and loop continuity."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

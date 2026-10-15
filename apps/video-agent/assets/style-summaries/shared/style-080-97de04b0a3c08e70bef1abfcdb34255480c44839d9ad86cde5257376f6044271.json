@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-080",
+    "name": "Frame-by-Frame Animation (Animation Techniques category; supplemental design reference, not a directly named source style).",
+    "visualIdentity": "Hand-drawn look built from independently drawn frames with consistent character proportions and intentional line variation. Key drawings, in-betweens and exposure holds are planned; animation on twos at 24 fps uses 12 distinct drawings per second. Moving one image or adding random jitter does not qualify.",
+    "suitableUses": "Explicitly suits character performance shots. Motion-reference compatibility lists include it for phrase scatter, punctuation zoom and radial logo burst. Fit for a specific brief is inferred from these lists, not explicitly confirmed by the source.",
+    "limitations": "Requires authored drawings; tweening one image or adding random jitter is not frame-by-frame animation. Rough.js and p5.js do not supply genuine character poses. Source sampling covered only seconds 1–8 at one frame per second, and no audio was verified. Motion references apply only when the scene contains the needed phrase or mark.",
+    "palette": "Background policy is scene_dependent; choose it from subject, environment, lighting and mood. Example tokens are illustrative only: background #F5EEDC, foreground #303C44, accent_1 #72929A, accent_2 #BF7C65. Foreground on background measures 9.78:1; accent fills (about 3.39:1) are decorative only. Gradients are disabled, and any task-approved exact colors override these suggestions.",
+    "motionAndInteraction": "Video follows the authored exposure cadence on composition time; poses are not automatically interpolated. Optional references: motion-006 gaze tracking (requires eye layers or a rig), motion-012 chapter handoff, motion-015 narrative steps, motion-037 phrase scatter, motion-038 punctuation zoom and motion-039 radial burst. Interactive HTML may add play/pause, frame-step and reduced-motion states.",
+    "audio": "Unspecified in the style metadata; no soundtrack or voice is mandated. Options include restrained accents, ambience or silence, chosen to fit the topic. Music synchronization requires inspected audio, and no beat timing is assumed. Voice language and delivery are unspecified.",
+    "assetRequirements": "Requires independently drawn frames or layers with transparency, consistent dimensions and clear numbered naming. Fonts and glyph assets must load before rendering. Motion-037 to 039 need actual phrase or punctuation assets. Approved colors and source artwork remain unchanged. Whether any uploads were supplied is unspecified.",
+    "combinations": "Use alone for character performance shots. Hybrid with style-037 places static watercolor plates behind drawn characters; plates never boil during action. Hybrid with style-092 adds two or three line-boil variants during holds only, never over action drawings; reduced motion locks one variant.",
+    "productionApproach": "HyperFrames is the default for composition, validation and delivery render; Remotion is a fallback only with a recorded reason. Canvas 2D or PixiJS renders authored poses at exposure cadence. Rough.js is only for intentional sketch contours, GSAP paused timelines own motion, and chroma.js checks contrast. Verify seeks, decoded frames and composited contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

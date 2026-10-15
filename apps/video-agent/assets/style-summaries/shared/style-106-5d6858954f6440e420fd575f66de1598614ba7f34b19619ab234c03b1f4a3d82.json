@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-106",
+    "name": "Squash and Stretch",
+    "visualIdentity": "Squash and Stretch is an animation principle, not an art movement. It calls for anticipation, impact, compression or extension, rebound and settling. Deformation follows movement while preserving apparent volume and recognizable silhouettes.",
+    "suitableUses": "Explicitly suited to one hero object or logo needing a single expressive moment. Source-listed hybrid uses are mascot-led product explainers, short onboarding loops, title cards and feature callouts. Other applications are unspecified, so their fit is inferred.",
+    "limitations": "Do not animate every object continuously; only the acting object deforms and background shapes stay rigid. Avoid global scale pulsing, uniform spring presets, and gradients or detailed shading that hide the silhouette change. Output is simulated appearance, not validated physics.",
+    "palette": "This is an example palette, not an intrinsic style palette, used only when no approved palette is supplied: background #F4EDDF, foreground #32444A, accent_1 #66978E, accent_2 #C78461, with gradients disabled. Foreground on background measures 8.745:1. Accents reach only 3.096 and 3.348 against foreground, so they are decorative only; approved task colors override these tokens.",
+    "motionAndInteraction": "Key poses run anticipation (sy 0.85), stretch along velocity (sy 1.25), impact (sx 1.3, sy 1/1.3 to hold area), rebound, short hold, then settle. Timing differs per object, and only one object deforms at a time. The 3-second preview uses a ball cycle from 0 to 1.6s, a block hop from 1.4 to 2.6s, then a hold. Interactive variants may play on press or focus and jump to the settled pose under reduced motion.",
+    "audio": "The source assigns no fixed genre, tempo, voice, or mandatory audio layer, so audio is otherwise unspecified. An inferred option is restrained sound accents on impacts and rebounds, with silence during reading holds. Explicit user audio and supplied assets take priority, and speech must stay intelligible.",
+    "assetRequirements": "No assets are supplied, so asset availability is unspecified. Needed: separate vector bodies with pivots at the contact point, a floor line, and loaded local fonts. Optional: a deformed 3D mesh with baked XPBD states for the soft-body recipe, Liquid Glass 069 only when clear transmission is requested, and MorphSVGPlugin for compatible paths.",
+    "combinations": "Style-028 supplies flat closed vector characters whose volume-preserving squash reads clearly. Style-093 supplies headline word groups deformed from baseline pivots, with one emphasis word per phrase. Keep the primary's four tokens, rigid backgrounds, and legible body copy. Avoid continuous wobble after settling.",
+    "productionApproach": "Use SVG paths, masks, and clipPath as the style renderer, and GSAP on one paused timeline as the motion engine. HyperFrames is the default pipeline; Remotion applies only when its fallback condition is verified and recorded. Optional motion references motion-003, 006, 012, and 015 apply only where scene assets support them. Verify sx·sy≈1 at sampled seeks, contact frames, and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

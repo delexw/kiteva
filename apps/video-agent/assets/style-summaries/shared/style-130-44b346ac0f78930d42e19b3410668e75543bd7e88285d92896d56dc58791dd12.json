@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-130",
+    "name": "Illuminated Manuscript, an extracted Illustration and Art Media style sampled from Fable gallery frames on 2026-10-13. Medium labels are authored classifications.",
+    "visualIdentity": "A stable parchment page with a framed original miniature, vine border, vector-interlace initial and restrained gilded highlights in red, blue and green pigment. Illustration and verified text form a page, not a generic paper scene.",
+    "suitableUses": "Explicitly suited to manuscript-style pages that mix ornamental illustration with verified text. Inferred: calm, reading-paced explainers where page framing aids comprehension. Suitability rests on sampled frames, not full playback.",
+    "limitations": "Only verified copy may appear; otherwise the text column stays blank ruling, never pseudo-script. The page turn is a full-video option only and is excluded from the preview. Hex values are suggested defaults, not measured source colors.",
+    "palette": "Authored fallback roles: paper #EFE4C8, outlines and text #352D27, gilded shapes only #B89B51, red #A5433C, blue #3C5487, green #66825D. Gradients are disabled; use pigment layering and texture. Approved task colors take precedence. Normal text targets 4.5:1 contrast on the actual composited texture.",
+    "motionAndInteraction": "Static page with no camera tilt in preview. Timed beats: 0–0.9s initial outline draws, then fills; 0.6–1.6s border draws with leaf fills after each stroke; 1.2–2.2s miniature frame completes before its art reveals (data-reveal-after set to the frame id); 2.2–2.8s masked gold sweep plus one small gesture; then hold. Interactivity is unspecified.",
+    "audio": "Unspecified by the style, and no audio was supplied. Do not assume a historical soundtrack. Honor any supplied audio and use silent catalog previews. Music, voiceover, effects and ambience are optional; quiet texture or silence suits reading holds, and speech must stay intelligible.",
+    "assetRequirements": "Needed: SVG ornament for the border and initial, an original flat-pigment miniature, a locally loaded approved font for HTML/CSS text, and verified copy. Optional: approved parchment scans beneath the vectors, seeded grain and deckle edge, or layered high-resolution art for a push-in.",
+    "combinations": "Optional example: style-031 as a secondary illustrative detail, not a limit. Keep this medium and approved colors dominant, use one animation owner per property, and avoid generic effects or invented historical text. No motion references or available library IDs are selected.",
+    "productionApproach": "SVG and HTML/CSS own drawing and typography; GSAP with DrawSVGPlugin owns the timed drawing and reveals; chroma.js is optional for palette and contrast checks. HyperFrames is the default pipeline; Remotion is a fallback only with a recorded, verified reason. Canvas, WebGL, bloom, PBR gold and ScrambleText were rejected."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

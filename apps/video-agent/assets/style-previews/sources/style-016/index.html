@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Punk Graphics — an idea turns into a system</title>
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #E2E6E9; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; overflow: hidden;
+           background: #E2E6E9 url(assets/graph-paper.png) 0 0 / 1280px 720px no-repeat; }
+  .abs { position: absolute; }
+  .paper { position: absolute; background-repeat: no-repeat; background-size: 100% 100%; will-change: transform, opacity; }
+  .tile { position: absolute; display: flex; align-items: center; justify-content: center;
+          box-sizing: border-box; line-height: 1; background-size: 160px 160px; will-change: transform, opacity;
+          box-shadow: 2px 3px 0 rgba(10, 14, 18, .35); }
+  .t-red   { background-image: url(assets/tex-red.png);   background-color: #C63A3A; color: #F4F2EC; }
+  .t-white { background-image: url(assets/tex-white.png); background-color: #F4F2EC; color: #171717; }
+  .t-black { background-image: url(assets/tex-black.png); background-color: #171717; color: #F4F2EC; outline: 3px solid #F4F2EC; }
+  .tape { position: absolute; background-size: 100% 100%; will-change: transform, opacity; }
+  #label-text { position: absolute; left: 0; right: 0; top: 34px; text-align: center;
+                font: 700 54px/1 "Courier New", Courier, monospace; color: #171717; letter-spacing: 1px; }
+  #caption-text { position: absolute; left: 30px; top: 24px; white-space: nowrap;
+                  font: 34px/1 "Marker Felt", "Noteworthy", "Comic Sans MS", cursive; color: #171717; }
+  #stamp { position: absolute; left: 30px; top: 22px; width: 290px; height: 72px; box-sizing: border-box;
+           border: 5px double #C63A3A; display: flex; align-items: center; justify-content: center;
+           font: 900 42px/1 Impact, "Arial Black", sans-serif; letter-spacing: 3px; color: #C63A3A;
+           will-change: transform, opacity; }
+  #stamp-distress { position: absolute; inset: 0; background: url(assets/stamp-distress.png) 0 0 / 100% 100%; }
+  .hud { position: absolute; top: 676px; height: 24px; padding: 0 9px; box-sizing: border-box;
+         background: #F4F2EC; border: 2px solid #171717; font: 700 14px/20px Menlo, Monaco, monospace; color: #171717; }
+  svg#net { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; overflow: visible; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <div id="stage">
+    <!-- LEFT: headline collage -->
+    <div id="strip" class="paper" style="left:22px;top:30px;width:680px;height:280px;background-image:url(assets/strip-black.png)"></div>
+    <div id="tiles"></div>
+    <div id="tape-strip" class="tape" style="left:600px;top:22px;width:132px;height:40px;background-image:url(assets/tape-a.png)"></div>
+
+    <div id="label" class="paper" style="left:44px;top:322px;width:600px;height:140px;background-image:url(assets/label-white.png)">
+      <div id="label-text">INTO A SYSTEM</div>
+    </div>
+    <div id="tape-label" class="tape" style="left:20px;top:318px;width:110px;height:36px;background-image:url(assets/tape-b.png)"></div>
+
+    <div id="caption" class="paper" style="left:62px;top:500px;width:580px;height:120px;background-image:url(assets/scrap-caption.png)">
+      <div id="caption-text">everything connects. no bosses.</div>
+      <svg id="underline" class="abs" style="left:0;top:0" width="580" height="120" viewBox="0 0 580 120"></svg>
+    </div>
+
+    <!-- RIGHT: the system on a halftone sheet -->
+    <div id="sheet" class="paper" style="left:700px;top:40px;width:540px;height:540px;background-image:url(assets/halftone-sheet.png)"></div>
+    <div id="tape-sheet" class="tape" style="left:906px;top:30px;width:132px;height:40px;background-image:url(assets/tape-a.png)"></div>
+    <svg id="net" viewBox="0 0 1280 720"></svg>
+
+    <div id="stamp-scrap" class="paper" style="left:878px;top:570px;width:350px;height:116px;background-image:url(assets/scrap-stamp.png)">
+      <div id="stamp">CONNECTED<div id="stamp-distress"></div></div>
+    </div>
+
+    <!-- HUD layer (flat interface chips) -->
+    <div id="hud-nodes" class="hud" style="left:40px">NODES 00</div>
+    <div id="hud-links" class="hud" style="left:150px">LINKS 00</div>
+  </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="rough.bundle.js"></script>
+<script>
+(function () {
+  "use strict";
+  var INK = "#171717", RED = "#C63A3A", PAPER = "#F4F2EC", GRID = "#E2E6E9";
+  // Palette sanity (chroma-js): record composited text pairs on the resolved scene palette.
+  window.__paletteCheck = {
+    inkOnGrid: chroma.contrast(INK, GRID), inkOnPaper: chroma.contrast(INK, PAPER),
+    redStampOnPaper: chroma.contrast(RED, PAPER), paperOnRedTile: chroma.contrast(PAPER, RED)
+  };
+
+  var tl = gsap.timeline({ paused: true });
+
+  // ---------- ransom-note tiles (each glyph on its own pasted paper) ----------
+  var FONTS = {
+    imp: 'Impact, "Arial Black", sans-serif', geo: 'Georgia, "Times New Roman", serif',
+    cou: '"Courier New", Courier, monospace', roc: 'Rockwell, Georgia, serif',
+    fut: 'Futura, "Avenir Next", sans-serif', amt: '"American Typewriter", Georgia, serif',
+    did: 'Didot, Georgia, serif'
+  };
+  // [char, x, y, w, h, kind, font, weight, size, rotation]
+  var row1 = [
+    ["A", 66, 72, 72, 94, "t-white", "imp", 400, 78, -6],
+    ["N", 144, 80, 68, 88, "t-red", "geo", 700, 74, 4],
+    ["I", 248, 70, 50, 96, "t-white", "did", 700, 82, -3],
+    ["D", 304, 78, 74, 90, "t-black", "roc", 700, 74, 5],
+    ["E", 386, 72, 66, 94, "t-red", "fut", 700, 76, -4],
+    ["A", 458, 80, 76, 88, "t-white", "amt", 700, 76, 3]
+  ];
+  var row2 = [
+    ["T", 64, 178, 92, 108, "t-white", "cou", 700, 96, 3],
+    ["U", 162, 184, 94, 104, "t-red", "imp", 400, 92, -5],
+    ["R", 262, 176, 92, 110, "t-white", "geo", 700, 92, 4],
+    ["N", 360, 182, 98, 104, "t-white", "fut", 700, 90, -3],
+    ["S", 466, 176, 90, 110, "t-red", "roc", 700, 96, 6]
+  ];
+  var tileHost = document.getElementById("tiles");
+  function makeTile(spec, i) {
+    var el = document.createElement("div");
+    el.className = "tile " + spec[5];
+    el.textContent = spec[0];
+    el.style.cssText += ";left:" + spec[1] + "px;top:" + spec[2] + "px;width:" + spec[3] + "px;height:" + spec[4] +
+      "px;font-family:" + FONTS[spec[6]] + ";font-weight:" + spec[7] + ";font-size:" + spec[8] + "px";
+    // slightly irregular scissor cut, fixed per tile
+    var j = [3, 1, 4, 2, 0, 3, 2, 4, 1, 3, 2, 0][i % 12];
+    el.style.clipPath = "polygon(" + j + "% 0, 100% " + (4 - (j % 3)) + "%, " + (98 - j % 2) + "% 100%, 0 " + (97 - j) + "%)";
+    tileHost.appendChild(el);
+    return el;
+  }
+  var tiles1 = row1.map(makeTile), tiles2 = row2.map(function (s, i) { return makeTile(s, i + 6); });
+
+  // ---------- Rough.js network (hand-inked marker lines + die-cut stickers) ----------
+  var svg = document.getElementById("net");
+  var rc = rough.svg(svg);
+  var NS = "http://www.w3.org/2000/svg";
+  var HUB = [968, 308];
+  var NODES = [[812, 150], [1132, 166], [1166, 420], [962, 516], [792, 432]];
+  var RING = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]];
+  var lineLayer = document.createElementNS(NS, "g"); svg.appendChild(lineLayer);
+  var stickerLayer = document.createElementNS(NS, "g"); svg.appendChild(stickerLayer);
+
+  function inkLine(a, b, seed, width) {
+    var g = rc.line(a[0], a[1], b[0], b[1], { seed: seed, roughness: 1.5, bowing: 1.6, stroke: INK, strokeWidth: width });
+    lineLayer.appendChild(g);
+    return Array.prototype.slice.call(g.querySelectorAll("path"));
+  }
+  function sticker(c, r, seed, isHub) {
+    var g = document.createElementNS(NS, "g");
+    var sh = document.createElementNS(NS, "circle");
+    sh.setAttribute("cx", c[0] + 3); sh.setAttribute("cy", c[1] + 4); sh.setAttribute("r", r + 8);
+    sh.setAttribute("fill", "rgba(10,14,18,0.32)"); g.appendChild(sh);
+    var rim = document.createElementNS(NS, "circle");
+    rim.setAttribute("cx", c[0]); rim.setAttribute("cy", c[1]); rim.setAttribute("r", r + 8);
+    rim.setAttribute("fill", PAPER); g.appendChild(rim);
+    if (isHub) {
+      g.appendChild(rc.circle(c[0], c[1], r * 2, { seed: seed, fill: RED, fillStyle: "solid", stroke: INK, strokeWidth: 5, roughness: 1.2 }));
+    } else {
+      g.appendChild(rc.circle(c[0], c[1], r * 2, { seed: seed, stroke: INK, strokeWidth: 3, roughness: 1.6 }));
+      var k = r * 0.48;
+      g.appendChild(rc.line(c[0] - k, c[1] - k, c[0] + k, c[1] + k, { seed: seed + 1, stroke: RED, strokeWidth: 6, roughness: 1.1 }));
+      g.appendChild(rc.line(c[0] + k, c[1] - k, c[0] - k, c[1] + k, { seed: seed + 2, stroke: RED, strokeWidth: 6, roughness: 1.1 }));
+    }
+    stickerLayer.appendChild(g);
+    return g;
+  }
+  var spokePaths = NODES.map(function (n, i) { return inkLine(HUB, n, 160 + i, 5); });
+  var ringPaths = RING.map(function (p, i) { return inkLine(NODES[p[0]], NODES[p[1]], 180 + i, 3.5); });
+  var hub = sticker(HUB, 46, 150, true);
+  var nodes = NODES.map(function (n, i) { return sticker(n, 26, 200 + i * 5, false); });
+  [hub].concat(nodes).forEach(function (g, i) {
+    var c = i === 0 ? HUB : NODES[i - 1];
+    g.setAttribute("data-origin", c.join(","));
+    gsap.set(g, { svgOrigin: c[0] + " " + c[1] });
+  });
+
+  // marker underline inside caption scrap (rough curve)
+  var ul = document.getElementById("underline");
+  var ulG = rough.svg(ul).curve([[40, 86], [150, 72], [260, 92], [380, 74], [520, 84]],
+    { seed: 170, stroke: RED, strokeWidth: 5, roughness: 0.9 });
+  ul.appendChild(ulG);
+  var ulPaths = Array.prototype.slice.call(ulG.querySelectorAll("path"));
+
+  function draw(paths, at, dur, ease) {
+    paths.forEach(function (p) {
+      var len = Math.ceil(p.getTotalLength()) + 2;
+      p.style.strokeDasharray = len + " " + len;
+      tl.fromTo(p, { strokeDashoffset: len }, { strokeDashoffset: 0, duration: dur, ease: ease || "power2.inOut" }, at);
+    });
+  }
+  function paste(el, at, dur, from, finalRot, ease) {
+    tl.fromTo(el,
+      { x: from.x || 0, y: from.y || 0, scale: from.scale || 1, rotation: from.rotation || 0, opacity: 0 },
+      { x: 0, y: 0, scale: 1, rotation: finalRot, opacity: 1, duration: dur, ease: ease || "back.out(1.2)" }, at);
+  }
+
+  // ---------- timeline: authored paste / slap / ink / stamp cues ----------
+  // 0.00 black torn strip slapped down
+  paste("#strip", 0.0, 0.4, { x: -30, y: -22, scale: 1.08, rotation: -6 }, -1.5, "power2.out");
+  // 0.15 ransom letters pasted one by one (line 1), then bigger line 2
+  tiles1.forEach(function (el, i) {
+    var r = row1[i][9];
+    paste(el, 0.15 + i * 0.07, 0.24, { y: -16, scale: 1.4, rotation: r + (i % 2 ? 12 : -12) }, r, "back.out(1.2)");
+  });
+  tiles2.forEach(function (el, i) {
+    var r = row2[i][9];
+    paste(el, 0.55 + i * 0.075, 0.26, { y: -20, scale: 1.45, rotation: r + (i % 2 ? -14 : 14) }, r, "back.out(1.2)");
+  });
+  paste("#tape-strip", 0.95, 0.2, { y: -10, scale: 1.15, rotation: 30 }, 24, "power2.out");
+  // 0.85 white torn label pasted under the headline (text belongs to the label)
+  paste("#label", 0.85, 0.32, { x: -40, y: 14, scale: 1.06, rotation: 7 }, 1.5, "back.out(1.2)");
+  paste("#tape-label", 1.12, 0.2, { y: -10, scale: 1.15, rotation: -30 }, -22, "power2.out");
+  // 0.95 red halftone sheet slapped on the right (largest moving area)
+  paste("#sheet", 0.95, 0.36, { x: 46, y: -30, scale: 1.12, rotation: 9 }, 1.2, "power2.out");
+  paste("#tape-sheet", 1.25, 0.2, { y: -10, scale: 1.15, rotation: -14 }, -6, "power2.out");
+  // 1.25 the idea: red hub sticker pops
+  tl.fromTo(hub, { scale: 0.4, rotation: -15, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.26, ease: "back.out(1.2)" }, 1.25);
+  // 1.40 marker spokes ink outward; each node sticker lands as its line arrives
+  spokePaths.forEach(function (paths, i) {
+    var s = 1.4 + i * 0.09;
+    draw(paths, s, 0.34, "power2.inOut");
+    tl.fromTo(nodes[i], { scale: 0.5, rotation: (i % 2 ? 14 : -14), opacity: 0 },
+      { scale: 1, rotation: (i % 2 ? 3 : -3), opacity: 1, duration: 0.22, ease: "back.out(1.2)" }, s + 0.28);
+  });
+  // 1.95 nodes connect to each other: no centre-only hierarchy
+  ringPaths.forEach(function (paths, i) { draw(paths, 1.95 + i * 0.05, 0.26, "sine.inOut"); });
+  // 2.05 handwritten caption scrap pasted; marker underline after the scrap lands
+  paste("#caption", 2.05, 0.26, { x: -24, y: 18, scale: 1.05, rotation: -6 }, -2, "back.out(1.2)");
+  draw(ulPaths, 2.3, 0.26, "sine.inOut");
+  // 2.20 stamp scrap pasted, then the rubber stamp hits as the punchline
+  paste("#stamp-scrap", 2.2, 0.2, { x: 20, y: 16, scale: 1.05, rotation: 6 }, -3, "power2.out");
+  tl.fromTo("#stamp", { scale: 1.6, rotation: -14, opacity: 0 }, { scale: 1, rotation: -5, opacity: 1, duration: 0.18, ease: "steps(6)" }, 2.4);
+
+  // ---------- HUD counters derived purely from composition time ----------
+  var hudN = document.getElementById("hud-nodes"), hudL = document.getElementById("hud-links");
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function renderHud(t) {
+    var n = (t >= 1.25 ? 1 : 0), l = 0, i;
+    for (i = 0; i < 5; i++) { if (t >= 1.4 + i * 0.09 + 0.28) n++; if (t >= 1.4 + i * 0.09 + 0.34) l++; }
+    for (i = 0; i < 5; i++) { if (t >= 1.95 + i * 0.05 + 0.26) l++; }
+    hudN.textContent = "NODES " + pad(n); hudL.textContent = "LINKS " + pad(l);
+  }
+  var clock = { t: 0 };
+  tl.fromTo(clock, { t: 0 }, { t: 3, duration: 3, ease: "none", onUpdate: function () { renderHud(clock.t); } }, 0);
+  window.addEventListener("hf-seek", function () { renderHud(tl.time()); });
+
+  tl.seek(0);
+  renderHud(0);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

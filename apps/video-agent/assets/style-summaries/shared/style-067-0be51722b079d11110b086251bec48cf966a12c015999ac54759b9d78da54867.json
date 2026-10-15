@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-067",
+    "name": "Glitch Art, in the Digital and 3D Aesthetics category. The label was normalized from source descriptions or references.",
+    "visualIdentity": "Uses a clear fault model such as signal interruption, data loss, or displacement. Brief strip offsets, RGB separation, and block damage mark narrative or transition points, then clarity returns. Continuous corruption of every element is avoided.",
+    "suitableUses": "Explicit: short transition-led edits with a clear fault model, and hybrids where glitches interrupt meaningful content. Listed fits: tech promos, cybersecurity messages, punchy social cuts, sci-fi narratives, and incident explainers. Calm editorial content is an inferred poor fit.",
+    "limitations": "Glitch Art alone suits only short transition-led edits. Continuous random corruption, glitching body copy, and glitching every panel at once are excluded. Motion-020 is omitted for calm scenes or when distortion undermines communication. Suggested tools do not establish the source video's toolchain.",
+    "palette": "Reference-dependent example for new presentation elements only: background #111A24, foreground #F2F0E6, accent_1 #47B3AF, accent_2 #D16A84, with no gradient. Task colors override these, and source colors stay unchanged outside brief signal faults. Contrast: foreground on background 15.356; background on accent_1 6.963; background on accent_2 5.101. These are two-color checks only, so recheck composited frames.",
+    "motionAndInteraction": "Each glitch needs start, damage, and restore phases, suggested at six to ten frames per event. Motion derives from seekable composition time; easing is optional and sharp cuts remain valid. Optional motion-020 lists Glitch Art as a fit, with a reduced-motion cut. The kinetic-type combination suggests one HTML glitch on hover or focus, disabled under reduced motion.",
+    "audio": "The style specifies no glitch-specific audio, so audio is unspecified. Task-based direction may suggest music, voiceover, effects, ambience, or silence from topic and audience, honoring explicit user choices. A restrained sound accent on glitches is inferred, not required. Speech must stay intelligible.",
+    "assetRequirements": "A rendered source image feeds the displacement, channel, and damage passes, and the clean source must stay available for restoration. Local fonts and assets load before rendering, with seeded randomness. Motion-037 and motion-038 need actual phrase or punctuation glyphs. Audio must be task-provided or authorized.",
+    "combinations": "Kinetic typography (style-093) gives a clean real-text baseline that glitches interrupt without touching body copy. HUD (style-112) makes a signal fault the narrative event, glitching only systems named in the story. Each glitch needs start, damage, and restore phases.",
+    "productionApproach": "WebGL and GLSL own visual construction and glitch passes, and GLSL also owns event timing. HyperFrames handles assembly, timing, audio sync, validation, and export by default. Remotion is fallback only when HyperFrames is unavailable or limited, with the reason recorded. Check opening, action, transition, and closing frames, plus loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

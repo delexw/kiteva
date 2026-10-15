@@ -1,0 +1,138 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>style-109 Animated Line Art</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#27434A}
+#root{position:relative;width:100%;height:100%}
+svg{width:100%;height:100%;display:block}
+</style></head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+ <defs>
+  <clipPath id="titleClip"><rect id="titleWipe" x="70" y="60" width="0" height="70"></rect></clipPath>
+ </defs>
+ <!-- Stationary flat field: palette foreground token used as a dark scene field (inverted line scheme). -->
+ <rect id="field" width="1280" height="720" fill="#27434A"></rect>
+
+ <!-- Header -->
+ <g id="title" clip-path="url(#titleClip)">
+  <text x="80" y="110" font-family="Georgia, 'Times New Roman', serif" font-size="40" fill="#F9F4E7">An idea becomes a connected system</text>
+ </g>
+ <path id="divider" class="draw" d="M80 140H560" fill="none" stroke="#F9F4E7" stroke-width="1.5" stroke-linecap="round"></path>
+
+ <!-- Idea: lamp glow disc (lit when the filament completes) -->
+ <g id="glowWrap"><circle id="glow" cx="260" cy="318" r="112" fill="#AA6945" opacity="0.2"></circle></g>
+
+ <!-- Idea: bulb contour, filament, rays -->
+ <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
+  <path id="bulb" class="draw" d="M228 400C170 360 180 250 260 245C340 250 350 360 292 400Z" stroke="#F9F4E7"></path>
+  <path id="base" class="draw" d="M228 400V418H292V400M236 436H284M248 452H272" stroke="#F9F4E7"></path>
+  <path id="filament" class="draw" d="M244 400V345L254 328L262 345L270 328L278 345V400" stroke="#AA6945"></path>
+  <g id="rays" stroke="#AA6945">
+   <path class="draw ray" d="M260 185V210"></path>
+   <path class="draw ray" d="M168 228L186 244"></path>
+   <path class="draw ray" d="M352 228L334 244"></path>
+   <path class="draw ray" d="M140 315H162"></path>
+   <path class="draw ray" d="M380 315H358"></path>
+  </g>
+  <!-- Arrow: shaft then head, drawn as plain strokes so the head appears only when the shaft arrives -->
+  <path id="arrowShaft" class="draw" d="M400 330H500" stroke="#F9F4E7"></path>
+  <path id="arrowHead" class="draw" d="M491 323L500 330L491 337" stroke="#F9F4E7"></path>
+ </g>
+ <g id="ideaLabelWrap"><text id="ideaLabel" x="260" y="500" font-family="Georgia, 'Times New Roman', serif" font-size="28" font-style="italic" text-anchor="middle" fill="#F9F4E7">idea</text></g>
+
+ <!-- System: connectors (built by script), copper route, nodes -->
+ <g id="edges" fill="none" stroke="#F9F4E7" stroke-width="3" stroke-linecap="round"></g>
+ <path id="route" class="draw" d="M570 330L700 210L850 330L1000 420L1130 330" fill="none" stroke="#AA6945" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+ <g id="nodes"></g>
+ <g id="systemLabelWrap"><text id="systemLabel" x="1130" y="392" font-family="Georgia, 'Times New Roman', serif" font-size="28" font-style="italic" text-anchor="middle" fill="#F9F4E7">system</text></g>
+
+ <!-- Footer step counter with a progress rail -->
+ <g id="footer" font-family="Menlo, Consolas, 'Courier New', monospace" font-size="14" letter-spacing="3" fill="#F9F4E7">
+  <text id="step1" x="80" y="640">01 OUTLINE</text>
+  <text id="sep1" y="640">·</text>
+  <text id="step2" y="640">02 CONNECT</text>
+  <text id="sep2" y="640">·</text>
+  <text id="step3" y="640" font-weight="700">03 FOLLOW THE PATH</text>
+ </g>
+ <g id="rails" fill="none" stroke-width="2" stroke-linecap="round"></g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+ const NS='http://www.w3.org/2000/svg';
+ const PAL={field:'#27434A',line:'#F9F4E7',accent:'#AA6945'};
+ // Palette validation (existing tokens only, no new hues).
+ Object.values(PAL).forEach(c=>{if(!chroma.valid(c))throw Error('Invalid palette token '+c);});
+ if(chroma.contrast(PAL.line,PAL.field)<4.5)throw Error('Text pair below 4.5:1');
+
+ const svg=document.getElementById('stage');
+ const $=id=>document.getElementById(id);
+
+ // ---- Footer layout from measured glyph widths (deterministic, before timeline construction)
+ const gap=14;let x=80;
+ ['step1','sep1','step2','sep2','step3'].forEach(id=>{const t=$(id);t.setAttribute('x',x);x+=t.getComputedTextLength()+gap;});
+ const rails=$('rails');
+ const railSeg=(id,color)=>{const t=$(id);const x0=Number(t.getAttribute('x'));const w=t.getComputedTextLength()-3;
+  const p=document.createElementNS(NS,'path');p.setAttribute('d','M'+x0+' 654H'+(x0+w));p.setAttribute('stroke',color);rails.appendChild(p);return p;};
+ const rail1=railSeg('step1',PAL.line),rail2=railSeg('step2',PAL.line),rail3=railSeg('step3',PAL.accent);
+
+ // ---- Network geometry (from the authored illustration)
+ const N={a:[570,330],b:[700,210],c:[700,450],d:[850,160],e:[850,330],f:[850,500],g:[1000,240],h:[1000,420],i:[1130,330]};
+ const E=[['a','b'],['a','c'],['b','d'],['b','e'],['c','e'],['c','f'],['d','g'],['e','g'],['e','h'],['f','h'],['g','i'],['h','i']];
+ const col={a:0,b:1,c:1,d:2,e:2,f:2,g:3,h:3,i:4};
+ const edgeG=$('edges');
+ const edgeEls=E.map(([s,t])=>{const p=document.createElementNS(NS,'path');p.setAttribute('d','M'+N[s][0]+' '+N[s][1]+'L'+N[t][0]+' '+N[t][1]);p.classList.add('draw');edgeG.appendChild(p);return {el:p,col:col[s]};});
+ const nodeG=$('nodes');
+ const nodeEls=Object.entries(N).map(([k,[cx,cy]])=>{
+  const g=document.createElementNS(NS,'g');g.setAttribute('transform','translate('+cx+' '+cy+')');
+  const ring=document.createElementNS(NS,'circle');ring.setAttribute('r','22');ring.setAttribute('fill',PAL.field);ring.setAttribute('stroke',PAL.line);ring.setAttribute('stroke-width','3');
+  const dotWrap=document.createElementNS(NS,'g');
+  const dot=document.createElementNS(NS,'circle');dot.setAttribute('r','6');dot.setAttribute('fill',(k==='a'||k==='i')?PAL.accent:PAL.line);
+  dotWrap.appendChild(dot);g.appendChild(ring);g.appendChild(dotWrap);nodeG.appendChild(g);
+  return {key:k,ring,dotWrap,col:col[k]};});
+
+ // ---- Prepare stroke reveals (only unfilled stroked geometry)
+ const prep=el=>{const L=el.getTotalLength();gsap.set(el,{strokeDasharray:L+' '+(L+2),strokeDashoffset:L});return el;};
+ Array.from(svg.querySelectorAll('path.draw')).forEach(prep);
+ rails.querySelectorAll('path').forEach(prep);
+ nodeEls.forEach(n=>{const L=2*Math.PI*22;gsap.set(n.ring,{strokeDasharray:L+' '+(L+2),strokeDashoffset:L,rotation:-90,transformOrigin:'50% 50%',fillOpacity:0});gsap.set(n.dotWrap,{scale:0,transformOrigin:'50% 50%'});});
+ gsap.set('#glowWrap',{scale:0.6,opacity:0,transformOrigin:'260px 318px'});
+ gsap.set(['#ideaLabelWrap','#systemLabelWrap'],{opacity:0,y:10});
+
+ // ---- Timeline (single owner per property)
+ const tl=gsap.timeline({paused:true});
+ const draw=(el,start,dur,ease)=>tl.to(el,{strokeDashoffset:0,duration:dur,ease:ease||'power2.inOut'},start);
+ // 01 OUTLINE — header, then the idea object part by part
+ tl.to('#titleWipe',{attr:{width:700},duration:0.55,ease:'power2.inOut'},0);
+ draw($('divider'),0.15,0.5);
+ draw(rail1,0,1.1,'none');
+ draw($('bulb'),0.05,0.6);
+ draw($('base'),0.45,0.3);
+ draw($('filament'),0.55,0.35);
+ tl.to('#glowWrap',{scale:1,opacity:1,duration:0.4,ease:'power2.out'},0.85);
+ svg.querySelectorAll('path.ray').forEach((r,i)=>draw(r,0.8+i*0.04,0.22,'sine.out'));
+ tl.to('#ideaLabelWrap',{opacity:1,y:0,duration:0.3,ease:'power2.out'},0.85);
+ // Handoff arrow
+ draw($('arrowShaft'),1.0,0.28);
+ draw($('arrowHead'),1.26,0.12,'none');
+ // 02 CONNECT — objects (nodes) before relationships (edges), left to right
+ nodeEls.forEach(n=>{const s=1.2+n.col*0.1;
+  tl.to(n.ring,{strokeDashoffset:0,duration:0.3,ease:'power2.inOut'},s);
+  tl.to(n.ring,{fillOpacity:1,duration:0.15,ease:'none'},s);
+  tl.to(n.dotWrap,{scale:1,duration:0.22,ease:'back.out(1.2)'},s+0.18);});
+ edgeEls.forEach(e=>draw(e.el,1.45+e.col*0.12,0.3));
+ draw(rail2,1.2,0.75,'none');
+ // 03 FOLLOW THE PATH — copper route traced through the finished network
+ draw($('route'),1.95,0.6,'power2.inOut');
+ draw(rail3,1.95,0.6,'power2.inOut');
+ tl.to('#systemLabelWrap',{opacity:1,y:0,duration:0.3,ease:'power2.out'},2.3);
+ // Hold fully readable until 3.0s
+ tl.to({}, {duration:0.001},2.999);
+ window.__timelines=window.__timelines||{};
+ window.__timelines.video=tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body></html>

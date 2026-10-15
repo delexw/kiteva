@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-022",
+    "name": "Pencil Drawing, in the Drawing and Illustration category with explicit provenance. The source directly names and describes this visual direction.",
+    "visualIdentity": "Fine graphite lines, exploratory contours and localized hatching sit on pale paper. Volume comes from pencil marks, not digital gradients. Lines reveal in drawing order while pressure and paper texture stay coherent.",
+    "suitableUses": "Explicitly suited to intimate studies and sketch reveals. Inferred fit: process, anatomy or natural-history studies. Use hybrids only when sketches need labels or a layout frame, and keep supporting styles graphite-only.",
+    "limitations": "Monochrome discipline applies: no gradients and no default accent hues. Rough.js hachure is not real graphite, and generated path order is not an authored drawing sequence. Only sampled seconds 1 to 8 of reference frames were reviewed.",
+    "palette": "Suggested background #F5F2EA and foreground #383838 give 10.481:1 two-color contrast only. Background policy is scene_dependent, so this is an example, not a required canvas. Exact approved colors override it. Gradients are disabled, and source red or blue accents were demonstrations, not requirements.",
+    "motionAndInteraction": "Motion is drawing-order reveal: contours first, then hatching, then notes, with reading pauses. Motion-012 and motion-015 are optional and apply only if scene content supports them. Interactive note toggles need a full-reveal option for reduced motion.",
+    "audio": "Unspecified: no audio is supplied or required. Options include background music, voiceover, vocals, effects, ambience or silence, chosen from topic and audience. User audio choices take priority, and instrumental music should not be a default.",
+    "assetRequirements": "No uploads are mandatory. Needed assets are generated: paper textures, graphite brushes and fixed-seed contour variants. Fonts and exact copy are unspecified. Source URLs served only as visual references and were not verified for continuous motion or audio.",
+    "combinations": "style-024 adds graphite notes and dimension marks in #383838, drawn after contours and hatching, with no red markers. style-019 adds an editorial grid with type in #383838. Paper texture stays inside figures and never appears on body text.",
+    "productionApproach": "HyperFrames is the default pipeline, using data-composition-id, a paused GSAP timeline in window.__timelines, and check, snapshot and render validation. Canvas 2D with Rough.js renders the style, GSAP drives motion, and Python with Pillow prepares assets. Remotion is only a fallback when HyperFrames is unavailable or a verified limitation exists."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

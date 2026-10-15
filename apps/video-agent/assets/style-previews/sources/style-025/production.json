@@ -1,0 +1,25 @@
+{
+  "displayTitle": "Doodle System",
+  "displayDescription": "A sleepy doodle lightbulb gets an idea and links up four mint friends into a connected system on cool graph paper.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG",
+    "Rough.js (seeded, bundled locally to rough.local.js)"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no soundtrack, effects or voice.",
+  "limitations": [
+    "Hand-drawn wobble is approximated with seeded Rough.js outlines (3 fixed variants per pose), not real hand-drawn frames.",
+    "The graph-paper texture is a procedural SVG grid with a vignette, not a scanned paper material.",
+    "Typography relies on macOS system fonts declared with @font-face local(): Chalkboard SE, then Marker Felt, then Comic Sans MS, then generic cursive. If none are installed on the render host, the text falls back to a generic font.",
+    "Silent: no audio."
+  ]
+}

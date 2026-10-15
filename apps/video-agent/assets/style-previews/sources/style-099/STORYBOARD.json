@@ -1,0 +1,76 @@
+{
+  "version": 3,
+  "title": "Continuous Shot - An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "One take: idea to system",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "A single unbroken camera pull-back and rise turns a close-up of a glowing idea into a high-angle view of a connected system, with no cuts or resets.",
+      "visuals": [
+        "Three.js blue-hour environment: stationary slate-to-navy sky dome, dark tiled ground grid, exponential fog",
+        "Warm emissive idea orb on a charcoal plinth acting as the practical light",
+        "Five low-saturation extruded blocks (sage, slate blue, mauve, ochre, pale grey) with cream caps",
+        "Warm spokes and sage neighbour links drawn as tubes with a leading head",
+        "DOM title and corner HUD label in cream"
+      ],
+      "assets": [
+        "three-vendor.js (local esbuild bundle of three 0.186.1)",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.6,
+          "development": "Close on the idea orb: it ignites (scale and glow pop) while the camera holds briefly, then starts easing back.",
+          "captions": ["00:00 IDEA"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.5
+        },
+        {
+          "startSeconds": 0.6,
+          "endSeconds": 1.6,
+          "development": "The camera pulls back and rises. Warm spokes shoot from the idea one by one, and each block extrudes from the ground and lights its cap when its spoke arrives.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.6,
+          "endSeconds": 2.45,
+          "development": "Sage links close the ring between neighbouring blocks, the hub ring pops, the title fades in and the HUD label changes to SYSTEM as the camera reaches its high angle.",
+          "captions": ["An idea becomes a connected system", "ONE CONTINUOUS TAKE - NO CUTS", "00:12 SYSTEM"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.45,
+          "endSeconds": 3,
+          "development": "Settled hold on the complete connected system with the title fully legible.",
+          "captions": ["An idea becomes a connected system", "ONE CONTINUOUS TAKE - NO CUTS", "00:12 SYSTEM"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.55
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Camera move is one eased curve from 0.15 s to 2.45 s, with no cuts, resets or wall crossings.",
+      "Node reveals are staggered 0.13 s apart so the eye follows each spoke to its block.",
+      "The title is fully opaque by 2.1 s and every element is settled by 2.45 s, inside the 2.7 s requirement."
+    ],
+    "justifiedHolds": [
+      "0-0.15 s: brief close hold so the viewer finds the idea before the pull-back starts.",
+      "2.45-3.0 s: final hold so the title and finished system can be read."
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, effects or voice.",
+    "Palette is a scene-dependent blue-hour alternative to the earlier cream poster. It applies the reviewed split between cool ambient light and a warm practical light, with low-saturation functional block colors on a dark ground.",
+    "Blender was not used, at the user's instruction."
+  ]
+}

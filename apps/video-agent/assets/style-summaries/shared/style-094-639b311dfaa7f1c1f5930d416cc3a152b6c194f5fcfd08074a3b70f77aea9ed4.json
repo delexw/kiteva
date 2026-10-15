@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-094",
+    "name": "Abstract Motion Graphics",
+    "visualIdentity": "An explicit direction built from a few geometric forms and limited colors. Repetition, division, merging and rotation create a continuous system with deliberate proportions and centers of gravity; avoid unrelated particles or light effects.",
+    "suitableUses": "Suitable for self-contained motion identities, brand loops, music visuals and section transitions (inferred). Also suits interactive HTML motifs that change on hover or section progress, with a scrubber and reduced-motion state. Use only forms that support the subject.",
+    "limitations": "No fixed subject, format or audio treatment is specified. Keep motifs and color roles coherent; omit effects that distract from the structure. Complex morphing needs compatible path correspondence. Optional triangulation is 2D and does not provide boundary-aware meshing, physics or semantic relationships.",
+    "palette": "Use task, brand or approved reference colors first. If none exist, suggested tokens are background #F6F0E2, foreground #283D47, accent #458784 and accent #D28456. These are examples, not canonical colors. Keep the palette discrete; gradients are disabled. The two accents are decorative, not normal-text pairings; check contrast on actual compositions.",
+    "motionAndInteraction": "Let each state lead into the next through varied repetition, division, merging and rotation. Use reusable shape groups and shared coordinates; use path interpolation for complex morphs. Timing may be smooth or deliberately sharp, with holds where needed. For video and scrubbed HTML, derive every state from shared seekable time; interactive scroll or hover is optional. Reduced motion should show a settled state.",
+    "audio": "No fixed music, voice, effects or tempo is prescribed. Choose task-specific music, narration, accents, ambience or silence; do not assume beat sync without measured audio. Keep speech clear and coordinate audio and picture in the composition pipeline.",
+    "assetRequirements": "No specific upload is required. Inspect supplied artwork, copy and assets before use. Use native SVG for scalable forms, strokes, masks and clipping. Optional Canvas or WebGL tools can support procedural visuals; seed and cache state where needed. Do not imply simulated imagery is physical production.",
+    "combinations": "Strongest alone as a coherent shape system. Style-100 can support traceable contour morphs; style-105 can link density and division to a precomputed beat map. Both are optional and must retain motif, center of gravity and color roles. Motion references are optional: choose only actions supported by actual scene elements.",
+    "productionApproach": "Keep visual construction and motion in style-specific layers; SVG and a seekable GSAP timeline are direct options. Optional Paper.js, p5.js, Anime.js or mo.js may serve specific geometry or effects needs, with deterministic time and one owner per animated property. HyperFrames owns composition, media/audio synchronization, validation and export; use Remotion only for a verified HyperFrames limitation. For HTML, map interaction to authored progress and provide a static reduced-motion state."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

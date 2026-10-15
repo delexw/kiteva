@@ -1,0 +1,30 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Pop Idea",
+  "displayDescription": "Pop Art comic page: a bulb lights its halftone halo, BING!, ZAP!, and three wired bulbs form a connected system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (contours, objects, crisp lettering)",
+    "Canvas 2D (page ground, colour separations)",
+    "Luminance-Based Halftone Shading (Canvas 2D dot radius from time-derived light field)"
+  ],
+  "motionEngine": [
+    "GSAP (single paused timeline at window.__timelines.video)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent. No audio track. Motion follows an authored visual cue sequence.",
+  "limitations": [
+    "mo.js (@mojs/core) is not installed in node_modules, so the burst and pop effects are authored with GSAP on SVG instead. Motion is installed but not used, to keep a single property owner.",
+    "The halftone is a procedural approximation of print screening: dot radius follows a Gaussian light falloff. It does not simulate ink spread or misregistration.",
+    "Lightbulb glow is shown only through halftone luminance and a fill-colour change; there is no physical light transport.",
+    "The ink-navy page ground (#14223F and #1B2D55) is a scene-dependent choice informed by the background review. It is not an approved brand colour.",
+    "BING! uses black lettering with a cream outline and a black offset echo, instead of the illustration's red face, to keep readable contrast on the red-dotted yellow field. ZAP! uses black with a cream outline on the red panel.",
+    "Fonts are OS-bundled macOS system fonts (Impact, Chalkboard SE, Comic Sans MS, Marker Felt), declared with @font-face local() sources. No font files are bundled, so glyph metrics change if the render machine lacks them.",
+    "Rendering and browser QA were not run by the agent."
+  ]
+}

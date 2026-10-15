@@ -1,0 +1,108 @@
+{
+  "version": 3,
+  "title": "Idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Tap, expand, X-ray, connect",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Show cause and effect: selecting one idea card opens it, an X-ray lens shows the routes inside it, and those routes connect it to three parts of the product.",
+      "visuals": [
+        "App window 'Product launch · Map' with sidebar (Ideas, Systems, Links) and dot-grid canvas, in #F7F9FA and #263440",
+        "Idea card 'Shared notes' with an IDEA eyebrow and a link-count badge; selected exterior is #263440 with #F7F9FA text",
+        "Registered interior layer of the same card (no text): #F7F9FA blueprint grid, dashed guides on the exterior row dividers, an entry spine, three row nodes, routes and right-edge ports",
+        "Feathered circular X-ray lens (CSS mask-image) confined to the card's label-free right half: it opens over the Tasks route, sweeps down to Team, then settles over all three routes and ports",
+        "Three target cards: Tasks, Calendar, Team",
+        "External connection paths drawn as SVG strokes ending at target ports (no arrowheads)",
+        "Confirmation toast 'Idea connected to 3 items'"
+      ],
+      "assets": [
+        "ILLUSTRATION.svg (layout and copy reference)",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.5,
+          "development": "The cursor moves to the idea card and presses it. The card dips slightly, and the dark selected exterior fills from the press point.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.5,
+          "endSeconds": 1.4,
+          "development": "The selected card expands as a shared element from 190x78 to 320x300. Clip-path insets open from the collapsed rect while the content slides into place, and the camera eases from 1.06 to 1.0. The cursor fades away.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.2,
+          "endSeconds": 2.0,
+          "development": "A feathered X-ray lens opens over the right half of the card at the Tasks row and sweeps down to Team. Through it, the interior spine and routes draw in exactly where the exterior rows sit, while the row labels stay readable on the exterior. Each route reaches a port, then its external link draws to Tasks, Calendar or Team, and the badge counts 1, 2 links.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.0,
+          "endSeconds": 2.55,
+          "development": "The lens settles over all three routes and ports, with no change in scale or orientation. The third link completes, the count reaches 3 links, the toast rises and the last target settles.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.55,
+          "endSeconds": 3,
+          "development": "Hold on the connected system: exterior labels on the left, interior wiring visible through the lens on the right.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.45
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "All motion settles by 2.55s, before the 2.7s legibility deadline.",
+      "The X-ray lens turns a large feathered circle (radius 100-118px) of the dark 320x300 card light and shows the wiring. This is unmistakable at card size.",
+      "The expansion, X-ray reveal, target cards, links and toast change well over 8% of card pixels.",
+      "Contrast: the interior layer has no text, and the lens never reaches a label, so all labels keep #F7F9FA on #263440 or the reverse."
+    ],
+    "justifiedHolds": [
+      "The 2.55-3.0s hold lets viewers read the final connected state."
+    ]
+  },
+  "notes": [
+    "Silent preview, with no music, effects or lyrics.",
+    "Recipe demonstrated: registered_xray. The exterior and interior are sibling layers in one 320x300 coordinate box under a shared transform. One feathered radial mask (CSS variables --mx, --my, --r) is tweened by the paused GSAP timeline.",
+    "Background #F7F9FA stays stationary; the camera wrapper moves only the product window layer.",
+    "Shared-element expansion uses only clip-path and transform tweens; no left/top/width/height animation.",
+    "The interior shows only routes for the three links the scene already shows; no invented product internals and no duplicate text."
+  ]
+}

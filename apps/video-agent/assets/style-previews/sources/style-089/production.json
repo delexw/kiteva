@@ -1,0 +1,31 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Pixilation Link",
+  "displayDescription": "Four coated performers slide into taped marks one pose at a time, then a hand-held cable links them to a glowing idea bulb.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (procedural performers, stationary pre-rendered studio set with seeded grain)",
+    "HTML/CSS DOM text (Courier New system font)",
+    "chroma.js (palette validation and contrast assertion)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline at window.__timelines.video (single owner of composition time)",
+    "Authored exposure sheet: 15 poses/s, each held 2 frames at 30 fps, poses looked up by exposure index"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track, music, voice or sound effects.",
+  "limitations": [
+    "Nobody was photographed. This is a procedural Canvas 2D stand-in for photographed pixilation frames: performers, coats, cable and lamps are drawn shapes with simulated key light, rim light, cast shadows and grain.",
+    "Pixilation craft is simulated through an authored exposure sheet (32 planned poses on twos, discrete position jumps, a slide with feet together, arrival recoil, held-pose wobble). It is not reduced-frame-rate footage and not real stop-frame photography.",
+    "Bulb and lamp glows are additive radial gradients, not measured lighting. Wall spill is approximate.",
+    "Blender was not used, at the user's request. No WebGL/Three.js was needed because the scene is a frontal flat-staged set.",
+    "BACKGROUND_REVIEW.json reports 0 matched sources and no contact sheets, so no source-frame observations were applied. The cool slate studio is a scene-dependent choice, not taken from any source evidence.",
+    "STYLE.json lists no tech.preview_recipes, so no reviewed recipe is demonstrated. The preview shows the core style only.",
+    "Not rendered or browser-tested by the agent; host QA is pending."
+  ]
+}

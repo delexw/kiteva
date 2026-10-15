@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-086",
+    "name": "Claymation (supplemental design reference; not a directly named style in the source collection)",
+    "visualIdentity": "Matte, sculpted clay with small fingerprints, soft handmade lumps and credible contact between parts. Shapes appear physically adjusted between exposures under stable, flat light. Liquid flow and glossy plastic reflections are excluded.",
+    "suitableUses": "Character craft pieces are the explicit primary use, and the source says the style fits alone for them. Hybrid use is limited to social reaction captions or beat-timed promos. Comedic character shorts are an inferred fit. Audience and objective are unspecified.",
+    "limitations": "Authentic clay requires photographed, incrementally adjusted clay. Without it, output must be labeled a digital simulation, which is not evidence of physical production or validated physics. Text over clay faces needs contrast rechecks. No style renderer or motion engine is listed.",
+    "palette": "Background is scene-dependent: choose a flat, low-detail, single-hue backdrop from the scene and mood. Optional suggested tokens are background #F0E4D3, foreground #444B3D (7.218:1, passes normal text), and accents #A2A680 and #C58D74, which are decorative only (below 4.5:1 against foreground). No exact approved colors were supplied. Source backdrops were the author's choices, not style rules. Recheck contrast on composited frames.",
+    "motionAndInteraction": "Motion is pose-based: incremental pose changes with planned holds and volume-preserving shapes. Automatic in-betweens and spring bounce are not part of the style. Delivery frame rate may exceed pose exposure rate. Linked motion patterns are optional; gaze needs eye layers, parallax needs depth layers, and orbit needs full 3D or turntable views. Video state derives from composition time; pointer input is interactive-only.",
+    "audio": "Audio is unspecified by the style and no layer is mandatory. Task-specific options include light playful music or sound accents on pose changes, voiceover only if the topic needs explanation, and silence for reading holds. Pose holds should follow a measured beat table, not live analysis. No audio assets were supplied.",
+    "assetRequirements": "Photographed clay frames or layers should be numbered sequences or alpha layers with consistent dimensions and clear naming, inspected before composition. The stack marks these non-optional, yet a labeled digital simulation is also permitted. Eye, depth, or turntable assets apply only when the matching motion pattern is chosen.",
+    "combinations": "style-115 adds reaction captions for short social cuts: outlined text, at most two emotion accents, stepped on exposure cadence and kept clear of faces. style-105 times pose holds to a verified beat table, with longer holds at section boundaries. Avoid glossy caption effects, captions on every frame, and covering the clay performance.",
+    "productionApproach": "The style owns visuals and motion through photographed clay or a labeled Blender bpy simulation. HyperFrames is the default composition and export route, using a paused GSAP timeline registered for seekable state, then check, snapshot, and render. Remotion is a fallback only when its documented condition is met. chroma-js validates colors and contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

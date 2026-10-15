@@ -1,0 +1,220 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Memphis Design — An idea becomes a connected system</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#2A2D6E}
+#root{position:relative;width:100%;height:100%;overflow:hidden}
+#stage{position:absolute;inset:0;width:100%;height:100%;display:block}
+text{font-family:"Arial Black","Arial",Helvetica,sans-serif}
+</style>
+<script src="gsap.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+<defs>
+  <!-- Patterns: quiet same-hue field dots, cream dot grid, pink stripes, navy dots -->
+  <pattern id="fieldDots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="14" cy="14" r="3" fill="#353A85"/></pattern>
+  <pattern id="creamDots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="11" cy="11" r="3.5" fill="#FFF6E8"/></pattern>
+  <pattern id="navyDots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="11" cy="11" r="3.5" fill="#202039"/></pattern>
+  <pattern id="pinkStripes" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="16" fill="#ED718E"/></pattern>
+  <!-- Reusable shape geometry (fill/stroke supplied per <use>) -->
+  <circle id="g-circle" cx="0" cy="0" r="46"/>
+  <rect id="g-square" x="-42" y="-42" width="84" height="84"/>
+  <path id="g-tri" d="M0 -56L58 40H-58Z" stroke-linejoin="round"/>
+  <circle id="g-ring" cx="0" cy="0" r="38"/>
+  <path id="g-semi" d="M-60 20A60 60 0 0 1 60 20Z" stroke-linejoin="round"/>
+  <circle id="g-dot" cx="0" cy="0" r="22"/>
+</defs>
+
+<!-- Stationary background: deep indigo field + low-contrast halftone grid -->
+<rect width="1280" height="720" fill="#2A2D6E"/>
+<rect width="1280" height="720" fill="url(#fieldDots)"/>
+<!-- Stationary pattern blocks -->
+<rect x="860" y="34" width="360" height="180" fill="url(#creamDots)" opacity="0.55"/>
+<rect x="960" y="390" width="280" height="280" fill="url(#pinkStripes)" opacity="0.85"/>
+<circle cx="40" cy="700" r="96" fill="#F4C64F"/>
+<circle cx="40" cy="700" r="96" fill="url(#navyDots)"/>
+
+<!-- Decorative geometry (animated individually, staggered) -->
+<g id="decoTri"><path d="M330 720L410 600L490 720Z" fill="#3DBAB1" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"/></g>
+<g id="decoTriOutline"><path d="M560 690L600 630L640 690Z" fill="none" stroke="#FFF6E8" stroke-width="5" stroke-linejoin="round"/></g>
+<path id="zigzag" d="M80 96l26-26 26 26 26-26 26 26 26-26 26 26 26-26 26 26" fill="none" stroke="#3DBAB1" stroke-width="10" stroke-linejoin="miter"/>
+<path id="wave" d="M90 480q28-34 56 0t56 0t56 0t56 0t56 0" fill="none" stroke="#ED718E" stroke-width="10" stroke-linecap="round"/>
+<g id="ringDeco"><circle cx="620" cy="80" r="22" fill="none" stroke="#ED718E" stroke-width="6"/></g>
+<path id="squiggle" d="M1060 130q20-24 40 0t40 0" fill="none" stroke="#ED718E" stroke-width="8" stroke-linecap="round"/>
+
+<!-- Ring pulse from the hub (source lesson: thin gold rings behind the key element) -->
+<circle id="pulseA" cx="970" cy="370" r="60" fill="none" stroke="#F4C64F" stroke-width="4" opacity="0"/>
+<circle id="pulseB" cx="970" cy="370" r="60" fill="none" stroke="#F4C64F" stroke-width="3" opacity="0"/>
+
+<!-- Links: drawn from the hub out, after each far node has landed -->
+<g id="links" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path class="link" data-start="1.00" d="M970 370L790 250" stroke="#FFFFFF" stroke-width="7"/>
+  <path class="link" data-start="1.08" d="M970 370L1140 270" stroke="#FFFFFF" stroke-width="7"/>
+  <path class="link" data-start="1.16" d="M970 370L840 520" stroke="#FFFFFF" stroke-width="7"/>
+  <path class="link" data-start="1.24" d="M970 370L1090 560" stroke="#FFFFFF" stroke-width="7"/>
+  <path class="link" data-start="1.40" d="M840 520L1090 560" stroke="#FFFFFF" stroke-width="7"/>
+  <path class="link" data-start="1.48" d="M1140 270L1215 470" stroke="#FFFFFF" stroke-width="7"/>
+  <path class="link" data-start="1.56" d="M1215 470L1090 560" stroke="#FFFFFF" stroke-width="7"/>
+</g>
+
+<!-- Sticker nodes: hard navy shadow, white keyline, accent fill, navy contour -->
+<g class="node" id="nCircle" data-x="790" data-y="250" data-start="0.62">
+  <g transform="translate(790 250)">
+    <use href="#g-circle" x="10" y="10" fill="#202039"/>
+    <use href="#g-circle" fill="none" stroke="#FFFFFF" stroke-width="14"/>
+    <use href="#g-circle" fill="#ED718E" stroke="#202039" stroke-width="5"/>
+  </g>
+</g>
+<g class="node" id="nTri" data-x="1140" data-y="270" data-start="0.70">
+  <g transform="translate(1140 270)">
+    <use href="#g-tri" x="9" y="9" fill="#202039"/>
+    <use href="#g-tri" fill="none" stroke="#FFFFFF" stroke-width="14"/>
+    <use href="#g-tri" fill="#3DBAB1" stroke="#202039" stroke-width="5"/>
+  </g>
+</g>
+<g class="node" id="nRing" data-x="840" data-y="520" data-start="0.78">
+  <g transform="translate(840 520)">
+    <use href="#g-ring" x="8" y="8" fill="#202039"/>
+    <use href="#g-ring" fill="none" stroke="#FFFFFF" stroke-width="15"/>
+    <use href="#g-ring" fill="#FFF6E8" stroke="#202039" stroke-width="6"/>
+    <circle r="12" fill="#ED718E"/>
+  </g>
+</g>
+<g class="node" id="nSemi" data-x="1090" data-y="540" data-start="0.86">
+  <g transform="translate(1090 540)">
+    <use href="#g-semi" x="8" y="8" fill="#202039"/>
+    <use href="#g-semi" fill="none" stroke="#FFFFFF" stroke-width="14"/>
+    <use href="#g-semi" fill="#F4C64F" stroke="#202039" stroke-width="5"/>
+  </g>
+</g>
+<g class="node" id="nDot" data-x="1215" data-y="470" data-start="0.94">
+  <g transform="translate(1215 470)">
+    <use href="#g-dot" x="6" y="6" fill="#202039"/>
+    <use href="#g-dot" fill="none" stroke="#FFFFFF" stroke-width="13"/>
+    <use href="#g-dot" fill="#3DBAB1" stroke="#202039" stroke-width="5"/>
+  </g>
+</g>
+<!-- Hub = the idea: pops first, then the system grows from it -->
+<g id="hub">
+  <g transform="translate(970 370) rotate(12)">
+    <use href="#g-square" x="10" y="10" fill="#202039"/>
+    <use href="#g-square" fill="none" stroke="#FFFFFF" stroke-width="14"/>
+    <use href="#g-square" fill="#F4C64F" stroke="#202039" stroke-width="5"/>
+  </g>
+</g>
+
+<!-- Title card: card + labels are one group, so labels never appear before the card -->
+<g id="titleCard">
+  <rect x="92" y="172" width="600" height="250" fill="#202039"/>
+  <rect x="76" y="156" width="600" height="250" fill="#F4C64F" stroke="#FFFFFF" stroke-width="6"/>
+  <rect x="76" y="156" width="600" height="250" fill="none" stroke="#202039" stroke-width="3"/>
+  <g font-weight="900" fill="#202039">
+    <text x="106" y="250" font-size="80">AN IDEA</text>
+    <text x="108" y="300" font-size="30" letter-spacing="5">BECOMES A</text>
+    <text x="106" y="372" font-size="46">CONNECTED SYSTEM</text>
+  </g>
+</g>
+
+<g id="caption"><text x="92" y="560" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="26" fill="#FFFFFF">Shapes meet. Lines link. It all clicks.</text></g>
+
+<!-- Crosses / confetti (fixed trajectories, no randomness) -->
+<g id="crosses" stroke-width="5" stroke-linecap="round">
+  <path class="cross" d="M720 120h24M732 108v24" stroke="#FFF6E8"/>
+  <path class="cross" d="M1236 340h22M1247 329v22" stroke="#ED718E"/>
+  <path class="cross" d="M700 620h22M711 609v22" stroke="#3DBAB1"/>
+  <path class="cross" d="M760 420l18 18M778 420l-18 18" stroke="#FFF6E8"/>
+</g>
+<g id="confetti"></g>
+</svg>
+</div>
+<script>
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  const HUB={x:970,y:370};
+  const tl=gsap.timeline({paused:true,defaults:{overwrite:false}});
+
+  // 1. Idea: hub square pops in with tilt overshoot (elastic accent #1)
+  gsap.set('#hub',{transformOrigin:'50% 50%',scale:0,rotation:-40});
+  tl.to('#hub',{scale:1,rotation:0,duration:0.5,ease:'back.out(2.4)'},0.08);
+
+  // 2. Title card sticker pop: tilt + scale overshoot, settles upright
+  gsap.set('#titleCard',{transformOrigin:'50% 50%',scale:0.72,rotation:-7,opacity:0,x:-30});
+  tl.to('#titleCard',{opacity:1,duration:0.12,ease:'none'},0.26);
+  tl.to('#titleCard',{scale:1,rotation:0,x:0,duration:0.62,ease:'back.out(1.8)'},0.26);
+
+  // 3. Nodes burst out of the hub along their link direction, staggered
+  document.querySelectorAll('.node').forEach(n=>{
+    const dx=HUB.x-Number(n.dataset.x), dy=HUB.y-Number(n.dataset.y);
+    const s=Number(n.dataset.start);
+    gsap.set(n,{transformOrigin:'50% 50%',x:dx,y:dy,scale:0.2,opacity:0});
+    tl.to(n,{opacity:1,duration:0.08,ease:'none'},s);
+    tl.to(n,{x:0,y:0,duration:0.42,ease:'power2.out'},s);
+    tl.to(n,{scale:1,duration:0.5,ease:'back.out(2.2)'},s);
+  });
+
+  // 4. Links draw hub-outward (no arrowheads used)
+  document.querySelectorAll('.link').forEach(p=>{
+    const L=p.getTotalLength();
+    gsap.set(p,{strokeDasharray:L,strokeDashoffset:L});
+    tl.to(p,{strokeDashoffset:0,duration:0.3,ease:'power2.inOut'},Number(p.dataset.start));
+  });
+
+  // 5. Ring pulse from the hub as the system "clicks"
+  tl.fromTo('#pulseA',{attr:{r:60},opacity:0.9},{attr:{r:300},opacity:0,duration:0.75,ease:'power2.out'},1.62);
+  tl.fromTo('#pulseB',{attr:{r:60},opacity:0.7},{attr:{r:230},opacity:0,duration:0.65,ease:'power2.out'},1.78);
+  tl.fromTo('#hub',{scale:1},{scale:1.12,duration:0.12,ease:'power2.out',immediateRender:false},1.62);
+  tl.to('#hub',{scale:1,duration:0.3,ease:'back.out(2)'},1.74);
+
+  // 6. Decorations: staggered handoffs, not all at once
+  const dash=(sel,start,dur)=>{const p=document.querySelector(sel);const L=p.getTotalLength();gsap.set(p,{strokeDasharray:L,strokeDashoffset:L});tl.to(p,{strokeDashoffset:0,duration:dur,ease:'power2.inOut'},start);};
+  dash('#zigzag',0.42,0.5);
+  dash('#wave',1.15,0.55);
+  dash('#squiggle',1.3,0.35);
+  gsap.set('#decoTri',{transformOrigin:'50% 100%',scaleY:0});
+  tl.to('#decoTri',{scaleY:1,duration:0.45,ease:'back.out(2.5)'},0.5);
+  gsap.set('#decoTriOutline',{transformOrigin:'50% 50%',rotation:-90,scale:0});
+  tl.to('#decoTriOutline',{rotation:0,scale:1,duration:0.45,ease:'back.out(2)'},0.72);
+  gsap.set('#ringDeco',{transformOrigin:'50% 50%',scale:0});
+  tl.to('#ringDeco',{scale:1,duration:0.4,ease:'back.out(3)'},0.9);
+  gsap.set('.cross',{transformOrigin:'50% 50%',scale:0,rotation:-90});
+  tl.to('.cross',{scale:1,rotation:0,duration:0.35,ease:'back.out(2.5)',stagger:0.09},1.05);
+
+  // 7. Caption enters after the network is assembled, then holds
+  gsap.set('#caption',{opacity:0,y:18});
+  tl.to('#caption',{opacity:1,y:0,duration:0.35,ease:'power2.out'},1.7);
+
+  // 8. Payoff confetti: fixed authored trajectories from the hub
+  const conf=document.getElementById('confetti');
+  const pieces=[
+    [-150,-150,'#F4C64F','star'],[150,-170,'#3DBAB1','rect'],[210,-40,'#ED718E','circ'],
+    [190,120,'#FFF6E8','star'],[-40,190,'#F4C64F','rect'],[-200,40,'#3DBAB1','circ'],
+    [-120,-220,'#ED718E','rect'],[60,-230,'#FFF6E8','circ'],[250,60,'#F4C64F','circ'],[-230,-60,'#FFF6E8','rect']
+  ];
+  pieces.forEach((p,i)=>{
+    let el;
+    if(p[3]==='circ'){el=document.createElementNS(NS,'circle');el.setAttribute('r','7');}
+    else if(p[3]==='rect'){el=document.createElementNS(NS,'rect');el.setAttribute('x','-9');el.setAttribute('y','-4');el.setAttribute('width','18');el.setAttribute('height','8');}
+    else {el=document.createElementNS(NS,'path');el.setAttribute('d','M0 -11L3 -3L11 -3L5 2L7 10L0 5L-7 10L-5 2L-11 -3L-3 -3Z');}
+    el.setAttribute('fill',p[2]);
+    const g=document.createElementNS(NS,'g');g.setAttribute('transform','translate('+HUB.x+' '+HUB.y+')');
+    g.appendChild(el);conf.appendChild(g);
+    gsap.set(el,{x:0,y:0,scale:0,opacity:1,rotation:0,transformOrigin:'50% 50%'});
+    const s=1.66+i*0.015;
+    tl.to(el,{x:p[0],y:p[1],rotation:(i%2?1:-1)*160,duration:0.7,ease:'power3.out'},s);
+    tl.to(el,{scale:1,duration:0.18,ease:'back.out(2)'},s);
+    tl.to(el,{scale:0.85,opacity:0,duration:0.25,ease:'power1.in'},s+0.5);
+  });
+
+  // Hold: everything settled by ~2.42s; full composition holds to 3.0s
+  tl.to({}, {duration:0.001}, 2.999);
+  tl.seek(0);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

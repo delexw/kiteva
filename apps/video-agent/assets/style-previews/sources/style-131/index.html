@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ukiyo-e Woodblock Print — An Idea Becomes a Connected System</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #E4E8E2; overflow: hidden; }
+  #root { position: relative; width: 100%; height: 100%; background: #E4E8E2; overflow: hidden; }
+  #root > canvas, #root > svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  #fibre-over { mix-blend-mode: multiply; opacity: 0.85; pointer-events: none; }
+  @font-face { font-family: 'Print Mincho'; src: local('Hiragino Mincho ProN'), local('HiraMinProN-W3'), local('Yu Mincho'), local('Noto Serif'), local('Georgia'); font-weight: 400; font-style: normal; }
+  text { font-family: 'Print Mincho', Georgia, serif; }
+</style>
+<script src="gsap.min.js"></script>
+<script src="MorphSVGPlugin.min.js"></script>
+<script src="chroma.min.js"></script>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <!-- Layer 0: fixed paper (Canvas 2D, seeded, generated once) -->
+  <canvas id="paper" width="1280" height="720"></canvas>
+
+  <!-- Layer 1: registered colour plates + key block (SVG) -->
+  <svg id="print" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bokashi" x1="0" y1="0" x2="0" y2="1"></linearGradient>
+      <linearGradient id="dawnBand" x1="0" y1="0" x2="0" y2="1"></linearGradient>
+      <pattern id="seigaiha" width="40" height="20" patternUnits="userSpaceOnUse">
+        <rect width="40" height="20" fill="#6E9FB3"/>
+        <path d="M0 20a20 20 0 0 1 40 0M8 20a12 12 0 0 1 24 0M-20 10a20 20 0 0 1 40 0M20 10a20 20 0 0 1 40 0M-12 10a12 12 0 0 1 24 0M28 10a12 12 0 0 1 24 0" fill="none" stroke="#283C49" stroke-width="1.5"/>
+      </pattern>
+      <!-- Three authored, command-compatible wave-crest states (outer indigo body) -->
+      <path id="waveA" d="M0 720L0 520C120 440 260 400 380 430C430 445 450 470 440 480C420 470 400 468 380 472C340 480 360 540 420 580C480 620 540 660 600 720Z"/>
+      <path id="waveB" d="M0 720L0 400C90 290 280 250 410 320C460 350 460 400 420 405C420 380 385 360 350 375C290 400 320 480 400 520C470 560 530 620 600 720Z"/>
+      <path id="waveC" d="M0 720L0 300C80 170 300 130 430 230C480 275 455 335 400 322C430 292 385 252 330 272C255 305 300 430 390 480C470 525 530 590 600 720Z"/>
+      <!-- Matching states for the inner blue face plate -->
+      <path id="faceA" d="M0 720L0 580C70 520 200 490 300 500C280 520 300 560 340 590C390 630 430 670 460 720Z"/>
+      <path id="faceB" d="M0 720L0 470C70 380 200 350 300 390C250 430 270 490 340 550C390 590 430 650 460 720Z"/>
+      <path id="faceC" d="M0 720L0 380C70 280 200 250 300 300C240 350 250 450 330 520C390 570 430 640 460 720Z"/>
+      <path id="clawShape" d="M0 0C3 -10 12 -20 26 -16C30 -15 32 -12 31 -9C26 -12 20 -11 17 -6C14 -10 9 -9 7 -4C5 -7 2 -6 0 0Z"/>
+      <path id="petalShape" d="M0 -7C5 -5 5 3 0 7C-5 3 -5 -5 0 -7Z"/>
+      <path id="boatShape" d="M-70 0Q0 22 70 0L60 12L-60 12Z"/>
+    </defs>
+
+    <!-- Bokashi sky: stepped lab ramp between indigo, blue and paper tokens -->
+    <rect id="sky" x="0" y="0" width="1280" height="300" fill="url(#bokashi)"/>
+    <!-- Horizon akabokashi (dawn): stepped paper-to-persimmon tint -->
+    <rect id="dawn" x="0" y="380" width="1280" height="140" fill="url(#dawnBand)"/>
+
+    <!-- Idea: rose sun -->
+    <g id="sun" transform="translate(1000 170)">
+      <g id="sunInner">
+        <circle r="54" fill="#283C49"/>
+        <circle r="50" fill="#C8553D" transform="translate(1.5 1)"/>
+      </g>
+    </g>
+
+    <!-- Patterned cloud band (pans slowly) -->
+    <g id="cloudBand"></g>
+
+    <!-- Distant mountain: key block fill + inset registered plates -->
+    <g id="mountain">
+      <path d="M690 522L820 362L950 522Z" fill="#283C49"/>
+      <path d="M697 520L820 369L943 520Z" fill="#385F84" transform="translate(1.5 1)"/>
+      <path d="M789 404L820 366L851 404L836 398L821 407L806 398Z" fill="#283C49"/>
+      <path d="M793 401L820 369L847 401L835 396L821 403L806 396Z" fill="#E4E8E2" transform="translate(1 1)"/>
+      <path d="M820 375L812 470M820 375L832 455" fill="none" stroke="#283C49" stroke-width="1.6" stroke-linecap="round"/>
+    </g>
+
+    <!-- Sea: blue plate with carved seigaiha key -->
+    <rect x="0" y="520" width="1280" height="200" fill="url(#seigaiha)"/>
+    <path d="M0 520H1280" stroke="#283C49" stroke-width="2.5"/>
+
+    <!-- Sun reflection plate on the water -->
+    <g id="reflection"></g>
+
+    <!-- Connected system: tow-cords between boats (drawn) -->
+    <g id="cords" fill="none" stroke-linecap="round"></g>
+
+    <!-- Boats -->
+    <g id="boats"></g>
+
+    <!-- Asymmetric cropped wave: key fill, inset indigo plate, key contour -->
+    <g id="wave">
+      <path id="waveKey" d="M0 720L0 520C120 440 260 400 380 430C430 445 450 470 440 480C420 470 400 468 380 472C340 480 360 540 420 580C480 620 540 660 600 720Z" fill="#283C49"/>
+      <path id="wavePlate" d="M0 720L0 520C120 440 260 400 380 430C430 445 450 470 440 480C420 470 400 468 380 472C340 480 360 540 420 580C480 620 540 660 600 720Z" fill="#385F84"/>
+      <path id="faceKey" d="M0 720L0 580C70 520 200 490 300 500C280 520 300 560 340 590C390 630 430 670 460 720Z" fill="#283C49"/>
+      <path id="facePlate" d="M0 720L0 580C70 520 200 490 300 500C280 520 300 560 340 590C390 630 430 670 460 720Z" fill="#6E9FB3"/>
+      <path id="waveLine" d="M0 720L0 520C120 440 260 400 380 430C430 445 450 470 440 480C420 470 400 468 380 472C340 480 360 540 420 580C480 620 540 660 600 720Z" fill="none" stroke="#283C49" stroke-width="2.4" stroke-linejoin="round"/>
+      <path id="faceLine" d="M0 720L0 580C70 520 200 490 300 500C280 520 300 560 340 590C390 630 430 670 460 720Z" fill="none" stroke="#283C49" stroke-width="1.8" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Refined foam claws along the final crest -->
+    <g id="claws"></g>
+    <!-- Frozen spray -->
+    <g id="spray"></g>
+    <!-- Drifting petals -->
+    <g id="petals"></g>
+  </svg>
+
+  <!-- Layer 2: same fibre texture as a multiply mask over the plates (fixed coords) -->
+  <canvas id="fibre-over" width="1280" height="720"></canvas>
+
+  <!-- Layer 3: title cartouche (standalone, static, always readable) -->
+  <svg id="titleLayer" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g id="cartouche">
+      <rect x="1078" y="258" width="164" height="414" fill="#283C49"/>
+      <rect x="1081" y="261" width="158" height="408" fill="#E4E8E2"/>
+      <rect x="1092" y="272" width="136" height="386" fill="none" stroke="#C58B95" stroke-width="2"/>
+      <g fill="#283C49" font-size="34" text-anchor="middle">
+        <text x="1160" y="330">An</text>
+        <text x="1160" y="375">Idea</text>
+        <text x="1160" y="420">Becomes</text>
+      </g>
+      <g fill="#385F84" font-size="26" text-anchor="middle">
+        <text x="1160" y="470">a</text>
+        <text x="1160" y="505">Connected</text>
+        <text x="1160" y="540">System</text>
+      </g>
+      <!-- carved seal (geometric, no glyph) -->
+      <rect x="1136" y="580" width="48" height="48" fill="#283C49"/>
+      <rect x="1138" y="582" width="44" height="44" fill="#C58B95"/>
+      <path d="M1146 590H1174V618H1146ZM1160 590V618M1146 604H1174" fill="none" stroke="#283C49" stroke-width="3"/>
+    </g>
+    <g id="caption">
+      <rect x="664" y="680" width="390" height="28" fill="#283C49"/>
+      <rect x="666" y="682" width="386" height="24" fill="#E4E8E2"/>
+      <text x="859" y="699" font-size="14" fill="#283C49" text-anchor="middle" letter-spacing="2.5">ORIGINAL STUDY · EDO WAVE-PRINT IDIOM</text>
+    </g>
+  </svg>
+</div>
+
+<script src="print-scene.js"></script>
+<script>
+(function () {
+  'use strict';
+  gsap.registerPlugin(MorphSVGPlugin);
+  var render = window.__printScene.render;
+  var clawNodes = window.__printScene.clawNodes;
+  /* ---------- One paused, seekable GSAP timeline ---------- */
+  var tl = gsap.timeline({ paused: true });
+  var clock = { t: 0 };
+  tl.to(clock, { t: 3, duration: 3, ease: 'none', onUpdate: function () { render(clock.t); } }, 0);
+
+  // Idea appears: rose sun
+  tl.fromTo('#sunInner', { scale: 0.2, opacity: 0, svgOrigin: '0 0' },
+            { scale: 1, opacity: 1, svgOrigin: '0 0', duration: 0.5, ease: 'back.out(1.2)' }, 0.1);
+
+  // Wave crest morphs A -> B -> C; key block, plates and contour share one tween (one progress)
+  var waveEls = ['#waveKey', '#wavePlate', '#waveLine'];
+  var faceEls = ['#faceKey', '#facePlate', '#faceLine'];
+  tl.to(waveEls, { morphSVG: '#waveB', duration: 0.8, ease: 'sine.inOut' }, 0.2);
+  tl.to(faceEls, { morphSVG: '#faceB', duration: 0.8, ease: 'sine.inOut' }, 0.2);
+  tl.to(waveEls, { morphSVG: '#waveC', duration: 0.75, ease: 'power2.inOut' }, 1.0);
+  tl.to(faceEls, { morphSVG: '#faceC', duration: 0.75, ease: 'power2.inOut' }, 1.0);
+
+  // Foam claws bloom along the finished crest
+  tl.fromTo(clawNodes, { scale: 0, opacity: 0, transformOrigin: '0% 100%' },
+            { scale: 1, opacity: 1, transformOrigin: '0% 100%', duration: 0.4, ease: 'back.out(1.2)', stagger: 0.05 }, 1.7);
+
+  tl.duration(); // fully built
+  render(0);
+  tl.seek(0, false);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+
+  function onSeek(e) {
+    var t = (e && e.detail && typeof e.detail.time === 'number') ? e.detail.time : tl.time();
+    tl.seek(t, false);
+    render(tl.time());
+  }
+  window.addEventListener('hf-seek', onSeek);
+  document.addEventListener('hf-seek', onSeek);
+})();
+</script>
+
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

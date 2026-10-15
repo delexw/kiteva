@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-032",
+    "name": "Manga (explicit provenance; Drawing and Illustration category).",
+    "visualIdentity": "Authored monochrome manga ink art with controlled line weights, selective screentones, cinematic panels and purposeful negative space. The brief chooses the subject, which may be people, animals, machines, environments or abstract forms. Faces and hands are optional, not a template.",
+    "suitableUses": "Explicit: the source lists Manga as a good fit for cinematic manga openings and for phrase scatter, punctuation zoom and radial burst motions. Inferred: educational explainers and story-led illustrated narratives, based on the annotation pairing.",
+    "limitations": "Artwork must be drawn in editable SVG paths or deterministic Canvas code; AI-generated, raster, traced or sprite artwork is prohibited. Each drawing must carry a still frame, so generic icons, dashboards or blanket dot filters do not qualify. Eye review applies only to subjects that have eyes.",
+    "palette": "Background policy is scene-dependent. The #FFFFFF background and #171717 foreground are style-compatible suggestions, not approved exact colors, and task-provided colors override them. The style is monochrome, with apparent grey from screentones only and no gradients or accent hues. Recheck composited contrast beyond the 17.928:1 two-color value.",
+    "motionAndInteraction": "Timeline-driven panel reveals, motivated camera moves, small pose changes, and bounded speed-line or impact accents with readable holds. Avoid perpetual wobble or bouncing panels. Optional references need matching assets; gaze-following needs eye layers or a rig. No pointer or scroll input is required.",
+    "audio": "Unspecified by the style. Options are instrumental pacing, short impact accents, ink or page sounds, or narration; silence is valid and no genre, tempo or voice is mandated. Any synchronization claim requires inspected audio.",
+    "assetRequirements": "No uploads are mandatory; subjects, panels, screentones and lettering are authored in code. Local fonts must load before rendering. Phrase or punctuation motions need actual glyph or mark geometry from the scene. Do not invent copy or brand marks, or copy reference characters or watermarks.",
+    "combinations": "Best used alone in strict black and white with stable screentones. Optional style-101 parallax suits hero close-ups with small offsets and unchanged tone scale. Optional style-024 margin annotations use #171717 only, sit below panel contour weight and never overlap speech balloons.",
+    "productionApproach": "SVG or Canvas drawing and a paused GSAP timeline are the style-owned layers; Motion is optional. HyperFrames is the default pipeline for composition, validation and export, with Remotion only under its documented fallback condition. Python with Pillow prepares assets, and chroma-js checks contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,297 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Paper Cutout Illustration — An idea becomes a connected system</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#1B2036}
+  #root{position:relative;width:100%;height:100%;overflow:hidden}
+  #stage{display:block;width:100%;height:100%}
+  text{font-family:"Avenir Next","Futura","Helvetica Neue",Helvetica,Arial,sans-serif}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- One global light direction (upper-left key light): every contact shadow falls down-right.
+         Filters sit on STATIC layer groups so rotating pieces never rotate their shadow direction. -->
+    <filter id="shadowHigh" x="-10%" y="-10%" width="125%" height="130%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="5" dy="8" stdDeviation="5" flood-color="#090B16" flood-opacity="0.55"/>
+    </filter>
+    <filter id="shadowLow" x="-10%" y="-10%" width="125%" height="130%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="3" dy="5" stdDeviation="4" flood-color="#090B16" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Deepest sheet: night-indigo base paper (stationary) -->
+  <rect id="base" x="0" y="0" width="1280" height="720" fill="#1B2036"/>
+
+  <!-- Stepped "light" sheets around the idea: quantised bands, one flat colour per sheet -->
+  <g id="bandLayer" filter="url(#shadowLow)"></g>
+
+  <!-- Sage ground sheet from the illustration (stationary) -->
+  <g filter="url(#shadowLow)">
+    <path id="ground" d="M-20 600Q300 540 640 590T1300 570V740H-20z" fill="#829776" stroke="#F2EAD8" stroke-width="3"/>
+  </g>
+
+  <!-- Arms layer (under nodes) -->
+  <g id="armLayer" filter="url(#shadowLow)"></g>
+
+  <!-- Bulb cut-out, pivot at the base plates -->
+  <g filter="url(#shadowHigh)">
+    <g id="bulb">
+      <path d="M330 150c-100 0-160 80-130 170 20 50 60 70 64 120h132c4-50 44-70 64-120 30-90-30-170-130-170z" fill="#C17F63" stroke="#F2EAD8" stroke-width="3"/>
+      <path d="M330 190c-60 0-100 50-86 110 10 34 34 52 40 90h92c6-38 30-56 40-90 14-60-26-110-86-110z" fill="#F2EAD8" stroke="#F2EAD8" stroke-width="3"/>
+      <rect x="270" y="450" width="120" height="26" rx="6" fill="#304849" stroke="#F2EAD8" stroke-width="3"/>
+      <rect x="282" y="482" width="96" height="24" rx="6" fill="#304849" stroke="#F2EAD8" stroke-width="3"/>
+      <path id="filament" d="M310 360l20-80 20 80" stroke="#C17F63" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- Node discs layer (above arms) -->
+  <g id="nodeLayer" filter="url(#shadowHigh)"></g>
+  <!-- Paper-fastener pins at every joint -->
+  <g id="pinLayer"></g>
+
+  <!-- Caption card: top half fixed, bottom flap hinged at y=496 and unfolds downward -->
+  <g filter="url(#shadowHigh)">
+    <g id="tag">
+      <rect id="caption-tag-top" x="600" y="424" width="540" height="72" fill="#F2EAD8"/>
+      <g id="flap">
+        <rect id="flapFace" x="600" y="496" width="540" height="72" fill="#F2EAD8"/>
+      </g>
+      <!-- Labels belong to the card and stay hidden until it is fully unfolded -->
+      <g id="tagText" data-reveal-after="caption-tag" opacity="0">
+        <text x="628" y="482" font-size="48" font-weight="700" fill="#304849">An idea becomes</text>
+        <text x="630" y="540" font-size="34" font-weight="400" fill="#304849">a connected system</text>
+      </g>
+    </g>
+  </g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  // ---------- Centralised palette (resolved scene palette) ----------
+  var P = {
+    base: chroma("#1B2036").hex(),      // deepest sheet (scene-dependent night indigo)
+    band1: chroma("#262D4A").hex(),
+    band2: chroma("#323B5E").hex(),
+    band3: chroma("#3F4A72").hex(),
+    cream: chroma("#F2EAD8").hex(),     // illustration paper / card / edges
+    ink: chroma("#304849").hex(),       // illustration foreground ink
+    terracotta: chroma("#C17F63").hex(),
+    sage: chroma("#829776").hex()
+  };
+  // Back side of the folded flap: deterministic material shading of the same cream sheet.
+  var FLAP_BACK = chroma.mix(P.cream, "#000000", 0.18, "rgb").hex();
+  if (chroma.contrast(P.ink, P.cream) < 4.5) throw Error("caption contrast below target");
+
+  var stage = document.getElementById("stage");
+  function el(tag, attrs, parent){
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  // ---------- Paper contours (seeded, prepared once) ----------
+  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function cutContour(cx, cy, R, seed){
+    var rnd = mulberry32(seed), n = 48, pts = [];
+    var p1 = rnd()*6.283, p2 = rnd()*6.283, p3 = rnd()*6.283;
+    for (var i=0;i<n;i++){
+      var a = i/n*Math.PI*2;
+      var r = R*(1 + 0.045*Math.sin(3*a+p1) + 0.025*Math.sin(5*a+p2) + 0.012*Math.sin(11*a+p3) + (rnd()-0.5)*0.008);
+      pts.push([cx+Math.cos(a)*r, cy+Math.sin(a)*r*0.92]);
+    }
+    // Catmull-Rom -> cubic Bezier closed path (smooth scissor-cut edge)
+    var d = "M"+pts[0][0].toFixed(1)+" "+pts[0][1].toFixed(1);
+    for (var j=0;j<n;j++){
+      var p0=pts[(j-1+n)%n], a1=pts[j], b=pts[(j+1)%n], c=pts[(j+2)%n];
+      d += "C"+(a1[0]+(b[0]-p0[0])/6).toFixed(1)+" "+(a1[1]+(b[1]-p0[1])/6).toFixed(1)+" "+
+           (b[0]-(c[0]-a1[0])/6).toFixed(1)+" "+(b[1]-(c[1]-a1[1])/6).toFixed(1)+" "+
+           b[0].toFixed(1)+" "+b[1].toFixed(1);
+    }
+    return d+"Z";
+  }
+  var BULB_C = [330, 310];
+  var bandLayer = document.getElementById("bandLayer");
+  var bandDefs = [
+    {R: 360, fill: P.band1, seed: 11},
+    {R: 280, fill: P.band2, seed: 23},
+    {R: 205, fill: P.band3, seed: 37}
+  ];
+  var bands = bandDefs.map(function(b){
+    var g = el("g", {}, bandLayer);
+    el("path", {d: cutContour(BULB_C[0], BULB_C[1], b.R, b.seed), fill: b.fill, stroke: P.cream, "stroke-width": "1.5", "stroke-opacity": "0.35"}, g);
+    return g;
+  });
+
+  // ---------- Rig: pivots and parent-child connections ----------
+  // Absolute rest positions (from the illustration composition). Local rest angles derive from them.
+  var HINGE = [470, 306];               // joint on the bulb's right shoulder (child of bulb)
+  var joints = [
+    {id:"n1", parent:null, pos:[690,250], fill:P.sage},
+    {id:"n2", parent:"n1", pos:[840,170], fill:P.terracotta},
+    {id:"n3", parent:"n1", pos:[840,330], fill:P.ink},
+    {id:"n4", parent:"n2", pos:[1060,190], fill:P.ink},
+    {id:"n5", parent:"n3", pos:[1020,360], fill:P.sage}
+  ];
+  var byId = {};
+  joints.forEach(function(j){ byId[j.id] = j; });
+  function deg(a){ return a*180/Math.PI; }
+  joints.forEach(function(j){
+    var from = j.parent ? byId[j.parent].pos : HINGE;
+    var dx = j.pos[0]-from[0], dy = j.pos[1]-from[1];
+    j.len = Math.hypot(dx, dy);
+    j.absRest = deg(Math.atan2(dy, dx));
+    j.localRest = j.absRest - (j.parent ? byId[j.parent].absRest : 0);
+  });
+  var armLayer = document.getElementById("armLayer"), nodeLayer = document.getElementById("nodeLayer"), pinLayer = document.getElementById("pinLayer");
+  joints.forEach(function(j){
+    j.arm = el("g", {}, armLayer);
+    // paper strip from its pivot to the child disc (rigid length; it never stretches)
+    el("rect", {x: "-4", y: "-8", width: (j.len+4).toFixed(1), height: "16", rx: "8", fill: P.ink, stroke: P.cream, "stroke-width": "2"}, j.arm);
+    j.node = el("g", {}, nodeLayer);
+    el("circle", {cx: "0", cy: "0", r: "46", fill: j.fill, stroke: P.cream, "stroke-width": "3"}, j.node);
+    j.pin = el("g", {}, pinLayer);
+    el("circle", {cx: "0", cy: "0", r: "5", fill: P.cream, stroke: P.ink, "stroke-width": "1.5", opacity: "0.9"}, j.pin);
+  });
+  var hingePin = el("g", {}, pinLayer);
+  el("circle", {cx: "0", cy: "0", r: "6", fill: P.cream, stroke: P.ink, "stroke-width": "1.5"}, hingePin);
+
+  var bulb = document.getElementById("bulb");
+  var filament = document.getElementById("filament");
+  var FIL_LEN = filament.getTotalLength();
+  filament.setAttribute("stroke-dasharray", FIL_LEN.toFixed(2)+" "+FIL_LEN.toFixed(2));
+  var flap = document.getElementById("flap"), flapFace = document.getElementById("flapFace");
+  var tag = document.getElementById("tag"), tagText = document.getElementById("tagText");
+
+  // ---------- Pose state (single owner: GSAP tweens these values; render() maps them) ----------
+  var REST = {
+    bulbY: 0, bulbRot: 0, bulbOp: 1, fil: 1,
+    band0: 1, band1: 1, band2: 1,
+    sw_n1: 0, sw_n2: 0, sw_n3: 0, sw_n4: 0, sw_n5: 0,
+    op_n1: 1, op_n2: 1, op_n3: 1, op_n4: 1, op_n5: 1,
+    tagOp: 1, tagRot: 0, fold: 0, text: 1
+  };
+  var START = {
+    bulbY: -46, bulbRot: -11, bulbOp: 0, fil: 0,
+    band0: 0, band1: 0, band2: 0,
+    // swing offsets: collapsed fan poses that open around each pivot
+    sw_n1: 62, sw_n2: 13.5, sw_n3: -42.5, sw_n4: -38, sw_n5: 32,
+    op_n1: 0, op_n2: 0, op_n3: 0, op_n4: 0, op_n5: 0,
+    tagOp: 0, tagRot: -5, fold: 180, text: 0
+  };
+  var vals = {};
+  var S = {};
+  Object.keys(START).forEach(function(k){
+    vals[k] = START[k];
+    Object.defineProperty(S, k, {
+      enumerable: true,
+      get: function(){ return vals[k]; },
+      set: function(v){ vals[k] = v; render(); }   // property setter keeps rendering independent of timeline events
+    });
+  });
+
+  function mat(){ return new DOMMatrix(); }
+  function render(){
+    var v = vals;
+    // Bulb: pivot at the base plates centre (330,494)
+    var bm = mat().translate(0, v.bulbY).translate(330, 494).rotate(v.bulbRot).translate(-330, -494);
+    bulb.setAttribute("transform", "matrix("+[bm.a,bm.b,bm.c,bm.d,bm.e,bm.f].map(function(x){return x.toFixed(4);}).join(" ")+")");
+    bulb.setAttribute("opacity", Math.max(0, Math.min(1, v.bulbOp)).toFixed(3));
+    filament.setAttribute("stroke-dashoffset", (FIL_LEN*(1-v.fil)).toFixed(2));
+    filament.setAttribute("opacity", v.fil > 0.001 ? "1" : "0");
+
+    // Light sheets drop onto the paper stack: settle from slightly lifted (larger) to flat
+    for (var i=0;i<bands.length;i++){
+      var p = v["band"+i], s = 1 + 0.07*(1-p);
+      bands[i].setAttribute("transform", "translate("+BULB_C[0]+" "+(BULB_C[1]-10*(1-p)).toFixed(2)+") scale("+s.toFixed(4)+") translate("+(-BULB_C[0])+" "+(-BULB_C[1])+")");
+      bands[i].setAttribute("opacity", Math.max(0, Math.min(1, p*1.6)).toFixed(3));
+    }
+
+    // Forward kinematics: hinge rides on the bulb; each child inherits its parent's world transform
+    var hp = new DOMPoint(HINGE[0], HINGE[1]).matrixTransform(bm);
+    var world = {};
+    joints.forEach(function(j){
+      var pw = j.parent ? world[j.parent] : mat().translate(hp.x, hp.y).rotate(v.bulbRot);
+      var pivot = j.parent ? world[j.parent].tip : mat().translate(hp.x, hp.y).rotate(v.bulbRot);
+      var armM = (j.parent ? pw.tip : pivot).rotate(j.localRest + v["sw_"+j.id]);
+      var tipM = armM.translate(j.len, 0);
+      world[j.id] = {arm: armM, tip: tipM};
+      var op = Math.max(0, Math.min(1, v["op_"+j.id]));
+      // effective visibility includes ancestors (a child cannot appear before its parent)
+      var anc = j.parent;
+      while (anc){ op = Math.min(op, Math.max(0, Math.min(1, v["op_"+anc]))); anc = byId[anc].parent; }
+      op = Math.min(op, Math.max(0, Math.min(1, v.bulbOp)));
+      setM(j.arm, armM); j.arm.setAttribute("opacity", op.toFixed(3));
+      var tp = new DOMPoint(0,0).matrixTransform(tipM);
+      j.node.setAttribute("transform", "translate("+tp.x.toFixed(2)+" "+tp.y.toFixed(2)+")");
+      j.node.setAttribute("opacity", op.toFixed(3));
+      j.pin.setAttribute("transform", "translate("+tp.x.toFixed(2)+" "+tp.y.toFixed(2)+")");
+      j.pin.setAttribute("opacity", op.toFixed(3));
+    });
+    hingePin.setAttribute("transform", "translate("+hp.x.toFixed(2)+" "+hp.y.toFixed(2)+")");
+    hingePin.setAttribute("opacity", Math.max(0, Math.min(1, v.op_n1, v.bulbOp)).toFixed(3));
+
+    // Caption card placed (rotation about its hinge centre), then bottom flap unfolds about y=496
+    tag.setAttribute("transform", "rotate("+v.tagRot.toFixed(3)+" 870 496)");
+    tag.setAttribute("opacity", Math.max(0, Math.min(1, v.tagOp)).toFixed(3));
+    var th = v.fold*Math.PI/180, c = Math.cos(th);
+    var sy = Math.abs(c) < 0.02 ? 0.02*(c<0?-1:1) : c;
+    flap.setAttribute("transform", "translate(0 496) scale(1 "+sy.toFixed(4)+") translate(0 -496)");
+    // procedural fold shading: face brightens as it turns toward the key light, back side shows when flipped
+    var face = c >= 0 ? chroma.mix(FLAP_BACK, P.cream, c, "rgb").hex() : FLAP_BACK;
+    flapFace.setAttribute("fill", face);
+    tagText.setAttribute("opacity", Math.max(0, Math.min(1, v.text)).toFixed(3));
+  }
+  function setM(node, m){
+    node.setAttribute("transform", "matrix("+[m.a,m.b,m.c,m.d,m.e,m.f].map(function(x){return x.toFixed(4);}).join(" ")+")");
+  }
+
+  // ---------- Timeline (seekable, paused) ----------
+  var tl = gsap.timeline({paused: true});
+  function to(props, dur, ease, at){
+    var target = {};
+    props.forEach(function(k){ target[k] = REST[k]; });
+    target.duration = dur; target.ease = ease;
+    tl.fromTo(S, (function(){ var f = {}; props.forEach(function(k){ f[k] = START[k]; }); return f; })(), target, at);
+  }
+  // Beat 1 — idea placed: bulb lowered onto the stack, pivoting on its base plates
+  to(["bulbOp"], 0.18, "sine.inOut", 0.0);
+  to(["bulbY","bulbRot"], 0.6, "back.out(1.2)", 0.0);
+  // Beat 2 — idea lights: filament cut-line draws, light sheets drop in one by one
+  to(["fil"], 0.38, "power2.inOut", 0.45);
+  to(["band2"], 0.36, "power2.inOut", 0.55);
+  to(["band1"], 0.36, "power2.inOut", 0.66);
+  to(["band0"], 0.36, "power2.inOut", 0.77);
+  // Beat 3 — link arm swings out on the bulb hinge
+  to(["op_n1"], 0.14, "sine.inOut", 0.9);
+  to(["sw_n1"], 0.55, "back.out(1.2)", 0.9);
+  // Beat 4 — branches fan open from the first node's pin
+  to(["op_n2","op_n3"], 0.12, "sine.inOut", 1.3);
+  to(["sw_n2","sw_n3"], 0.5, "back.out(1.2)", 1.3);
+  to(["op_n4","op_n5"], 0.12, "sine.inOut", 1.55);
+  to(["sw_n4","sw_n5"], 0.48, "back.out(1.2)", 1.55);
+  // Beat 5 — caption card placed, flap unfolds, then its labels appear
+  to(["tagOp"], 0.14, "sine.inOut", 1.72);
+  to(["tagRot"], 0.36, "power2.inOut", 1.72);
+  to(["fold"], 0.42, "power2.inOut", 1.86);
+  to(["text"], 0.14, "sine.inOut", 2.29);
+  tl.to({}, {duration: 0.001}, 2.999);
+
+  render();
+  tl.progress(1).progress(0);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  window.addEventListener("hf-seek", function(){ render(); });
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

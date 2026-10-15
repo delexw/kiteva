@@ -1,0 +1,214 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>style-091 · 2D Rigged Animation · An idea becomes a connected system</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#162430}
+#stage{position:relative;width:100%;height:100%}
+#stage svg{width:100%;height:100%;display:block}
+</style>
+</head>
+<body>
+<div id="stage" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <!-- joint pivot marker (rig gizmo, part of the authored look) -->
+    <g id="pv"><circle r="9" fill="#F4EDDF" stroke="#C7876F" stroke-width="3"/><circle r="3" fill="#C7876F"/></g>
+    <!-- system node tile -->
+    <g id="nd"><rect x="-34" y="-34" width="68" height="68" rx="18" fill="#7A9A91" stroke="#2C4249" stroke-width="4"/><circle r="10" fill="#F4EDDF"/></g>
+    <!-- deterministic static paper grain (seeded turbulence, never animated) -->
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="91" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 0.96  0 0 0 0 0.93  0 0 0 0 0.87  0 0 0 0.07 0"/>
+    </filter>
+    <!-- mask that reveals the dashed shoulder-limit arc along its length -->
+    <mask id="arcMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720">
+      <path id="arcMaskPath" d="M420 290A110 110 0 0 1 520 230" fill="none" stroke="#fff" stroke-width="8"/>
+    </mask>
+    <clipPath id="panelClip"><rect id="panelWipe" x="740" y="118" width="0" height="350"/></clipPath>
+  </defs>
+
+  <!-- ===== STATIONARY BACKGROUND: twilight storybook stage (scene-dependent lighting state) ===== -->
+  <g id="background">
+    <rect x="0" y="0" width="1280" height="232" fill="#162430"/>
+    <rect x="0" y="232" width="1280" height="190" fill="#1C2F3C"/>
+    <rect x="0" y="422" width="1280" height="178" fill="#25404D"/>
+    <g fill="#F4EDDF" opacity="0.55">
+      <circle cx="640" cy="54" r="1.6"/><circle cx="712" cy="122" r="1.2"/><circle cx="905" cy="40" r="1.8"/>
+      <circle cx="1040" cy="92" r="1.2"/><circle cx="1210" cy="58" r="1.6"/><circle cx="620" cy="206" r="1.2"/>
+      <circle cx="1238" cy="176" r="1.2"/><circle cx="36" cy="262" r="1.4"/><circle cx="196" cy="300" r="1.2"/>
+      <circle cx="660" cy="300" r="1.4"/><circle cx="1240" cy="420" r="1.2"/><circle cx="700" cy="420" r="1.2"/>
+    </g>
+    <circle cx="1188" cy="86" r="28" fill="#F4EDDF" opacity="0.9"/>
+    <circle cx="1180" cy="80" r="5" fill="#7A9A91" opacity="0.45"/><circle cx="1197" cy="96" r="3.5" fill="#7A9A91" opacity="0.45"/>
+    <path d="M0 600V540Q90 498 180 528T380 520Q470 492 560 532T760 516Q860 486 960 526T1150 512Q1220 496 1280 520V600Z" fill="#1F3644" stroke="#2C4249" stroke-width="2"/>
+    <rect x="0" y="600" width="1280" height="120" fill="#1A2C2F"/>
+    <path d="M0 600h1280" stroke="#7A9A91" stroke-width="2"/>
+    <!-- lamp light cone + floor pool on the hero (translucent light overlay, static) -->
+    <path d="M372 0L488 0L620 600L240 600Z" fill="#F4EDDF" opacity="0.07"/>
+    <ellipse cx="420" cy="602" rx="150" ry="16" fill="#F4EDDF" opacity="0.16"/>
+    <!-- corner foliage frame -->
+    <g stroke="#2C4249" stroke-width="3" stroke-linejoin="round">
+      <path d="M1280 720L1170 720Q1150 640 1196 586Q1226 640 1222 690Q1240 620 1280 600Z" fill="#7A9A91"/>
+      <path d="M1222 690Q1210 640 1196 586" fill="none" stroke="#F4EDDF" stroke-width="1.5" opacity="0.6"/>
+      <path d="M0 720L0 640Q40 646 70 690Q74 650 110 628Q120 680 96 720Z" fill="#7A9A91"/>
+    </g>
+    <rect width="1280" height="720" filter="url(#grain)"/>
+  </g>
+
+  <!-- ===== HEADLINE ===== -->
+  <g font-family="Avenir Next,Avenir,Trebuchet MS,Helvetica,Arial,sans-serif">
+    <text id="head1" x="80" y="110" font-size="52" font-weight="700" fill="#F4EDDF">An idea becomes</text>
+    <text id="head2" x="80" y="168" font-size="52" font-weight="400" fill="#C7876F">a connected system</text>
+  </g>
+
+  <!-- ===== SYSTEM: translucent light-UI panel, connections, nodes ===== -->
+  <g id="systemPanel" clip-path="url(#panelClip)">
+    <rect x="744" y="122" width="480" height="342" rx="22" fill="#F4EDDF" fill-opacity="0.1" stroke="#F4EDDF" stroke-opacity="0.55" stroke-width="2"/>
+    <path d="M764 146h60M764 158h36" stroke="#F4EDDF" stroke-opacity="0.55" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <g fill="none" stroke="#F4EDDF" stroke-width="5" stroke-linecap="round">
+    <path id="linkHand" d="M560 330C680 330 700 250 820 250"/>
+    <path id="linkA" d="M820 250L1020 180"/>
+    <path id="linkB" d="M820 250L1000 400"/>
+    <path id="linkC" d="M1020 180L1160 300"/>
+    <path id="linkD" d="M1000 400L1160 300"/>
+  </g>
+  <circle id="pulse" cx="820" cy="250" r="44" fill="none" stroke="#F4EDDF" stroke-width="3" opacity="0"/>
+  <g id="node1"><use href="#nd" x="820" y="250"/></g>
+  <g id="node2"><use href="#nd" x="1020" y="180"/></g>
+  <g id="node3"><use href="#nd" x="1000" y="400"/></g>
+  <g id="node4"><use href="#nd" x="1160" y="300"/></g>
+
+  <!-- ===== RIG: parent-child hierarchy  root > [legs, torso, neck>head>(eyes, mouth set), shoulder>upperArm>elbow>forearm] ===== -->
+  <g id="rigRoot">
+    <!-- rim light so ink legs separate from the twilight sky -->
+    <path d="M380 600l-6-120h28l6 120zM430 600l-2-120h28l2 120z" fill="none" stroke="#F4EDDF" stroke-width="9" stroke-linejoin="round" opacity="0.5"/>
+    <g stroke="#2C4249" stroke-width="4" stroke-linejoin="round">
+      <path d="M380 600l-6-120h28l6 120zM430 600l-2-120h28l2 120z" fill="#2C4249"/>
+    </g>
+    <g id="torso">
+      <path d="M360 490q-6-130 50-150h20q56 20 50 150z" fill="#7A9A91" stroke="#2C4249" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M404 318h32v22h-32z" fill="#7A9A91" stroke="#2C4249" stroke-width="4" stroke-linejoin="round"/>
+      <use href="#pv" x="420" y="332"/>
+      <!-- head: child of torso, pivots at the neck -->
+      <g id="head">
+        <circle cx="420" cy="262" r="62" fill="#F4EDDF" stroke="#2C4249" stroke-width="4"/>
+        <g id="eyesOpen" fill="#2C4249"><circle id="eyeL" cx="400" cy="258" r="7"/><circle id="eyeR" cx="442" cy="258" r="7"/></g>
+        <g id="eyesShut" fill="none" stroke="#2C4249" stroke-width="4" stroke-linecap="round" opacity="0">
+          <path d="M393 260q7 -6 14 0M435 260q7 -6 14 0"/>
+        </g>
+        <!-- replacement mouth set A (smile) · B (open) · C (flat) -->
+        <path id="mouthA" d="M404 284q17 14 34 0" fill="none" stroke="#2C4249" stroke-width="4" stroke-linecap="round" opacity="0"/>
+        <circle id="mouthB" cx="421" cy="290" r="6" fill="#2C4249" opacity="0"/>
+        <path id="mouthC" d="M408 289h26" fill="none" stroke="#2C4249" stroke-width="4" stroke-linecap="round"/>
+      </g>
+      <!-- shoulder-limit arc (dashed, revealed through mask) -->
+      <path d="M420 290A110 110 0 0 1 520 230" fill="none" stroke="#C7876F" stroke-width="2" stroke-dasharray="6 6" mask="url(#arcMask)"/>
+      <!-- arm chain: shoulder > upper arm > elbow > forearm -->
+      <g id="upperArm">
+        <path d="M440 360l70-24" stroke="#2C4249" stroke-width="26" stroke-linecap="round"/>
+        <path d="M440 360l70-24" stroke="#C7876F" stroke-width="18" stroke-linecap="round"/>
+        <g id="forearm">
+          <path d="M510 336l46-6" stroke="#2C4249" stroke-width="22" stroke-linecap="round"/>
+          <path d="M510 336l46-6" stroke="#C7876F" stroke-width="14" stroke-linecap="round"/>
+          <use href="#pv" x="510" y="336"/>
+        </g>
+        <use href="#pv" x="440" y="360"/>
+      </g>
+    </g>
+    <use href="#pv" x="390" y="488"/>
+    <use href="#pv" x="444" y="488"/>
+  </g>
+
+  <!-- ===== LEGEND: mouth replacement key with active selector ===== -->
+  <g transform="translate(90 640)" font-family="Avenir Next,Avenir,Trebuchet MS,Helvetica,Arial,sans-serif" font-size="15" fill="#F4EDDF">
+    <circle cx="20" cy="20" r="18" fill="#F4EDDF" stroke="#2C4249" stroke-width="3"/>
+    <path d="M12 24q8 6 16 0" stroke="#2C4249" stroke-width="3" fill="none"/>
+    <circle cx="70" cy="20" r="18" fill="#F4EDDF" stroke="#2C4249" stroke-width="3"/>
+    <circle cx="70" cy="26" r="5" fill="#2C4249"/>
+    <circle cx="120" cy="20" r="18" fill="#F4EDDF" stroke="#2C4249" stroke-width="3"/>
+    <path d="M112 22h16" stroke="#2C4249" stroke-width="3"/>
+    <circle id="selector" cx="120" cy="20" r="24" fill="none" stroke="#C7876F" stroke-width="3"/>
+    <text x="160" y="26">MOUTH SWAPS A · B · C — shoulder limit 0°–70°</text>
+  </g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script>
+(function(){
+  // All state is owned by one paused GSAP timeline; HyperFrames seeks it by composition time.
+  const $=id=>document.getElementById(id);
+  const tl=gsap.timeline({paused:true,defaults:{overwrite:false}});
+
+  // --- stroke-draw helper (only truly stroked, unfilled paths) ---
+  function draw(el,start,dur,ease){
+    const len=el.getTotalLength();
+    tl.fromTo(el,{strokeDasharray:len,strokeDashoffset:len},{strokeDashoffset:0,duration:dur,ease:ease},start);
+  }
+
+  // --- rig pivots (SVG user-space coordinates) ---
+  const P={root:'420 600',torso:'420 490',head:'420 330',shoulder:'440 360',elbow:'510 336'};
+
+  // Headline (0.00-0.65)
+  tl.fromTo($('head1'),{x:-36,opacity:0},{x:0,opacity:1,duration:0.5,ease:'power2.out'},0);
+  tl.fromTo($('head2'),{x:-36,opacity:0},{x:0,opacity:1,duration:0.5,ease:'power2.out'},0.15);
+
+  // Rest pose -> anticipation (0.00-0.55): arm hangs at shoulder limit 65deg, head down, body dips
+  tl.fromTo($('upperArm'),{rotation:65,svgOrigin:P.shoulder},{rotation:70,svgOrigin:P.shoulder,duration:0.35,ease:'sine.inOut'},0.2);
+  tl.fromTo($('forearm'),{rotation:28,svgOrigin:P.elbow},{rotation:34,svgOrigin:P.elbow,duration:0.35,ease:'sine.inOut'},0.2);
+  tl.fromTo($('head'),{rotation:6,svgOrigin:P.head},{rotation:9,svgOrigin:P.head,duration:0.35,ease:'sine.inOut'},0.2);
+  tl.fromTo($('torso'),{scaleY:1,svgOrigin:P.torso},{scaleY:0.965,svgOrigin:P.torso,duration:0.35,ease:'sine.inOut'},0.2);
+
+  // Action (0.55-1.15): shoulder sweeps up to 0deg; elbow follows through with a small overshoot
+  tl.to($('torso'),{scaleY:1,svgOrigin:P.torso,duration:0.4,ease:'back.out(1.6)'},0.55);
+  tl.to($('upperArm'),{rotation:0,svgOrigin:P.shoulder,duration:0.55,ease:'power3.out'},0.55);
+  tl.to($('forearm'),{rotation:-9,svgOrigin:P.elbow,duration:0.45,ease:'power2.out'},0.62);
+  tl.to($('forearm'),{rotation:0,svgOrigin:P.elbow,duration:0.35,ease:'sine.inOut'},1.07);
+  tl.to($('head'),{rotation:-7,svgOrigin:P.head,duration:0.5,ease:'power2.out'},0.6);
+  tl.to($('head'),{rotation:0,svgOrigin:P.head,duration:0.6,ease:'sine.inOut'},1.6);
+  draw($('arcMaskPath'),0.55,0.55,'power3.out');
+
+  // Bounded pupil glance toward the network, then return (inside the head)
+  tl.fromTo([$('eyeL'),$('eyeR')],{x:0},{x:3,duration:0.3,ease:'sine.inOut'},0.7);
+  tl.to([$('eyeL'),$('eyeR')],{x:0,duration:0.3,ease:'sine.inOut'},1.8);
+
+  // Replacement mouths: C (rest) -> B (effort, 0.55) -> A (delight, 1.30); legend selector follows
+  const mouths=['mouthA','mouthB','mouthC'].map($);
+  function mouth(t,idx,selX){
+    mouths.forEach((m,i)=>tl.set(m,{opacity:i===idx?1:0},t));
+    tl.to($('selector'),{attr:{cx:selX},duration:0.2,ease:'power2.out'},t);
+  }
+  tl.set(mouths[0],{opacity:0},0);tl.set(mouths[1],{opacity:0},0);tl.set(mouths[2],{opacity:1},0);
+  tl.set($('selector'),{attr:{cx:120}},0);
+  mouth(0.55,1,70);
+  mouth(1.3,0,20);
+
+  // Blink replacement (2.15-2.25)
+  tl.set($('eyesOpen'),{opacity:1},0);tl.set($('eyesShut'),{opacity:0},0);
+  tl.set($('eyesOpen'),{opacity:0},2.15);tl.set($('eyesShut'),{opacity:1},2.15);
+  tl.set($('eyesOpen'),{opacity:1},2.25);tl.set($('eyesShut'),{opacity:0},2.25);
+
+  // System: hand line draws, light-UI panel wipes open, nodes assemble, edges connect
+  draw($('linkHand'),0.95,0.6,'power2.inOut');
+  tl.fromTo($('panelWipe'),{attr:{width:0}},{attr:{width:500},duration:0.7,ease:'power2.inOut'},1.0);
+  const pop=(id,t)=>tl.fromTo($(id),{scale:0.3,opacity:0,transformOrigin:'50% 50%'},{scale:1,opacity:1,duration:0.45,ease:'back.out(1.7)'},t);
+  pop('node1',1.4);
+  tl.fromTo($('pulse'),{attr:{r:36},opacity:0.8},{attr:{r:78},opacity:0,duration:0.55,ease:'power1.out'},1.45);
+  draw($('linkA'),1.55,0.35,'power2.out');
+  draw($('linkB'),1.6,0.35,'power2.out');
+  pop('node2',1.75);
+  pop('node3',1.8);
+  draw($('linkC'),1.95,0.3,'power2.out');
+  draw($('linkD'),1.98,0.3,'power2.out');
+  pop('node4',2.12);
+
+  tl.to({}, {duration:0.001}, 2.999);
+  tl.progress(0).pause();
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

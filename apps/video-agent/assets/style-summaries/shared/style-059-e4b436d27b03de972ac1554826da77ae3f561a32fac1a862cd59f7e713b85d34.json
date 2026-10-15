@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-059",
+    "name": "Low-Poly 3D. Category: Digital and 3D Aesthetics. Provenance: explicit, because the source directly names and describes this visual direction.",
+    "visualIdentity": "Explicit: a deliberately limited mesh with readable silhouettes, faceted flat shading and selected color fields. Joints and contact relationships must stay credible. Clear camera framing and stable 3D motion take priority over polygon reduction that makes the subject unrecognizable.",
+    "suitableUses": "Explicit: faceted characters and objects with clear silhouettes. Explicit hybrids: bounded miniature stages (style-079) and terrain or spatial data explainers (style-097). Inferred: stylized product, game-world or explainer videos. Topic, audience and objective are unspecified in the source.",
+    "limitations": "Explicit: polygon reduction must not make the subject unrecognizable, and facet density must stay consistent across props. Smoothing normals and mixed realistic textures are excluded. Terrain must come from verified data with stated vertical exaggeration. Delaunator is 2D only, not arbitrary 3D meshing.",
+    "palette": "Suggested, not supplied: background #F1EBDF, foreground #34484C, accent_1 #799C8C, accent_2 #C28A68. Four base colors, no gradient. Task, brand or reference colors override these. Foreground and background give 8.124:1 for body text. Accents are decorative only, at 3.191 and 3.274 against foreground, below the 4.5 target.",
+    "motionAndInteraction": "Explicit: stable 3D motion with credible contact and clear camera framing. Shared guidance: use smooth movement where it helps, but keep deliberate cuts, impacts, constant-speed sections and reading holds. Optional references (006, 009, 010, 012, 015, 019, 021) need matching assets, real depth or complete views. Selecting none is valid.",
+    "audio": "Unspecified in the source; no fixed audio layer is required. Inferred suggestion: restrained ambience or music that follows the motion cadence, leaving space for narration and reading holds. Sound accents suit deliberate cuts or impacts. Honor any explicit user audio first, and do not invent audio assets.",
+    "assetRequirements": "Explicit: Blender models, materials, lighting and animation for the 3D route, built through Blender and its bundled Python bpy, with an EEVEE or Cycles engine confirmed for the installed Blender version. Optional motion references need eye layers, a rig, real depth or turntable views. Subject, duration, resolution and output path are unspecified.",
+    "combinations": "Explicit: style-079 provides a miniature stage with an elevated camera, flat shading only and depth of field that never hides the subject. Style-097 provides terrain for verified data with stated exaggeration, fixed color meanings and 2D labels. HTML options: scrubbed EEVEE turntable frames, or a map with HTML labels.",
+    "productionApproach": "Explicit: HyperFrames is the primary pipeline. Remotion is the fallback only when HyperFrames is unavailable or a verified limitation exists, and the reason must be recorded. Blender and bpy act as style renderer and motion engine. GSAP timelines are registered for seekable time. Validate with check, snapshot, render, and decoded-frame review."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-026",
+    "name": "Whiteboard Animation, category Drawing and Illustration, with explicit provenance. The source directly describes this visual direction. No drawing hand is required, and none should be invented.",
+    "visualIdentity": "A clean pale background, simplified line diagrams and legible lettering. Draw only objects that explain the subject. Reveal diagrams in causal order, then add annotations. Erasure or redrawing transitions need sufficient reading pauses.",
+    "suitableUses": "Inferred suitability: causal explainers for education, policy, science, onboarding, HR or training. The source calls the style self-sufficient for causal explainers. Quantitative segments or recurring characters may be added through supporting styles.",
+    "limitations": "Never invent a drawing hand or fake hand-drawn media. Avoid polished dashboards, invented values, and revealing everything at once. Apply Rough.js sketch treatment only when the brief calls for it. Palette checks are two-color only, so composited frames must be rechecked.",
+    "palette": "The background policy is scene_dependent. The pale background is a style cue, but #FFFFFF is only an illustrative swatch. Suggested tokens are background #FFFFFF, foreground #23282C, and accent #245B9B, with no gradient. Task-supplied exact colors override them. Contrast is 14.879 for foreground on background and 6.897 for accent with background, both two-color checks only.",
+    "motionAndInteraction": "Video reveals strokes and masks in causal order, then annotations, with erasure or redraw transitions and reading holds. Motion references motion-012 (chaptered handoff) and motion-015 (narrative steps) are optional and not required. Interactive delivery may use Next/Back step controls with keyboard support.",
+    "audio": "Audio is unspecified by the source, and no audio layer is mandatory. Options include restrained background music, clear voiceover, sparing sound accents on key actions, or silence during reading holds, chosen from topic and audience. Music must not compete with narration. No audio is supplied.",
+    "assetRequirements": "No uploads are required. Diagram paths and text layers are prepared in advance, and fonts load before rendering. Exact copy and subject details are unspecified. Editable diagram layers from tldraw or other exports are optional. Motion references are optional.",
+    "combinations": "style-097 adds staged data charts: axes draw first, then series in #23282C with the #245B9B highlight, erased before the next idea. style-025 adds marker-line doodle presenters with no fills, a fixed expression set, and no overlap with diagrams. Avoid pastel fills and drawing-hand props.",
+    "productionApproach": "HyperFrames is the default for composition, timing, sync and export; Remotion is only a fallback with a recorded reason. SVG renders paths, masks and stroke reveals, and GSAP DrawSVGPlugin drives them. chroma.js validates palette. Optional Rough.js, Cytoscape.js, Paper.js or Anime.js each need one property owner. Verify forward, backward and direct seeks, plus decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

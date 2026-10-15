@@ -1,0 +1,28 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Symmetric Stage",
+  "displayDescription": "A curtain-up night stage: the idea lamp lights and links to mirrored nodes and a ledger in strict axial symmetry.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (procedural illustrated stage, cached static back wall and seeded grain)",
+    "HTML/CSS DOM lettering"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline (window.__timelines.video) as the single owner of canvas scene state, the per-word title x transforms and the gold rule scaleX"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent; no audio track.",
+  "limitations": [
+    "Blender was excluded by the user; Canvas 2D stands in for 3D, and the depth is a layered 2D push-in, not a 3D camera.",
+    "Lighting, glow and floor reflections are painted 2D gradients and alpha mirrors, not physical light transport.",
+    "The grain is a static seeded texture.",
+    "The palette is a scene-dependent night stage chosen from source-frame review; the earlier cream background was an example swatch, not an approved token.",
+    "No preview recipes were supplied in STYLE.json; this refresh demonstrates the source-frame background review instead.",
+    "Didot/Bodoni 72 are referenced via @font-face local() system fonts with a Georgia/serif fallback; the title's settle is a per-word x-spread transform, not a letter-spacing change."
+  ]
+}

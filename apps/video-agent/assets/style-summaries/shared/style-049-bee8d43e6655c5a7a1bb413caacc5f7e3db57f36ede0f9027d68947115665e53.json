@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-049",
+    "name": "Risograph Printing (Printmaking and Craft Materials; provenance explicit). Riso is explicitly named in the source.",
+    "visualIdentity": "Explicit: two or three inks on natural paper, with overprints creating extra tones. Grain, dots and slight registration offsets stay controlled and never obscure text. Color separations can be revealed and printed forms swapped, with registration held stable.",
+    "suitableUses": "Explicit: posters and illustrations where two-ink overprint is the identity, and typography-led hybrids. Inferred: event promos, zine-style social posts and editorial title cards. Source examples used flat vector and kinetic type, not a fixed subject.",
+    "limitations": "Explicit: no third independent ink; overprint is the only extra tone. Coral on paper measures 3.24:1, so it is decorative only and not for small text. Grain must not texture text. Source review covered only sampled seconds 1–8, with no audio or continuous motion verified.",
+    "palette": "Background is scene-dependent: choose paper tone from subject, mood and lighting rather than a fixed cream. Optional suggested tokens, not approved: paper #F4EBD8, blue foreground #254687, coral accent #D95664, no gradient. Blue on paper measures 7.69:1. Task-provided exact colors override these, and source demonstration inks are examples only.",
+    "motionAndInteraction": "Explicit: ink-separation reveals, swapped printed forms and stable registration without per-frame jitter. Optional motion references are 012 chapter handoff, 015 story steps, 037 phrase scatter, 038 punctuation zoom, 039 radial burst and 040 word cuts, each needing matching scene assets. Motion-039 confetti must map to paper and the two inks. Video uses composition time; reduced motion shows the completed state.",
+    "audio": "Unspecified by the style: it mandates no music, voiceover, effects or silence. Audio direction gives only dimensions to consider. Inferred: restrained accents or silence suit print-like pacing and reading holds. No source audio was inspected, so no beat synchronization is assumed unless audio is supplied and analyzed.",
+    "assetRequirements": "No uploads are required. Inferred needs: inspected glyph or mark geometry for references 037–040, local fonts, and seeded procedural grain or paper textures. Separation layers can be prepared with Python/Pillow, with Sharp as an optional Node.js alternative. Do not invent brand copy; user-approved colors override suggestions.",
+    "combinations": "Riso alone suits posters and illustrations. With style-093, reveal blue then coral words with constant offsets, use blue for body text and coral only for large display. With style-028, separate flat figures into two plates. Avoid third inks, gradients and smooth vector shadows in every combination.",
+    "productionApproach": "HyperFrames is the primary pipeline: composition IDs, clip timing, and one paused GSAP timeline registered in window.__timelines, then check, snapshot and render. Remotion is a fallback only under its documented condition. SVG draws the ink separations, GSAP owns motion, and Motion is optional. Verify seeks, composited contrast and a contact sheet."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,13 @@
+{
+  "styleId": "style-106",
+  "name": "Squash and Stretch: an explicit animation principle within Motion Design and Cinematography, not an independent art movement.",
+  "visualIdentity": "Explicitly plans anticipation, impact, compression or extension, rebound, and settling. Deformation follows movement while preserving apparent volume and recognizable silhouettes. Timing varies, with short holds.",
+  "suitableUses": "Explicit: one expressive moment for a hero object or logo, or physical emphasis for characters or headline words. Inferred: product explainers, onboarding loops, title cards. Other uses are unspecified.",
+  "limitations": "Explicit: no uniform spring presets on unrelated objects and no continuous deformation. Basic XPBD omits fluid, viscosity, plasticity, tearing, rigid contact, and origami creases. Deformation limits are unspecified.",
+  "palette": "Reference-dependent example; the style has no intrinsic palette. Tokens: background #F4EDDF, foreground #32444A, accent_1 #66978E, accent_2 #C78461. Foreground on background is 8.745:1. Accents are decorative only, and gradients are off. Approved palettes override these.",
+  "motionAndInteraction": "Explicit: use pivots, key poses, controlled scale changes, and apparent-volume checks. Optional XPBD may assist elastic compression and settling under authored direction. Video runs from composition time. Optional references: motion-003 drop-and-growth, motion-006 gaze tracking, motion-012 chapter handoff, motion-015 narrative steps.",
+  "audio": "Unspecified in the source. Options are offered per topic: music, voiceover, sung vocals, sound effects, ambience, or silence. Inferred: restrained impact accents may suit compression moments. Music must not compete with speech.",
+  "assetRequirements": "Unspecified; no assets are supplied. Inferred needs: layered artwork with clear pivots, readable silhouettes, and eye layers or a rig for gaze motion. XPBD needs masses, rest geometry, compliance, damping, and collision settings.",
+  "combinations": "Explicit: use alone for one hero object or logo; hybridize when characters need a drawing language or typography must carry the message. Suggested: style-028 flat vector characters and style-093 kinetic type. Only acting objects deform.",
+  "productionApproach": "HyperFrames is the default for composition, timing, sync, validation, and export; Remotion is a fallback only when HyperFrames is unavailable or a verified limitation applies. SVG renders visuals and GSAP drives motion. Verify key frames and decoded video."
+}

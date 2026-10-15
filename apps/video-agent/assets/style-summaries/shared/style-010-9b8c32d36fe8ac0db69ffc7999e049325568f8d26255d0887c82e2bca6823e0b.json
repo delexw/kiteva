@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-010",
+    "name": "Memphis Design. A supplemental graphic-design reference, not a directly named collection style.",
+    "visualIdentity": "Dots, zigzags, stripes, circles and irregular geometry form bold, contrasting patterns that set rhythm. Shapes alternate, offset elastically and hand off between pattern groups. The headline stays readable throughout.",
+    "suitableUses": "Playful brand and pattern pieces suit this style alone. Short social content needing timed emphasis captions suits a hybrid. Fit for serious or dense explanatory subjects is unspecified.",
+    "limitations": "Avoid rapid full-frame flashing and many simultaneous movements. Keep captions off faces and subtitles, and never deform headlines. Review covered only sampled frames at seconds 1–8, with no audio or continuous motion verified.",
+    "palette": "Background is scene-dependent; #FFF6E8 is only an illustrative swatch, so choose the field from subject and mood. Suggested tokens #202039, #ED718E, #3DBAB1 and #F4C64F are unapproved. Foreground-on-background contrast is 14.769:1; accent-backed foreground text reaches 5.541–9.824:1. Gradients are disabled.",
+    "motionAndInteraction": "Motion runs on one seekable timeline, with a paused GSAP timeline as the default motion engine. Optional references motion-037 to motion-040 cover phrase scatter, punctuation zoom, radial burst and word smash cuts. Scroll references motion-007, 012 and 015 require adaptation for video.",
+    "audio": "No audio direction, soundtrack or voice is specified. Audio is optional: restrained accents, ambience or silence that leave reading holds. Music timing must not be claimed without inspected audio.",
+    "assetRequirements": "No approved assets, exact copy, fonts or brand marks are supplied, so they are unspecified. Load fonts and assets before rendering. Inspect mark geometry before using motion-037 to motion-040, and never invent copy or a brand mark.",
+    "combinations": "Style-115 adds timed emphasis captions with #202039 outlines, one animated pattern at a time. Style-106 adds squash-and-stretch to a few hero shapes only, never headlines. Avoid importing support palette accents into hybrids.",
+    "productionApproach": "HyperFrames is the default composition and export pipeline; Remotion is a fallback only for a verified limitation. SVG renders visuals and GSAP drives motion; optional mo.js, Matter.js and chroma.js serve bursts, pre-baked poses and contrast checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

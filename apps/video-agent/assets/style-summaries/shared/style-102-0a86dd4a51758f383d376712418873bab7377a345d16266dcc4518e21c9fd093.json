@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-102",
+    "name": "Kaleidoscopic Animation",
+    "visualIdentity": "Patterns center on one fixed point with a set number of mirrored sectors. Rotation and shape changes keep symmetry, with coherent speed, density, and palette. Label normalized from an explicit kaleidoscope effect.",
+    "suitableUses": "The source notes ambient visuals as a standalone use. Inferred from pairings: music visuals, VJ loops, and gala or luxury event loops. Dense reading text is inferred as poorly suited.",
+    "limitations": "Avoid center jumps, rapid flicker, and text inside repeated sectors. Sector count, rotation speed, and density are unspecified. Simulated appearance is not validated physics.",
+    "palette": "Suggested tokens, used only without task colors: background #201D32, foreground #F4E8D4, accents #9E7FB9 violet, #5EA7A0 teal, #D8A169 amber. No gradient. Foreground on background is 13.513:1; background text on accents is 4.824 to 7.186:1.",
+    "motionAndInteraction": "Rotation and phase derive from shared composition time around the fixed center; video needs no live input. Optional references: motion-039 burst (only if scene assets fit), motion-002 vortex passage, motion-012 chapter handoff.",
+    "audio": "Unspecified by the style; no audio layer is mandated. Inferred: music can set sector changes at section boundaries and rotation accents on downbeats, after audio inspection. Speech and essential text must stay clear.",
+    "assetRequirements": "No required assets are specified. Load fonts and assets before rendering. Optional: a precomputed beat map (style-105) and deco motifs (style-006) inside sectors. Task colors override suggested tokens; copy and marks are unspecified.",
+    "combinations": "Works alone for ambient visuals. Style-105 adds beat-map timing for rotation and sector changes, with flicker limits. Style-006 adds gold deco motifs in sectors, with a gold accent and no indiscriminate sparkle.",
+    "productionApproach": "Canvas 2D, WebGL, and GLSL form the style renderer; GLSL also drives motion. HyperFrames handles timing and export by default; Remotion is fallback only if HyperFrames is unavailable or verifiably limited. Verify forward, backward, and direct seeks, repainting Canvas or WebGL on each seek."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

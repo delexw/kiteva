@@ -1,0 +1,260 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Continuous Shot - An idea becomes a connected system</title>
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #121925; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #121925; }
+  #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .overlay { position: absolute; left: 0; right: 0; pointer-events: none; }
+  #title-block { top: 40px; text-align: center; }
+  #title { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 40px; line-height: 48px; font-weight: normal; color: #F2EBDD; }
+  #subtitle { margin: 10px 0 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 14px; line-height: 18px; letter-spacing: 6px; color: #D9DEE3; }
+  .hud { position: absolute; left: 56px; bottom: 44px; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 14px; line-height: 18px; letter-spacing: 3px; color: #F2EBDD; }
+  .hud .tick { display: inline-block; width: 8px; height: 8px; margin-right: 10px; border-radius: 50%; vertical-align: 1px; }
+  #hud-idea .tick { background: #FFB45E; }
+  #hud-system .tick { background: #A9B394; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="stage" width="1280" height="720"></canvas>
+  <div id="title-block" class="overlay">
+    <h1 id="title">An idea becomes a connected system</h1>
+    <p id="subtitle">ONE CONTINUOUS TAKE - NO CUTS</p>
+  </div>
+  <div id="hud-idea" class="hud"><span class="tick"></span>00:00 IDEA</div>
+  <div id="hud-system" class="hud"><span class="tick"></span>00:12 SYSTEM</div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="three-vendor.js"></script>
+<script>
+(() => {
+  const THREE = window.THREE;
+  const W = 1280, H = 720, DURATION = 3;
+
+  // ---- Resolved scene palette (blue-hour ambient vs warm practical light) ----
+  const P = {
+    skyTop: '#0E1420', horizon: '#26344D', ground: '#19212D', grid: '#2D3A4E',
+    plinth: '#343E43', idea: '#FFB45E', ideaCore: '#FBE3BE', edge: '#F6D7A6',
+    link: '#B5BEA3', cap: '#F2EBDD', hubRing: '#8D957D',
+    blocks: ['#8D957D', '#6F7F9A', '#8E7A92', '#A8915E', '#9AA3A8'],
+    text: '#F2EBDD'
+  };
+  // Contrast sanity check of overlay text against the darkest/lightest sky behind it.
+  window.__paletteContrast = {
+    titleOnHorizon: chroma.contrast(P.text, P.horizon),
+    titleOnSkyTop: chroma.contrast(P.text, P.skyTop)
+  };
+
+  // ---- Renderer / scene ----
+  const canvas = document.getElementById('stage');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(1);
+  renderer.setSize(W, H, false);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = true;
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(new THREE.Color(P.horizon), 0.032);
+  const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 200);
+
+  // Sky dome: stationary vertical gradient (environment, not a moving canvas).
+  const sky = new THREE.Mesh(
+    new THREE.SphereGeometry(90, 32, 16),
+    new THREE.ShaderMaterial({
+      side: THREE.BackSide, depthWrite: false, fog: false,
+      uniforms: { top: { value: new THREE.Color(P.skyTop) }, hor: { value: new THREE.Color(P.horizon) } },
+      vertexShader: 'varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+      fragmentShader: 'uniform vec3 top; uniform vec3 hor; varying vec3 vP; void main(){ float h = clamp(vP.y*1.6, 0.0, 1.0); gl_FragColor = vec4(mix(hor, top, smoothstep(0.0,1.0,h)), 1.0);\n#include <colorspace_fragment>\n}'
+    })
+  );
+  scene.add(sky);
+
+  // Ground + tiled grid (repetition sells scale).
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), new THREE.MeshStandardMaterial({ color: P.ground, roughness: 0.92, metalness: 0 }));
+  ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+  const grid = new THREE.GridHelper(60, 60, P.grid, P.grid);
+  grid.position.y = 0.002; scene.add(grid);
+
+  // Lights: cool ambient + cool moon key, warm practical from the idea.
+  scene.add(new THREE.HemisphereLight('#7088AE', '#10151C', 1.1));
+  const moon = new THREE.DirectionalLight('#A9BCDD', 1.1);
+  moon.position.set(-6, 11, 5); moon.castShadow = true;
+  moon.shadow.mapSize.set(1024, 1024);
+  Object.assign(moon.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 30 });
+  moon.shadow.bias = -0.0008;
+  scene.add(moon);
+  const practical = new THREE.PointLight(P.idea, 0, 14, 2);
+  practical.position.set(0, 0.95, 0); scene.add(practical);
+
+  // Halo texture (deterministic canvas gradient) approximating bloom.
+  function haloTexture(inner, outer) {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d');
+    const grd = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    grd.addColorStop(0, inner); grd.addColorStop(0.35, outer); grd.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = grd; g.fillRect(0, 0, 128, 128);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  }
+  const haloTex = haloTexture('rgba(255,226,178,0.95)', 'rgba(255,170,80,0.35)');
+  const capHaloTex = haloTexture('rgba(242,235,221,0.8)', 'rgba(200,210,190,0.22)');
+
+  // ---- The idea (hub) ----
+  const hubPlinth = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.95, 0.22, 48), new THREE.MeshStandardMaterial({ color: P.plinth, roughness: 0.8 }));
+  hubPlinth.position.y = 0.11; hubPlinth.castShadow = hubPlinth.receiveShadow = true; scene.add(hubPlinth);
+  const orbMat = new THREE.MeshStandardMaterial({ color: P.ideaCore, emissive: new THREE.Color(P.idea), emissiveIntensity: 1.6, roughness: 0.35 });
+  const orb = new THREE.Mesh(new THREE.SphereGeometry(0.42, 48, 32), orbMat);
+  orb.position.set(0, 0.95, 0); scene.add(orb);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false }));
+  halo.position.copy(orb.position); scene.add(halo);
+  const hubRing = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.06, 16, 64), new THREE.MeshStandardMaterial({ color: P.hubRing, roughness: 0.5, emissive: new THREE.Color(P.hubRing), emissiveIntensity: 0.25 }));
+  hubRing.rotation.x = -Math.PI / 2; hubRing.position.y = 0.26; scene.add(hubRing);
+
+  // ---- System nodes: extruded functional blocks around the idea ----
+  const NODE_DEFS = [
+    { a: -2.55, r: 4.1, h: 1.5 }, { a: -1.35, r: 3.7, h: 1.05 }, { a: -0.2, r: 4.3, h: 1.8 },
+    { a: 1.0, r: 3.9, h: 1.2 }, { a: 2.1, r: 4.2, h: 1.6 }
+  ];
+  const nodes = NODE_DEFS.map((d, i) => {
+    const x = Math.sin(d.a) * d.r, z = -Math.cos(d.a) * d.r;
+    const group = new THREE.Group(); group.position.set(x, 0, z); scene.add(group);
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.12, 1.35), new THREE.MeshStandardMaterial({ color: P.plinth, roughness: 0.85 }));
+    slab.position.y = 0.06; slab.receiveShadow = slab.castShadow = true; group.add(slab);
+    const towerGeo = new THREE.BoxGeometry(0.9, d.h, 0.9); towerGeo.translate(0, d.h / 2, 0);
+    const tower = new THREE.Mesh(towerGeo, new THREE.MeshStandardMaterial({ color: P.blocks[i], roughness: 0.72 }));
+    tower.position.y = 0.12; tower.castShadow = tower.receiveShadow = true; group.add(tower);
+    const capMat = new THREE.MeshStandardMaterial({ color: P.cap, emissive: new THREE.Color(P.cap), emissiveIntensity: 0, roughness: 0.4 });
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 16), capMat);
+    group.add(cap);
+    const capHalo = new THREE.Sprite(new THREE.SpriteMaterial({ map: capHaloTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, opacity: 0 }));
+    capHalo.scale.set(1.1, 1.1, 1); group.add(capHalo);
+    const top = new THREE.Vector3(x, 0.12 + d.h + 0.2, z);
+    return { group, tower, cap, capMat, capHalo, h: d.h, top, slab };
+  });
+
+  // ---- Edges: tubes revealed by index draw range (head hidden until it exists) ----
+  const TUBE_SEG = 64, RAD_SEG = 8;
+  function makeTube(curve, color, radius) {
+    const geo = new THREE.TubeGeometry(curve, TUBE_SEG, radius, RAD_SEG, false);
+    geo.setDrawRange(0, 0);
+    const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, fog: true }));
+    scene.add(mesh);
+    return { curve, geo, mesh };
+  }
+  const spokes = nodes.map(n => {
+    const s = orb.position.clone();
+    const mid = s.clone().lerp(n.top, 0.5); mid.y = Math.max(s.y, n.top.y) + 1.1;
+    return makeTube(new THREE.QuadraticBezierCurve3(s, mid, n.top.clone()), P.edge, 0.045);
+  });
+  const links = nodes.map((n, i) => {
+    const m = nodes[(i + 1) % nodes.length];
+    const a = n.top.clone(), b = m.top.clone();
+    const mid = a.clone().lerp(b, 0.5); mid.y += 0.45;
+    return makeTube(new THREE.QuadraticBezierCurve3(a, mid, b), P.link, 0.035);
+  });
+  const headMat = new THREE.MeshBasicMaterial({ color: '#FFE6BD', fog: false });
+  const heads = spokes.concat(links).map(() => {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 12), headMat); m.visible = false; scene.add(m); return m;
+  });
+  function setTube(tube, head, p) {
+    const k = Math.floor(Math.max(0, Math.min(1, p)) * TUBE_SEG);
+    tube.geo.setDrawRange(0, k * RAD_SEG * 6);
+    if (p > 0.02 && p < 0.995) { head.visible = true; head.position.copy(tube.curve.getPointAt(k / TUBE_SEG)); }
+    else head.visible = false;
+  }
+
+  // ---- Camera curve: one continuous pull-back and rise (no resets) ----
+  const camCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(1.15, 1.2, 2.15),
+    new THREE.Vector3(2.4, 1.9, 4.4),
+    new THREE.Vector3(3.6, 4.0, 7.6),
+    new THREE.Vector3(2.6, 7.6, 10.2),
+    new THREE.Vector3(1.6, 9.2, 10.9)
+  ], false, 'centripetal');
+  const lookStart = new THREE.Vector3(0, 0.95, 0), lookEnd = new THREE.Vector3(0, 0.25, -0.6);
+  const lookTmp = new THREE.Vector3();
+
+  // ---- Time-pure state evaluation (eases from GSAP) ----
+  const E = {
+    cam: gsap.parseEase('power2.inOut'), pop: gsap.parseEase('back.out(1.4)'),
+    draw: gsap.parseEase('power2.inOut'), sine: gsap.parseEase('sine.inOut')
+  };
+  const seg = (t, a, d) => Math.max(0, Math.min(1, (t - a) / d));
+
+  function renderAt(t) {
+    t = Math.max(0, Math.min(DURATION, t));
+    // Camera: brief close hold on the idea, then a single eased pull-back/rise, settled by 2.45 s.
+    const u = E.cam(seg(t, 0.15, 2.3));
+    camera.position.copy(camCurve.getPointAt(u));
+    lookTmp.copy(lookStart).lerp(lookEnd, E.sine(u));
+    camera.lookAt(lookTmp);
+
+    // Idea ignites.
+    const ig = E.pop(seg(t, 0, 0.5));
+    const s = 0.55 + 0.45 * ig;
+    orb.scale.setScalar(s);
+    orbMat.emissiveIntensity = 0.7 + 1.1 * ig;
+    practical.intensity = 9 + 21 * ig;
+    halo.scale.setScalar(1.2 + 1.5 * ig);
+    halo.material.opacity = 0.35 + 0.6 * ig;
+
+    // Spokes shoot out one by one; each tower extrudes as its spoke arrives.
+    nodes.forEach((n, i) => {
+      const start = 0.45 + i * 0.13;
+      const p = E.draw(seg(t, start, 0.5));
+      setTube(spokes[i], heads[i], p);
+      const g = E.pop(seg(t, start + 0.36, 0.38));
+      const gy = Math.max(0.001, g);
+      n.tower.scale.set(1, gy, 1);
+      n.slab.scale.setScalar(0.6 + 0.4 * Math.min(1, seg(t, start + 0.3, 0.2)));
+      n.cap.position.y = 0.12 + n.h * gy + 0.2;
+      n.capHalo.position.y = n.cap.position.y;
+      const lit = seg(t, start + 0.48, 0.25);
+      n.capMat.emissiveIntensity = 0.85 * lit;
+      n.capHalo.material.opacity = 0.75 * lit;
+    });
+
+    // Neighbour links close the ring: the idea is now a connected system.
+    links.forEach((l, i) => setTube(l, heads[nodes.length + i], E.draw(seg(t, 1.35 + i * 0.07, 0.45))));
+    const ring = E.pop(seg(t, 1.75, 0.4));
+    hubRing.scale.setScalar(Math.max(0.001, ring));
+
+    renderer.render(scene, camera);
+  }
+
+  // ---- GSAP timeline: the single time owner ----
+  const tl = gsap.timeline({ paused: true });
+  const driver = { _t: 0 };
+  Object.defineProperty(driver, 't', { get() { return this._t; }, set(v) { this._t = v; renderAt(v); } });
+  tl.fromTo(driver, { t: 0 }, { t: DURATION, duration: DURATION, ease: 'none', immediateRender: false }, 0);
+
+  // Overlay copy (DOM opacity/position owned by these tweens only).
+  gsap.set('#title-block', { opacity: 0, y: 14 });
+  gsap.set('#hud-system', { opacity: 0 });
+  gsap.set('#hud-idea', { opacity: 1 });
+  tl.to('#title-block', { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 1.6);
+  tl.to('#hud-idea', { opacity: 0, duration: 0.25, ease: 'sine.inOut' }, 1.85);
+  tl.to('#hud-system', { opacity: 1, duration: 0.3, ease: 'sine.inOut' }, 2.0);
+  tl.to({}, { duration: 0.001 }, DURATION - 0.001);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+
+  // Redraw from shared timeline time on any host seek (direct, backward, out-of-order).
+  // The host seeks the registered timeline; the scene is re-evaluated from that time.
+  const redraw = () => renderAt(tl.time());
+  window.addEventListener('hf-seek', redraw);
+  document.addEventListener('hf-seek', redraw);
+
+  renderAt(0);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

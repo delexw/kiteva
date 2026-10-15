@@ -1,0 +1,57 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:1280px;height:720px;overflow:hidden}svg{width:1280px;height:720px;display:block}</style></head><body><div data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30"><svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720"><defs><circle id="n" r="5" fill="#202421"></circle></defs><rect x="0" y="0" width="1280" height="720" fill="#FAF9F5" data-demo-actor="demo-actor-1"></rect><g stroke="#202421" stroke-width="1.5" fill="none" data-demo-actor="demo-actor-2"><line x1="314" y1="340" x2="760" y2="340" data-demo-actor="demo-actor-3"></line><path d="M760 340L880 260L1000 340L880 420ZM880 260V420M1000 340H1120" data-demo-actor="demo-actor-4"></path></g><circle cx="300" cy="340" r="14" fill="#406B5A" data-demo-actor="demo-actor-5"></circle><use href="#n" x="760" y="340" data-demo-actor="demo-actor-6"></use><use href="#n" x="880" y="260" data-demo-actor="demo-actor-7"></use><use href="#n" x="880" y="420" data-demo-actor="demo-actor-8"></use><use href="#n" x="1000" y="340" data-demo-actor="demo-actor-9"></use><circle cx="1120" cy="340" r="5" fill="#406B5A" data-demo-actor="demo-actor-10"></circle><line x1="120" y1="566" x2="160" y2="566" stroke="#406B5A" stroke-width="2" data-demo-actor="demo-actor-11"></line><text x="120" y="612" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="28" font-weight="300" fill="#202421" data-demo-actor="demo-actor-12">An idea becomes a connected system.</text><text x="120" y="120" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" letter-spacing="3" fill="#406B5A" data-demo-actor="demo-actor-13">01 — IDEA</text><text x="1160" y="120" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13" letter-spacing="3" fill="#202421" data-demo-actor="demo-actor-14">02 — SYSTEM</text></svg></div><script src="gsap.min.js"></script><script src="chroma.min.js"></script><script>
+const plan={"styleId": "style-018", "selectedReferenceIds": ["motion-015"], "rationale": "Minimal line diagram: an idea assembles into a connected system, told as staged steps (motion-015). Frame 0 is a deliberate scattered state. The scene's parts are already present but displaced: each sits up to 48px off its authored spot at 0.65 scale and full opacity. The parts then assemble in order. First the idea dot and 01 IDEA label glide home, and the stroked unfilled connector (3) draws. Next the top, bottom and right nodes lock onto their diamond vertices. The unfilled diamond and output edges (4) then draw between the landed nodes, and the green output node docks. Last, the 02 SYSTEM label slides in and the caption rises and scales into its line. Because the start state differs from the final scene both where the objects were and where they land, this roughly doubles the visible change compared with fading in from blank. That matters because the sparse line art had capped the score at 1.75%. Background, accent rule, left junction and parent group 2 stay still. All offsets stay within the canvas, and the complete authored scene holds from 2.4s.", "tracks": [{"actorId": "demo-actor-5", "role": "Green idea dot starts small and offset left, then glides and grows onto the line origin", "action": "reveal", "start": 0.0, "duration": 0.6, "ease": "back.out(1.2)", "pose": {"x": -48, "y": 0, "scale": 0.65, "rotation": 0, "opacity": 1}}, {"actorId": "demo-actor-13", "role": "01 IDEA label starts reduced and offset left, then slides into the top-left", "action": "reveal", "start": 0.0, "duration": 0.6, "ease": "power2.inOut", "pose": {"x": -48, "y": 0, "scale": 0.65, "rotation": 0, "opacity": 1}}, {"actorId": "demo-actor-3", "role": "Stroked unfilled connector line draws from the idea to the network", "action": "draw", "start": 0.5, "duration": 0.7, "ease": "power2.inOut", "pose": {"x": 0, "y": 0, "scale": 1, "rotation": 0, "opacity": 1}}, {"actorId": "demo-actor-7", "role": "Top node starts floating 48px above and locks onto its diamond vertex", "action": "reveal", "start": 0.6, "duration": 0.6, "ease": "back.out(1.2)", "pose": {"x": 0, "y": -48, "scale": 0.65, "rotation": 0, "opacity": 1}}, {"actorId": "demo-actor-8", "role": "Bottom node starts 48px below and locks onto its diamond vertex", "action": "reveal", "start": 0.7, "duration": 0.6, "ease": "back.out(1.2)", "pose": {"x": 0, "y": 48, "scale": 0.65, "rotation": 0, "opacity": 1}}, {"actorId": "demo-actor-9", "role": "Right junction node starts 48px right and locks onto the closing vertex", "action": "reveal", "start": 0.8, "duration": 0.6, "ease": "back.out(1.2)", "pose": {"x": 48, "y": 0, "scale": 0.65, "rotation": 0, "opacity": 1}}, {"actorId": "demo-actor-4", "role": "Unfilled stroked diamond edges and output edge draw between the landed nodes", "action": "draw", "start": 1.2, "duration": 0.8, "ease": "power2.inOut", "pose": {"x": 0, "y": 0, "scale": 1, "rotation": 0, "opacity": 1}}, {"actorId": "demo-actor-10", "role": "Green output node starts 48px out and docks at the end of the output edge", "action": "reveal", "start": 1.7, "duration": 0.5, "ease": "back.out(1.2)", "pose": {"x": 48, "y": 0, "scale": 0.65, "rotation": 0, "opacity": 1}}, {"actorId": "demo-actor-14", "role": "02 SYSTEM label starts reduced and offset right, then slides into the top-right", "action": "reveal", "start": 1.6, "duration": 0.7, "ease": "power2.inOut", "pose": {"x": 48, "y": 0, "scale": 0.65, "rotation": 0, "opacity": 1}}, {"actorId": "demo-actor-12", "role": "Concluding caption starts small and 48px low, then rises and scales into its authored line", "action": "reveal", "start": 1.6, "duration": 0.8, "ease": "power2.inOut", "pose": {"x": 0, "y": 48, "scale": 0.65, "rotation": 0, "opacity": 1}}]};
+const svg=document.querySelector('svg');
+const foreground="#202421";
+const background="#FAF9F5";
+const seenText=new Map();
+Array.from(svg.querySelectorAll('text')).forEach(el=>{
+ const label=el.textContent.trim();const prior=seenText.get(label);
+ if(prior && Math.abs(Number(prior.getAttribute('x'))-Number(el.getAttribute('x')))<12 && Math.abs(Number(prior.getAttribute('y'))-Number(el.getAttribute('y')))<12) {
+  const selected=typeof plan!=='undefined' && plan.tracks.some(track=>track.actorId===prior.getAttribute('data-demo-actor'));
+  if(selected){el.remove();return;}
+  prior.remove();
+ }
+ seenText.set(label,el);
+ // Preserve authored baselines. Tight headline leading can overlap font em-boxes
+ // without overlapping visible glyphs; annotate only baseline gaps of at least one em.
+ const fontSize=Number(getComputedStyle(el).fontSize.replace('px',''));
+ const fill=getComputedStyle(el).fill;
+ if(fontSize<24 && chroma.valid(fill) && chroma(fill).hex()!==chroma(background).hex() && chroma.contrast(fill,background)<4.5){el.setAttribute('fill',foreground);el.setAttribute('opacity','1');el.setAttribute('fill-opacity','1');}
+ if(fontSize>=36){
+  for(const sibling of Array.from(el.parentElement.querySelectorAll(':scope > text'))){
+   if(sibling===el)continue;
+   const gap=Math.abs(Number(sibling.getAttribute('y'))-Number(el.getAttribute('y')));
+   if(gap>=fontSize && gap<=fontSize*1.3 && Math.abs(Number(sibling.getAttribute('x'))-Number(el.getAttribute('x')))<12){el.setAttribute('data-layout-allow-overlap','true');sibling.setAttribute('data-layout-allow-overlap','true');}
+  }
+ }
+ // Outlined display lettering needs a readable fill as well as its decorative outline.
+ if(el.getAttribute('stroke') && el.getAttribute('stroke')!=='none') {el.setAttribute('fill',foreground);el.setAttribute('stroke',background);}
+});
+
+const timeline=gsap.timeline({paused:true});
+const chosen=plan.tracks.map(track=>({track,element:document.querySelector('[data-demo-actor="'+track.actorId+'"]')}));
+if(chosen.some(item=>!item.element))throw Error('Motion references an absent actor');
+for(const item of chosen){
+ if(chosen.some(other=>other!==item&&other.element.contains(item.element)))throw Error('Nested motion actors would double-transform artwork');
+ const el=item.element;
+ if(el.tagName==='rect' && Number(el.getAttribute('width'))>=1200 && Number(el.getAttribute('height'))>=650)throw Error('Background cannot be a motion actor');
+ const wrapper=document.createElementNS('http://www.w3.org/2000/svg','g');
+ el.parentNode.insertBefore(wrapper,el);wrapper.appendChild(el);
+ wrapper.setAttribute('data-demo-motion',item.track.actorId);
+ // Animate a neutral wrapper, never overwrite the artwork's authored matrix.
+ gsap.set(wrapper,{transformOrigin:'50% 50%'});
+ if(item.track.action==='reveal'){
+   gsap.set(wrapper,item.track.pose);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:item.track.ease},item.track.start);
+ }else if(item.track.action==='draw'){
+   const paths=Array.from(el.matches('path,line,polyline,polygon')?[el]:el.querySelectorAll('path,line,polyline,polygon'));
+   const drawable=paths.filter(p=>(p.localName==='line' || getComputedStyle(p).fill==='none') && getComputedStyle(p).stroke!=='none' && typeof p.getTotalLength==='function');
+   if(!drawable.length)throw Error('Draw action needs visible unfilled stroked paths');
+   for(const path of drawable){const length=path.getTotalLength();gsap.set(path,{strokeDasharray:length,strokeDashoffset:length});timeline.to(path,{strokeDashoffset:0,duration:item.track.duration,ease:item.track.ease},item.track.start);}
+ }else{
+   timeline.to(wrapper,{...item.track.pose,duration:item.track.duration,ease:item.track.ease},item.track.start);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:'sine.inOut'},Math.min(2.7-item.track.duration,item.track.start+item.track.duration+.2));
+ }
+}
+timeline.to({}, {duration:.001},2.999);window.__timelines={video:timeline};
+</script></body></html>

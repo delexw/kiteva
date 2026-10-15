@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Line Art",
+  "displayDescription": "A line-drawn bulb sparks and extends its contours into a hatched, connected network on an ink-teal field.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (contour paths, clipPath bands)",
+    "Geometry Outlines (monoline contours, round caps/joins)",
+    "Tonal Hatching and Crosshatching (procedural SVG hatch strokes)"
+  ],
+  "motionEngine": [
+    "GSAP timeline (paused, window.__timelines.video)",
+    "GSAP DrawSVGPlugin (stroke-length reveals)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Tonal hatching is procedural SVG line hatching clipped to ring bands, not a shader or lighting model.",
+    "tldraw, Rough.js, Paper.js and Motion were not used: the clean, jitter-free monoline style is fully served by SVG + DrawSVGPlugin, with one motion owner per property.",
+    "Caption word reveal uses fill-opacity on tspans; Helvetica Neue falls back to Helvetica/Arial when unavailable.",
+    "STYLE.json lists no preview_recipes, so the refresh demonstrates the primary Line Art style.",
+    "Not rendered or browser-tested by the agent; host QA pending."
+  ]
+}

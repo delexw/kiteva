@@ -1,0 +1,106 @@
+{
+  "version": 2,
+  "durationSeconds": 3,
+  "format": "structured",
+  "sections": [
+    {
+      "heading": "style-126 · Stained-Glass Light Projection — 3 s silent preview",
+      "level": 1,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "1280×720, 30 fps, 3 s, silent. Pipeline: HyperFrames (index.html, "
+            },
+            {
+              "type": "inlineCode",
+              "value": "data-composition-id=\"video\""
+            },
+            {
+              "type": "text",
+              "value": ").\nStyle renderers: Three.js, PBR Materials (MeshStandardMaterial stone, SpotLight.map + shadows), Postprocessing (EffectComposer: RenderPass → UnrealBloomPass → OutputPass). Canvas 2D only paints the shared stained-glass texture and static grain.\nMotion engine: GSAP — paused timeline "
+            },
+            {
+              "type": "inlineCode",
+              "value": "window.__timelines.video"
+            },
+            {
+              "type": "text",
+              "value": "; scene redraws from timeline state on every update and on "
+            },
+            {
+              "type": "inlineCode",
+              "value": "hf-seek"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "columns": [
+            {
+              "key": "Time",
+              "label": "Time",
+              "alignment": null
+            },
+            {
+              "key": "Beat",
+              "label": "Beat",
+              "alignment": null
+            },
+            {
+              "key": "Focus",
+              "label": "Focus",
+              "alignment": null
+            }
+          ],
+          "rows": [
+            {
+              "Time": "0.0–0.7 s",
+              "Beat": "Dim stone: cool hemisphere light on gray stone; rose window glows faintly. Copy \"I · ONE PANE OF LIGHT\", \"An idea\", \"becomes a connected system.\" fades in on the right.",
+              "Focus": "Window + headline"
+            },
+            {
+              "Time": "0.7–1.0 s",
+              "Beat": "Blackout: hemisphere, fill and window glow go to 0; stone falls to the #101216 field.",
+              "Focus": "Darkness"
+            },
+            {
+              "Time": "1.0–2.4 s",
+              "Beat": "Light up: spotlight behind the window ramps up, its angle narrows to fit the window, and it swings so the jewel projection (ruby/sapphire/gold panes, dark leading, mullion shadows) moves across the floor. \"II · CAST ACROSS THE STONE\" appears at 1.7 s.",
+              "Focus": "Floor projection"
+            },
+            {
+              "Time": "2.4–3.0 s",
+              "Beat": "Hold: everything settled and readable.",
+              "Focus": "Full composition"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Full video (not in preview): white bloom finale (bloom strength + light intensity ramp) and camera moves."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Approximation: projected texture + shadow map, not physical refraction or caustics."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

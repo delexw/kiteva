@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-078",
+    "name": "Clay-Style 3D (Digital and 3D Aesthetics; supplemental design reference, not a named source-collection style).",
+    "visualIdentity": "Rounded forms, restrained handmade surface detail, matte materials, broad lights and credible contact shadows, with limited colors. It is a digital clay-like 3D surface, not physical clay stop motion. Provenance is supplemental.",
+    "suitableUses": "Explicit: single-character or product mascot shots, mascot animations, loading moments and playful product reveals. Inferred: friendly brand characters in simple explainers. Multi-character worlds suit the style-079 diorama combination better.",
+    "limitations": "Describe results as clay-like 3D unless physical clay was filmed. Avoid glossy or PBR-realistic props, liquid-like flow, constant wobble and uniform spring presets. Keep apparent volume and silhouettes. Elastic XPBD does not establish plastic clay, fluid or origami behavior.",
+    "palette": "Background is scene_dependent; choose it from subject, lighting and mood, not by default. Example swatches: background #F2E9DA, foreground #3E4A46, accent_1 #93AD9E, accent_2 #C7917B. Foreground on background measures 7.675; accent pairs (3.833, 3.416) are decorative only. Gradients are disabled. Source review of two sampled idents suggests one dominant stage hue, radial falloff, a lifted hero and one accent; these hues are examples. Approved exact colors override all of this.",
+    "motionAndInteraction": "Explicit: weight and slight elasticity through keyed deformation, with holds after impacts and no continuous melting. Optional catalog patterns: motion-003 drop-and-growth, motion-006 gaze, motion-009 parallax, motion-010 orbit, motion-012 chapter handoff, motion-015 story steps, motion-021 camera orbit. Pointer or click triggers apply only to interactive delivery; video uses composition time.",
+    "audio": "Unspecified: the style assigns no genre, tempo, voice or mandatory layer. Inferred: suit audio to the topic, use restrained accents on impacts, keep music below any narration, and leave silence on reading holds. No audio was supplied; audio must not be claimed unless actually created.",
+    "assetRequirements": "No uploads are mandatory; assets come from Blender-built rounded meshes, matte materials and lighting. Motion-006 needs eye layers or a rig; motion-010 needs complete geometry or sufficient turntable views. Example assets such as orbs, terrariums, creatures and sparks are illustrative only.",
+    "combinations": "style-079 adds a bounded matte miniature set in the same Blender/Cycles pipeline, with depth of field kept off the main character. style-106 adds squash-and-stretch anticipation, impact and volume-preserving settle. Keep the palette fixed and avoid glossy set props or mismatched scales.",
+    "productionApproach": "Style renderer and motion engine: Blender with Python bpy, run via blender --background, using Cycles or verified EEVEE; optional XPBD for baked elastic deformation. Render pipeline: HyperFrames by default, with a paused seekable GSAP timeline in window.__timelines; Remotion only under its documented fallback. chroma-js is an optional contrast checker; Three.js is an alternative."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

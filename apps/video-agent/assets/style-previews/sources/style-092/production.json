@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Line Boil",
+  "displayDescription": "A sketched bulb draws in, wires grow out of it and hatched nodes pop on, all boiling through three held Rough.js drawings on cool newsprint.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D",
+    "Rough.js (roughjs, bundled locally in vendor.bundle.js)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline (window.__timelines.video, sole time owner)",
+    "Motion interpolate (maps shared timeline time to per-element progress)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track.",
+  "limitations": [
+    "Boil drawings are Rough.js seeded variants (seeds n, n+101, n+202) of the same geometry rather than hand-drawn redraws; silhouettes and positions stay locked.",
+    "Ink and paper are approximated procedurally: one flat ink colour and a seeded, static grain layer. There is no simulated ink bleed or paper fibre.",
+    "BACKGROUND_REVIEW.json reports 0 matched sources and no contact sheets, so no source-frame observations were applied. The cool newsprint background is a scene choice, not source evidence.",
+    "STYLE.json tech.preview_recipes is absent and the supplied recipe list is empty, so the preview demonstrates the primary line-boil style.",
+    "Lettering is DOM text in system typography and does not boil, so glyphs stay readable. Only the line art boils.",
+    "No Blender was used, as the user instructed."
+  ]
+}

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Liquid Glass — An idea becomes a connected system</title>
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #0E1A23; }
+  #video { position: relative; width: 100%; height: 100%; overflow: hidden; background: #0E1A23; }
+  #gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .copy { position: absolute; left: 6.1%; top: 0; height: 100%; width: 36%; color: #EDEBE3;
+          font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif; pointer-events: none; }
+  .kicker { position: absolute; top: 15%; left: 0; font-size: 14px; letter-spacing: 5px; color: #91ACB0; font-weight: 500; }
+  .headline { position: absolute; top: 34.5%; left: 0; margin: 0; font-size: 54px; line-height: 64px; font-weight: 600; }
+  .headline span { display: block; white-space: nowrap; }
+  .headline .light { font-weight: 300; }
+  .rule { position: absolute; top: 75%; left: 2px; width: 120px; height: 3px; background: #91ACB0; transform-origin: 0 50%; }
+</style>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="gl" width="1280" height="720" data-demo-actor="demo-actor-1"></canvas>
+  <div class="copy">
+    <div class="kicker" id="kicker" data-demo-actor="demo-actor-2">LENS / CONNECTION</div>
+    <h1 class="headline" aria-label="An idea becomes a connected system.">
+      <span id="l1" data-demo-actor="demo-actor-3">An idea</span>
+      <span id="l2" data-demo-actor="demo-actor-4">becomes a</span>
+      <span id="l3" class="light" data-demo-actor="demo-actor-5">connected</span>
+      <span id="l4" class="light" data-demo-actor="demo-actor-6">system.</span>
+    </h1>
+    <div class="rule" id="rule" data-demo-actor="demo-actor-7"></div>
+  </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="three-vendor.js"></script>
+<script>
+(function () {
+  'use strict';
+  var THREE = window.THREE;
+  var W = 1280, H = 720;
+  var C = { field: '#0E1A23', ink: '#293C49', paper: '#EDEBE3', accent: '#91ACB0' };
+
+  // ---------- renderer (offscreen transmission pass is handled by three internally) ----------
+  var canvas = document.getElementById('gl');
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, preserveDrawingBuffer: true, alpha: false, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(1);
+  renderer.setSize(W, H, false);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.NeutralToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.setClearColor(C.field, 1);
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(35, W / H, 0.1, 100);
+  camera.position.set(0, 0, 10);
+  camera.lookAt(0, 0, 0);
+
+  var pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new window.RoomEnvironment(), 0.04).texture;
+
+  // world units per pixel at z = 0
+  var visH0 = 2 * 10 * Math.tan(THREE.MathUtils.degToRad(17.5));
+  var U = visH0 / H;
+  function px(x, y) { return new THREE.Vector3((x - W / 2) * U, (H / 2 - y) * U, 0); }
+
+  // ---------- stationary backdrop: canvas-2D texture built once (deterministic) ----------
+  var BD = 3.2; // backdrop depth behind z=0
+  var bdH = 2 * (10 + BD) * Math.tan(THREE.MathUtils.degToRad(17.5));
+  var bdW = bdH * W / H;
+  var tc = document.createElement('canvas');
+  tc.width = W * 2; tc.height = H * 2;
+  var g = tc.getContext('2d');
+  g.scale(2, 2);
+  g.fillStyle = C.field; g.fillRect(0, 0, W, H);
+  // faint dot grid in the dark text field
+  g.fillStyle = C.ink;
+  for (var gy = 24; gy < H; gy += 32) for (var gx = 24; gx < 560; gx += 32) { g.beginPath(); g.arc(gx, gy, 1.3, 0, Math.PI * 2); g.fill(); }
+  // striped board — graphic pattern that makes the refraction legible
+  function rr(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+  g.save(); rr(588, 40, 652, 640, 30); g.clip();
+  g.fillStyle = C.paper; g.fillRect(588, 40, 652, 640);
+  g.fillStyle = C.ink;
+  for (var sx = 588; sx < 1240; sx += 28) g.fillRect(sx, 40, 14, 640);
+  g.fillStyle = C.accent; g.fillRect(588, 262, 652, 22);
+  g.fillStyle = C.ink; g.fillRect(588, 600, 652, 80);
+  g.restore();
+  g.strokeStyle = C.accent; g.lineWidth = 2; rr(588, 40, 652, 640, 30); g.stroke();
+  var bdTex = new THREE.CanvasTexture(tc);
+  bdTex.colorSpace = THREE.SRGBColorSpace;
+  bdTex.anisotropy = 4;
+  var backdrop = new THREE.Mesh(new THREE.PlaneGeometry(bdW, bdH), new THREE.MeshBasicMaterial({ map: bdTex, toneMapped: false }));
+  backdrop.position.z = -BD;
+  scene.add(backdrop);
+
+  // ---------- lights for specular edge highlights ----------
+  var key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(-4, 6, 8); scene.add(key);
+  var rim = new THREE.DirectionalLight(0xdfeef0, 1.4); rim.position.set(6, -3, 4); scene.add(rim);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.25));
+
+  // ---------- liquid-glass material (physical transmission + refraction, limited dispersion) ----------
+  function glass(thick) {
+    return new THREE.MeshPhysicalMaterial({
+      color: 0xffffff, metalness: 0, roughness: 0.04, transmission: 1, thickness: thick, ior: 1.42,
+      dispersion: 0.12, attenuationColor: new THREE.Color(C.accent), attenuationDistance: 6,
+      clearcoat: 1, clearcoatRoughness: 0.03, specularIntensity: 1, envMapIntensity: 0.9
+    });
+  }
+
+  // hub droplet: displaced sphere, base positions cached once
+  var HUB_R = 1.42;
+  var hubGeo = new THREE.SphereGeometry(1, 96, 64);
+  var hubBase = Float32Array.from(hubGeo.attributes.position.array);
+  var hub = new THREE.Mesh(hubGeo, glass(2.2));
+  scene.add(hub);
+  var hubCore = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 24), new THREE.MeshStandardMaterial({ color: C.paper, emissive: C.paper, emissiveIntensity: 0.35, roughness: 0.4 }));
+  scene.add(hubCore);
+
+  var HUB_END = px(820, 360);
+  var targets = [px(1112, 166), px(1132, 536), px(636, 604), px(640, 124)];
+  var bends = [new THREE.Vector3(0.5, 0.35, 0), new THREE.Vector3(0.35, -0.45, 0), new THREE.Vector3(-0.45, -0.25, 0), new THREE.Vector3(-0.4, 0.3, 0)];
+  var NODE_R = 0.46, SEG = 80, RAD = 12;
+  var linkMat = new THREE.MeshPhysicalMaterial({ color: C.accent, roughness: 0.22, metalness: 0, clearcoat: 1, emissive: C.accent, emissiveIntensity: 0 });
+  var nodes = [], links = [], curves = [], cores = [];
+  for (var i = 0; i < 4; i++) {
+    var a = HUB_END.clone(), b = targets[i].clone();
+    var m = a.clone().lerp(b, 0.5).add(bends[i]); m.z = -0.25;
+    var curve = new THREE.QuadraticBezierCurve3(a, m, b);
+    curves.push(curve);
+    var tube = new THREE.Mesh(new THREE.TubeGeometry(curve, SEG, 0.05, RAD, false), linkMat);
+    tube.geometry.setDrawRange(0, 0);
+    scene.add(tube); links.push(tube);
+    var n = new THREE.Mesh(new THREE.SphereGeometry(NODE_R, 64, 48), glass(0.9));
+    scene.add(n); nodes.push(n);
+    var c = new THREE.Mesh(new THREE.SphereGeometry(0.11, 24, 16), new THREE.MeshStandardMaterial({ color: C.accent, emissive: C.accent, emissiveIntensity: 0.25, roughness: 0.35 }));
+    scene.add(c); cores.push(c);
+  }
+
+  // ---------- state proxy: every value owned by exactly one GSAP tween ----------
+  var S = { hubS: 0, hubX: px(880, 360).x, wob: 0, glow: 0, p0: 0, p1: 0, p2: 0, p3: 0 };
+  var tl = gsap.timeline({ paused: true, defaults: { overwrite: false } });
+
+  function draw() {
+    var t = tl.time();
+    // hub droplet: scale + bounded liquid wobble derived from timeline time only
+    var hx = S.hubX; // world units
+    var pos = hubGeo.attributes.position.array, amp = 0.075 * S.wob;
+    for (var k = 0; k < pos.length; k += 3) {
+      var x = hubBase[k], y = hubBase[k + 1], z = hubBase[k + 2];
+      var d = 1 + amp * (Math.sin(3.0 * x + 5.2 * t) * Math.cos(2.0 * y - 4.1 * t) + 0.6 * Math.sin(4.0 * z + 3.3 * y + 6.0 * t));
+      pos[k] = x * d; pos[k + 1] = y * d; pos[k + 2] = z * d;
+    }
+    hubGeo.attributes.position.needsUpdate = true;
+    hubGeo.computeVertexNormals();
+    var hs = Math.max(0.0001, S.hubS) * HUB_R;
+    hub.scale.set(hs * (1 + 0.05 * S.wob), hs * (1 - 0.05 * S.wob), hs);
+    hub.position.set(hx, HUB_END.y, 0);
+    hubCore.position.copy(hub.position);
+    hubCore.scale.setScalar(Math.max(0.0001, Math.min(1, S.hubS * 1.6)));
+    linkMat.emissiveIntensity = 0.55 * S.glow;
+    var ps = [S.p0, S.p1, S.p2, S.p3];
+    for (var j = 0; j < 4; j++) {
+      var p = ps[j];
+      var pt = curves[j].getPointAt(Math.min(1, Math.max(0, p)));
+      links[j].geometry.setDrawRange(0, Math.floor(p * SEG) * RAD * 6);
+      nodes[j].position.copy(pt);
+      var ns = p <= 0 ? 0.0001 : (0.3 + 0.7 * p);
+      nodes[j].scale.set(ns * (1 + 0.12 * Math.sin(Math.PI * p)), ns * (1 - 0.1 * Math.sin(Math.PI * p)), ns);
+      nodes[j].visible = p > 0.001;
+      cores[j].visible = p > 0.001;
+      cores[j].position.copy(nodes[j].position);
+      cores[j].scale.setScalar(ns);
+    }
+    renderer.render(scene, camera);
+  }
+
+  // copy (independent standalone heading timing)
+  tl.fromTo('#kicker', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.inOut' }, 0.1);
+  tl.fromTo('#l1', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.inOut' }, 0.25);
+  tl.fromTo('#l2', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.inOut' }, 0.37);
+  tl.fromTo('#l3', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.inOut' }, 0.49);
+  tl.fromTo('#l4', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.inOut' }, 0.61);
+  tl.fromTo('#rule', { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: 'power2.inOut' }, 0.9);
+
+  // glass scene
+  tl.to(S, { hubS: 0.32, duration: 0.35, ease: 'back.out(1.2)' }, 0.0);
+  tl.to(S, { hubS: 1, duration: 0.65, ease: 'power2.inOut' }, 0.42);
+  tl.fromTo(S, { hubX: px(880, 360).x }, { hubX: HUB_END.x, duration: 1.1, ease: 'sine.inOut' }, 0.3);
+  tl.to(S, { wob: 1, duration: 0.4, ease: 'sine.inOut' }, 0.3);
+  tl.to(S, { wob: 0, duration: 1.15, ease: 'sine.inOut' }, 1.3);
+  tl.to(S, { p0: 1, duration: 0.75, ease: 'power2.inOut' }, 0.95);
+  tl.to(S, { p1: 1, duration: 0.75, ease: 'power2.inOut' }, 1.07);
+  tl.to(S, { p2: 1, duration: 0.75, ease: 'power2.inOut' }, 1.19);
+  tl.to(S, { p3: 1, duration: 0.75, ease: 'power2.inOut' }, 1.31);
+  tl.to(S, { glow: 1, duration: 0.25, ease: 'sine.inOut' }, 2.05);
+  tl.to(S, { glow: 0.35, duration: 0.3, ease: 'sine.inOut' }, 2.3);
+  tl.set({}, {}, 3);
+
+  tl.eventCallback('onUpdate', draw);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  window.addEventListener('hf-seek', function () { draw(); });
+  tl.seek(0, false);
+  draw();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

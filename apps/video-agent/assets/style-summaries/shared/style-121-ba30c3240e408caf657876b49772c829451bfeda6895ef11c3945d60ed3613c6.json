@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-121",
+    "name": "Chalk on Black Paper (Drawing and Illustration; provenance extracted; source name_en \"Chalk on Black Paper\").",
+    "visualIdentity": "Explicit: powdery chalk marks on a dark black-paper field, with broken textured edges and layered opaque and pale strokes. The dark paper field must be preserved. This differs from charcoal drawn on light paper.",
+    "suitableUses": "Explicit: the source names this chalk-on-black-paper treatment. Inferred: sketch-led explainers where a subject builds stroke by stroke, and diagrams with boxes and arrows. Target audience and subject matter are unspecified.",
+    "limitations": "Explicit: the dark paper field must stay dark, so light-paper charcoal looks do not fit. Dab counts must be bounded, roughly 30–60k per frame. The two-color contrast check does not verify textures, transparency or video backgrounds. The poster shows a fog scene, not this treatment.",
+    "palette": "Background policy is scene_dependent. Suggested tokens are background #15141A and foreground #F1EBDD, with 15.405 contrast for an opaque caption pair. The background family is text-verified; the exact hex is a fallback. No gradient is enabled. Task-supplied exact colors override these tokens.",
+    "motionAndInteraction": "Explicit: strokes draw progressively through GSAP-tweened progress values. Arrow heads appear only after their shafts reach the endpoint. Text inside chalk boxes reveals after the box stroke completes. Each frame is rebuilt from scratch for exact seeks. The 3-second preview sketches pale strokes, then adds opaque highlights. Other interactivity is unspecified; for HTML, motion should be optional under reduced-motion preferences.",
+    "audio": "Unspecified in the source; no audio asset, measurement or soundtrack is supplied. The audio direction is task-based: music, voiceover, effects, ambience or silence chosen from topic, audience and reading holds. No fixed genre, tempo, instrument or voice is mandated. Explicit user audio choices take priority.",
+    "assetRequirements": "No uploads are required by the source. Motion references are empty and optional. Subject marks are authored as stroke paths rather than supplied photographs. The poster was inspected only as background-family evidence. Fonts and external media are unspecified.",
+    "combinations": "Authored, optional guidance: style-030 (original narrative staging) may serve as a secondary style. Keep Chalk on Black Paper dominant and do not import style-030's palette. Avoid competing full-scene treatments or replacing the background with an accent or subject material.",
+    "productionApproach": "Canvas 2D is the style renderer, drawing seeded noise-textured dabs along cached stroke samples on an opaque #15141A field. GSAP is the motion engine, owning stroke progress. HyperFrames is the default pipeline; Remotion is fallback only when its condition is verified. @remotion/noise and chroma-js are optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

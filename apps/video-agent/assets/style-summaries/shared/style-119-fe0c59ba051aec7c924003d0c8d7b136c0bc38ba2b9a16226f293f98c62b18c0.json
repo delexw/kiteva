@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-119",
+    "name": "Engraved Mechanical Diagrams, in the Motion Design and Cinematography category. Source gives this English name and provenance as extracted from the 2026-10-12 repository sync.",
+    "visualIdentity": "Opaque porcelain #F0EEE6 field with graphite #222522 engraved SVG linework. Elements are number wheels with radial ticks and rim digits in a tabular face, inspection rails with notch marks, belts around two pulleys with tooth marks, and parallel-line pattern shading clipped to bevels.",
+    "suitableUses": "Explicit: the source targets explanatory mechanical diagrams where readable tabular numerals and real operations matter. Inferred: technical explainers on counting, carries, or gear ratios, and instrument-style readouts in video or interactive HTML. The source names no audience or subject limits.",
+    "limitations": "Every linked mechanical movement must explain a real operation. Source states Three.js 3D gears and tonal hatching shaders shift the look away from flat engraving. Fine engraving patterns need moiré checks at output size. The reference poster verifies only the background, not full-video scenes.",
+    "palette": "Source-specified background #F0EEE6 and graphite #222522 linework. Accents are green #416B53 for the inspection pointer and orange #E78636 for the active digit only. The palette is an authored, style-compatible suggestion; approved task colors override it. Gradients are disabled. Contrast is 13.334:1 on opaque background only.",
+    "motionAndInteraction": "One GSAP driver value, drive (input crank degrees), runs on a paused registered timeline. Wheel B rotation equals -drive × rA/rB. Belt dashoffset equals drive × rA × π/180, and the rail translates with belt travel. Digits settle with a detent ease at each step. Contours draw in via DrawSVGPlugin. Arrowheads appear only when the shaft completes; wheel labels reveal after their wheel group.",
+    "audio": "Unspecified: the source audio_direction is a generic prompt naming no music, voiceover, or effects. Inferred suitability: restrained audio tied to wheel detents and belt motion, leaving room for speech if narration is used. Speech intelligibility, balance, and absence of clipping must be verified in the final video.",
+    "assetRequirements": "Unspecified: no asset files, fonts, or audio are supplied. Required inputs are SVG geometry for wheels, rails, belts, and bevel patterns, a tabular-numeral font loaded locally before rendering, and exact task copy. Motion reference candidates are empty, and no library IDs are listed.",
+    "combinations": "Explicit: the source suggests style-097 as a supporting style for verified explanatory quantities only. Keep this style dominant and preserve its background and foreground roles. Do not import the supporting palette, and avoid competing full-scene treatments or unrelated decorative motion. HTML versions should offer optional motion for reduced-motion preferences.",
+    "productionApproach": "Style renderer: SVG and HTML/CSS with tabular-nums readouts. Motion engine: GSAP with DrawSVGPlugin, one owner per animated property. Pipeline: HyperFrames by default; Remotion only under its documented fallback condition, with the reason recorded. Validate with check and snapshot, then render, and verify seeks, moiré, and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

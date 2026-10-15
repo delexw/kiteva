@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-095",
+    "name": "UI Animation / Product Motion Design. Explicit category: Motion Design and Cinematography, a commercial presentation format rather than an art movement.",
+    "visualIdentity": "Explicit: accurate product interfaces with real copy and established branding, split into animatable cards, numbers, charts and states. Features are explained through causal state changes, shared elements and precise camera framing, not invented UI.",
+    "suitableUses": "Explicit: feature demonstrations built from real product interfaces. Inferred: launch videos, release reels and product explainers. Source combinations also cover integration or workflow diagrams. Interactive HTML suits live state toggles with accessible announcements.",
+    "limitations": "Explicit: never invent interface content, internals, copy or brand marks; if real product assets are missing, report the gap instead. Brand colors override the palette tokens. Cropping does not remove backgrounds or create subject cutouts. Preview recipes are schematic.",
+    "palette": "Fallback neutrals only: background #F7F9FA and foreground #263440, used discretely with no gradient, for new presentation chrome. Source photos, product UI and brand colors are never recolored. The 12.069 contrast covers two colors only; recheck composited frames.",
+    "motionAndInteraction": "Explicit causal sequence: a button press, then a card expands as a shared element (FLIP measured once at build), then numbers count with tabular figures, then the chart path transitions. The camera is a wrapper transform. Reference timing: tap 0–0.5s, expansion 0.5–1.4s, metric update 1.4–2.4s, then hold. Card labels stay hidden until their card container completes. Optional motion references 008, 013, 037, 038 and 039 apply only when real assets support them; choosing none is valid.",
+    "audio": "Unspecified in the source; no mandatory audio is required. Inferred: restrained accents on taps or state changes, optional ambience, and silence during reading holds fit this style. Add voiceover only when the topic needs narration, keeping speech intelligible. Verify audio sync in the final video.",
+    "assetRequirements": "Requires supplied real product assets, brand tokens, fonts and exact copy; absent assets must be reported, not invented. The optional X-ray variant needs registered exterior and interior layers sharing one transform. Layers need alpha channels, consistent dimensions and clear naming. Audio must be task-provided or authorized.",
+    "combinations": "Explicit: style-093 headline cards between interface state sequences, and style-109 connectors drawn between cards with one stroke width and card, then connection, then state order. Alone, the style suits real-interface demos. Avoid decorative lines and invented UI copy for drama.",
+    "productionApproach": "HTML/CSS and SVG are the style renderers; GSAP is the single motion engine with one owner per property. HyperFrames is primary for composition and export. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists, and the reason must be recorded. Verify direct and reverse seeks plus decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

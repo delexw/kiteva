@@ -1,0 +1,253 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Art Nouveau — An Idea Becomes a Connected System</title>
+<style>
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1F3128}
+  #video{width:100%;height:100%;position:relative}
+  #video svg{width:100%;height:100%;display:block}
+  /* OS-bundled macOS serif faces; declared via local() so the renderer resolves them without font files */
+  @font-face{font-family:"Didot";font-style:normal;font-weight:400;src:local("Didot"),local("Didot-Regular")}
+  @font-face{font-family:"Didot";font-style:italic;font-weight:400;src:local("Didot Italic"),local("Didot-Italic")}
+  @font-face{font-family:"Bodoni 72";font-style:normal;font-weight:400;src:local("Bodoni 72 Book"),local("BodoniSvtyTwoITCTT-Book")}
+  @font-face{font-family:"Bodoni 72";font-style:italic;font-weight:400;src:local("Bodoni 72 Book Italic"),local("BodoniSvtyTwoITCTT-BookIta")}
+  @font-face{font-family:"Iowan Old Style";font-style:normal;font-weight:400;src:local("Iowan Old Style Roman"),local("IowanOldStyle-Roman")}
+  @font-face{font-family:"Iowan Old Style";font-style:italic;font-weight:400;src:local("Iowan Old Style Italic"),local("IowanOldStyle-Italic")}
+  .serif{font-family:"Didot","Bodoni 72","Iowan Old Style",Georgia,serif}
+</style>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="plate" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- Stationary lithographic grain: fixed seed, never animated -->
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.953  0 0 0 0 0.925  0 0 0 0 0.851  0 0 0 0.07 0"/>
+    </filter>
+    <!-- Reusable ornamental groups -->
+    <path id="leafShape" d="M0 0C14-17 40-19 56 0C40 19 14 17 0 0Z"/>
+    <path id="petalShape" d="M0 0C-11-9-12-26 0-34C12-26 11-9 0 0Z"/>
+    <path id="titleArc" d="M300 176Q640 40 980 176"/>
+    <mask id="titleMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720">
+      <path id="titleMaskStroke" d="M300 176Q640 40 980 176" fill="none" stroke="#fff" stroke-width="96" stroke-linecap="butt"/>
+    </mask>
+    <mask id="captionMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720">
+      <path id="captionMaskStroke" d="M380 626L900 626" fill="none" stroke="#fff" stroke-width="60" stroke-linecap="butt"/>
+    </mask>
+  </defs>
+
+  <!-- Scene ground: deep night-garden ink (scene-dependent, stationary) -->
+  <rect id="ground" width="1280" height="720" fill="#1F3128"/>
+  <rect width="1280" height="720" filter="url(#grain)" pointer-events="none"/>
+
+  <!-- Double frame, drawn from top centre outward -->
+  <g fill="none" stroke-linecap="round">
+    <path class="frame" id="frameOuterL" d="M640 40H68Q40 40 40 68V652Q40 680 68 680H640" stroke="#F3ECD9" stroke-width="3"/>
+    <path class="frame" id="frameOuterR" d="M640 40H1212Q1240 40 1240 68V652Q1240 680 1212 680H640" stroke="#F3ECD9" stroke-width="3"/>
+    <path class="frame" id="frameInnerL" d="M640 54H74Q54 54 54 74V646Q54 666 74 666H640" stroke="#788659" stroke-width="1.2"/>
+    <path class="frame" id="frameInnerR" d="M640 54H1206Q1226 54 1226 74V646Q1226 666 1206 666H640" stroke="#788659" stroke-width="1.2"/>
+  </g>
+
+  <!-- Whiplash borders: thick + hairline pairs grow from the base upward -->
+  <g id="whipL" fill="none" stroke-linecap="round">
+    <path class="whip whipThick" d="M74 664C170 540 56 430 150 316S124 118 252 62" stroke="#788659" stroke-width="7"/>
+    <path class="whip whipHair" d="M96 664C182 556 84 438 172 326S152 134 272 76" stroke="#F3ECD9" stroke-width="1.4"/>
+    <path class="whip whipCurl" d="M150 316C196 300 214 262 192 240C176 226 156 238 166 254" stroke="#B67B57" stroke-width="2.4"/>
+  </g>
+  <g id="whipR" transform="matrix(-1 0 0 1 1280 0)" fill="none" stroke-linecap="round">
+    <path class="whip whipThick" d="M74 664C170 540 56 430 150 316S124 118 252 62" stroke="#788659" stroke-width="7"/>
+    <path class="whip whipHair" d="M96 664C182 556 84 438 172 326S152 134 272 76" stroke="#F3ECD9" stroke-width="1.4"/>
+    <path class="whip whipCurl" d="M150 316C196 300 214 262 192 240C176 226 156 238 166 254" stroke="#B67B57" stroke-width="2.4"/>
+  </g>
+  <g id="borderLeaves"></g>
+
+  <!-- Mucha-style nimbus behind the idea: translucent leaf-green disc with cream hairline rings -->
+  <g id="haloWrap" transform="translate(640 400)">
+    <g id="halo">
+      <circle r="172" fill="#788659" fill-opacity="0.32"/>
+      <circle r="172" fill="none" stroke="#F3ECD9" stroke-width="1.6"/>
+      <circle r="160" fill="none" stroke="#788659" stroke-width="3"/>
+      <circle r="120" fill="none" stroke="#F3ECD9" stroke-width="0.9" stroke-opacity="0.7"/>
+    </g>
+  </g>
+
+  <!-- The connected-system ring: a slender vine that links every bloom -->
+  <path id="ring" d="M640 215C800 205 905 240 890 330C878 430 870 520 830 560C760 610 520 610 450 560C410 520 402 430 390 330C375 240 480 205 640 215Z"
+        fill="none" stroke="#B67B57" stroke-width="1.6" stroke-dasharray="none" stroke-linecap="round" opacity="0.95"/>
+
+  <!-- Vines grow out of the seed toward each node -->
+  <g id="vines" fill="none" stroke="#788659" stroke-linecap="round">
+    <path class="vine" d="M612 372C580 300 470 370 390 330" stroke-width="4.5"/>
+    <path class="vine" d="M668 372C700 300 810 370 890 330" stroke-width="4.5"/>
+    <path class="vine" d="M616 438C570 520 520 500 450 560" stroke-width="4.5"/>
+    <path class="vine" d="M664 438C710 520 760 500 830 560" stroke-width="4.5"/>
+    <path class="vine" d="M640 330C612 290 668 252 640 215" stroke-width="4"/>
+  </g>
+  <g id="vineLeaves"></g>
+
+  <!-- The idea: a terracotta seed with a cream germ line -->
+  <g id="seedWrap" transform="translate(640 400)">
+    <g id="seed">
+      <ellipse rx="46" ry="68" fill="#B67B57" stroke="#F3ECD9" stroke-width="2.5"/>
+      <path id="germ" d="M0 -56C-20 -18 20 18 0 56" fill="none" stroke="#F3ECD9" stroke-width="3" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <g id="blooms"></g>
+
+  <!-- Lettering, revealed along its own path -->
+  <text class="serif" font-style="italic" font-size="50" fill="#F3ECD9" text-anchor="middle" mask="url(#titleMask)">
+    <textPath href="#titleArc" startOffset="50%">An Idea Becomes</textPath>
+  </text>
+  <text class="serif" x="640" y="638" text-anchor="middle" font-size="30" letter-spacing="8" fill="#F3ECD9" mask="url(#captionMask)">A CONNECTED SYSTEM</text>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="DrawSVGPlugin.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(() => {
+  gsap.registerPlugin(DrawSVGPlugin);
+  const NS = 'http://www.w3.org/2000/svg';
+  const C = { ground:'#1F3128', ink:'#293E32', cream:'#F3ECD9', leaf:'#788659', clay:'#B67B57' };
+  // Palette validation only (no recolouring): cream lettering on the resolved ground.
+  for (const v of Object.values(C)) if (!chroma.valid(v)) throw Error('Invalid colour ' + v);
+  if (chroma.contrast(C.cream, C.ground) < 4.5) throw Error('Lettering contrast too low');
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const tl = gsap.timeline({ paused: true });
+
+  // Time at which an eased draw reaches a given length fraction (deterministic inversion).
+  function timeAtFraction(start, dur, easeName, frac) {
+    const e = gsap.parseEase(easeName);
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; (e(m) < frac) ? lo = m : hi = m; }
+    return start + dur * lo;
+  }
+  function makeUse(href, parent, fill, stroke, sw) {
+    const u = document.createElementNS(NS, 'use');
+    u.setAttribute('href', href);
+    u.setAttribute('fill', fill); u.setAttribute('stroke', stroke); u.setAttribute('stroke-width', sw);
+    parent.appendChild(u); return u;
+  }
+  // A leaf attached to a path at fraction f; grows from its stalk point outward.
+  function leafOn(path, f, side, size, parent, startT) {
+    const L = path.getTotalLength();
+    const p = path.getPointAtLength(L * f), q = path.getPointAtLength(Math.min(L, L * f + 2));
+    const ang = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI + side * 52;
+    const pos = document.createElementNS(NS, 'g');
+    pos.setAttribute('transform', `translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${ang.toFixed(2)})`);
+    const grow = document.createElementNS(NS, 'g');
+    pos.appendChild(grow); parent.appendChild(pos);
+    makeUse('#leafShape', grow, C.leaf, C.cream, 1.1);
+    const vein = document.createElementNS(NS, 'path');
+    vein.setAttribute('d', 'M4 0C20 -3 36 -3 50 0'); vein.setAttribute('fill', 'none');
+    vein.setAttribute('stroke', C.ground); vein.setAttribute('stroke-width', '1.2');
+    grow.appendChild(vein);
+    gsap.set(grow, { scale: 0, rotation: -side * 30, svgOrigin: '0 0', opacity: 1 });
+    tl.to(grow, { scale: size, rotation: 0, duration: 0.42, ease: 'sine.out' }, startT);
+  }
+
+  // 1. Frame: draws from top centre around both sides (0.00–0.95s)
+  $$('.frame').forEach((p, i) => {
+    gsap.set(p, { drawSVG: '0%' });
+    tl.to(p, { drawSVG: '100%', duration: 0.95, ease: 'sine.inOut' }, i < 2 ? 0 : 0.08);
+  });
+
+  // 2. Whiplash borders: grow from the base following the curve (0.10–1.20s)
+  const whipEase = 'power1.inOut';
+  ['#whipL', '#whipR'].forEach(id => {
+    const thick = $(id + ' .whipThick'), hair = $(id + ' .whipHair'), curl = $(id + ' .whipCurl');
+    gsap.set([thick, hair, curl], { drawSVG: '0%' });
+    tl.to(thick, { drawSVG: '100%', duration: 1.0, ease: whipEase }, 0.1);
+    tl.to(hair, { drawSVG: '100%', duration: 1.0, ease: whipEase }, 0.2);
+    tl.to(curl, { drawSVG: '100%', duration: 0.5, ease: 'sine.out' }, timeAtFraction(0.1, 1.0, whipEase, 0.5));
+  });
+  // Border leaves sprout as the thick whiplash passes them (left side uses actual geometry; right is mirrored)
+  const bl = $('#borderLeaves');
+  const leftThick = $('#whipL .whipThick');
+  const mirrorGroup = document.createElementNS(NS, 'g');
+  mirrorGroup.setAttribute('transform', 'matrix(-1 0 0 1 1280 0)');
+  bl.appendChild(mirrorGroup);
+  [[0.22, 1, 0.75], [0.66, -1, 0.7], [0.84, 1, 0.6]].forEach(([f, s, z]) => {
+    const t = timeAtFraction(0.1, 1.0, whipEase, f);
+    leafOn(leftThick, f, s, z, bl, t);
+    leafOn(leftThick, f, s, z, mirrorGroup, t);
+  });
+
+  // 2b. Nimbus opens as an iris from the seed (0.10–0.80s)
+  gsap.set('#halo', { scale: 0, svgOrigin: '0 0' });
+  tl.to('#halo', { scale: 1, duration: 0.7, ease: 'power2.inOut' }, 0.1);
+
+  // 3. The idea appears: seed swells from a point, germ line draws (0.15–0.70s)
+  gsap.set('#seed', { scale: 0.2, opacity: 0, svgOrigin: '0 0' });
+  tl.to('#seed', { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.2)' }, 0.15);
+  gsap.set('#germ', { drawSVG: '0%' });
+  tl.to('#germ', { drawSVG: '100%', duration: 0.35, ease: 'sine.inOut' }, 0.4);
+
+  // 4. Vines grow from the seed outward to each node (0.45–1.30s), leaves follow the tip
+  const vineEase = 'sine.inOut';
+  const vl = $('#vineLeaves');
+  $$('.vine').forEach((p, i) => {
+    const start = 0.45 + (i >= 2 ? 0.08 : 0) + (i === 4 ? 0.04 : 0);
+    const dur = i === 4 ? 0.6 : 0.8;
+    gsap.set(p, { drawSVG: '0%' });
+    tl.to(p, { drawSVG: '100%', duration: dur, ease: vineEase }, start);
+    if (i < 4) {
+      const side = (i % 2 === 0) ? -1 : 1;
+      leafOn(p, 0.42, side, 0.85, vl, timeAtFraction(start, dur, vineEase, 0.42));
+      leafOn(p, 0.7, -side, 0.7, vl, timeAtFraction(start, dur, vineEase, 0.7));
+    }
+  });
+
+  // 5. Blooms open at every vine end: petals unfold around a cream centre (1.10–1.75s)
+  const blooms = $('#blooms');
+  const nodes = [[390, 330, 1.12], [890, 330, 1.12], [450, 560, 1.22], [830, 560, 1.22], [640, 215, 1.05]];
+  nodes.forEach(([x, y, t]) => {
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('transform', `translate(${x} ${y}) scale(1.25)`);
+    blooms.appendChild(g);
+    for (let k = 0; k < 6; k++) {
+      const pg = document.createElementNS(NS, 'g');
+      pg.setAttribute('transform', `rotate(${k * 60})`);
+      const inner = document.createElementNS(NS, 'g');
+      pg.appendChild(inner); g.appendChild(pg);
+      makeUse('#petalShape', inner, C.clay, C.cream, 1.2);
+      gsap.set(inner, { scaleY: 0, scaleX: 0.4, svgOrigin: '0 0' });
+      tl.to(inner, { scaleY: 1, scaleX: 1, duration: 0.45, ease: 'back.out(1.2)' }, t + k * 0.03);
+    }
+    const disc = document.createElementNS(NS, 'circle');
+    disc.setAttribute('r', '9'); disc.setAttribute('fill', C.cream);
+    disc.setAttribute('stroke', C.ground); disc.setAttribute('stroke-width', '2');
+    g.appendChild(disc);
+    const dot = document.createElementNS(NS, 'circle');
+    dot.setAttribute('r', '3.5'); dot.setAttribute('fill', C.ink);
+    g.appendChild(dot);
+    gsap.set([disc, dot], { scale: 0, svgOrigin: '0 0' });
+    tl.to([disc, dot], { scale: 1, duration: 0.3, ease: 'sine.out' }, t - 0.05);
+  });
+
+  // 6. The system connects: one tendril ring threads through every bloom (1.40–2.15s)
+  gsap.set('#ring', { drawSVG: '50% 50%' });
+  tl.to('#ring', { drawSVG: '0% 100%', duration: 0.75, ease: 'sine.inOut' }, 1.4);
+
+  // 7. Lettering revealed along its paths
+  gsap.set('#titleMaskStroke', { drawSVG: '0%' });
+  tl.to('#titleMaskStroke', { drawSVG: '100%', duration: 0.85, ease: 'sine.inOut' }, 0.55);
+  gsap.set('#captionMaskStroke', { drawSVG: '0%' });
+  tl.to('#captionMaskStroke', { drawSVG: '100%', duration: 0.6, ease: 'sine.inOut' }, 1.5);
+
+  // Everything is settled by ~2.15s; hold to the full 3s for reading.
+  tl.set({}, {}, 3);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  const redraw = e => { const t = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : null; if (t !== null) tl.seek(t, false); };
+  window.addEventListener('hf-seek', redraw);
+  tl.seek(0, false);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

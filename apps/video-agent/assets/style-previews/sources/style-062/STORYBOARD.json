@@ -1,0 +1,65 @@
+{
+  "version": 3,
+  "title": "Particle Art — an idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Idea to system",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "A loose cloud of particles condenses into a glowing idea bulb that ignites and links itself to three nodes, forming a connected system.",
+      "visuals": [
+        "Background #111C29 with a stationary faint dust field",
+        "Turning sphere of ~37k mixed #65BEC2 / #CEAF79 / #EFF5EE points",
+        "Gold particle bulb with white filament and teal base on the left",
+        "Dotted particle links to three teal nodes on the right",
+        "Ignition sparks with fading trails; messenger sparks land on nodes",
+        "Static copy bottom-left: title and kicker"
+      ],
+      "assets": [
+        "scene.bundle.js",
+        "gsap.min.js",
+        "chroma.min.js",
+        "ILLUSTRATION.svg (composition reference only)"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.8,
+          "development": "Particle sphere drifts and turns with analytic curl shimmer; copy already readable.",
+          "captions": ["an idea becomes a connected system", "10,000 POINTS · ONE STRUCTURE"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.8,
+          "endSeconds": 2.0,
+          "development": "Staggered morph: particles flow left-to-right out of the sphere into the bulb, links and nodes; the core ignites at about 1.4 s, releasing a burst and messenger sparks that land on the nodes near 1.95 s.",
+          "captions": ["an idea becomes a connected system", "10,000 POINTS · ONE STRUCTURE"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.0,
+          "endSeconds": 3.0,
+          "development": "Node flash decays and trails close by about 2.6 s; the silhouette holds completely still.",
+          "captions": ["an idea becomes a connected system", "10,000 POINTS · ONE STRUCTURE"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0.4
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Large foreground change: sphere centred mid-frame reshapes into the left bulb and right network, replacing the previous subtle SVG reveal (1.30% changed pixels).",
+      "All motion settles by 2.6 s; background and dust stay stationary."
+    ],
+    "justifiedHolds": ["2.6–3.0 s stable hold so the finished system and copy can be read."]
+  },
+  "notes": [
+    "Silent preview; no authored audio cues.",
+    "GSAP owns uniforms time, morph, trail and flash; GLSL owns per-particle positions."
+  ]
+}

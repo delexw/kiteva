@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-110",
+    "name": "3D Motion Graphics (Digital and 3D Aesthetics; supplemental provenance; user-requested direction).",
+    "visualIdentity": "Genuine 3D geometry; photorealistic, cartoon or stylized rendering is chosen before modeling. Needs coherent bevels, roughness, reflections, contact shadows and a clear key light, with deliberate perspective or orthographic framing.",
+    "suitableUses": "Explicitly suited to hero renders where the object is the message, and to hybrids with 2D titles or callouts. Listed best-for uses are product launch films, brand stings and hardware feature breakdowns.",
+    "limitations": "Photorealism and one specific engine are not required. Do not render text inside 3D. Basic XPBD does not provide fluid, tearing or origami behavior. Flat image scaling is not a dolly, and orbits need full geometry or turntable views.",
+    "palette": "Background is scene-dependent, so choose it from subject, lighting and mood. Example tokens #EDE9E1, #303C40, #748E8A and #B9866C are illustrative, not approved. Foreground/background contrast is 9.395; accents score 3.2–3.6 and are decorative only. Gradients are disabled. Task-supplied exact colors override all tokens.",
+    "motionAndInteraction": "Weighted rotation, assembly and camera moves are evaluated from composition time. Scroll or cursor patterns (orbit, dolly, helix, exploded reveal, orb drop) become authored time for video; live input stays interactive-only. Keep deliberate cuts and reading holds, and verify reverse seeks.",
+    "audio": "The style sets no mandatory audio layer. Suggest restrained accents, ambience or silence that never competes with narration. Sync music only after inspecting actual audio. Gallery previews stay silent. No audio was supplied or verified.",
+    "assetRequirements": "Authorized models or glTF files, with inspected node names, pivots and embedded animations. Orbits need complete geometry or sufficient turntable views. Inspect glyph or approved mark geometry first; do not invent brand marks or copy.",
+    "combinations": "style-093: kinetic 2D titles timed to Cycles camera easing, kept outside geometry. style-109: SVG leader lines attached to exported Blender anchors, drawn only while the object is at rest.",
+    "productionApproach": "Style renderer: Blender with bpy and Cycles or EEVEE, optionally Three.js lighting. Motion engine: bpy keyframes or GSAP, with XPBD only after solver verification. Pipeline: HyperFrames by default; Remotion only with a recorded reason."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

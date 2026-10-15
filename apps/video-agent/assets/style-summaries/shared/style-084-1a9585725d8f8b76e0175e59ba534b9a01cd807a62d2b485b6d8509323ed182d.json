@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-084",
+    "name": "Cutout Animation, normalized from source descriptions. It may be photographed or digitally simulated. The source video's actual production method is unverified.",
+    "visualIdentity": "Layers photographic cutouts, paper, drawn objects, and lettering around one shared theme. Cut edges, slight paper thickness, and consistent contact shadows are required. Pivots and occlusion are defined before motion is applied.",
+    "suitableUses": "Explicitly suited to collage-style scenes built from cutout pieces. Inferred: editorial shorts and layered paper explainers where shared-theme photos and drawn pieces already exist. Target audience and objective are unspecified.",
+    "limitations": "Avoid joint gaps, intersecting pieces, and conflicting shadows. Use flat cutouts for flat scenes; true depth or curling requires a 3D renderer. Source photos and drawn artwork must not be recolored. Physical paper behavior is not established.",
+    "palette": "Optional, reference-dependent example: background #F0E5D0, foreground #3B3C34, accent_1 #987A5C, for new presentation elements only. Source artwork keeps its colors. Gradients are disabled. The foreground/background pair reaches 8.94:1. Accent with background (3.19:1) is decorative only.",
+    "motionAndInteraction": "Explicit actions include placing, peeling, hinged movement, pose replacement, and limited parallax. Held poses may follow a 12 fps art cadence within a higher output rate. Pointer or scroll interaction is unspecified for video. Paper bends may use optional procedural deformation.",
+    "audio": "Style data specifies no audio. Inferred: restrained sound accents on placing or peeling actions, with silence on reading holds, could suit it. Music, voiceover, and effects are unspecified and require task input or authorized assets.",
+    "assetRequirements": "Prepare cutout masks, paper edges, and pivot-organized pieces before animation. Photographic and drawn cutouts, lettering, and optional drawn annotations are needed. Load fonts and assets before rendering. File formats, counts, and resolutions are unspecified.",
+    "combinations": "Cutout Animation can stand alone. Suggested hybrids: style-054 for photocopy headline treatment applied to new type only, omitting its red accent; style-101 for limited parallax with consistent shadow direction and unchanged pivots. Optional motion patterns require suitable layers or narrative structure.",
+    "productionApproach": "Recommended pipeline is HyperFrames for composition, timing, sync, validation, and export, with Remotion only when HyperFrames is unavailable or a verified limitation applies. Visual construction may use PixiJS for many sprites and Rough.js for optional sketch marks. Pillow or Sharp prepares assets. Chroma.js validates colors. Motion may use procedural paper curl deformation. Drive all state from seeded, shared composition time, and verify opening, action, transition, and closing frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

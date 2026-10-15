@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Moonlit Linocut",
+  "displayDescription": "A block is inked and carved into a lit bulb. Telegraph dashes then become carved lines that link stamped nodes into a system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (native DOM: clipPath print regions, userSpace hatch pattern, stroke-dash carving)"
+  ],
+  "motionEngine": [
+    "Motion 14.1.0 pure easing/interpolation helpers (cubicBezier, easeOut, easeInOut, backOut, mix, progress, clamp) bundled locally to woodcut-motion.js via esbuild",
+    "GSAP paused timeline (composition time only, registered at window.__timelines.video)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track, no music, no sound effects.",
+  "limitations": [
+    "Woodcut/linocut printing is simulated with vector SVG. There is no physical carving, ink transfer or paper deformation.",
+    "Block grain, brayer edge and paper flecks are fixed procedural textures (seeded once at build time), not scanned wood or paper.",
+    "The cool blue-gray paper and indigo-black ink are a scene-dependent choice from the reviewed moonlit monochrome option. They are not a supplied brand palette.",
+    "No preview_recipes were present in STYLE.json, so this refresh demonstrates the source-frame techniques instead of a named recipe.",
+    "Motion is used only for deterministic easing math. Its animate() clock is not used, and GSAP owns timeline time.",
+    "Blender was not used, by user instruction.",
+    "Rendering and browser QA were not run by the agent."
+  ]
+}

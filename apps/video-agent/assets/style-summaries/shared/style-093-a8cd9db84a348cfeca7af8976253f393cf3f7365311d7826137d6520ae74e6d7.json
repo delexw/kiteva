@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-093",
+    "name": "Unspecified",
+    "visualIdentity": "The required input JSON and originalSource are not present in the supplied context, so the style’s identity is unspecified.",
+    "suitableUses": "Video and interactive HTML suitability cannot be determined without the original metadata.",
+    "limitations": "Style-specific constraints and exceptions are unavailable; no claims can be made about intended use or limitations.",
+    "palette": "Exact colors and their roles are unspecified.",
+    "motionAndInteraction": "Motion, timing, and interaction requirements are unspecified.",
+    "audio": "Audio guidance and soundtrack requirements are unspecified.",
+    "assetRequirements": "Asset requirements are unspecified. No missing-upload assumptions are made.",
+    "combinations": "Compatible or incompatible style combinations are unspecified.",
+    "productionApproach": "The required prompt-inputs/d70130da-4361-46c5-99ef-e52978cb45d3.json was unavailable in the supplied context. The complete originalSource could not be read, so its metadata cannot be summarized reliably."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

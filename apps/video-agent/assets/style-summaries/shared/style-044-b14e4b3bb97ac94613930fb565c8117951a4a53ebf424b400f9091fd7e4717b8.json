@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-044",
+    "name": "Vintage Photo Collage",
+    "visualIdentity": "The source explicitly describes vintage collage: period-consistent photographs, newspaper fragments, clipped objects, and visible paper edges. Grain and print characteristics stay distinct within a unified palette. Cutout movement, modest parallax, and object-based scene connections carry a coherent theme.",
+    "suitableUses": "Explicit: the source names vintage collage as this style's visual direction. Inferred: it suits historical or archival storytelling and editorial pieces that have real period photographs, because the style depends on them. Motion-018 also lists this style as a good fit for gallery navigation. Specific use cases are unspecified.",
+    "limitations": "Period-consistent photographs are required, but none are supplied, so authorized sources must be obtained. Photographs and artwork must not be invented. Subject extraction and irregular paper edges need separate masks or authored artwork, since cropping alone cannot produce them. Parallax should stay modest.",
+    "palette": "This is a reference-dependent example, not a canonical style palette. Optional fallback tokens are background #EDE3CD, foreground #393329, and accent_1 #85765D, applied only to new presentation elements. Gradients are disabled. Foreground on background measures 9.806:1, while accent_1 on background (3.47:1) is decorative only. Source photographs keep their colors.",
+    "motionAndInteraction": "The explicit cues are cutout movement, modest parallax, and object-based scene connections. Optional candidates must be screened against the actual scene: motion-012 (chaptered handoff), motion-015 (narrative steps), and motion-018 (curved image gallery with captions, distinct from Swipe Card Carousel). Video state must derive from composition time, and live input applies only to interactive delivery.",
+    "audio": "Audio is unspecified in the style source. The audio direction is topic-dependent and may suggest music, voiceover, effects, ambience, or silence, with no fixed genre, tempo, or mandatory layer. Speech must stay intelligible. Final audio balance and picture sync must be verified.",
+    "assetRequirements": "Required assets are period-consistent photographs, newspaper fragments, clipped objects, and paper-edge artwork, and none are supplied. Preparation needs transparent cutouts, matched tones, and print textures. Pillow (Python) or Sharp (Node.js) can crop, resize, composite, and mask. Cropper.js 2.x can frame crops but must not alter colors.",
+    "combinations": "Suggested hybrids are style-024 for handwritten archival labels in #393329, with notes never covering faces and no colored notes. Style-097 suits timeline or map structures built from paper strips, using accurate dates and no fabricated data. Both require neutral palettes and consistent paper textures. Avoid overcrowding and invented photos.",
+    "productionApproach": "The style renderer owns collage construction, including masks, textures, and layer motion, with optional PixiJS or native DOM, SVG, or Canvas. GSAP owns each animated property. HyperFrames is the primary pipeline for timing, audio sync, validation, and export, with Remotion only under its documented fallback condition. Duration, aspect ratio, resolution, and frame rate are unspecified."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

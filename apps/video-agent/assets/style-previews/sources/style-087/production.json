@@ -1,0 +1,29 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Puppet Animation",
+  "displayDescription": "A wooden marionette lifts a glowing idea; yarn threads connect miniature houses that stand up and light on a night-blue stage.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186 WebGLRenderer (procedural miniature stage, MeshStandardMaterial, PCF soft shadows, ACES tone mapping)",
+    "Canvas 2D procedural textures (painted cyclorama, oak planks, maple grain)",
+    "HTML/CSS heading overlay"
+  ],
+  "motionEngine": [
+    "GSAP 3.15 paused timeline at window.__timelines.video (drives composition time and heading opacity)",
+    "Nested paused GSAP pose timeline sampled at quantized 15 fps exposures (held poses on twos); single owner per pose property"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Digital marionette rig rendered with Three.js, not photographed physical puppets; held poses on twos approximate stop-motion posing.",
+    "Materials (maple, walnut, velvet, painted backdrop, painted-wood houses, wool yarn) are procedural shading approximations with no photographic lens grain or depth of field.",
+    "Blender was not used, per user instruction.",
+    "STYLE.json lists no preview_recipes and BACKGROUND_REVIEW.json has no matched sources or contact sheets, so no source-frame observations were applied; the night cyclorama palette is a scene-chosen alternative to the earlier cream swatch.",
+    "Rendering and browser QA not run by the agent."
+  ]
+}

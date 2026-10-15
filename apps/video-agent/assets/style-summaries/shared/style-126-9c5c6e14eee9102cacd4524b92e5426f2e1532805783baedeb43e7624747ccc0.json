@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-126",
+    "name": "Stained-Glass Light Projection. Category: Digital and 3D Aesthetics. Provenance: extracted, added in the 2026-10-12 repository sync.",
+    "visualIdentity": "Jewel-colored glass panes divided by dark leading project one image onto a dim stone interior. The room shifts from cool architecture to colored transmitted light, with frame and mullion shadows occluding coherently.",
+    "suitableUses": "Use cases are not explicitly stated. Inferred suitability: dramatic reveals, ceremonial or architectural-heritage openers, and atmospheric sequences where light builds from darkness to color. Confirm the brief fits before adopting.",
+    "limitations": "The projection is an explicit approximation, not physical refraction or caustics, and must be stated as such. Shadow softness and resolution need tuning. Bloom is limited to the finale. Only one poster was inspected, so full-video scene verification is not claimed.",
+    "palette": "Background policy is scene_dependent; no exact colors were supplied, so all tokens are authored suggestions. Background #101216 is a dark field fallback. Foreground #F4EEE3 gives 16.235:1 on it, for opaque captions only. Glass accents are ruby #A82E43, sapphire #284A9D and gold #D6AD52. Deep blue belongs to the glass, not the room. Gradients are disabled.",
+    "motionAndInteraction": "A GSAP paused timeline, driven by composition time, runs dim stone, then blackout to zero light, then a spotlight intensity and angle sweep moving the pattern across the floor, then a white bloom and light ramp finale. The preview is 3 s; the full video adds camera moves. User interaction is unspecified; reduced-motion handling is suggested only for HTML combinations. Motion references are none.",
+    "audio": "Unspecified for this style. The source gives only a framework: music, voiceover, vocals, effects, ambience or silence, chosen from the brief, with no fixed genre or tempo. Inferred: restrained ambience or music could suit the dim-to-bloom arc. No audio is supplied or required, and silence is valid.",
+    "assetRequirements": "No uploads or required assets are specified. Canvas 2D generates the glass image procedurally, and the stone uses procedural grain. No motion references or library IDs are provided. Any fonts or supplied media must be loaded locally before rendering. The source poster is reference only.",
+    "combinations": "The only authored supporting style is style-079 for architectural staging. Keep style-126 dominant and do not import the supporting palette, background or materials. Avoid competing full-scene treatments and unrelated decorative motion. Keep one geometry and typography system.",
+    "productionApproach": "HyperFrames is the default pipeline for composition timing, checks, snapshots and delivery render. Remotion is a fallback only with a recorded, verified reason. Three.js owns visuals: MeshStandardMaterial, a shared CanvasTexture as emissive and SpotLight map, shadows, and EffectComposer with UnrealBloomPass and OutputPass. GSAP owns motion, and chroma.js is optional for color checks. No XPBD entry exists, so simulation is unspecified."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

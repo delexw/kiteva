@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-008",
+    "name": "Modernist Graphic Design. This is a supplemental design reference, not a directly named style in the source collection. Its category is Graphic Design and Design Movements.",
+    "visualIdentity": "Explicit: function-first layouts with simplified forms, shared alignment, and a clear reading sequence. Hierarchy comes from size and placement within a limited palette, not decoration. Real text and shared layout measurements are required.",
+    "suitableUses": "Explicit: functional layouts and explaining structural or informational change. Motion references add UI storytelling, editorial and minimalist layouts, motion posters, and feature comparison cards. Inferred: informational explainers. Audience and objective are unspecified.",
+    "limitations": "Avoid decorative motion that weakens hierarchy, tangled decorative lines, and warm accents in line art. Drop motion references that hide essential copy, obscure provenance, or break fixed print geometry. Two-color contrast checks do not prove readability over video, textures, or animated backgrounds.",
+    "palette": "Suggested, not supplied: background #FAF8F2 for layout, foreground #202020 for text and linework, and one blue accent #235DA8 for active emphasis. Use three colors with no gradient. Foreground and background reach 15.342 contrast; background text on the blue accent reaches 6.174. Supplied task colors override these values, and assets must not be recolored.",
+    "motionAndInteraction": "Explicit: animate to explain structural or informational change, using continuous movement that never sacrifices hierarchy. Smooth easing or deliberate cuts and reading holds are both valid. Springs and bounce are not added by default. Scroll-driven references are optional; for video they must be scheduled on timeline time, not live input.",
+    "audio": "No fixed audio layer is mandated. Music, voiceover, sung vocals, effects, ambience, or silence are chosen per task. Honor explicit user choices, keep speech intelligible, and avoid sound that competes with narration. Genre, tempo, and voice are unspecified.",
+    "assetRequirements": "Duration, aspect ratio, resolution, frame rate, exact copy, and output directory are unspecified unless supplied. Fonts and assets must load before rendering. Phrase or punctuation references need real glyphs or approved marks; do not invent copy or brand marks.",
+    "combinations": "Style-109 (animated line art) suits connectors and process diagrams, with #202020 lines and blue only on the active path. Style-108 (shallow isometric) suits system diagrams, with flat labels and no perspective shrinkage. Avoid teal, terracotta, and 3D lighting. Use hybrids only when relationships need explaining.",
+    "productionApproach": "HyperFrames is the default for scene assembly, timing, audio sync, validation, and export. Remotion is fallback only if HyperFrames is unavailable or a verified limitation exists, and that reason must be recorded. HTML/CSS and SVG render visuals, GSAP owns the seekable timeline, and chroma-js validates colors."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

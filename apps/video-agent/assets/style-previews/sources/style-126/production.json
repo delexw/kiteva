@@ -1,0 +1,26 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js",
+    "PBR Materials",
+    "Postprocessing"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview: no music, voiceover or sound effects.",
+  "limitations": [
+    "Three.js renders the scene with PBR Materials (MeshStandardMaterial stone, SpotLight.map with PCF shadow map) and Postprocessing (EffectComposer: RenderPass, UnrealBloomPass, OutputPass). Canvas 2D is used only to paint the shared stained-glass CanvasTexture and the static stone grain. GSAP owns all motion.",
+    "Coloured light is a projected-texture approximation (SpotLight.map) with shadow-map occlusion from the frame and lead mullions; it is not physically accurate refraction, dispersion or caustics.",
+    "The projected image and the window emissive share one CanvasTexture; small registration offsets between texture leading and mullion shadows occur because the light axis is oblique to the wall.",
+    "Shadow-map softness/resolution (2048, PCF soft) is tuned approximately; edges may show slight aliasing.",
+    "The light shaft is a faint additive cone mesh, not volumetric scattering.",
+    "Bloom strength stays 0 in this 3 s preview; the white bloom finale and camera moves are reserved for the full video.",
+    "Typography uses the locally available Georgia/Times serif system font."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Connected System",
+  "displayDescription": "Editorial spread on cool drafting stock: a vermilion spark moves into the figure grid and becomes a network as the headline and columns reveal in reading order.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "HTML/CSS",
+    "SVG"
+  ],
+  "motionEngine": [
+    "Motion (motion@14 interpolate/mix/cubicBezier/backOut, bundled locally to motion-utils.js)",
+    "GSAP paused timeline as the seekable composition clock"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Flat procedural print look: the drafting grid and hatching are vector approximations of paper stock, with no real paper texture or lighting.",
+    "System fonts (Georgia, Helvetica Neue/Arial) are measured at load time with canvas measureText; metrics vary slightly between platforms.",
+    "A 3 s preview leaves only a brief settled hold for the body copy."
+  ]
+}

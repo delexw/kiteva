@@ -1,0 +1,96 @@
+{
+  "version": 3,
+  "title": "Isometric Illustration — One idea, four links",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Idea lands",
+      "startSeconds": 0,
+      "endSeconds": 1.1,
+      "purpose": "Establish the low-key isometric cutaway and let the idea arrive and become a solid core.",
+      "visuals": [
+        "Dark slate void with a stationary soft floor-light",
+        "Isometric slab with axis-parallel grid expands about its centre",
+        "Terracotta idea diamond drops down the vertical axis",
+        "Two terracotta core cubes extrude up through the slab top",
+        "Headline copy enters on the flat 2D layer"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.62,
+          "development": "Slab resolves and the diamond falls from above frame, landing at 0.67 s; kicker and headline rise in.",
+          "captions": ["FIG. 01 — ASSEMBLY", "One idea,", "four links."],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.62,
+          "endSeconds": 1.1,
+          "development": "The landing drives the lower core cube up through the slab, then the upper cube stacks on it; subtitle and IDEA leader appear.",
+          "captions": ["An idea becomes a connected system.", "IDEA"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "System connects",
+      "startSeconds": 1.1,
+      "endSeconds": 3,
+      "purpose": "Show the core growing four axis-aligned links that dock four sage modules, then light up as one connected system.",
+      "visuals": [
+        "Four links extend along the ±x/±z axes",
+        "Four sage modules slide inward along those same axes and dock",
+        "Dark port windows and link tops light terracotta as the connection event",
+        "Warm additive pool blooms on the slab around the core",
+        "DATA and PEOPLE leaders draw, then their labels appear; legend and footer settle"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 1.1,
+          "endSeconds": 1.86,
+          "development": "Links extend in a quick stagger and the modules dock along their axes with no perspective change.",
+          "captions": ["idea core", "system modules"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.86,
+          "endSeconds": 2.3,
+          "development": "Connection event: link tops and module windows turn from dim to terracotta, the warm pool blooms, DATA and PEOPLE labels arrive after their leader lines.",
+          "captions": ["DATA", "PEOPLE", "30° AXES · NO PERSPECTIVE · SCALE 1:1"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.3,
+          "endSeconds": 3,
+          "development": "Fully assembled, still composition held for reading.",
+          "captions": [],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0.7
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Primary focus moves diamond → core → links/modules → lit system; each action finishes before the next primary action takes over.",
+      "Headline copy enters early on an independent cue so it gets more than 2 s of settled exposure.",
+      "All motion is complete by 2.3 s, before the 2.7 s settle requirement."
+    ],
+    "justifiedHolds": [
+      "2.3–3.0 s final hold lets the viewer read the labelled, connected system."
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, effects or voice.",
+    "Source-frame refresh: cool low-key cutaway void with tonal-step slab, warm emissive accent used only as the connection event, locked orthographic camera, labels in a screen-aligned 2D layer. No source subject, branding or lettering copied.",
+    "No preview recipes were supplied in STYLE.json (tech.preview_recipes is absent); the refresh demonstrates the source-frame palette/lighting lessons."
+  ]
+}

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>style-117 Holographic Scanline Illustration — preview</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;background:#07080A;overflow:hidden}
+  #root{position:relative;width:100%;height:100%;background:#07080A;font-family:Menlo,Consolas,"DejaVu Sans Mono",monospace}
+  #scene{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+  .ov{position:absolute;margin:0;white-space:nowrap;line-height:1}
+  #hdr-l{left:4.6875%;top:7.2%;font-size:14px;letter-spacing:6px;color:#45F0DD}
+  #hdr-r{right:4.6875%;top:7.2%;font-size:14px;letter-spacing:4px;color:#45F0DD}
+  #title{left:0;right:0;top:88.2%;text-align:center;font-size:26px;letter-spacing:8px;color:#FFFFFF}
+  #idea-frame{position:absolute;left:40.625%;top:33.333%;width:18.75%;height:33.333%;visibility:hidden}
+  #idea-label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:5px 8px 5px 11px;
+    background:#45F0DD;color:#07080A;font-size:13px;letter-spacing:3px;font-weight:bold;visibility:hidden}
+  #measure{position:absolute;width:0;height:0;overflow:hidden;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="scene" width="1280" height="720" aria-label="An idea core whose contour draws, fills with scanlines and links to four system nodes"></canvas>
+  <p class="ov" id="hdr-l">HOLO-SCAN // 117</p>
+  <p class="ov" id="hdr-r">NODES 04 · LINKS 08</p>
+  <div id="idea-frame" data-container="idea-core">
+    <span id="idea-label" data-reveal-after="idea-frame">IDEA</span>
+  </div>
+  <p class="ov" id="title">AN IDEA BECOMES A CONNECTED SYSTEM</p>
+  <svg id="measure" xmlns="http://www.w3.org/2000/svg" width="0" height="0"></svg>
+</div>
+<script src="./gsap.min.js"></script>
+<script>
+(function(){
+  var W=1280,H=720,DPR=1; // fixed backing scale: 1 canvas px == 1 composition px, rows stay integer-aligned
+  var BG='#07080A',CY='#45F0DD',WH='#FFFFFF';
+  var cv=document.getElementById('scene');
+  cv.width=W*DPR;cv.height=H*DPR;
+  var ctx=cv.getContext('2d');
+
+  // ---------- geometry (cached once) ----------
+  function hex(cx,cy,r){var a=[];for(var i=0;i<6;i++){var t=Math.PI/180*(-90+60*i);a.push((cx+r*Math.cos(t)).toFixed(2)+' '+(cy+r*Math.sin(t)).toFixed(2));}return 'M'+a.join('L')+'Z';}
+  function circ(cx,cy,r){return 'M'+cx+' '+(cy-r)+'A'+r+' '+r+' 0 1 1 '+cx+' '+(cy+r)+'A'+r+' '+r+' 0 1 1 '+cx+' '+(cy-r)+'Z';}
+  var nodes=[[330,200],[960,190],[990,530],[300,520]];
+  var D={
+    core:circ(640,360,120),
+    inner:'M560 280H720V370H560Z',
+    field:'M330 200Q640 80 960 190L990 530Q640 660 300 520Z',
+    links:[
+      'M640 360L330 200','M640 360L960 190','M640 360L990 530','M640 360L300 520',
+      'M330 200Q640 80 960 190','M960 190L990 530','M990 530Q640 660 300 520','M300 520L330 200'
+    ],
+    hexes:nodes.map(function(n){return hex(n[0],n[1],46);})
+  };
+  var bbox={core:[520,240,240,240],inner:[560,280,160,90],field:[300,120,690,470]};
+  nodes.forEach(function(n,i){bbox['h'+i]=[n[0]-40,n[1]-46,80,92];});
+
+  // path lengths from an offscreen SVG (getTotalLength)
+  var svg=document.getElementById('measure'),NS='http://www.w3.org/2000/svg';
+  function measure(d){var p=document.createElementNS(NS,'path');p.setAttribute('d',d);svg.appendChild(p);var L=p.getTotalLength();svg.removeChild(p);return L;}
+  function mk(d){return {p:new Path2D(d),len:measure(d)};}
+  var G={core:mk(D.core),inner:mk(D.inner),field:mk(D.field),
+    links:D.links.map(mk),hexes:D.hexes.map(mk)};
+
+  // ---------- state owned by GSAP ----------
+  var state={core:0,wipeCore:0,links:0,hexes:0,wipeField:0,wipeHex:0,
+    lightCore:0.45,lightInner:0.7,lightField:0.15,lightHex:0.35,solid:0};
+
+  // light -> integer line spacing (denser = brighter). Only density communicates light.
+  function spacing(light){light=Math.max(0,Math.min(1,light));return Math.max(2,Math.round(9-7*light));}
+
+  function scan(path,b,light,wipe){ // wipe 0..1 top-to-bottom extent
+    if(wipe<=0)return;
+    var sp=spacing(light),y0=b[1],y1=Math.floor(b[1]+b[3]*Math.min(1,wipe));
+    ctx.save();ctx.clip(path);ctx.fillStyle=CY;
+    var r=Math.ceil(y0/sp)*sp; // rows aligned to a global integer grid -> no shimmer
+    for(;r<y1;r+=sp)ctx.fillRect(b[0],r,b[2],1);
+    ctx.restore();
+  }
+  function contour(g,p,w){
+    if(p<=0)return;p=Math.min(1,p);
+    ctx.save();ctx.lineJoin='round';ctx.lineCap='butt';
+    if(p<1)ctx.setLineDash([g.len*p,g.len+2]);else ctx.setLineDash([]);
+    ctx.strokeStyle=CY;ctx.lineWidth=w||3;ctx.stroke(g.p);
+    ctx.strokeStyle=WH;ctx.lineWidth=1;ctx.stroke(g.p);
+    ctx.restore();
+  }
+  function grid(){ // stationary faint cyan grid (alpha only, palette colour)
+    ctx.save();ctx.globalAlpha=0.08;ctx.fillStyle=CY;
+    for(var x=40;x<W;x+=40)ctx.fillRect(x,0,1,H);
+    for(var y=40;y<H;y+=40)ctx.fillRect(0,y,W,1);
+    ctx.globalAlpha=1;ctx.fillRect(60,90,200,1);ctx.fillRect(1020,90,200,1);
+    ctx.restore();
+  }
+  function stagger(p,i,n,ov){ // per-item progress inside a group tween
+    var span=1/(n-(n-1)*ov),s=i*span*(1-ov);return Math.max(0,Math.min(1,(p-s)/span));
+  }
+
+  var frame=document.getElementById('idea-frame'),label=document.getElementById('idea-label');
+  function render(){
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    ctx.globalAlpha=1;ctx.fillStyle=BG;ctx.fillRect(0,0,W,H);
+    grid();
+    // system field (dim, sparse lines) behind the links
+    scan(G.field.p,bbox.field,state.lightField,state.wipeField);
+    // links grow outward from the idea
+    for(var i=0;i<G.links.length;i++)contour(G.links[i],stagger(state.links,i,8,0.6),3);
+    // idea core
+    ctx.save();ctx.fillStyle=BG;ctx.globalAlpha=state.core>=1?1:0;ctx.fill(G.core.p);ctx.restore();
+    scan(G.core.p,bbox.core,state.lightCore,state.wipeCore);
+    scan(G.inner.p,bbox.inner,state.lightInner,(state.wipeCore-0.15)/0.45);
+    if(state.solid>0){ctx.save();ctx.clip(G.core.p);ctx.fillStyle=CY;
+      var h=Math.round(40*Math.min(1,state.solid));ctx.fillRect(600,300,80,h);ctx.restore();}
+    contour(G.core,state.core,3.5);
+    // nodes
+    for(var k=0;k<4;k++){
+      var hp=stagger(state.hexes,k,4,0.5);
+      if(hp>=1){ctx.save();ctx.fillStyle=BG;ctx.fill(G.hexes[k].p);ctx.restore();}
+      scan(G.hexes[k].p,bbox['h'+k],state.lightHex,stagger(state.wipeHex,k,4,0.5));
+      contour(G.hexes[k],hp,3);
+    }
+    // interior label only after its container contour is complete
+    var done=state.core>=1&&state.solid>=1;
+    frame.style.visibility=state.core>=1?'visible':'hidden';
+    label.style.visibility=done?'visible':'hidden';
+  }
+
+  // ---------- timeline ----------
+  var tl=gsap.timeline({paused:true,onUpdate:render});
+  tl.to(state,{core:1,duration:0.75,ease:'power2.inOut'},0.05)
+    .to(state,{wipeCore:1,duration:0.7,ease:'sine.inOut'},0.55)
+    .to(state,{solid:1,duration:0.25,ease:'steps(6)'},1.0)
+    .to(state,{links:1,duration:0.8,ease:'power2.inOut'},0.9)
+    .to(state,{wipeField:1,duration:0.6,ease:'sine.inOut'},1.25)
+    .to(state,{hexes:1,duration:0.6,ease:'power2.inOut'},1.3)
+    .to(state,{wipeHex:1,duration:0.5,ease:'sine.inOut'},1.55)
+    // density modulation: energy flows from idea out to the system, then settles
+    .to(state,{lightCore:1,lightInner:1,duration:0.35,ease:'sine.inOut'},1.8)
+    .to(state,{lightField:0.5,lightHex:0.9,duration:0.45,ease:'sine.inOut'},1.95)
+    .to(state,{lightCore:0.6,duration:0.4,ease:'sine.inOut'},2.15)
+    .to(state,{lightField:0.3,duration:0.3,ease:'sine.inOut'},2.35)
+    .set({},{},3);
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+  window.__render=render;
+
+  function seekTo(t){tl.seek(Math.max(0,Math.min(3,t)),false);render();}
+  window.addEventListener('hf-seek',function(e){
+    var d=e&&e.detail,t=typeof d==='number'?d:(d&&(d.time!=null?d.time:d.t));
+    if(typeof t==='number')seekTo(t);else render();
+  });
+  document.addEventListener('hf-seek',function(e){
+    var d=e&&e.detail,t=typeof d==='number'?d:(d&&(d.time!=null?d.time:d.t));
+    if(typeof t==='number')seekTo(t);else render();
+  });
+  tl.seek(0,false);render();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

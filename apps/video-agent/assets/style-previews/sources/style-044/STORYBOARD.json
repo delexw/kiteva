@@ -1,0 +1,146 @@
+{
+  "version": 3,
+  "title": "Vintage Photo Collage — An Idea Becomes a Connected System",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Cutouts pasted down",
+      "startSeconds": 0,
+      "endSeconds": 1.3,
+      "purpose": "Assemble the collage: a masthead strip, a torn lightbulb clipping, a newspaper page and two photo prints land on a stationary slate board.",
+      "visuals": [
+        "Stationary slate archival board with fibre grain",
+        "Torn masthead strip 'THE DAILY NOTION · No. 44'",
+        "Torn halftone lightbulb clipping with tape",
+        "Newspaper page with headline and halftone inset",
+        "Two deckle-edged halftone photo prints",
+        "Lift-dependent drop shadows and limited parallax"
+      ],
+      "assets": [
+        "scene.js (PixiJS + procedural Canvas 2D textures)",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.6,
+          "development": "Masthead strip drops in and presses down; lightbulb clipping sweeps in from the upper left, rotating to rest.",
+          "captions": [
+            "THE DAILY NOTION · No. 44"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.6,
+          "endSeconds": 1.3,
+          "development": "Newspaper page slides in from the right and settles carrying 'AN IDEA BECOMES / a connected system'; two photo prints rise from below; tape strips press onto the clipping and page.",
+          "captions": [
+            "AN IDEA BECOMES",
+            "a connected system"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Pinned and connected",
+      "startSeconds": 1.3,
+      "endSeconds": 2.4,
+      "purpose": "Turn separate fragments into a system: pins pop onto each cutout and a thread draws from pin to pin.",
+      "visuals": [
+        "Ink pins with paper rims",
+        "Tan thread with a slight sag that tightens as each segment reaches its pin",
+        "Parallax camera drift settling to rest"
+      ],
+      "assets": [
+        "scene.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 1.3,
+          "endSeconds": 1.85,
+          "development": "Pins appear on the bulb and bridge print; first thread runs bulb → bridge print.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.85,
+          "endSeconds": 2.4,
+          "development": "Remaining pins appear; thread branches to the gear print, the newspaper column and its inset photo, completing the network.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Settled collage",
+      "startSeconds": 2.4,
+      "endSeconds": 3,
+      "purpose": "Hold the finished, fully legible collage.",
+      "visuals": [
+        "All cutouts, pins and thread at rest"
+      ],
+      "assets": [
+        "scene.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 2.4,
+          "endSeconds": 3,
+          "development": "Nothing moves; the headline and connected system are read together.",
+          "captions": [
+            "THE DAILY NOTION · No. 44",
+            "AN IDEA BECOMES",
+            "a connected system"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.6
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Headline page is settled by 1.2s, giving about 1.8s of stable reading exposure.",
+      "All motion, including parallax drift, is complete by 2.4s, before the 2.7s settle limit.",
+      "Card travel durations (0.5–0.64s) follow travel distance; pins and thread are quicker accents."
+    ],
+    "justifiedHolds": [
+      "2.4–3.0s final hold lets the viewer read the headline alongside the finished network."
+    ]
+  },
+  "notes": [
+    "Silent preview.",
+    "No optional recipes were supplied; preview demonstrates the primary style (cutouts, paper edges, print halftone, layered parallax) with a refreshed scene-dependent slate board instead of the prior cream canvas.",
+    "BACKGROUND_REVIEW.json had zero matched sources and no contact sheets; no source observations were used.",
+    "Blender not used per user instruction."
+  ]
+}

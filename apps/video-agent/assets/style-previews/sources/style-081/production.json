@@ -1,0 +1,28 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Rooftop Idea",
+  "displayDescription": "Cel-style night rooftop: a figure's idea bulb lights up and draws a connected network of node cels across the sky.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "PixiJS 8.22 (local pixi.min.js copied from node_modules) WebGL Graphics: fixed background plate, independently drawn character pose cels, bulb, glow, spark, line and node cels",
+    "DOM/CSS text for the headline and disclosure caption"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline window.__timelines.video: the single owner of exposure/progress state (pose, bulb, glow, spark, draw, node pops) and of the headline clip-path wipes; PixiJS redraws from that state on every timeline update and on hf-seek"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent. No audio track.",
+  "limitations": [
+    "Digital simulation of cel compositing; no physical cels, paint or camera.",
+    "Character, background and node drawings are procedural vector shapes, not hand-drawn frames from Krita or a drawn frame sequence.",
+    "Glow is flat stacked translucent discs, not optical diffusion.",
+    "Georgia/Courier New system fonts stand in for Cooper Black.",
+    "Blender was not used, per the user's instruction.",
+    "Not rendered or browser-tested by the agent; the host runs QA."
+  ]
+}

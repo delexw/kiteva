@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-029",
+    "name": "Geometric Illustration. The label was normalized from source descriptions; the source category is Drawing and Illustration.",
+    "visualIdentity": "Figures and environments are built from a limited geometric vocabulary. Angles, proportions, line weights, and palette are shared across the scene. Forms may be decomposed, assembled, and resized while keeping identity and balance.",
+    "suitableUses": "Source lists brand idents, concept transitions, logo stories, posters, report covers, and design-system intros as best fits. Inferred: systematic explainer illustration. Other uses are unspecified.",
+    "limitations": "Source calls the style coherent alone but suggests support for transitions or strict typographic grids. Avoid blobby organic morphs, mid-morph color changes, and continuous morphing without holds. Suitability for organic or painterly subjects is unspecified.",
+    "palette": "Suggested only: cream background #F3EFE4, navy foreground #253849, terracotta accent_1 #BF6D45, and sage accent_2 #638878, with no gradient. Task or approved palettes override these and must not be recolored. Foreground on background measures 10.501. Background text on accents measures 3.33 and 3.433, so accents are decorative only.",
+    "motionAndInteraction": "Movement favors smooth, coherent easing but preserves deliberate cuts, impacts, constant-speed sections, and reading holds. Video state derives from composition time; pointer and scroll input belong only to interactive delivery. Optional references (gaze tracking, chapter handoffs, scroll storytelling) are not required and need scene support.",
+    "audio": "The source specifies no fixed audio. It suggests topic-based choices among music, voiceover, sung vocals, effects, ambience, or silence, without a mandated genre, tempo, or instrument. Honor explicit user requirements first, do not invent assets, and verify speech clarity and sync.",
+    "assetRequirements": "Input assets and exact copy are unspecified. Geometric groups need explicit pivots, hierarchy, and shared coordinates for splitting, rotation, and assembly. Fonts and assets must load before rendering. Duration, aspect ratio, resolution, frame rate, and output directory are task-supplied placeholders.",
+    "combinations": "The style is coherent alone. Optional: style-100 for shape-morph transitions that keep pivots, palette, and holds, and style-001 for Swiss grid typography using primary tokens, flush-left sans, and a shared grid. Avoid Swiss red and centered text.",
+    "productionApproach": "The style renderer (SVG; optionally tldraw, p5.js, or Paper.js) owns drawing. GSAP is the motion engine, with one owner per property. HyperFrames is the primary pipeline, registering a paused GSAP timeline; Remotion is fallback only when HyperFrames is unavailable or verifiably limited. chroma.js checks color and contrast, and optional Delaunator handles 2D point triangulation. Verify decoded frames, audio sync, and loop continuity."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

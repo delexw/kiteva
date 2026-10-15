@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-134",
+    "name": "Fine-Line Chinese Painted Scroll",
+    "visualIdentity": "Explicit: fine bounded outlines define jade mountain layers, cloud curls, architecture, flowers and figures, with translucent pale washes on a light paper or silk field. Classified under Illustration and Art Media. Source-inspired, not a claim that all Chinese painting uses this palette.",
+    "suitableUses": "Explicit: horizontal scroll compositions with generous open space, and full-video scroll-unrolling panoramas. Inferred: calm, reading-led cultural or landscape pieces. Unspecified: whether it suits data-heavy, fast-paced, or interactive HTML content.",
+    "limitations": "Explicit: no ink splashes or thick outlines; parallax stays shallow to keep the painted plane intact. WebGL ink diffusion and Rough.js were rejected. Figures need rigged layers or drawn gesture frames. Calligraphy or seals appear only when verified and supplied. Exact source hex values were not measured.",
+    "palette": "Authored fallback roles: background silk #F0EEDD, foreground contour #3B544D, jade #86B6A2, mountain #B5CEC0, warm paper #D8C6A5, rose #D2A6A3. Approved task or reference colors take precedence. Washes use fill-opacity 0.45–0.7 and gradients are disabled. Caption text targets 4.5:1 contrast and may need an approved backing.",
+    "motionAndInteraction": "Explicit preview timing: 0–1.3s DrawSVG draws contours, and each wash reveals only after its contour group completes. 1.3–3.0s adds a bird on an authored path, a few petals, a sleeve sway about a pivot, and a 1–2% cloud-band shift, then holds. Interaction behavior is unspecified. Sharp cuts and reading holds are permitted.",
+    "audio": "Unspecified by the source. Music, voiceover, ambience or silence should be proposed per task with stated assumptions; no historical soundtrack is assumed. Supplied audio must be honored, and silent catalog previews are used. When speech is present, it must stay intelligible without competing vocals.",
+    "assetRequirements": "Needed: approved layered illustration or high-resolution PNG/SVG parallax layers for shallow offsets and full-video panoramas. Figures need rigged layers or drawn gesture frames. Calligraphy or seal assets are optional and need verification. Local fonts and assets must load before rendering. No motion references are supplied.",
+    "combinations": "Explicit: the primary medium stays dominant, and approved palette and composition rules are preserved. The sole suggestion, style-038, is a placeholder supporting role with no defined detail. Compatible details must not replace the defining mark-making or invent historical text. Combinations are optional, not limits.",
+    "productionApproach": "Explicit: HyperFrames is the default composition and export pipeline, with Remotion only for a recorded verified limitation. SVG with DrawSVG renders contours and washes, Canvas 2D adds the seeded silk texture, and one paused GSAP timeline drives motion. Verify direct and backward seeks, decoded frames, and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

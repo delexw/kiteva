@@ -1,0 +1,186 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Animated Reaction Captions — style-115</title>
+<style>
+@font-face{font-family:"Impact";src:local("Impact");font-weight:400;font-style:normal;font-display:block}
+@font-face{font-family:"Arial Rounded MT Bold";src:local("Arial Rounded MT Bold"),local("ArialRoundedMTBold");font-weight:700;font-style:normal;font-display:block}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#161E33}
+#root{position:relative;width:100%;height:100%;overflow:hidden}
+#scene{width:100%;height:100%;display:block}
+.disp{font-family:Impact,"Arial Black",sans-serif}
+.round{font-family:"Arial Rounded MT Bold","Arial Black",Arial,sans-serif;font-weight:700}
+</style></head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+<defs>
+ <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="14" cy="14" r="3.2" fill="#24304F"/></pattern>
+ <!-- Sticker caption material: dark stroke on the glyph (paint-order), cream outer keyline by dilation, hard offset dark shadow. -->
+ <filter id="sticker" x="-20%" y="-30%" width="140%" height="170%" color-interpolation-filters="sRGB">
+  <feMorphology in="SourceAlpha" operator="dilate" radius="6" result="grow"/>
+  <feFlood flood-color="#FFF5E5"/><feComposite in2="grow" operator="in" result="halo"/>
+  <feOffset in="grow" dx="9" dy="11" result="off"/>
+  <feFlood flood-color="#0B1020"/><feComposite in2="off" operator="in" result="shadow"/>
+  <feMerge><feMergeNode in="shadow"/><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge>
+ </filter>
+ <filter id="stickerSm" x="-20%" y="-40%" width="140%" height="190%" color-interpolation-filters="sRGB">
+  <feMorphology in="SourceAlpha" operator="dilate" radius="4" result="grow"/>
+  <feFlood flood-color="#FFF5E5"/><feComposite in2="grow" operator="in" result="halo"/>
+  <feOffset in="grow" dx="6" dy="7" result="off"/>
+  <feFlood flood-color="#0B1020"/><feComposite in2="off" operator="in" result="shadow"/>
+  <feMerge><feMergeNode in="shadow"/><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge>
+ </filter>
+ <path id="star" d="M0-90L22-36 78-52 42-6 86 34 30 34 26 92-10 46-56 82-44 28-96 6-46-24-70-74-16-48Z"/>
+ <path id="sp" d="M0-20Q3-3 20 0Q3 3 0 20Q-3 3-20 0Q-3-3 0-20Z"/>
+ <mask id="m-link0" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720"><path class="linkmask" d="M180 560Q160 450 240 380" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round"/></mask>
+ <mask id="m-link1" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720"><path class="linkmask" d="M180 560Q400 640 640 592" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round"/></mask>
+ <mask id="m-link2" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720"><path class="linkmask" d="M640 592Q880 540 1100 560" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round"/></mask>
+</defs>
+
+<!-- Stationary scene field: deep ink navy + tone-on-tone halftone grid (source-frame technique, topic-chosen hue) -->
+<rect width="1280" height="720" fill="#161E33"/>
+<rect width="1280" height="720" fill="url(#dots)"/>
+
+<!-- Ring pulse behind the payoff headline -->
+<g id="rings" fill="none" stroke="#668FA3" stroke-width="4">
+ <circle class="ring" cx="480" cy="320" r="40" opacity="0"/>
+ <circle class="ring" cx="480" cy="320" r="40" opacity="0"/>
+ <circle class="ring" cx="480" cy="320" r="40" opacity="0"/>
+</g>
+
+<!-- System connectors: dotted links revealed along their length by solid masks -->
+<g fill="none" stroke="#FFF5E5" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 15" opacity=".85">
+ <path d="M180 560Q160 450 240 380" mask="url(#m-link0)"/>
+ <path d="M180 560Q400 640 640 592" mask="url(#m-link1)"/>
+ <path d="M640 592Q880 540 1100 560" mask="url(#m-link2)"/>
+</g>
+
+<!-- Rough.js (seeded, pre-generated) hand-drawn rings around nodes -->
+<g fill="none" stroke="#FFF5E5" stroke-width="3" stroke-linecap="round" opacity=".7">
+ <path class="draw" id="ring1" d="M183.86709036296728 521.0268937387151 C189.85440344999674 521.2629373876948, 197.33766593445122 526.4743778203174, 202.03248401953505 531.4089669366678 C206.72730210461887 536.3435560530181, 210.87043008298116 543.0950425343968, 212.03599887347025 550.6344284368176 C213.20156766395934 558.1738143392384, 211.71158325819485 569.6877968544519, 209.02589676246964 576.6452823511927 C206.34021026674444 583.6027678479335, 201.64212744602457 588.7637854477027, 195.92187989911906 592.3793414172623 C190.20163235221355 595.9948973868218, 181.39259287263943 598.9905040665608, 174.70441148103652 598.3386181685495 C168.0162300894336 597.6867322705382, 160.46161741990565 593.3324203408764, 155.79279154950154 588.4680260291944 C151.12396567909744 583.6036317175125, 147.68360889948468 576.3206800752871, 146.69145625861182 569.1522522984576 C145.69930361773896 561.9838245216281, 147.0345087919552 552.7215559379752, 149.83987570426441 545.4574593682172 C152.64524261657363 538.1933627984592, 157.70959618016914 529.2635427992478, 163.52365773246714 525.5676728799102 C169.33771928476514 521.8718029605726, 180.52335944409734 523.509137761823, 184.72424501805247 523.2822398521917 C188.9251305920076 523.0553419425603, 188.50287807898218 523.580572612465, 188.7289711761979 524.2062854221224 M162.41652718275472 525.1963869245822 C166.74857825966095 520.9846525033215, 172.6441953131838 519.9566364104021, 179.37822564538504 520.9877705789581 C186.1122559775863 522.0189047475142, 197.04715099551422 526.8133057903585, 202.82070917596224 531.3831919359186 C208.59426735641026 535.9530780814787, 212.4581093720421 541.5296923866337, 214.0195747280732 548.4070874523186 C215.5810400841043 555.2844825180035, 214.46729870344276 565.6934602792653, 212.18950131214885 572.6475623300281 C209.91170392085493 579.6016643807909, 206.13537793801734 585.3969254954218, 200.35279038030967 590.1316997568955 C194.570202822602 594.8664740183692, 184.4420420177372 600.9055644769129, 177.49397596590285 601.0562078988701 C170.5459099140685 601.2068513208272, 163.55188058565665 596.5401489080774, 158.66439406930354 591.0355602886385 C153.77690755295043 585.5309716691996, 149.95363883028926 575.5677823506455, 148.16905686778424 568.0286761822365 C146.3844749052792 560.4895700138275, 146.13574449681911 552.4048595624698, 147.9569022942734 545.8009232781845 C149.77806009172767 539.1969869938993, 156.6536289065398 530.9353262887232, 159.09600365250986 528.405058476525 C161.53837839847992 525.8747906643268, 161.79682471357947 530.4631215395074, 162.61115077009376 530.6193164049951"/>
+ <path class="draw" id="ring2" d="M614.4982851565206 564.9838963919149 C618.5889415875615 559.4901072382636, 628.4544875634167 554.9781859429988, 635.032132406304 553.6485208131737 C641.6097772491912 552.3188556833486, 648.258282164877 554.1450360545257, 653.9641542138438 557.0059056129638 C659.6700262628107 559.866775171402, 665.996233699328 564.1590944530459, 669.2673647001051 570.8137381638022 C672.5384957008822 577.4683818745585, 674.1364489849909 588.8730024156204, 673.5909402185064 596.9337678775015 C673.0454314520218 604.9945333393827, 670.618940569715 613.2597374770681, 665.9943121011978 619.1783309350892 C661.3696836326806 625.0969243931103, 652.7352037294503 631.2102120430706, 645.8431694074028 632.4453286256278 C638.9511350853553 633.680445208185, 630.7009033873475 630.3007553751279, 624.6421061689127 626.5890304304327 C618.583308950478 622.8773054857375, 612.601867117503 616.7654347958027, 609.4903860967942 610.1749789574562 C606.3789050760853 603.5845231191098, 602.8774231596658 596.1794738138393, 605.9732200446595 587.0462954003541 C609.0690169296531 577.9131169868689, 622.0752165260517 561.3479395869488, 628.065167406756 555.3759084765452 C634.0551182874603 549.4038773661416, 641.888720889178 550.6429332491074, 641.9129253288852 551.2141087379329 M662.8761980360972 559.2865709768869 C668.2601660318271 563.3297117414022, 670.0797388660783 573.3637432111346, 671.1495114746053 581.3475237067183 C672.2192840831324 589.331304202302, 671.6122851099882 599.8561958746883, 669.2948336872594 607.1892539503891 C666.9773822645305 614.5223120260899, 662.0212871692876 621.2051009747939, 657.2448029382323 625.3458721609234 C652.468318707177 629.4866433470528, 646.60296573355 632.2635264022454, 640.6359283009275 632.0338810671658 C634.668890868305 631.8042357320862, 627.1396703919145 628.8346509064896, 621.4425783424972 623.9680001504458 C615.7454862930799 619.1013493944021, 608.7432829725494 610.123429189258, 606.4533760044242 602.8339765309031 C604.1634690362989 595.5445238725482, 605.486654240818 587.9452068902654, 607.703136533746 580.2312842003163 C609.9196188266741 572.5173615103672, 614.4915799094563 561.5016570707976, 619.7522697619925 556.5504403912084 C625.0129596145287 551.5992237116193, 632.2146530095939 549.6108239006073, 639.2672756489635 550.5239841227814 C646.3198982883331 551.4371443449554, 658.4472491540234 559.9785153737708, 662.06800559821 562.0294017242528 C665.6887620423965 564.0802880747348, 661.5907429454838 562.5554547470034, 660.9918143140831 562.829302225673"/>
+ <path class="draw" id="ring3" d="M1103.2684029842055 526.1963347781901 C1109.5731130081163 526.1214717725361, 1116.1434276398152 530.4376693819264, 1121.1083647690134 534.6228882814684 C1126.0733018982116 538.8081071810103, 1131.0814797712287 545.1285900250184, 1133.058025759395 551.307648175442 C1135.0345717475611 557.4867063258655, 1135.1955194354437 565.1564535436296, 1132.9676406980102 571.6972371840093 C1130.7397619605767 578.238020824389, 1125.3278118365918 586.7081215536293, 1119.6907533347946 590.55235001772 C1114.0536948329975 594.3965784818106, 1105.890921361466 595.5066966997947, 1099.1452896872277 594.7626079685534 C1092.3996580129892 594.0185192373121, 1084.236671591562 590.5323284290185, 1079.2169632893635 586.0878176302723 C1074.197254987165 581.643306831526, 1070.6828523507543 574.5472702246052, 1069.027039874036 568.095543176076 C1067.3712273973179 561.6438161275469, 1067.4545901480683 553.4832521616405, 1069.282088429054 547.3774553390977 C1071.1095867100398 541.2716585165548, 1072.6710650450486 534.7986771474544, 1079.9920295599509 531.4607622408187 C1087.3129940748531 528.1228473341829, 1105.8398890494639 526.700813057397, 1113.2078755184682 527.3499658992831 C1120.5758619874725 527.9991187411692, 1124.5343290204949 534.9037142707816, 1124.1999483739767 535.3556792921355 M1101.487757097412 525.677814393459 C1107.8524962115007 526.356936496981, 1117.2139846756256 530.5950882247621, 1122.2743015485526 535.33892231632 C1127.3346184214795 540.0827564078779, 1130.3224447642267 547.411267515072, 1131.849658334974 554.1408189428063 C1133.3768719057214 560.8703703705405, 1133.4507221930837 569.5668912136719, 1131.4375829730361 575.7162308827255 C1129.4244437529885 581.8655705517792, 1125.1803404940752 588.3056885742942, 1119.770823014688 591.0368569571281 C1114.3613055353007 593.7680253399619, 1106.2657366327905 592.5460340590678, 1098.9804780967124 592.1032411797288 C1091.6952195606343 591.6604483003898, 1081.545821670709 592.0170556887081, 1076.0592717982188 588.3800996810945 C1070.5727219257285 584.743143673481, 1066.8764023562148 576.8380833163993, 1066.061178861771 570.2815051340474 C1065.245955367327 563.7249269516955, 1067.9632637620725 555.2491501402318, 1071.167930831556 549.0406305869828 C1074.3725979010396 542.8321110337339, 1079.951853791951 536.5446921896761, 1085.289181278672 533.0303878145536 C1090.626508765393 529.5160834394311, 1100.0645379146802 528.8908146014516, 1103.1918957518824 527.9548043362481 C1106.3192535890846 527.0187940710447, 1104.2247097580005 526.9611771208861, 1104.0533283018851 527.4143262233332"/>
+</g>
+
+<!-- Nodes -->
+<g stroke="#0B1020" stroke-width="6">
+ <circle id="node1" cx="180" cy="560" r="24" fill="#DA855C"/>
+ <circle id="node2" cx="640" cy="592" r="24" fill="#668FA3"/>
+ <circle id="node3" cx="1100" cy="560" r="24" fill="#A47CA3"/>
+</g>
+
+<!-- Confetti burst (deterministic, built in script) -->
+<g id="confetti"></g>
+
+<!-- Reaction caption component: tagline -->
+<g transform="rotate(-4 640 300)">
+ <g id="tagline">
+  <text class="round" x="410" y="205" text-anchor="middle" font-size="48" fill="#FFF5E5" stroke="#0B1020" stroke-width="10" stroke-linejoin="round" paint-order="stroke" filter="url(#stickerSm)">one tiny idea…</text>
+ </g>
+ <!-- Reaction caption component: payoff headline (single text, layered by stroke + filter) -->
+ <g id="headline">
+  <text class="disp" x="480" y="388" text-anchor="middle" font-size="150" letter-spacing="3" fill="#DA855C" stroke="#0B1020" stroke-width="16" stroke-linejoin="round" paint-order="stroke" filter="url(#sticker)">IT CLICKS!</text>
+ </g>
+ <path class="draw" id="underline" d="M210.64181810729207 427.00185709483924 C242.44889149777592 429.2081558077286, 329.6319884351144 440.08041807500024, 398.0438249837607 440.6757911134511 C466.455661532407 441.271164151902, 553.8942316702257 434.52362012950084, 621.1128373991698 430.5740953255445 C688.331443128114 426.6245705215881, 771.4672711343816 419.37826106237867, 801.3554593574256 416.97864228971304 M207.54570943772794 425.62026856482026 C240.49596975902716 428.14957133352755, 334.6566108379762 435.89509327948093, 403.3838924401999 436.0319808870554 C472.11117404242356 436.16886849462986, 553.3610271575053 429.27525327424206, 619.9093990510702 426.44159421026706 C686.4577709446351 423.60793514629205, 773.1241342729329 420.75215541581315, 802.674123801589 419.0300265032053" fill="none" stroke="#FFF5E5" stroke-width="5" stroke-linecap="round"/>
+</g>
+
+<!-- Reaction sticker: WOW starburst; label is a child of its container -->
+<g transform="translate(1070 180) rotate(12)">
+ <g id="wow">
+  <use href="#star" fill="#0B1020" transform="translate(8 10)"/>
+  <use href="#star" fill="#A47CA3" stroke="#0B1020" stroke-width="6" stroke-linejoin="round"/>
+  <text class="disp" y="14" text-anchor="middle" font-size="40" fill="#FFF5E5" stroke="#0B1020" stroke-width="5" paint-order="stroke">WOW</text>
+ </g>
+</g>
+<g fill="none" stroke="#FFF5E5" stroke-width="5" stroke-linecap="round">
+ <path class="draw" id="tick1" d="M917.7148645490408 88.22664674818516 C922.5645419731661 95.32684739216565, 925.811063371405 100.63926503344773, 944.5907456487417 123.88321041166782 M920.0864052966238 91.27007332295179 C924.297821275957 99.45326879351138, 931.6123571025879 108.36862186222076, 942.4142034247518 122.41351619213819"/><path class="draw" id="tick2" d="M962.4581075817347 67.31107791364192 C959.3270186151266 76.90626919493079, 963.804059764266 80.96047842055559, 962.0512427479028 109.13868401944637 M963.2106754943728 64.91678887158632 C962.9750041097998 78.37997400984167, 963.3505223841071 89.29297146499157, 960.5570057079196 105.62252698689699"/><path class="draw" id="tick3" d="M1000.8013506144285 79.9955090790987 C1003.7425822222472 88.84998044973165, 997.8499363252758 95.24568455094396, 985.5117398470641 113.99415762722492 M1003.134945692122 81.76350442022085 C997.1928832756638 93.09474572122545, 994.0471969725846 104.9961627007693, 987.8998079910874 114.83153778165578"/>
+</g>
+
+<!-- Reaction caption component: system pill (container + label move as one group) -->
+<g transform="translate(360 470) rotate(-6)">
+ <g id="pill">
+  <rect x="8" y="9" width="440" height="78" rx="39" fill="#0B1020"/>
+  <rect width="440" height="78" rx="39" fill="#668FA3" stroke="#0B1020" stroke-width="6"/>
+  <text class="round" x="220" y="52" text-anchor="middle" font-size="34" fill="#FFF5E5" stroke="#0B1020" stroke-width="6" stroke-linejoin="round" paint-order="stroke">now it's a SYSTEM</text>
+ </g>
+</g>
+
+<!-- Sparkle doodles -->
+<g fill="#FFF5E5">
+ <g transform="translate(120 120)"><use class="spark" href="#sp"/></g>
+ <g transform="translate(1170 420)"><use class="spark" href="#sp"/></g>
+ <g transform="translate(905 455)"><use class="spark" href="#sp"/></g>
+</g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script>
+(function(){
+ const NS='http://www.w3.org/2000/svg';
+ const $=s=>document.querySelector(s);
+ // Seeded PRNG: identical confetti on every load and seek.
+ let seed=115;const rnd=()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+ const colors=['#DA855C','#668FA3','#A47CA3','#FFF5E5'];
+ const conf=$('#confetti');const bits=[];
+ for(let i=0;i<20;i++){
+  const a=(i/20)*Math.PI*2+rnd()*0.25, d=170+rnd()*190;
+  let el;
+  if(i%3===0){el=document.createElementNS(NS,'use');el.setAttribute('href','#sp');}
+  else if(i%3===1){el=document.createElementNS(NS,'rect');el.setAttribute('x','-6');el.setAttribute('y','-11');el.setAttribute('width','12');el.setAttribute('height','22');el.setAttribute('rx','3');}
+  else{el=document.createElementNS(NS,'circle');el.setAttribute('r','7');}
+  el.setAttribute('fill',colors[i%4]);
+  conf.appendChild(el);
+  bits.push({el,x:480+Math.cos(a)*d,y:320+Math.sin(a)*d*0.75+40,r:(rnd()-0.5)*540,s:0.55+rnd()*0.5});
+ }
+ const tl=gsap.timeline({paused:true,defaults:{overwrite:false}});
+ // Initial hidden states (all owned by this timeline)
+ const pop=(sel,at,dur,from)=>tl.fromTo(sel,{scale:0,opacity:0,rotation:from||0},{scale:1,opacity:1,rotation:0,duration:dur,ease:'back.out(2.2)',transformOrigin:'50% 50%'},at);
+ const draw=(el,at,dur,ease)=>{const L=el.getTotalLength();tl.fromTo(el,{attr:{'stroke-dasharray':L+' '+L,'stroke-dashoffset':L}},{attr:{'stroke-dashoffset':0},duration:dur,ease:ease||'power2.inOut'},at);};
+
+ // Beat 1 — the idea: orange node pops, sketch ring circles it, tagline pops.
+ pop('#node1',0.12,0.38);
+ draw($('#ring1'),0.32,0.4,'power1.inOut');
+ tl.fromTo('#tagline',{opacity:0,scale:0.55,y:24,rotation:-9},{opacity:1,scale:1,y:0,rotation:0,duration:0.42,ease:'back.out(2)',svgOrigin:'410 190'},0.38);
+
+ // Beat 2 — IT CLICKS!: slam-in, squash, wobble settle (scale/rotation owned here only)
+ const H='#headline';
+ tl.set(H,{svgOrigin:'480 340',opacity:0,scaleX:0.3,scaleY:0.3,rotation:-12},0);
+ tl.to(H,{opacity:1,duration:0.06,ease:'none'},0.95);
+ tl.to(H,{scaleX:1.16,scaleY:1.16,rotation:5,duration:0.15,ease:'power2.out'},0.95);
+ tl.to(H,{scaleX:1.12,scaleY:0.84,rotation:-3,duration:0.09,ease:'power1.out'},1.10);
+ tl.to(H,{scaleX:0.96,scaleY:1.06,rotation:1.5,duration:0.11,ease:'sine.inOut'},1.19);
+ tl.to(H,{scaleX:1,scaleY:1,rotation:0,duration:0.17,ease:'sine.out'},1.30);
+ // ring pulse from behind the headline
+ document.querySelectorAll('.ring').forEach((c,i)=>{
+  tl.fromTo(c,{attr:{r:40},opacity:0.75},{attr:{r:150+i*120},opacity:0.22-i*0.05,duration:0.75,ease:'power2.out'},0.98+i*0.08);
+ });
+ // confetti burst
+ bits.forEach((b,i)=>{
+  tl.fromTo(b.el,{x:480,y:320,scale:0,rotation:0,opacity:1},{x:b.x,y:b.y,scale:b.s,rotation:b.r,duration:0.7,ease:'power3.out'},1.0+(i%5)*0.015);
+  tl.to(b.el,{opacity:0,duration:0.25,ease:'power1.in'},1.62+(i%4)*0.04);
+ });
+ draw($('#underline'),1.32,0.3,'power2.out');
+ // WOW sticker (label inside container group)
+ pop('#wow',1.22,0.38,-40);
+ ['#tick1','#tick2','#tick3'].forEach((t,i)=>draw($(t),1.52+i*0.05,0.16,'power2.out'));
+
+ // Beat 3 — becomes a system: links draw, nodes pop on arrival, pill rises.
+ const masks=document.querySelectorAll('.linkmask');
+ draw(masks[0],1.30,0.25);
+ draw(masks[1],1.50,0.35);
+ pop('#node2',1.80,0.28);
+ draw($('#ring2'),1.86,0.26,'power1.inOut');
+ tl.fromTo('#pill',{opacity:0,y:44,scale:0.8,rotation:7},{opacity:1,y:0,scale:1,rotation:0,duration:0.42,ease:'back.out(1.8)',svgOrigin:'220 39'},1.64);
+ draw(masks[2],1.86,0.34);
+ pop('#node3',2.14,0.28);
+ draw($('#ring3'),2.20,0.26,'power1.inOut');
+ document.querySelectorAll('.spark').forEach((s,i)=>pop(s,2.0+i*0.08,0.3,-60));
+
+ tl.to({}, {duration:0.001},2.999);
+ window.__timelines=window.__timelines||{};
+ window.__timelines.video=tl;
+ tl.progress(0).pause();
+ // SVG state is fully owned by GSAP; re-render on host seeks (direct/backward/out-of-order).
+ window.addEventListener('hf-seek',e=>{const t=e&&e.detail&&typeof e.detail.time==='number'?e.detail.time:null;if(t!==null)tl.seek(t,false);});
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body></html>

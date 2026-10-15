@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-005",
+    "name": "De Stijl. Supplemental Graphic Design and Design Movements reference, not a directly named style in the source collection. Provenance is supplemental.",
+    "visualIdentity": "Horizontal and vertical rules divide the frame into rectangular color fields. Line weight and area ratios are controlled deliberately. Arbitrary diagonals, rounded corners and gradients are excluded.",
+    "suitableUses": "Explicitly suited to rhythmic abstract and identity work. Inferred fits include event identities and title cards, and proportional data such as budget splits with few categories, using the hybrids below.",
+    "limitations": "Avoid diagonals, rounded corners, gradients and elastic easing. Labels must sit on white cells and must not cross black rules. Rotated letters are excluded. Data needs at most three colored categories. Dense explanatory text is a poor fit.",
+    "palette": "Authored suggestions only: white #FFFFFF, black #000000, red #D02020, yellow #F4CB28, blue #184BA0. No approved exact colors were supplied. Background is scene_dependent, so white is illustrative. Gradients are disabled.",
+    "motionAndInteraction": "Motion expands, divides and slides rectangles on straight axes and changes color fields. Line weights stay constant during motion. Reference patterns include pinned hero recomposition, chaptered handoffs, story steps and hard word-card cuts. Video must remain time-driven. Reduced motion shows the completed state.",
+    "audio": "Unspecified by the style, with no mandated genre, tempo or instrument. Silence is valid. Restrained accents or ambience may suit cuts, but only after audio timing is inspected. No beat synchronization was verified. Speech must stay intelligible.",
+    "assetRequirements": "No uploads are specified. Needs include concise copy for word cards, real values for proportional data, and topic-specific hero or diagram assets. Local fonts are required, but families are unspecified. Approved task colors override the suggestions.",
+    "combinations": "Style-097 maps proportional data to rectangle areas, with labels on white cells. Style-093 slides block sans labels orthogonally within cells. Text uses black on white or yellow, or white on red or blue, with constant line weights.",
+    "productionApproach": "HyperFrames is the default for composition and export. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists. SVG renders rectangles, strokes and masks. A paused GSAP timeline owns motion. Motion and chroma-js are optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

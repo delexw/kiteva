@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-050",
+    "name": "Halftone Printing (style-050, Printmaking and Craft Materials). Provenance is explicit: the source directly names and describes this visual direction.",
+    "visualIdentity": "Tone comes only from halftone dot size or density, with consistent dot shape, spacing and angle. It combines limited colour separations, clear outlines and paper texture, and dots stay anchored to the artwork during motion.",
+    "suitableUses": "Suits tonal imagery as the main content, such as feature stories, documentary intros, archival explainers and comic-print product spins. Other uses are inferred from this. Aspect ratio, duration and resolution are unspecified in the metadata.",
+    "limitations": "Non-integer scaling causes moire, and text and body copy must never be halftoned. Avoid glossy reflections, dots crawling across surfaces and dot frequencies near the pixel grid. Source review covered only sampled seconds 1–8, without audio or continuous motion.",
+    "palette": "Background is scene-dependent, so the cream #F8EFD9 is only an illustrative swatch. Example foreground #253E56 and accent #C25143 are unapproved; cream text on the accent reaches 4.029 and is decorative only. Use discrete inks, no gradients, and keep any task-supplied exact colours.",
+    "motionAndInteraction": "Keep dot spacing, angle and local coordinates fixed; animate content and masks instead. Smooth easing suits some actions, while sharp cuts and reading holds are allowed. Optional references motion-012, -015 and -037 to -040 apply only when scene assets support them. Scroll control is for interactive delivery only.",
+    "audio": "No audio is supplied or required. Music, voiceover, sound effects, ambience or silence may suit the topic; no genre or tempo is fixed. Use music timing only after inspecting actual audio. Keep narration intelligible and avoid competing sound.",
+    "assetRequirements": "No uploads, exact copy or fonts are specified. Halftone separations are generated from source luminance, so supplied artwork needs usable tonal values. Fonts and assets must load locally before rendering; any missing assets remain unspecified.",
+    "combinations": "Halftone alone suits tonal imagery. style-019 adds an editorial grid and type hierarchy, with text never halftoned and red used for one emphasis per view. style-060 adds toon-lit 3D forms, using only paper, blue and red tokens with fixed dot frequency.",
+    "productionApproach": "HyperFrames handles composition, timing, validation and export; Remotion is a fallback only with a recorded reason. Canvas 2D generates separations and textures; an optional Three.js luminance shader is available. Python or Pillow preprocess assets, chroma.js checks contrast and GSAP drives a paused timeline. Verify moire, text legibility and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

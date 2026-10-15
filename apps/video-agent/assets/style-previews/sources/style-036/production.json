@@ -1,0 +1,30 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Dusk Spark",
+  "displayDescription": "Post-Impressionist dusk village painted stroke by stroke: one lit window spreads roads and repainted light across the hill.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (seeded procedural brush-stroke layers, partial-stroke brush masks, clipped house dabs)",
+    "HTML/CSS title card (static system serif typography)"
+  ],
+  "motionEngine": [
+    "GSAP 3.15 paused timeline at window.__timelines.video (sole owner of every animated progress value)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track, music, voice or sound effects.",
+  "limitations": [
+    "Procedural Canvas 2D brush strokes approximate oil impasto (base stroke + lighter ridge streak); no real paint, canvas weave or physical pigment mixing is simulated.",
+    "Painting reference is re-authored from the evening-road-and-cypress idiom of Van Gogh's 'Road with Cypress and Star' (1890); it is not a reproduction and no filter claims to reproduce Post-Impressionism.",
+    "Dusk violet-rose sky and teal hill are a scene-dependent palette chosen from BACKGROUND_REVIEW.json evidence; village roles keep the style tokens (#B26B57 houses/roads, #344F60 outlines/text, #B58B42 sun/windows, #638873 lit land).",
+    "Subtitle uses #344F60 instead of the earlier #B26B57 for readable contrast on the #EEE2C2 card; #B26B57 is kept as a brush rule under the copy.",
+    "Window glow pools use a radial gradient as a lighting approximation.",
+    "STYLE.json lists no tech.preview_recipes, so the refresh shows the reviewed source-frame lessons rather than a named recipe.",
+    "Blender was not used, by user instruction.",
+    "Title typography uses @font-face declarations with local() sources only (Didot, then Bodoni 72, then Georgia). If neither display face is installed on the render host, text renders in Georgia, and no font files are bundled."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-032",
+    "name": "Unspecified",
+    "visualIdentity": "The original metadata is unavailable in this conversation, so the style’s identity is unspecified.",
+    "suitableUses": "Video and interactive HTML suitability cannot be determined without the original source.",
+    "limitations": "Unspecified. No constraints can be verified without the complete originalSource.",
+    "palette": "Unspecified; color values and their roles are not available.",
+    "motionAndInteraction": "Unspecified; motion and interaction behavior cannot be established from the provided context.",
+    "audio": "Unspecified; no soundtrack or audio guidance is available.",
+    "assetRequirements": "Unspecified; asset needs cannot be inferred without the source metadata.",
+    "combinations": "Unspecified; compatibility with other styles is not documented here.",
+    "productionApproach": "The required prompt-input JSON was not provided in the accessible context. A complete, source-grounded summary cannot be produced without reading its originalSource."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

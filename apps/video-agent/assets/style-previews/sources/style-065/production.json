@@ -1,0 +1,30 @@
+{
+  "displayTitle": "Idea Engine",
+  "displayDescription": "A 1962 atomic idea engine powers up on a dark observatory stage and wires itself into a live control console.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186.1 (WebGL: lit 3D atom, rings, rays, console, emissive tube wiring, additive glow sprites)",
+    "Canvas 2D (stationary baked environment texture)",
+    "SVG (flat instrument-plate interface layer with copy)"
+  ],
+  "motionEngine": [
+    "GSAP 3 (single paused timeline at window.__timelines.video; owns the scene state object and SVG clip/dash attributes)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent. No audio track.",
+  "limitations": [
+    "Three.js is bundled locally with esbuild into scene.bundle.js (src/scene.js is the source); no Blender was used.",
+    "Materials are approximations: MeshStandardMaterial matte cream paint, copper with emissive glow, and slate console. The wires are unlit emissive tubes and the glows are additive sprites. There is no real bloom, reflections, global illumination or physical light transport.",
+    "The environment is a stationary 2D canvas texture used as the scene background, not modelled room geometry. Its floor reflection and wall lighting are painted.",
+    "The background swatch #EEE3CB was replaced, per background_policy scene_dependent and BACKGROUND_REVIEW, by a new scene color #141D24 (deep slate-navy), with derived dark tones #0F161B, #18242B and #1B2730 for environment detail only. Approved tokens keep their roles: cream #EEE3CB as hero material and text, slate #314449 for the console and bezels, teal #6B9693 for the secondary line, copper #BC7751 for the active state.",
+    "Copy sits on an opaque instrument plate (#141D24), so its contrast does not depend on the WebGL pixels: cream ≈13:1, teal ≈5.2:1, copper ≈4.8:1.",
+    "Typography uses system Futura, with Century Gothic, Avenir Next and Helvetica Neue as fallbacks; no web fonts.",
+    "STYLE.json has no tech.preview_recipes; this refresh follows BACKGROUND_REVIEW.json instead.",
+    "This build was not rendered or browser-tested by the agent; the host runs the QA."
+  ]
+}

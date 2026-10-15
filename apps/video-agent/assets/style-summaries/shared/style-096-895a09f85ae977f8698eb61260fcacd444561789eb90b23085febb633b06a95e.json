@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-096",
+    "name": "Minimalist Product Motion Design",
+    "visualIdentity": "Frames one product and a few meaningful details with generous space, concise copy, precise proportions, and restrained materials and light. Uses smooth close-ups and selective reveals with deliberate settling.",
+    "suitableUses": "Explicitly suited to one product with a few spec details. Inferred from cited pairings: premium launches, hero reveals, and closing taglines. Restraint keeps focus on one subject.",
+    "limitations": "Dense copy, several competing products, and clutter conflict with the style. Product and brand colors stay exact, and campaign shots are not copied. Avoid spring or scale motion on text. Not a historical movement.",
+    "palette": "Optional example tokens: background #F6F2EA and foreground #2A3030, contrast 12.026 on two-color checks. Gradients are disabled. Task or brand colors override these; apply tokens only to new elements. Recheck contrast on composited frames.",
+    "motionAndInteraction": "Smooth authored movement with deliberate cuts, constant-speed sections, and reading holds; easing is not required everywhere. Video is driven from composition time with one owner per property. Live input is interactive-only. Optional references motion-037 and motion-038 apply only when assets fit.",
+    "audio": "The source specifies no audio. Music, voiceover, sound effects, or silence are all optional and topic-dependent, with no fixed genre, tempo, instrument, or voice. Honor user audio choices, keep speech intelligible, and do not invent audio assets.",
+    "assetRequirements": "Needs task-supplied product photos or approved 3D product assets, exact copy, and crisp interface elements. Blender prerenders genuine products when needed. Fonts and assets must load before rendering. Use supplied or authored images only; never assume photographs exist.",
+    "combinations": "Usually best alone. Optional hybrids: style-104 for axial symmetry and frontal push-ins on hero shots, and style-093 for a few spec lines, one moving line at a time. Keep only the two-tone palette; text never overlaps the product silhouette.",
+    "productionApproach": "SVG and Blender serve as style renderers; Blender also drives 3D product moves when needed. GSAP is the paused HyperFrames timeline owner; Motion or Anime.js are optional, with one owner per property. Remotion is fallback only when HyperFrames is unavailable or blocked. Verify seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,29 @@
+{
+  "displayTitle": "Clay System",
+  "displayDescription": "Simulated clay idea-bulb pushes out sage coils that press in four clay nodes on a dusty-cerulean painted card, shot on twos.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186.1 WebGLRenderer (procedural matte clay meshes, PCF soft shadows, seeded canvas bump textures)",
+    "HTML/CSS digital title overlay"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline window.__timelines.video (composition clock + title overlay)",
+    "GSAP paused pose timeline sampled at 12 exposures/s (all clay pose values)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track, music, effects or voice.",
+  "limitations": [
+    "Digital simulation of claymation: no clay was sculpted or photographed; Blender was not used per user instruction.",
+    "Clay is approximated with displaced Three.js spheres/tubes, matte MeshStandardMaterial and seeded procedural bump maps (fingerprints, dents, grit); no subsurface scattering or real plasticine micro-detail.",
+    "Coil growth is a revealed tube draw range with a rolled tip cap, not true volume-conserving extrusion; squash/stretch is approximately volume-preserving by scale.",
+    "Stop-motion stepping is 12 exposures/s held on a 30 fps delivery; title overlay is a smooth digital layer by design.",
+    "No depth-of-field blur; replacement mouths are three discrete meshes.",
+    "Backdrop #4F7F96 is a scene-chosen painted card informed by the reviewed source's flat single-hue backdrop, not copied from it.",
+    "Title typography uses OS-bundled Arial Rounded MT Bold / Trebuchet MS declared via @font-face local(); if absent on the render host, the CSS stack falls back to Helvetica Neue/Arial."
+  ]
+}

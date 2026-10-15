@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-098",
+    "name": "Infinite Zoom (Motion Design and Cinematography). Provenance is explicit in the source metadata.",
+    "visualIdentity": "A camera and transition technique, not an art movement. The next scene already exists inside a visible object, lens, or portal, and a continuous zoom path carries the viewer through connected worlds or scales.",
+    "suitableUses": "Explicit: content where nested worlds are the subject. Inferred from source compatibility notes: looping brand journeys, illustrated narrative zooms, and educational scale tours. Duration, aspect ratio, and audience are unspecified.",
+    "limitations": "Dense text should not be read during travel. Raster textures blur when magnified, and detail density should stay consistent across levels. Labels belong in a stable layer, not scaling with the scene. A flat image scale is a zoom, not a true dolly.",
+    "palette": "Background is scene-dependent and should be chosen from subject, environment, and lighting. The tokens #F4EFE3, #30404A, #688D96, and #B78462 are illustrative, not approved. Foreground/background contrast is 9.348:1, accents are decorative fills only, and gradients are disabled. Sampled sources used neutral stages with one semantic accent, so recheck contrast in composited frames.",
+    "motionAndInteraction": "Video drives the camera path and handoff scales from a keyed progress parameter on composition time. Interactive delivery maps scroll or arrow keys to levels, with a pause control and reduced-motion jump cuts. Verify forward, backward, and direct seeks. Optional references motion-002, motion-005, motion-019, and motion-038 apply only when the scene supports their defining action.",
+    "audio": "No mandatory audio is specified. Based on the topic, a restrained transition accent, ambience, or silence can fit, and music sync requires measured audio analysis. Keep narration intelligible and avoid competing sounds. Silent previews are valid.",
+    "assetRequirements": "Layered high-resolution assets with alpha, numbered frame sequences, or a layer manifest at consistent dimensions. Vector or contour art stays sharp at zoom. Motion-038 needs an actual punctuation mark, and motion-005 needs prepared mist layers. Fonts must load locally, and no brand mark is invented.",
+    "combinations": "style-027 contour world art stays crisp at any zoom and aligns each portal with the next world. style-097 adds scale labels and units in a stable 2D layer outside the zoom. Avoid scaling labels, raster textures, and wildly varying detail density.",
+    "productionApproach": "Canvas 2D renders the visuals, and GSAP owns motion through one paused timeline. HyperFrames is the default pipeline for check, snapshot, and render; Remotion is fallback only with a recorded, verified reason. Optional PixiJS needs autoStart false and explicit render on seek, and Three.js is only for true depth. Seed randomness and verify loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

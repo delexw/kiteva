@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-112",
+    "name": "Futuristic UI (FUI) / HUD Design. Category: Digital and 3D Aesthetics. Provenance: supplemental.",
+    "visualIdentity": "Dark technical field with fine wireframes, monospaced data and limited cyan or magenta accents. Panels, reticles, scales, maps and progress rings need defined functions. Data changes must match visible startup, scanning, acquisition and feedback events.",
+    "suitableUses": "Explicitly suited to fictional interfaces and title sequences. Hybrid use is advised when the HUD shows meaningful data or signal readouts. Pairs with style-097 for data panels and style-063 for waveform readouts. Also suits seeded HTML HUD dashboards.",
+    "limitations": "Not every cyberpunk scene is a HUD, so apply this style only when interface direction is wanted. Avoid meaningless microtext, excessive spinning rings and overexposed neon. Bloom only selected luminous elements. Label all fictional data. Avoid CRT noise that harms legibility.",
+    "palette": "Background policy is scene_dependent: the #0C1822 swatch is illustrative, not mandatory, so choose the backdrop from scene, lighting and mood. Suggested tokens: foreground #E7F4F3, accent #55C7CF, no gradient. Two-color contrast passes 4.5: foreground on background 15.933, accent on background 8.942. Use cyan or an approved magenta, not both. Task-supplied exact colors override these suggestions.",
+    "motionAndInteraction": "Motion must follow visible events such as startup, scanning, lock and feedback, using one owner per animated property and seekable composition time. Optional references: motion-011 card tilt, motion-012 chapter handoff, motion-015 story steps, motion-017 exploded reveal for separable parts only, and motion-037/038 text or punctuation moves. Motion-039 inverts the palette and needs a fit check. Interactive delivery needs keyboard, reduced-motion and text fallbacks.",
+    "audio": "No fixed genre, tempo or voice is specified; audio is optional and topic-dependent. Plausible choices are restrained feedback ticks or ambience tied to scan and lock events, or silence around reading holds. Keep narration intelligible. If a soundtrack is required, use only authorized or locally created audio and sync it to measured timing.",
+    "assetRequirements": "No uploaded assets are mandated; content derives from the brief with fictional, labeled data. Monospaced fonts must load locally before rendering. Motion references need actual phrases or approved marks. Leaflet maps need authorized tiles, attribution and CORS-safe assets. Chartist must be bundled locally. Audio, if used, must be authorized or locally created.",
+    "combinations": "style-097 adds D3 or Leaflet data panels with cyan active values and data-linked scans. style-063 adds seeded oscilloscope traces in cyan panels, not green, and never full-screen. Avoid off-palette magenta, decorative spinning rings without data roles, and random waveforms disconnected from events.",
+    "productionApproach": "Primary pipeline is HyperFrames for composition, timing and export, with check, snapshot and delivery-quality render. Use Remotion only if HyperFrames is unavailable or a verified limitation exists. Style renderer: SVG and Three.js, with UnrealBloomPass on selected elements. Motion: one paused GSAP timeline, with Motion optional and synchronized. chroma-js validates palette values. Delaunator, Cytoscape.js, Leaflet and Chartist are optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-113",
+    "name": "Aurora Gradients / Glassmorphism is a supplemental Digital and 3D Aesthetics style from a user-requested direction. It pairs aurora or mesh gradients with frosted panels and is not a synonym for Liquid Glass.",
+    "visualIdentity": "Frosted panels sit over slow aurora bands, diffuse color fields or mesh gradients, using two to four main colors at stable brightness. Panels have fine borders, highlights and soft shadows. Refraction or dispersion is optional. Foreground text stays sharp.",
+    "suitableUses": "Explicit: ambient hero screens and calm brand moments. Suggested hybrids: style-095 for panel interface motion, and style-097 for dashboards in premium wellness, finance or energy contexts. Inferred: product introductions that need a calm, premium tone.",
+    "limitations": "Keep text in a separate DOM layer. Avoid excessive blur, banding, shimmering edges and backgrounds that compete with reading. Background blur alone is not refraction. Avoid bouncy springs and placing data directly on moving aurora. Verify contrast on composited panels, because two-color ratios do not validate translucent surfaces.",
+    "palette": "This is a suggestion, used only when no approved palette is supplied; task or brand colors override it and keep their roles. Tokens: background #142535, foreground #F2F6F4, accent_1 #7FAAD0, accent_2 #9B87C3, accent_3 #65AAA5. The three accents are the only aurora hues. An optional lab-space gradient across them applies to the aurora background only. Opaque contrast on background: foreground 14.314; accents 6.363, 4.939 and 5.83 respectively.",
+    "motionAndInteraction": "The aurora shader drifts slowly from seeded composition time, while panel transitions are quick and precise, with one owner per animated property. Candidate motion references are motion-008, motion-012, motion-013 and motion-015. motion-011 needs audio content, and motion-014, motion-037 and motion-038 need supporting scene assets. Choosing no reference is valid.",
+    "audio": "Audio is unspecified in the source; no genre, tempo, instrument or voice is assigned, and no audio layer is mandatory. Inferred: restrained ambience or soft UI accents suit slow aurora motion. Speech must stay intelligible without competing music. Sync to music only after real audio analysis. Honor user audio and do not invent assets.",
+    "assetRequirements": "No assets are supplied. Copy, images, logos, fonts, duration, aspect ratio and resolution are unspecified. Load local fonts and assets before rendering, and seed any noise. Preserve supplied colors and artwork. Optional inputs: tldraw-exported SVG for diagrams, and PhotoSwipe only for interactive image galleries.",
+    "combinations": "style-095 adds panel state changes with #7FAAD0 active states and non-bouncy easing. style-097 adds metric cards with one accent per chart series, opaque panels and no gradient-filled marks. Use aurora alone for ambient heroes. Choose a hybrid when product behavior or data must be demonstrated.",
+    "productionApproach": "Style renderer: WebGL with GLSL for the full-screen aurora shader, and HTML/CSS with backdrop-filter for panels and text. Motion engine: a paused GSAP timeline, with Motion only after verified synchronization. Pipeline: HyperFrames by default, and Remotion only with a recorded reason. chroma-js validates colors. Verify forward, backward and direct seeks, plus composited frames and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,150 @@
+{
+  "version": 3,
+  "title": "An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The idea",
+      "startSeconds": 0,
+      "endSeconds": 1.18,
+      "purpose": "Set up the single idea: the heading writes on, then the marker draws the light bulb and a terracotta wash fills it.",
+      "visuals": [
+        "Cool pale grey-blue notebook paper with a faint dot grid (stationary)",
+        "Ink marker prop riding the live stroke end",
+        "Light-bulb contour, base lines, filament and rays in pressure-varied ink",
+        "Translucent terracotta wash that blooms inside the bulb"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.5,
+          "development": "Marker enters from below and writes 'an idea\u2026' left to right.",
+          "captions": [
+            "an idea\u2026"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.5,
+          "endSeconds": 1.18,
+          "development": "Marker draws the bulb outline and its three base lines; the terracotta wash blooms inside, then the filament and rays tick on.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.5
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Connecting",
+      "startSeconds": 1.18,
+      "endSeconds": 2.14,
+      "purpose": "Show the idea spreading into a system: each connector is drawn from the bulb outward, and each node outlines and fills with sage wash when its line arrives.",
+      "visuals": [
+        "Six hand-drawn connectors, drawn in order",
+        "Five node blobs: ink contour, then an off-register sage wash",
+        "A closing link that turns the chain into a loop"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 1.18,
+          "endSeconds": 1.7,
+          "development": "Connectors reach nodes one, two and three, and each node blooms when its line arrives.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.7,
+          "endSeconds": 2.14,
+          "development": "Links to nodes four and five, then a closing link from node three makes a loop.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "The system",
+      "startSeconds": 2.14,
+      "endSeconds": 3,
+      "purpose": "Name the result, underline it in terracotta, then hold the finished drawing.",
+      "visuals": [
+        "Caption written on directly on the paper",
+        "Terracotta brush underline",
+        "Marker exits; finished scene holds"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 2.14,
+          "endSeconds": 2.7,
+          "development": "Marker writes '\u2026becomes a connected system', switches to terracotta for the underline, then leaves the frame.",
+          "captions": [
+            "\u2026becomes a connected system"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.2
+        },
+        {
+          "startSeconds": 2.7,
+          "endSeconds": 3,
+          "development": "Settled reading hold on the complete composition.",
+          "captions": [
+            "an idea\u2026",
+            "\u2026becomes a connected system"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.3
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "One focus at a time: heading, then bulb, then the network spreading left to right, then the caption.",
+      "Connectors draw quickly (0.10\u20130.18 s each) so the system snaps together within the short preview. The wash blooms overlap the next connector as secondary actions.",
+      "Everything is settled by 2.70 s; the background and grain never move."
+    ],
+    "justifiedHolds": [
+      "2.70\u20133.00 s: final hold so the full caption and the network can be read together; the heading has been readable since 0.48 s."
+    ]
+  },
+  "notes": [
+    "Silent preview: no audio.",
+    "Scene-dependent palette refresh: cool notebook paper #E3E9EE replaces the earlier warm cream. Ink #343E42, terracotta #BC705A for the idea and emphasis, and sage #758D72 for the system nodes keep their semantic roles. Ink on paper contrast is about 8.96:1.",
+    "Construction learned from the source review: outline first, then a translucent wash confined to its shape; the marker tip rides the live stroke end; relationships are drawn after the objects; a dot-grid page for a systems topic. Source subjects, wording and branding are not copied.",
+    "Layered artwork with stroke-on reveals, not frame-by-frame redrawing.",
+    "Typography: @font-face local() declarations for Marker Felt, Chalkboard SE and Comic Sans MS. Scene drawing code is in scene.js; the GSAP timeline is built and registered inline in index.html.",
+    "Layer order: artwork canvas (bottom), marker canvas, then the DOM heading and caption on top."
+  ]
+}

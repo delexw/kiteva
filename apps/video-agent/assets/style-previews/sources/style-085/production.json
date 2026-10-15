@@ -1,0 +1,29 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Shadow Puppetry",
+  "displayDescription": "Navy curtains part on a moonlit screen; a rod puppet raises a lamp whose light throws a growing, connected network shadow.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (static translucent screen with seeded cloth grain)",
+    "SVG (ink-wash far layer, blurred cast-shadow network, rigged sharp puppet, hanging caption board, navy velvet proscenium)"
+  ],
+  "motionEngine": [
+    "GSAP 3.15 paused timeline tweening one state object; property setters redraw SVG synchronously (single owner per property)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track, music, voice or sound effects were created.",
+  "limitations": [
+    "Blender was not used, at the user's request. Shadow-theatre optics are approximated: a static Canvas 2D gradient stands in for a backlit translucent screen, SVG Gaussian blur stands in for penumbra, and a value-only radial hotspot stands in for lamp spill.",
+    "Shadow size scales with the node's distance from the held lamp, and shadows travel outward from it. This is an illustrative rule, not physically projected geometry.",
+    "STYLE.json has no tech.preview_recipes, so no reviewed recipe is demonstrated. The refresh instead applies the BACKGROUND_REVIEW source-frame lessons: a proscenium curtain wipe, a hanging sign whose text appears after it lands, value-stepped depth, lit cut-outs, and one warm accent kept for the light source.",
+    "The scene palette uses a moonlit silver-blue screen, near-black #12141C ink, a navy velvet proscenium and a single warm lamp accent #F4C26A. It replaces the earlier warm #EFE0BC example swatch under the scene_dependent background policy. The source's oxblood, amber, sunset subject and lettering were not copied.",
+    "The caption is readable from about 2.27 s to 3.0 s, a short hold that suits a 3-second style preview.",
+    "Typography uses the OS-bundled Gill Sans via @font-face local() declarations (no font file shipped). If it is absent on the render host, text falls back to Futura, Avenir Next, Helvetica Neue, Arial, then sans-serif.",
+    "Not rendered or browser-tested by the agent. The host runs QA."
+  ]
+}

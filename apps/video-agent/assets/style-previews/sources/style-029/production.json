@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Idea System",
+  "displayDescription": "A terracotta idea splits into hex nodes that rotate into place, connect, and switch on against a cool stepped night field.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (script-built reusable geometric groups with explicit pivots)",
+    "chroma.js (deterministic tonal steps and palette mixing)"
+  ],
+  "motionEngine": [
+    "GSAP (single paused seekable timeline at window.__timelines.video)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track.",
+  "limitations": [
+    "No reviewed preview recipe was supplied (tech.preview_recipes absent / empty); the preview demonstrates the base style implementation (split, rotate, assemble from shared coordinates) with a source-frame-informed scene palette refresh.",
+    "Background is a scene-dependent cool night field (#0A121A to #13212D with stepped navy-tinted triangle ridges) chosen from BACKGROUND_REVIEW palette lessons; it replaces the earlier cream example swatch. Approved semantic accents (terracotta idea, sage/navy nodes, cream light) are retained.",
+    "Facet shading and glows are flat illustrative approximations (lighter left facet, radial gradients), not physical lighting.",
+    "Navy nodes sit close in value to the night field; they are separated by a brightened left facet and lit centre lamps rather than outlines.",
+    "Typography uses @font-face local() aliases (GeoDisplay: Futura, then Avenir Next, Helvetica Neue, Arial; GeoMono: Menlo, then DejaVu Sans Mono) resolved from OS-bundled fonts; the exact face depends on the render machine. The hexagon glyph is drawn as SVG geometry.",
+    "Only eight sampled source stills were reviewed; no source subject, branding or lettering is copied."
+  ]
+}

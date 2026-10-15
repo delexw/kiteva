@@ -1,0 +1,96 @@
+{
+  "version": 2,
+  "durationSeconds": 3,
+  "format": "structured",
+  "sections": [
+    {
+      "heading": "style-124 · Translucent Tissue-Paper Collage — 3 s silent preview",
+      "level": 1,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Subject: an idea becomes a connected system. 1280x720, 30 fps, 3 s, silent.\nPipeline: HyperFrames (index.html, one paused GSAP timeline at "
+            },
+            {
+              "type": "inlineCode",
+              "value": "window.__timelines.video"
+            },
+            {
+              "type": "text",
+              "value": ").\nRenderer: Canvas 2D on an opaque, stationary #172D3A field. Motion owner: GSAP (sole owner of piece transforms, drift and text opacity).\nPalette: #172D3A background and #F2EEE1 foreground only. Tissue pieces are foreground alpha tints; no extra hues."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "columns": [
+            {
+              "key": "Time",
+              "label": "Time",
+              "alignment": null
+            },
+            {
+              "key": "Beat",
+              "label": "Beat",
+              "alignment": null
+            },
+            {
+              "key": "Focal point",
+              "label": "Focal point",
+              "alignment": null
+            }
+          ],
+          "rows": [
+            {
+              "Time": "0.0–1.1 s",
+              "Beat": "Back layers lay down: top and bottom light bands, a vertical shaft and two slanted light shafts slide and rotate into place; kelp fronds rise with back.out.",
+              "Focal point": "Overlapping translucent bands compound into lighter areas"
+            },
+            {
+              "Time": "0.25–1.05 s",
+              "Beat": "The idea seed appears as three stacked blobs (outer, mid, core) that scale up and settle; where they overlap they build a glowing core.",
+              "Focal point": "Seed at left"
+            },
+            {
+              "Time": "0.5–1.6 s",
+              "Beat": "Tissue fish and bubbles lay down in the front layer; headings fade and rise (0.6, 0.85, 1.15 s).",
+              "Focal point": "Copy block at lower left"
+            },
+            {
+              "Time": "0.8–1.4 s",
+              "Beat": "The tail strip lays down along its length from the seed to the network.",
+              "Focal point": "Connection"
+            },
+            {
+              "Time": "1.15–2.6 s",
+              "Beat": "Eight network nodes lay down in sequence, then eight connecting strips lay down node to node.",
+              "Focal point": "Network at right"
+            },
+            {
+              "Time": "0–2.7 s",
+              "Beat": "Drift parallax eases from 0 to 1: back layers move against mid layers, kelp sways, fish swim right and bubbles rise. All motion settles by 2.7 s.",
+              "Focal point": "Whole collage"
+            },
+            {
+              "Time": "2.7–3.0 s",
+              "Beat": "Hold on the settled, legible composition.",
+              "Focal point": "—"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Text (standalone headings, independent timing): \"An idea becomes\" / \"a connected system\" / \"LAYERS OF LIGHT, DRIFTING TOGETHER\".\nNo arrows, and no labels inside containers.\nDeterminism: mulberry32 and hash noise with stored seeds. Geometry and textures are built once at load, and each frame is redrawn from scratch from the timeline state on seek, totalTime and hf-seek."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "styleId": "style-012",
+  "name": "Op Art is a supplemental design reference, not a directly named style in the source collection. A kaleidoscope alone does not establish Op Art.",
+  "visualIdentity": "Optical-illusion imagery built from stripes, checkerboards, concentric circles, and repeated geometry. Designers control line weight, density, and positive-negative relationships.",
+  "suitableUses": "Explicitly suited to illusion-led pieces, including psychedelic and demoscene imagery, infinite zoom, and kaleidoscopic transitions. Inferred fit: exhibition posters, album covers, and event key art where a title shares the frame.",
+  "limitations": "Keep text out of the strongest illusion zones and avoid high-frequency flicker. Inspect moiré patterns at the final output size. Dense text during travel and needs for stable orientation are poor fits.",
+  "palette": "Suggested monochrome pair: #FFFFFF background and #000000 foreground, validated with chroma-js. This applies only to new artwork; supplied or approved colors override it. Gradients are disabled, and apparent tone should come from hatching or opacity, not added hues.",
+  "motionAndInteraction": "Animate phase, spacing, and deformation at continuous, measured speeds. Video derives state from composition time, while scroll or pointer input applies only to interactive delivery. Motion references motion-002 and motion-012 are optional candidates, not requirements.",
+  "audio": "No mandatory audio is specified for this style. Choose music, voiceover, effects, ambience, or silence from the topic and audience, honoring explicit user requirements first. Keep speech intelligible and free of competing sound.",
+  "assetRequirements": "No external assets are mandated because geometry is generated parametrically. Load fonts and assets before rendering. Dimensions, aspect ratio, resolution, frame rate, and duration are unspecified in the source and must come from the task.",
+  "combinations": "Best used alone for illusion-led pieces. Suggested hybrid with style-103: a reserved solid text block over a slow, constant stripe field, strictly black and white. Avoid text over stripes, flicker, and loop jumps.",
+  "productionApproach": "Canvas 2D is the suggested style renderer, and GSAP drives a paused, seekable motion timeline. HyperFrames is the default pipeline for assembly and export. Remotion is a fallback only when HyperFrames is unavailable or blocked, with the reason recorded. Verify decoded key frames before delivery."
+}

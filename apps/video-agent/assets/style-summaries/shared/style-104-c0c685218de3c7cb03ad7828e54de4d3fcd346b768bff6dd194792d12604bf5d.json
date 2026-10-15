@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-104",
+    "name": "Symmetrical Cinematic Composition, in the Motion Design and Cinematography category. Normalized from a Grand Budapest Hotel reference; the source videos were not all assessed.",
+    "visualIdentity": "Explicit: axial symmetry, a curated palette, frontal framing, theatrical sets, and deliberately arranged props. Adapt these principles; do not apply a generic pastel filter or copy a film scene. Build with symmetric 3D cameras or balanced 2D illustration.",
+    "suitableUses": "Explicit: the style works alone for staged scenes and hybridizes for miniature sets or title cards. Inferred: it suits brand storytelling and chaptered films that need ordered, frontal staging. Suitability for interactive HTML is only partly specified.",
+    "limitations": "Explicit: the label is normalized and was not verified against all source videos, and the palette is an optional example. Avoid oblique views and camera tilts that break axial symmetry. Two-color contrast checks do not prove readability over textured or animated backgrounds.",
+    "palette": "Example tokens: background #EEE0C8, foreground #39494B, accent_1 #8B9A81, accent_2 #B97D66; four colors, with gradients disabled. Foreground on background is 7.239:1, meeting the 4.5 normal-text target. Accents reach only 3.158 and 2.777 against foreground, so they are decorative only. Task or approved colors override these.",
+    "motionAndInteraction": "Explicit: measured lateral moves, push-ins, and ordered character actions. Preserve deliberate sharp cuts, impacts, constant-speed sections, and reading holds; not every transition needs easing. Optional references: motion-009 parallax, motion-012 chapter handoff, motion-015 story steps, and motion-039 emblem burst when assets support it. Video uses composition time only; pointer or scroll applies only to interactive delivery.",
+    "audio": "Unspecified by the style. Suggestions are task-specific and may include music, voiceover, sound effects, ambience, or silence, with no fixed genre or tempo. Honor user audio and supplied assets, and do not invent audio. Verify speech clarity, balance, and absence of clipping.",
+    "assetRequirements": "Not supplied. The task must provide subject, exact copy, assets, duration, aspect ratio, resolution, frame rate, and output directory; otherwise these are unspecified. 3D routes need Blender models, materials, and lighting. Creature hops need creature assets, and emblem bursts need approved mark geometry.",
+    "combinations": "style-079 supplies frontally framed miniature diorama sets for brand films, with Blender lateral moves or scroll-scrubbed frames in HTML; avoid oblique views. style-052 supplies centered letterpress chapter cards with side light and no deep bevels; HTML uses CSS cards with real text.",
+    "productionApproach": "Blender with Python bpy and Cycles or EEVEE owns the visual rendering and motion. HyperFrames is the default for composition and export (check, snapshot, render), with one paused GSAP timeline registered in window.__timelines. Remotion is a fallback only when HyperFrames is unavailable or blocked, with the reason recorded. Review decoded key frames and the full video."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

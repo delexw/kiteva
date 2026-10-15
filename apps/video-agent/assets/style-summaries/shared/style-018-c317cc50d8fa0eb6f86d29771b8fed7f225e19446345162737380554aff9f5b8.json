@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-018",
+    "name": "Minimalism (Graphic Design and Design Movements), explicit provenance. The source directly describes this visual direction.",
+    "visualIdentity": "Keeps only the elements needed to communicate the subject. Uses generous negative space, precise proportions, a limited palette, and consistent edges and spacing. Relies on a small set of real text and graphic elements.",
+    "suitableUses": "Explicit fits: UI and product storytelling, editorial and minimalist layouts, and motion posters or staged geometric compositions. Inferred fit: concise explainers where one idea needs reading time. Dense explanatory copy is not a fit.",
+    "limitations": "Fades must not be used for every transition. Two-color contrast checks do not guarantee readability over images, video, textures, glass, outlines, or animated lighting. Recheck each real pairing in composited frames. Fixed print or medium geometry is unspecified.",
+    "palette": "Suggested, not approved: background #FAF9F5 as a layout role, foreground #202421, and accent_1 #406B5A as a muted green. Use three discrete colors with gradients disabled. Task or brand colors override these. Verified two-color pairs: foreground on background 14.923:1, and background on accent_1 5.747:1.",
+    "motionAndInteraction": "Animate only a few elements at a time, using restrained easing, position changes, and masks, with enough reading time. Sharp cuts are a valid choice in the Word Smash Cuts reference. Scroll-driven patterns apply only to interactive delivery; video must evaluate state from composition time.",
+    "audio": "Unspecified: the source gives no audio requirement. Inferred suitability: restrained ambience, one sparing accent, or intentional silence that supports reading holds and speech. No genre, tempo, instrument, or voice is fixed. Beat sync requires inspected audio timing, which the references did not verify.",
+    "assetRequirements": "Fonts, images, exact copy, and brand marks are unspecified in the source. Load local fonts and assets before rendering. Inspect real glyph assets or approved mark geometry before using a motion reference. Do not invent copy or brand marks. Chart values must come from supplied data.",
+    "combinations": "Minimalism is usually best used alone, since added styles easily dilute it. Hybrids are suggested only for quantitative or structural explanations. Style-097 adds one chart per scene, with data in #202421 and the key value in #406B5A. Style-109 adds single-weight connectors drawn after both endpoints exist.",
+    "productionApproach": "HyperFrames is the default pipeline for composition and export. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists, and that reason must be recorded. HTML/CSS and SVG are the style renderers, and GSAP is the paused seekable motion engine. Motion, chroma-js, and Chartist are optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

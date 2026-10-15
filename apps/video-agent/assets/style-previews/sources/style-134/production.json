@@ -1,0 +1,30 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG",
+    "Canvas 2D"
+  ],
+  "motionEngine": [
+    "GSAP",
+    "GSAP DrawSVGPlugin"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview: no music, voice, effects or lyrics.",
+  "limitations": [
+    "Illustrative procedural scene authored in SVG; it does not reproduce a historical painting or any source artwork.",
+    "Scene-dependent background: dawn-mist celadon silk #E1E8E4, with mist white #F2F5F0 for clouds and highlights and cool #B5CEC0 weave threads. The style's #F0EEDD swatch is an example only (background_policy is scene_dependent). The approved tokens #3B544D, #86B6A2, #B5CEC0, #D8C6A5 and #D2A6A3 keep their roles. Caption contrast is 6.58:1 against the plain silk; this is a two-color calculation, not measured on the composited weave.",
+    "The silk weave is a fixed seeded Canvas 2D thread texture, drawn once to a cache and redrawn identically on hf-seek. It never moves and is not a scan of real silk.",
+    "BACKGROUND_REVIEW.json reports 0 matched sources and no contact sheets, so the palette and construction are not derived from source frames. STYLE.json defines no preview recipes, so this preview demonstrates the base style implementation only.",
+    "Blender is not used. The renderers are SVG and Canvas 2D only, with motion by GSAP and DrawSVGPlugin.",
+    "Pigment feathering is an approximation: a fixed seeded feTurbulence/feDisplacementMap plus a small Gaussian blur applied to the wash layers, not simulated pigment absorption into silk.",
+    "Cloud-curl spirals, the pavilion placement on the ridge and the bird keyframes are precomputed by tools/build-scene.mjs (deterministic, with no randomness). The bird follows a 17-point piecewise-linear sampling of an authored cubic path.",
+    "The figure is a single hand-authored vector figure with one sleeve pivot. It is not a rigged character.",
+    "The seal glyph 念 uses a local system serif font (Songti SC / STSong fallback chain). It is not a verified carved seal asset.",
+    "DrawSVGPlugin.min.js is copied locally from the installed gsap 3.15.0 package so it matches gsap.min.js.",
+    "The full-video scroll-unrolling pan and edge curl are not part of this 3 s preview."
+  ]
+}

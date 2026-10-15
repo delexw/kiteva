@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-029",
+    "name": "Geometric Illustration",
+    "visualIdentity": "Normalized style label. Builds recognizable figures, objects and environments from a limited geometric vocabulary, sharing angles, proportions, line weights and palette. Forms can decompose, assemble and resize while retaining identity and balance.",
+    "suitableUses": "Explicitly suited to coherent geometric illustration. Suggested pairings support brand idents, concept transitions, logo stories, posters, report covers and design system intros. Responsive, scroll-linked sections are an inferred HTML use; keep shapes and text aligned to a shared grid.",
+    "limitations": "No canonical palette is specified; suggested colors apply only to new artwork without approved colors. Preserve subject identity and exact supplied colors. Avoid blobby morphs, continuous motion without holds, extra hues, or geometry and transitions unsupported by actual scene assets.",
+    "palette": "Optional four-token suggestion: background #F3EFE4, foreground #253849, accent 1 #BF6D45, accent 2 #638878. It is not canonical; task, brand and approved reference colors take precedence. Use discrete colors, no gradient. The accent fills are decorative; suggested text pairings on them miss the normal-text contrast target. Recheck actual compositing.",
+    "motionAndInteraction": "Create reusable geometric groups with explicit pivots and hierarchy; use shared coordinates for splitting, rotation and assembly. Keep updates deterministic and seekable, with readable holds and one owner per animated property. Optional shape morphs preserve angles and palette. HTML may use scroll progress; video must schedule equivalent states by time. Optional motion references require supporting scene elements; none is mandatory.",
+    "audio": "No fixed genre, tempo, voice or audio layer. Choose music, narration, effects, ambience or silence for the topic and explicit audio requirements. Use authorized assets, synchronize and mix in the render pipeline, and do not claim beat sync without inspected audio.",
+    "assetRequirements": "No required uploads are specified. Inspect available artwork and copy before use; do not invent a brand mark or recolor supplied assets. SVG is the core scalable shape, stroke, mask and clipping renderer. Optional tools include tldraw for authored/exported diagrams, p5.js for deterministic procedural forms, Paper.js for vector geometry, and Delaunator for suitable 2D triangle layouts; respect their boundary and fidelity limits.",
+    "combinations": "Works coherently alone. Suggested style-100 shape morphing adds identity-preserving geometric transitions. Suggested style-001 Swiss grid typography aligns type and shapes; use primary palette tokens, flush-left sans type, and avoid centered or decorative type or importing Swiss red.",
+    "productionApproach": "Select renderer and motion engine by style, action and asset needs. Use HyperFrames for assembly, seekable timing, media/audio sync, validation and export; Remotion only if HyperFrames is unavailable or a verified limitation blocks a requirement, recording the reason. Neither replaces style rendering. GSAP is the primary suggested seekable motion engine; optional alternatives need verified time sync. Check direct, backward and repeated seeks. Video/HTML suitability and use cases beyond listed pairings are inferred."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

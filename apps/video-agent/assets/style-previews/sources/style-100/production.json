@@ -1,0 +1,26 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Shape Morphing",
+  "displayDescription": "One tracked contour morphs from idea circle through stretch and branch into a connected system on a deep teal stage.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP 3.15 timeline",
+    "GSAP MorphSVGPlugin"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Flat digital SVG vector rendering; no physical material, lighting or depth simulation.",
+    "Contour echoes are lagging morph copies, not motion blur.",
+    "Blender intentionally not used per user instruction.",
+    "HUD labels are design elements, not real data."
+  ]
+}

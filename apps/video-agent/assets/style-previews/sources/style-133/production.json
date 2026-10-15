@@ -1,0 +1,26 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no music, voice or sound effects.",
+  "limitations": [
+    "Procedural approximation of an Impressionist manner using seeded Canvas 2D curved brush dabs: about 8.9k static dabs (700 broad underpainting scumbles, 3k sky, 560 sun, 1.9k trees, 420 bank, 2.3k water), plus 1.5k reflection dabs redrawn from time, about 200 link dabs, 5 blossoms and 230 reeds. No pigment, bristle or canvas physics.",
+    "Scene-dependent background: a stationary toned slate-teal ground #53686B, a lab mix of foreground #364747 and sky #9EBCC8, replaces the earlier cream paper. All dab colours are lab mixes of the six style tokens.",
+    "BACKGROUND_REVIEW.json reports 0 matched sources and no contact sheets, so no source-frame observations were applied. STYLE.json defines no tech.preview_recipes, so the refresh demonstrates the base implementation with a dusk palette.",
+    "Static layers are rasterized once to offscreen canvases. During the 0–1.0s paint-on they are drawn per frame using per-dab thresholds.",
+    "The shimmer and reed sway fade out between 2.1 and 2.6s, so the frame is settled by 2.7s.",
+    "Text is HTML on solid #F0E9D7 plates in system Georgia, #364747 text (contrast 8.1:1).",
+    "Blender was not used. Installed pixi.js, paper and three were not needed.",
+    "scene.js holds only the deterministic Canvas 2D dab tables and render(t). The single paused GSAP timeline is built and registered inline in index.html at window.__timelines.video, and it calls render(t) on update and on hf-seek."
+  ]
+}

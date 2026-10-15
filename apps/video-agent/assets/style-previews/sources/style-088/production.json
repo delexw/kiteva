@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Object Animation",
+  "displayDescription": "Paper cards hop from a stack beside a glowing bulb onto a pinboard, get pinned and connected by thread on a slate desk at dusk.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186.1 WebGLRenderer (local node_modules, bundled with esbuild into scene.bundle.js): procedural tabletop set, MeshStandardMaterial paper/felt/brass/glass, fixed SpotLight key with PCF soft shadow maps for contact shadows, hemisphere fill",
+    "Canvas 2D (load-time procedural textures: felt dot weave, paper fibre with printed rules, bulb halo)",
+    "HTML/CSS overlay for title copy and stationary vignette"
+  ],
+  "motionEngine": [
+    "GSAP 3 (local gsap.min.js): one paused timeline, built in scene.bundle.js and registered inline in index.html as window.__timelines[\"video\"], owns all proxy values (card hop progress, landing rock, pin drop, thread draw length, bulb glow, title opacity), with held 15 fps exposure easing; Three.js redraws from those values on timeline update and on hf-seek"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track, music, effects or voice.",
+  "limitations": [
+    "Digital simulation of photographed object animation: rendered in Three.js, not photographed, and Pillow frame normalisation does not apply.",
+    "Blender was not used, at the user's request.",
+    "Materials are approximate: the glass bulb is a transparent standard material with an additive halo, not refractive transmission. The paper, felt and brass use procedural textures, and the threads are tube meshes.",
+    "The 15 fps held exposures imitate stop-motion cadence. The motion is not physically simulated.",
+    "No named preview recipe exists in STYLE.json, so this refresh shows the source-frame lessons: hopping, tilting object characters with contact shadows, a fixed camera and light, and a scene-dependent cool slate dusk background instead of the earlier cream canvas.",
+    "Not rendered or browser-tested by the agent; host QA is pending."
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "displayTitle": "One Spark",
+  "displayDescription": "Screen-print run on blue-gray stock: teal and orange inks overprint, then a paper-tone bulb grows into a connected network.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (spot-color layers, clipPath squeegee pulls, static feTurbulence ink-edge filter, luminance grain masks, mix-blend-mode multiply overprint)"
+  ],
+  "motionEngine": [
+    "Motion 14.1.0 pure utilities (interpolate, easeInOut, easeOut, backOut, clamp) bundled locally as motion-print.js",
+    "GSAP paused timeline used only as the seekable composition clock"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Ink, overprint and paper are procedural approximations. Multiply blending stands in for transparent ink overprint, and the bulb and network use an opaque paper-tone ink instead of true unprinted knockouts.",
+    "Grain masks and paper fibre are seeded textures pre-rendered with sharp (tools/make-textures.mjs). They are not scans of real prints.",
+    "The orange large display word (SPARK) has a contrast of about 3.3:1 on the paper, which meets the large-text target only. All small copy is teal on paper (about 6.9:1).",
+    "The background review covered only one matched source, from stills sampled at 1–8 s. Only its craft lessons were applied: grainy spot inks, overprint, hatch pattern, knockout label box and word-by-word build. Its colors, subject and lettering were not used."
+  ]
+}

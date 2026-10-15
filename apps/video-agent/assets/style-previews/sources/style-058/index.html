@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>style-058 Voxel Art — An idea becomes a system</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: #30444C; }
+  #root { position: relative; width: 100%; height: 100%; background: #30444C; overflow: hidden; }
+  #voxels { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; display: block; }
+  #copy { position: absolute; left: 740px; top: 0; width: 540px; height: 720px; background: #30444C;
+          font-family: Menlo, "SF Mono", Consolas, "Liberation Mono", monospace; color: #EEE9DB; }
+  #copy .kicker { position: absolute; left: 20px; top: 230px; font-size: 18px; line-height: 24px;
+                  letter-spacing: 6px; color: #EEE9DB; white-space: nowrap; }
+  #copy .line { position: absolute; left: 20px; font-size: 56px; line-height: 64px; font-weight: 700;
+                color: #EEE9DB; white-space: nowrap; }
+  #copy .l1 { top: 268px; }
+  #copy .l2 { top: 332px; }
+  #copy .l3 { top: 396px; }
+  #copy .rule { position: absolute; left: 20px; top: 462px; width: 200px; height: 6px; background: #63928D; }
+  #copy .sw { position: absolute; top: 488px; width: 40px; height: 40px; box-sizing: border-box; }
+  #copy .s1 { left: 20px; background: #C0845D; }
+  #copy .s2 { left: 68px; background: #63928D; }
+  #copy .s3 { left: 116px; background: #30444C; border: 3px solid #EEE9DB; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="voxels" width="1280" height="720"></canvas>
+  <div id="copy">
+    <div class="kicker" id="kicker">01 BLOCK / ∞ BLOCKS</div>
+    <div class="line l1" id="line1">AN IDEA</div>
+    <div class="line l2" id="line2">BECOMES A</div>
+    <div class="line l3" id="line3">SYSTEM</div>
+    <div class="rule" id="rule"></div>
+    <div class="sw s1" id="sw1"></div>
+    <div class="sw s2" id="sw2"></div>
+    <div class="sw s3" id="sw3"></div>
+  </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="voxel-scene.bundle.js"></script>
+<script>
+(function () {
+  // Palette check (chroma.js): every text pair sits on the opaque stage panel.
+  var stage = '#30444C', cream = '#EEE9DB';
+  if (chroma.contrast(cream, stage) < 4.5) throw Error('Copy contrast below 4.5:1');
+
+  var voxels = window.VoxelScene.createVoxelScene(document.getElementById('voxels'), {
+    width: 1280, height: 720, sceneRect: [60, 80, 700, 650]
+  });
+
+  // Scene clock proxy: the GSAP timeline is the single owner of scene time.
+  // The setter redraws the voxel instances for whatever time GSAP renders,
+  // so direct, backward and out-of-order seeks all produce the same frame.
+  var sceneClock = { _t: 0 };
+  Object.defineProperty(sceneClock, 't', {
+    get: function () { return this._t; },
+    set: function (v) { this._t = v; voxels.draw(v); }
+  });
+  voxels.draw(0);
+
+  var tl = gsap.timeline({ paused: true });
+  tl.fromTo(sceneClock, { t: 0 }, { t: 3, duration: 3, ease: 'none' }, 0);
+
+  // Copy beats follow the build: idea -> assembly -> connected system.
+  tl.fromTo('#kicker', { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' }, 0.15);
+  tl.fromTo('#line1', { opacity: 0, x: -32 }, { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out' }, 0.3);
+  tl.fromTo('#line2', { opacity: 0, x: -32 }, { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out' }, 0.95);
+  tl.fromTo('#line3', { opacity: 0, x: -32 }, { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out' }, 1.65);
+  tl.fromTo('#rule', { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: 0.6, ease: 'power2.inOut' }, 1.75);
+  tl.fromTo(['#sw1', '#sw2', '#sw3'], { opacity: 0, y: -28 }, { opacity: 1, y: 0, duration: 0.32, ease: 'back.out(1.2)', stagger: 0.1 }, 1.95);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+
+  window.addEventListener('hf-seek', function (e) {
+    var t = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : tl.time();
+    voxels.draw(t);
+  });
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

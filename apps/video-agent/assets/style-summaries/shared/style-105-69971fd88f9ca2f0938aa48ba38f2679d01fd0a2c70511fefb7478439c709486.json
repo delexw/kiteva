@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-105",
+    "name": "Music-Synchronized Animation",
+    "visualIdentity": "Explicitly a timing method layered over another visual style, not a standalone aesthetic. Cues: identify actual beats, downbeats and sections; vary density with musical energy; use anticipation and pauses; avoid same-beat starts. The host visual look is unspecified.",
+    "suitableUses": "Explicitly suggested for music videos and lyric videos when a host visual style supplies the visuals. Inferred: beat-driven reveals and accents for music-led narratives. Keep reading time in any lyric or text-heavy scene.",
+    "limitations": "Needs a host visual style, since this style supplies no visuals alone. Live Web Audio analysis is limited to authoring inspection and is never used during export. Mo.js bursts were rejected to avoid a second clock. A 3D renderer is needed only if the brief demands depth. Never infer beats from silent frames.",
+    "palette": "Example only: background #F3EBDD, foreground #293B44, accent_1 #628C98, accent_2 #BA7B61; four discrete colors with no gradient. Foreground on background measures 9.836:1 and passes body text. Accent fills (3.174 and 3.379) are decorative only. Task-supplied exact colors override these tokens.",
+    "motionAndInteraction": "Motion runs on seekable composition time; scroll or pointer behavior is optional interactive delivery and never affects export. Impacts must read before rebound, a pause precedes the final hit, and deliberate sharp cuts stay unsmoothed. Motion references 037 to 040 apply only when scene assets support them.",
+    "audio": "Beats and sections come from offline librosa and NumPy analysis, manually verified; one JSON cue table drives GSAP visuals and HyperFrames audio placement. Account for audio sample attack. Genre, tempo and voice are unspecified; suggest them from the topic and honor supplied audio. Verify speech intelligibility.",
+    "assetRequirements": "Task-supplied or authorized audio is required, along with inspected approved marks and glyph geometry. Load local fonts and assets before composition. Do not invent copy or brand marks. Demonstration cue tables must be labeled as demo, not analyzed, and stateful simulations must be cached.",
+    "combinations": "Suggested pairings: style-094 abstract shapes dividing on beats with primary palette only, and style-093 lyric words landing on stressed beats with reading holds. Recipes: collision_instrument (contact, note, response chain) and audio_reactive_sculpture (band-mapped parts returning to rest in breaks).",
+    "productionApproach": "HyperFrames is the default pipeline: data-composition-id, data-width, data-height, data-duration, clip timing, and one paused GSAP timeline in window.__timelines, followed by check, snapshot and render. Remotion is a fallback only when HyperFrames is unavailable or a verified limit exists, with the reason recorded. SVG renders visuals; GSAP owns motion."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

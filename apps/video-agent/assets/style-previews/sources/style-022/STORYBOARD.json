@@ -1,0 +1,142 @@
+{
+ "version": 3,
+ "title": "Pencil Drawing \u2014 an idea becomes a connected system",
+ "durationSeconds": 3,
+ "scenes": [
+  {
+   "id": "scene-1",
+   "title": "The idea is drawn",
+   "startSeconds": 0,
+   "endSeconds": 1.2,
+   "purpose": "Build the central idea as a graphite sphere study: construction guides, exploratory contour, committed contour, then layered hatching for volume.",
+   "visuals": [
+    "Static cool bristol paper (#ECEEF0) with a faint graphite drafting grid",
+    "Rough.js construction axes and an exploratory light contour",
+    "Committed graphite sphere contour",
+    "Three hatch layers (midtone, shadow crescent, core cross-hatch) plus stump smudge and hatched cast shadow",
+    "Handwritten note 'fig. a \u2014 the idea'"
+   ],
+   "assets": [
+    "rough.js (local Rough.js 4.6.6 bundle)",
+    "gsap.min.js",
+    "chroma.min.js"
+   ],
+   "beats": [
+    {
+     "startSeconds": 0,
+     "endSeconds": 0.5,
+     "development": "Faint construction axes and a loose exploratory circle are sketched in, then the darker committed contour begins to trace over it.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 0.5,
+     "endSeconds": 1.2,
+     "development": "The 'fig. a \u2014 the idea' note is wiped in. Midtone, shadow-crescent and core cross-hatching are laid stroke by stroke, a stump smudge deepens the shadow side, and the hatched cast shadow appears beneath.",
+     "captions": [
+      "fig. a \u2014 the idea"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.3
+    }
+   ]
+  },
+  {
+   "id": "scene-2",
+   "title": "Connections reach out",
+   "startSeconds": 1.2,
+   "endSeconds": 2.25,
+   "purpose": "Show the idea becoming a system: pencil connectors travel outward and each node is drawn as its line arrives.",
+   "visuals": [
+    "Six double-pass Rough.js connector lines with soft graphite under-drawing halos",
+    "Five node circles with exploratory and committed contours and small hatched shadow crescents",
+    "Caption 'study no. 4 \u2014 an idea becomes a connected system'"
+   ],
+   "assets": [
+    "rough.js",
+    "gsap.min.js"
+   ],
+   "beats": [
+    {
+     "startSeconds": 1.2,
+     "endSeconds": 1.68,
+     "development": "Three first-generation connectors finish drawing; nodes A, C and B are sketched as each line reaches them.",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    },
+    {
+     "startSeconds": 1.68,
+     "endSeconds": 2.25,
+     "development": "Second-generation links branch to the last two nodes, which get their contours and shading. The caption is wiped in alongside them.",
+     "captions": [
+      "study no. 4 \u2014 an idea becomes a connected system"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-3",
+   "title": "Settled study",
+   "startSeconds": 2.25,
+   "endSeconds": 3,
+   "purpose": "Hold the finished drawing so the caption and the network can be read.",
+   "visuals": [
+    "Complete, stationary pencil study and both notes fully legible"
+   ],
+   "assets": [],
+   "beats": [
+    {
+     "startSeconds": 2.25,
+     "endSeconds": 3,
+     "development": "Nothing moves. The completed system and caption hold for reading.",
+     "captions": [
+      "fig. a \u2014 the idea",
+      "study no. 4 \u2014 an idea becomes a connected system"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.75
+    }
+   ]
+  }
+ ],
+ "pacingAudit": {
+  "findings": [
+   "The drawing follows pencil order: construction, contour, hatching, connectors, nodes, notes.",
+   "Connector and node cues are offset by 50\u201380 ms so the eye follows the lines outward instead of everything popping at once.",
+   "Everything has settled by 2.25 s, before the 2.7 s requirement."
+  ],
+  "justifiedHolds": [
+   "2.25\u20133.0 s: final reading hold for the 8-word caption and the finished network."
+  ]
+ },
+ "notes": [
+  "Style: style-022 Pencil Drawing (graphite contours and layered hatching on paper).",
+  "Silent preview: no music, effects or voice.",
+  "Background refresh: cool bristol paper #ECEEF0 with graphite #383838 (contrast ~10.1:1), replacing the earlier warm paper. Monochrome graphite only, no accent ink.",
+  "Lessons applied from the source frames: a grid substrate, an exploratory construction state before the crisp form, hatch density for emphasis, and smudge halos as under-drawing. No source lettering or composition was copied."
+ ]
+}

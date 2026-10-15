@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-124",
+    "name": "Translucent Tissue-Paper Collage (Printmaking and Craft Materials; extracted 2026-10-12)",
+    "visualIdentity": "Overlapping translucent tissue fibers, torn edges and colored layers create underwater depth. Light must transmit through overlaps, not read as opaque cardstock. Reference subjects include fish, kelp and light shafts.",
+    "suitableUses": "Inferred: underwater subjects and layered, craft-textured depth scenes. Subject, audience, objective, duration and format are unspecified in the source and must come from the brief.",
+    "limitations": "Palette is limited to supplied tokens unless approved tissue colors are given; report that gap. Two-color contrast ignores textures, transmitted light and video backgrounds. Simulated appearance is not validated physical production.",
+    "palette": "Background policy is scene_dependent; #172D3A is an authored underwater fallback, not an approved exact color. Foreground #F2EEE1 yields 12.284:1 contrast for opaque captions. Gradients are disabled. Background evidence is a single fog poster, not full-video verification.",
+    "motionAndInteraction": "GSAP tweens sway, depth-scaled drift parallax and layer laydown on a paused, registered timeline, with each frame redrawn. The 3-second preview settles layers into slow overlapping drift. No interactive HTML behavior is specified.",
+    "audio": "Unspecified: no music, voice or effects are supplied. Direction must be inferred from topic, audience and motion cadence, with no fixed genre or tempo. Ambience or silence may suit reading holds; verify any speech.",
+    "assetRequirements": "No assets are required; optional inputs are task exact colors, approved tissue colors and authorized audio. Tissue shapes are authored polygons with seeded torn edges. Fonts and assets must load before rendering.",
+    "combinations": "Suggested secondary: style-101 for restrained layer depth. Style-124 stays dominant; the supporting style must not import its palette or replace the verified background. Avoid competing full-scene treatments.",
+    "productionApproach": "Canvas 2D is the style renderer, using source-over alpha near 0.45–0.6 and multiply fiber overlays; GSAP is the motion engine. HyperFrames is the default pipeline, with Remotion only for a verified fallback. Verify snapshots and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

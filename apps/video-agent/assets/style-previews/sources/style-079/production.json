@@ -1,0 +1,35 @@
+{
+  "displayTitle": "Idea Diorama",
+  "displayDescription": "A blue-hour toon-shaded miniature: an idea tower rises and lights a network of roads, houses and flow pods.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186.1 WebGLRenderer (procedural geometry, bundled locally with esbuild into diorama.js)",
+    "Quantized Toon Shading (MeshToonMaterial + 3-step NearestFilter DataTexture gradientMap)",
+    "Geometry Outlines and Crease Edges (EdgesGeometry → LineSegments2/LineMaterial crease lines; inverted-hull silhouettes on curved parts)",
+    "Soft Surface Lighting and Material Detail (hemisphere fill + soft PCF shadowed key light, contact-shadow catcher, translucent MeshPhysicalMaterial glass halo)",
+    "Video-Textured Screens and CRT Overlays (CanvasTexture tower screen redrawn from timeline progress with deterministic scanlines)"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline (sole owner of every scene-state property)",
+    "Scene Assembly and Part Animation (procedural named Object3D parts with keyed scale/position states; glTF-style part workflow, no glTF files loaded)",
+    "Camera Navigation (deterministic authored orbit + push-in path; no live controls or raycast input)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent. No audio track, music, effects or voiceover.",
+  "limitations": [
+    "Blender, bpy, Cycles and EEVEE were not used, per the user's instruction; the diorama is a real-time Three.js approximation of an offline render.",
+    "Illustrative procedural scene: materials are toon-shaded flat colours, not physically measured; the glass halo is a transparent standard-physical material approximation without true refraction.",
+    "No glTF assets are loaded; parts are procedurally assembled Object3D groups animated the way glTF parts would be.",
+    "Raycast interaction is interactive-only and is not used; camera navigation is an authored deterministic path.",
+    "The CRT screen is a CanvasTexture redrawn from time, not decoded video.",
+    "No depth of field is applied, so the subject stays sharp; depth is suggested by perspective, fog and shadows.",
+    "Tone mapping is disabled to keep approved material colours close to their values; toon lighting bands still shift displayed values.",
+    "Three.js library internals contain Math.random (UUIDs) and requestAnimationFrame helpers that this composition never uses for visual state.",
+    "Not rendered or browser-tested by the agent; host QA is pending."
+  ]
+}

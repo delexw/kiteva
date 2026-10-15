@@ -1,0 +1,358 @@
+{
+  "originalSource": {
+    "style": {
+      "id": "style-134",
+      "category": "Illustration and Art Media",
+      "name_en": "Fine-Line Chinese Painted Scroll",
+      "provenance": "extracted",
+      "visual_cues": "Fine bounded outlines around jade mountain layers, ornamental cloud curls, architecture, flowers and carefully drawn figures; translucent pale color washes on a light paper/silk field. Preserve a specified painted-scroll composition and open space. This source-inspired treatment is not a claim that every Chinese painting uses this palette.",
+      "note": "Added from direct inspection of sampled Fable gallery video frames on 2026-10-13. Art-medium labels are authored classifications, not claims about the creator's production technique. Exact hex values are suggested defaults, not measured source values.",
+      "tech": {
+        "recommended_stack": [
+          {
+            "name": "HyperFrames",
+            "kind": "npm_cli_framework",
+            "package": "hyperframes",
+            "runtime": "HTML composition in browser; CLI orchestration in Node.js",
+            "purpose": "Primary pipeline for scene assembly, seekable composition timing, media and audio synchronization, validation, and final export. Visual construction and motion design remain owned by the selected style renderer and motion engine.",
+            "suggested_apis": [
+              "data-composition-id",
+              "data-width / data-height",
+              "data-start / data-duration",
+              "class=\"clip\"",
+              "window.__timelines[compositionId]",
+              "npx hyperframes check",
+              "npx hyperframes snapshot --at <seconds>",
+              "npx hyperframes render --output <video.mp4>"
+            ],
+            "optional": false,
+            "docs_url": "https://hyperframes.heygen.com/developers",
+            "suggested_libraries": [
+              {
+                "name": "GSAP",
+                "package": "gsap",
+                "purpose": "Build a paused, seekable timeline and register it with HyperFrames after construction is complete.",
+                "suggested_apis": [
+                  "gsap.timeline({ paused: true })",
+                  "fromTo",
+                  "to",
+                  "set",
+                  "addLabel"
+                ],
+                "runtime": "browser",
+                "docs_url": "https://gsap.com/docs/v3/"
+              }
+            ],
+            "style_application": "Compose the output of the selected visual and motion layers. Supply seekable time or integrate baked assets; do not replace the style-specific rendering or motion method with framework defaults.",
+            "selection_guidance": "Use HyperFrames by default. Fall back to Remotion only when the documented fallback condition is met, and record the reason. Do not mix framework APIs.",
+            "priority": "primary",
+            "production_roles": [
+              "render_pipeline"
+            ],
+            "role": "composition_and_export_pipeline"
+          },
+          {
+            "name": "SVG",
+            "kind": "browser_native",
+            "package": null,
+            "runtime": "browser",
+            "purpose": "Draw scalable shapes, icons, strokes, clipping paths, and masks.",
+            "suggested_apis": [
+              "path",
+              "viewBox",
+              "mask",
+              "clipPath",
+              "stroke-dasharray",
+              "stroke-dashoffset"
+            ],
+            "optional": false,
+            "docs_url": "https://developer.mozilla.org/en-US/docs/Web/SVG",
+            "style_application": "Apply this tool to International Typographic Style (Swiss Style) according to visual_cues and tech.implementation.",
+            "production_roles": [
+              "style_renderer"
+            ]
+          },
+          {
+            "name": "Canvas 2D",
+            "kind": "browser_native",
+            "package": null,
+            "runtime": "browser",
+            "purpose": "Draw brushes, textures, bitmaps, and pixel art at deterministic frame times.",
+            "suggested_apis": [
+              "CanvasRenderingContext2D",
+              "Path2D",
+              "drawImage",
+              "getImageData",
+              "putImageData"
+            ],
+            "optional": false,
+            "docs_url": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
+            "style_application": "Apply this tool to Mid-Century Modern according to visual_cues and tech.implementation.",
+            "production_roles": [
+              "style_renderer"
+            ]
+          },
+          {
+            "name": "GSAP",
+            "kind": "npm_library",
+            "package": "gsap",
+            "runtime": "browser",
+            "purpose": "Coordinate tweens, staggered actions, and a paused, seekable timeline driven by deterministic video time.",
+            "suggested_apis": [
+              "gsap.timeline",
+              "gsap.to",
+              "stagger",
+              "timeline.seek"
+            ],
+            "optional": false,
+            "docs_url": "https://gsap.com/docs/v3/",
+            "style_application": "Apply this tool to International Typographic Style (Swiss Style) according to visual_cues and tech.implementation.",
+            "production_roles": [
+              "motion_engine"
+            ]
+          },
+          {
+            "name": "GSAP DrawSVGPlugin",
+            "kind": "npm_plugin",
+            "package": "gsap",
+            "runtime": "browser",
+            "purpose": "Control visible stroke length. Import from gsap/DrawSVGPlugin and register the plugin before use.",
+            "suggested_apis": [
+              "gsap.registerPlugin(DrawSVGPlugin)",
+              "drawSVG",
+              "DrawSVGPlugin.getLength"
+            ],
+            "optional": false,
+            "docs_url": "https://gsap.com/docs/v3/Plugins/DrawSVGPlugin/",
+            "style_application": "Apply this tool to Art Nouveau according to visual_cues and tech.implementation.",
+            "production_roles": [
+              "motion_engine"
+            ]
+          },
+          {
+            "name": "chroma.js",
+            "kind": "npm_library",
+            "package": "chroma-js",
+            "runtime": "browser and Node.js",
+            "role": "color_processing",
+            "purpose": "Optionally validate colors, derive controlled palette variants, interpolate colors, and check foreground/background contrast.",
+            "suggested_apis": [
+              "chroma.valid",
+              "chroma.scale",
+              "scale.mode('lab')",
+              "scale.colors",
+              "chroma.mix",
+              "chroma.contrast",
+              "chroma(color).hex()",
+              "chroma(color).css()"
+            ],
+            "integration_guidance": "Start with task-provided colors and the style visual_cues. Keep a shared, deterministic palette and named color tokens. Generate gradients or interpolate colors only when the style permits them; keep limited-palette, monochrome, pixel, and print treatments discrete where required. Evaluate animated color from shared composition time. Check contrast against the actual composited background; a two-color ratio alone does not verify text over transparency, gradients, textures, or video. Pass output through the selected renderer's color API and preserve its color-space handling. Native CSS/SVG colors remain sufficient when no color processing is needed.",
+            "optional": true,
+            "docs_url": "https://gka.github.io/chroma.js/",
+            "style_application": "Read palette.tokens, palette.constraints and palette.agent_instruction for International Typographic Style (Swiss Style). Validate approved colors and assess readable existing token pairs with chroma-js. Use palette.gradient only when enabled and appropriate. Preserve task/reference colors exactly; optional suggested tokens are fallback inputs, not permission to recolor assets.",
+            "production_roles": [
+              "supporting_tool"
+            ]
+          },
+          {
+            "name": "Remotion",
+            "kind": "npm_library",
+            "package": "remotion",
+            "runtime": "React in browser; rendering orchestrated by Node.js",
+            "purpose": "Conditional fallback pipeline for scene assembly, seekable composition timing, media and audio synchronization, validation, and final export. Visual construction and motion design remain owned by the selected style renderer and motion engine.",
+            "suggested_apis": [
+              "Composition",
+              "Sequence",
+              "useCurrentFrame",
+              "useVideoConfig",
+              "interpolate",
+              "spring"
+            ],
+            "optional": true,
+            "docs_url": "https://www.remotion.dev/docs/",
+            "style_application": "Compose the output of the selected visual and motion layers. Supply seekable time or integrate baked assets; do not replace the style-specific rendering or motion method with framework defaults.",
+            "priority": "fallback",
+            "selection_guidance": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
+            "production_roles": [
+              "render_pipeline"
+            ],
+            "role": "composition_and_export_pipeline"
+          }
+        ],
+        "implementation": "Preview: a horizontal scroll composition on silk #F0EEDD with a fixed seeded Canvas 2D weave, keeping generous open space. SVG layers: overlapping jade #86B6A2 and mountain #B5CEC0 translucent washes (fill-opacity 0.45–0.7, edges feathered by a fixed mask), ornamental cloud curls, a pavilion, rose #D2A6A3 blossoms, warm paper #D8C6A5 accents, and one carefully proportioned figure. Fine #3B544D contours follow a line-weight hierarchy. 0–1.3s, DrawSVG draws the selected contours, and each wash reveals only after its contour group completes (data-reveal-after). 1.3–3.0s, a bird on an authored path, a few petals, a sleeve sway about its pivot, and a 1–2% cloud-band shift, then hold. No ink splashes or thick outlines. Full video: scroll-unrolling pans across a longer panorama, with an optional authored procedural edge curl. Approved layered illustration, high-resolution or PNG/SVG parallax layers keep the shallow offsets. Rigged figure layers or drawn gesture frames, with live-action timing reference only, handle figures. Verified calligraphy or seal assets are revealed after their frames. Paper.js may author cloud-curl geometry.",
+        "alternatives": [
+          "Krita Drawn Frame Sequences",
+          "Remotion"
+        ],
+        "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
+        "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
+        "framework_selection": {
+          "default": "HyperFrames",
+          "fallback": "Remotion",
+          "fallback_condition": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
+          "scope": "Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method."
+        },
+        "available_library_ids": [],
+        "library_selection": "Fine bounded contours with translucent washes are vector-native, and DrawSVG enforces the contour-before-pigment rule. Canvas 2D adds only the silk texture. WebGL ink diffusion and Rough.js were rejected because they introduce uncontrolled splashes or sketchy lines. Parallax stays shallow so the painted plane is respected, and asset routes are listed as full-video options rather than preview defaults.",
+        "motion_guidance": {
+          "shared_reference": "shared_motion_guidance",
+          "application": "Preserve Fine-Line Chinese Painted Scroll material and movement rules while applying shared seekable timing.",
+          "cadence_guidance": "Use smooth, coherent authored movement where the action benefits from it. Preserve deliberate sharp cuts, impacts, constant-speed sections and reading holds; not every transition needs easing.",
+          "implementation": "Prefer existing timeline and renderer dependencies. Evaluate key states at requested composition time, maintain a single property owner, and cache or deterministically replay stateful motion. Do not introduce a library solely to add generic smoothing."
+        },
+        "style_renderer": {
+          "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
+          "recommended_stack_refs": [
+            "SVG",
+            "Canvas 2D"
+          ]
+        },
+        "motion_engine": {
+          "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
+          "recommended_stack_refs": [
+            "GSAP",
+            "GSAP DrawSVGPlugin"
+          ]
+        },
+        "production_policy_ref": "production_policy",
+        "technology_review": {
+          "sourceHash": "ee5406b2f3b97c9db403cc7e9195c178b288b3447401d44e72e4908346517b38",
+          "model": "claude-opus-5-5",
+          "poolEntriesAssessed": 90,
+          "checkpoint": "technology-reviews/ee5406b2f3b97c9db403cc7e9195c178b288b3447401d44e72e4908346517b38/corrected-review.json",
+          "scope": "All 90 tools: preview and conditional full-video suitability; runtime availability unverified"
+        }
+      },
+      "executable_prompt_template": "Create an original Fine-Line Chinese Painted Scroll video about {{subject}} for {{audience_and_objective}}, using {{assets_and_exact_copy}}. Duration {{duration_seconds}}, aspect ratio {{aspect_ratio}}, resolution {{resolution}}, frame rate {{frame_rate}}. Honor {{audio_or_rhythm_requirements}} and save to {{output_directory}}. Use the selected renderer/motion owner for art and {{render_pipeline}} for composition/export (default HyperFrames; Remotion only for a verified primary limitation). Write structured STORYBOARD.json with timed scenes, exact copy, assets and actions.\nVisual rules: Fine bounded outlines around jade mountain layers, ornamental cloud curls, architecture, flowers and carefully drawn figures; translucent pale color washes on a light paper/silk field. Preserve a specified painted-scroll composition and open space. This source-inspired treatment is not a claim that every Chinese painting uses this palette.\nImplementation: Preview: a horizontal scroll composition on silk #F0EEDD with a fixed seeded Canvas 2D weave, keeping generous open space. SVG layers: overlapping jade #86B6A2 and mountain #B5CEC0 translucent washes (fill-opacity 0.45–0.7, edges feathered by a fixed mask), ornamental cloud curls, a pavilion, rose #D2A6A3 blossoms, warm paper #D8C6A5 accents, and one carefully proportioned figure. Fine #3B544D contours follow a line-weight hierarchy. 0–1.3s, DrawSVG draws the selected contours, and each wash reveals only after its contour group completes (data-reveal-after). 1.3–3.0s, a bird on an authored path, a few petals, a sleeve sway about its pivot, and a 1–2% cloud-band shift, then hold. No ink splashes or thick outlines. Full video: scroll-unrolling pans across a longer panorama, with an optional authored procedural edge curl. Approved layered illustration, high-resolution or PNG/SVG parallax layers keep the shallow offsets. Rigged figure layers or drawn gesture frames, with live-action timing reference only, handle figures. Verified calligraphy or seal assets are revealed after their frames. Paper.js may author cloud-curl geometry.\nRead palette and all selected tool guidance. Preserve approved reference colors, verify direct/backward seeks, inspect decoded MP4 states and disclose procedural approximations. Keep captions readable and do not copy source characters or branded material.\nReviewed technology choice: A horizontal scroll composition on a light silk field #F0EEDD with a fixed seeded Canvas 2D silk/paper weave texture. Generous open space is kept. SVG layers: overlapping jade mountain masses (#86B6A2 and #B5CEC0 translucent washes, fill-opacity 0.45–0.7, slightly feathered by a fixed turbulence mask), ornamental cloud curls, a pavilion, plum blossoms (rose), and one carefully proportioned figure. Fine contours in #3B544D follow a line-weight hierarchy (figure and architecture thinnest, mountain contours mid). Sequence: 0–1.3s, DrawSVG draws the selected contours. Each wash is masked in only after its contour completes (data-reveal-after = the contour group id). 1.3–3.0s, a restrained bird flight along an authored path, a few petals drifting, the figure's sleeve sway rotating about a pivot, and a 1–2% shallow lateral shift of the cloud band only, then hold. No ink splashes and no thick outlines. Verified calligraphy or seals only if supplied. One paused GSAP timeline, fromTo tweens. Full video: scroll-unrolling pans across a longer authored panorama. Fine bounded contours with translucent wash fills are vector-native, so SVG plus DrawSVG gives the contour-before-pigment order the spec requires. Canvas 2D adds only the fixed silk texture. WebGL ink-diffusion or Rough.js strokes were rejected because they bring in uncontrolled splashes or sketchy lines. Parallax is limited to keep the painted plane intact.\nFull-pool correction: Preview: a horizontal scroll composition on silk #F0EEDD with a fixed seeded Canvas 2D weave, keeping generous open space. SVG layers: overlapping jade #86B6A2 and mountain #B5CEC0 translucent washes (fill-opacity 0.45–0.7, edges feathered by a fixed mask), ornamental cloud curls, a pavilion, rose #D2A6A3 blossoms, warm paper #D8C6A5 accents, and one carefully proportioned figure. Fine #3B544D contours follow a line-weight hierarchy. 0–1.3s, DrawSVG draws the selected contours, and each wash reveals only after its contour group completes (data-reveal-after). 1.3–3.0s, a bird on an authored path, a few petals, a sleeve sway about its pivot, and a 1–2% cloud-band shift, then hold. No ink splashes or thick outlines. Full video: scroll-unrolling pans across a longer panorama, with an optional authored procedural edge curl. Approved layered illustration, high-resolution or PNG/SVG parallax layers keep the shallow offsets. Rigged figure layers or drawn gesture frames, with live-action timing reference only, handle figures. Verified calligraphy or seal assets are revealed after their frames. Paper.js may author cloud-curl geometry. Fine bounded contours with translucent washes are vector-native, and DrawSVG enforces the contour-before-pigment rule. Canvas 2D adds only the silk texture. WebGL ink diffusion and Rough.js were rejected because they introduce uncontrolled splashes or sketchy lines. Parallax stays shallow so the painted plane is respected, and asset routes are listed as full-video options rather than preview defaults.",
+      "motion_references": {
+        "catalog_file": "motion-pattern-catalog.json",
+        "required": false,
+        "selection_policy": "Optional candidates are screened for natural style compatibility. Before selection, inspect the actual scene illustration, assets, geometry and narrative beat. Keep only references whose defining action is supported by that scene. Choosing no reference is valid. Do not infer motion from a similar label; do not replace the existing style motion direction.",
+        "candidates": [],
+        "agent_instruction": "Read the actual illustration and complete pattern description, motion_sequence and video_adaptation. Identify which scene elements implement that action. Reject unsupported geometry, absent subjects, unintended depth, broken contact points or unrelated interactions. Select none when no candidate fits; use restrained style-native motion instead. Preserve authored transforms, fixed backgrounds and reading layers."
+      },
+      "palette": {
+        "source_frame_review": {
+          "reviewed_at": "2026-10-15T04:08:42.184Z",
+          "sample_window_seconds": [
+            1,
+            8
+          ],
+          "source_review_complete": true,
+          "sampling_limitation": "One frame at each available second 01–08. No continuous motion, sub-second timing, audio or later scenes verified. Color families are visual observations; whole-frame measured dominant colors are not semantic background tokens.",
+          "guidance": "Choose scene-dependent backgrounds and readable coordinated colors. Separate material colors, source demonstration choices and surrounding UI/letterboxing. Existing swatches are examples, not permanent canvas restrictions. Keep explicit user-approved colors and medium-defining constraints. No sufficiently strong match has been observed in the reviewed 1–8 second samples. Preserve the original style definition; do not invent source evidence.",
+          "sources": []
+        },
+        "background_policy": "scene_dependent",
+        "status": "reference_dependent_example",
+        "scope": "new_artwork_when_no_approved_palette_is_supplied",
+        "direction": "Fine-Line Chinese Painted Scroll medium and readable caption pairing",
+        "generator": {
+          "library": "chroma-js",
+          "version": "3.2.0",
+          "operations": [
+            "chroma.valid",
+            "chroma(color).hex()",
+            "chroma.contrast"
+          ]
+        },
+        "tokens": {
+          "background": "#F0EEDD",
+          "foreground": "#3B544D",
+          "jade": "#86B6A2",
+          "mountain": "#B5CEC0",
+          "warm_paper": "#D8C6A5",
+          "rose": "#D2A6A3"
+        },
+        "base_colors": [
+          "#F0EEDD",
+          "#3B544D",
+          "#86B6A2",
+          "#B5CEC0",
+          "#D8C6A5",
+          "#D2A6A3"
+        ],
+        "base_color_count": 6,
+        "constraints": [
+          "These are authored fallback hex values; approved task and reference colors take precedence.",
+          "Background is the paper, rock or painted field; pigments, gold ornament and figures are separate roles.",
+          "Fine bounded outlines around jade mountain layers, ornamental cloud curls, architecture, flowers and carefully drawn figures; translucent pale color washes on a light paper/silk field. Preserve a specified painted-scroll composition and open space. This source-inspired treatment is not a claim that every Chinese painting uses this palette."
+        ],
+        "gradient": {
+          "enabled": false,
+          "instruction": "Use pigment layering and texture rather than adding a generic gradient."
+        },
+        "contrast_checks": {
+          "normal_text_target": 4.5,
+          "limitation": "Inspect final textured/translucent compositing; move captions onto an existing approved backing when necessary."
+        },
+        "composition_guidance": "Preserve the medium-specific picture plane and subject hierarchy. Separate caption space from detailed illustration.",
+        "agent_instruction": "Use approved task/reference colors first. Otherwise use the suggested tokens with their named roles. Inspect the actual textured field and foreground contrast; do not infer background from an accent pigment or gallery outer margin.",
+        "background_evidence": {
+          "method": "decoded_video_frame_color_family",
+          "source_urls": [
+            "https://skillry.dev/ai-videos/fable-5-5/chetaslua-710023"
+          ],
+          "poster_inspected": false,
+          "video_frames_inspected": true,
+          "exact_hex_from_source": false,
+          "description": "Color families and background roles observed in 12 uniformly spaced decoded frames per listed video. Hex values are authored fallback suggestions; full continuous playback and source color sampling not claimed."
+        }
+      },
+      "audio_direction": {
+        "prompt": "Suggest task-appropriate music, voice, ambience or silence for Fine-Line Chinese Painted Scroll; do not assume a historical soundtrack from the visual medium. Honor supplied audio and use silent catalog previews.",
+        "suggestion_dimensions": [
+          "Whether background music is useful, and its suggested mood, texture, energy, tempo range, and progression.",
+          "Whether voiceover helps explain the topic, and its suggested language, tone, pace, and placement.",
+          "Whether sung vocals support the topic or distract from narration and essential text.",
+          "Whether sound effects, ambience, or silence clarify key actions, transitions, and reading holds.",
+          "How audio changes across scenes, supports motion cadence, and leaves space for speech and comprehension."
+        ],
+        "selection_guidance": "Treat these as task-specific suggestions, not requirements to include every audio layer. Honor explicit user audio choices and supplied assets. When inputs are absent, propose a coherent direction and state assumptions; do not silently default to instrumental music or invent available audio assets.",
+        "integration_guidance": "Select or create authorized audio assets separately from visual construction and motion design. Use render_pipeline to assemble, synchronize, mix, and export audio with picture. Keep speech intelligible, avoid clipping and competing vocals, and inspect the delivered audio and picture together."
+      },
+      "suggested_combinations": {
+        "selection_guidance": "Suggestions are optional, not limits. Keep Fine-Line Chinese Painted Scroll dominant and preserve the chosen reference palette.",
+        "suggestions": [
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-038",
+                "role": "Supporting medium or narrative detail"
+              }
+            ],
+            "rationale": "Use only compatible details while retaining the primary medium's composition rules.",
+            "best_for": "A brief needing a secondary illustrative detail.",
+            "video_application": "Share seekable timing and readable holds; preserve the primary picture plane.",
+            "html_application": "Retain the art with accessible caption text and reduced motion.",
+            "consistency_rules": [
+              "Keep primary medium and approved colors.",
+              "Use one owner per animated property."
+            ],
+            "avoid": [
+              "Generic effects replacing defining mark-making.",
+              "Invented historical text."
+            ]
+          }
+        ]
+      },
+      "source_reference": {
+        "slug": "chetaslua-710023",
+        "skillry_url": "https://skillry.dev/ai-videos/fable-5-5/chetaslua-710023",
+        "added": "2026-10-13",
+        "prompt_partial": true,
+        "evidence": "outputs/fable-review/visual-evidence.json"
+      },
+      "combination_guidance_provenance": "authored_compatibility_guidance_2026-10-13"
+    },
+    "productionPolicy": {
+      "principle": "Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique.",
+      "style_renderer": "Owns visual construction: drawing, geometry, materials, lighting, typography, masks, textures, and specialist asset generation. Use the style-specific recommended technologies and implementation guidance.",
+      "motion_engine": "Owns trajectories, transforms, easing, transitions, deformation, and simulation. Select engines or algorithms appropriate to the action, with one owner for each animated property.",
+      "render_pipeline": "Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
+      "integration": "Visual and motion layers expose deterministic state at composition time, or supply baked assets or frame sequences. The pipeline supplies seekable time and composes their output. Timeline registration and frame hooks are integration adapters, not substitutes for style-specific rendering or motion.",
+      "selection": "Choose only needed stack entries. A technology may serve multiple roles, but document its actual responsibility. Optional authoring, interaction, color, and preprocessing tools are not mandatory renderers or motion engines."
+    },
+    "motionReferences": []
+  }
+}

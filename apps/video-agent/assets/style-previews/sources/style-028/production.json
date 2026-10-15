@@ -1,0 +1,24 @@
+{
+  "displayTitle": "Night Network",
+  "displayDescription": "A yellow bulb lights up on a navy night field and draws cream links to five rounded nodes.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent; no audio track.",
+  "limitations": [
+    "Bulb glow is approximated with two flat semi-transparent halo rings rather than lighting.",
+    "No preview recipe was listed in STYLE.json, so this preview shows the background-review lesson only.",
+    "Typography relies on locally installed Avenir Next with Helvetica/Arial fallbacks.",
+    "Not rendered or browser-tested by the agent; the host runs QA."
+  ]
+}

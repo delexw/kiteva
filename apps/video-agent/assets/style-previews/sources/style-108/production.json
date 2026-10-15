@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Connected System",
+  "displayDescription": "An isometric idea block lands on a night-slate slab, links extrude along the iso axes and teal pulses light four connected parts.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js WebGLRenderer (r186, bundled locally to iso-scene.js with esbuild)",
+    "THREE.OrthographicCamera at true isometric orientation (camera on (1,1,1), 1 world unit = 1 px)",
+    "HTML/CSS 2D text and label layer"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline (single owner of all animated values; WebGL redraws from that state on update and hf-seek)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent. No music, voiceover or sound effects.",
+  "limitations": [
+    "Shading is flat and authored per face (MeshBasicMaterial with a fixed screen-left light convention), not physically lit; contact shadows are offset translucent planes, not computed shadows.",
+    "Teal pulse glow is an additive sprite halo, not real emission or bloom.",
+    "Background #0E181E and the slate/strata shades are a scene-dependent choice informed by BACKGROUND_REVIEW.json (matte neutral masses, one teal system hue, warm terracotta secondary); no source subject, branding or wording was copied.",
+    "Blender was not used, per the user's instruction.",
+    "Not rendered or browser-tested by the agent; the host runs check and render."
+  ]
+}

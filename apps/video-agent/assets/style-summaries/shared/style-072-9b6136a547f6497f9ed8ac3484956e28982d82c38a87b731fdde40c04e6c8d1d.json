@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-072",
+    "name": "Synthwave is a supplemental design reference in Digital and 3D Aesthetics. It is not a directly named source-collection style, and it is related to Retrofuturism but not interchangeable with it.",
+    "visualIdentity": "Explicit: 1980s electronic-music imagery with neon night colors, perspective grids, striped sunsets, and selected mountains or sports-car silhouettes. Magenta, cyan and warm orange separate against deep blue-purple. Optional VHS texture adds tape noise and color bleed.",
+    "suitableUses": "Inferred from the horizon-drive imagery: music videos, lyric visualizers and retro event promos. Interactive HTML suits audio-linked scenes. The source gives no subject, audience, duration or format, so those are unspecified.",
+    "limitations": "Details are user-requested guidance and were not verified against the source video. Avoid flashing on every beat, persistent VHS corruption, and vaporwave or cyberpunk layering. Keep grid lines discrete, limit gradients to sunset and atmosphere, and keep text off the sun's brightest area.",
+    "palette": "Background is scene-dependent; #171333 is an illustrative swatch, not a required canvas. Foreground is #F8ECDC; accents are magenta #E05AAA, cyan #5DCEE0 and orange #EEA15D. Task-provided exact colors override these. Lab sunset gradient is optional. Two-color ratios: foreground on background 15.308; background text on magenta 5.276, cyan 9.657 and orange 8.401. Recheck composited frames.",
+    "motionAndInteraction": "Three.js builds grids, roads and vehicles; GLSL builds the sunset and sky; SVG or DOM carries text. Seeded tape noise, tracking offsets and color bleed run as separate passes. Changes should land on verified musical sections. Motion-012 and motion-015 are optional. Interactive HTML can slow the grid under reduced motion.",
+    "audio": "Source guidance says the style is music-born: horizon drive and grid speed lock to verified track events. No genre, tempo, voice or mandatory audio layer is fixed. Voiceover and vocals are unspecified. No audio was supplied, so beat or speech timing must not be invented.",
+    "assetRequirements": "No uploads are specified. Visuals are procedural, with SVG or DOM text in one type family and local fonts loaded before render. Motion-037, 038 and 039 need an actual phrase, punctuation mark or approved mark. Do not invent brand marks or product copy.",
+    "combinations": "Style-105 adds section-synchronized horizon, grid speed and cut timing for music videos and lyric visualizers. Style-093 adds title typography in #F8ECDC with a magenta outline accent. Avoid clashing Chrome text and avoid layering vaporwave or cyberpunk aesthetics.",
+    "productionApproach": "HyperFrames is the default for composition, timing, validation and export, using a paused GSAP timeline in window.__timelines. Remotion is fallback only when HyperFrames is unavailable or verifiably blocked; the reason must be recorded. Three.js, GLSL, SVG and optional Motion own visuals and motion. Verify seeks and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

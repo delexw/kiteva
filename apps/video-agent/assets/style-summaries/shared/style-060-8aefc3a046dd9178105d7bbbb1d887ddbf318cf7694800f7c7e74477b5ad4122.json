@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-060",
+    "name": "Cel-Shaded 3D, in the Digital and 3D Aesthetics category, with explicit provenance from the source direction.",
+    "visualIdentity": "Rounded 3D forms with discrete shadow bands, consistent outlines and selective highlights. Light direction and outline width stay stable through motion. Realistic gradients and reflections are excluded.",
+    "suitableUses": "Explicitly documented for a rounded hero, such as a capsule or gem, in reward or collectible reveals. Inferred suitability includes product explainers, game promos and character introductions. Flat SVG is ruled out because depth defines the style.",
+    "limitations": "True 3D is required. Outlines come from a depth-normal screen pass, not Sobel detection, and EdgesGeometry alone misses view-dependent silhouettes. Source evidence covers only sampled seconds 1 to 8, so continuous motion and audio are unverified.",
+    "palette": "Background #F4ECD9 is a scene-dependent illustrative swatch, not a canvas rule, though the reviewed recipe uses it. Foreground #26394A, accent_1 #547E8F and accent_2 #BA7461 are authored base suggestions. Gradients are disabled. Foreground on background measures 10.103:1, and accent pairs are decorative only.",
+    "motionAndInteraction": "The reviewed reward recipe runs idle sway, a discrete rarity swap, charge squash, a seeded burst outside the silhouette, and an isolated glow-card reveal, then settles by 3 seconds. Full videos add a collection step. One paused GSAP timeline owns the hero, rarity and camera. Raycast selection and orbit damping are interactive-only.",
+    "audio": "The style specifies no audio. Propose topic-based options such as silence, restrained reveal accents or music, and state assumptions. No fixed soundtrack, voice or sound effect is required.",
+    "assetRequirements": "No uploads are required, because the hero is procedural Three.js geometry. Optional glTF parts need authorized assets with verified nodes and clips. Local fonts must load before rendering. Number labels are HTML cards gated by data-reveal-after on the card.",
+    "combinations": "style-031 adds comic panels, speed lines and SFX lettering with matching outline weight. style-050 adds luminance halftone only inside designated shadow bands. Avoid realistic reflections, crawling dots and moiré on thin outlines.",
+    "productionApproach": "HyperFrames is the default composition and export pipeline; Remotion is fallback only for a documented limitation. Three.js with MeshToonMaterial, a 3-step gradientMap and a depth-normal outline pass is the style renderer. GSAP is the motion engine, and chroma-js only validates colors."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

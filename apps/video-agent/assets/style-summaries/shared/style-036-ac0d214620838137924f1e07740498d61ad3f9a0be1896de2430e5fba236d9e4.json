@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-036",
+    "name": "Post-Impressionist Painting, in the Drawing and Illustration category. The label was normalized from a Van Gogh Starry Night reference, which does not represent all Post-Impressionist work.",
+    "visualIdentity": "Expressive, directional brushwork, rhythmic color relationships, and simplified painted forms. A specific painting reference should be chosen rather than assuming swirling skies. Light and color must stay coherent throughout the piece.",
+    "suitableUses": "Source-listed best fits: cultural storytelling, museum promos, and atmospheric intros, especially with style-101. Art education, process reels, and opening reveals fit style-109. Inferred: a single specific painting reference can drive the whole piece.",
+    "limitations": "Do not claim a filter reproduces the whole movement. Avoid swirling skies by default and large parallax that exposes plane edges. Simulated appearance is not evidence of physical production. Unspecified: duration, aspect ratio, resolution, frame rate, and output directory, which the task must supply.",
+    "palette": "Authored example, not supplied: background #EEE2C2 (dominant ground), foreground #344F60 (hierarchy and text), accents #B58B42, #638873, and #B26B57 (decorative only). Five discrete colors, gradients disabled, and task or reference colors override these. Background/foreground measures 6.696:1, passing normal text. Accents fail normal-text targets (2.768 to 3.174). Verify composited frames.",
+    "motionAndInteraction": "Movement includes brush reveals, localized repainting, and layered scenery drift, with coherent light and color. Motion-012 (chaptered handoff) and motion-015 (story steps with reading holds) are optional and only apply if the scene supports them. Scroll interaction is optional; video must not depend on live input. Interactive delivery requires keyboard, reduced-motion, and static fallback behavior.",
+    "audio": "Unspecified in the style data. The audio direction is a prompt to suggest music, voiceover, vocals, effects, ambience, or silence based on topic and motion. No genre, tempo, instrument, or voice is assigned. Explicit user audio requirements take priority. Speech must stay intelligible, unclipped, and free of competing sound.",
+    "assetRequirements": "Prepared painted layers or brush masks are required, supplied as an alpha-channel layer set, numbered frame sequence, or layer manifest. Assets need consistent dimensions and clear names, and must be inspected before composition. Fonts and assets must be loaded before rendering. Unspecified: whether any reference artwork or audio is supplied by the task.",
+    "combinations": "Use alone when one specific reference drives the piece. Style-101 adds layered scenery: separate painted planes move slowly, using only the earth and complementary tokens, with consistent brush direction per plane and shared light. Style-109 adds an underdrawing: thin #344F60 lines trace briefly, then paint fully replaces them, keeping the same composition.",
+    "productionApproach": "HyperFrames is the default composition and export pipeline, with Remotion as a fallback only when a verified limitation is recorded. Canvas 2D is the style renderer, drawing brushes at deterministic frame times. GSAP is the paused seekable motion engine, while PixiJS, Motion, and tldraw are optional. chroma-js validates contrast. Delivery requires inspecting decoded frames, audio sync, and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

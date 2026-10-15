@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Geometric Illustration — one idea becomes a connected system</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#0E1822}
+  #stage{position:relative;width:100%;height:100%;overflow:hidden}
+  #scene{width:100%;height:100%;display:block}
+  /* OS-bundled geometric sans / mono faces, resolved locally (no downloads). */
+  @font-face{font-family:'GeoDisplay';font-weight:400;src:local('Futura Medium'),local('Futura-Medium'),local('Futura'),local('Avenir Next Medium'),local('Helvetica Neue'),local('Arial')}
+  @font-face{font-family:'GeoDisplay';font-weight:700;src:local('Futura Bold'),local('Futura-Bold'),local('Avenir Next Bold'),local('Helvetica Neue Bold'),local('Arial Bold')}
+  @font-face{font-family:'GeoMono';font-weight:400;src:local('Menlo Regular'),local('Menlo-Regular'),local('Menlo'),local('DejaVu Sans Mono')}
+  .display{font-family:'GeoDisplay',sans-serif}
+  .mono{font-family:'GeoMono',monospace}
+</style>
+</head>
+<body>
+<div id="stage" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- Shared geometric vocabulary: every node is built from these two shapes. -->
+    <polygon id="tri" points="0,-34 30,18 -30,18"/>
+    <radialGradient id="warmGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#BF6D45" stop-opacity="0.55"/>
+      <stop offset="0.45" stop-color="#BF6D45" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#BF6D45" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="coolGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#638878" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#638878" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0A121A"/>
+      <stop offset="1" stop-color="#13212D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- STATIONARY BACKDROP: cool low-key night field with stepped tonal ridges -->
+  <g id="backdrop">
+    <rect x="0" y="0" width="1280" height="720" fill="url(#sky)"/>
+    <g id="stars" fill="#F3EFE4"></g>
+    <g id="ridges"></g>
+  </g>
+
+  <!-- Event glows (opacity owned by GSAP) -->
+  <circle id="glowIdea" cx="300" cy="360" r="190" fill="url(#warmGlow)" opacity="0"/>
+  <circle id="glowCore" cx="740" cy="360" r="170" fill="url(#warmGlow)" opacity="0"/>
+  <circle id="glowEnd" cx="1120" cy="360" r="130" fill="url(#coolGlow)" opacity="0"/>
+
+  <!-- FOREGROUND SYSTEM: built by script from shared coordinates -->
+  <g id="system">
+    <g id="edges" fill="none" stroke-linecap="round"></g>
+    <g id="nodes"></g>
+    <g id="idea" transform="translate(300 360)">
+      <g id="ideaBody"><polygon points="0,-110 80,0 0,110 -80,0" fill="#BF6D45"/></g>
+      <g id="ideaFacet"><polygon points="0,-110 80,0 0,0" fill="#253849"/></g>
+    </g>
+    <g transform="translate(300 214)"><g id="spark"><use href="#tri" fill="#BF6D45"/></g></g>
+  </g>
+
+  <!-- TYPE (independent heading timing) -->
+  <g id="titleGroup">
+    <text id="title" class="display" x="80" y="96" font-size="44" font-weight="700" letter-spacing="6" fill="#F3EFE4">ONE IDEA</text>
+    <text id="subtitle" class="display" x="80" y="142" font-size="26" letter-spacing="10" fill="#BF6D45">ASSEMBLED INTO A SYSTEM</text>
+  </g>
+
+  <!-- Lower slate: dot bullet + quiet monospace label, plus the △ ◇ ⬡ marks drawn as geometry -->
+  <g id="slate">
+    <circle cx="86" cy="662" r="5" fill="#638878"/>
+    <text class="mono" x="100" y="667" font-size="14" letter-spacing="3" fill="#C9D2CC">SPLIT · ROTATE · ASSEMBLE</text>
+    <g fill="none" stroke="#B1C0B2" stroke-width="1.6" stroke-linejoin="round">
+      <polygon points="1124,652 1131,665 1117,665"/>
+      <polygon points="1160,651 1167,659 1160,667 1153,659"/>
+      <polygon points="1194,651 1201,655 1201,663 1194,667 1187,663 1187,655"/>
+    </g>
+  </g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  const C={cream:'#F3EFE4',navy:'#253849',terracotta:'#BF6D45',sage:'#638878'};
+  const BG='#0E1822';
+  const mk=(tag,attrs,parent)=>{const el=document.createElementNS(NS,tag);for(const k in attrs)el.setAttribute(k,attrs[k]);if(parent)parent.appendChild(el);return el;};
+
+  // ---- Deterministic seeded backdrop (static) ----
+  let seed=29;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+  const stars=document.getElementById('stars');
+  for(let i=0;i<70;i++){mk('circle',{cx:(rnd()*1280).toFixed(1),cy:(rnd()*300).toFixed(1),r:(0.6+rnd()*1.1).toFixed(2),opacity:(0.25+rnd()*0.45).toFixed(2)},stars);}
+  // Stepped ridges built from the same triangle vocabulary; tonal steps give depth, no outlines.
+  const ridges=document.getElementById('ridges');
+  const ridgeTones=[chroma.mix(BG,C.navy,0.45,'lab').hex(),chroma.mix(BG,C.navy,0.25,'lab').hex(),chroma.mix(BG,'#05090D',0.45,'lab').hex()];
+  const ridgeRows=[{base:560,h:70,w:120,off:0},{base:610,h:60,w:100,off:50},{base:660,h:40,w:140,off:20}];
+  ridgeRows.forEach((row,ri)=>{
+    let d='M0 720 L0 '+row.base;
+    for(let x=-row.off;x<1280+row.w;x+=row.w){const peak=row.h*(0.6+((x*7+ri*13)%5)/10);d+=' L'+(x+row.w/2)+' '+(row.base-peak)+' L'+(x+row.w)+' '+row.base;}
+    d+=' L1280 720 Z';mk('path',{d,fill:ridgeTones[ri]},ridges);
+  });
+
+  // ---- Shared coordinates: origin of the idea and every node it becomes ----
+  const O={x:300,y:360};
+  const NODES=[
+    {id:'n1',x:520,y:230,fill:C.sage,tri:true},
+    {id:'n2',x:520,y:490,fill:C.navy,tri:false},
+    {id:'n3',x:740,y:360,fill:C.terracotta,tri:true},
+    {id:'n4',x:960,y:230,fill:C.navy,tri:false},
+    {id:'n5',x:960,y:490,fill:C.sage,tri:true},
+    {id:'n6',x:1120,y:360,fill:C.sage,tri:false}
+  ];
+  const P=Object.fromEntries(NODES.map(n=>[n.id,n]));P.o=O;
+  const EDGES=[['o','n1'],['o','n2'],['n1','n2'],['n1','n3'],['n2','n3'],['n3','n4'],['n3','n5'],['n4','n5'],['n4','n6'],['n5','n6']];
+  const EDGE_COLOR=chroma.mix(C.cream,C.sage,0.45,'lab').hex();
+
+  // Edges: drawn outward from the idea; plain connectors, no arrowheads.
+  const edgeG=document.getElementById('edges');
+  const edgeEls=EDGES.map(([a,b])=>{const A=P[a],B=P[b];const len=Math.hypot(B.x-A.x,B.y-A.y);
+    const el=mk('path',{d:'M'+A.x+' '+A.y+' L'+B.x+' '+B.y,stroke:EDGE_COLOR,'stroke-width':4,'stroke-dasharray':len.toFixed(2),'stroke-dashoffset':len.toFixed(2)},edgeG);
+    el.__len=len;el.__from=a;return el;});
+
+  // Reusable hex group: outer g = fixed home position, inner g = animated actor with pivot at (0,0).
+  const nodesG=document.getElementById('nodes');
+  const hexHalf=(side)=>side<0?'0,-52 -45,-26 -45,26 0,52':'0,-52 45,-26 45,26 0,52';
+  NODES.forEach(n=>{
+    const home=mk('g',{transform:'translate('+n.x+' '+n.y+')'},nodesG);
+    const actor=mk('g',{id:n.id},home);
+    // Light from upper-left: left facet a lighter tonal step of the approved fill, right facet exact fill.
+    mk('polygon',{points:hexHalf(-1),fill:chroma(n.fill).brighten(n.fill===C.navy?0.7:0.3).hex()},actor);
+    mk('polygon',{points:hexHalf(1),fill:n.fill},actor);
+    const lamp=n.tri?mk('use',{href:'#tri',y:6,fill:chroma.mix(n.fill,'#000',0.35,'lab').hex()},actor)
+                    :mk('circle',{cx:0,cy:0,r:11,fill:chroma.mix(n.fill,'#000',0.35,'lab').hex()},actor);
+    n.actor=actor;n.lamp=lamp;
+  });
+
+  // ---- One paused GSAP timeline owns every animated property ----
+  const tl=gsap.timeline({paused:true,defaults:{immediateRender:true}});
+  const pivot={svgOrigin:'0 0'};
+
+  // Headings (independent timing)
+  tl.fromTo('#title',{x:-28,opacity:0},{x:0,opacity:1,duration:0.45,ease:'power2.out'},0.05);
+  tl.fromTo('#subtitle',{x:-28,opacity:0},{x:0,opacity:1,duration:0.45,ease:'power2.out'},0.2);
+
+  // 1. The idea assembles: body rotates up around its pivot, navy facet folds in from its corner.
+  tl.fromTo('#ideaBody',{...pivot,rotation:-90,scale:0.2,opacity:0},{...pivot,rotation:0,scale:1,opacity:1,duration:0.5,ease:'back.out(1.2)'},0.0);
+  tl.fromTo('#ideaFacet',{...pivot,x:46,y:-46,rotation:90,opacity:0},{...pivot,x:0,y:0,rotation:0,opacity:1,duration:0.45,ease:'power2.inOut'},0.2);
+  tl.fromTo('#spark',{...pivot,y:-36,rotation:-180,scale:0.4,opacity:0},{...pivot,y:0,rotation:0,scale:1,opacity:1,duration:0.45,ease:'back.out(1.2)'},0.3);
+  tl.fromTo('#glowIdea',{opacity:0},{opacity:1,duration:0.5,ease:'sine.inOut'},0.25);
+
+  // 2. The idea splits: each node leaves the idea's coordinates, rotating one hex step (120°) into place.
+  NODES.forEach((n,i)=>{
+    const t=0.55+i*0.12;
+    tl.fromTo(n.actor,{...pivot,x:O.x-n.x,y:O.y-n.y,rotation:-120,scale:0.3,opacity:0},
+      {...pivot,x:0,y:0,rotation:0,scale:1,opacity:1,duration:0.55,ease:'power2.inOut'},t);
+    n.arrive=t+0.55;
+  });
+
+  // 3. Connections draw outward once both ends exist.
+  const arrival={o:0.5};NODES.forEach(n=>arrival[n.id]=n.arrive);
+  EDGES.forEach(([a,b],i)=>{
+    const start=Math.max(arrival[a],arrival[b])-0.25;
+    tl.fromTo(edgeEls[i],{strokeDashoffset:edgeEls[i].__len},{strokeDashoffset:0,duration:0.35,ease:'power2.inOut'},start);
+  });
+
+  // 4. Warm event: the system "switches on" — lamps light from the idea outward, core glows.
+  NODES.forEach((n,i)=>{
+    tl.fromTo(n.lamp,{attr:{fill:chroma.mix(n.fill,'#000',0.35,'lab').hex()}},{attr:{fill:C.cream},duration:0.25,ease:'steps(6)'},1.75+i*0.06);
+  });
+  tl.fromTo('#glowCore',{opacity:0},{opacity:1,duration:0.45,ease:'sine.inOut'},1.8);
+  tl.fromTo('#glowEnd',{opacity:0},{opacity:1,duration:0.45,ease:'sine.inOut'},2.0);
+  tl.fromTo('#glowIdea',{opacity:1},{opacity:0.55,duration:0.4,ease:'sine.inOut',immediateRender:false},1.9);
+
+  // Slate enters after the system is complete.
+  tl.fromTo('#slate',{opacity:0},{opacity:1,duration:0.3,ease:'sine.inOut'},2.1);
+
+  // Settled by ~2.45s; hold to the end.
+  tl.to({}, {duration:0.001},2.999);
+  tl.seek(0);
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

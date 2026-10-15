@@ -1,0 +1,200 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#C9E0E8}
+#stage{width:100%;height:100%}
+svg{width:100%;height:100%;display:block}
+@font-face{font-family:"Arial Rounded MT Bold";src:local("Arial Rounded MT Bold"),local("ArialRoundedMTBold");font-weight:700;font-style:normal}
+.round{font-family:"Arial Rounded MT Bold",Arial,sans-serif;font-weight:700}
+</style>
+</head>
+<body>
+<div id="stage" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="scene" xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<defs>
+  <filter id="d" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#2C424D" flood-opacity=".24"/></filter>
+  <marker id="m" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L8 5L1 9" fill="none" stroke="#2C424D" stroke-width="2" stroke-linecap="round"/></marker>
+  <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="14" cy="14" r="1.6" fill="#FFFFFF" opacity=".55"/></pattern>
+  <clipPath id="titleClip"><rect id="titleWipe" x="60" y="70" width="0" height="70"/></clipPath>
+  <mask id="am1" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720"><path class="amask" d="M262 320Q315 268 372 310" fill="none" stroke="#FFFFFF" stroke-width="34" stroke-linecap="round"/></mask>
+  <mask id="am2" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720"><path class="amask" d="M548 320Q610 262 672 306" fill="none" stroke="#FFFFFF" stroke-width="34" stroke-linecap="round"/></mask>
+  <mask id="am3" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720"><path class="amask" d="M870 320Q925 262 982 306" fill="none" stroke="#FFFFFF" stroke-width="34" stroke-linecap="round"/></mask>
+</defs>
+
+<!-- Stationary scene field: sky-blue "communication" chapter colour with a faint white dot grid -->
+<g id="field">
+  <rect width="1280" height="720" fill="#C9E0E8"/>
+  <rect width="1280" height="720" fill="url(#dots)"/>
+</g>
+
+<!-- Question headline: wiped on; a white marker band is laid behind the key word afterwards -->
+<rect id="titleBand" x="0" y="86" width="10" height="44" rx="10" fill="#FFFFFF"/>
+<g clip-path="url(#titleClip)">
+  <text id="title" class="round" x="80" y="120" font-size="40" fill="#2C424D">How does an idea become a system?</text>
+</g>
+
+<!-- Dotted connectors, revealed by drawing their masks -->
+<g fill="none" stroke="#2C424D" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 10" marker-end="url(#m)">
+  <path id="arrow1" d="M262 320Q315 268 372 310" mask="url(#am1)"/>
+  <path id="arrow2" d="M548 320Q610 262 672 306" mask="url(#am2)"/>
+  <path id="arrow3" d="M870 320Q925 262 982 306" mask="url(#am3)"/>
+</g>
+
+<!-- STICKER 1: question -->
+<g id="sQuestion">
+  <g filter="url(#d)"><circle cx="170" cy="375" r="80" fill="#2C424D" stroke="#FFFFFF" stroke-width="10" paint-order="stroke"/></g>
+  <g id="qMark"><text class="round" x="170" y="410" text-anchor="middle" font-size="100" fill="#FFFFFF">?</text></g>
+</g>
+
+<!-- STICKER 2: idea bulb -->
+<g id="sIdea">
+  <g filter="url(#d)" stroke="#FFFFFF" stroke-width="10" stroke-linejoin="round" paint-order="stroke">
+    <path d="M460 290a62 62 0 0 1 36 112v22h-72v-22a62 62 0 0 1 36-112z" fill="#D28C67"/>
+    <rect x="430" y="434" width="60" height="18" rx="8" fill="#2C424D"/>
+  </g>
+  <path id="bulbShine" d="M436 336a30 30 0 0 1 22-24" stroke="#FFFFFF" stroke-width="7" fill="none" stroke-linecap="round"/>
+</g>
+
+<!-- STICKER 3: links tile (mechanism) -->
+<g id="sLinks">
+  <g filter="url(#d)"><rect x="690" y="296" width="160" height="160" rx="36" fill="#73A59E" stroke="#FFFFFF" stroke-width="10" paint-order="stroke"/></g>
+  <path id="linkTri" d="M730 340L810 352L760 420Z" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#FFFFFF">
+    <g class="lnode"><circle cx="730" cy="340" r="13"/></g>
+    <g class="lnode"><circle cx="810" cy="352" r="13"/></g>
+    <g class="lnode"><circle cx="760" cy="420" r="13"/></g>
+  </g>
+</g>
+
+<!-- STICKER 4: system tile (conclusion) -->
+<g id="sSystem">
+  <g filter="url(#d)"><rect x="1000" y="288" width="180" height="180" rx="42" fill="#2C424D" stroke="#FFFFFF" stroke-width="10" paint-order="stroke"/></g>
+  <g fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round">
+    <path class="sysLine" d="M1090 378L1042 330"/>
+    <path class="sysLine" d="M1090 378L1138 330"/>
+    <path class="sysLine" d="M1090 378L1042 426"/>
+    <path class="sysLine" d="M1090 378L1138 426"/>
+    <path class="sysLine" d="M1042 330H1138"/>
+    <path class="sysLine" d="M1042 426H1138"/>
+  </g>
+  <g fill="#73A59E">
+    <g class="snode"><circle cx="1042" cy="330" r="12"/></g>
+    <g class="snode"><circle cx="1138" cy="330" r="12"/></g>
+    <g class="snode"><circle cx="1042" cy="426" r="12"/></g>
+    <g class="snode"><circle cx="1138" cy="426" r="12"/></g>
+  </g>
+  <g id="sysCore"><circle cx="1090" cy="378" r="18" fill="#D28C67"/></g>
+</g>
+
+<!-- Travelling idea chip: the copper concept carried along each connector into the system core -->
+<g id="ideaChip" opacity="0"><circle cx="0" cy="0" r="10" fill="#D28C67" stroke="#FFFFFF" stroke-width="3"/></g>
+
+<!-- Pill labels: authored tilts stay on inner groups; motion lives on neutral wrappers -->
+<g class="round" font-size="18" fill="#2C424D" text-anchor="middle" filter="url(#d)">
+  <g id="lQuestion"><g transform="rotate(-4 170 510)"><rect x="105" y="490" width="130" height="40" rx="20" fill="#FFFFFF"/><text x="170" y="517">QUESTION</text></g></g>
+  <g id="lIdea"><g transform="rotate(3 460 510)"><rect x="405" y="490" width="110" height="40" rx="20" fill="#FFFFFF"/><text x="460" y="517">IDEA</text></g></g>
+  <g id="lLinks"><g transform="rotate(-2 770 510)"><rect x="715" y="490" width="110" height="40" rx="20" fill="#FFFFFF"/><text x="770" y="517">LINKS</text></g></g>
+  <g id="lSystem"><g transform="rotate(4 1090 510)"><rect x="1030" y="490" width="120" height="40" rx="20" fill="#FFFFFF"/><text x="1090" y="517">SYSTEM</text></g></g>
+</g>
+
+<!-- Conclusion legend: concept colours as pill stickers behind dark lettering -->
+<g id="legend">
+  <rect class="pill" data-pill-for="0" x="70" y="611" width="80" height="28" rx="14" fill="#D28C67"/>
+  <rect class="pill" data-pill-for="1" x="180" y="611" width="160" height="28" rx="14" fill="#73A59E"/>
+  <text id="legendText" x="82" y="630" font-family="Arial, sans-serif" font-size="20" fill="#2C424D"><tspan font-weight="700" data-pill="0">● idea</tspan><tspan dx="14">+</tspan><tspan font-weight="700" dx="14" data-pill="1">● connections</tspan><tspan dx="14">=  a system that works together.</tspan></text>
+</g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+const svg=document.getElementById('scene');
+const $=s=>svg.querySelector(s), $$=s=>Array.from(svg.querySelectorAll(s));
+
+// Resolved scene palette (chroma-js check). Text sits only on: field (ink 7.7:1), white pills (ink 10.5:1),
+// ink sticker (white 10.5:1), copper/teal legend pills (ink ~3.8:1, 20px bold large text).
+const P={field:'#C9E0E8',ink:'#2C424D',white:'#FFFFFF',teal:'#73A59E',copper:'#D28C67'};
+window.__paletteContrast={inkOnField:chroma.contrast(P.ink,P.field),inkOnWhite:chroma.contrast(P.ink,P.white),inkOnCopper:chroma.contrast(P.ink,P.copper),inkOnTeal:chroma.contrast(P.ink,P.teal),whiteOnInk:chroma.contrast(P.white,P.ink)};
+
+// One-time deterministic layout: legend pills fit their words; the title band sits behind "system?".
+(function(){const t=$('#legendText');let idx=0;
+ for(const node of Array.from(t.childNodes)){const len=node.textContent.length;
+  if(node.nodeType===1&&node.hasAttribute('data-pill')){const r=svg.querySelector('[data-pill-for="'+node.getAttribute('data-pill')+'"]');
+   const x0=t.getStartPositionOfChar(idx).x,w=t.getSubStringLength(idx,len);
+   r.setAttribute('x',(x0-10).toFixed(1));r.setAttribute('width',(w+20).toFixed(1));}
+  idx+=len;}})();
+const title=$('#title');const k=title.textContent.indexOf('system?');
+const bx=title.getStartPositionOfChar(k).x, bw=title.getSubStringLength(k,7);
+const band=$('#titleBand');band.setAttribute('x',(bx-10).toFixed(1));band.setAttribute('width',(bw+20).toFixed(1));
+const titleW=title.getComputedTextLength()+40;
+
+// Connector geometry cached for the travelling chip.
+const arrows=['#arrow1','#arrow2','#arrow3'].map(s=>$(s));
+const alen=arrows.map(a=>a.getTotalLength());
+const chip=$('#ideaChip');
+
+const tl=gsap.timeline({paused:true});
+const REST={x:0,y:0,scale:1,rotation:0,opacity:1};
+function place(sel,from,at,dur,stagger,ease){const els=$$(sel);
+  gsap.set(els,{transformOrigin:'50% 50%'});
+  tl.fromTo(els,{...from},{...REST,duration:dur,ease:ease||'back.out(1.4)',stagger:stagger||0},at);}
+const drop={x:0,y:-26,scale:1.16,rotation:-7,opacity:0};   // sticker lifted off the sheet, then pressed down
+const peel={x:0,y:8,scale:.6,rotation:10,opacity:0};        // label peeled up, then laid flat
+const pop={x:0,y:0,scale:.3,rotation:0,opacity:0};
+function draw(els,at,dur,stagger){els.forEach(p=>{const L=p.getTotalLength();gsap.set(p,{attr:{'stroke-dasharray':L+' '+L,'stroke-dashoffset':L}});});
+  tl.to(els,{attr:{'stroke-dashoffset':0},duration:dur,ease:'power2.inOut',stagger:stagger||0},at);}
+const masks=$$('.amask');
+
+// Beat 1 — the question
+tl.fromTo('#titleWipe',{attr:{width:0}},{attr:{width:titleW},duration:.45,ease:'power2.out'},0);
+place('#sQuestion',drop,.15,.4);
+place('#qMark',pop,.35,.3);
+place('#lQuestion',peel,.5,.3);
+// Beat 2 — the idea
+draw([masks[0]],.6,.35);
+place('#sIdea',drop,.85,.4);
+place('#lIdea',peel,1.05,.3);
+draw([$('#bulbShine')],1.1,.25);
+// Beat 3 — the links mechanism
+draw([masks[1]],1.15,.35);
+place('#sLinks',drop,1.4,.4);
+draw([$('#linkTri')],1.6,.35);
+place('.lnode',pop,1.6,.25,.1);
+place('#lLinks',peel,1.6,.3);
+// Beat 4 — the system conclusion
+draw([masks[2]],1.7,.35);
+place('#sSystem',drop,1.9,.4);
+draw($$('.sysLine'),2.05,.25,.03);
+place('.snode',pop,2.1,.25,.05);
+place('#sysCore',pop,2.2,.25);
+place('#lSystem',peel,2.2,.25);
+// Settle — summary legend and title emphasis (all settled by 2.6s)
+gsap.set('.pill',{transformOrigin:'0% 50%'});
+tl.fromTo('.pill',{scaleX:0},{scaleX:1,duration:.25,ease:'power2.out',stagger:.08},2.3);
+tl.fromTo('#legendText',{opacity:0},{opacity:1,duration:.2,ease:'none'},2.32);
+gsap.set(band,{transformOrigin:'0% 50%'});
+tl.fromTo(band,{scaleX:0},{scaleX:1,duration:.25,ease:'power2.out'},2.35);
+tl.to({},{duration:.001},2.999);
+
+// Idea chip: a pure function of timeline time (no carried state). It rides each connector's
+// drawing head, then sinks into the system core just before the core sticker pops.
+const segs=[[.6,.95,0],[1.15,1.5,1],[1.7,2.05,2]];
+const ioEase=gsap.parseEase('power2.inOut'), inEase=gsap.parseEase('power2.in');
+function renderChip(t){let x=0,y=0,o=0,s=1;
+  for(const [a,b,i] of segs){if(t>=a&&t<=b){const pt=arrows[i].getPointAtLength(alen[i]*ioEase((t-a)/(b-a)));x=pt.x;y=pt.y;o=Math.min(1,(t-a)/.06);}}
+  if(t>2.05&&t<2.25){const u=inEase((t-2.05)/.2);x=982+(1090-982)*u;y=306+(378-306)*u;o=1;s=1+.8*u;}
+  chip.setAttribute('opacity',o.toFixed(3));
+  chip.setAttribute('transform','translate('+x.toFixed(2)+' '+y.toFixed(2)+') scale('+s.toFixed(3)+')');}
+tl.eventCallback('onUpdate',()=>renderChip(tl.time()));
+window.addEventListener('hf-seek',()=>renderChip(tl.time()));
+tl.progress(1).progress(0);renderChip(0);
+
+window.__timelines=window.__timelines||{};
+window.__timelines.video=tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

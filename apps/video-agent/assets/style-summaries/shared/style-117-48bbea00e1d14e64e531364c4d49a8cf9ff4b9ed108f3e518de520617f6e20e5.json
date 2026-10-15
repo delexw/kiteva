@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-117",
+    "name": "Holographic Scanline Illustration (category: Motion Design and Cinematography; provenance: extracted). Added in the 2026-10-12 repository sync. Its reference poster was inspected, but full-video scene verification is not claimed.",
+    "visualIdentity": "Black field with cyan contours, narrow white cores and horizontal scan-line fills. Light is communicated only through line density, with no blur halos, bloom or generic neon particles. The look is flat, precise line art rather than glowing or photographic.",
+    "suitableUses": "Explicitly supported: outline-based subjects such as heads or objects drawn as cached contours and filled with scanlines. Inferred suitability, not stated by the source: holographic, technical or schematic subjects where density can express brightness. Preview length is 3 seconds; full-length use is allowed.",
+    "limitations": "Canvas text is less accessible, so captions should be DOM overlays when needed. The two-color contrast check does not cover textures, transparency, transmitted light, thermal ramps or video compositing. Only one reference poster was inspected. Scene backgrounds across a full video are unverified.",
+    "palette": "Background token #07080A (black), foreground #45F0DD (cyan), accent #FFFFFF (white line core). The source explicitly assigns black to HOLOGRAM and cyan to its grid and lines. Background policy is scene_dependent, so black is a suggestion, not a mandatory canvas. No exact approved palette was supplied. Gradients are disabled; cyan on black measures 14.083 for opaque captions.",
+    "motionAndInteraction": "Contour reveal uses setLineDash over precomputed path lengths. A scanline wipe moves top to bottom, and density shifts modulate line spacing. GSAP tweens a plain state object on a paused timeline, with one render(state) called on update and after every seek. Motion references are none. Viewer interaction is unspecified.",
+    "audio": "The source specifies no audio choice. The audio direction is general, covering music, voiceover, vocals, effects, ambience or silence. Choices should be proposed from topic, audience and motion rather than assigned by the style. No genre, tempo, instrument or voice is specified. Speech intelligibility and picture sync must be verified.",
+    "assetRequirements": "No uploads are mandatory. Subject outlines must be authored as Path2D geometry and cached once before rendering. Local fonts and assets should load before frame capture. The poster served only as exact-hex evidence for the background. No motion candidates exist, so no motion catalog file is required.",
+    "combinations": "Style-112 may supply subordinate schematic labels only. Keep style-117 dominant and preserve its background and foreground roles. Do not import the supporting palette, or let accents, glass panes or subject materials replace the black field. Avoid competing full-scene treatments and unrelated decorative motion.",
+    "productionApproach": "Canvas 2D is the style renderer, drawing clipped 1px scanlines and a double-stroked contour at fixed device pixel ratio. GSAP is the motion engine, owning the state object. HyperFrames is the default render pipeline for composition, sync and export; Remotion is fallback only, with a recorded reason. chroma-js is optional for validation and contrast. No WebGL, 3D or particle engine is required."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

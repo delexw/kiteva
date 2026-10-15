@@ -1,0 +1,19 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": ["SVG", "HTML/CSS"],
+  "motionEngine": ["GSAP", "GSAP DrawSVGPlugin"],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview: no music, voiceover or sound effects.",
+  "limitations": [
+    "Illustrative procedural scene: flat SVG line drawing; no physical paper, ink bleed or blueprint-print texture is simulated.",
+    "Composition is 1280x720 (viewBox 1280x720 drafting units, 1 unit = 1 mm at 1:1 scale); it scales to 1920x1080 through the SVG viewBox.",
+    "The 45-degree hatch pattern has a 7-unit pitch (about 10.5 px at 1080p) to avoid aliasing; it has not been checked in a rendered frame here.",
+    "Preview shows one part view with 4 dimensions (Ø180, 54, 70, 120). The full multi-view video that chains views through labels is not built.",
+    "White #FFFFFF on #1B3ED2 contrast is 7.88, computed with chroma.contrast; grid lines are drawn at 0.25/0.5 stroke-opacity for decoration only.",
+    "Typography uses system Courier New/Menlo monospace; no web fonts are bundled."
+  ]
+}

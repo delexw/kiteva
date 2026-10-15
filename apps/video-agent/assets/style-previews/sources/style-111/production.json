@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Idea System",
+  "displayDescription": "Sticker explainer: a question, idea, links and system are pressed onto a sky-blue dotted field while a copper idea chip travels along the connectors.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (inline vector stickers, masks, real text)",
+    "chroma.js (palette contrast validation)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline (window.__timelines.video)",
+    "Time-derived SVG chip renderer driven by timeline time"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Stickers are flat vector approximations of physical stickers. The white border, soft drop shadow and the lift-and-press motion suggest a sticker but are not paper or vinyl simulations, and there is no real peel deformation.",
+    "The sky-blue field #C9E0E8 is a new scene-dependent background, taken from the reviewed source's 'networking/communication' chapter option. The ink, white, teal and copper concept colours are unchanged.",
+    "Legend lettering on the copper and teal pills is about 3.8:1, which meets the large-text 3:1 threshold but not 4.5:1.",
+    "Rendering, contrast and layout were not verified by the agent. The host runs those checks.",
+    "No preview recipe was supplied, so none is demonstrated. Rough.js, PixiJS, mo.js and the other installed pool libraries were not needed for this flat sticker medium.",
+    "The headline, '?' and pill labels use the macOS system font Arial Rounded MT Bold (/System/Library/Fonts/Supplemental/Arial Rounded Bold.ttf), declared with @font-face local(). On machines without it, they fall back to Arial bold."
+  ]
+}

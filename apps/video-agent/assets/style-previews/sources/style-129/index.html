@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>An idea becomes a connected system — Egyptian Register Painting preview</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #E3E6DE; overflow: hidden; }
+  #root { position: relative; width: 100%; height: 100%; background: #E3E6DE; overflow: hidden;
+          font-family: Georgia, "Times New Roman", Times, serif; color: #3B2D23; }
+  #scene { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  .txt { position: absolute; margin: 0; white-space: nowrap; }
+  #kicker { left: 70px; top: 92px; font-size: 18px; letter-spacing: 5px; color: #3B2D23; }
+  #head1 { left: 68px; top: 138px; font-size: 54px; line-height: 62px; color: #3B2D23; }
+  #head2 { left: 68px; top: 198px; font-size: 54px; line-height: 62px; color: #A84532; }
+  #captionBand { position: absolute; left: 40px; top: 592px; width: 1200px; height: 70px;
+                 display: flex; align-items: center; justify-content: center; }
+  #caption { font-size: 25px; letter-spacing: 7px; color: #3B2D23; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-start="0" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <svg id="scene" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- fixed-seed cool gypsum/limestone grain (scene-dependent field #E3E6DE): static, never animated -->
+      <filter id="grainFine" x="0" y="0" width="100%" height="100%" filterUnits="userSpaceOnUse">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="129" stitchTiles="stitch" result="n"/>
+        <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.231  0 0 0 0 0.176  0 0 0 0 0.137  0.40 0 0 0 -0.20"/>
+      </filter>
+      <filter id="grainMottle" x="0" y="0" width="100%" height="100%" filterUnits="userSpaceOnUse">
+        <feTurbulence type="fractalNoise" baseFrequency="0.011 0.018" numOctaves="3" seed="29" result="m"/>
+        <feColorMatrix in="m" type="matrix" values="0 0 0 0 0.540  0 0 0 0 0.600  0 0 0 0 0.600  0.26 0 0 0 -0.11"/>
+      </filter>
+      <pattern id="frieze" width="48" height="18" patternUnits="userSpaceOnUse" x="40" y="0">
+        <rect width="12" height="18" fill="#426C88"/>
+        <rect x="12" width="12" height="18" fill="#F3F2EC"/>
+        <rect x="24" width="12" height="18" fill="#A84532"/>
+        <rect x="36" width="12" height="18" fill="#738261"/>
+      </pattern>
+    </defs>
+
+    <!-- stationary field -->
+    <rect id="field" width="1280" height="720" fill="#E3E6DE"/>
+    <rect width="1280" height="720" filter="url(#grainMottle)"/>
+    <rect width="1280" height="720" filter="url(#grainFine)"/>
+
+    <!-- registered border bands + register baselines (static structure) -->
+    <rect x="40" y="28" width="1200" height="18" fill="url(#frieze)" stroke="#3B2D23" stroke-width="2"/>
+    <rect x="40" y="672" width="1200" height="18" fill="url(#frieze)" stroke="#3B2D23" stroke-width="2"/>
+    <path d="M40 310H1240M40 580H1240" stroke="#3B2D23" stroke-width="4" fill="none"/>
+
+    <!-- empty inscription column frame (no verified text supplied) -->
+    <g id="inscriptionFrame" fill="none" stroke="#3B2D23" stroke-width="2">
+      <path class="frameLine" d="M1150 64V300"/>
+      <path class="frameLine" d="M1230 64V300"/>
+      <path class="frameLine" d="M1150 64H1230"/>
+    </g>
+
+    <!-- connecting cord (drawn after the procession settles) sits behind figures -->
+    <path id="cord" fill="none" stroke="#B9793C" stroke-width="5" stroke-linecap="butt"/>
+
+    <g id="figures"></g>
+  </svg>
+
+  <p id="kicker" class="txt">AFTER THE NEBAMUN PAINTINGS · THEBES</p>
+  <h1 id="head1" class="txt" style="font-weight:normal">An idea becomes</h1>
+  <h1 id="head2" class="txt" style="font-weight:normal">a connected system</h1>
+  <div id="captionBand"><p id="caption" class="txt" style="position:static">ONE THOUGHT · MANY HANDS · ONE WOVEN NETWORK</p></div>
+</div>
+
+<script src="gsap.min.js"></script>
+<script src="DrawSVGPlugin.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  gsap.registerPlugin(DrawSVGPlugin);
+
+  var C = { bg: "#E3E6DE", linen: "#F3F2EC", fg: "#3B2D23", ochre: "#B9793C", red: "#A84532", blue: "#426C88", green: "#738261" };
+  var NS = "http://www.w3.org/2000/svg";
+
+  // ---- contrast check of approved token pairs (chroma.js) ----
+  var root = document.getElementById("root");
+  [["kicker", C.fg], ["head1", C.fg], ["head2", C.red], ["caption", C.fg]].forEach(function (p) {
+    var el = document.getElementById(p[0]);
+    var ratio = chroma.contrast(p[1], C.bg);
+    var col = ratio >= 4.5 ? p[1] : C.fg;
+    el.style.color = chroma(col).hex().toUpperCase();
+    el.setAttribute("data-contrast", chroma.contrast(col, C.bg).toFixed(2));
+  });
+
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  // ---- figure library (local coords: facing right, feet on y=0, ~200 units tall) ----
+  var UPPER = "M-7 -2C-7 -7 7 -7 7 -2C7 12 6 26 4.5 37L-4.5 37C-6 26 -7 12 -7 -2Z";
+  var FORE = "M-4.8 -2L4.8 -2L3.8 30C6.5 32 6.5 39 2 41C-2.5 42 -5.5 38 -4.2 33Z";
+  var L1 = 36, LH = 38;
+  var DISC_OUT = "M0 -14A14 14 0 1 1 0 14A14 14 0 1 1 0 -14Z";
+  var DISC_IN = "M0 -5.5A5.5 5.5 0 1 1 0 5.5A5.5 5.5 0 1 1 0 -5.5Z";
+  var SUN_OUT = "M0 -30A30 30 0 1 1 0 30A30 30 0 1 1 0 -30Z";
+  var SUN_IN = "M0 -21A21 21 0 1 1 0 21A21 21 0 1 1 0 -21Z";
+
+  var PARTS = {
+    man: {
+      legB: "M-13 -70L1 -70L-5 -40L-8 -11C-3 -7 3 -4 7 -2L7 0L-21 0L-19 -11L-16 -40Z",
+      legF: "M5 -70L19 -70L22 -40L26 -11C32 -7 39 -4 44 -2L44 0L17 0L16 -11L11 -40Z",
+      torso: "M-27 -150C-27 -154 -24 -156 -20 -156L20 -156C24 -156 27 -154 27 -150C22 -136 19 -122 17 -108L-13 -108C-15 -122 -21 -136 -27 -150Z",
+      kiltShort: "M-15 -110L19 -110L25 -66L-19 -66Z",
+      kiltLong: "M-15 -110L19 -110L28 -40L-19 -40Z",
+      belt: "M-15 -113L19 -113L19 -105L-15 -105Z",
+      pleatShort: "M5 -105L23 -68",
+      pleatLong: "M5 -105L26 -43",
+      wig: "M12 -193C2 -203 -17 -200 -19 -186L-19 -163L-6 -163L-5 -175C-3 -179 1 -181 4 -184L5 -189C8 -190 10 -191 12 -193Z",
+      ear: "M-1 -179C3.5 -179 3.5 -169 -1 -169C-3 -171 -3 -177 -1 -179Z"
+    },
+    woman: {
+      legB: "M-12 -70L0 -70L-3 -40L-5 -11C0 -7 6 -4 10 -2L10 0L-16 0L-15 -11L-13 -40Z",
+      legF: "M2 -70L14 -70L15 -40L17 -11C23 -7 30 -4 34 -2L34 0L8 0L8 -11L5 -40Z",
+      torso: "M-23 -150C-23 -154 -20 -156 -16 -156L16 -156C20 -156 23 -154 23 -150C20 -143 19 -139 23 -133C21 -128 15 -127 12 -126L-12 -122C-15 -132 -19 -141 -23 -150Z",
+      dress: "M-14 -128L17 -128C18 -112 17 -98 15 -82L21 -13L-18 -13L-14 -82C-16 -100 -16 -116 -14 -128Z",
+      hem: "M-18 -13L21 -13L20.5 -21L-17.4 -21Z",
+      strap: "M11 -128L13 -153",
+      wig: "M12 -193C2 -204 -20 -201 -21 -186L-22 -142L-9 -142L-6 -172C-3 -178 1 -181 4 -184L5 -189C8 -190 10 -191 12 -193Z",
+      fillet: "M-20 -188C-10 -195 2 -197 11 -194L12 -190C2 -193 -10 -191 -20 -183Z"
+    },
+    neck: "M-5 -167L7 -167L7 -153L-5 -153Z",
+    face: "M9 -196C13 -195 15 -191 15 -187L16 -184L22 -178L17 -176L18 -173L16 -171L17 -168C16 -165 13 -163 7 -163L6 -158L-6 -158L-7 -167C-11 -174 -11 -191 9 -196Z",
+    collarOut: "M-24 -156L24 -156C20 -137 -20 -137 -24 -156Z",
+    collarIn: "M-16 -156L16 -156C12 -146 -12 -146 -16 -156Z",
+    eyeWhite: "M5 -183Q9.5 -186.5 14 -183Q9.5 -180.5 5 -183Z",
+    pupil: "M10 -184.8A1.8 1.8 0 1 1 10 -181.2A1.8 1.8 0 1 1 10 -184.8Z",
+    brow: "M5 -187.5Q10 -190 14 -187.5",
+    liner: "M5 -183L0.5 -182",
+    mouth: "M17.5 -171L14 -170.5"
+  };
+
+  // part = [d, fill|null]; fill null = contour only
+  function bodyParts(kind, opt) {
+    var P = PARTS[kind], skin = opt.skin, out = [];
+    out.push([P.legB, skin], [P.legF, skin], [PARTS.neck, skin], [P.torso, skin]);
+    if (kind === "man") {
+      out.push([opt.longKilt ? P.kiltLong : P.kiltShort, C.linen], [P.belt, C.ochre], [opt.longKilt ? P.pleatLong : P.pleatShort, null]);
+    } else {
+      out.push([P.dress, C.linen], [P.hem, C.green], [P.strap, null]);
+    }
+    out.push([PARTS.collarOut, C.blue], [PARTS.collarIn, C.green], [PARTS.face, skin]);
+    if (kind === "man") out.push([P.ear, skin]);
+    out.push([P.wig, C.fg]);
+    if (kind === "woman" || opt.fillet) out.push([PARTS.woman.fillet, C.ochre]);
+    out.push([PARTS.eyeWhite, C.linen], [PARTS.pupil, C.fg], [PARTS.brow, null], [PARTS.liner, null], [PARTS.mouth, null]);
+    return out;
+  }
+
+  // forward kinematics in figure-local coords (SVG rotate convention, degrees)
+  function rot(x, y, deg) { var r = deg * Math.PI / 180, c = Math.cos(r), s = Math.sin(r); return [x * c - y * s, x * s + y * c]; }
+  function handPos(sh, a, b, len) {
+    var e = rot(0, L1, a), h = rot(0, len, a + b);
+    return [sh[0] + e[0] + h[0], sh[1] + e[1] + h[1]];
+  }
+
+  var SH_F = [22, -150], SH_B = [-21, -150];
+
+  var FIGS = [
+    { id: "patron", kind: "man", x: 852, y: 308, s: 1.18, skin: C.red, longKilt: true, fillet: true, carry: "sun", walk: false,
+      armF: { a0: -55, b0: -22, a1: -80, b1: -30 }, armB: { a0: 6, b0: -6, a1: 12, b1: -4 } },
+    { id: "f1", kind: "man", x: 200, y: 578, s: 1, skin: C.red, carry: "disc", walk: true,
+      armF: { a0: -12, b0: -40, a1: -40, b1: -60 }, armB: { a0: 6, b0: -4, a1: 20, b1: -2 } },
+    { id: "f2", kind: "woman", x: 470, y: 578, s: 1, skin: C.ochre, carry: "disc", walk: true,
+      armF: { a0: -6, b0: -48, a1: -30, b1: -75 }, armB: { a0: -22, b0: -30, a1: -60, b1: -50 } },
+    { id: "f3", kind: "man", x: 740, y: 578, s: 1, skin: C.red, carry: "disc", walk: true,
+      armF: { a0: -18, b0: -30, a1: -50, b1: -45 }, armB: { a0: -95, b0: -20, a1: -120, b1: -30 } },
+    { id: "f4", kind: "man", x: 1010, y: 578, s: 1, skin: C.red, carry: "disc", walk: true,
+      armF: { a0: -8, b0: -44, a1: -36, b1: -64 }, armB: { a0: 4, b0: -8, a1: -8, b1: -16 } }
+  ];
+
+  var WALK = -42; // procession travel (x only), figures end at their authored x
+  var figRoot = document.getElementById("figures");
+
+  function buildArm(layer, f, side, sh, pose, carry, isFill) {
+    var pivot = el("g", { transform: "translate(" + sh[0] + " " + sh[1] + ")" }, layer);
+    var up = el("g", { "class": f.id + "-" + side + "-up", transform: "rotate(" + pose.a0 + ")" }, pivot);
+    function shape(g, d, fill) {
+      if (isFill) { if (fill) el("path", { d: d, fill: fill }, g); }
+      else el("path", { d: d, "class": "contour c-" + f.id, fill: "none" }, g);
+    }
+    shape(up, UPPER, f.skin);
+    var elbow = el("g", { transform: "translate(0 " + L1 + ")" }, up);
+    var fore = el("g", { "class": f.id + "-" + side + "-fore", transform: "rotate(" + pose.b0 + ")" }, elbow);
+    shape(fore, FORE, f.skin);
+    if (carry === "disc") {
+      var dg = el("g", { transform: "translate(0 " + LH + ")" }, fore);
+      shape(dg, DISC_OUT, C.blue); shape(dg, DISC_IN, C.ochre);
+    } else if (carry === "sun") {
+      var sg = el("g", { transform: "translate(0 " + (LH + 24) + ")" }, fore);
+      shape(sg, SUN_OUT, C.ochre); shape(sg, SUN_IN, C.red);
+    }
+  }
+
+  function buildLayer(f, isFill, parent) {
+    var layer = el("g", isFill ? { "class": "fills", "clip-path": "url(#wipe-" + f.id + ")" }
+                               : { "class": "lines", fill: "none", stroke: C.fg, "stroke-width": (1.7 / f.s).toFixed(2), "stroke-linejoin": "round" }, parent);
+    buildArm(layer, f, "B", SH_B, f.armB, null, isFill);
+    bodyParts(f.kind, f).forEach(function (p) {
+      if (isFill) { if (p[1]) el("path", { d: p[0], fill: p[1] }, layer); }
+      else el("path", { d: p[0], "class": "contour c-" + f.id }, layer);
+    });
+    buildArm(layer, f, "F", SH_F, f.armF, f.carry, isFill);
+  }
+
+  var defs = document.querySelector("#scene defs");
+  FIGS.forEach(function (f) {
+    var cp = el("clipPath", { id: "wipe-" + f.id, clipPathUnits: "userSpaceOnUse" }, defs);
+    el("rect", { id: "wipeRect-" + f.id, x: -90, y: -270, width: 0, height: 285 }, cp);
+    var walker = el("g", { id: "walk-" + f.id, "class": "walker" }, figRoot);
+    var placed = el("g", { transform: "translate(" + f.x + " " + f.y + ") scale(" + f.s + ")" }, walker);
+    buildLayer(f, true, placed);
+    buildLayer(f, false, placed);
+  });
+
+  // cord through the settled disc nodes (final pose, final x)
+  var nodes = FIGS.filter(function (f) { return f.carry === "disc"; }).map(function (f) {
+    var h = handPos(SH_F, f.armF.a1, f.armF.b1, LH);
+    return [f.x + h[0] * f.s, f.y + h[1] * f.s];
+  });
+  var d = "M120 " + (nodes[0][1] + 4).toFixed(1);
+  var prev = [120, nodes[0][1] + 4];
+  nodes.concat([[1180, nodes[nodes.length - 1][1] + 4]]).forEach(function (n) {
+    var mx = (prev[0] + n[0]) / 2, my = Math.max(prev[1], n[1]) + 9;
+    d += " Q" + mx.toFixed(1) + " " + my.toFixed(1) + " " + n[0].toFixed(1) + " " + n[1].toFixed(1);
+    prev = n;
+  });
+  document.getElementById("cord").setAttribute("d", d);
+
+  // ---- timeline (all fromTo, paused, seekable) ----
+  function measuredSteps(n) {
+    return function (p) {
+      var t = p * n, k = Math.min(Math.floor(t), n - 1), fr = t - k;
+      var s = fr < 0.6 ? (1 - Math.cos(Math.PI * fr / 0.6)) / 2 : 1;
+      return (k + s) / n;
+    };
+  }
+
+  var tl = gsap.timeline({ paused: true, defaults: { overwrite: false } });
+
+  // standalone headings (independent timing)
+  tl.fromTo("#kicker", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.45, ease: "power2.inOut" }, 0.0);
+  tl.fromTo("#head1", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.5, ease: "power2.inOut" }, 0.1);
+  tl.fromTo("#head2", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.5, ease: "power2.inOut" }, 0.25);
+
+  // empty inscription column frame
+  tl.fromTo("#inscriptionFrame .frameLine", { drawSVG: "0%" }, { drawSVG: "100%", duration: 0.35, stagger: 0.06, ease: "sine.inOut" }, 0.1);
+
+  // contours in reading order (top register, then procession left -> right)
+  var contourStart = [0.0, 0.12, 0.23, 0.34, 0.45];
+  var contourDur = 0.34;
+  FIGS.forEach(function (f, i) {
+    var paths = document.querySelectorAll(".c-" + f.id);
+    tl.fromTo(paths, { drawSVG: "0%" }, { drawSVG: "100%", duration: contourDur * 0.8, stagger: { amount: contourDur * 0.2 }, ease: "sine.inOut" }, contourStart[i]);
+    // fills clip-wipe only after this figure's contour is complete
+    var fillStart = Math.max(0.6 + 0.1 * i, contourStart[i] + contourDur + 0.02);
+    tl.fromTo("#wipeRect-" + f.id, { attr: { width: 0 } }, { attr: { width: 270 }, duration: 0.38, ease: "power2.inOut" }, fillStart);
+  });
+
+  // measured procession: x-only steps + pivot gestures, settled by 2.45s
+  FIGS.forEach(function (f, i) {
+    var k = Math.max(0, i - 1);
+    if (f.walk) {
+      tl.fromTo("#walk-" + f.id, { x: WALK }, { x: 0, duration: 1.05, ease: measuredSteps(3) }, 1.2 + 0.05 * k);
+    }
+    var g0 = f.walk ? 1.35 + 0.05 * k : 1.2;
+    var gd = f.walk ? 0.9 : 0.8;
+    tl.fromTo(document.querySelectorAll("." + f.id + "-F-up"), { rotation: f.armF.a0, svgOrigin: "0 0" }, { rotation: f.armF.a1, svgOrigin: "0 0", duration: gd, ease: "sine.inOut" }, g0);
+    tl.fromTo(document.querySelectorAll("." + f.id + "-F-fore"), { rotation: f.armF.b0, svgOrigin: "0 0" }, { rotation: f.armF.b1, svgOrigin: "0 0", duration: gd, ease: "sine.inOut" }, g0);
+    tl.fromTo(document.querySelectorAll("." + f.id + "-B-up"), { rotation: f.armB.a0, svgOrigin: "0 0" }, { rotation: f.armB.a1, svgOrigin: "0 0", duration: gd, ease: "sine.inOut" }, g0 + 0.05);
+    tl.fromTo(document.querySelectorAll("." + f.id + "-B-fore"), { rotation: f.armB.b0, svgOrigin: "0 0" }, { rotation: f.armB.b1, svgOrigin: "0 0", duration: gd, ease: "sine.inOut" }, g0 + 0.05);
+  });
+
+  // caption band, then the connecting cord through the settled nodes
+  tl.fromTo("#caption", { clipPath: "inset(0% 50% 0% 50%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.45, ease: "power2.inOut" }, 1.45);
+  tl.fromTo("#cord", { drawSVG: "0%" }, { drawSVG: "100%", duration: 0.25, ease: "sine.inOut" }, 2.42);
+
+  // hold to 3.0s
+  tl.set({}, {}, 3);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  tl.seek(0);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "styleId": "style-022",
+  "name": "Pencil Drawing, in the Drawing and Illustration category. The source explicitly names this style.",
+  "visualIdentity": "Fine graphite lines, exploratory contours, and localized hatching on pale paper. Volume comes from pencil marks, not broad digital gradients. Lines reveal in drawing order or through controlled variations that keep pressure and texture coherent.",
+  "suitableUses": "Source-listed uses include intimate studies, sketch reveals, product and editorial introductions, and explanatory illustrated narratives. Inferred: process or anatomy studies work when notes stay graphite-only. Omit for very short topics.",
+  "limitations": "Rough.js provides no handwriting, pressure simulation, paper texture, or character poses. Vector hachure is not graphite material, and a simulated look is not physical production. Keep precise text and product UI free of roughness.",
+  "palette": "Suggested only: #F5F2EA as the paper background and #383838 as the graphite foreground, with no gradient. Two-color contrast is 10.481:1, but recheck over textures or video. Exact task colors override these. Tone comes from hatching, not new hues.",
+  "motionAndInteraction": "Lines reveal in drawing order or through fixed-seed contour variants selected by composition time. Generator path order is not an authored sequence. Video uses seekable time; interactive use may toggle layers, with a full-reveal option for reduced motion.",
+  "audio": "The source sets no fixed audio requirement. Inferred: restrained ambience or silence suits graphite reveals, with optional light accents at drawing actions. Leave room for narration and reading holds. Verify speech clarity, balance, clipping, and sync.",
+  "assetRequirements": "Prepare paper textures and graphite brushes before composition. Use designed contour and hatching variants rather than arbitrary noise. Load fonts and assets first, and preserve exact copy and supplied artwork. Asset provenance is unspecified.",
+  "combinations": "Best used alone. Hybrids need graphite-only support. Source-listed style-024 adds notes drawn after contours and hatching. Source-listed style-019 adds an editorial grid with #383838 type and paper texture only inside figures. Avoid red annotations and smooth arrows.",
+  "productionApproach": "Canvas 2D renders brushes and textures, Rough.js handles only low-roughness contours, and Python with Pillow prepares assets. HyperFrames is the default pipeline, with a paused GSAP timeline registered in window.__timelines. Remotion is used only under the documented fallback. Validate with check, snapshot, and decoded-frame review."
+}

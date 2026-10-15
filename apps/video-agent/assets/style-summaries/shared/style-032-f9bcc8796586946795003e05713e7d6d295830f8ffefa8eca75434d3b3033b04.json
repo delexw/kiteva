@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-032",
+    "name": "Manga (Drawing and Illustration; explicit provenance). The source directly describes this visual direction.",
+    "visualIdentity": "Explicit: monochrome or limited-color inked illustration with controlled line-weight hierarchy, screentone shading, expressive panels and close-ups. Screentone scale stays consistent; a generic dot filter on every surface is not allowed.",
+    "suitableUses": "Explicit: panel-based narratives, close-up character moments, cinematic openings and story promos. Inferred: educational manga and annotated process explainers using style-024. Inferred weaker fit for photographic footage. Motion-016 lists Manga as a good fit.",
+    "limitations": "Strict black-and-white is strongest; hybrids should appear only for close-up depth or instructional annotation. The source specifies no duration, resolution, aspect ratio or frame rate, so these remain unspecified. Omit motion-016 when subjects lack separable layers or pacing must stay restrained.",
+    "palette": "Suggested tokens, used only when no approved palette is supplied: background #FFFFFF and foreground #171717. Keep the palette monochrome; apparent gray comes from screentone or hatching, not extra hues. Gradients are disabled. The 17.928:1 contrast is a two-color check only, so recheck composited frames.",
+    "motionAndInteraction": "Explicit: animate panel reveals, poses and targeted speed effects. Preserve sharp cuts, impacts, constant-speed sections and reading holds; avoid automatic springs or bounce. Video state must derive from seekable composition time. Pointer (motion-006) and scroll (motion-012, motion-015) variants apply only to interactive delivery.",
+    "audio": "The source sets no required audio. Inferred suggestions: restrained instrumental pacing, short impact accents, ink or page sounds, or silence for silent gallery demos. Use narration or vocals only if the topic needs them. Music timing requires inspected audio; none is verified.",
+    "assetRequirements": "No source assets were supplied. Needed: separable line art, screentone, panel, subject, speed-line and lettering layers, plus an approved illustration or mark geometry inspected first. Load local fonts before rendering. Gaze motion needs eye layers or a rig. Do not invent copy or brand marks.",
+    "combinations": "Strongest used alone. Style-101 adds spatial parallax to selected hero close-ups only, with small offsets and no gray gradients. Style-024 adds margin notes in #171717 only, with lines thinner than panel contours and no overlap with speech balloons.",
+    "productionApproach": "Style renderer: SVG for line art, screentones, panels and masks, with Pillow as a supporting tool; Motion is an optional DOM/SVG layer. Motion engine: one paused GSAP timeline with one owner per property. Pipeline: HyperFrames by default, Remotion only with a recorded reason. Anime.js appears in motion-016 but is not an available library, so do not use it unless approved."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

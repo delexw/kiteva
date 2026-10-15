@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-104",
+    "name": "Symmetrical Cinematic Composition",
+    "visualIdentity": "Axially symmetric, frontal theatrical staging with a deliberately selected palette, arranged props, and measured lateral moves or push-ins. It adapts cinematic composition principles rather than a generic pastel filter or a copied film scene. Rendering may be 3D (Blender) or balanced 2D illustration.",
+    "suitableUses": "Explicit fits are staged scenes, brand storytelling films using miniature diorama sets, and chapter or title cards. Motion references list 3D dioramas, isometric scenes, layered 2.5D artwork, product or editorial introductions, and explanatory narratives. Suitability for any specific topic is inferred and must be judged per brief.",
+    "limitations": "Oblique views and camera tilts break axial symmetry and isometric projection. Layered parallax does not establish true 3D geometry. Source frame review covered only sampled seconds 1–8 of two videos, so continuous motion and audio were not verified. Simulated appearance is not evidence of physical production or validated physics.",
+    "palette": "The background policy is scene-dependent, so choose it from subject, lighting, and mood rather than a default cream. Optional example tokens are background #EEE0C8, foreground #39494B, accent_1 #8B9A81, and accent_2 #B97D66, with gradients disabled. Foreground on background measures 7.239 contrast, while accents fail body text (3.158 and 2.777). Approved exact colors override all tokens. Source lessons such as a saturated fixed frame and one reserved accent are author choices, not rules.",
+    "motionAndInteraction": "Video motion is timeline-driven, with measured lateral moves, push-ins, ordered character actions, and deliberate reading holds. Optional motion references are motion-009 depth parallax, motion-012 chapter handoff, motion-015 story steps, and motion-039 radial logo burst. Scroll or pointer interaction applies only to interactive HTML delivery, not to video export.",
+    "audio": "Audio is unspecified in the metadata, and no music, voice, or sound effects are mandated. Inferred suggestion: restrained ambience or sparse music can suit ordered symmetrical movement, with silence protecting reading holds. Voiceover is optional. No audio asset is supplied, and this summary creates none.",
+    "assetRequirements": "No uploaded assets are specified. Production needs 3D models or layered 2D artwork, local fonts, and exact copy wherever text appears. Motion-039 requires an approved mark, and the motion-009 creature hop needs suitable creature assets; otherwise parallax alone applies. Dimensions, duration, aspect ratio, and frame rate are unspecified.",
+    "combinations": "Style-079 provides diorama sets: frontal lateral moves across rooms in Blender, with HTML possibly scrubbing prerendered frames. Keep axial symmetry and avoid oblique views. Style-052 provides letterpress chapter cards with centred type and side light, and deep bevels should be avoided. Motion references must pass scene checks before use.",
+    "productionApproach": "HyperFrames is the default for composition, timing, synchronization, and export; Remotion is a fallback only with a recorded reason. Blender with Python bpy and Cycles or EEVEE owns style rendering and 3D motion. A paused GSAP timeline owns animated properties, and chroma-js is optional for color validation. Verify seeks, decoded frames, and audio sync before delivery."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

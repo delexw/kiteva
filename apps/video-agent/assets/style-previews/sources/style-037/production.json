@@ -1,0 +1,27 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Watercolor System",
+  "displayDescription": "An ink-outlined rose idea wash blooms on cool white cold-press paper, then ink lines grow out to blue and sage node washes.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Canvas 2D (precomputed seeded paper texture, pigment layers and wet-front reveal masks, multiply compositing)",
+    "HTML text with clip-path write-on reveals"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline (local gsap.min.js) registered at window.__timelines.video; owns every progress value, and the canvas and text clips are redrawn from that state on each update or hf-seek"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. There is no audio track, music, voice or sound effects.",
+  "limitations": [
+    "Watercolor is a procedural approximation. Seeded value-noise mottling, edge pooling, paper-tooth granulation and a blurred wet-front mask stand in for real pigment flow. There is no fluid or capillary simulation.",
+    "Paper grain is a fixed, precomputed noise texture, not a scanned sheet. It does not move.",
+    "STYLE.json has no tech.preview_recipes, and the task's recipe list is empty. The preview shows the primary Watercolor style, using construction lessons from the one reviewed source (seconds 1 to 8 only).",
+    "The paper is cool bright white (#F1F4F3), a scene-dependent choice over the warm cream example. The wash hues keep the illustration's role assignments and use the STYLE.json suggested tokens, which are not an approved brand palette.",
+    "Text uses the OS-bundled Georgia serif (regular and italic), declared as the @font-face family Preview Serif via src: local(); it is not hand lettering."
+  ]
+}

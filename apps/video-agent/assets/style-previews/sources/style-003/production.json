@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Idea System",
+  "displayDescription": "Constructivist study: a halftone bulb cutout rides a -12° diagonal into a hub, a red band slashes in, spokes connect four nodes.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "HTML/CSS",
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track was produced.",
+  "limitations": [
+    "The 'photographic cutout' is a procedural halftone light bulb (deterministic Lambert/specular dot shading in SVG), not a real photograph.",
+    "Print grain is a static seeded SVG feTurbulence approximation of newsprint/film grain, not a scanned texture.",
+    "The Motion library was reviewed but not used. GSAP alone owns every animated property, so each property has one owner.",
+    "Typography uses OS-bundled Impact and Arial Black, declared through @font-face src: local(). No font files are embedded, so a render host without these fonts falls back to system sans, which changes glyph widths.",
+    "The palette is a scene-dependent choice: an ink-navy ground with off-white ink and a single construction red. It follows the reference's role structure, not its colors; the STYLE.json cream swatch was treated as an example only.",
+    "STYLE.json lists no tech.preview_recipes, so this refresh demonstrates tech.implementation: cutout + diagonal SVG masks + real text on one directional axis."
+  ]
+}

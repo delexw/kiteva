@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-103",
+    "name": "Motion Poster, in the Motion Design and Cinematography category. The label was normalized from a moving street-poster description.",
+    "visualIdentity": "Design a complete static poster first, with a clear headline, imagery, supporting information and negative space. Then add local loops, layout changes or controlled boundary crossings, keeping useful still frames and matching loop endpoints.",
+    "suitableUses": "Explicit: announcements, and event and film posters as hybrids. Inferred: short posters with concise copy where the headline must stay readable. Dense explanatory text and gentle illustrative sequences are unsuitable.",
+    "limitations": "Unspecified: subject, exact copy, duration, aspect ratio, resolution and frame rate. The palette source review sampled seconds 1–8 at one frame per second, with no audio or continuous motion. Motion-040's reference_label wrongly names Phrase Scatter & Step-In.",
+    "palette": "Scene-dependent: choose the background from subject, lighting and mood. Example tokens #F4EDDF, #273B44 and #B66A4B are optional, and approved task colors override them. Foreground on background is 10.04:1; accent on background is 3.499:1, decorative only. Gradients are off.",
+    "motionAndInteraction": "Motion is driven by composition time; live scroll, hover and click apply only to interactive delivery. Optional references: motion-007 pinned recomposition, motion-037 phrase scatter, motion-038 punctuation zoom, motion-039 logo burst, motion-040 hard word cuts. Choose none if the scene lacks the needed elements.",
+    "audio": "Unspecified by the brief, and silence is valid. Sources had no verified audio, so music timing is not claimed. Add accents only after inspecting actual audio, keeping speech intelligible and unclipped. No soundtrack has been produced.",
+    "assetRequirements": "No uploads are mandatory. Approved exact copy, approved imagery or mark geometry, and local fonts loaded before animation are needed. Do not invent product copy or brand marks. Crop raster images with Cropper.js, keeping the crop recipe and motion margins.",
+    "combinations": "Explicit: style-051 spot-color screen-print layers (navy, rust, cream; avoid gradients), and style-101 image-only parallax with static text, never on the headline. Both add print material or depth while keeping still frames useful.",
+    "productionApproach": "Build the static poster first, then animate selected elements. HTML/CSS and SVG render; GSAP's paused timeline drives motion, with one owner per property. HyperFrames assembles and exports; Remotion only on a verified limitation. chroma-js validates contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

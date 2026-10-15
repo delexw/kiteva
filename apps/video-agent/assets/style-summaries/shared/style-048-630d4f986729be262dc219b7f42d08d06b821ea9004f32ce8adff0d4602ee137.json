@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-048",
+    "name": "Origami (Printmaking and Craft Materials category; explicit provenance).",
+    "visualIdentity": "Explicit direction: legible creases, facets and paper continuity under clean lighting, using limited ivory, terracotta and sage paper colors. Folds happen sequentially along defined creases while the sheet keeps its connection and thickness.",
+    "suitableUses": "Explicit: pure folding sequences where crease continuity is the subject, and hybrids only for instructional diagrams or composed premium reveals. Inferred from the suggestions, not mandatory: tutorials, product launches, title sequences and gallery loops.",
+    "limitations": "Other paper deformations must never be mixed in, and arbitrary 3D bending must not be called origami. Basic XPBD does not supply crease behavior, tearing or plasticity. The reviewed source gave no strong palette match, and only one frame per second from 1 to 8 seconds was sampled.",
+    "palette": "Background is scene-dependent, so the ivory F4F0E5 is only an illustrative swatch. Suggested tokens are foreground 304347, accent 1 BA6F5C and accent 2 7C9A86, which are not approved exact colors. Foreground on background measures 9.132:1, accent pairs near 3.3:1 are decorative only, and gradients are disabled.",
+    "motionAndInteraction": "Each fold rotates a divided mesh along crease hinges through parent-child transforms or a rig, and fold order is validated before rendering. Video follows composition time. An inferred interactive form is a stepper with previous and next controls, arrow keys and reduced-motion end states. Patterns motion-012 and motion-015 are optional and apply only where a scene supports them.",
+    "audio": "Audio is unspecified, and no audio layer is mandatory. A topic-based suggestion is restrained fold accents, ambience or silence at reading holds, leaving room for narration. No genre, tempo, instrument or voice is assigned, and no audio asset is supplied.",
+    "assetRequirements": "No uploads are supplied, and the source review lists no sources. Needed inputs are a crease-hinge mesh or rig with a defined fold order, plus local fonts. Optional inputs are crease-pattern diagrams and cached simulation states. Exact copy, dimensions and frame rate are unspecified.",
+    "combinations": "Style-109 adds crease diagrams, with valley and mountain lines drawn before each fold and matching the real hinges. Style-104 adds symmetric frontal staging, with push-ins allowed only after folds settle. Avoid generic pastel grading, tangled decorative lines and stretching paper to fit diagrams.",
+    "productionApproach": "Blender with Python bpy serves as style renderer and motion engine for geometry, paper materials, lighting and folds. Optional XPBD is used only for verified constrained folding. HyperFrames is the default pipeline for composition, validation and export, and Remotion requires a recorded fallback reason. chroma-js validates colors and contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

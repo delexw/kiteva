@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-065",
+    "name": "Retrofuturism (Digital and 3D Aesthetics category; provenance explicit). The source directly describes this visual direction.",
+    "visualIdentity": "Explicit: Retrofuturism shows one historical era's vision of the future. Objects, instruments, interfaces, type and color must align to that single period. Analog controls, early computers and space-age forms are named directions. Motion should match the chosen mechanical and display language.",
+    "suitableUses": "The base style lists no standalone use cases. Combination guidance suggests invention-themed brand experiences, museum-style explainers and interactive story worlds. Atomic- or space-age explainers and title sequences are also suggested. Retrofuturism alone suffices when one era defines the whole world.",
+    "limitations": "The source gives no standalone limitation list. Explicit constraints: do not mix incompatible period templates, such as 1950s chrome with 1980s neon grids. Avoid purely decorative dials, real-brand pastiche and generic neon synth imagery. Simulated appearance is not validated physical production.",
+    "palette": "Example only, not approved: background #EEE3CB, foreground #314449, accent_1 #6B9693, accent_2 #BC7751; four base colors with no gradient. Foreground on background contrast is 8.027, which meets the 4.5 target. Accents score 3.121 and 2.871 against foreground, so they are decorative fills only. Task or brand colors override these tokens.",
+    "motionAndInteraction": "Video motion must derive from seekable composition time, with one owner per animated property. The source gives no Retrofuturism-specific cadence beyond matching the mechanical language. Optional motion-012 (chapter handoff), motion-015 (story steps) and motion-039 (radial burst) are compatible only when scene assets support them. Interactive controls must produce matching visible state changes.",
+    "audio": "The source specifies no audio for this style. Propose audio from topic, audience and motion, and state the assumptions. Silence or a restrained accent is valid. Music synchronization is unverified without analyzed audio. Speech must stay intelligible and must not compete with music or effects.",
+    "assetRequirements": "No Retrofuturism-specific assets are supplied. Needed inputs include era-consistent objects and instruments, plus local fonts and assets loaded before rendering. motion-039 requires an approved mark with inspected geometry. Audio must be task-provided or authorized. Missing assets must be reported, not silently replaced with another style.",
+    "combinations": "style-075 adds operable analog instruments, where switch throws and needle sweeps change on-screen state, all from one decade with labels in #314449. style-009 adds mid-century space-age type and flat background shapes using only primary tokens. Supports should come from the same era. Avoid mixing decades or adding neon grids.",
+    "productionApproach": "Three.js and SVG are style renderers, and GSAP is the motion engine. Motion is optional and needs verified seeking before use. HyperFrames is the default pipeline for composition, timing, sync and export. Remotion is fallback only when HyperFrames is unavailable or a verified limitation applies, and that reason must be recorded. chroma-js is optional for color checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

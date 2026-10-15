@@ -1,0 +1,27 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Connected Ideas",
+  "displayDescription": "One idea grows into a six-node system while a linked chart traces L = n(n−1)/2 to 15 links.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (hand-authored DOM, radial-gradient shading, Gaussian-blur emission filters)"
+  ],
+  "motionEngine": [
+    "GSAP (single paused seekable timeline at window.__timelines.video)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track, music, effects or voice.",
+  "limitations": [
+    "Manim and NumPy are not installed and nothing was installed, so the L(n) values are computed and asserted in the composition's own JavaScript (0, 1, 3, 6, 10, 15). The scene is drawn with SVG and animated with GSAP.",
+    "Blender was not used, as instructed.",
+    "The nodes are flat SVG shapes. A radial gradient, a contact shadow and a blurred halo stand in for 3D shading. There is no real lighting or depth.",
+    "STYLE.json has no tech.preview_recipes, so the refresh shows the reviewed source-frame lessons instead of a named recipe.",
+    "The colours come from the example teal, ochre and violet suggestions, made lighter so they read on the dark stage. These are suggested colours, not an approved palette.",
+    "Rendering and browser QA were not run by the agent; the host runs them."
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "version": 3,
+  "title": "Pixilation — An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "One take on the studio floor",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "In pixilation exposures, one performer's idea (a bulb) becomes a system: three more performers slide in without stepping and are cabled together.",
+      "visuals": [
+        "Cool slate studio wall with key-light pool, concrete floor, gaffer-tape pose marks (stationary, seeded grain)",
+        "Four performers in the same sage coat and charcoal trousers",
+        "Light cream cable with lamp nodes",
+        "Headline 'AN IDEA BECOMES / A CONNECTED SYSTEM' in Courier New",
+        "Exposure-sheet tick bar and 'POSE nn / 32' readout",
+        "Slate caption 'TAKE 07 · SLIDE, NO STEPS · SAME COAT, SAME LIGHT'"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.333,
+          "development": "Poses 1–5: the first performer lifts the bulb in three planned arm poses. The bulb lights on pose 5 and the performer looks up at it.",
+          "captions": ["AN IDEA BECOMES", "A CONNECTED SYSTEM"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.333,
+          "endSeconds": 1.333,
+          "development": "Poses 6–20: three performers enter from the right one after another, sliding with feet together and leaning into the travel. Each takes a big position jump per exposure, spacing tightens as they near their tape marks, and each recoils for one pose on arrival.",
+          "captions": [],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.333,
+          "endSeconds": 2.067,
+          "development": "Pose 21: everyone reaches out at once. Poses 22–32: the cable is moved forward one exposure at a time from the bulb, hand to hand. Each lamp node lights as the cable reaches it, ending at the last performer's hand.",
+          "captions": [],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.067,
+          "endSeconds": 3,
+          "development": "Final pose held: the system is complete and the readout shows 'POSE 32 / 32 · FINAL HOLD'. All copy is settled for reading.",
+          "captions": ["POSE 32 / 32 · FINAL HOLD"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0.93
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Exposure rate is 15 poses/s, separate from the 30 fps delivery rate. Each pose is held 2 frames.",
+      "Slide entrances overlap by 4 exposures, so the eye trace runs right to left without dead time.",
+      "The headline is static from frame 0, and all motion is settled by 2.07 s, ahead of the 2.7 s requirement."
+    ],
+    "justifiedHolds": [
+      "2.067–3.0 s final pose hold: lets the viewer read the completed system and copy."
+    ]
+  },
+  "notes": [
+    "Silent preview.",
+    "No reviewed preview recipes were supplied in STYLE.json. BACKGROUND_REVIEW has 0 matched sources.",
+    "Procedural approximation of photographed pixilation, with no real photography."
+  ]
+}

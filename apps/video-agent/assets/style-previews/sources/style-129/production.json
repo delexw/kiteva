@@ -1,0 +1,29 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG",
+    "HTML/CSS"
+  ],
+  "motionEngine": [
+    "GSAP",
+    "GSAP DrawSVGPlugin"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview: no music, voice or sound effects.",
+  "limitations": [
+    "Illustrative procedural scene inspired by New Kingdom register painting (the kicker credits the Nebamun paintings as the style inspiration); the figures are original drawings and are not archaeologically authentic copies or reconstructions.",
+    "Field refresh: palette.background_policy is scene_dependent, so the earlier warm #EEE3BB swatch is replaced by a cool gypsum/limestone ground (#E3E6DE). This is an authored choice, loosely after the grey grounds of some Old Kingdom tomb paintings. BACKGROUND_REVIEW.json lists 0 matched sources and no contact sheets, so no source-frame evidence was applied.",
+    "No preview recipe is demonstrated, because STYLE.json tech.preview_recipes is empty or null.",
+    "The plaster surface is approximated by a static fixed-seed SVG feTurbulence grain (cool grey mottle plus fine dark speckle); there is no real pigment, plaster relief or lighting simulation.",
+    "Mineral pigments are flat token fills (red #A84532, ochre #B9793C, blue #426C88, green #738261) with #3B2D23 contours; linen garments, eye whites and the light frieze stripe use an authored light linen tone (#F3F2EC).",
+    "The inscription column is intentionally an empty frame because no verified hieroglyphic text was supplied.",
+    "The procession uses x-only measured steps with fixed stride legs and shoulder/elbow pivot gestures; there is no gait cycle, perspective or shadow, by design.",
+    "Text contrast is checked at load with chroma.js against the flat field (#3B2D23 about 10.5:1; red headline about 4.7:1, which is large 54px text), not against the grain-composited pixels.",
+    "Tools are restricted to SVG, HTML/CSS, GSAP and DrawSVGPlugin, all checked as local and installed. No Blender or 3D tooling is used.",
+    "Authored at 1280x720 per the composition contract instead of the 1920x1080 named in the style implementation note."
+  ]
+}

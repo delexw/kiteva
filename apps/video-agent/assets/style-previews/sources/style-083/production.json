@@ -1,0 +1,30 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Clay System",
+  "displayDescription": "A yellow clay idea drops onto a kraft tabletop and clay coils connect it, exposure by exposure, to four clay blocks.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186.1 WebGLRenderer (procedural clay geometry, MeshStandardMaterial, PCF soft shadow maps), bundled locally with esbuild to scene.bundle.js",
+    "Canvas 2D procedural textures (backdrop paint, kraft card, clay bump)",
+    "HTML/CSS + inline SVG digital title and exposure-strip layer"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline at window.__timelines.video (owns composition time and title-layer opacity/x/y)",
+    "Deterministic exposure-quantized pose functions (12 exposures/s) evaluated from timeline time on every update and hf-seek"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Simulated stop motion: frames are rendered by Three.js from discrete held poses, not photographed; per-exposure placement offsets are seeded, not real handling.",
+    "Clay surfaces are approximated with procedural vertex lumps and a canvas bump map; no subsurface scattering or real fingerprints.",
+    "The painted backdrop is unlit (baked falloff) so title contrast stays predictable; it receives no shadows.",
+    "No depth-of-field blur; Blender was not used, per the user's instruction.",
+    "STYLE.json contains no tech.preview_recipes, so no reviewed recipe is demonstrated.",
+    "Silent: no soundtrack was requested for this preview."
+  ]
+}

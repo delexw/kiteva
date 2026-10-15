@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-129",
+    "name": "Egyptian Register Painting",
+    "visualIdentity": "Flat profile figures with frontal shoulders and symbolic scale, arranged in horizontal registers. Bounded mineral fills and fine dark contours sit on a pale papyrus or plaster field. Framing needs a specified historical reference, not a pyramid icon alone. The medium label is an authored classification.",
+    "suitableUses": "Explicit: the source describes a 3-second 1920x1080 HyperFrames preview and full-video reuse of one figure library across registers. Inferred: suited to explainers with sequential or processional action and readable captions. Subject, audience, duration and aspect ratio beyond the example are unspecified.",
+    "limitations": "Hieroglyph columns stay empty frames unless verified inscriptions are supplied, and pseudo-glyph or scrambled text is rejected. Live-action gait is a timing reference only, redrawn to the canonical pose. Rough.js, 3D, and Canvas or WebGL are rejected. Krita runtime is unverified. Several tool entries cite Swiss Style or Art Nouveau; disregard those for this style.",
+    "palette": "Background #EEE3BB is the papyrus field, and #3B2D23 is the foreground for baselines and captions. Ochre #B9793C, red #A84532, blue #426C88 and green #738261 are pigment roles for figures and the border band. These hex values are authored fallbacks, not sampled from source. Approved colors take precedence, and gradients are disabled.",
+    "motionAndInteraction": "Deterministic timeline: 0–0.8s, DrawSVG draws contours in reading order. 0.6–1.4s, each figure's fills clip-wipe in after its own contour completes. 1.2–2.6s, an x-only procession steps with small pivot gestures, with no perspective or shadow, followed by a final hold. Tweens use fromTo with explicit initial values. Viewer interaction is unspecified.",
+    "audio": "Audio is unspecified in the source, and no historical soundtrack should be assumed from the medium. Suggested dimensions include music mood and tempo, voiceover language and pace, and effects marking actions or reading holds. Supplied or user-chosen audio takes precedence, and speech must stay intelligible.",
+    "assetRequirements": "Required: local fonts, a seeded SVG feTurbulence grain, and original outlined SVG figures in canonical pose. Optional: approved layered or rigged figures, or Krita-drawn gesture frames, stepped by composition time. Verified hieroglyph text is needed before any inscription reveals. Motion reference candidates are empty, so none are supplied.",
+    "combinations": "Optional supporting style-125 may add a secondary illustrative detail, and its role is authored guidance only. Egyptian Register Painting remains dominant and keeps its palette and picture plane. Avoid generic effects replacing defining mark-making and avoid invented historical text. Compatibility is not verified.",
+    "productionApproach": "Style renderer: SVG and HTML/CSS own figures, registers, border and captions. Motion engine: GSAP with DrawSVGPlugin, with one owner per animated property. Pipeline: HyperFrames with one paused timeline in window.__timelines; Remotion only for a recorded, verified limitation. chroma.js checks caption contrast against the composited background, targeting 4.5 or higher. Verify direct, backward and repeated seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

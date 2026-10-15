@@ -1,0 +1,251 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Idea to connected system</title>
+<style>
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#F7F9FA}
+  #root{position:relative;width:100%;height:100%;background:#F7F9FA;overflow:hidden;
+    font-family:-apple-system,"SF Pro Text","Segoe UI",Helvetica,Arial,sans-serif;color:#263440;
+    font-variant-numeric:tabular-nums}
+  #camera{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:540px 370px}
+  .window{position:absolute;left:120px;top:70px;width:1040px;height:580px;box-sizing:border-box;
+    border:1.5px solid #263440;border-radius:14px;background:#F7F9FA;overflow:hidden}
+  .titlebar{position:absolute;left:0;top:0;right:0;height:48px;border-bottom:1px solid rgba(38,52,64,.25)}
+  .dots{position:absolute;left:22px;top:18px;display:flex;gap:8px}
+  .dots i{display:block;width:12px;height:12px;border-radius:50%;background:rgba(38,52,64,.3)}
+  .wtitle{position:absolute;left:0;right:0;top:15px;text-align:center;font-size:14px}
+  .sidebar{position:absolute;left:0;top:48px;width:219px;bottom:0;background:rgba(38,52,64,.05);
+    border-right:1px solid rgba(38,52,64,.25)}
+  .nav{position:absolute;left:15px;width:188px;height:34px;box-sizing:border-box;padding:8px 16px;font-size:14px;border-radius:8px}
+  .nav.active{background:rgba(38,52,64,.1);font-weight:600}
+  .grid{position:absolute;left:220px;top:49px;right:0;bottom:0;
+    background-image:radial-gradient(circle at 12px 12px,rgba(38,52,64,.2) 1.2px,transparent 1.6px);
+    background-size:24px 24px}
+  #links{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:visible}
+  .card{position:absolute;box-sizing:border-box;border-radius:10px;background:#F7F9FA}
+  .target{width:190px;height:78px;border:1.5px solid rgba(38,52,64,.5);padding:26px 20px;font-size:16px;font-weight:500}
+  .target .port{position:absolute;left:-6px;top:33px;width:10px;height:10px;border-radius:50%;background:#263440}
+
+  /* Shared element sits at its expanded (Last) rect; the collapsed (First) rect is a clip-path inset window. */
+  #idea{left:380px;top:220px;width:320px;height:300px;background:transparent;border-radius:0;transform-origin:135px 149px}
+  #idea-slot{position:absolute;left:420px;top:330px;width:190px;height:78px;visibility:hidden;pointer-events:none}
+  #idea-border{position:absolute;left:0;top:0;width:320px;height:300px;background:#263440}
+  #idea-body{position:absolute;left:0;top:0;width:320px;height:300px;background:#F7F9FA;overflow:hidden}
+  #idea-content{position:absolute;left:0;top:0;width:320px;height:300px}
+
+  .face{position:absolute;left:0;top:0;width:320px;height:300px;box-sizing:border-box}
+  .eyebrow{position:absolute;left:18px;top:16px;font-size:11px;font-weight:700;letter-spacing:1.5px}
+  .title{position:absolute;left:18px;top:36px;font-size:18px;font-weight:600;white-space:nowrap}
+  .badge{position:absolute;left:118px;top:12px;width:62px;height:22px;border-radius:11px;font-size:11px;font-weight:700;
+    line-height:22px;box-sizing:border-box}
+  .badge span{position:absolute;left:0;top:0;width:100%;text-align:center;white-space:nowrap}
+  .light .badge{background:#263440;color:#F7F9FA}
+
+  #dark{background:#263440;color:#F7F9FA;clip-path:circle(0px at 120px 42px)}
+  #dark .badge{background:#F7F9FA;color:#263440}
+  .rows{position:absolute;left:18px;top:96px;width:284px}
+  .row{position:relative;height:40px;font-size:15px;line-height:40px;padding-left:30px;box-sizing:border-box}
+  #dark .row{border-top:1px solid rgba(247,249,250,.35)}
+  #dark .row .dot{position:absolute;left:6px;top:14px;width:9px;height:9px;border-radius:50%;border:1.5px solid #F7F9FA}
+  .foot{position:absolute;left:18px;top:252px;font-size:12px;font-weight:600;letter-spacing:.5px}
+
+  /* Interior (X-ray) layer: same box, same coordinates, same transform parent as the exterior. */
+  #xray{background-color:#F7F9FA;color:#263440;
+    background-image:radial-gradient(circle at 6px 6px,rgba(38,52,64,.18) 1px,transparent 1.4px);background-size:12px 12px;
+    --mx:250px;--my:116px;--r:0px;
+    -webkit-mask-image:radial-gradient(circle at var(--mx) var(--my),#000 0px,#000 calc(var(--r) * 0.62),transparent var(--r));
+    mask-image:radial-gradient(circle at var(--mx) var(--my),#000 0px,#000 calc(var(--r) * 0.62),transparent var(--r))}
+  /* Interior carries no text: the lens is confined to the label-free wiring zone (x>=130) so labels stay on the exterior. */
+  #xray-svg{position:absolute;left:0;top:0;width:320px;height:300px;overflow:visible}
+
+  #cursor{position:absolute;left:0;top:0;width:30px;height:36px;transform-origin:0 0}
+  #toast{position:absolute;left:370px;top:590px;width:250px;height:40px;border-radius:8px;background:#263440;color:#F7F9FA;
+    font-size:14px;line-height:40px;padding-left:20px;box-sizing:border-box}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <div id="camera">
+    <div class="window" id="window">
+      <div class="titlebar"><div class="dots"><i></i><i></i><i></i></div><div class="wtitle">Product launch · Map</div></div>
+      <div class="sidebar">
+        <div class="nav active" style="top:31px">Ideas</div>
+        <div class="nav" style="top:75px">Systems</div>
+        <div class="nav" style="top:111px">Links</div>
+      </div>
+      <div class="grid"></div>
+    </div>
+
+    <svg id="links" viewBox="0 0 1280 720" aria-hidden="true">
+      <g fill="none" stroke="#263440" stroke-width="2">
+        <path id="link-0" d="M700 336C760 336 760 209 820 209"/>
+        <path id="link-1" d="M700 376C770 376 770 369 840 369"/>
+        <path id="link-2" d="M700 416C760 416 760 529 820 529"/>
+      </g>
+    </svg>
+
+    <div class="card target" id="target-0" style="left:820px;top:170px"><span class="port"></span><span data-reveal-after="target-0">Tasks</span></div>
+    <div class="card target" id="target-1" style="left:840px;top:330px"><span class="port"></span><span data-reveal-after="target-1">Calendar</span></div>
+    <div class="card target" id="target-2" style="left:820px;top:490px"><span class="port"></span><span data-reveal-after="target-2">Team</span></div>
+
+    <div id="idea-slot" aria-hidden="true"></div>
+    <div class="card" id="idea">
+      <div id="idea-border"></div>
+      <div id="idea-body"><div id="idea-content">
+        <!-- Unselected exterior -->
+        <div class="face light" id="light">
+          <div class="eyebrow" style="opacity:.75" data-reveal-after="idea">IDEA</div>
+          <div class="title" data-reveal-after="idea">Shared notes</div>
+          <div class="badge" data-reveal-after="idea"><span class="c0">0 links</span></div>
+        </div>
+        <!-- Selected exterior (shell) -->
+        <div class="face" id="dark">
+          <div class="eyebrow" style="opacity:.8" data-reveal-after="idea">IDEA</div>
+          <div class="title" data-reveal-after="idea">Shared notes</div>
+          <div class="badge" data-reveal-after="idea"><span class="c0">0 links</span><span class="c1">1 link</span><span class="c2">2 links</span><span class="c3">3 links</span></div>
+          <div class="rows">
+            <div class="row row-0" data-reveal-after="idea"><span class="dot"></span>Tasks</div>
+            <div class="row row-1" data-reveal-after="idea"><span class="dot"></span>Calendar</div>
+            <div class="row row-2" data-reveal-after="idea"><span class="dot"></span>Team</div>
+          </div>
+          <div class="foot" style="opacity:.8" data-reveal-after="idea">Selected</div>
+        </div>
+        <!-- Interior (X-ray): registered to the exterior, revealed by a feathered mask -->
+        <div class="face" id="xray">
+          <svg id="xray-svg" viewBox="0 0 320 300" aria-hidden="true">
+            <g fill="none" stroke="#263440" stroke-width="1" stroke-dasharray="4 4" opacity=".45">
+              <path d="M18 96H302M18 136H302M18 176H302"/>
+            </g>
+            <g fill="none" stroke="#263440" stroke-width="2" stroke-linecap="round">
+              <path id="spine" d="M168 100V196"/>
+              <path id="route-0" class="route" d="M168 116H320"/>
+              <path id="route-1" class="route" d="M168 156H320"/>
+              <path id="route-2" class="route" d="M168 196H320"/>
+            </g>
+            <g fill="#263440">
+              <circle cx="168" cy="100" r="4"/>
+              <circle class="node-0" cx="168" cy="116" r="4.5"/>
+              <circle class="node-1" cx="168" cy="156" r="4.5"/>
+              <circle class="node-2" cx="168" cy="196" r="4.5"/>
+              <circle class="port-0" cx="314" cy="116" r="5"/>
+              <circle class="port-1" cx="314" cy="156" r="5"/>
+              <circle class="port-2" cx="314" cy="196" r="5"/>
+            </g>
+          </svg>
+        </div>
+      </div></div>
+    </div>
+
+    <div id="toast" data-reveal-after="toast">Idea connected to 3 items</div>
+
+    <svg id="cursor" viewBox="0 0 30 36" aria-hidden="true">
+      <path d="M2 2l0 26 7-7 6 12 5-2-6-12h10z" fill="#263440" stroke="#F7F9FA" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  // Authored cue sequence (silent): tap 0–0.5s, card expansion 0.5–1.4s,
+  // X-ray lens + routes/links/count 1.2–2.55s, settled hold to 3s.
+  // Every visual state is a tween on one paused timeline (no callbacks, clocks or pointer state).
+  var BG = '#F7F9FA', FG = '#263440';
+  if (chroma.contrast(FG, BG) < 4.5) throw Error('Palette contrast below AA');
+
+  var idea = document.getElementById('idea');
+  var slot = document.getElementById('idea-slot');
+  var border = document.getElementById('idea-border');
+  var body = document.getElementById('idea-body');
+  var content = document.getElementById('idea-content');
+  var dark = document.getElementById('dark');
+  var light = document.getElementById('light');
+  var xray = document.getElementById('xray');
+  var camera = document.getElementById('camera');
+  var cursor = document.getElementById('cursor');
+  var toast = document.getElementById('toast');
+
+  // FLIP measured once at build: First = collapsed slot, Last = expanded card (camera space).
+  var first = {left:slot.offsetLeft, top:slot.offsetTop, width:slot.offsetWidth, height:slot.offsetHeight};
+  var lastRect = {left:idea.offsetLeft, top:idea.offsetTop, width:idea.offsetWidth, height:idea.offsetHeight};
+  var dx = first.left - lastRect.left, dy = first.top - lastRect.top;
+  var dr = lastRect.width - first.width - dx, db = lastRect.height - first.height - dy;
+  var BW = 2.5;
+  function inset(t,r,b,l,rad){ return 'inset('+t+'px '+r+'px '+b+'px '+l+'px round '+rad+'px)'; }
+  var borderFirst = inset(dy, dr, db, dx, 10), borderLast = inset(0, 0, 0, 0, 12);
+  var bodyFirst = inset(dy+BW, dr+BW, db+BW, dx+BW, 7.5), bodyLast = inset(BW, BW, BW, BW, 9.5);
+
+  var links = [0,1,2].map(function(i){ return document.getElementById('link-'+i); });
+  var routes = [0,1,2].map(function(i){ return document.getElementById('route-'+i); });
+  var spine = document.getElementById('spine');
+  function len(p){ return p.getTotalLength(); }
+
+  var tl = gsap.timeline({paused:true});
+
+  // Initial states
+  gsap.set(camera, {scale:1.06});
+  gsap.set(cursor, {x:690, y:560, scale:1, opacity:1});
+  gsap.set(dark, {clipPath:'circle(0px at 120px 42px)'});
+  gsap.set(light, {opacity:1});
+  gsap.set(border, {clipPath:borderFirst});
+  gsap.set(body, {clipPath:bodyFirst});
+  gsap.set(content, {x:dx, y:dy});
+  gsap.set(xray, {'--mx':'250px', '--my':'116px', '--r':'0px'});
+  links.concat(routes, [spine]).forEach(function(p){ var L=len(p); gsap.set(p, {strokeDasharray:L, strokeDashoffset:L}); });
+  gsap.set('.c1, .c2, .c3', {opacity:0});
+  [0,1,2].forEach(function(i){
+    gsap.set('#target-'+i, {opacity:0, x:-36});
+    gsap.set('.row-'+i, {opacity:0, x:-12});
+    gsap.set('.node-'+i+', .port-'+i, {opacity:0});
+  });
+  gsap.set(toast, {opacity:0, y:28});
+
+  // 1. Tap (0–0.5s)
+  tl.to(cursor, {x:540, y:372, duration:0.35, ease:'power2.inOut'}, 0);
+  tl.to(cursor, {scale:0.85, duration:0.1, ease:'sine.inOut'}, 0.35);
+  tl.to(idea, {scale:0.96, duration:0.1, ease:'sine.inOut'}, 0.35);
+  tl.to(cursor, {scale:1, duration:0.1, ease:'sine.inOut'}, 0.45);
+  tl.to(idea, {scale:1, duration:0.12, ease:'back.out(1.2)'}, 0.45);
+  tl.to(dark, {clipPath:'circle(420px at 120px 42px)', duration:0.35, ease:'power2.inOut'}, 0.4);
+  tl.set(light, {opacity:0}, 0.76);
+
+  // 2. Shared-element expansion (0.5–1.4s) + camera reframe — clip-path and transforms only.
+  tl.fromTo(border, {clipPath:borderFirst}, {clipPath:borderLast, duration:0.9, ease:'power2.inOut', immediateRender:false}, 0.5);
+  tl.fromTo(body, {clipPath:bodyFirst}, {clipPath:bodyLast, duration:0.9, ease:'power2.inOut', immediateRender:false}, 0.5);
+  tl.fromTo(content, {x:dx, y:dy}, {x:0, y:0, duration:0.9, ease:'power2.inOut', immediateRender:false}, 0.5);
+  tl.to(camera, {scale:1, duration:0.9, ease:'power2.inOut'}, 0.5);
+  tl.to(cursor, {x:600, y:600, opacity:0, duration:0.5, ease:'power2.inOut'}, 0.7);
+
+  // 3. Registered X-ray: one feathered radial mask on the interior layer, driven by authored time.
+  // Lens stays in the label-free wiring zone: centre x>=240 and r<=118 keep the feather off every label.
+  tl.to(xray, {'--r':'100px', duration:0.25, ease:'power2.inOut'}, 1.2);
+  tl.to(xray, {'--my':'196px', duration:0.7, ease:'sine.inOut'}, 1.3);
+  tl.to(xray, {'--mx':'240px', '--my':'156px', '--r':'118px', duration:0.4, ease:'power2.inOut'}, 2.0);
+  tl.to(spine, {strokeDashoffset:0, duration:0.2, ease:'power2.inOut'}, 1.2);
+
+  // 4. Internal route → card port → external link → target → count (1.3–2.55s)
+  var counts = ['.c0','.c1','.c2','.c3'];
+  [0,1,2].forEach(function(i){
+    var s = 1.3 + i*0.25;
+    var linkEnd = s + 0.2 + 0.35;
+    tl.to('.row-'+i, {opacity:1, x:0, duration:0.25, ease:'power2.inOut'}, s);
+    tl.to('.node-'+i, {opacity:1, duration:0.1, ease:'sine.inOut'}, s);
+    tl.to(routes[i], {strokeDashoffset:0, duration:0.25, ease:'power2.inOut'}, s);
+    tl.to('.port-'+i, {opacity:1, duration:0.1, ease:'sine.inOut'}, s + 0.2);
+    tl.to(links[i], {strokeDashoffset:0, duration:0.35, ease:'power2.inOut'}, s + 0.2);
+    tl.to('#target-'+i, {opacity:1, x:0, duration:0.3, ease:'power2.inOut'}, linkEnd - 0.1);
+    tl.set(counts[i], {opacity:0}, linkEnd);
+    tl.set(counts[i+1], {opacity:1}, linkEnd);
+  });
+  tl.to(toast, {opacity:1, y:0, duration:0.35, ease:'power2.inOut'}, 2.1);
+
+  // Hold to 3s
+  tl.to({}, {duration:0.001}, 2.999);
+  tl.seek(0, false);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

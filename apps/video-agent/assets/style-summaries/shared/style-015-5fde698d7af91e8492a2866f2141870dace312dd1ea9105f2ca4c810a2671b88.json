@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-015",
+    "name": "Brutalist Web Design",
+    "visualIdentity": "Explicit web-design direction, distinct from architectural Brutalism. It combines web screenshots, bold type, raw interface fragments, hard-edged blocks and deliberately mismatched media. Information order must stay clear despite the abrasive presentation.",
+    "suitableUses": "Explicit source: raw, direct sites and promos. Inferred from hybrid suggestions: indie launches, zines, culture sites, manifesto promos, design critiques and product teardowns. Inferred from motion-020: intentionally disrupted or abrasive transitions. Calm editorial scenes are unsuitable.",
+    "limitations": "Avoid unreadable text, meaningless glitches, random rotation and red accents. Abrasive glitch transitions should be omitted when distortion undermines communication. Two-color contrast checks do not verify text over grain, video or textures. Duration, aspect ratio, resolution and frame rate are unspecified.",
+    "palette": "Suggested, not supplied: background #FFFFFF, foreground #000000 and one accent #CEFF24, described as raw black and white with one sharp lime accent. Gradients are disabled. Foreground on background is 21:1, and foreground on accent is 17.954:1. Task-supplied exact colors override these values.",
+    "motionAndInteraction": "Visual cues favor direct cuts, scrolling and rough collage, with hard cuts and stable typography. Optional motion references include card stacking, chapter handoff, swipe carousel, scrollytelling, glitch cut, phrase scatter, punctuation zoom and word smash cuts. Video must derive all state from composition time; live scroll, swipe and keyboard inputs apply only to interactive delivery.",
+    "audio": "Audio direction is unspecified in the source, and no mandatory music, voiceover or effects are assigned. Options include optional background music with tempo and mood chosen per topic, voiceover for explanation, and silence or sparse accents at reading holds. Preview galleries remain silent. Verify speech clarity and absence of clipping.",
+    "assetRequirements": "Requires web screenshots, transparent assets, real text and preprocessed stills for HTML or Canvas. Fonts and assets must load before rendering, with stable dimensions for typography. Fixed grain textures are used in the photocopy combination. Exact copy and the full asset list are unspecified and must come from the task. tldraw is optional for authoring diagram or annotation assets.",
+    "combinations": "Brutalist Web alone suits raw, direct sites and promos. A hybrid with style-054 applies a photocopy treatment to screenshots and photos, using lime and fixed grain. A hybrid with style-024 adds black or lime markup over screenshots, following point-then-note order with no red ink. Both keep black, white and lime.",
+    "productionApproach": "HyperFrames is the default render pipeline for composition and export; Remotion is a fallback only if its documented condition is verified and recorded. HTML/CSS and Canvas 2D are the style renderers. GSAP is the motion engine, while Motion and chroma-js are optional. Validate with npx hyperframes check, snapshot key frames, then render and check decoded frames and seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,86 @@
+{
+  "version": 3,
+  "title": "Cutaway / Exploded 3D Illustration — An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Lens mechanism: explode, cut, connect, reassemble",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Show an idea (glass core) turning into a connected system by opening a procedural lens mechanism along its optical axis.",
+      "visuals": [
+        "Stage background #101820, stationary",
+        "Three.js steel housing, lens ring, retaining rings, aperture stop and node plate (PBR steel #8196A5)",
+        "MeshPhysicalMaterial glass core and lens elements tinted #61D4DC",
+        "Quadrant cutaway via clipping planes with hatched cut-face caps",
+        "TubeGeometry light path: #628BF4 signal segments to the aperture focus, #EF9F5C energy fans to the network nodes",
+        "SVG labels on dark cards, reprojected from 3D part anchors every seek",
+        "Static heading and title text"
+      ],
+      "assets": [
+        "lens-scene.js (esbuild bundle of src/scene.js + src/layout.js with Three.js)",
+        "gsap.min.js",
+        "DrawSVGPlugin.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.5,
+          "development": "The assembled mechanism sits closed on the dashed optical axis while the camera starts a slow arc.",
+          "captions": [
+            "EXPLODED ASSEMBLY · SECTION A–A · AXIS Z",
+            "An idea becomes",
+            "a connected system"
+          ],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.5
+        },
+        {
+          "startSeconds": 0.5,
+          "endSeconds": 1.5,
+          "development": "The parts separate along the optical axis and a quadrant section sweeps in, showing the cut faces of steel and glass. From 1.15s the light path runs from the glass core through the lenses to the aperture focus, then fans out to the four network nodes.",
+          "captions": ["SIGNAL", "ENERGY"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.5,
+          "endSeconds": 2.4,
+          "development": "Labels reveal in order: dark card, then text, then the leader draws, then the anchor dot appears when the stroke arrives. They hold attached to the projected part anchors.",
+          "captions": [
+            "01 SPARK · glass core",
+            "02 FOCUS · lens ring",
+            "03 ROUTER · steel housing",
+            "04 NETWORK · node plate"
+          ],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.6
+        },
+        {
+          "startSeconds": 2.4,
+          "endSeconds": 3,
+          "development": "Labels and the light path retract, the section closes, and the parts reassemble exactly into the opening pose by 2.7s. The frame then holds.",
+          "captions": ["An idea becomes", "a connected system"],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.3
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Label cards start revealing at 1.35s and are complete by about 2.0s, which leaves roughly 0.35–0.6s of reading time per label before they exit at 2.32s.",
+      "Every motion settles by 2.7s, and 2.7–3.0s holds the assembled pose that matches the first frame."
+    ],
+    "justifiedHolds": [
+      "0–0.5s assembled hold establishes the closed object before separation.",
+      "2.7–3.0s final hold gives a settled, legible closing frame and a clean loop point."
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, effects or lyrics.",
+    "One paused GSAP master timeline is registered at window.__timelines.video. A function-property driver tween re-derives the GSAP state timeline and re-renders Three.js on every seek, and the hf-seek event triggers the same re-render.",
+    "Copy is taken from ILLUSTRATION.svg."
+  ]
+}

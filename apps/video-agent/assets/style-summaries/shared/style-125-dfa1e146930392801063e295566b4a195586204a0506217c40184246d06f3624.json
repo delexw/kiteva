@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-125",
+    "name": "Ancient Greek Vase Painting (category: Printmaking and Craft Materials; provenance: extracted, added in the 2026-10-12 sync).",
+    "visualIdentity": "Terracotta vessel with dark painted figure silhouettes, meander and tongue bands, and one continuous narrative around the curved surface. Explicit: a LatheGeometry amphora or krater profile with incised #F3DFC0 detail lines. No specific historical technique is claimed.",
+    "suitableUses": "Explicit: narrative on a turning vessel, including a 3-second preview rotating about 90° as frieze figures resolve, and a full video continuing the rotation through the narrative with optional close-ups. Inferred: cultural or pottery-themed storytelling; fit is not verified.",
+    "limitations": "Figure silhouettes must be authored, and no layered painting assets were supplied. A flat SVG unroll loses curvature, Blender is unavailable, and toon shading would cartoonize the piece. Soft shadows do not establish photorealism. Poster evidence covers one reference only, not full-video scenes.",
+    "palette": "Authored suggestions, not canonical: background #100D09 is the opaque scene field only; foreground #F3DFC0 is for incised lines and captions (contrast 14.884 on background, meets 4.5); vessel material #BA642F is terracotta. No gradient is enabled. Never use the vessel colour as background, and preserve any approved task palette exactly.",
+    "motionAndInteraction": "GSAP owns vessel rotation and a slow camera orbit on a paused, registered timeline. The narrative reveal is a texture-space mask uniform that paints figures in register order. Movement should be smooth, keeping deliberate cuts and reading holds, with no springs or bounce. Interactivity is unspecified.",
+    "audio": "Unspecified: no style-specific audio was supplied. The audio direction only asks for consideration of music, voiceover, sung vocals, sound effects, ambience, or silence, based on topic and motion. Decide per brief, and verify speech clarity, balance, and picture sync in the final output.",
+    "assetRequirements": "Authored amphora or krater profile curve (about 64 radial segments); seamless Canvas 2D wrap texture about 4096 px wide with U wrapping exactly once; authored meander and tongue paths; figure silhouettes with #F3DFC0 incised lines. Load local assets and fonts, and seed randomness. Final subject assets, fonts, and audio are unspecified.",
+    "combinations": "Keep style-125 dominant. Optional secondary style-043 provides painted story figures, preserving this style's background and foreground roles without importing its palette. Keep one geometry and typography system, and avoid competing full-scene treatments or unrelated decorative motion. No motion references are selected.",
+    "productionApproach": "Three.js style renderer (MeshStandardMaterial, moderate roughness, soft key and rim light) with a Canvas 2D texture; GSAP motion engine on one paused timeline. HyperFrames renders by default; Remotion only if HyperFrames is unavailable or a verified limitation exists. Check key frames, duration, frame rate, sync, and loop seams. Task inputs (subject, duration, format, output path) are unspecified."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

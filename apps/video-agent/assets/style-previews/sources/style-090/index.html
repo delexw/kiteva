@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Rotoscoping — An idea becomes a connected system</title>
+<style>
+  html,body{margin:0;padding:0;width:1280px;height:720px;overflow:hidden;background:#E3E9EA}
+  #root{position:relative;width:100%;height:100%;overflow:hidden;background:#E3E9EA}
+  #frame,#plate{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+  #copy{position:absolute;left:90px;top:112px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:#314249;margin:0}
+  #copy .l{display:block;font-size:84px;line-height:90px;letter-spacing:-2px;white-space:nowrap}
+  #copy .b{font-weight:800}
+  #copy .t{font-weight:300}
+  #rule{position:absolute;left:90px;top:517px;width:300px;height:6px;background:#9D8A72}
+  #caption{position:absolute;left:90px;top:606px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:15px;letter-spacing:4px;color:#314249;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <!-- Stationary light-table furniture: dashed cel border, peg bar holes, registration marks -->
+  <svg id="frame" viewBox="0 0 1280 720" width="1280" height="720" aria-hidden="true">
+    <rect x="40" y="40" width="1200" height="640" fill="none" stroke="#9D8A72" stroke-width="1.5" stroke-dasharray="4 8"/>
+    <g fill="#E3E9EA" stroke="#314249" stroke-width="1.5">
+      <rect x="560" y="30" width="40" height="14" rx="7"/>
+      <circle cx="640" cy="37" r="8"/>
+      <rect x="680" y="30" width="40" height="14" rx="7"/>
+    </g>
+    <g fill="none" stroke="#314249" stroke-width="1.5">
+      <circle cx="40" cy="40" r="14"/><path d="M18 40h44M40 18v44"/>
+      <circle cx="1240" cy="680" r="14"/><path d="M1218 680h44M1240 658v44"/>
+    </g>
+  </svg>
+  <canvas id="plate" width="1280" height="720"></canvas>
+  <h1 id="copy"><span class="l b">AN IDEA</span><span class="l b">BECOMES</span><span class="l t">A CONNECTED</span><span class="l t">SYSTEM</span></h1>
+  <div id="rule"></div>
+  <div id="caption">TRACE 0142 / 0240 · LINE 4PX · FILL A · SHADE B</div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  // ---------- Resolved scene palette (cool light-table; approved role assignments kept) ----------
+  const C = { table:'#E3E9EA', ink:'#314249', fillA:'#9D8A72' };
+  for (const k in C) { if (!chroma.valid(C[k])) throw Error('bad colour '+k); C[k]=chroma(C[k]).hex(); }
+  if (chroma.contrast(C.ink, C.table) < 4.5) throw Error('ink/table contrast too low');
+
+  const DRAWING_RATE = 15;      // traced drawings per second (on twos at 30 fps delivery)
+  const CLIP_LEN = 0.9;         // length of the reconstructed reach performance, seconds
+  const canvas = document.getElementById('plate');
+  const ctx = canvas.getContext('2d');
+
+  // ---------- Reconstructed reach performance: keyed joint track (clip seconds) ----------
+  // lean = shear of torso about the feet line, up/fore = upper-arm / forearm angle (deg, screen space),
+  // back = rear-arm swing (deg). Keys are hand-authored from human reach mechanics: settle, anticipation,
+  // reach with slight overshoot, settle. Not extracted from footage (none supplied).
+  const KEYS = [
+    {t:0.00, lean: 0.000, up: 98, fore: 92, back:  0},
+    {t:0.22, lean:-0.040, up: 62, fore:-28, back:  6},
+    {t:0.50, lean: 0.024, up: -6, fore:-10, back: -8},
+    {t:0.66, lean: 0.010, up: -1, fore: -3, back: -4},
+    {t:0.90, lean: 0.000, up: -3, fore: -3, back: -3}
+  ];
+  function catmull(p0,p1,p2,p3,u){const u2=u*u,u3=u2*u;return 0.5*((2*p1)+(-p0+p2)*u+(2*p0-5*p1+4*p2-p3)*u2+(-p0+3*p1-3*p2+p3)*u3);}
+  function samplePose(ct){
+    ct = Math.max(0, Math.min(CLIP_LEN, ct));
+    let i = 0; while (i < KEYS.length-2 && ct > KEYS[i+1].t) i++;
+    const a=KEYS[Math.max(0,i-1)], b=KEYS[i], c=KEYS[i+1], d=KEYS[Math.min(KEYS.length-1,i+2)];
+    const u=(ct-b.t)/(c.t-b.t), o={};
+    for (const k of ['lean','up','fore','back']) o[k]=catmull(a[k],b[k],c[k],d[k],u);
+    return o;
+  }
+
+  // ---------- Fixed simplification rules (identical on every drawing) ----------
+  const LINE = 4, S = {x:786, y:340}, L1 = 58, L2 = 56, HAND = 10;
+  const W0 = 22, W1 = 16, W2 = 11;
+  function flattenQ(p0,c,p1,n){const out=[];for(let i=1;i<=n;i++){const t=i/n,m=1-t;out.push({x:m*m*p0.x+2*m*t*c.x+t*t*p1.x,y:m*m*p0.y+2*m*t*c.y+t*t*p1.y});}return out;}
+  const P=(x,y)=>({x,y});
+  const BODY = [P(640,680),P(660,520)]
+    .concat(flattenQ(P(660,520),P(640,430),P(680,380),10))
+    .concat([P(720,330)])
+    .concat(flattenQ(P(720,330),P(760,300),P(800,322),8))
+    .concat([P(808,362),P(760,420),P(770,520),P(800,680),P(640,680)]);
+  const SHADE = [P(680,380),P(720,330),P(760,420),P(740,520),P(660,520)].concat(flattenQ(P(660,520),P(640,430),P(680,380),10));
+  const HEAD = [P(705,300)].concat(flattenQ(P(705,300),P(690,250),P(720,228),8),flattenQ(P(720,228),P(760,210),P(778,246),8),flattenQ(P(778,246),P(790,280),P(770,300),8),flattenQ(P(770,300),P(745,318),P(705,300),8));
+  const HAIR = [P(720,228)].concat(flattenQ(P(720,228),P(760,210),P(778,246),8),[P(746,262)],flattenQ(P(746,262),P(726,246),P(720,228),6));
+  const REAR = [P(680,380)].concat(flattenQ(P(680,380),P(640,420),P(650,500),10),[P(620,560)]);
+
+  function dir(deg){const r=deg*Math.PI/180;return {x:Math.cos(r),y:Math.sin(r)};}
+  function armGeometry(pose){
+    const d1=dir(pose.up), d2=dir(pose.fore);
+    const E={x:S.x+d1.x*L1,y:S.y+d1.y*L1}, Wr={x:E.x+d2.x*L2,y:E.y+d2.y*L2};
+    const n1={x:-d1.y,y:d1.x}, n2={x:-d2.y,y:d2.x};
+    let ne={x:n1.x+n2.x,y:n1.y+n2.y}; const nl=Math.hypot(ne.x,ne.y)||1; ne={x:ne.x/nl,y:ne.y/nl};
+    const tip={x:Wr.x+d2.x*HAND,y:Wr.y+d2.y*HAND};
+    const top=[{x:S.x+n1.x*-W0,y:S.y+n1.y*-W0},{x:E.x+ne.x*-W1,y:E.y+ne.y*-W1},{x:Wr.x+n2.x*-W2,y:Wr.y+n2.y*-W2}];
+    const bot=[{x:Wr.x+n2.x*W2,y:Wr.y+n2.y*W2},{x:E.x+ne.x*W1,y:E.y+ne.y*W1},{x:S.x+n1.x*W0,y:S.y+n1.y*W0}];
+    // mitten hand: thumb nub on top, rounded tip
+    const hand=[top[2],{x:Wr.x+n2.x*-W2+d2.x*6-n2.x*3,y:Wr.y+n2.y*-W2+d2.y*6-n2.y*3},{x:tip.x-n2.x*5,y:tip.y-n2.y*5},tip,{x:tip.x+n2.x*7-d2.x*3,y:tip.y+n2.y*7-d2.y*3},bot[0]];
+    return {outline:top.concat(hand.slice(1,-1),bot), open:[top,hand,bot], tip};
+  }
+  // Shear transform: x' = x + lean*(680 - y). Applied to local points (used for the contact point).
+  function shearPt(p,lean){return {x:p.x+lean*(680-p.y),y:p.y};}
+  function rotAbout(pts,c,deg){const r=deg*Math.PI/180,cs=Math.cos(r),sn=Math.sin(r);return pts.map(p=>({x:c.x+(p.x-c.x)*cs-(p.y-c.y)*sn,y:c.y+(p.x-c.x)*sn+(p.y-c.y)*cs}));}
+  function polyLen(pts,closed){let L=0;for(let i=1;i<pts.length;i++)L+=Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y);if(closed)L+=Math.hypot(pts[0].x-pts[pts.length-1].x,pts[0].y-pts[pts.length-1].y);return L;}
+  function pathOf(pts,closed){ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);if(closed)ctx.closePath();}
+  function strokeTraced(pts,closed,p){
+    if(p<=0)return; const L=polyLen(pts,closed);
+    ctx.setLineDash(p>=1?[]:[L*p,L+10]); pathOf(pts,closed); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // Final contact point = network origin (computed so the hand and the graph always share one vertex)
+  const FINAL = samplePose(CLIP_LEN);
+  const HUB = shearPt(armGeometry(FINAL).tip, FINAL.lean);
+  const NODES = [P(960,150),P(1120,230),P(1180,120),P(1090,400)];
+  // edges: [from, to, stateKey]; from=-1 means the hand contact vertex
+  const EDGES = [[-1,0,'e0'],[-1,3,'e1'],[0,1,'e2'],[3,1,'e3'],[1,2,'e4']];
+
+  // ---------- Single motion owner: GSAP tweens these scalars; Canvas only reads them ----------
+  const st = {plate:1, trace:0, fill:0, perf:0, ring:0, e0:0,e1:0,e2:0,e3:0,e4:0, n0:0,n1:0,n2:0,n3:0};
+
+  function drawFigure(pose, mode, traceP, fillA){
+    ctx.save();
+    ctx.setTransform(1,0,-pose.lean,1,pose.lean*680,0);
+    const arm = armGeometry(pose);
+    const rear = rotAbout(REAR,P(680,380),pose.back);
+    ctx.lineJoin='round'; ctx.lineCap='round';
+    if(mode==='plate'){
+      // simulated luminance silhouette of the reference pass (soft, ink at low alpha, no new hue)
+      ctx.filter='blur(6px)'; ctx.globalAlpha=0.20*st.plate; ctx.fillStyle=C.ink;
+      pathOf(BODY,true); ctx.fill(); pathOf(HEAD,true); ctx.fill(); pathOf(arm.outline,true); ctx.fill();
+      ctx.lineWidth=14; ctx.strokeStyle=C.ink; pathOf(rear,false); ctx.stroke();
+      ctx.restore(); return;
+    }
+    // FILL A + SHADE B (fills follow the traced contour; hatching locked to the figure, never re-randomised)
+    if(fillA>0){
+      ctx.globalAlpha=fillA;
+      ctx.fillStyle=C.fillA; pathOf(BODY,true); ctx.fill();
+      ctx.save(); pathOf(SHADE,true); ctx.clip();
+      ctx.strokeStyle=C.ink; ctx.lineWidth=2; ctx.beginPath();
+      for(let k=-60;k<80;k++){const x=560+k*6.93; ctx.moveTo(x,560); ctx.lineTo(x+150,300);} // 30deg hatch, 6px pitch
+      ctx.stroke(); ctx.restore();
+      ctx.fillStyle=C.table; pathOf(HEAD,true); ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    ctx.strokeStyle=C.ink; ctx.lineWidth=LINE;
+    strokeTraced(BODY,true,traceP);
+    strokeTraced(SHADE,true,traceP);
+    strokeTraced(rear,false,traceP);
+    if(fillA>0){ctx.globalAlpha=fillA; ctx.fillStyle=C.ink; pathOf(HAIR,true); ctx.fill(); ctx.globalAlpha=1;}
+    strokeTraced(HEAD,true,traceP);
+    // arm is in front of the torso
+    if(fillA>0){ctx.globalAlpha=fillA; ctx.fillStyle=C.fillA; pathOf(arm.outline,true); ctx.fill(); ctx.globalAlpha=1;}
+    for(const seg of arm.open) strokeTraced(seg,false,traceP);
+    ctx.restore();
+  }
+
+  function drawNetwork(){
+    ctx.save(); ctx.lineCap='round'; ctx.strokeStyle=C.ink; ctx.lineWidth=LINE;
+    for(const [a,b,key] of EDGES){
+      const p=st[key]; if(p<=0)continue;
+      const A=a<0?HUB:NODES[a], B=NODES[b];
+      ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(A.x+(B.x-A.x)*p,A.y+(B.y-A.y)*p); ctx.stroke();
+    }
+    NODES.forEach((n,i)=>{
+      const s=st['n'+i]; if(s<=0)return;
+      ctx.globalAlpha=Math.min(1,s*1.6);
+      ctx.beginPath(); ctx.arc(n.x,n.y,22*s,0,Math.PI*2); ctx.fillStyle=C.table; ctx.fill(); ctx.lineWidth=LINE; ctx.stroke();
+      ctx.beginPath(); ctx.arc(n.x,n.y,8*s,0,Math.PI*2); ctx.fillStyle=C.fillA; ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    if(st.ring>0){
+      ctx.globalAlpha=Math.min(1,st.ring*1.5); ctx.strokeStyle=C.fillA; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(HUB.x,HUB.y,34*(0.55+0.45*st.ring),0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=1;
+    }
+    ctx.restore();
+  }
+
+  function render(){
+    ctx.setTransform(1,0,0,1,0,0); ctx.filter='none'; ctx.globalAlpha=1;
+    ctx.clearRect(0,0,1280,720);
+    const clipT = st.perf*CLIP_LEN;
+    // reference plate runs continuously; the trace holds each drawing for 2 frames (15 drawings/s)
+    if(st.plate>0.001) drawFigure(samplePose(clipT),'plate');
+    const drawnT = Math.floor(clipT*DRAWING_RATE+1e-6)/DRAWING_RATE;
+    drawFigure(samplePose(drawnT),'trace',st.trace,st.fill);
+    drawNetwork();
+  }
+
+  const tl = gsap.timeline({paused:true, onUpdate:render});
+  // 1. Trace pass: ink contour follows the plate's first frame, then Fill A / Shade B flood in
+  tl.to(st,{trace:1,duration:0.55,ease:'power2.inOut'},0.0);
+  tl.to(st,{fill:1,duration:0.2,ease:'power2.inOut'},0.45);
+  // 2. Performance: reference clip time advances linearly; spacing comes from the joint track
+  tl.to(st,{perf:1,duration:0.9,ease:'none'},0.65);
+  // 3. Contact -> the idea becomes a connected system
+  tl.to(st,{ring:1,duration:0.35,ease:'back.out(1.2)'},1.3);
+  tl.to(st,{e0:1,duration:0.35,ease:'power2.inOut'},1.42);
+  tl.to(st,{e1:1,duration:0.35,ease:'power2.inOut'},1.52);
+  tl.to(st,{n0:1,duration:0.3,ease:'back.out(1.2)'},1.74);
+  tl.to(st,{n3:1,duration:0.3,ease:'back.out(1.2)'},1.84);
+  tl.to(st,{e2:1,duration:0.3,ease:'power2.inOut'},1.8);
+  tl.to(st,{e3:1,duration:0.26,ease:'power2.inOut'},1.86);
+  tl.to(st,{n1:1,duration:0.3,ease:'back.out(1.2)'},2.08);
+  tl.to(st,{e4:1,duration:0.24,ease:'power2.inOut'},2.1);
+  tl.to(st,{n2:1,duration:0.3,ease:'back.out(1.2)'},2.3);
+  // 4. Reference plate is lifted away, leaving only the traced cel
+  tl.to(st,{plate:0,duration:0.5,ease:'sine.inOut'},1.55);
+  tl.set({}, {}, 3);
+
+  tl.progress(0); render();
+  const redraw=()=>render();
+  window.addEventListener('hf-seek',redraw); document.addEventListener('hf-seek',redraw);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

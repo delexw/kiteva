@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-100",
+    "name": "Shape Morphing; category Motion Design and Cinematography; provenance explicit, as the source directly describes this visual direction.",
+    "visualIdentity": "Continuous morphing between start, intermediate and target forms with trackable contour or semantic correspondence. Keep center of gravity, direction and continuity, with readable holds. Crossfading alone is not morphing.",
+    "suitableUses": "Explicitly suited to logo and icon transitions. Inferred fits: brand storytelling, and data stories where chart forms change with matched item identity. Shared-element moves are one application, not the whole style.",
+    "limitations": "Visual cues are user-requested guidance, not verified in the source video. Path order, holes and lettering need checks, and self-intersections must be inspected. Remotion is fallback only, with a recorded reason.",
+    "palette": "Reference-dependent example: background #F5EFE2, foreground #2F4348, accent_1 #5C9790, accent_2 #CB8661, used as discrete colors with no gradient. Foreground on background measures 9.085:1. Accents are decorative only (3.115 and 3.53). Supplied colors override these and are never recolored.",
+    "motionAndInteraction": "Morph via SVG path interpolation on one seekable timeline, checking intermediate states. Keep deliberate cuts and reading holds sharp; add no automatic springs. Video uses time only; scroll or pointer input is interactive-only. Motion references 012, 014, 015, 038 and 039 are optional.",
+    "audio": "The source specifies no audio for this style and mandates no layer. Proposals should follow topic and cadence: music, voiceover, sound effects, ambience or silence. Beat sync needs real audio analysis. Honor supplied audio and never invent assets.",
+    "assetRequirements": "Needs approved mark geometry or glyph outlines, with fonts loaded before construction. Start and target paths need compatible segment order, direction and point counts. Do not invent brand marks or copy; use supplied assets as given.",
+    "combinations": "style-097 for data: bars morph into pie segments in matched order, with labels only at holds. style-043 for imagery: silhouettes with matched points and consistent holes. Avoid mid-morph value distortion and crossfades instead of morphs.",
+    "productionApproach": "Style renderer: SVG, with Paper.js for path geometry. Motion engine: GSAP MorphSVGPlugin as primary; Anime.js svg.morphTo or Motion are optional only with verified time sync. mo.js does not morph paths. HyperFrames is the default pipeline; Remotion is fallback. Verify seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

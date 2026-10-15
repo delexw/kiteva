@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-101",
+    "name": "2.5D Parallax Animation (Motion Design and Cinematography). This is a normalized label; layered parallax is not evidence of full 3D modeling.",
+    "visualIdentity": "Flat artwork is split into foreground, midground and background layers with plausible depth and occlusion. Layers move at restrained relative speeds, with extra artwork beyond the crop. Depth comes from layering, not from modeling.",
+    "suitableUses": "Explicit: layered illustration, collage, paper-craft or 2.5D artwork. Inferred: explainers and narratives where gentle depth aids comprehension. Interactive HTML can use static plates under reduced motion. Fit depends on the brief and audience.",
+    "limitations": "Do not claim full 3D modeling. Avoid reversed depth motion, exposed edges and excessive separation. Cropping tools cannot separate layers, remove backgrounds or fill missing artwork. Durations, aspect ratios and audio are unspecified in this source.",
+    "palette": "No approved exact colors were supplied. Background is scene-dependent: #EFE7D6 is only an illustrative swatch, so pick a dark or low-value environment hue for each scene. Suggested tokens: foreground #34473F, accent #8A9C85 (decorative only, 3.386 contrast). Foreground/background contrast is 8.056. Gradients are off; recheck composited frames.",
+    "motionAndInteraction": "Video motion derives from seekable composition time, with one owner per animated property and restrained relative layer speeds. Optional references: motion-009 depth-dependent miniature parallax (creature hop only with suitable assets), motion-012 chapter handoff, and motion-015 story-step orchestration. None is required.",
+    "audio": "Unspecified: no audio was supplied or required. Suggested direction: restrained ambience, music or sound accents suited to the topic, with silence valid. Keep narration intelligible and avoid competing with essential text. Tempo and voice are not defined by this style.",
+    "assetRequirements": "No uploads are mandated. Prepare layered PNG or SVG with alpha, consistent dimensions, clear naming and a layer manifest, or numbered frame sequences. Keep generous overscan beyond the final crop. Cropper.js is optional for raster crop prep; load fonts and assets before rendering.",
+    "combinations": "style-030 storybook scene plates suit narrative explainers and children's stories, with a slow push in the primary palette. style-044 period photo cutouts suit historical documentaries when tinted to primary tokens with consistent grain. Never invent archival assets.",
+    "productionApproach": "HyperFrames is the default for composition, timing, sync, checks and export; Remotion is fallback only with a recorded, verified limitation. PixiJS or layered DOM/SVG can render visuals, and GSAP drives the paused, seekable timeline. chroma-js validates colors. Three.js is only for genuine 3D."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-105",
+    "name": "Music-Synchronized Animation",
+    "visualIdentity": "An explicit timing approach layered over a chosen visual style, not a standalone aesthetic. Sync reveals, cuts and motion accents to verified beats, downbeats and musical sections; vary visual density with energy, anticipation and pauses.",
+    "suitableUses": "Explicit: music videos and lyric videos. Inferred: useful for any video or interactive HTML where music should shape visual pacing. HTML can use a precomputed beat map with pauses; lyrics need readable holds.",
+    "limitations": "Requires a separate visual style and suitable audio for genuine synchronization. Do not infer beats from silent frames or use live audio analysis during export. Avoid same-beat starts and removing reading time. Suggestions and example scenes do not define canonical style traits.",
+    "palette": "No intrinsic palette is specified. Resolve task colors, approved brand or reference colors, and existing semantic assignments before the optional example: background #F3EBDD, foreground #293B44, accents #628C98 and #BA7B61. Keep roles and colors discrete; gradients are disabled. The accents are decorative, not normal-text backings; check actual composited contrast.",
+    "motionAndInteraction": "Analyze audio offline, manually verify cues, and drive all visual states from shared deterministic time. Vary density with musical energy; use anticipation, pauses and reading holds. For interactive HTML, precomputed timing can drive progress; pointer input is optional. Reduced motion should show the completed composition. Verify direct, backward and repeated seeks.",
+    "audio": "Audio is task-specific, not prescribed by the style. Music may establish cadence; voice, vocals, effects, ambience or silence depend on the topic and requirements. For sound-linked actions, align cues with verified timing and account for sample attack. Keep speech clear; never claim analysis or synchronization without inspected audio.",
+    "assetRequirements": "No upload is mandatory. Use supplied audio or authorized audio created separately; the style does not itself provide a soundtrack. Offline beat, onset and energy data should be stored in a shared cue table. Silent previews may use clearly labeled authored demonstration cues, not present them as analyzed music.",
+    "combinations": "This timing method needs a visual system. Suggested pairings: abstract shapes for music videos, using the primary palette and avoiding synchronized same-beat starts; lyric typography for lyric videos, with stressed words timed to beats and adequate reading holds. Preserve the supporting style’s materials and constraints.",
+    "productionApproach": "Keep visual rendering and motion separate from assembly/export. SVG and GSAP can draw and coordinate seekable motion; Python with librosa and NumPy can preprocess and verify cues offline. HyperFrames is the primary composition/export pipeline; use Remotion only if HyperFrames is unavailable or a verified required capability is blocked. Do not use live Web Audio analysis during export; cache stateful motion and derive frames from composition time."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

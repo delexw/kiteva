@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-085",
+    "name": "Shadow Puppetry, Animation Techniques category. Explicit source provenance, normalized from shadow-theatre and paper-silhouette references.",
+    "visualIdentity": "Readable dark silhouettes stand before a translucent luminous screen with distinct depth layers. Colors stay limited, props stay legible in outline, and limbs stay separate from the torso.",
+    "suitableUses": "Explicitly suited to folk-tale and theatrical moments, narrative fables, cultural storytelling and theatrical intros. Mood-setting screen scenes also fit. Other uses are inferred, not stated.",
+    "limitations": "Avoid exposed joint gaps, rubbery stretch and colored rig parts. Hybrids must stay within two tokens. Only seconds 1 to 8 were sampled, one frame each, so continuous motion and audio are unverified.",
+    "palette": "Background is scene_dependent; #EFE0BC is only an illustrative swatch, not a canvas requirement. #272821 is the candidate ink, with 11.375:1 contrast from two-color checks alone. Keep silhouettes monochrome, gradients off, and approved exact colors overriding.",
+    "motionAndInteraction": "Animate poses, shadow size and stage movement with authored pivots and arcs. Held replacement poses are valid, but stop-motion stepping is not implied. Motion references 012 and 015 apply only when the scene supports them; choosing neither is also valid.",
+    "audio": "Audio is unspecified by the style. Propose music, voiceover, effects, ambience or silence from topic and audience, with no fixed genre or mandatory layer. Honor explicit user choices and invent no audio assets.",
+    "assetRequirements": "No mandatory uploads are specified. Silhouettes, screen and props can be built as SVG or Canvas layers. Load local fonts and assets before rendering, and report any missing assets as limitations.",
+    "combinations": "style-091 adds puppet rigging with pivots, joint limits and replacement poses. style-038 adds a static screen wash in foreground-opacity tones only. Both keep silhouettes #272821 on #EFE0BC with one light source.",
+    "productionApproach": "HyperFrames is the default for composition, timing and export; Remotion is fallback only for documented conditions. SVG and Canvas 2D render visuals, GSAP owns motion, and chroma.js is optional for contrast checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

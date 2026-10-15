@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-129",
+    "name": "Egyptian Register Painting",
+    "visualIdentity": "Flat profile heads and legs with frontal shoulders, orderly horizontal registers and symbolic scale. Bounded mineral-colored fills and fine dark contours sit on a pale papyrus or plaster field. Category is Illustration and Art Media; medium labels are authored classifications.",
+    "suitableUses": "Explanatory or narrative videos and interactive HTML about ancient Egyptian-themed scenes, processions or instructional registers, when a specified historical reference is supplied. Suitability is inferred from visual cues; the style has not been production-tested beyond a 3-second preview.",
+    "limitations": "Egyptian framing must go beyond a pyramid icon and needs a specified historical reference. Inscription columns stay empty unless verified text is supplied, and source characters or branded material must not be copied. Sampling covered one frame per second from 1 to 8 seconds only; continuous motion, audio and later scenes are unverified.",
+    "palette": "Background policy is scene_dependent, so #EEE3BB is an illustrative papyrus or plaster field, not a mandatory canvas. Authored suggestions are foreground #3B2D23, ochre #B9793C, red #A84532, blue #426C88 and green #738261. Approved task or reference colors override them, gradients are disabled, and text targets 4.5:1 contrast.",
+    "motionAndInteraction": "The 3-second preview draws contours in reading order by 0.8 seconds, then clip-wipes each figure's fills from 0.6 to 1.4 seconds. A 1.2 to 2.6 second procession uses x-only steps with small pivot gestures and no perspective, followed by a hold. Interaction behavior is unspecified.",
+    "audio": "No audio direction is specified for this style. Source previews are silent, and music, voiceover, ambience or silence should be chosen per task without assuming a historical soundtrack. Honor any supplied audio; when none is supplied, state assumptions. Audio is not verified.",
+    "assetRequirements": "No assets are required. Optional inputs include approved layered or rigged figure assets, Krita-drawn gesture frames (Krita runtime unverified), supplied hieroglyph inscriptions, and a live-action gait reference used for timing only. Figures must be redrawn to the canonical pose.",
+    "combinations": "Style-125 is the only suggested supporting style, for a secondary illustrative detail whose role is unspecified. Keep Egyptian Register Painting dominant, preserve its palette, and avoid generic effects that replace its contours. No motion references are selected. Guidance was authored 2026-10-13.",
+    "productionApproach": "HyperFrames is the default composition and export pipeline, with Remotion only as a conditional fallback after a recorded verified limitation. SVG and HTML/CSS render figures and captions, GSAP with DrawSVGPlugin owns contour and fill motion, and chroma.js checks caption contrast. Canvas, WebGL, Rough.js and 3D were rejected."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-042",
+    "name": "Graffiti / Street Art",
+    "visualIdentity": "Spray-painted lettering, tags, wall texture, and street graphics form one coherent lettering style and palette. Overspray and layered paint are used selectively. The source calls this a supplemental design reference, not a directly named style in its collection.",
+    "suitableUses": "Explicitly suited to lettering-focused pieces, which the source says work alone. Inferred suitability: urban or street-culture promotion where the message must stay readable under layered paint. Music timing or print-insert hybrids are optional additions.",
+    "limitations": "Overspray and layering must be applied selectively, and the principal message must stay recognizable. The source warns against random overspray, over-layering, and mixed palettes. Simulated paint is not evidence of physical production. Remotion is only a conditional fallback.",
+    "palette": "Suggested tokens, not approved colors: background #E7E1D4, foreground #272631, accent_1 #BC4861, accent_2 #388A8B, accent_3 #CEA248. Supplied exact colors override these. Foreground on background is 11.449:1 and passes normal text. Accent_1 and accent_2 are decorative fills only; accent_3 with foreground (6.312:1) also passes. Gradients are disabled. Recheck pairings in composited frames.",
+    "motionAndInteraction": "Spray reveals, stroke movement, and paint coverage are controlled over time, and overpaints are revealed or replaced without losing the message. Smooth movement is used only where the action benefits. Deliberate hard cuts and reading holds stay sharp. Optional motion references motion-012 and motion-015 need scene-by-scene screening, and none is required. Interactive behavior is not defined by the style.",
+    "audio": "The source specifies no audio. Music, voiceover, sung vocals, sound effects, ambience, or silence are all possible, and none is mandatory. Inferred: a restrained sound accent on beat-synced reveals or light ambience may suit street energy. Speech must stay intelligible. User-supplied audio takes priority. Genre, tempo, and voice are unspecified.",
+    "assetRequirements": "Tags and main lettering are prepared separately, with wall texture and street graphics. Local fonts and assets must load before rendering, and randomness must be seeded. Supplied exact colors and source artwork override suggested tokens. The source does not specify duration, aspect ratio, or resolution. Missing assets should be stated as assumptions.",
+    "combinations": "Works alone for lettering-focused pieces. The style-105 hybrid adds beat-synced spray reveals for music promos, using the primary palette and keeping the message readable. The style-054 hybrid adds zine flyer cutaways as separate inserts while the wall remains the main scene. Avoid random overspray, mixed palettes, and too many inserts.",
+    "productionApproach": "The source's default pipeline is HyperFrames, with clip timing and one paused, seekable GSAP timeline registered per composition. Canvas 2D and SVG handle visual construction, and GSAP coordinates motion. Motion and chroma.js are optional. Remotion applies only when the fallback condition is met and recorded. Validate with check and snapshot steps, then render at delivery quality."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

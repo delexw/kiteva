@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-087",
+    "name": "Puppet Animation. A supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Articulated figures, identifiable materials, stable costumes and miniature sets define the look. Poses must show weight, balance and foot contact. Avoid rubber-like deformation, costume flicker and joint intersections.",
+    "suitableUses": "Explicitly suggested for character drama when used alone, whimsical narrative shorts, theatrical brand stories, and educational puppet pieces or story chapters. Interactive HTML is only suggested as a scene selector with still frames; that fit is inferred.",
+    "limitations": "The source names no renderer, so the production method must be identified as physical puppet photography or a labeled Blender rig simulation. Simulated appearance is not evidence of physical production or validated physics. Optional motion references need suitable layers, rigs or complete views.",
+    "palette": "Backgrounds are scene-dependent, chosen from subject, lighting and mood. Example tokens #EDE4D1 background, #414638 foreground and #8E8263 accent apply only to new presentation elements; gradients are disabled. Costumes and sets keep their colors. Foreground on background measures 7.701; accent on background measures 3.009 and is decorative only. No exact approved colors are supplied.",
+    "motionAndInteraction": "Motion must stay within the style's weight and contact rules. Optional references are gaze-following (motion-006), bounded miniature parallax (motion-009), full camera orbit (motion-010), chaptered transitions (motion-012) and storytelling steps (motion-015). Video follows composition time; scroll and pointer apply only to interactive delivery.",
+    "audio": "Audio is unspecified in the source, so no soundtrack, voice or genre is assigned. Suggested options include background music, voiceover, sung vocals, effects, ambience or silence, chosen per topic. Any proposed audio must leave room for speech and comprehension. No audio has been created.",
+    "assetRequirements": "Prepared layers or numbered frame sequences need transparency and consistent dimensions, or a labeled rig is required. Physical puppets must be photographed frame by frame. Fonts and assets should be local and loaded before rendering. No supplied assets are listed in the source.",
+    "combinations": "Style-104 supplies axial symmetry and frontal framing for miniature sets, with lateral or axial camera moves and feet kept in contact. Style-024 supplies brief handwritten notes over held shots, in #414638 ink with #8E8263 accent only, never covering faces. Avoid pastel grading over real costumes.",
+    "productionApproach": "HyperFrames is the default pipeline for composition, timing, synchronization, validation and export; Remotion is a fallback only with a recorded verified reason. Puppets are posed and photographed frame by frame, or a Blender rig uses held keyframes and is labeled as digital. FFmpeg encodes sequences, Python preprocesses assets, and chroma.js checks contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

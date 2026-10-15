@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-047",
+    "name": "Paper Craft / Cardboard Craft",
+    "visualIdentity": "Explicit: paper and cardboard craft showing fibers, board thickness, folds, cuts, and seams under soft, material-suited light. Parts assemble or unfold along plausible joints at constant thickness, never rubber-like.",
+    "suitableUses": "Explicit: tactile assembly and unfolding sequences. Source-suggested hybrid uses include packaging reveals, maker brands, sustainability stories, and process explainers. Inferred: topics where physical construction clarifies a process.",
+    "limitations": "Explicit: procedural curl is artistic deformation, not a physical solver, and stateful simulations must be cached. Avoid rubber-like board, deep embossing, metallic bevels, heavy blur, and plastic or clay props. Use 3D only when depth or curl requires it.",
+    "palette": "Suggested, not approved: background #EFE5D2 cream, foreground #47392B ink, accent #AF8A5D kraft. Gradients are off and colors stay discrete. Foreground on background is 8.903:1, passing normal text. Accent on background is 3.504:1, so decorative only. Task colors override these.",
+    "motionAndInteraction": "Explicit: Blender animates hinges and assembly joints, and procedural curl deforms planes for corners while keeping stepped timing. Smooth easing is optional; cuts and reading holds are preserved. Optional references motion-001, -009, -012, and -015 apply only if the topic supports them. Hover and scroll apply only to interactive delivery.",
+    "audio": "Unspecified by the style; audio direction is a per-task suggestion with no mandated genre, tempo, instrument, or voice. Options include music, voiceover, effects, ambience, or silence, chosen from topic and objective. Honor user audio first, keep speech intelligible, and avoid clipping.",
+    "assetRequirements": "Unspecified beyond material needs: thick paperboard geometry, creases, seams, and paper materials, generated in Blender or supplied as authorized assets. Preserve provided artwork and exact colors. Load fonts and assets before rendering. Reference assets such as flowers or creatures are used only if the topic supports them.",
+    "combinations": "Paper Craft alone suits tactile assembly. Hybrid with style-052 for titles impressed into the same board under one light, with no second paper palette. Hybrid with style-079 for a bounded diorama stage with an oblique camera and local hinge actions. Avoid deep embossing and plastic props.",
+    "productionApproach": "Style renderer: Blender with bpy and Cycles or EEVEE. Motion engine: Blender keyframes, plus three.js for procedural curl only when deformation is needed. Pipeline: HyperFrames by default; Remotion only if HyperFrames is unavailable or verifiably limited, with the reason recorded. Validate, snapshot key frames, and check audio sync before delivery."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

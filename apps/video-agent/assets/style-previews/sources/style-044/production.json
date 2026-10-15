@@ -1,0 +1,33 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Collage Connections",
+  "displayDescription": "Torn paper cutouts are pasted onto a slate archival board, then pinned and joined by thread into one connected system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "PixiJS 8.22 (WebGL) compositing sprites, Graphics thread and pins",
+    "Canvas 2D procedural texture generation (paper, halftone photos, tape, shadows, board)",
+    "chroma-js palette validation and contrast checks"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline created and registered inline in index.html at window.__timelines.video; scene.js adds all tweens to it (sole owner of all animated state; Pixi redraws from it on seek)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Silent preview: no audio track, music, voice or sound effects were created.",
+    "Photographs are procedural luminance-halftone illustrations generated in Canvas 2D (lightbulb, node network, gear, arch bridge); no real or period photographs were supplied or used.",
+    "Paper grain, fibres, torn/deckled edges, foxing, tape translucency and drop shadows are seeded procedural approximations, not scanned materials or physically simulated paper.",
+    "Depth is a 2D approximation: per-layer parallax offsets and lift-dependent shadows; no 3D camera or lighting.",
+    "Body columns on the newspaper are deliberately illegible set-type bars; only the masthead, headline, subhead and the 'Fig. 1' caption are readable copy.",
+    "Canvas-rendered copy is not inspectable by DOM text-contrast audits; contrast was resolved in code with chroma.contrast (ink #393329 on paper #EDE3CD, 9.8:1). The board carries no text.",
+    "PixiJS Application.init is asynchronous; frames are redrawn on every timeline seek and on hf-seek once the WebGL renderer is ready.",
+    "BACKGROUND_REVIEW.json listed no matched sources and no contact sheets, so no source-frame observations were applied; the slate board is an authored scene-dependent choice.",
+    "Blender was not used, per user instruction.",
+    "Not rendered or browser-tested by the agent; host QA pending."
+  ]
+}

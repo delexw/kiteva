@@ -1,0 +1,51 @@
+{
+  "version": 3,
+  "title": "Punk Graphics — An idea turns into a system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Headline paste-up",
+      "startSeconds": 0,
+      "endSeconds": 1.25,
+      "purpose": "Build the ransom-note headline line by line on torn black paper, each line larger than the last.",
+      "visuals": ["cool grey engineering graph paper with toner speckle (stationary)", "torn black strip with a white fibre rim", "mixed-font cutout letter tiles in paper white, protest red and black", "torn white label reading INTO A SYSTEM", "masking tape scraps", "red halftone torn sheet slapped on the right"],
+      "assets": ["assets/graph-paper.png", "assets/strip-black.png", "assets/label-white.png", "assets/halftone-sheet.png", "assets/tape-a.png", "assets/tape-b.png", "assets/tex-red.png", "assets/tex-white.png", "assets/tex-black.png"],
+      "beats": [
+        {"startSeconds": 0, "endSeconds": 0.55, "development": "The black torn strip slaps down off-angle, then the AN IDEA tiles are pasted one at a time with small rotation errors.", "captions": ["AN IDEA"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 0.55, "endSeconds": 1.25, "development": "Larger TURNS tiles are pasted, the INTO A SYSTEM label lands with tape, and the halftone sheet slaps on the right side.", "captions": ["TURNS", "INTO A SYSTEM"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "The system gets inked",
+      "startSeconds": 1.25,
+      "endSeconds": 2.25,
+      "purpose": "The idea becomes a connected system: a red hub sticker, hand-inked spokes, node stickers, then node-to-node links.",
+      "visuals": ["red hub die-cut sticker with a white rim", "Rough.js marker spokes drawn outward", "white node stickers with red X marks landing as each spoke arrives", "ring links between nodes", "HUD chips counting NODES and LINKS"],
+      "assets": ["rough.bundle.js"],
+      "beats": [
+        {"startSeconds": 1.25, "endSeconds": 1.95, "development": "The hub pops on and five spokes ink outward one after another; each node sticker lands as its line arrives, and the NODES counter climbs to 06.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 1.95, "endSeconds": 2.25, "development": "Thinner ring lines join neighbouring nodes so the network no longer depends only on the centre. LINKS reaches 10.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Punchline and hold",
+      "startSeconds": 2.25,
+      "endSeconds": 3,
+      "purpose": "Land the handwritten caption and the CONNECTED stamp, then hold the finished collage for reading.",
+      "visuals": ["torn caption scrap with handwritten line and red marker underline", "white scrap with distressed red CONNECTED rubber stamp"],
+      "assets": ["assets/scrap-caption.png", "assets/scrap-stamp.png", "assets/stamp-distress.png"],
+      "beats": [
+        {"startSeconds": 2.25, "endSeconds": 2.6, "development": "The caption scrap settles and the marker underline is drawn, the stamp scrap lands, and CONNECTED is stamped in stepped motion.", "captions": ["everything connects. no bosses.", "CONNECTED"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 2.6, "endSeconds": 3, "development": "Everything is settled and fully legible for a reading hold.", "captions": ["AN IDEA TURNS", "INTO A SYSTEM", "everything connects. no bosses.", "CONNECTED"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.4}
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": ["Each line of the headline is readable as soon as it is pasted, from about 1.0s onward.", "Attention moves from left to right: headline, then network, then the punchline stamp. The caption and stamp overlap briefly at the end.", "All motion ends by 2.6s, so the composition is settled before 2.7s."],
+    "justifiedHolds": ["2.6–3.0s: a still hold so the complete collage and the CONNECTED stamp can be read."]
+  },
+  "notes": ["Silent preview with no audio.", "Background was chosen for this scene: cool grey engineering graph paper (#E2E6E9) instead of the earlier warm #EFE9D9 swatch, following the source review's engineering-paper option. Ink #171717, the single print accent #C63A3A and paper stock #F4F2EC are kept.", "Source subject, lettering, characters and branding were not copied. Only the construction roles were taken: grid substrate, ransom tiles, one print accent, halftone, sticker rims, stamp punchline and HUD chips."]
+}

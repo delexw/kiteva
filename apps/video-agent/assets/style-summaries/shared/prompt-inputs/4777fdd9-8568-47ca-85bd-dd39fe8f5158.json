@@ -1,0 +1,359 @@
+{
+  "originalSource": {
+    "style": {
+      "id": "style-128",
+      "category": "Digital and 3D Aesthetics",
+      "name_en": "Volumetric Fire & Smoke",
+      "provenance": "extracted",
+      "visual_cues": "Render emissive three-dimensional flame and translucent smoke as coherent volumes with readable depth, buoyant motion, cooling soot and light spill. Maintain a stable dark or contrasting stage, bounded exposure and consistent camera scale. Do not substitute a flat glow sprite, liquid blob or unrelated particle shower for the volume.",
+      "note": "Added from the completed 523-entry Skillry posted-text review on 2026-10-13. Background hex values are authored defaults, not verified source tokens. Preview limitations must disclose procedural approximations.",
+      "tech": {
+        "recommended_stack": [
+          {
+            "name": "HyperFrames",
+            "kind": "npm_cli_framework",
+            "package": "hyperframes",
+            "runtime": "HTML composition in browser; CLI orchestration in Node.js",
+            "purpose": "Primary pipeline for scene assembly, seekable composition timing, media and audio synchronization, validation, and final export. Visual construction and motion design remain owned by the selected style renderer and motion engine.",
+            "suggested_apis": [
+              "data-composition-id",
+              "data-width / data-height",
+              "data-start / data-duration",
+              "class=\"clip\"",
+              "window.__timelines[compositionId]",
+              "npx hyperframes check",
+              "npx hyperframes snapshot --at <seconds>",
+              "npx hyperframes render --output <video.mp4>"
+            ],
+            "optional": false,
+            "docs_url": "https://hyperframes.heygen.com/developers",
+            "suggested_libraries": [
+              {
+                "name": "GSAP",
+                "package": "gsap",
+                "purpose": "Build a paused, seekable timeline and register it with HyperFrames after construction is complete.",
+                "suggested_apis": [
+                  "gsap.timeline({ paused: true })",
+                  "fromTo",
+                  "to",
+                  "set",
+                  "addLabel"
+                ],
+                "runtime": "browser",
+                "docs_url": "https://gsap.com/docs/v3/"
+              }
+            ],
+            "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
+            "selection_guidance": "Use HyperFrames by default. Fall back to Remotion only when the documented fallback condition is met, and record the reason. Do not mix framework APIs.",
+            "priority": "primary",
+            "production_roles": [
+              "render_pipeline"
+            ],
+            "role": "composition_and_export_pipeline"
+          },
+          {
+            "name": "WebGL",
+            "kind": "browser_native",
+            "package": null,
+            "runtime": "browser",
+            "purpose": "Render procedural imagery and postprocessing on the GPU, directly or through Three.js.",
+            "suggested_apis": [
+              "WebGL2RenderingContext",
+              "framebuffer",
+              "texture",
+              "uniform"
+            ],
+            "optional": false,
+            "docs_url": "https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API",
+            "style_application": "Render emissive three-dimensional flame and translucent smoke as coherent volumes with readable depth, buoyant motion, cooling soot and light spill. Maintain a stable dark or contrasting stage, bounded exposure and consistent camera scale. Do not substitute a flat glow sprite, liquid blob or unrelated particle shower for the volume.",
+            "production_roles": [
+              "style_renderer"
+            ]
+          },
+          {
+            "name": "GLSL",
+            "kind": "shader_language",
+            "package": null,
+            "runtime": "GPU shader, hosted by browser renderer",
+            "purpose": "Write vertex and fragment shaders with uniforms for time, resolution, color, and textures.",
+            "suggested_apis": [
+              "smoothstep",
+              "mix",
+              "texture",
+              "vertex shader",
+              "fragment shader"
+            ],
+            "optional": false,
+            "docs_url": "https://threejs.org/docs/pages/ShaderMaterial.html",
+            "style_application": "Render emissive three-dimensional flame and translucent smoke as coherent volumes with readable depth, buoyant motion, cooling soot and light spill. Maintain a stable dark or contrasting stage, bounded exposure and consistent camera scale. Do not substitute a flat glow sprite, liquid blob or unrelated particle shower for the volume.",
+            "production_roles": [
+              "style_renderer",
+              "motion_engine"
+            ]
+          },
+          {
+            "name": "GSAP",
+            "kind": "npm_library",
+            "package": "gsap",
+            "runtime": "browser",
+            "purpose": "Coordinate tweens, staggered actions, and a paused, seekable timeline driven by deterministic video time.",
+            "suggested_apis": [
+              "gsap.timeline",
+              "gsap.to",
+              "stagger",
+              "timeline.seek"
+            ],
+            "optional": false,
+            "docs_url": "https://gsap.com/docs/v3/",
+            "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
+            "production_roles": [
+              "motion_engine"
+            ]
+          },
+          {
+            "name": "chroma.js",
+            "kind": "npm_library",
+            "package": "chroma-js",
+            "runtime": "browser and Node.js",
+            "role": "color_processing",
+            "purpose": "Optionally validate colors, derive controlled palette variants, interpolate colors, and check foreground/background contrast.",
+            "suggested_apis": [
+              "chroma.valid",
+              "chroma.scale",
+              "scale.mode('lab')",
+              "scale.colors",
+              "chroma.mix",
+              "chroma.contrast",
+              "chroma(color).hex()",
+              "chroma(color).css()"
+            ],
+            "integration_guidance": "Start with task-provided colors and the style visual_cues. Keep a shared, deterministic palette and named color tokens. Generate gradients or interpolate colors only when the style permits them; keep limited-palette, monochrome, pixel, and print treatments discrete where required. Evaluate animated color from shared composition time. Check contrast against the actual composited background; a two-color ratio alone does not verify text over transparency, gradients, textures, or video. Pass output through the selected renderer's color API and preserve its color-space handling. Native CSS/SVG colors remain sufficient when no color processing is needed.",
+            "optional": true,
+            "docs_url": "https://gka.github.io/chroma.js/",
+            "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
+            "production_roles": [
+              "supporting_tool"
+            ]
+          },
+          {
+            "name": "Remotion",
+            "kind": "npm_library",
+            "package": "remotion",
+            "runtime": "React in browser; rendering orchestrated by Node.js",
+            "purpose": "Conditional fallback pipeline for scene assembly, seekable composition timing, media and audio synchronization, validation, and final export. Visual construction and motion design remain owned by the selected style renderer and motion engine.",
+            "suggested_apis": [
+              "Composition",
+              "Sequence",
+              "useCurrentFrame",
+              "useVideoConfig",
+              "interpolate",
+              "spring"
+            ],
+            "optional": true,
+            "docs_url": "https://www.remotion.dev/docs/",
+            "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
+            "priority": "fallback",
+            "selection_guidance": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
+            "production_roles": [
+              "render_pipeline"
+            ],
+            "role": "composition_and_export_pipeline"
+          }
+        ],
+        "implementation": "Raw WebGL2 fullscreen triangle at a bounded internal resolution (e.g. 640×360, upscaled), fragment-shader raymarch at ≤64 primary steps and ≤6 light steps through a 3D density/emission field. The field is seeded fBm noise advected analytically upward by uTime (buoyancy and curl offsets as closed-form functions of time, no feedback buffers). The temperature field maps through an explicitly approximate ramp: flame_core #FFF0BC → flame_amber #FFAD42 → flame_orange #F05A28, then cooling into smoke #747B86 that absorbs and scatters light (Beer–Lambert). An analytic stationary hearth/ground with coal #4B403A receives flicker light spill. Background #101218, exposure clamped. GSAP's paused timeline sets uTime, uIgnite and uCool; every seek redraws one frame. 3s preview: ignition 0–0.6s → tall readable flame 0.6–2.0s → cooling translucent smoke 2.0–3.0s. The caption states it is an illustrative procedural volume, not a combustion solver. Full physically simulated shots need Blender/Cycles gas simulation with baked frames; it is unavailable here and reported as missing. The explosion recipe uses staged deterministic shock radius and debris uniforms.\nOptional recipe blast_aftermath: Stage ignition/compression, expanding force, displaced material and cooling aftermath. Keep causal propagation visible across several states; never replace it with one white flash. Use deterministic or baked volume/debris trajectories and coherent environmental response.",
+        "alternatives": [
+          "Three.js + MeshPhysicalMaterial",
+          "Remotion"
+        ],
+        "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
+        "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
+        "framework_selection": {
+          "default": "HyperFrames",
+          "fallback": "Remotion",
+          "fallback_condition": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
+          "scope": "Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method."
+        },
+        "library_selection": "A volume needs raymarching, which flat sprites or particle showers cannot fake. Raw WebGL/GLSL is the leanest host because Three.js scene features are unnecessary. Step and resolution caps keep the work bounded for browser export. Temperature colors are approximate, not measured thermal data. Blender is disclosed as the validated full route.",
+        "motion_guidance": {
+          "shared_reference": "shared_motion_guidance",
+          "application": "Apply shared movement quality without weakening Volumetric Fire & Smoke geometry, materials or palette roles.",
+          "cadence_guidance": "Use smooth, coherent authored movement where the action benefits from it. Preserve deliberate sharp cuts, impacts, constant-speed sections and reading holds; not every transition needs easing.",
+          "implementation": "Prefer existing timeline and renderer dependencies. Evaluate key states at requested composition time, maintain a single property owner, and cache or deterministically replay stateful motion. Do not introduce a library solely to add generic smoothing."
+        },
+        "style_renderer": {
+          "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
+          "recommended_stack_refs": [
+            "WebGL",
+            "GLSL"
+          ]
+        },
+        "motion_engine": {
+          "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
+          "recommended_stack_refs": [
+            "GSAP"
+          ]
+        },
+        "production_policy_ref": "production_policy",
+        "preview_recipes": [
+          {
+            "id": "blast_aftermath",
+            "name": "Explosion and shockwave aftermath",
+            "source_url": "https://skillry.dev/ai-videos/opus-5-5/fornyapayzeka-135914",
+            "guidance": "Stage ignition/compression, expanding force, displaced material and cooling aftermath. Keep causal propagation visible across several states; never replace it with one white flash. Use deterministic or baked volume/debris trajectories and coherent environmental response."
+          }
+        ],
+        "technology_review": {
+          "sourceHash": "85397a18a73065053aa0b2c596fe581f2142470502530141368fd101fdf8b27a",
+          "model": "claude-opus-5-5",
+          "poolEntriesAssessed": 90,
+          "checkpoint": "technology-reviews/85397a18a73065053aa0b2c596fe581f2142470502530141368fd101fdf8b27a/review.json"
+        },
+        "preview_refresh_reason": "Skillry 2026-10-13: demonstrate updated recipe or newly added style with the native reviewed renderer."
+      },
+      "executable_prompt_template": "Replace all double-brace placeholders with task inputs. Create a Volumetric Fire & Smoke video about {{subject}} for {{audience_and_objective}} using {{assets_and_exact_copy}}. Duration {{duration_seconds}}, aspect ratio {{aspect_ratio}}, resolution {{resolution}}, frame rate {{frame_rate}}. Follow {{audio_or_rhythm_requirements}} and save to {{output_directory}}. Use {{render_pipeline}} for composition/export only; resolve an omitted framework to HyperFrames. Write structured STORYBOARD.json with timed scenes, exact copy, assets, camera actions and reading holds.\nVisual rules: Render emissive three-dimensional flame and translucent smoke as coherent volumes with readable depth, buoyant motion, cooling soot and light spill. Maintain a stable dark or contrasting stage, bounded exposure and consistent camera scale. Do not substitute a flat glow sprite, liquid blob or unrelated particle shower for the volume.\nImplementation: Use bounded WebGL/GLSL volumetric raymarching through a 3D density/emission field, with deterministic authored noise/advection evaluated at composition time. Color emission by an explicitly approximate temperature ramp; smoke absorbs/scatters light with depth. Preview: ignition → tall readable flame → cooling translucent smoke, grounded on a stationary hearth. Limit step counts and resolution; redraw from paused GSAP time on every seek. This procedural volume is an illustrative approximation, not a validated combustion solver. For physically simulated full shots use tested gas simulation and baked frames/volumes, for example Blender/Cycles if available; disclose that route and its actual validation. Check volume grid artifacts, clipping, depth, silhouettes, cooling and environmental illumination.\nRead palette constraints and technology selection before authoring. Verify source fidelity, composition, contrast, direct/backward seeking and decoded MP4 frames; disclose actual approximations and missing capabilities.\nOptional explosion recipe: Stage ignition/compression, expanding force, displaced material and cooling aftermath. Keep causal propagation visible across several states; never replace it with one white flash. Use deterministic or baked volume/debris trajectories and coherent environmental response.\nReviewed technology choice: Raw WebGL2 fullscreen triangle at a bounded internal resolution (e.g. 640×360, upscaled), fragment-shader raymarch at ≤64 primary steps and ≤6 light steps through a 3D density/emission field. The field is seeded fBm noise advected analytically upward by uTime (buoyancy and curl offsets as closed-form functions of time, no feedback buffers). The temperature field maps through an explicitly approximate ramp: flame_core #FFF0BC → flame_amber #FFAD42 → flame_orange #F05A28, then cooling into smoke #747B86 that absorbs and scatters light (Beer–Lambert). An analytic stationary hearth/ground with coal #4B403A receives flicker light spill. Background #101218, exposure clamped. GSAP's paused timeline sets uTime, uIgnite and uCool; every seek redraws one frame. 3s preview: ignition 0–0.6s → tall readable flame 0.6–2.0s → cooling translucent smoke 2.0–3.0s. The caption states it is an illustrative procedural volume, not a combustion solver. Full physically simulated shots need Blender/Cycles gas simulation with baked frames; it is unavailable here and reported as missing. The explosion recipe uses staged deterministic shock radius and debris uniforms. A volume needs raymarching, which flat sprites or particle showers cannot fake. Raw WebGL/GLSL is the leanest host because Three.js scene features are unnecessary. Step and resolution caps keep the work bounded for browser export. Temperature colors are approximate, not measured thermal data. Blender is disclosed as the validated full route.\nOptional recipe blast_aftermath: Stage ignition/compression, expanding force, displaced material and cooling aftermath. Keep causal propagation visible across several states; never replace it with one white flash. Use deterministic or baked volume/debris trajectories and coherent environmental response.",
+      "motion_references": {
+        "catalog_file": "motion-pattern-catalog.json",
+        "required": false,
+        "selection_policy": "Optional candidates are screened for natural style compatibility. Before selection, inspect the actual scene illustration, assets, geometry and narrative beat. Keep only references whose defining action is supported by that scene. Choosing no reference is valid. Do not infer motion from a similar label; do not replace the existing style motion direction.",
+        "candidates": [],
+        "agent_instruction": "Read the actual illustration and complete pattern description, motion_sequence and video_adaptation. Identify which scene elements implement that action. Reject unsupported geometry, absent subjects, unintended depth, broken contact points or unrelated interactions. Select none when no candidate fits; use restrained style-native motion instead. Preserve authored transforms, fixed backgrounds and reading layers."
+      },
+      "palette": {
+        "background_policy": "scene_dependent",
+        "status": "style_compatible_suggestion",
+        "scope": "new_artwork_when_no_approved_palette_is_supplied",
+        "direction": "Volumetric Fire & Smoke readable stage",
+        "generator": {
+          "library": "chroma-js",
+          "version": "3.2.0",
+          "operations": [
+            "chroma.valid",
+            "chroma(color).hex()",
+            "chroma.contrast"
+          ]
+        },
+        "tokens": {
+          "background": "#101218",
+          "foreground": "#F6EFE3",
+          "coal": "#4B403A",
+          "flame_amber": "#FFAD42",
+          "flame_orange": "#F05A28",
+          "flame_core": "#FFF0BC",
+          "smoke": "#747B86"
+        },
+        "base_colors": [
+          "#101218",
+          "#F6EFE3",
+          "#4B403A",
+          "#FFAD42",
+          "#F05A28",
+          "#FFF0BC",
+          "#747B86"
+        ],
+        "base_color_count": 7,
+        "constraints": [
+          "These hex values are authored suggestions, not previously supplied exact colors or canonical style definitions.",
+          "Task-provided exact colors and approved reference palettes override these suggestions; preserve their values and role assignments.",
+          "Use background only for the scene field; object materials, semantic flow colors, flame emission and soot are separate roles.",
+          "The source text does not prescribe a background hex. These tokens are authored defaults and task-approved colors take precedence.",
+          "Render emissive three-dimensional flame and translucent smoke as coherent volumes with readable depth, buoyant motion, cooling soot and light spill. Maintain a stable dark or contrasting stage, bounded exposure and consistent camera scale. Do not substitute a flat glow sprite, liquid blob or unrelated particle shower for the volume."
+        ],
+        "gradient": {
+          "enabled": false,
+          "instruction": "Use discrete base tokens. No gradient is added by this palette proposal."
+        },
+        "contrast_checks": {
+          "normal_text_target": 4.5,
+          "limitation": "Check actual composited pixels, including transparency and light spill."
+        },
+        "composition_guidance": "Use one dominant background and a clear foreground hierarchy. Keep accents subordinate except where the style calls for bold geometric fields. Preserve exact anchors; improve balance through area, spacing and placement rather than hue substitution. Gradient samples and material lighting are not extra base-color licenses.",
+        "agent_instruction": "Preserve approved task palette first. Otherwise adopt these clearly labeled example tokens. Do not substitute an object/material/emission color for the background. Inspect decoded opening, active and final preview frames.",
+        "background_evidence": {
+          "method": "posted_source_review_authored_default",
+          "source_urls": [
+            "https://skillry.dev/ai-videos/opus-5-5/nathanwilbanks-981110",
+            "https://skillry.dev/ai-videos/opus-5-5/fornyapayzeka-135914"
+          ],
+          "poster_inspected": false,
+          "exact_hex_from_source": false,
+          "description": "No source background hex established. Stage and caption tokens chosen for readable contrast; source object/emission colors are not scene background evidence."
+        }
+      },
+      "audio_direction": {
+        "prompt": "Choose task-appropriate music, ambience, voice or silence for Volumetric Fire & Smoke. Match optional mechanism/combustion sound only to meaningful visible action. Honor provided audio; catalog previews are silent.",
+        "suggestion_dimensions": [
+          "Whether background music is useful, and its suggested mood, texture, energy, tempo range, and progression.",
+          "Whether voiceover helps explain the topic, and its suggested language, tone, pace, and placement.",
+          "Whether sung vocals support the topic or distract from narration and essential text.",
+          "Whether sound effects, ambience, or silence clarify key actions, transitions, and reading holds.",
+          "How audio changes across scenes, supports motion cadence, and leaves space for speech and comprehension."
+        ],
+        "selection_guidance": "Treat these as task-specific suggestions, not requirements to include every audio layer. Honor explicit user audio choices and supplied assets. When inputs are absent, propose a coherent direction and state assumptions; do not silently default to instrumental music or invent available audio assets.",
+        "integration_guidance": "Select or create authorized audio assets separately from visual construction and motion design. Use render_pipeline to assemble, synchronize, mix, and export audio with picture. Keep speech intelligible, avoid clipping and competing vocals, and inspect the delivered audio and picture together."
+      },
+      "source_reference": {
+        "slug": "agioyaz-986461",
+        "post_url": "https://x.com/AGIOyaZ/status/2103145567945986461",
+        "skillry_url": null,
+        "prompt_partial": false,
+        "added": "2026-10-12",
+        "repository_commit": "e6c7eee870cbd6d40825d6348a0c5782b3721fe9"
+      },
+      "suggested_combinations": {
+        "selection_guidance": "These are compatibility suggestions, not an allowed-style limit. Keep Volumetric Fire & Smoke dominant and use supporting styles for a clear narrative role without importing their whole palette.",
+        "suggestions": [
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-061",
+                "role": "Grounded environmental illumination"
+              }
+            ],
+            "rationale": "Grounded environmental illumination complements the primary geometry/material contract.",
+            "best_for": "Scenes needing grounded environmental illumination.",
+            "video_application": "Use grounded environmental illumination with shared composition time and readable holds.",
+            "html_application": "Retain the same hierarchy with reduced-motion controls where interaction is supported.",
+            "consistency_rules": [
+              "Keep the primary material and background roles.",
+              "Use one coordinate and timing system."
+            ],
+            "avoid": [
+              "Competing full-frame treatments",
+              "Invented measurements or physically inaccurate claims"
+            ]
+          },
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-105",
+                "role": "Measured visual and audio event timing"
+              }
+            ],
+            "rationale": "Measured visual and audio event timing complements the primary geometry/material contract.",
+            "best_for": "Scenes needing measured visual and audio event timing.",
+            "video_application": "Use measured visual and audio event timing with shared composition time and readable holds.",
+            "html_application": "Retain the same hierarchy with reduced-motion controls where interaction is supported.",
+            "consistency_rules": [
+              "Keep the primary material and background roles.",
+              "Use one coordinate and timing system."
+            ],
+            "avoid": [
+              "Competing full-frame treatments",
+              "Invented measurements or physically inaccurate claims"
+            ]
+          }
+        ]
+      },
+      "combination_guidance_provenance": "authored_compatibility_guidance_2026-10-12"
+    },
+    "productionPolicy": {
+      "principle": "Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique.",
+      "style_renderer": "Owns visual construction: drawing, geometry, materials, lighting, typography, masks, textures, and specialist asset generation. Use the style-specific recommended technologies and implementation guidance.",
+      "motion_engine": "Owns trajectories, transforms, easing, transitions, deformation, and simulation. Select engines or algorithms appropriate to the action, with one owner for each animated property.",
+      "render_pipeline": "Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
+      "integration": "Visual and motion layers expose deterministic state at composition time, or supply baked assets or frame sequences. The pipeline supplies seekable time and composes their output. Timeline registration and frame hooks are integration adapters, not substitutes for style-specific rendering or motion.",
+      "selection": "Choose only needed stack entries. A technology may serve multiple roles, but document its actual responsibility. Optional authoring, interaction, color, and preprocessing tools are not mandatory renderers or motion engines."
+    },
+    "motionReferences": []
+  }
+}

@@ -1,0 +1,304 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Shadow Puppetry — An idea becomes a connected system</title>
+<style>
+@font-face{font-family:"Gill Sans";src:local("Gill Sans"),local("GillSans"),local("Gill Sans MT");font-weight:400;font-style:normal}
+@font-face{font-family:"Gill Sans MT";src:local("Gill Sans MT"),local("GillSansMT"),local("Gill Sans");font-weight:400;font-style:normal}
+html,body{margin:0;padding:0;width:1280px;height:720px;overflow:hidden;background:#0B0F1E}
+#root{position:relative;width:100%;height:100%;overflow:hidden}
+#screen,#stage{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+text{font-family:"Gill Sans","Gill Sans MT",Futura,"Avenir Next","Helvetica Neue",Arial,sans-serif}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <!-- LAYER 1: translucent screen (Canvas 2D, drawn once, stationary) -->
+  <canvas id="screen" width="1280" height="720"></canvas>
+  <!-- LAYERS 2-5: wash depth, cast shadows, sharp puppets, proscenium (SVG) -->
+  <svg id="stage" xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+    <defs>
+      <radialGradient id="hotspot" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stop-color="#F4F7FB" stop-opacity="0.85"/>
+        <stop offset="0.55" stop-color="#F4F7FB" stop-opacity="0.25"/>
+        <stop offset="1" stop-color="#F4F7FB" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="warmGlow" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stop-color="#F4C26A" stop-opacity="0.9"/>
+        <stop offset="0.45" stop-color="#F4C26A" stop-opacity="0.35"/>
+        <stop offset="1" stop-color="#F4C26A" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="fold" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#0E1428"/>
+        <stop offset="0.35" stop-color="#25305A"/>
+        <stop offset="0.6" stop-color="#1B2344"/>
+        <stop offset="1" stop-color="#0E1428"/>
+      </linearGradient>
+      <pattern id="velvet" width="58" height="720" patternUnits="userSpaceOnUse">
+        <rect width="58" height="720" fill="url(#fold)"/>
+      </pattern>
+      <linearGradient id="valanceShade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0E1428"/>
+        <stop offset="1" stop-color="#222C52"/>
+      </linearGradient>
+      <filter id="penumbra" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"/></filter>
+      <filter id="farBlur" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="2.2"/></filter>
+      <g id="nodeShape"><rect x="-4" y="-40" width="8" height="15"/><circle r="23"/></g>
+      <!-- the figure torso/legs/head, reused for its soft cast penumbra -->
+      <g id="figureBody">
+        <path d="M262 362Q300 350 338 364L352 512H250z"/>
+        <path d="M270 516l-8 92h20l12-92zM318 516l16 92h20l-12-92z"/>
+        <path d="M262 384L236 450 244 500" fill="none" stroke="#12141C" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </defs>
+
+    <!-- light from the held lamp brightens the screen (value only, no new hue) -->
+    <circle id="screenHotspot" cx="494" cy="226" r="430" fill="url(#hotspot)" opacity="0"/>
+
+    <!-- DEPTH 3 (far): diluted single-ink washes stepping toward the screen value -->
+    <g id="farLayer" fill="#12141C" filter="url(#farBlur)">
+      <path opacity="0.13" d="M0 520 C140 470 260 500 380 478 S620 440 760 470 S1020 430 1280 462 V720 H0z"/>
+      <path opacity="0.24" d="M0 560 C180 525 300 548 470 530 S760 500 900 528 S1120 505 1280 520 V720 H0z"/>
+    </g>
+
+    <!-- DEPTH 2 (mid): network cut-outs held away from the screen -> enlarged, softened shadows -->
+    <g id="network" fill="#12141C" opacity="0.52" filter="url(#penumbra)">
+      <g id="edges" fill="none" stroke="#12141C" stroke-width="6" stroke-linecap="round"></g>
+      <g id="nodes"></g>
+    </g>
+
+    <!-- dotted beams from lamp to the first shadows -->
+    <g id="beams" fill="none" stroke="#12141C" stroke-width="3" stroke-dasharray="2 10" stroke-linecap="round">
+      <line id="beamA" x1="532" y1="234" x2="532" y2="234"/>
+      <line id="beamF" x1="532" y1="252" x2="532" y2="252"/>
+    </g>
+
+    <!-- figure penumbra, offset away from the lamp (consistent light direction) -->
+    <use id="figPenumbra" href="#figureBody" fill="#12141C" opacity="0" filter="url(#penumbra)"/>
+
+    <!-- control rods (behind the ground band) -->
+    <g id="rods" fill="none" stroke="#12141C" stroke-width="2.2" stroke-linecap="round">
+      <line id="rodArm" x1="478" y1="447" x2="548" y2="847"/>
+      <line x1="244" y1="500" x2="210" y2="720"/>
+      <line x1="300" y1="470" x2="300" y2="720"/>
+    </g>
+
+    <!-- DEPTH 1 (near): sharp puppet pressed to the screen; pivots: neck (300,352), shoulder (342,382), elbow (FK) -->
+    <g id="puppet" fill="#12141C">
+      <use href="#figureBody"/>
+      <g id="head"><circle cx="300" cy="318" r="34"/><path d="M330 312l14 8-14 4z"/><rect x="292" y="346" width="16" height="12"/></g>
+      <polyline id="arm" fill="none" stroke="#12141C" stroke-width="17" stroke-linecap="round" stroke-linejoin="round" points="342,382 407,428 478,447"/>
+      <g id="lamp">
+        <circle id="lampGlow" cx="24" cy="-74" r="120" fill="url(#warmGlow)" opacity="0"/>
+        <g id="rays" fill="none" stroke="#12141C" stroke-width="3.5" stroke-linecap="round"></g>
+        <path fill="#12141C" d="M-12 -40 a38 38 0 1 1 72 0 q-10 12 -10 24 v14 h-52 v-14 q0 -12 -10 -24z" transform="translate(-0.5,-14)"/>
+        <rect x="6" y="-12" width="36" height="5" fill="#12141C"/>
+        <rect x="9" y="-5" width="30" height="5" fill="#12141C"/>
+        <!-- lit opening punched into the bulb silhouette -->
+        <path id="filament" d="M8 -72 l8 -10 8 10 8 -10 8 10" fill="none" stroke="#3A4055" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </g>
+
+    <!-- ground band (near-black) with label -->
+    <path d="M0 612 Q300 574 640 614 T1280 594 V720 H0z" fill="#12141C"/>
+    <text x="1186" y="684" text-anchor="end" font-size="14" letter-spacing="5" fill="#C9D3E2">ONE LAMP · THREE DEPTHS</text>
+
+    <!-- hanging caption board: drops on strings, text revealed only after it lands -->
+    <g id="board">
+      <line x1="372" y1="-300" x2="372" y2="60" stroke="#8C97B3" stroke-width="1.5"/>
+      <line x1="908" y1="-300" x2="908" y2="60" stroke="#8C97B3" stroke-width="1.5"/>
+      <g id="boardFrame">
+        <rect x="292" y="58" width="696" height="78" rx="6" fill="#12141C" stroke="#8C97B3" stroke-width="1.5"/>
+        <rect x="302" y="66" width="676" height="62" rx="3" fill="none" stroke="#8C97B3" stroke-width="1" stroke-dasharray="1.5 7" stroke-linecap="round"/>
+      </g>
+      <text id="caption" data-reveal-after="boardFrame" x="640" y="106" text-anchor="middle" font-size="24" letter-spacing="6" fill="#E6ECF4" opacity="0">AN IDEA BECOMES A CONNECTED SYSTEM</text>
+    </g>
+
+    <!-- PROSCENIUM: navy velvet curtains (moving masks) + fixed valance -->
+    <g id="curtainL"><rect x="0" y="0" width="640" height="720" fill="url(#velvet)"/><line x1="639" y1="0" x2="639" y2="720" stroke="#8C97B3" stroke-width="2" vector-effect="non-scaling-stroke"/></g>
+    <g id="curtainR"><rect x="640" y="0" width="640" height="720" fill="url(#velvet)"/><line x1="641" y1="0" x2="641" y2="720" stroke="#8C97B3" stroke-width="2" vector-effect="non-scaling-stroke"/></g>
+    <g id="valance">
+      <path id="valancePath" fill="url(#valanceShade)"/>
+      <path id="valanceCord" fill="none" stroke="#8C97B3" stroke-width="1.5"/>
+    </g>
+  </svg>
+</div>
+<script src="gsap.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  // ---------- centralized palette (scene-resolved: moonlit screen, navy proscenium, one warm light accent) ----------
+  var INK = "#12141C", WARM = "#F4C26A", FILAMENT_OFF = "#3A4055";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var $ = function(id){ return document.getElementById(id); };
+
+  // ---------- LAYER 1: the screen (static Canvas 2D, seeded grain) ----------
+  (function drawScreen(){
+    var c = $("screen"), g = c.getContext("2d");
+    var grad = g.createRadialGradient(560, 300, 40, 640, 360, 820);
+    grad.addColorStop(0, "#E4EBF3");
+    grad.addColorStop(0.45, "#C3CFDF");
+    grad.addColorStop(0.8, "#8695B0");
+    grad.addColorStop(1, "#5C6A87");
+    g.fillStyle = grad; g.fillRect(0, 0, 1280, 720);
+    // paper/cloth fibre grain: seeded LCG, stationary
+    var img = g.getImageData(0, 0, 1280, 720), d = img.data, seed = 85;
+    function rnd(){ seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
+    for (var y = 0; y < 720; y++) {
+      var rowWeave = Math.sin(y * 1.7) * 1.2;
+      for (var x = 0; x < 1280; x++) {
+        var i = (y * 1280 + x) * 4, n = (rnd() - 0.5) * 7 + rowWeave + Math.sin(x * 2.3) * 0.8;
+        d[i] += n; d[i+1] += n; d[i+2] += n;
+      }
+    }
+    g.putImageData(img, 0, 0);
+  })();
+
+  // ---------- valance geometry ----------
+  (function buildValance(){
+    var p = "M0 0 H1280 V34", cord = "M1280 36";
+    for (var x = 1280; x > 0; x -= 64) { p += " Q" + (x - 32) + " 62 " + (x - 64) + " 34"; cord += " Q" + (x - 32) + " 64 " + (x - 64) + " 36"; }
+    $("valancePath").setAttribute("d", p + " Z");
+    $("valanceCord").setAttribute("d", cord);
+  })();
+
+  // ---------- rig constants ----------
+  var SHOULDER = [342, 382], L1 = 80, L2 = 73;
+  var ARM_START = [35, 15], ARM_END = [-28, -37.7];   // degrees: upper arm, forearm
+  var LAMP_OFF = [24, -74];                            // bulb centre relative to hand
+  var ROD_VEC = [70, 400];                             // rigid control rod from hand
+  function rad(a){ return a * Math.PI / 180; }
+  function lerp(a, b, t){ return a + (b - a) * t; }
+  function fk(t){
+    var a1 = rad(lerp(ARM_START[0], ARM_END[0], t)), a2 = rad(lerp(ARM_START[1], ARM_END[1], t));
+    var e = [SHOULDER[0] + L1 * Math.cos(a1), SHOULDER[1] + L1 * Math.sin(a1)];
+    var h = [e[0] + L2 * Math.cos(a2), e[1] + L2 * Math.sin(a2)];
+    return { elbow: e, hand: h };
+  }
+  var HAND_FINAL = fk(1).hand;
+  var LAMP_FINAL = [HAND_FINAL[0] + LAMP_OFF[0], HAND_FINAL[1] + LAMP_OFF[1]];
+
+  // rays around the bulb (local lamp coords)
+  var rayDefs = [[-26,-112,-40,-126],[74,-112,88,-126],[24,-128,24,-150],[-34,-74,-56,-74],[82,-74,104,-74]];
+  var rays = rayDefs.map(function(r){
+    var l = document.createElementNS(SVGNS, "line");
+    l.setAttribute("x1", r[0]); l.setAttribute("y1", r[1]); l.setAttribute("x2", r[2]); l.setAttribute("y2", r[3]);
+    var len = Math.hypot(r[2] - r[0], r[3] - r[1]);
+    l.setAttribute("stroke-dasharray", len); l.setAttribute("stroke-dashoffset", len);
+    $("rays").appendChild(l); return { el: l, len: len };
+  });
+
+  // ---------- network shadow (mid depth) ----------
+  var NODES = { A:[700,270], B:[860,214], C:[1010,290], D:[900,392], E:[1100,420], F:[760,420] };
+  var EDGES = [["A","B"],["B","C"],["C","D"],["D","F"],["F","A"],["D","E"],["C","E"]];
+  var nodeKeys = Object.keys(NODES).sort(function(a, b){
+    return Math.hypot(NODES[a][0]-LAMP_FINAL[0], NODES[a][1]-LAMP_FINAL[1]) - Math.hypot(NODES[b][0]-LAMP_FINAL[0], NODES[b][1]-LAMP_FINAL[1]);
+  });
+  var nodeEls = {};
+  nodeKeys.forEach(function(k){
+    var g = document.createElementNS(SVGNS, "g"), u = document.createElementNS(SVGNS, "use");
+    u.setAttribute("href", "#nodeShape"); g.appendChild(u); g.setAttribute("opacity", "0");
+    $("nodes").appendChild(g);
+    var dist = Math.hypot(NODES[k][0]-LAMP_FINAL[0], NODES[k][1]-LAMP_FINAL[1]);
+    nodeEls[k] = { el: g, scale: 0.85 + dist / 1100 };   // farther from the lamp -> larger cast shadow
+  });
+  var edgeEls = EDGES.map(function(e){
+    var a = NODES[e[0]], b = NODES[e[1]], l = document.createElementNS(SVGNS, "line");
+    l.setAttribute("x1", a[0]); l.setAttribute("y1", a[1]); l.setAttribute("x2", b[0]); l.setAttribute("y2", b[1]);
+    var len = Math.hypot(b[0]-a[0], b[1]-a[1]);
+    l.setAttribute("stroke-dasharray", len); l.setAttribute("stroke-dashoffset", len);
+    $("edges").appendChild(l); return { el: l, len: len };
+  });
+
+  // ---------- renderers: pure functions of the state object ----------
+  var V = { curtain:0, arm:0, head:0, lit:0, beams:0, edges:0, board:0, text:0, n0:0, n1:0, n2:0, n3:0, n4:0, n5:0 };
+
+  function renderCurtain(){
+    var s = lerp(1, 72 / 640, V.curtain);
+    $("curtainL").setAttribute("transform", "scale(" + s + ",1)");
+    $("curtainR").setAttribute("transform", "translate(1280,0) scale(" + s + ",1) translate(-1280,0)");
+  }
+  function renderPuppet(){
+    var k = fk(V.arm), h = k.hand;
+    $("arm").setAttribute("points", SHOULDER.join(",") + " " + k.elbow.join(",") + " " + h.join(","));
+    $("lamp").setAttribute("transform", "translate(" + h[0] + "," + h[1] + ")");
+    var rod = $("rodArm");
+    rod.setAttribute("x1", h[0]); rod.setAttribute("y1", h[1]);
+    rod.setAttribute("x2", h[0] + ROD_VEC[0]); rod.setAttribute("y2", h[1] + ROD_VEC[1]);
+    $("head").setAttribute("transform", "rotate(" + lerp(5, -8, V.head) + " 300 352)");
+    var L = V.lit;
+    $("lampGlow").setAttribute("opacity", 0.85 * L);
+    $("lampGlow").setAttribute("r", 70 + 60 * L);
+    $("filament").setAttribute("stroke", L > 0.02 ? WARM : FILAMENT_OFF);
+    $("filament").setAttribute("opacity", L > 0.02 ? 0.35 + 0.65 * L : 1);
+    rays.forEach(function(r){ r.el.setAttribute("stroke-dashoffset", r.len * (1 - L)); });
+    var lx = h[0] + LAMP_OFF[0], ly = h[1] + LAMP_OFF[1];
+    var hs = $("screenHotspot");
+    hs.setAttribute("cx", lx); hs.setAttribute("cy", ly); hs.setAttribute("opacity", 0.55 * L);
+    // penumbra offset points away from the lamp: single, consistent light
+    var dx = 300 - lx, dy = 450 - ly, dl = Math.hypot(dx, dy) || 1;
+    $("figPenumbra").setAttribute("transform", "translate(" + (dx / dl * 11).toFixed(2) + "," + (dy / dl * 11).toFixed(2) + ")");
+    $("figPenumbra").setAttribute("opacity", 0.3 * L);
+  }
+  function renderBeams(){
+    var b = V.beams, s = LAMP_FINAL, A = NODES[nodeKeys[0]], F = NODES.F;
+    var a0 = [s[0] + 38, s[1] + 8], f0 = [s[0] + 38, s[1] + 26];
+    $("beamA").setAttribute("x1", a0[0]); $("beamA").setAttribute("y1", a0[1]);
+    $("beamA").setAttribute("x2", lerp(a0[0], A[0], b)); $("beamA").setAttribute("y2", lerp(a0[1], A[1], b));
+    $("beamF").setAttribute("x1", f0[0]); $("beamF").setAttribute("y1", f0[1]);
+    $("beamF").setAttribute("x2", lerp(f0[0], F[0], b)); $("beamF").setAttribute("y2", lerp(f0[1], F[1], b));
+    $("beams").setAttribute("opacity", b > 0.001 ? 1 : 0);
+  }
+  function renderNodes(){
+    nodeKeys.forEach(function(k, i){
+      var p = V["n" + i], n = NODES[k], o = nodeEls[k];
+      var x = lerp(LAMP_FINAL[0], n[0], p), y = lerp(LAMP_FINAL[1], n[1], p);
+      var sc = o.scale * (0.3 + 0.7 * p);
+      o.el.setAttribute("transform", "translate(" + x.toFixed(2) + "," + y.toFixed(2) + ") scale(" + sc.toFixed(4) + ")");
+      o.el.setAttribute("opacity", Math.min(1, p * 1.6).toFixed(3));
+    });
+  }
+  function renderEdges(){ edgeEls.forEach(function(e){ e.el.setAttribute("stroke-dashoffset", e.len * (1 - V.edges)); }); }
+  function renderBoard(){
+    $("board").setAttribute("transform", "translate(0," + lerp(-170, 0, V.board).toFixed(2) + ")");
+    // caption hidden until the board has landed (text track starts after board track ends)
+    $("caption").setAttribute("opacity", V.board >= 0.999 ? V.text : 0);
+  }
+  var owners = { curtain:renderCurtain, arm:renderPuppet, head:renderPuppet, lit:renderPuppet, beams:renderBeams,
+                 edges:renderEdges, board:renderBoard, text:renderBoard, n0:renderNodes, n1:renderNodes, n2:renderNodes, n3:renderNodes, n4:renderNodes, n5:renderNodes };
+  // State proxy: GSAP is the only writer; every write synchronously redraws the dependent layer.
+  var S = {};
+  Object.keys(V).forEach(function(key){
+    Object.defineProperty(S, key, { enumerable:true, get:function(){ return V[key]; }, set:function(v){ V[key] = v; owners[key](); } });
+  });
+  function renderAll(){ renderCurtain(); renderPuppet(); renderBeams(); renderNodes(); renderEdges(); renderBoard(); }
+
+  // ---------- one paused, seekable GSAP timeline ----------
+  var tl = gsap.timeline({ paused:true });
+  tl.to(S, { curtain:1, duration:0.75, ease:"power2.inOut" }, 0.1);          // curtain-parting wipe
+  tl.to(S, { arm:1,     duration:0.6,  ease:"power2.inOut" }, 0.55);         // shoulder/elbow raise the lamp
+  tl.to(S, { head:1,    duration:0.5,  ease:"sine.inOut" },   0.62);         // head follows the lamp up
+  tl.to(S, { lit:1,     duration:0.3,  ease:"power2.out" },   1.1);          // lamp lights: warm opening + screen hotspot
+  tl.to(S, { beams:1,   duration:0.3,  ease:"power2.inOut" }, 1.2);          // beams reach toward the screen
+  for (var i = 0; i < 6; i++) {
+    var o = {}; o["n" + i] = 1; o.duration = 0.45; o.ease = "power2.out";
+    tl.to(S, o, 1.25 + i * 0.07);                                           // shadows cast outward, growing
+  }
+  tl.to(S, { edges:1,   duration:0.45, ease:"power2.inOut" }, 1.6);          // connections join the system
+  tl.to(S, { board:1,   duration:0.5,  ease:"back.out(1.2)" }, 1.45);        // sign drops on strings
+  tl.to(S, { text:1,    duration:0.3,  ease:"power1.out" },   1.97);         // caption after board lands
+  tl.to({}, { duration:0.001 }, 2.999);
+  tl.progress(1).progress(0);
+  renderAll();
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  window.addEventListener("hf-seek", function(ev){
+    var t = ev && ev.detail && typeof ev.detail.time === "number" ? ev.detail.time : tl.time();
+    tl.seek(t, false); renderAll();
+  });
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

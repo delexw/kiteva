@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-082",
+    "name": "Hand-Drawn Stop-Motion Style (Animation Techniques category, explicit provenance). The source directly describes this visual direction.",
+    "visualIdentity": "Drawn paper assets, clear lines and limited colors change through deliberate replacement or repositioning between held frames. Anticipation, weight and settling are preserved. Small drawing variations must be reproducible. The treatment is simulated, not physical stop-motion photography.",
+    "suitableUses": "Explicitly suited to short charming loops and hybrids for craft tutorials, recipe explainers, personal brand stories, lyric-free music videos, jingles and social loops. Inferred: other handmade explainers with brief copy. Long-form use is unspecified.",
+    "limitations": "Avoid hand-lettering long body copy, tweening text over stepped drawings, random per-render jitter, and uniform beat-flashing. Rough.js cannot supply handwriting, paper texture, character rigs or poses. Source evidence covers only sampled seconds 1–8 at 12 fps.",
+    "palette": "No approved exact palette is supplied, so the scene-dependent background must come from the subject and lighting. Illustrative tokens #F7EEDD, #344344, #B6785D and #819B81 are not canonical. Foreground-on-background contrast is 8.969; accents are decorative only. Roles: matte low-saturation paper, one dark linework pigment, one or two sparing accents, and lighter paper objects with contact shadows. Gradients are disabled.",
+    "motionAndInteraction": "Changes occur on discrete exposure holds. Delivery frame rate may exceed exposure rate without generating in-between poses. Movement needs anticipation, weight and settling. Motion-037, -038 and -039 have review evidence and fit only scenes containing the needed phrase, punctuation or mark. Motion-006, -012 and -015 lack that evidence. Video interaction is unspecified; for interactive HTML, reduced motion should show final states.",
+    "audio": "The style prescribes no audio, so suggestions are optional and task-specific. Music timed to replacements, restrained transition accents, or silence are all valid. Speech must stay intelligible without competing vocals. Beat synchronization needs measured audio analysis, and no audio was reviewed in the source.",
+    "assetRequirements": "Prepared drawn layers or numbered frames need alpha transparency, consistent dimensions, clear naming and a layer manifest, inspected before composition. Fixed-seed contour variants and local fonts must be prepared. No user assets are supplied; subject, duration, aspect ratio, resolution, frame rate and copy are unspecified placeholders.",
+    "combinations": "Use alone for short loops. style-024 adds hand-lettered labels in the same ink, stepped on the same holds, using #344344 or #B6785D for single emphasis. style-105 snaps replacement holds to a verified beat table, with reading pauses after text changes. Label hybrids as simulated treatments.",
+    "productionApproach": "Canvas 2D is the required drawing renderer; PixiJS and Rough.js are optional. chroma-js validates colors, and GSAP is the single motion owner on a paused seekable timeline. HyperFrames is the default pipeline; Remotion is fallback only if HyperFrames is unavailable or a verified limitation exists, with the reason recorded."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

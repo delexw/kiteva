@@ -1,0 +1,28 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js",
+    "GLSL",
+    "Offscreen Rendering"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview: no audio track. The full video would use sparse low ambience; none is included here.",
+  "limitations": [
+    "Reflections are a single re-marched bounce (40 steps), not path-traced; AO is a 4-sample SDF approximation.",
+    "Internal resolution is 768x432 upsampled with linear filtering, which softens fine fractal detail.",
+    "Fog is analytic exponential distance fog toward #080A0C, not volumetric scattering; the spark halo is an analytic glow.",
+    "Material is an illustrative metallic/glossy approximation built from the #F2EEE5 foreground token, not a measured BRDF.",
+    "Mandelbulb distance estimates with clamped iteration count can show minor stepping artifacts at grazing angles.",
+    "Landscape fold is only hinted (uLandscape 0.35); the full landscape, sunset and sculptural SDF lettering from a glyph distance texture are not in this preview.",
+    "If EXT_color_buffer_float is unavailable the render target falls back to 8-bit with x/(1+x) encoding, adding slight banding.",
+    "Three.js 0.186 is bundled locally by esbuild into three.min.js (window.THREE); the scene, GLSL raymarcher, WebGLRenderTarget pass and GSAP timeline are inline in index.html.",
+    "Copy uses an @font-face 'PreviewSerif' resolved via local() system fonts (Didot, Bodoni 72, Georgia, Times New Roman); exact face depends on the render host. Reading bands behind copy resolve to the exact background."
+  ]
+}

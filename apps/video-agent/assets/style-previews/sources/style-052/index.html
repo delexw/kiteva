@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Letterpress Printing — An idea becomes a connected system</title>
+<style>
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#DFE3DF}
+#video{position:relative;width:100%;height:100%;overflow:hidden;background:#DFE3DF}
+#press{position:absolute;inset:0;width:100%;height:100%;display:block}
+</style>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="press" width="1280" height="720" role="img"
+    aria-label="Letterpress card. NO. 52 · A STUDY IN IMPRESSION. An idea becomes a connected system. PRESSED BY HAND · TWO INKS · COTTON STOCK."></canvas>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+'use strict';
+/* ---------- Centralized scene constants ---------- */
+const W=1280,H=720;
+// Scene-dependent palette: cool ash-grey cotton stock under north daylight (replaces prior cream swatch).
+// Ink roles kept: dark ink #343932 (type and network), oxblood accent #914839 (one idea node + kicker/rule).
+const PAPER='#DFE3DF', INK_DARK='#343932', INK_ACCENT='#914839';
+const SERIF='Georgia, "Times New Roman", serif';
+const CX=640, CY=450;
+const NODES=[[790,450],[715,545],[565,545],[490,450],[565,355],[715,355]];
+// Render-time contrast record (flat ink on paper; lighting is checked visually by host QA)
+const contrast={dark:chroma.contrast(INK_DARK,PAPER),accent:chroma.contrast(INK_ACCENT,PAPER)};
+document.getElementById('video').setAttribute('data-ink-contrast',contrast.dark.toFixed(2)+'/'+contrast.accent.toFixed(2));
+
+/* ---------- Groups: each is a separate mask with its own impression depth and ink level ---------- */
+// ink: 0 none (blind impression), 1 dark ink, 2 accent ink. gate: shader-side reveal rule.
+const GROUPS=[
+ {id:'frame',ink:1},{id:'innerRule',ink:2},{id:'caption',ink:1},{id:'kicker',ink:2},
+ {id:'head1',ink:1},{id:'head2',ink:1},{id:'disc',ink:0},{id:'idea',ink:2},
+ {id:'spokes',ink:1},{id:'perimeter',ink:1},{id:'nodes',ink:1},{id:'spare',ink:0}
+];
+const NG=GROUPS.length; // 12 -> three RGBA textures
+
+function makeCtx(){const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d',{willReadFrequently:true});x.fillStyle='#000';x.fillRect(0,0,W,H);x.fillStyle='#fff';x.strokeStyle='#fff';return x;}
+function spacedText(x,str,cx,y,font,spacing){
+ x.font=font;x.textBaseline='alphabetic';x.textAlign='left';
+ const ws=Array.from(str).map(ch=>x.measureText(ch).width);
+ const total=ws.reduce((a,b)=>a+b,0)+spacing*(ws.length-1);
+ let px=cx-total/2;
+ Array.from(str).forEach((ch,i)=>{x.fillText(ch,px,y);px+=ws[i]+spacing;});
+}
+function clearNodes(x,r){x.save();x.globalCompositeOperation='destination-out';x.fillStyle='#fff';
+ for(const [nx,ny] of NODES){x.beginPath();x.arc(nx,ny,r,0,Math.PI*2);x.fill();}
+ x.beginPath();x.arc(CX,CY,22,0,Math.PI*2);x.fill();x.restore();}
+const DRAW={
+ frame:x=>{x.lineWidth=2;x.strokeRect(60,50,1160,620);},
+ innerRule:x=>{x.lineWidth=1.2;x.strokeRect(74,64,1132,592);},
+ caption:x=>spacedText(x,'PRESSED BY HAND · TWO INKS · COTTON STOCK',640,630,'13px '+SERIF,5),
+ kicker:x=>spacedText(x,'NO. 52 · A STUDY IN IMPRESSION',640,122,'15px '+SERIF,6),
+ head1:x=>{x.font='italic 54px '+SERIF;x.textAlign='center';x.fillText('An idea becomes',640,196);},
+ head2:x=>{x.font='54px '+SERIF;x.textAlign='center';x.fillText('a connected system',640,256);},
+ disc:x=>{x.beginPath();x.arc(CX,CY,162,0,Math.PI*2);x.fill();},
+ idea:x=>{x.beginPath();x.arc(CX,CY,22,0,Math.PI*2);x.fill();},
+ spokes:x=>{x.lineWidth=2.4;x.lineCap='round';for(const [nx,ny] of NODES){x.beginPath();x.moveTo(CX,CY);x.lineTo(nx,ny);x.stroke();}clearNodes(x,11.5);},
+ perimeter:x=>{x.lineWidth=2.4;x.lineJoin='round';x.beginPath();NODES.forEach(([nx,ny],i)=>i?x.lineTo(nx,ny):x.moveTo(nx,ny));x.closePath();x.stroke();clearNodes(x,11.5);},
+ nodes:x=>{x.lineWidth=3;for(const [nx,ny] of NODES){x.beginPath();x.arc(nx,ny,10,0,Math.PI*2);x.stroke();}},
+ spare:x=>{}
+};
+// Deterministic separable box blur (two passes ≈ gaussian) gives the shallow impression shoulder.
+function boxBlur(src,r){
+ const tmp=new Float32Array(W*H),out=new Float32Array(W*H),n=2*r+1;
+ for(let y=0;y<H;y++){let s=0;const o=y*W;for(let i=-r;i<=r;i++)s+=src[o+Math.min(W-1,Math.max(0,i))];
+  for(let x=0;x<W;x++){tmp[o+x]=s/n;s+=src[o+Math.min(W-1,x+r+1)]-src[o+Math.max(0,x-r)];}}
+ for(let x=0;x<W;x++){let s=0;for(let i=-r;i<=r;i++)s+=tmp[Math.min(H-1,Math.max(0,i))*W+x];
+  for(let y=0;y<H;y++){out[y*W+x]=s/n;s+=tmp[Math.min(H-1,y+r+1)*W+x]-tmp[Math.max(0,y-r)*W+x];}}
+ return out;
+}
+const NT=Math.ceil(NG/4);
+const sharpData=Array.from({length:NT},()=>new Uint8Array(W*H*4));
+const blurData=Array.from({length:NT},()=>new Uint8Array(W*H*4));
+GROUPS.forEach((g,gi)=>{
+ const x=makeCtx();DRAW[g.id](x);
+ const img=x.getImageData(0,0,W,H).data;const m=new Float32Array(W*H);
+ for(let i=0;i<W*H;i++)m[i]=img[i*4]/255;
+ const r=g.id==='disc'?3:2;
+ const b=boxBlur(boxBlur(m,r),r);
+ const t=gi>>2,c=gi&3;
+ for(let i=0;i<W*H;i++){sharpData[t][i*4+c]=Math.round(m[i]*255);blurData[t][i*4+c]=Math.round(Math.min(1,b[i])*255);}
+});
+
+/* ---------- Seekable state: single owner = GSAP timeline ---------- */
+const state={reach:22,sweep:0};
+GROUPS.forEach(g=>{state['d_'+g.id]=0;state['i_'+g.id]=0;});
+// Already-printed sheet elements (first pass of the run): frame, inner rule, caption.
+['frame','innerRule','caption'].forEach(id=>{state['d_'+id]=1;state['i_'+id]=1;});
+
+/* ---------- WebGL2 renderer ---------- */
+const canvas=document.getElementById('press');
+const gl=canvas.getContext('webgl2',{preserveDrawingBuffer:true,antialias:false,premultipliedAlpha:false});
+let draw;
+const hex3=h=>chroma(h).gl().slice(0,3);
+if(gl){
+ const vs=`#version 300 es
+in vec2 aP;void main(){gl_Position=vec4(aP,0.,1.);}`;
+ const fs=`#version 300 es
+precision highp float;precision highp int;
+uniform sampler2D uS0,uS1,uS2,uB0,uB1,uB2;
+uniform float uDepth[12];uniform float uInk[12];
+uniform vec2 uRes;uniform vec2 uC;uniform float uReach,uSweep;
+uniform vec3 uPaper,uDark,uAccent,uLight;
+uniform float uPaperTex,uDepthScale,uCoverage,uLightSoft;
+out vec4 o;
+uint hsh(uvec2 v){v=v*1664525u+1013904223u;v.x+=v.y*1664525u;v.y+=v.x*1664525u;v^=v>>16u;v.x+=v.y*1664525u;v.y+=v.x*1664525u;v^=v>>16u;return v.x^v.y;}
+float h2(vec2 p){return float(hsh(uvec2(ivec2(floor(p))+ivec2(4096)))&0xffffffu)/16777215.;}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+ return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*vn(p);p=p*2.03+vec2(17.1,9.3);a*=.5;}return s;}
+// Paper texture layer (independent control: uPaperTex)
+float paperH(vec2 p){
+ vec2 q=mat2(.97,-.24,.24,.97)*p;
+ float fib=fbm(vec2(q.x*.045,q.y*.32));       // drawn cotton fibres
+ float tooth=vn(p*.9);                          // felt tooth
+ return uPaperTex*(.55*fib+.45*tooth);
+}
+float gateOf(int i,vec2 p){
+ vec2 d=p-uC;float r=length(d);
+ if(i==8)return clamp((uReach-r)/3.+.5,0.,1.);
+ if(i==9){float a=atan(d.y,d.x);a=mod(a,6.2831853)/6.2831853;return clamp((uSweep-a)/.012+.5,0.,1.)*step(.0005,uSweep);}
+ return 1.;
+}
+// Impression layer (independent control: uDepth[], uDepthScale), from blurred outline masks
+float impH(vec2 p){
+ vec2 uv=p/uRes;vec4 b0=texture(uB0,uv),b1=texture(uB1,uv),b2=texture(uB2,uv);
+ float m[12]=float[12](b0.r,b0.g,b0.b,b0.a,b1.r,b1.g,b1.b,b1.a,b2.r,b2.g,b2.b,b2.a);
+ float h=0.;
+ for(int i=0;i<12;i++){float w=(i==6)?.42:1.;h+=w*uDepth[i]*m[i]*gateOf(i,p);}
+ return min(h,1.6);
+}
+void main(){
+ vec2 p=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y);
+ vec2 uv=p/uRes;
+ // --- height & normal (paper tooth + impressions) ---
+ float hc=impH(p);
+ float hx=impH(p+vec2(1,0))-impH(p-vec2(1,0));
+ float hy=impH(p+vec2(0,1))-impH(p-vec2(0,1));
+ float ph=paperH(p),phx=paperH(p+vec2(1,0))-paperH(p-vec2(1,0)),phy=paperH(p+vec2(0,1))-paperH(p-vec2(0,1));
+ // impressions are depressions: surface z = -depth
+ vec3 n=normalize(vec3((hx*uDepthScale)-phx*.6,(hy*uDepthScale)-phy*.6,2.));
+ // --- soft side lighting layer (independent: uLight, uLightSoft) ---
+ vec3 L=normalize(uLight);
+ float flat0=L.z;
+ float diff=dot(n,L)/flat0;
+ float shade=mix(1.,diff,uLightSoft);
+ // --- paper colour (cloudy cotton formation, sparse inclusions) ---
+ vec3 col=uPaper*(1.+(fbm(p*.006)-.5)*.035+(ph-.5*uPaperTex)*.05);
+ float inc=step(.9993,h2(p*.5+vec2(31.,7.)));col*=1.-inc*.12;
+ // compressed fibres on impression floors read slightly darker/smoother
+ vec4 b1=texture(uB1,uv);
+ col*=1.-.085*uDepth[6]*b1.b-.035*min(hc,1.);
+ // --- ink coverage layer (independent: uInk[], uCoverage) ---
+ vec4 s0=texture(uS0,uv),s1=texture(uS1,uv),s2=texture(uS2,uv);
+ vec4 c0=texture(uB0,uv),c2=texture(uB2,uv);
+ float sm[12]=float[12](s0.r,s0.g,s0.b,s0.a,s1.r,s1.g,s1.b,s1.a,s2.r,s2.g,s2.b,s2.a);
+ float bm[12]=float[12](c0.r,c0.g,c0.b,c0.a,b1.r,b1.g,b1.b,b1.a,c2.r,c2.g,c2.b,c2.a);
+ float mott=.84+.16*fbm(p*.35+vec2(3.,11.));
+ float salt=1.-.25*smoothstep(.74,.95,vn(p*.7+vec2(50.,2.)))*(1.-uPaperTex*.2);
+ float dk=0.,ac=0.;
+ // group ink kinds: 0 frame d,1 innerRule a,2 caption d,3 kicker a,4 head1 d,5 head2 d,6 disc none,7 idea a,8 spokes d,9 perimeter d,10 nodes d,11 spare
+ for(int i=0;i<12;i++){
+  float squeeze=max(sm[i]-bm[i],0.)*.35;          // ink squeeze toward glyph edges
+  float k=clamp(uInk[i]*(sm[i]+squeeze)*gateOf(i,p),0.,1.);
+  if(i==1||i==3||i==7)ac=max(ac,k);else if(i!=6&&i!=11)dk=max(dk,k);
+ }
+ float cov=uCoverage*mott*salt;
+ col=mix(col,uDark,clamp(dk*cov,0.,1.)*.96);
+ col=mix(col,uAccent,clamp(ac*cov,0.,1.)*.95);
+ col*=shade;
+ // static soft light falloff from the window side
+ col*=1.-.06*smoothstep(.35,1.25,length((uv-vec2(.42,.45))*vec2(1.2,1.)));
+ o=vec4(clamp(col,0.,1.),1.);
+}`;
+ function sh(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(x));return x;}
+ const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);
+ if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(pr));
+ gl.useProgram(pr);
+ const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+ const loc=gl.getAttribLocation(pr,'aP');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+ gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);
+ const names=['uS0','uS1','uS2','uB0','uB1','uB2'];const datas=[...sharpData,...blurData];
+ names.forEach((nm,i)=>{const tx=gl.createTexture();gl.activeTexture(gl.TEXTURE0+i);gl.bindTexture(gl.TEXTURE_2D,tx);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA8,W,H,0,gl.RGBA,gl.UNSIGNED_BYTE,datas[i]);
+  gl.uniform1i(gl.getUniformLocation(pr,nm),i);});
+ const U=n=>gl.getUniformLocation(pr,n);
+ gl.uniform2f(U('uRes'),W,H);gl.uniform2f(U('uC'),CX,CY);
+ gl.uniform3fv(U('uPaper'),hex3(PAPER));gl.uniform3fv(U('uDark'),hex3(INK_DARK));gl.uniform3fv(U('uAccent'),hex3(INK_ACCENT));
+ gl.uniform3f(U('uLight'),-0.78,-0.34,0.52);   // soft raking light from the left, slightly above
+ gl.uniform1f(U('uLightSoft'),0.85);gl.uniform1f(U('uPaperTex'),0.9);gl.uniform1f(U('uDepthScale'),1.15);gl.uniform1f(U('uCoverage'),1.0);
+ const uD=U('uDepth'),uI=U('uInk'),uR=U('uReach'),uSw=U('uSweep');
+ const dArr=new Float32Array(NG),iArr=new Float32Array(NG);
+ gl.viewport(0,0,W,H);
+ draw=function(){
+  GROUPS.forEach((g,i)=>{dArr[i]=state['d_'+g.id];iArr[i]=state['i_'+g.id];});
+  gl.uniform1fv(uD,dArr);gl.uniform1fv(uI,iArr);gl.uniform1f(uR,state.reach);gl.uniform1f(uSw,state.sweep);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+ };
+}else{
+ // Fallback (no WebGL2): flat 2D ink only, no impression lighting. Reported as limitation.
+ const c2=canvas.getContext('2d');
+ draw=function(){c2.fillStyle=PAPER;c2.fillRect(0,0,W,H);
+  GROUPS.forEach(g=>{if(!g.ink||state['i_'+g.id]<=0)return;c2.save();c2.globalAlpha=Math.min(1,state['i_'+g.id]);
+   c2.fillStyle=c2.strokeStyle=g.ink===2?INK_ACCENT:INK_DARK;DRAW[g.id](c2);c2.restore();});};
+}
+
+/* ---------- Timeline (GSAP owns every animated value) ---------- */
+const tl=gsap.timeline({paused:true,onUpdate:()=>draw()});
+// press(): platen contact — ink transfers fast, impression bites slightly past rest then recovers (paper spring-back)
+function press(id,t,inkDur,biteDur){
+ tl.fromTo(state,{['i_'+id]:0},{['i_'+id]:1,duration:inkDur,ease:'power2.out',immediateRender:false},t);
+ tl.fromTo(state,{['d_'+id]:0},{['d_'+id]:1.18,duration:biteDur*0.55,ease:'power2.in',immediateRender:false},t);
+ tl.fromTo(state,{['d_'+id]:1.18},{['d_'+id]:1,duration:biteDur*0.45,ease:'sine.out',immediateRender:false},t+biteDur*0.55);
+}
+tl.addLabel('head',0.12);
+press('kicker',0.12,0.2,0.34);
+press('head1',0.22,0.22,0.4);
+press('head2',0.5,0.22,0.4);
+tl.addLabel('field',1.0);
+// blind (uninked) impression of the round field the system will live in
+tl.fromTo(state,{d_disc:0},{d_disc:1.12,duration:0.24,ease:'power2.in',immediateRender:false},1.0);
+tl.fromTo(state,{d_disc:1.12},{d_disc:1,duration:0.2,ease:'sine.out',immediateRender:false},1.24);
+tl.addLabel('idea',1.22);
+press('idea',1.22,0.16,0.34);
+tl.addLabel('connect',1.5);
+tl.fromTo(state,{reach:22},{reach:162,duration:0.42,ease:'power2.inOut',immediateRender:false},1.5);
+press('nodes',1.84,0.16,0.3);
+tl.fromTo(state,{sweep:0},{sweep:1.02,duration:0.56,ease:'sine.inOut',immediateRender:false},1.9);
+// spokes/perimeter impression and ink are on from their reveal start; gating via reach/sweep
+tl.set(state,{d_spokes:1,i_spokes:1},1.5);
+tl.set(state,{d_perimeter:1,i_perimeter:1},1.9);
+tl.addLabel('settled',2.5);
+tl.to({}, {duration:0.001},2.999);
+
+window.__timelines=window.__timelines||{};
+window.__timelines.video=tl;
+const redraw=()=>draw();
+window.addEventListener('hf-seek',redraw);document.addEventListener('hf-seek',redraw);
+tl.progress(1).progress(0); // initialise all tweens deterministically, then return to t=0
+draw();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

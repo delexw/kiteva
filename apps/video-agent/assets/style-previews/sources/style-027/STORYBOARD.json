@@ -1,0 +1,13 @@
+{"version":3,"title":"Line Art — An idea becomes a connected system","durationSeconds":3,
+"scenes":[{"id":"scene-1","title":"Idea to system","startSeconds":0,"endSeconds":3,
+"purpose":"A monoline light bulb (the idea) draws itself, ignites a single copper spark, and its contours extend into a connected, tonally hatched network with a word-by-word caption.",
+"visuals":["Flat stationary ink-teal field #111C22 with off-white #EEF1EC round-capped contours","Bulb contour 3.4px, connectors 2px, node rings 2.4px","Tonal hatching band (single hatch 150–220px radius, crosshatch toward the rim) in #46646E","Copper #B77843 accent limited to the hub spark and three active nodes","Gray #93A7AB header labels, dotted orbit and caption rule"],
+"assets":[],
+"beats":[
+{"startSeconds":0,"endSeconds":0.8,"development":"Bulb contour draws from its crown down both sides, base lines and filament follow, shadow-side hatching strokes in; copper hub spark ignites at the filament apex.","captions":[],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0},
+{"startSeconds":0.8,"endSeconds":1.4,"development":"Spokes draw outward from the hub by stroke length; each node ring closes when its spoke arrives; the outer ring traces its perimeter and the dotted orbit settles.","captions":[],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0},
+{"startSeconds":1.4,"endSeconds":2.25,"development":"Tonal hatching sweeps left to right, outer links and nodes extend, cross links close the loops, three nodes take the copper active state; caption rule draws and the caption reveals word by word.","captions":["AN IDEA BECOMES","A CONNECTED SYSTEM"],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0},
+{"startSeconds":2.25,"endSeconds":3,"development":"Full composition settled and held for reading.","captions":["AN IDEA BECOMES","A CONNECTED SYSTEM"],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0.75}
+]}],
+"pacingAudit":{"findings":["Draw durations scale with stroke length (spokes ~520px/s) rather than one preset.","Primary focus moves bulb → hub → network; hatching and caption are overlapping secondary actions, as in the reviewed source grammar.","Everything is complete by about 2.22s, before the 2.7s settle deadline."],"justifiedHolds":["2.25–3.0s full-scene reading hold for the six-word caption and finished network."]},
+"notes":["Silent preview: no audio track, music or effects.","Background is a scene-dependent ink-teal night field, not the prior #FAF8F1 swatch; source frames informed construction grammar only, and no source subject, branding or wording was copied.","STYLE.json lists no preview_recipes, so this refresh demonstrates the primary Line Art style."]}

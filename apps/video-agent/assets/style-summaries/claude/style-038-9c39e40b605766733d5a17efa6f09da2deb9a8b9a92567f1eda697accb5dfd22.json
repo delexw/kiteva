@@ -1,0 +1,13 @@
+{
+  "styleId": "style-038",
+  "name": "Ink Wash Painting. Supplemental design reference in the Drawing and Illustration category, not a directly named style in the source collection.",
+  "visualIdentity": "Pressure-sensitive brush marks, diluted ink washes, deliberate empty space, and restrained tonal contrast. Choose one tradition, Chinese ink wash or Japanese sumi-e, and keep its compositional logic. Avoid generic splashes.",
+  "suitableUses": "Explicit source examples: cultural pieces, poetic intros, festival greetings, and slow meditative content. Other topics are inferred, not stated. The source gives no explicit audience list.",
+  "limitations": "Do not mix sumi-e with Chinese inscriptions. Keep the ink monochrome with no added seal color or accent hues. Avoid fast camera moves, font outlines used as brush animation, crowded empty space, and generic splash effects.",
+  "palette": "Suggested background #F4EFDF (warm paper) and foreground #242724 (ink), used only when no approved palette is supplied. Tone comes from wash opacity or hatching, not extra hues. Gradients are disabled. The opaque pair has 13.129:1 contrast, but composited frames must be rechecked.",
+  "motionAndInteraction": "Movement should be smooth and authored, with deliberate cuts, impacts, and reading holds preserved. Video derives all state from composition time. Very slow drift of wash planes suits layered depth. Interactive output needs reduced-motion states. Motion references 012 and 015 are optional and screened for fit.",
+  "audio": "Audio is unspecified by the style; suggestions only. Restrained ambience, sparse music, or intentional silence may support brush reveals and reading holds. Speech must stay intelligible. No genre, tempo, instrument, or voice is assigned. Explicit user audio requirements take precedence.",
+  "assetRequirements": "Use authentic ink assets or controlled brush and wash masks. Keep stroke direction, pigment layering, and negative space consistent. Inscriptions need verified wording and verified stroke paths. Local fonts and assets must load before rendering. Asset sources are unspecified.",
+  "combinations": "Ink wash works best alone. Optional style-041 adds a tradition-matched Chinese inscription, with strokes revealed first and text written in correct order. Optional style-101 adds restrained mountain or mist depth with slow drift and preserved empty space.",
+  "productionApproach": "HyperFrames is the primary composition and export pipeline. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists, and the reason must be recorded. Canvas 2D renders the style, GSAP drives motion, and Python with Pillow prepares assets."
+}

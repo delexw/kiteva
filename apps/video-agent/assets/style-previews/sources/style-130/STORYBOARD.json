@@ -1,0 +1,114 @@
+{
+  "version": 3,
+  "title": "Illuminated Manuscript — An idea becomes a connected system (purple vellum)",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The purple vellum page",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Show a single stable purple-dyed manuscript page where a decorated initial, a botanical vine border and a framed miniature are illuminated in turn. Together they show an idea (a gilded roundel) growing into a connected system (a tree whose roundels are linked by gold lines).",
+      "visuals": [
+        "Stationary #3A2340 purple vellum with static seeded speckle and fibre, a darker edge and a deckle; no camera move",
+        "Vine border: blue bar between gold hairlines, a gold inner rule, and an inked green stem with a gold contour; green and blue leaves and red flowers outlined in gold; gilded corner lozenges and bezants",
+        "Decorated initial A: a gilded letter on a blue ground inside a gold-banded frame with a red rule, cream filigree and a red/cream interlace knot",
+        "HTML/CSS text column: cream heading and verse, gold small-caps subtitle and rubric, blank gold ruling",
+        "Framed miniature: gold frame with quatrefoil corners; a diapered blue sky; a gilded idea roundel; hills; a haloed scholar; a tree whose branch roundels are linked by gold lines"
+      ],
+      "assets": [
+        "index.html",
+        "gsap.min.js",
+        "DrawSVGPlugin.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.6,
+          "development": "The initial's cream frame outline draws (0–0.3s). Once it closes, the blue ground fills and the interior is revealed. The red rule, the letter outline, the filigree and the interlace strands draw. The heading starts rising at 0.55s.",
+          "captions": [
+            "n idea"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.6,
+          "endSeconds": 1.2,
+          "development": "The gold band and gold letter fill (0.66–0.9s). The border bars and vine begin drawing clockwise. Each leaf and flower is stroked as the stem reaches it and filled right after. The subtitle and verse lines rise.",
+          "captions": [
+            "becomes a connected system",
+            "From one bright seed of thought",
+            "each line is drawn to another,",
+            "and every link upholds the whole."
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.2,
+          "endSeconds": 2.15,
+          "development": "The border completes (to 1.65s), and the rubric and blank ruling appear. The miniature frame outlines, red rule, gold band and corners complete by 1.78s. Only then does the interior (data-reveal-after=\"mini-frame\") wipe up from the ground. Gold links draw between the tree roundels and from the idea to the crown (to 2.22s).",
+          "captions": [
+            "HERE BEGINNETH THE SYSTEM ¶"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.15,
+          "endSeconds": 2.64,
+          "development": "A narrow cream highlight sweeps across, masked to the #B89B51 gilded shapes only. The scholar raises his arm toward the idea; the arm shape is reshaped through its attributes (2.2–2.6s).",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.64,
+          "endSeconds": 3,
+          "development": "Hold on the finished, fully legible page.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.36
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "All motion has settled by 2.64s.",
+      "Text contrast on #3A2340: cream 11.1:1, gold 5.25:1.",
+      "The border, initial and miniature reveals change far more than 8% of frame pixels while the page stays fixed."
+    ],
+    "justifiedHolds": [
+      "2.64–3.0s final hold so the completed page can be read."
+    ]
+  },
+  "notes": [
+    "Silent preview.",
+    "Refresh: scene-dependent purple vellum replaces the earlier parchment example. No preview recipes were supplied, and BACKGROUND_REVIEW.json had no matched sources or contact sheets.",
+    "There is one paused GSAP timeline at window.__timelines.video. No clocks or randomness are used, the filters use fixed seeds, and there are no arrows.",
+    "Blender was not used.",
+    "Scene script is inline in index.html so the window.__timelines.video registration is visible to lint."
+  ]
+}

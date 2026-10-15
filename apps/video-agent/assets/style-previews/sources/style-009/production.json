@@ -1,0 +1,28 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Mid-Century System",
+  "displayDescription": "Dusk-slate mid-century poster: a figure raises a bright idea that draws out into a connected system of nodes.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG",
+    "Canvas 2D"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track.",
+  "limitations": [
+    "Flat procedural illustration. Print grain is a seeded Canvas 2D speckle texture over the artwork only, not scanned paper or real offset printing. Copy sits above the grain for legibility, so the lettering itself is not grain-textured.",
+    "No source frames matched in BACKGROUND_REVIEW.json, so the dusk-slate #22313B background was chosen from the subject and mood without source evidence.",
+    "No reviewed preview recipes were supplied. The preview shows the base style implementation.",
+    "System fonts are used (Georgia; Futura or Avenir with Helvetica/Arial fallback), so glyphs may differ by platform.",
+    "Blender was excluded on user instruction.",
+    "Rendering and browser QA have not been run by the agent. The host performs them."
+  ]
+}

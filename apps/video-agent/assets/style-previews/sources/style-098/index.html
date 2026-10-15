@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Infinite Zoom — An idea becomes a connected system</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#081217}
+  #root{position:relative;width:100%;height:100%;overflow:hidden;background:#081217}
+  #stage{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+  /* Stationary reading scrim: never animated */
+  #scrim{position:absolute;left:0;top:0;width:640px;height:100%;
+    background:linear-gradient(90deg,rgba(8,18,23,.94) 0%,rgba(8,18,23,.94) 66%,rgba(8,18,23,0) 100%);pointer-events:none}
+  .ui{position:absolute;color:#EEF1EC;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;white-space:nowrap}
+  #kicker{left:80px;top:150px;font-size:14px;letter-spacing:5px;color:#D9A57A}
+  #headline{left:76px;top:188px;font-family:Georgia,"Times New Roman",serif;font-size:76px;line-height:84px}
+  #sub{left:80px;top:284px;font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:34px;line-height:42px}
+  #rule{left:80px;top:352px;width:340px;height:2px;background:#EEF1EC;transform-origin:0 50%}
+  #caption{left:80px;top:378px;font-size:14px;letter-spacing:2px;color:#D3DCDD}
+  #ruler{left:80px;top:470px;width:340px;height:60px}
+  #readout{left:80px;top:546px;font-size:13px;letter-spacing:3px;color:#D9A57A}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="stage" width="1280" height="720"></canvas>
+  <div id="scrim"></div>
+  <div class="ui" id="kicker">ZOOM x3 / x9 / x27 / ...</div>
+  <div class="ui" id="headline">An idea</div>
+  <div class="ui" id="sub">becomes a connected system</div>
+  <div class="ui" id="rule"></div>
+  <div class="ui" id="caption">EVERY NODE IS A PORTAL TO THE NEXT WORLD</div>
+  <svg class="ui" id="ruler" viewBox="0 0 340 60" width="340" height="60">
+    <line x1="0" y1="30" x2="340" y2="30" stroke="#5E7A83" stroke-width="2"/>
+    <g id="ticks" fill="#D3DCDD" font-family="Helvetica, Arial, sans-serif" font-size="12" letter-spacing="1">
+      <line x1="0" y1="20" x2="0" y2="40" stroke="#D3DCDD" stroke-width="2"/>
+      <line x1="170" y1="20" x2="170" y2="40" stroke="#D3DCDD" stroke-width="2"/>
+      <line x1="340" y1="20" x2="340" y2="40" stroke="#D3DCDD" stroke-width="2"/>
+      <text x="0" y="58">WORLD 1</text>
+      <text x="170" y="58" text-anchor="middle">WORLD 2</text>
+      <text x="340" y="58" text-anchor="end">WORLD 3</text>
+    </g>
+    <rect id="marker" x="-5" y="22" width="10" height="16" fill="#D9A57A"/>
+  </svg>
+  <div class="ui" id="readout">SCALE x1.00</div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  // ---------- Resolved scene palette (scene-dependent dark lens stage) ----------
+  const PAL={
+    voidC:'#081217',      // stage void
+    disc:'#13252D',       // world lens surface
+    dot:'#2C4752',        // lens grain (moves with its world, not a screen overlay)
+    edge:'#93AEB5',       // connections (blue-grey family of accent_1)
+    node:'#C9D5D6',       // ordinary nodes: neutral, value-driven
+    nodeRim:'#0C1A20',
+    rim:'#0C1A20',
+    portal:'#D9A57A'      // single semantic accent: the next portal (copper/tan family of accent_2)
+  };
+  const canvas=document.getElementById('stage');
+  const ctx=canvas.getContext('2d');
+  const W=1280,H=720;
+  const C={x:880,y:360};          // screen centre of the level-0 world
+  const R=300;                    // world lens radius (local units)
+  // Portal (hub) of every world, in world-local units.
+  const O={x:40,y:-20}, HUB=100, HUB_RIM=112;
+  // Handoff map f(z)=O + A*z : child world -> parent coordinates. A = (1/3)·e^{i·24°}
+  const K=1/3, TH=24*Math.PI/180;
+  const A={re:K*Math.cos(TH),im:K*Math.sin(TH)};
+  // Fixed point z* = O/(1-A): the spiral camera path converges on it.
+  const den={re:1-A.re,im:-A.im}; const d2=den.re*den.re+den.im*den.im;
+  const ZS={x:(O.x*den.re+O.y*den.im)/d2, y:(O.y*den.re-O.x*den.im)/d2};
+
+  // World graph (from ILLUSTRATION composition, hub moved off-centre to make a spiral path)
+  const NODES=[[-170,60,16],[-200,-120,12],[-40,-200,14],[160,-150,12],[260,-10,16],[150,170,12],[-60,140,14]];
+  const RING=[[[-300,160],[-170,60]],[[-170,60],[-60,140]],[[-170,60],[-200,-120]],[[-200,-120],[-40,-200]],
+              [[-40,-200],[160,-150]],[[160,-150],[260,-10]],[[260,-10],[150,170]],[[150,170],[-60,140]],[[260,-10],[330,40]]];
+  // Spokes: hub rim -> node rim (precomputed geometry cache)
+  const SPOKES=NODES.map(([x,y,r])=>{const dx=x-O.x,dy=y-O.y,L=Math.hypot(dx,dy);const ux=dx/L,uy=dy/L;
+    return {a:[O.x+ux*HUB_RIM,O.y+uy*HUB_RIM],b:[x-ux*r,y-uy*r]};});
+  // Lens grain dots cached once
+  const DOTS=[];for(let y=-R;y<=R;y+=20)for(let x=-R;x<=R;x+=20){if(x*x+y*y<(R-8)*(R-8))DOTS.push([x,y]);}
+
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const sm=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
+  const mixCache=new Map();
+  function shade(c,f){const k=c+'|'+f.toFixed(2);let v=mixCache.get(k);if(!v){v=chroma.mix(PAL.voidC,c,f,'rgb').hex();mixCache.set(k,v);}return v;}
+
+  // GSAP-owned scene state (one owner per property)
+  const S={p:0,edges:0,glow:0};
+
+  function levelTransform(j,p){
+    // screen = C + z* + A^{j-p}·(w - z*)   (camera matrix driven by continuous level p)
+    const s=Math.pow(3,p-j), ang=TH*(j-p);
+    const c=Math.cos(ang)*s, sn=Math.sin(ang)*s;
+    const tx=C.x+ZS.x-(c*ZS.x-sn*ZS.y), ty=C.y+ZS.y-(sn*ZS.x+c*ZS.y);
+    return {a:c,b:sn,c:-sn,d:c,e:tx,f:ty,s};
+  }
+  function seg(a,b,t){return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];}
+
+  function drawLevel(j,p,build){
+    const T=levelTransform(j,p);
+    const rad=R*T.s; if(rad<2.5)return false;
+    // depth: deeper (not yet reached) worlds sit dimmer; value rises with proximity
+    const depth=j-p; const f=clamp(1-0.22*Math.max(0,depth),0.4,1);
+    ctx.setTransform(T.a,T.b,T.c,T.d,T.e,T.f);
+    const px=1/T.s; // one screen pixel in local units
+    // lens surface
+    ctx.beginPath();ctx.arc(0,0,R,0,Math.PI*2);ctx.fillStyle=shade(PAL.disc,f);ctx.fill();
+    ctx.save();ctx.clip();
+    // grain
+    if(rad>40){ctx.fillStyle=shade(PAL.dot,f);const q=Math.max(2.4,1.4*px);for(const d of DOTS){ctx.fillRect(d[0]-q/2,d[1]-q/2,q,q);}}
+    // connections
+    ctx.lineCap='round';ctx.strokeStyle=shade(PAL.edge,f);ctx.lineWidth=4; // local units: strokes scale with their world
+    const eb=build; // 0..1 build progress (only level 0 animates)
+    SPOKES.forEach((sp,i)=>{const t=sm((eb-0.04*i)/0.42);if(t<=0)return;const e=seg(sp.a,sp.b,t);
+      ctx.beginPath();ctx.moveTo(sp.a[0],sp.a[1]);ctx.lineTo(e[0],e[1]);ctx.stroke();});
+    RING.forEach((r,i)=>{const t=sm((eb-0.42-0.05*i)/0.3);if(t<=0)return;const e=seg(r[0],r[1],t);
+      ctx.beginPath();ctx.moveTo(r[0][0],r[0][1]);ctx.lineTo(e[0],e[1]);ctx.stroke();});
+    // nodes pop when their spoke arrives
+    NODES.forEach(([x,y,r],i)=>{const t=sm((eb-0.04*i-0.3)/0.16);if(t<=0)return;const k=t<1?(0.6+0.4*t+0.12*Math.sin(Math.PI*t)):1;
+      ctx.beginPath();ctx.arc(x,y,r*k,0,Math.PI*2);ctx.fillStyle=shade(PAL.node,f);ctx.fill();
+      ctx.lineWidth=3;ctx.strokeStyle=PAL.nodeRim;ctx.stroke();});
+    ctx.restore();
+    // portal well (child world is painted into it next)
+    ctx.beginPath();ctx.arc(O.x,O.y,HUB_RIM,0,Math.PI*2);ctx.fillStyle=PAL.rim;ctx.fill();
+    // lens border
+    ctx.beginPath();ctx.arc(0,0,R,0,Math.PI*2);ctx.lineWidth=6;ctx.strokeStyle=PAL.rim;ctx.stroke();
+    return true;
+  }
+  function drawPortalRim(j,p,glow){
+    const T=levelTransform(j,p);if(R*T.s<2.5)return;
+    const f=clamp(1-0.22*Math.max(0,j-p),0.4,1);
+    ctx.setTransform(T.a,T.b,T.c,T.d,T.e,T.f);
+    ctx.save();
+    ctx.shadowColor=chroma(PAL.portal).alpha(0.55*glow).css();
+    ctx.shadowBlur=Math.min(28,10*T.s);
+    ctx.beginPath();ctx.arc(O.x,O.y,(HUB+HUB_RIM)/2,0,Math.PI*2);
+    ctx.lineWidth=HUB_RIM-HUB;ctx.strokeStyle=chroma.mix(PAL.rim,shade(PAL.portal,f),glow,'rgb').hex();ctx.stroke();
+    ctx.restore();
+  }
+
+  const readout=document.getElementById('readout');
+  const marker=document.getElementById('marker');
+  function render(){
+    const p=S.p;
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle=PAL.voidC;ctx.fillRect(0,0,W,H);
+    const j0=Math.max(0,Math.floor(p)-2);
+    // section render: only levels whose lens is on screen and above 2.5 px
+    for(let j=j0;j<=Math.floor(p)+5;j++){
+      const build=(j===0)?S.edges:1;
+      if(!drawLevel(j,p,build))break;
+      drawPortalRim(j,p,(j===0)?S.glow:1);
+    }
+    ctx.setTransform(1,0,0,1,0,0);
+    const zoom=Math.pow(3,p);
+    readout.textContent='SCALE x'+zoom.toFixed(2);
+    marker.setAttribute('x',String(-5+170*p));
+  }
+
+  // ---------- one paused, seekable GSAP timeline ----------
+  const tl=gsap.timeline({paused:true,onUpdate:render});
+  gsap.set('#headline,#sub,#caption,#kicker',{opacity:0,x:-24});
+  gsap.set('#rule',{scaleX:0});
+  gsap.set('#ruler,#readout',{opacity:0});
+  tl.to('#kicker',{opacity:1,x:0,duration:0.4,ease:'power2.out'},0.05)
+    .to('#headline',{opacity:1,x:0,duration:0.5,ease:'power2.out'},0.1)
+    .to(S,{glow:1,duration:0.45,ease:'sine.inOut'},0.1)
+    .to(S,{edges:1,duration:0.85,ease:'power1.inOut'},0.25)
+    .to('#sub',{opacity:1,x:0,duration:0.5,ease:'power2.out'},0.45)
+    .to('#rule',{scaleX:1,duration:0.45,ease:'power2.inOut'},0.7)
+    .to('#caption',{opacity:1,x:0,duration:0.45,ease:'power2.out'},0.8)
+    .to('#ruler,#readout',{opacity:1,duration:0.35,ease:'sine.inOut'},0.9)
+    // camera dolly through two portals: x1 -> x9, continuous log-scale spiral
+    .to(S,{p:2,duration:1.5,ease:'power2.inOut'},0.95)
+    .to({}, {duration:0.001},2.999);
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+  // Redraw whenever GSAP evaluates the timeline (seek forward/backward/direct), plus on hf-seek.
+  const baseRender=tl.render.bind(tl);
+  tl.render=function(){const r=baseRender.apply(null,arguments);render();return r;};
+  window.addEventListener('hf-seek',render);
+  render();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

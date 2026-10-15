@@ -1,0 +1,12 @@
+{"version":3,"title":"Ink Wash Painting — An idea becomes a connected system","durationSeconds":3,
+"scenes":[{"id":"scene-1","title":"Ink branch becomes a network","startSeconds":0,"endSeconds":3,
+"purpose":"Show a single idea (an ink touchdown) growing into a connected system using Chinese ink-painting construction order on cool dawn xuan paper.",
+"visuals":["Cool grey-white xuan paper with stationary fibres","Root ink dot with diluted bloom","Single dry-brush branch stroke lower-left to upper-right","Mid-grey wash and stippled granular root mass","Pale cool distant ranges lower right","Five twigs ending in ink clusters with bloom halos","Diluted threads linking the nodes","Title and subtitle top right"],
+"assets":["index.html","gsap.min.js","chroma.min.js"],
+"beats":[
+{"startSeconds":0,"endSeconds":0.9,"development":"Ink touches down at the root, the ground contours are brushed in, and the main branch begins one continuous dry-brush stroke while the title resolves from blur.","captions":["An idea"],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0},
+{"startSeconds":0.9,"endSeconds":1.7,"development":"The branch finishes, the stippled root mass fills from summit down, pale distant ranges recede behind it, and twigs draw out toward the nodes. The subtitle sharpens.","captions":["becomes a connected system"],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0},
+{"startSeconds":1.7,"endSeconds":2.3,"development":"Ink clusters land at the twig tips with diluted blooms, and faint threads connect the nodes into a system.","captions":[],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0},
+{"startSeconds":2.3,"endSeconds":3,"development":"The blooms settle by 2.6s, and the whole painting and copy hold for reading.","captions":["An idea","becomes a connected system"],"audio":{"music":"","effects":[],"lyrics":[]},"readingHoldSeconds":0.7}]}],
+"pacingAudit":{"findings":["Copy is fully sharp by 1.45s and stays legible through 3s.","All motion is settled by 2.6s, so the composition is static from 2.7s onward."],"justifiedHolds":["2.3–3.0s: a final reading hold on the completed painting and copy."]},
+"notes":["Silent preview.","No motion references selected; the scene uses style-native brush construction.","Background is scene-dependent cool xuan paper #E7EAE7; ink is #242724."]}

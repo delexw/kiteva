@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ink Wash Painting — An idea becomes a connected system</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#E7EAE7}
+  #root{position:relative;width:100%;height:100%;overflow:hidden}
+  #ink{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+  .copy{position:absolute;right:100px;text-align:right;font-family:"Palatino","Georgia",serif;color:#242724;white-space:nowrap}
+  #title{top:78px;font-size:46px;letter-spacing:7px;font-weight:400}
+  #sub{top:144px;font-size:21px;letter-spacing:4px;color:#3A403D}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="ink" width="1280" height="720"></canvas>
+  <div class="copy" id="title">An idea</div>
+  <div class="copy" id="sub">becomes a connected system</div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+'use strict';
+/* ---------- resolved scene palette (dawn, cool xuan paper; one carbon ink + its dilutions) ---------- */
+const PAL={
+  paper:'#E7EAE7',        // cool grey-white xuan paper (scene-dependent; replaces prior warm swatch)
+  ink:'#242724',          // approved foreground ink token, preserved
+  coolWash:'#3C4850'      // the same ink, diluted with a faint blue-grey cast for far distance
+};
+const W=1280,H=720;
+const cv=document.getElementById('ink');const ctx=cv.getContext('2d');
+
+/* ---------- deterministic helpers ---------- */
+function rng(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+function clamp(v,a,b){return v<a?a:v>b?b:v;}
+function ease(t){t=clamp(t,0,1);return t*t*(3-2*t);}
+function rgba(hex,a){const c=chroma(hex).rgb();return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a.toFixed(4)+')';}
+function cubic(p0,p1,p2,p3,t){const u=1-t;return [u*u*u*p0[0]+3*u*u*t*p1[0]+3*u*t*t*p2[0]+t*t*t*p3[0],u*u*u*p0[1]+3*u*u*t*p1[1]+3*u*t*t*p2[1]+t*t*t*p3[1]];}
+/* sample a poly-cubic into evenly spaced points (~step px) */
+function samplePath(segs,step){
+  const dense=[];
+  segs.forEach((s,i)=>{for(let k=(i?1:0);k<=200;k++)dense.push(cubic(s[0],s[1],s[2],s[3],k/200));});
+  const out=[dense[0]];let acc=0;
+  for(let i=1;i<dense.length;i++){const dx=dense[i][0]-dense[i-1][0],dy=dense[i][1]-dense[i-1][1];acc+=Math.hypot(dx,dy);if(acc>=step){out.push(dense[i]);acc=0;}}
+  return out;
+}
+
+/* ---------- brush model: pre-baked bristle dabs along a path (controlled brush mask) ----------
+   Each stroke = ordered list of dabs; the visible stroke at progress p is the first p*N dabs.
+   Pressure curve sets width; per-bristle seeded "ink load" produces dry-brush breaks near the tail. */
+function buildStroke(segs,opt){
+  const r=rng(opt.seed);const pts=samplePath(segs,1.15);const n=pts.length;
+  const bristles=[];for(let b=0;b<opt.bristles;b++){bristles.push({off:(b/(opt.bristles-1))*2-1,load:0.55+r()*0.45,phase:r()*100,freq:0.03+r()*0.05});}
+  const dabs=[];
+  for(let i=0;i<n;i++){
+    const u=i/(n-1);
+    const a=pts[Math.max(0,i-1)],b=pts[Math.min(n-1,i+1)];
+    let tx=b[0]-a[0],ty=b[1]-a[1];const L=Math.hypot(tx,ty)||1;tx/=L;ty/=L;const nx=-ty,ny=tx;
+    const press=opt.pressure(u);const half=opt.width*press*0.5;
+    const ragged=1+0.18*Math.sin(i*0.21+opt.seed)+0.10*Math.sin(i*0.057+opt.seed*2);
+    const group=[];
+    for(const br of bristles){
+      const dry=u*opt.dryness - br.load + 0.35*Math.sin(i*br.freq+br.phase);
+      if(dry>0.32)continue;                               // bristle out of ink: dry-brush gap
+      const o=br.off*half*ragged + (r()-0.5)*0.8;
+      const rad=Math.max(0.5,(half/opt.bristles)*1.9*(0.8+r()*0.4));
+      const al=opt.alpha*(dry>0.1?0.55:1)*(0.75+r()*0.25);
+      group.push([pts[i][0]+nx*o,pts[i][1]+ny*o,rad,al]);
+    }
+    dabs.push(group);
+  }
+  return {dabs,tip:pts,color:opt.color||PAL.ink};
+}
+function drawStroke(s,p){
+  if(p<=0)return;const n=Math.floor(s.dabs.length*clamp(p,0,1));
+  for(let i=0;i<n;i++){const g=s.dabs[i];for(let k=0;k<g.length;k++){const d=g[k];ctx.fillStyle=rgba(s.color,d[3]);ctx.beginPath();ctx.arc(d[0],d[1],d[2],0,6.2832);ctx.fill();}}
+}
+
+/* ---------- stationary paper (seeded fibres + vignette), baked once ---------- */
+const paper=document.createElement('canvas');paper.width=W;paper.height=H;
+(function(){const p=paper.getContext('2d');const r=rng(38);
+  p.fillStyle=PAL.paper;p.fillRect(0,0,W,H);
+  for(let i=0;i<2600;i++){const x=r()*W,y=r()*H,len=4+r()*16,ang=r()*Math.PI;p.strokeStyle=rgba(r()<0.5?'#ffffff':'#8f9a96',0.05+r()*0.08);p.lineWidth=0.5+r()*0.6;p.beginPath();p.moveTo(x,y);p.quadraticCurveTo(x+Math.cos(ang)*len*0.5+(r()-0.5)*4,y+Math.sin(ang)*len*0.5,x+Math.cos(ang)*len,y+Math.sin(ang)*len);p.stroke();}
+  for(let i=0;i<9000;i++){p.fillStyle=rgba('#6d7773',0.03+r()*0.04);p.fillRect(r()*W,r()*H,1,1);}
+  const g=p.createRadialGradient(W*0.55,H*0.45,H*0.35,W*0.55,H*0.45,W*0.75);g.addColorStop(0,'rgba(60,72,80,0)');g.addColorStop(1,'rgba(60,72,80,0.10)');p.fillStyle=g;p.fillRect(0,0,W,H);
+})();
+
+/* ---------- diluted wash layers (soft-edged ranges), baked once ---------- */
+function bakeWash(draw){const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.filter='blur(14px)';draw(x);return c;}
+function ridge(x,pts,base){x.beginPath();x.moveTo(pts[0][0],base);pts.forEach(q=>x.lineTo(q[0],q[1]));x.lineTo(pts[pts.length-1][0],base);x.closePath();x.fill();}
+function ridgePts(seed,x0,x1,yBase,amp,peaks){const r=rng(seed);const out=[];for(let x=x0;x<=x1;x+=6){let y=yBase;for(let k=0;k<peaks.length;k++){const pk=peaks[k];const d=(x-pk[0])/pk[2];y-=pk[1]*Math.exp(-d*d);}y+=Math.sin(x*0.05+seed)*3+(r()-0.5)*3;out.push([x,y]);}return out;}
+const farWash=bakeWash(x=>{ // far, palest, cool-cast ranges (lower right) — less ink = further away
+  x.fillStyle=rgba(PAL.coolWash,0.16);ridge(x,ridgePts(3,820,1300,610,1,[[930,70,60],[1060,120,70],[1190,85,55]]),760);
+  x.fillStyle=rgba(PAL.coolWash,0.12);ridge(x,ridgePts(5,700,1300,650,1,[[780,40,60],[900,60,80],[1230,50,70]]),760);
+});
+const midWash=bakeWash(x=>{ // mid-grey mass under the root (lower left)
+  x.fillStyle=rgba(PAL.ink,0.20);ridge(x,ridgePts(7,-40,360,640,1,[[60,110,90],[190,90,80],[300,30,50]]),760);
+});
+/* stippled granular ink inside the root mass: fill from summit down, density = volume */
+const stipple=(function(){const r=rng(91);const pts=ridgePts(7,-40,360,640,1,[[60,110,90],[190,90,80],[300,30,50]]);const dots=[];
+  for(let i=0;i<5200;i++){const x=-20+r()*360;let top=640;for(const q of pts){if(Math.abs(q[0]-x)<4){top=q[1];break;}}const depth=Math.pow(r(),1.7)*130;const y=top+depth+4;if(y>720)continue;const dens=1-depth/130;if(r()>dens*0.9)continue;dots.push([x,y,0.5+r()*1.1,0.25+0.55*dens,depth]);}
+  dots.sort((a,b)=>a[4]-b[4]);return dots;})();
+
+/* ---------- strokes (brushed in painting order) ---------- */
+const ROOT=[150,600];
+const branch=buildStroke([[[150,600],[260,520],[330,470],[470,420]],[[470,420],[600,375],[700,330],[820,250]]],
+  {seed:11,bristles:9,width:26,dryness:1.05,alpha:0.62,pressure:u=>0.55+0.6*Math.sin(Math.min(1,u*1.6)*Math.PI*0.5)-0.55*u*u});
+const ground=[
+  buildStroke([[[18,600],[70,575],[150,560],[212,626]]],{seed:21,bristles:6,width:10,dryness:0.9,alpha:0.55,pressure:u=>0.5+0.5*Math.sin(u*Math.PI)}),
+  buildStroke([[[60,662],[110,640],[170,646],[232,700]]],{seed:23,bristles:6,width:9,dryness:0.9,alpha:0.5,pressure:u=>0.45+0.55*Math.sin(u*Math.PI)})
+];
+/* twigs: thin dry strokes from the branch out to idea nodes (connections) */
+const NODES=[[520,328],[682,452],[762,298],[907,188],[892,307]];
+const twigSrc=[[470,422],[600,385],[700,330],[820,252],[822,254]];
+const twigs=NODES.map((n,i)=>{const s=twigSrc[i];const mx=(s[0]+n[0])/2+(i%2?14:-14),my=(s[1]+n[1])/2+(i%2?-6:8);
+  return buildStroke([[s,[s[0]+(mx-s[0])*0.6,s[1]+(my-s[1])*0.6],[mx,my],n]],{seed:40+i,bristles:4,width:4.2,dryness:1.2,alpha:0.6,pressure:u=>1-0.55*u});});
+/* connecting threads between nodes: most diluted ink, a second network layer */
+const threadPairs=[[0,2],[2,3],[3,4],[4,1]];
+const threads=threadPairs.map((pr,i)=>{const a=NODES[pr[0]],b=NODES[pr[1]];const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2-18;
+  return buildStroke([[a,[a[0]+(mx-a[0])*0.7,a[1]+(my-a[1])*0.7],[b[0]+(mx-b[0])*0.7,b[1]+(my-b[1])*0.7],b]],{seed:70+i,bristles:3,width:2.6,dryness:1.4,alpha:0.32,pressure:u=>0.8+0.2*Math.sin(u*Math.PI)});});
+/* node clusters: dense dot + satellite dots (pre-baked, seeded) */
+const clusters=NODES.map((n,i)=>{const r=rng(120+i);const dots=[[0,0,7.5,0.92],[11,-5,3.6,0.85],[-9,6,2.4,0.8]];for(let k=0;k<5;k++)dots.push([(r()-0.5)*14,(r()-0.5)*12,1+r()*1.6,0.55+r()*0.3]);return dots;});
+
+/* ---------- single-owner state animated by GSAP; canvas is a pure function of it ---------- */
+const S={dot:0,ground:0,branch:0,stip:0,mid:0,far:0,twig:[0,0,0,0,0],bloom:[0,0,0,0,0],node:[0,0,0,0,0],thread:[0,0,0,0],halo:0};
+function drawBloom(x,y,p,maxR,alpha){if(p<=0)return;const R=maxR*(0.35+0.65*ease(p));const a=alpha*(p<0.4?p/0.4:1)*(1-0.35*clamp((p-0.6)/0.4,0,1));
+  const g=ctx.createRadialGradient(x,y,0,x,y,R);g.addColorStop(0,rgba(PAL.ink,a));g.addColorStop(0.55,rgba(PAL.ink,a*0.45));g.addColorStop(1,rgba(PAL.ink,0));ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,R,0,6.2832);ctx.fill();}
+function render(){
+  ctx.globalAlpha=1;ctx.drawImage(paper,0,0);
+  if(S.far>0){ctx.globalAlpha=S.far;ctx.drawImage(farWash,0,0);}
+  if(S.mid>0){ctx.globalAlpha=S.mid;ctx.drawImage(midWash,0,0);}
+  ctx.globalAlpha=1;
+  // stippled summit-down fill
+  const sn=Math.floor(stipple.length*S.stip);for(let i=0;i<sn;i++){const d=stipple[i];ctx.fillStyle=rgba(PAL.ink,d[3]);ctx.fillRect(d[0],d[1],d[2],d[2]);}
+  ground.forEach((g,i)=>drawStroke(g,clamp(S.ground*2-i*0.6,0,1)));
+  // ink touchdown: diluted bloom + dense dot at the root
+  drawBloom(ROOT[0],ROOT[1],S.dot,46,0.30);
+  if(S.dot>0){const r0=14*ease(Math.min(1,S.dot*1.6));ctx.fillStyle=rgba(PAL.ink,0.93);ctx.beginPath();ctx.ellipse(ROOT[0],ROOT[1],r0,r0*0.9,0.4,0,6.2832);ctx.fill();}
+  drawStroke(branch,S.branch);
+  // wet brush tip bead while the branch is being drawn
+  if(S.branch>0&&S.branch<1){const q=branch.tip[Math.floor((branch.tip.length-1)*S.branch)];ctx.fillStyle=rgba(PAL.ink,0.5);ctx.beginPath();ctx.arc(q[0],q[1],4.5,0,6.2832);ctx.fill();}
+  threads.forEach((t,i)=>drawStroke(t,S.thread[i]));
+  twigs.forEach((t,i)=>drawStroke(t,S.twig[i]));
+  NODES.forEach((n,i)=>{drawBloom(n[0],n[1],S.bloom[i],54,0.20+0.04*S.halo);
+    const p=S.node[i];if(p<=0)return;const k=ease(p);clusters[i].forEach(d=>{ctx.fillStyle=rgba(PAL.ink,d[3]*Math.min(1,p*2));ctx.beginPath();ctx.ellipse(n[0]+d[0],n[1]+d[1],d[2]*k,d[2]*k*0.72,0,0,6.2832);ctx.fill();});});
+}
+
+/* ---------- the one paused timeline (all times in composition seconds) ---------- */
+const tl=gsap.timeline({paused:true,onUpdate:render});
+tl.to(S,{dot:1,duration:0.35,ease:'power2.out'},0.0)                    // ink touches down
+  .to(S,{ground:1,duration:0.55,ease:'sine.inOut'},0.12)                // ground contour strokes
+  .to(S,{branch:1,duration:0.95,ease:'sine.inOut'},0.25)                // one continuous dry-brush stroke, lower-left → upper-right
+  .to(S,{mid:1,duration:0.6,ease:'sine.inOut'},0.55)                    // mid wash soaks in under the root
+  .to(S,{stip:1,duration:0.7,ease:'power1.inOut'},0.7)                  // granular fill from summit down
+  .to(S,{far:1,duration:0.8,ease:'sine.inOut'},0.9);                    // pale distant ranges recede behind
+[0,1,2,3,4].forEach(i=>{const st=0.95+i*0.11;
+  tl.to(S.twig,{[i]:1,duration:0.45,ease:'power2.inOut'},st)            // twig draws from branch to node
+    .to(S.bloom,{[i]:1,duration:0.9,ease:'sine.out'},st+0.35)           // diluted ink bloom under the node
+    .to(S.node,{[i]:1,duration:0.32,ease:'back.out(1.2)'},st+0.42);});  // dense ink cluster lands
+[0,1,2,3].forEach(i=>tl.to(S.thread,{[i]:1,duration:0.45,ease:'sine.inOut'},1.75+i*0.09)); // nodes connect
+tl.to(S,{halo:1,duration:0.4,ease:'sine.inOut'},2.2);                    // bloom settles (done by 2.6)
+// typography: blur-to-sharp, then full legible hold
+tl.fromTo('#title',{opacity:0,filter:'blur(8px)'},{opacity:1,filter:'blur(0px)',duration:0.7,ease:'power2.out'},0.45)
+  .fromTo('#sub',{opacity:0,filter:'blur(6px)'},{opacity:1,filter:'blur(0px)',duration:0.6,ease:'power2.out'},0.85)
+  .set({}, {}, 3);
+window.__timelines=window.__timelines||{};window.__timelines.video=tl;
+render();
+function seekTo(t){tl.time(clamp(Number(t)||0,0,3),false);render();}
+window.addEventListener('hf-seek',e=>{const d=e&&e.detail;seekTo(d&&typeof d==='object'?(d.time!=null?d.time:d.seconds):d);});
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

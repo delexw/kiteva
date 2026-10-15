@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-009",
+    "name": "Mid-Century Modern. Explicitly a supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Combines simplified figures, organic contours, and geometric color fields in a relaxed but ordered composition. Core colors are mustard, brick red, teal, and cream, with optional print grain. Neon and glossy plastic finishes are excluded.",
+    "suitableUses": "Explicitly, the source says this style alone suits illustrations and posters. Hybrids are chosen when characters must move or scenes need depth. Explicitly, one hybrid is suggested for animated explainers, retro-style ads, and title sequences with characters. Other uses are inferred, and topic and audience are unspecified.",
+    "limitations": "Explicitly, the style avoids neon, glossy plastic, joint gaps, and paper-thickness shadows. Teal (accent_3) is decorative only and must not carry body text. Two-color contrast checks do not verify text over textures, video, outlines, or animated lighting. Composited frames must be rechecked.",
+    "palette": "Suggested, not supplied: background #F3E9D5, foreground #332C26, accent_1 #C49A35, accent_2 #A64E3D, accent_3 #357B78. Gradients are disabled. Task-supplied exact colors override these tokens. Readable pairs: foreground on background 11.398:1; foreground on accent_1 5.246:1; background on accent_2 4.612:1. Background on accent_3 at 4.095:1 fails the 4.5:1 body-text target.",
+    "motionAndInteraction": "The style sets no specific cadence; it favors graphic transitions and modest offsets. Inferred: smooth authored movement fits, while deliberate cuts and reading holds remain allowed. Video state must derive from seekable composition time. Gaze tracking, chaptered transitions, and scroll storytelling are optional; scroll applies only to interactive delivery.",
+    "audio": "Audio is unspecified for this style, and no audio layer is mandated. Suggest music, voiceover, effects, ambience, or silence based on topic, audience, and motion, with explicit user requirements taking priority. Gaze motion may take a restrained accent but needs no sound. Verify speech clarity, balance, absence of clipping, and picture sync.",
+    "assetRequirements": "Geometric and organic illustration paths, with characters and props grouped into layers. Fixed textures or seeded grain are required for print treatment. Fonts and assets must load before rendering. Gaze tracking needs eye layers or a rig; otherwise use static expression swaps. Hybrid assets must stay in-palette, with no photographic cutouts.",
+    "combinations": "Cutout animation (style-084) gives hinged figure movement at a 12 fps art cadence, with fixed grain and no joint gaps. 2.5D parallax (style-101) adds flat, restrained layered depth with no blur and no exposed layer edges. Patterns include gaze tracking, chaptered transitions, and storytelling. The palette must stay unchanged across all layers.",
+    "productionApproach": "SVG and Canvas 2D are the style renderers; GSAP is the motion engine, with Motion optional. HyperFrames is the primary pipeline for assembly, timing, sync, and export; Remotion is only a documented fallback. Seed randomness, preload assets, and inspect key frames, the full video, audio sync, and loop seams. Simulated appearance is not evidence of physical production."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

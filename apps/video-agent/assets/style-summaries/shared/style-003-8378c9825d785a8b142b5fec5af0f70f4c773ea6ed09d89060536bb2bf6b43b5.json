@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-003",
+    "name": "Constructivism, a supplemental design reference not claimed as a named style in the source collection.",
+    "visualIdentity": "Forceful diagonals, wedges, circles, rectangular blocks, transparent photo cutouts and bold typography direct attention. Red, black and cream form a restricted high-contrast palette. Keep a clear headline and focal point.",
+    "suitableUses": "Explicit source suitability is headline posters and calls to action. Inferred from the hybrid guidance: slogan promos, launch announcements, short social spots and editorial openers. Suitability for other topics is unspecified.",
+    "limitations": "Standalone use suits headlines and calls to action; dense explanatory copy is not addressed. Full-color photos are excluded, so cutouts need tonal treatment through a hybrid. Halftone must never sit over text. Rotated body copy and soft easing or bounce are avoided. Motion-040 is labeled Phrase Scatter but named Word Smash Cuts, so verify it before use.",
+    "palette": "Suggested tokens, not supplied exact colors: background #F4ECD8 cream, foreground #171717 black, accent_1 #C72C2C construction red. Gradients are disabled and red is used only as flat fields or wedges. Cream on black and black on cream each reach 15.227:1. Cream on red reaches 4.663:1. Task-supplied colors override these, and the checks cover only two colors.",
+    "motionAndInteraction": "Animate directional entrances, hard cuts and recomposition along one dominant diagonal per scene. Keep headline and focal point stable at every hold. Deliberate sharp impacts and reading holds are allowed without easing. Scroll and pointer behavior apply only to interactive delivery and must not drive video. Motion references are optional and must match scene assets.",
+    "audio": "Audio direction is unspecified by the source, and no genre, voice or mandatory layer is assigned. Inferred suitability favors restrained percussive accents on cuts and impacts. Silence or ambience suits reading holds. Any speech must stay intelligible. Music synchronization requires inspected audio, and none was verified in the source.",
+    "assetRequirements": "Required assets are transparent photographic cutouts, approved mark geometry or glyph assets and real text. Fonts and assets must load before rendering. No source photos, copy or brand marks are supplied. Motion-037 to motion-039 have review evidence, while motion-040 lacks it. Each reference needs scene assets that support its defining action.",
+    "combinations": "Two supplied hybrids are optional. Style-050 adds halftone cutouts in #171717 on cream, with red only as flat wedges, fixed dot angle and one diagonal direction. Style-093 adds diagonal kinetic headline words in heavy condensed sans, with one red highlighted word and static reduced-motion behavior. Hybrids suit tonal photos or diagonal headline motion.",
+    "productionApproach": "HyperFrames owns composition timing, sync, validation and export, and Remotion is only a recorded fallback. HTML/CSS and SVG (masks, clipPath) render real text and diagonal shapes. GSAP is the single motion owner on a paused, seekable timeline. Motion is optional and needs seek verification. chroma.js checks colors. Verify forward, backward and direct seeks on decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

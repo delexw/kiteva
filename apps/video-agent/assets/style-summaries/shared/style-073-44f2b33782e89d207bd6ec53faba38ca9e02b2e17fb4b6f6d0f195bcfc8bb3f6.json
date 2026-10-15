@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-073",
+    "name": "Vaporwave, a supplemental design reference rather than a directly named style in the source collection. Keep it distinct from Synthwave.",
+    "visualIdentity": "Combines nostalgic consumer imagery, early digital interfaces, sculpture, or advertising fragments with a coherent pastel palette and selective distortion. Favors slow repetition, drift, and displaced time while keeping a recognizable theme.",
+    "suitableUses": "Explicitly suited to nostalgia-themed music visuals, editorial art pieces, album art loops, and gallery-style pieces, as listed in the combinations. Slow nostalgic loops are the stated aim when used alone. Inferred, not stated: retro advertising-fragment explainers may also fit.",
+    "limitations": "Avoid fast Synthwave-style pacing, unlicensed brand logos, busy asymmetric clutter, and neon grids. Keep distortion local and occasional. Two-color contrast checks do not verify text over images, textures, video, or animated light. Duration, aspect ratio, and resolution are unspecified.",
+    "palette": "Style-compatible suggestion, used only for new artwork when no approved palette is supplied. Tokens: background #EAE0F0, foreground #474257, accent_1 #CE9BB8, accent_2 #8DBBB8, accent_3 #B2A4D0. Gradients are disabled. Foreground on background is 7.515 and accent_2 with foreground is 4.546; accent_1 and accent_3 are decorative fills only. Task colors override these.",
+    "motionAndInteraction": "Slow drift and local distortion are driven from deterministic time, with smooth authored movement and preserved sharp cuts or reading holds where intended. Optional references: motion-008 card stacking, motion-012 chapter handoff, motion-015 storytelling, and motion-037 phrase scatter; none is required. Interactive versions may offer a reduced-motion freeze; video must not depend on live input.",
+    "audio": "Unspecified by the style, which mandates no music, voiceover, or sound layer and no fixed genre or tempo. For each video, propose audio from the topic and storyboard, honoring explicit user choices and supplied assets. Do not invent audio assets. Inferred: restrained ambience or silence may suit the slow cadence and reading holds.",
+    "assetRequirements": "Supplied or authorized period-consistent interface and photographic assets are required; none are invented. Layered images need alpha transparency, consistent dimensions, clear naming, or numbered frames with a manifest. Load fonts and assets before composition. Missing assets are unspecified and must be reported.",
+    "combinations": "style-044 adds supplied photographic and advertising collage, tinted to the primary tokens with slow drift and, in HTML, optional parallax. style-104 adds centered symmetric sculpture staging with mirrored drifting elements and a fixed central axis. Hybrids depend on supplied or licensed assets. Avoid Synthwave pacing and neon grids.",
+    "productionApproach": "Canvas 2D handles brushes, textures, and bitmaps; PixiJS is optional for sprite sets, driven by fixed video time. GSAP runs one paused timeline as the motion owner. HyperFrames handles composition and export by default; Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists. Verify forward, backward, and direct seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,30 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "HTML/CSS",
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP",
+    "GSAP MorphSVGPlugin"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent. No audio track. Authored visual cue sequence: phrase beats at 0, 0.12, 0.38, 0.55 and 0.82 s; re-weight at 1.2 s; T swap at 1.55 s; lintel morph at 1.56 and 1.86 s with amber fill from 1.6 s; words land 1.95 to 2.14 s; tagline at 2.2 and 2.32 s; hold from 2.6 s.",
+  "limitations": [
+    "No variable font file is bundled. The weight axis uses the macOS system UI font (system-ui / SF, which has a variable wght axis) through CSS font-weight. On a renderer without that font, the Helvetica Neue/Arial fallback steps between static weights instead of interpolating.",
+    "Font-to-path conversion (e.g. opentype.js) is not in the pool. The structural 'T' is an authored outline: two rectangles whose stem and crossbar positions come from a pixel scan of the rendered system-font T at weight 900. It is a close approximation, not an extracted glyph outline.",
+    "Only the T's crossbar (lintel) is deformed by MorphSVGPlugin, and only the stem rect is lengthened. All other glyphs stay live DOM text with intact counters.",
+    "The DOM T is swapped for the SVG T in one frame at 1.55 s at measured identical geometry. Subpixel antialiasing differences may be faintly visible for one frame.",
+    "Font size, weight and tracking are animated through CSS custom properties, so text reflows during those changes. Word position moves use only x/y transforms.",
+    "Architectural roles (lintel, support, load, aperture, platform) are an illustrative typographic approximation, not a physical simulation. The bend in the lintel is authored, not computed.",
+    "ScrambleText was not used.",
+    "Palette: the background policy is scene_dependent, so the recipe source palette #102820 / #F4E9D5 / #F2B544 is adopted explicitly for this refresh. The earlier #FAF5E9 / #252D39 / #B84F3F was an example swatch. Amber marks 'system.' and the load-bearing T.",
+    "The light on the ground is a stationary CSS radial gradient (8% cream) plus a CSS grid. It is a flat approximation of a soft light source, not computed lighting.",
+    "Blender was not used, as instructed. Only HTML/CSS, SVG, GSAP and MorphSVGPlugin (all local) are used.",
+    "Source-frame evidence covers sampled seconds only, from three reviewed contact sheets."
+  ]
+}

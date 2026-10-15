@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-013",
+    "name": "Psychedelic Art",
+    "visualIdentity": "Explicitly described as flowing curves, saturated waves, vortices, and looping geometry in an organized palette. Distorted lettering may support imagery, but key information needs stable reading moments. Build continuous morphs and color movement around one visual theme.",
+    "suitableUses": "Explicitly listed good fits: psychedelic and demoscene imagery, infinite-zoom and kaleidoscopic transitions, and surreal or abstract spatial passages. Inferred fit: ambient visuals, since the source says psychedelic art alone suits ambient visuals. Festival-style abstract backgrounds are also a reasonable inference.",
+    "limitations": "Adapt or omit when viewers must read dense text during travel, when a one-shot requirement would be broken by a hidden reset, or when the topic needs stable orientation or reduced motion. Distorted lettering must not carry key information. Stacking unrelated effects is discouraged.",
+    "palette": "Suggested, not approved: background #201337, foreground #FFF3DB, accents #D957A5, #DA873F, and #7464D2. Supplied exact colors override these. An optional LAB gradient across the accent stops applies only to wave fields, with text areas reserved. Foreground on background is 15.785:1, and accent_1 and accent_2 with background text pass 4.5:1. accent_3 fails for body text and is decorative only.",
+    "motionAndInteraction": "Explicitly calls for smooth shader flow, continuous morphs, and color movement, while deliberate cuts and reading holds stay sharp. Video runs on shared composition time, and interactive output may map a finite scroll range to progress. Optional, scene-screened references include vortex passage (motion-002), chaptered handoff (motion-012), morphing orb (motion-014), and narrative steps (motion-015). The source suggests a static frame under reduced motion.",
+    "audio": "Unspecified by the style, with no mandatory audio layer. Inferred suggestions depend on the topic: restrained music or sections that drive morphs, intelligible narration, and optional sound accents for transitions. Audio-reactive visuals require verified, precomputed analysis. Live audio analysis should be avoided because it causes drift.",
+    "assetRequirements": "No asset list is specified. Topic, exact copy, and supplied assets are unspecified and must be provided by the task. Local fonts and assets should load before rendering. Stateful simulations should be cached or baked. Dimensions, duration, aspect ratio, and frame rate are unspecified, and any example values are optional. Audio assets must be authorized.",
+    "combinations": "Suggested hybrids: style-105 for section-level timing of morphs in music videos and festival visuals, and style-007 for Nouveau lettering and border ornament on posters and title cards. Inferred constraints: ornament should use #FFF3DB or psychedelic accents rather than Nouveau greens, key text stays stable on solid backing, and dense ornament should not cover the field.",
+    "productionApproach": "Use HyperFrames as the primary pipeline; Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists, and the reason must be recorded. WebGL, GLSL, and Three.js full-screen shaders act as the style renderer, driven by a shared time uniform. Register a paused GSAP timeline, then verify with check, snapshot, and render. Inspect decoded frames, audio sync, and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

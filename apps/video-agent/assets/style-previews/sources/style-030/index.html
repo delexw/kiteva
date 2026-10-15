@@ -1,0 +1,283 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Storybook Illustration — An idea becomes a connected system</title>
+<style>
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: #26304F; }
+  #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  .placard { position: absolute; background: #493E32; border: 2px dotted #D5AB55; border-radius: 10px; box-sizing: border-box; }
+  .string { position: absolute; top: 0; width: 2px; background: #D5AB55; }
+  #title-card { left: 56px; top: 34px; width: 830px; height: 132px; padding: 18px 28px 0 28px; }
+  #kicker { margin: 0; font-family: Georgia, "Times New Roman", serif; font-style: italic; font-size: 24px; line-height: 30px; color: #D5AB55; }
+  #headline { margin: 6px 0 0 0; font-family: Georgia, "Times New Roman", serif; font-weight: normal; font-size: 44px; line-height: 54px; color: #F6E9CE; white-space: nowrap; }
+  #caption-card { left: 56px; top: 624px; width: 520px; height: 52px; padding: 0 22px; display: flex; align-items: center; }
+  #caption { margin: 0; font-family: Georgia, "Times New Roman", serif; font-style: italic; font-size: 20px; line-height: 26px; color: #F6E9CE; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="stage" width="1280" height="720"></canvas>
+  <div class="string" style="left:150px;height:36px"></div>
+  <div class="string" style="left:800px;height:36px"></div>
+  <div class="placard" id="title-card">
+    <p id="kicker">Once upon a small idea…</p>
+    <h1 id="headline">An idea becomes a connected system</h1>
+  </div>
+  <div class="placard" id="caption-card">
+    <p id="caption">Mira watered it, and the whole village lit up.</p>
+  </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="rough.bundle.js"></script>
+<script>
+(function () {
+  // ---------- Centralised palette (style tokens + resolved dusk scene colours) ----------
+  const TOK = { ink: '#493E32', terracotta: '#BA7254', sage: '#6F8871', gold: '#D5AB55', cream: '#F6E9CE' };
+  const SCENE = {
+    skyTop: '#26304F', skyMid: '#4B4468', skyLow: '#8E6F86', horizon: '#D9A77E',
+    farHills: '#5E5A7E', ridge: '#56705D', hill: TOK.sage, foliageDark: '#4E6653'
+  };
+  const W = 1280, H = 720;
+  const canvas = document.getElementById('stage');
+  const ctx = canvas.getContext('2d');
+  const rc = rough.canvas(canvas);
+  const gen = rough.generator();
+  const R = (seed, extra) => Object.assign({ seed, roughness: 1.1, bowing: 0.8, stroke: TOK.ink, strokeWidth: 3, fillStyle: 'solid' }, extra || {});
+
+  // Seeded PRNG (mulberry32) for static texture and stars only.
+  function prng(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  // ---------- Static background layer (sky, moon, stars, far hills, ridge, hill) cached once ----------
+  const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
+  (function buildBackground() {
+    const b = bg.getContext('2d');
+    const sky = b.createLinearGradient(0, 0, 0, 560);
+    sky.addColorStop(0, SCENE.skyTop); sky.addColorStop(0.5, SCENE.skyMid); sky.addColorStop(0.82, SCENE.skyLow); sky.addColorStop(1, SCENE.horizon);
+    b.fillStyle = sky; b.fillRect(0, 0, W, H);
+    const rnd = prng(3017);
+    b.fillStyle = TOK.cream;
+    for (let i = 0; i < 70; i++) { const x = rnd() * W, y = rnd() * 300 + 180; if (y > 330 && rnd() < 0.6) continue; b.globalAlpha = 0.25 + rnd() * 0.5; b.beginPath(); b.arc(x, y, 0.8 + rnd() * 1.2, 0, Math.PI * 2); b.fill(); }
+    b.globalAlpha = 1;
+    // Moon with soft halo
+    const halo = b.createRadialGradient(1120, 120, 20, 1120, 120, 110); halo.addColorStop(0, 'rgba(246,233,206,0.35)'); halo.addColorStop(1, 'rgba(246,233,206,0)');
+    b.fillStyle = halo; b.fillRect(1000, 0, 240, 240);
+    const brc = rough.canvas(bg);
+    brc.circle(1120, 120, 64, R(11, { fill: TOK.cream, stroke: '#D9C9A8', strokeWidth: 1.5, roughness: 0.7 }));
+    b.fillStyle = 'rgba(213,171,85,0.35)'; b.beginPath(); b.arc(1108, 112, 7, 0, 6.3); b.arc(1132, 132, 5, 0, 6.3); b.fill();
+    // Far lavender mountains (no outline: atmospheric depth)
+    b.fillStyle = SCENE.farHills;
+    b.beginPath(); b.moveTo(0, 470); b.lineTo(120, 400); b.lineTo(230, 450); b.lineTo(380, 380); b.lineTo(520, 445); b.lineTo(640, 395); b.lineTo(800, 455); b.lineTo(930, 390); b.lineTo(1080, 440); b.lineTo(1200, 400); b.lineTo(1280, 430); b.lineTo(1280, 600); b.lineTo(0, 600); b.closePath(); b.fill();
+    // Back ridge where the village stands
+    brc.path('M520 620Q760 500 960 480T1290 490V720H520Z', R(21, { fill: SCENE.ridge }));
+    // Front hill (Mira's hill)
+    brc.path('M-10 562Q320 470 640 540T1290 520V730H-10Z', R(31, { fill: SCENE.hill }));
+    // Small static meadow marks
+    const rr = prng(77);
+    for (let i = 0; i < 40; i++) { const x = rr() * 1260 + 10, y = 600 + rr() * 110; if (x < 600 && y > 610) continue; b.fillStyle = rr() < 0.5 ? 'rgba(246,233,206,0.55)' : 'rgba(213,171,85,0.5)'; b.beginPath(); b.arc(x, y, 1.6, 0, 6.3); b.fill(); }
+  })();
+
+  // Stationary paper grain overlay (seeded, cached)
+  const grain = document.createElement('canvas'); grain.width = W; grain.height = H;
+  (function () {
+    const g = grain.getContext('2d'); const img = g.createImageData(W, H); const rnd = prng(9091);
+    for (let i = 0; i < img.data.length; i += 4) { const v = rnd() < 0.5 ? 0 : 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = rnd() * 16; }
+    g.putImageData(img, 0, 0);
+  })();
+
+  // ---------- Cached character + prop drawables (Rough.js, fixed seeds) ----------
+  // Mira: local origin at feet centre (0,0); head at (0,-182).
+  const MIRA = {
+    dress: gen.polygon([[-30, -146], [30, -146], [52, -34], [-52, -34]], R(101, { fill: TOK.terracotta })),
+    head: gen.circle(0, -182, 72, R(102, { fill: TOK.cream })),
+    hair: gen.path('M-34 -188Q-30 -226 4 -222Q34 -220 36 -194Q18 -206 -4 -200Q-20 -206 -34 -188Z', R(103, { fill: TOK.ink, strokeWidth: 1.5 })),
+    legsStand: [gen.line(-20, -34, -20, 0, R(104, { strokeWidth: 5 })), gen.line(20, -34, 20, 0, R(105, { strokeWidth: 5 }))],
+    legsA: [gen.line(-20, -34, -32, 0, R(106, { strokeWidth: 5 })), gen.line(20, -34, 28, 0, R(107, { strokeWidth: 5 }))],
+    legsB: [gen.line(-20, -34, -10, 0, R(108, { strokeWidth: 5 })), gen.line(20, -34, 8, 0, R(109, { strokeWidth: 5 }))],
+    arm: gen.line(0, 0, 44, 0, R(110, { strokeWidth: 5 })),
+    can: gen.rectangle(38, -14, 34, 30, R(111, { fill: TOK.sage })),
+    spout: gen.line(72, -8, 92, -20, R(112, { strokeWidth: 3 }))
+  };
+  const FLOWER = {
+    head: gen.circle(0, 0, 60, R(201, { fill: TOK.gold })),
+    core: gen.circle(0, 0, 22, R(202, { fill: TOK.cream, strokeWidth: 2 })),
+    leaf: gen.path('M0 0Q14 -16 28 -8Q14 4 0 0Z', R(203, { fill: TOK.sage, strokeWidth: 2 }))
+  };
+  function houseDrawables(seed) {
+    return {
+      body: gen.polygon([[-42, 0], [-42, -56], [0, -92], [42, -56], [42, 0]], R(seed, { fill: TOK.gold })),
+      roof: gen.linearPath([[-54, -50], [0, -100], [54, -50]], R(seed + 1, { stroke: TOK.terracotta, strokeWidth: 9, roughness: 0.8 })),
+      door: gen.rectangle(-10, -30, 20, 30, R(seed + 2, { fill: TOK.ink, strokeWidth: 2 })),
+      winOff: [gen.rectangle(-34, -46, 16, 16, R(seed + 3, { fill: TOK.ink, strokeWidth: 2 })), gen.rectangle(18, -46, 16, 16, R(seed + 4, { fill: TOK.ink, strokeWidth: 2 }))],
+      winOn: [gen.rectangle(-34, -46, 16, 16, R(seed + 3, { fill: TOK.cream, strokeWidth: 2 })), gen.rectangle(18, -46, 16, 16, R(seed + 4, { fill: TOK.cream, strokeWidth: 2 }))]
+    };
+  }
+  const HOUSES = [
+    { x: 760, y: 522, d: houseDrawables(300) },
+    { x: 960, y: 482, d: houseDrawables(310) },
+    { x: 1150, y: 475, d: houseDrawables(320) }
+  ];
+  const FOLIAGE = [
+    gen.path('M1280 720Q1210 620 1230 560Q1250 640 1280 650Z', R(401, { fill: SCENE.foliageDark })),
+    gen.path('M1280 720Q1150 660 1140 600Q1200 630 1250 700Z', R(402, { fill: TOK.sage })),
+    gen.path('M1280 720Q1240 600 1180 590Q1230 650 1240 720Z', R(403, { fill: SCENE.foliageDark }))
+  ];
+
+  // Light arcs: flower head -> each roof (cubic Bezier control points)
+  const FLOWER_POS = { x: 440, y: 490 };
+  const ARCS = [
+    [[462, 476], [540, 410], [660, 400], [738, 452]],
+    [[462, 470], [600, 340], [820, 330], [936, 404]],
+    [[462, 466], [680, 270], [1000, 290], [1126, 398]]
+  ];
+  const LINK = [[782, 446], [870, 400], [1060, 392], [1150, 400]];
+  const bez = (p, t) => { const u = 1 - t; return [u*u*u*p[0][0] + 3*u*u*t*p[1][0] + 3*u*t*t*p[2][0] + t*t*t*p[3][0], u*u*u*p[0][1] + 3*u*u*t*p[1][1] + 3*u*t*t*p[2][1] + t*t*t*p[3][1]]; };
+
+  // ---------- Animated state: every property has exactly one GSAP tween owner ----------
+  const S = { miraX: 150, walk: 0, arm: 0, drops: 0, stem: 0, bloom: 0, glow: 0, ring: 0,
+    arc0: 0, arc1: 0, arc2: 0, link: 0, pop0: 0, pop1: 0, pop2: 0, lit0: 0, lit1: 0, lit2: 0, happy: 0, foliage: 14 };
+
+  const clamp = v => Math.max(0, Math.min(1, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  function drawMira() {
+    const walking = S.walk > 0 && S.walk < 1;
+    const step = walking ? Math.floor(S.walk * 8) % 2 : -1;
+    const bob = walking ? (step === 0 ? -4 : 0) : 0;
+    ctx.save(); ctx.translate(S.miraX, 566);
+    const legs = step === 0 ? MIRA.legsA : step === 1 ? MIRA.legsB : MIRA.legsStand;
+    legs.forEach(l => rc.draw(l));
+    ctx.translate(0, bob);
+    rc.draw(MIRA.dress);
+    // Arm + watering can pose: carry (arm=0) -> pour (arm=1) -> proud rest (arm=0.6)
+    ctx.save(); ctx.translate(28, -126);
+    ctx.rotate(lerp(62, -6, S.arm) * Math.PI / 180);
+    rc.draw(MIRA.arm);
+    ctx.save(); ctx.translate(44, 0); ctx.rotate(lerp(-50, 26, S.arm) * Math.PI / 180); ctx.translate(-44, 0);
+    rc.draw(MIRA.can); rc.draw(MIRA.spout);
+    ctx.restore(); ctx.restore();
+    rc.draw(MIRA.head); rc.draw(MIRA.hair);
+    // Expression swap: dot eyes -> happy closed arcs
+    ctx.strokeStyle = TOK.ink; ctx.fillStyle = TOK.ink; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    if (S.happy < 0.5) { ctx.beginPath(); ctx.arc(10, -178, 3.2, 0, 6.3); ctx.arc(26, -178, 3.2, 0, 6.3); ctx.fill(); }
+    else { ctx.beginPath(); ctx.arc(10, -176, 5, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); ctx.beginPath(); ctx.arc(26, -176, 5, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+    ctx.beginPath(); if (S.happy < 0.5) { ctx.moveTo(10, -164); ctx.quadraticCurveTo(18, -160, 28, -164); } else { ctx.moveTo(8, -166); ctx.quadraticCurveTo(18, -154, 30, -166); } ctx.stroke();
+    ctx.restore();
+  }
+  function spoutTip() {
+    const a1 = lerp(62, -6, S.arm) * Math.PI / 180, a2 = lerp(-50, 26, S.arm) * Math.PI / 180;
+    // spout tip (92,-20) relative to arm frame, can rotated about (44,0)
+    const lx = 92 - 44, ly = -20; const rx = 44 + lx * Math.cos(a2) - ly * Math.sin(a2), ry = lx * Math.sin(a2) + ly * Math.cos(a2);
+    return [S.miraX + 28 + rx * Math.cos(a1) - ry * Math.sin(a1), 566 - 126 + rx * Math.sin(a1) + ry * Math.cos(a1)];
+  }
+  function drawDrops() {
+    if (S.drops <= 0 || S.drops >= 1) return;
+    const [sx, sy] = spoutTip();
+    ctx.fillStyle = TOK.cream; ctx.strokeStyle = TOK.ink; ctx.lineWidth = 1.5;
+    for (let i = 0; i < 4; i++) {
+      const p = clamp(S.drops * 1.6 - i * 0.2); if (p <= 0 || p >= 1) continue;
+      const x = lerp(sx, 444, p), y = lerp(sy, 552, p) - Math.sin(p * Math.PI) * 12;
+      ctx.beginPath(); ctx.ellipse(x, y, 3.5, 5.5, 0, 0, 6.3); ctx.fill(); ctx.stroke();
+    }
+  }
+  function drawFlower() {
+    const { x, y } = FLOWER_POS;
+    // light pool + glow
+    if (S.glow > 0) {
+      const g = ctx.createRadialGradient(x, y, 10, x, y, 40 + 90 * S.glow);
+      g.addColorStop(0, 'rgba(213,171,85,' + (0.75 * S.glow) + ')'); g.addColorStop(1, 'rgba(213,171,85,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 40 + 90 * S.glow, 0, 6.3); ctx.fill();
+      ctx.fillStyle = 'rgba(246,233,206,' + (0.28 * S.glow) + ')'; ctx.beginPath(); ctx.ellipse(x, 560, 150 * S.glow, 22 * S.glow, 0, 0, 6.3); ctx.fill();
+    }
+    if (S.ring > 0 && S.ring < 1) { ctx.strokeStyle = 'rgba(246,233,206,' + (1 - S.ring) * 0.9 + ')'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 34 + 110 * S.ring, 0, 6.3); ctx.stroke(); }
+    // stem grows upward from the ground
+    if (S.stem > 0) {
+      const top = lerp(558, y + 28, S.stem);
+      ctx.strokeStyle = TOK.ink; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x, 558); ctx.lineTo(x, top); ctx.stroke();
+      if (S.stem > 0.6) { ctx.save(); ctx.translate(x, 536); ctx.scale((S.stem - 0.6) / 0.4, (S.stem - 0.6) / 0.4); rc.draw(FLOWER.leaf); ctx.scale(-1, 1); rc.draw(FLOWER.leaf); ctx.restore(); }
+    }
+    if (S.bloom > 0) {
+      ctx.save(); ctx.translate(x, y); ctx.scale(S.bloom, S.bloom);
+      ctx.strokeStyle = TOK.gold; ctx.lineWidth = 4; ctx.lineCap = 'round';
+      for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(Math.cos(a) * 38, Math.sin(a) * 38); ctx.lineTo(Math.cos(a) * 50, Math.sin(a) * 50); ctx.stroke(); }
+      rc.draw(FLOWER.head); rc.draw(FLOWER.core); ctx.restore();
+    }
+  }
+  function drawArc(p, prog, withBead) {
+    if (prog <= 0) return;
+    const n = Math.max(2, Math.round(80 * prog));
+    ctx.save(); ctx.strokeStyle = TOK.gold; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.shadowColor = 'rgba(213,171,85,0.9)'; ctx.shadowBlur = 12;
+    ctx.beginPath(); for (let i = 0; i <= n; i++) { const q = bez(p, prog * i / n); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); } ctx.stroke(); ctx.restore();
+    if (withBead && prog < 1) { const q = bez(p, prog); ctx.fillStyle = TOK.cream; ctx.beginPath(); ctx.arc(q[0], q[1], 6, 0, 6.3); ctx.fill(); }
+    if (prog > 0.5) { const q = bez(p, 0.5); ctx.save(); ctx.translate(q[0], q[1] - 4); ctx.rotate(-0.4); const s = clamp((prog - 0.5) * 4); ctx.scale(s, s); rc.draw(FLOWER.leaf); ctx.restore(); }
+  }
+  function drawLink() {
+    if (S.link <= 0) return;
+    ctx.save(); ctx.setLineDash([3, 10]); ctx.strokeStyle = TOK.cream; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    const n = Math.max(2, Math.round(60 * S.link));
+    ctx.beginPath(); for (let i = 0; i <= n; i++) { const q = bez(LINK, S.link * i / n); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); } ctx.stroke(); ctx.restore();
+  }
+  function drawHouse(h, pop, lit) {
+    if (pop <= 0) return;
+    if (lit > 0) {
+      const g = ctx.createRadialGradient(h.x, h.y - 44, 10, h.x, h.y - 44, 100);
+      g.addColorStop(0, 'rgba(213,171,85,' + 0.6 * lit + ')'); g.addColorStop(1, 'rgba(213,171,85,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(h.x, h.y - 44, 100, 0, 6.3); ctx.fill();
+    }
+    ctx.save(); ctx.translate(h.x, h.y); ctx.scale(1, pop); ctx.globalAlpha = clamp(pop * 2.5);
+    rc.draw(h.d.body); rc.draw(h.d.roof); rc.draw(h.d.door);
+    (lit >= 0.5 ? h.d.winOn : h.d.winOff).forEach(w => rc.draw(w));
+    ctx.restore();
+  }
+
+  function render() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
+    ctx.drawImage(bg, 0, 0);
+    drawLink();
+    drawArc(ARCS[0], S.arc0, true); drawArc(ARCS[1], S.arc1, true); drawArc(ARCS[2], S.arc2, true);
+    drawHouse(HOUSES[0], S.pop0, S.lit0); drawHouse(HOUSES[1], S.pop1, S.lit1); drawHouse(HOUSES[2], S.pop2, S.lit2);
+    drawFlower();
+    drawMira();
+    drawDrops();
+    // Near foliage layer: measured parallax drift (camera settling)
+    ctx.save(); ctx.translate(S.foliage, 0); FOLIAGE.forEach(f => rc.draw(f)); ctx.restore();
+    ctx.drawImage(grain, 0, 0);
+  }
+
+  // ---------- One paused, seekable GSAP timeline ----------
+  const tl = gsap.timeline({ paused: true, onUpdate: render });
+  tl.fromTo(S, { miraX: 150 }, { miraX: 300, duration: 0.85, ease: 'power2.inOut' }, 0)
+    .fromTo(S, { walk: 0 }, { walk: 1, duration: 0.85, ease: 'none' }, 0)
+    .fromTo(S, { foliage: 14 }, { foliage: 0, duration: 2.4, ease: 'sine.inOut' }, 0)
+    .fromTo(S, { pop0: 0 }, { pop0: 1, duration: 0.45, ease: 'back.out(1.6)' }, 0.25)
+    .fromTo(S, { pop1: 0 }, { pop1: 1, duration: 0.45, ease: 'back.out(1.6)' }, 0.4)
+    .fromTo(S, { pop2: 0 }, { pop2: 1, duration: 0.45, ease: 'back.out(1.6)' }, 0.55)
+    .to(S, { keyframes: [{ arm: 1, duration: 0.35, ease: 'power2.inOut' }, { arm: 1, duration: 0.75 }, { arm: 0.6, duration: 0.4, ease: 'sine.inOut' }] }, 0.85)
+    .fromTo(S, { drops: 0 }, { drops: 1, duration: 0.5, ease: 'none' }, 1.05)
+    .fromTo(S, { stem: 0 }, { stem: 1, duration: 0.35, ease: 'power2.out' }, 1.2)
+    .fromTo(S, { bloom: 0 }, { bloom: 1, duration: 0.4, ease: 'back.out(1.8)' }, 1.4)
+    .fromTo(S, { glow: 0 }, { glow: 1, duration: 0.45, ease: 'sine.out' }, 1.45)
+    .fromTo(S, { ring: 0 }, { ring: 1, duration: 0.55, ease: 'power2.out' }, 1.5)
+    .fromTo(S, { arc0: 0 }, { arc0: 1, duration: 0.4, ease: 'power2.inOut' }, 1.6)
+    .fromTo(S, { arc1: 0 }, { arc1: 1, duration: 0.45, ease: 'power2.inOut' }, 1.7)
+    .fromTo(S, { arc2: 0 }, { arc2: 1, duration: 0.5, ease: 'power2.inOut' }, 1.8)
+    .fromTo(S, { lit0: 0 }, { lit0: 1, duration: 0.25, ease: 'sine.out' }, 2.0)
+    .fromTo(S, { lit1: 0 }, { lit1: 1, duration: 0.25, ease: 'sine.out' }, 2.15)
+    .fromTo(S, { lit2: 0 }, { lit2: 1, duration: 0.25, ease: 'sine.out' }, 2.3)
+    .fromTo(S, { link: 0 }, { link: 1, duration: 0.3, ease: 'power2.out' }, 2.3)
+    .fromTo(S, { happy: 0 }, { happy: 1, duration: 0.1, ease: 'steps(1)' }, 2.35)
+    .to({}, { duration: 0.001 }, 2.999);
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+  const redraw = () => render();
+  window.addEventListener('hf-seek', redraw);
+  document.addEventListener('hf-seek', redraw);
+  tl.progress(1).progress(0);
+  render();
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

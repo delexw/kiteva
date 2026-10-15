@@ -1,0 +1,30 @@
+{
+  "displayTitle": "Idea System",
+  "displayDescription": "One cream disc splits into teal and orange halves, which send out nodes that build a connected lattice on a dark slate field.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (inline, hand-authored shape groups with shared coordinates)",
+    "d3-interpolate 3.0.1 interpolateString (path morphing, bundled locally with esbuild to d3-interpolate.bundle.js)",
+    "chroma-js (contrast audit only)"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline at window.__timelines.video (transforms, opacity, stroke dash draws)",
+    "Time-derived draw(t) function, called from the timeline render and hf-seek, which owns morph path d, echo bands, node travel and HUD readouts"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track.",
+  "limitations": [
+    "Blender was not used, per the user's instruction. The scene is flat 2D SVG vector work, which suits this flat-geometry style. There is no 3D depth or lighting.",
+    "Path morphing uses d3-interpolate's string interpolation between half-disc paths that share the same command structure. It is not a general shape-matching morph.",
+    "The stepped echo bands are lagging outline copies standing in for motion blur. This follows the reference craft and is not physical blur.",
+    "The HUD timecode, chapter counter and resolution readout are design elements, not real measured data.",
+    "The background (#1B2C33 to #0E171C vignette) was picked for this scene following the source-frame review. The earlier #F6F0E2 swatch now serves as the light ink role.",
+    "STYLE.json has no tech.preview_recipes. This refresh shows the reviewed source-frame techniques instead: a quiet low-chroma field, light line ink, one reserved hot accent, a HUD frame and stepped echoes.",
+    "Rendering and browser QA were not run by the agent. The host runs them."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-035",
+    "name": "Painterly 3D",
+    "visualIdentity": "Explicit: Painterly 3D renders 3D forms with painterly surface marks, controlled color masses and stylized lighting. Brush direction follows form, glossy photoreal highlights stay limited, and textures must not crawl during camera moves. It differs from matte clay-style 3D.",
+    "suitableUses": "Explicitly suited to character or environment pieces, environment showcases, title shots and game or film key art in motion. Dolly and orbit patterns list it as compatible. Inferred: product scenes with real geometry and HTML stories presenting pre-rendered frames.",
+    "limitations": "Blender pre-rendering is required, and render time is unspecified. Avoid glossy photoreal highlights, crawling brush textures and rigid symmetry forced on character acting. Dolly and orbit moves need real depth or labeled 2.5D; gaze needs eye layers or a rig.",
+    "palette": "Reference-dependent example: background #EFE4D1, foreground #38454A, accent_1 #7D9A95, accent_2 #BB7C65, four base colors, gradients disabled. Task-supplied or approved colors override it and must not be recolored. Foreground on background is 7.878:1; accent text pairs fall below 4.5:1, so accents stay decorative.",
+    "motionAndInteraction": "Motion is style-native and restrained; choosing no catalog reference is valid. Optional candidates include gaze tracking, chapter handoff, narrative steps, dolly and camera orbit. Video derives all state from composition time, preserves sharp cuts, and avoids automatic springs. Live input applies only to interactive delivery.",
+    "audio": "Source leaves audio unspecified and assigns no genre, tempo, voice or mandatory layer. Propose music, narration, ambience or silence from topic, audience and motion. Honor explicit user audio first, never default silently to instrumental music, and verify speech clarity, balance and sync.",
+    "assetRequirements": "No asset list is supplied. Blender models, stylized materials and stable brush textures are required. Orbit needs complete geometry or sufficient turntable views; gaze needs eye layers or a rig. Load local fonts and assets first, and keep reference artwork and colors unchanged.",
+    "combinations": "Keep it alone for character or environment pieces. Style-104 adds symmetric hero-shot framing with slow dolly moves, without forced symmetry on characters. Style-019 adds editorial type in #38454A on #EFE4D1, never moving faster than the camera. A hybrid suits cinematic framing or HTML showcases.",
+    "productionApproach": "Blender with Python bpy and EEVEE/Cycles acts as style renderer and motion engine using deterministic keyframes. HyperFrames is the default pipeline for timing, audio sync and export, with a paused GSAP timeline in window.__timelines. Validate with check, snapshot and render; Remotion is fallback only."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-058",
+    "name": "Voxel Art. The explicit source name is Voxel Art, which is distinct from pixel art.",
+    "visualIdentity": "Explicit: figures and spaces are built from cubes of one consistent voxel size, using stepped contours, controlled light and color blocks to establish depth. A pixel texture applied to an arbitrary mesh does not count as voxel geometry.",
+    "suitableUses": "Explicit: block-built characters and worlds, used alone. Hybrids suit isometric system overviews with style-077 and unit-based volume or capacity explainers with style-097. Inferred fit for other audiences or topics is unspecified and needs a topic check.",
+    "limitations": "Explicit: keep one voxel size, avoid perspective shrinkage in isometric hybrids, avoid free camera spin, and never use rounded or scaled voxels that misrepresent data. Camera dolly and orbit patterns need real 3D depth. Source review covered only sampled seconds 1 to 8 of two examples.",
+    "palette": "Background is scene-dependent; the tokens are non-approved suggestions: background #EEE9DB, foreground #30444C, accent_1 #63928D, accent_2 #C0845D. Foreground on background measures 8.418:1. Accent pairs (2.93 and 3.257) are decorative only. No gradient is enabled. Choose environment and lighting per subject, and let approved exact colors override all tokens.",
+    "motionAndInteraction": "Use smooth authored movement where it supports the action, while preserving sharp cuts, impacts, constant-speed sections and reading holds. Video derives all state from composition time. Pointer or scroll input belongs only to interactive delivery, with a static reduced-motion view. Optional patterns: camera dolly or orbit (motion-019, motion-021) needs real 3D; full orbit (motion-010) needs complete geometry; gaze (motion-006) needs a rig; parallax (motion-009) needs layered assets.",
+    "audio": "Audio is unspecified by the style; audio_direction is a task-specific suggestion, not a required layer. No genre, tempo, instrument or voice is fixed. Silence is valid. Music, narration or effects should follow the topic and scene cadence, and the source review did not verify any audio.",
+    "assetRequirements": "No uploads are required: cube instances can be generated procedurally from the brief. Fonts and baked assets must be local and loaded before rendering. Source sample frames are references only and must not be copied. Stateful simulations should be cached before rendering. Optional uploads are not mandatory.",
+    "combinations": "Use Voxel Art alone for block-built characters and worlds. Support style-077 with an orthographic isometric camera and 2D labels, keeping one voxel size and parallel edges. Support style-097 for unit counts: one voxel per stated unit, teal and terracotta categories, and scales starting at zero.",
+    "productionApproach": "Style renderer: Three.js with InstancedMesh for cube geometry, materials, lighting and camera. Motion engine: GSAP, with one owner per animated property. Pipeline: HyperFrames is primary for timeline registration, validation and export. Remotion is a fallback only when its documented condition is met and recorded. chroma-js is optional for palette checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

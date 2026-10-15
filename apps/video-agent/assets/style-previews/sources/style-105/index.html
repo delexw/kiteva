@@ -1,0 +1,287 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Collision instrument + band sculpture — demo cues</title>
+<style>
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#DFE6E8}
+#root{position:relative;width:100%;height:100%;overflow:hidden;background:#DFE6E8}
+#stage{display:block;width:100%;height:100%}
+text{font-family:"Avenir Next","Futura","Helvetica Neue",Arial,sans-serif}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#C7D2D6" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <!-- stationary cool drafting-sheet ground + stationary grid (scene-dependent background) -->
+  <rect id="bg" x="0" y="0" width="1280" height="720" fill="#DFE6E8"/>
+  <rect x="0" y="0" width="1280" height="720" fill="url(#grid)"/>
+
+  <!-- standalone headings (static) -->
+  <text x="80" y="92" font-size="40" font-weight="700" fill="#293B44">An idea becomes a connected system</text>
+  <text x="80" y="126" font-size="15" letter-spacing="2" fill="#293B44">DEMO CUE TABLE · AUTHORED, NOT ANALYZED · EACH CONTACT PLAYS ONE NOTE</text>
+
+  <!-- collision instrument: floor, posts, tuned bars -->
+  <path d="M80 600H640" stroke="#293B44" stroke-width="3" fill="none"/>
+  <g id="posts" stroke="#293B44" stroke-width="4" stroke-linecap="round"></g>
+  <g id="bars"></g>
+  <g id="rings" fill="none" stroke="#293B44" stroke-width="3"></g>
+  <g font-size="13" font-weight="700" letter-spacing="2" fill="#293B44" text-anchor="middle">
+    <text x="200" y="646">C3 · BASS</text>
+    <text x="390" y="646">G3 · MID</text>
+    <text x="560" y="646">E4 · TREBLE</text>
+  </g>
+
+  <!-- mechanical sculpture panel (frame); contents wait for the frame -->
+  <rect id="system-card" x="700" y="166" width="500" height="430" rx="14" fill="#293B44"/>
+  <g id="system-content">
+    <text id="system-label" data-reveal-after="system-card" x="726" y="200" font-size="13" font-weight="700" letter-spacing="3" fill="#E9EEF0">SYSTEM · BAND-OWNED PARTS</text>
+    <g id="edges" fill="none" stroke="#E9EEF0" stroke-width="4" stroke-linecap="round"></g>
+    <g id="nodes"></g>
+    <g id="sculpture">
+      <circle id="halo" cx="950" cy="390" r="70" fill="none" stroke="#628C98" stroke-width="3"/>
+      <g id="piston">
+        <rect x="936" y="444" width="28" height="22" rx="3" fill="#293B44" stroke="#E9EEF0" stroke-width="2"/>
+        <rect id="piston-rod" x="943" y="452" width="14" height="40" fill="#BA7B61"/>
+        <rect id="piston-foot" x="926" y="490" width="48" height="10" rx="3" fill="#E9EEF0"/>
+      </g>
+      <g id="aperture"></g>
+      <circle id="idea-core" cx="950" cy="390" r="17" fill="#BA7B61" stroke="#E9EEF0" stroke-width="3"/>
+    </g>
+    <text id="idea-label" data-reveal-after="system-card" x="950" y="312" font-size="13" font-weight="700" letter-spacing="2" fill="#E9EEF0" text-anchor="middle">IDEA</text>
+    <text id="net-label" data-reveal-after="system-card" x="1100" y="246" font-size="13" font-weight="700" letter-spacing="2" fill="#E9EEF0" text-anchor="middle">CONNECTED</text>
+    <g id="part-labels" font-size="12" font-weight="700" letter-spacing="1" fill="#E9EEF0">
+      <text id="pl-bass" data-reveal-after="system-card" x="726" y="574">BASS → PISTON</text>
+      <text id="pl-trans" data-reveal-after="system-card" x="872" y="574">TRANSIENT → APERTURE</text>
+      <text id="pl-treble" data-reveal-after="system-card" x="1064" y="574">TREBLE → HALO</text>
+    </g>
+  </g>
+
+  <!-- cue strip (shared cue table, 0–3 s) -->
+  <path d="M80 668H1200" stroke="#293B44" stroke-width="2" fill="none"/>
+  <g id="ticks"></g>
+  <g id="tick-labels" font-size="12" font-weight="700" letter-spacing="1" fill="#293B44" text-anchor="middle"></g>
+  <text x="80" y="696" font-size="12" font-weight="700" letter-spacing="1" fill="#293B44">CUES</text>
+  <text x="761" y="696" font-size="12" font-weight="700" letter-spacing="1" fill="#293B44" text-anchor="middle">REST</text>
+
+  <!-- ball -->
+  <g id="ball"><circle id="ball-body" cx="0" cy="0" r="22" fill="#293B44"/></g>
+</svg>
+</div>
+
+<!-- Demonstration cue table: authored by hand, NOT analyzed from any audio. Mirrors demo-cues.json. -->
+<script type="application/json" id="demo-cues">
+{
+  "label": "demo, not analyzed",
+  "units": "seconds (composition time)",
+  "sampleAttack": 0.012,
+  "bars": {
+    "A": {"cx": 200, "top": 540, "width": 200, "height": 28, "fill": "#628C98", "band": "bass", "note": "C3", "compress": 0.62, "ring": 88},
+    "B": {"cx": 390, "top": 470, "width": 150, "height": 28, "fill": "#BA7B61", "band": "mid", "note": "G3", "compress": 0.72, "ring": 70},
+    "C": {"cx": 560, "top": 400, "width": 110, "height": 28, "fill": "#628C98", "band": "treble", "note": "E4", "compress": 0.8, "ring": 54}
+  },
+  "sculptureOwners": {
+    "bass": {"part": "piston", "property": "rod extension scaleY", "rest": 1, "max": 1.9},
+    "transient": {"part": "aperture", "property": "blade rotation deg", "rest": 0, "max": 32},
+    "treble": {"part": "halo", "property": "brightness (stroke tint + width)", "rest": 0, "max": 1}
+  },
+  "cues": [
+    {"id": "c1", "contact": 0.50, "bar": "A", "point": [200, 540], "note": "C3", "noteOnset": 0.50, "duration": 0.40, "audioPlaceAt": 0.488, "bands": {"bass": 1.0, "transient": 0.9, "treble": 0.1}},
+    {"id": "c2", "contact": 1.00, "bar": "B", "point": [390, 470], "note": "G3", "noteOnset": 1.00, "duration": 0.25, "audioPlaceAt": 0.988, "bands": {"bass": 0.25, "transient": 0.7, "treble": 0.3}},
+    {"id": "c3", "contact": 1.25, "bar": "C", "point": [560, 400], "note": "E4", "noteOnset": 1.25, "duration": 0.15, "audioPlaceAt": 1.238, "bands": {"bass": 0.0, "transient": 0.6, "treble": 1.0}},
+    {"id": "c4", "contact": 1.45, "bar": "B", "point": [390, 470], "note": "G3", "noteOnset": 1.45, "duration": 0.15, "audioPlaceAt": 1.438, "bands": {"bass": 0.2, "transient": 0.55, "treble": 0.35}},
+    {"id": "c5", "contact": 2.20, "bar": "A", "point": [200, 540], "note": "C3", "noteOnset": 2.20, "duration": 0.33, "audioPlaceAt": 2.188, "final": true, "bands": {"bass": 1.0, "transient": 1.0, "treble": 0.2}}
+  ],
+  "arcs": [
+    {"from": "start", "to": "c1", "start": [200, 230]},
+    {"from": "c1", "to": "c2", "apexY": 330},
+    {"from": "c2", "to": "c3", "apexY": 352},
+    {"from": "c3", "to": "c4", "apexY": 345},
+    {"from": "c4", "to": "c5", "apexY": 210, "note": "rest before the final hit; all sculpture parts at rest"}
+  ]
+}
+</script>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  const NS = 'http://www.w3.org/2000/svg';
+  const C = {bg:'#DFE6E8', ink:'#293B44', a1:'#628C98', a2:'#BA7B61', light:'#E9EEF0', core:'#F7FAFA'};
+  const table = JSON.parse(document.getElementById('demo-cues').textContent);
+  const R = 22, DWELL = 0.07, HX = 950, HY = 390;
+  const $ = id => document.getElementById(id);
+  const el = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; };
+
+  // Contrast audit (informational only; never alters colors).
+  if (window.chroma) {
+    if (chroma.contrast(C.ink, C.bg) < 4.5) console.warn('ink/bg contrast below target');
+    if (chroma.contrast(C.light, C.ink) < 4.5) console.warn('panel text contrast below target');
+  }
+
+  // ---- tuned bars ----
+  const barParts = {};
+  for (const [key, b] of Object.entries(table.bars)) {
+    const x = b.cx - b.width / 2, bottom = b.top + b.height;
+    for (const px of [x + 16, x + b.width - 16]) el('path', {d: `M${px} ${bottom}V600`}, $('posts'));
+    const g = el('g', {id: 'bar-' + key, 'data-band': b.band}, $('bars'));
+    el('rect', {x, y: b.top, width: b.width, height: b.height, rx: 6, fill: b.fill, stroke: C.ink, 'stroke-width': 3}, g);
+    const glow = el('rect', {id: 'glow-' + key, x: x + 3, y: b.top + 3, width: b.width - 6, height: b.height - 6, rx: 4, fill: C.core, opacity: 0}, g);
+    barParts[key] = {g, glow, b, origin: `${b.cx} ${bottom}`};
+  }
+
+  // ---- sculpture aperture: 6 annular blades around the IDEA core ----
+  const blades = [];
+  for (let i = 0; i < 6; i++) {
+    const a0 = (i * 60 - 90) * Math.PI / 180, a1 = a0 + 60 * Math.PI / 180, r0 = 21, r1 = 52;
+    const p = (r, a) => `${(HX + r * Math.cos(a)).toFixed(1)} ${(HY + r * Math.sin(a)).toFixed(1)}`;
+    const d = `M${p(r0, a0)}L${p(r1, a0)}A${r1} ${r1} 0 0 1 ${p(r1, a1)}L${p(r0, a1)}A${r0} ${r0} 0 0 0 ${p(r0, a0)}Z`;
+    const blade = el('path', {d, fill: C.a1, stroke: C.ink, 'stroke-width': 2}, $('aperture'));
+    const pivot = p(r1, a0).split(' ');
+    gsap.set(blade, {rotation: 0, svgOrigin: `${pivot[0]} ${pivot[1]}`});
+    blades.push(blade);
+  }
+
+  // ---- network nodes / edges ----
+  const N = {n2: [800, 270, 13, C.a1], n3: [1100, 280, 13, C.a1], n4: [790, 480, 13, C.a2], n5: [1110, 470, 15, C.a2]};
+  const nodeEls = {};
+  for (const [id, [x, y, r, f]] of Object.entries(N)) nodeEls[id] = el('circle', {id, cx: x, cy: y, r, fill: f, stroke: C.light, 'stroke-width': 3}, $('nodes'));
+  const P = id => id === 'hub' ? [HX, HY] : N[id];
+  const edge = (a, b) => {
+    const [x1, y1] = P(a), [x2, y2] = P(b);
+    const len = Math.hypot(x2 - x1, y2 - y1);
+    const p = el('path', {id: `e-${a}-${b}`, d: `M${x1} ${y1}L${x2} ${y2}`, 'stroke-dasharray': `${len} ${len}`, 'stroke-dashoffset': len}, $('edges'));
+    p.__len = len; return p;
+  };
+  const growth = {
+    c1: {node: null, edges: []},
+    c2: {node: 'n2', edges: [['hub', 'n2']]},
+    c3: {node: 'n3', edges: [['hub', 'n3']]},
+    c4: {node: 'n4', edges: [['hub', 'n4']]},
+    c5: {node: 'n5', edges: [['hub', 'n5'], ['n2', 'n4'], ['n3', 'n5']]}
+  };
+
+  // ---- cue strip ----
+  const sx = t => 80 + t * (1120 / 3);
+  const tickEls = {};
+  for (const cue of table.cues) {
+    tickEls[cue.id] = el('rect', {x: sx(cue.contact) - 2, y: 658, width: 4, height: 20, fill: C.a1}, $('ticks'));
+    gsap.set(tickEls[cue.id], {svgOrigin: `${sx(cue.contact)} 678`});
+    el('text', {x: sx(cue.contact), y: 696}, $('tick-labels')).textContent = cue.note;
+  }
+
+  // ---- rings: one per cue (no shared state across seeks) ----
+  const ringEls = {};
+  for (const cue of table.cues) ringEls[cue.id] = el('circle', {cx: cue.point[0], cy: cue.point[1], r: 8, opacity: 0}, $('rings'));
+
+  // ---- single paused timeline ----
+  const tl = gsap.timeline({paused: true, defaults: {immediateRender: false}});
+  const ball = $('ball'), body = $('ball-body');
+  const panelLabels = ['system-label', 'idea-label', 'net-label', 'pl-bass', 'pl-trans', 'pl-treble'].map($);
+
+  gsap.set(ball, {x: 200, y: 230});
+  gsap.set(body, {scaleX: 1, scaleY: 1, svgOrigin: `0 ${R}`});
+  gsap.set($('system-card'), {scaleY: 0, svgOrigin: '950 596'});
+  gsap.set(panelLabels, {opacity: 0});
+  gsap.set($('sculpture'), {opacity: 0});
+  gsap.set($('idea-core'), {scale: 0.35, svgOrigin: `${HX} ${HY}`});
+  gsap.set($('piston-rod'), {scaleY: 1, svgOrigin: '950 452'});
+  gsap.set($('piston-foot'), {y: 0});
+  gsap.set($('halo'), {attr: {'stroke-width': 3}, stroke: C.a1, opacity: 0.45});
+  for (const id in nodeEls) gsap.set(nodeEls[id], {scale: 0, svgOrigin: `${N[id][0]} ${N[id][1]}`});
+  for (const k in barParts) gsap.set(barParts[k].g, {scaleY: 1, svgOrigin: barParts[k].origin});
+
+  // Frame completes first, then its contents appear.
+  tl.fromTo($('system-card'), {scaleY: 0}, {scaleY: 1, duration: 0.3, ease: 'power2.inOut'}, 0.04);
+  tl.fromTo($('sculpture'), {opacity: 0}, {opacity: 1, duration: 0.1, ease: 'none'}, 0.35);
+  tl.fromTo(panelLabels, {opacity: 0}, {opacity: 1, duration: 0.1, ease: 'none'}, 0.35);
+
+  const restY = key => table.bars[key].top - R;
+  const c0 = table.cues[0];
+  tl.fromTo(ball, {y: 230}, {y: restY(c0.bar), duration: c0.contact, ease: 'power2.in'}, 0);
+
+  // Band owners: each property has exactly one owner and returns to rest after each pulse.
+  const own = table.sculptureOwners;
+  const bassPulse = (t, v) => {
+    if (v < 0.15) return;
+    const s = 1 + (own.bass.max - 1) * v, dy = 40 * (s - 1);
+    tl.fromTo($('piston-rod'), {scaleY: 1}, {scaleY: s, duration: 0.06, ease: 'power2.out'}, t);
+    tl.fromTo($('piston-rod'), {scaleY: s}, {scaleY: 1, duration: 0.34, ease: 'power2.inOut'}, t + 0.06);
+    tl.fromTo($('piston-foot'), {y: 0}, {y: dy, duration: 0.06, ease: 'power2.out'}, t);
+    tl.fromTo($('piston-foot'), {y: dy}, {y: 0, duration: 0.34, ease: 'power2.inOut'}, t + 0.06);
+  };
+  const transientPulse = (t, v) => {
+    const deg = own.transient.max * v;
+    tl.fromTo(blades, {rotation: 0}, {rotation: deg, duration: 0.05, ease: 'power2.out'}, t);
+    tl.fromTo(blades, {rotation: deg}, {rotation: 0, duration: 0.22, ease: 'back.out(1.6)'}, t + 0.05);
+  };
+  const treblePulse = (t, v, dur) => {
+    if (v < 0.25) return;
+    const w = 3 + 5 * v, col = chroma.mix(C.a1, C.core, v, 'rgb').hex();
+    tl.fromTo($('halo'), {attr: {'stroke-width': 3}, stroke: C.a1, opacity: 0.45}, {attr: {'stroke-width': w}, stroke: col, opacity: 1, duration: 0.04, ease: 'none'}, t);
+    tl.fromTo($('halo'), {attr: {'stroke-width': w}, stroke: col, opacity: 1}, {attr: {'stroke-width': 3}, stroke: C.a1, opacity: 0.45, duration: 0.12, ease: 'power2.out'}, t + 0.04 + dur);
+  };
+
+  table.cues.forEach((cue, i) => {
+    const t = cue.contact, part = barParts[cue.bar], b = part.b;
+    const cy = restY(cue.bar), sink = b.height * (1 - b.compress);
+    tl.addLabel(cue.id, t);
+
+    // 1) contact: bar compresses, ball sinks + squashes (impact reads before rebound)
+    tl.fromTo(part.g, {scaleY: 1}, {scaleY: b.compress, duration: 0.035, ease: 'power2.out'}, t);
+    tl.fromTo(part.g, {scaleY: b.compress}, {scaleY: 1, duration: 0.3, ease: 'back.out(2.2)'}, t + 0.035);
+    tl.fromTo(ball, {y: cy}, {y: cy + sink, duration: 0.035, ease: 'power2.out'}, t);
+    tl.fromTo(ball, {y: cy + sink}, {y: cy, duration: 0.035, ease: 'power2.in'}, t + 0.035);
+    tl.fromTo(body, {scaleX: 1, scaleY: 1}, {scaleX: 1.16, scaleY: 0.8, duration: 0.035, ease: 'power2.out'}, t);
+    tl.fromTo(body, {scaleX: 1.16, scaleY: 0.8}, {scaleX: 1, scaleY: 1, duration: 0.12, ease: 'back.out(2)'}, t + 0.035);
+
+    // 2) ripple ring from the contact point
+    tl.fromTo(ringEls[cue.id], {attr: {r: 8}, opacity: 0.95}, {attr: {r: b.ring}, opacity: 0, duration: 0.45, ease: 'power2.out'}, t + 0.03);
+
+    // 3) bar brightens toward a pale core for the note duration
+    tl.fromTo(part.glow, {opacity: 0}, {opacity: 0.7, duration: 0.04, ease: 'none'}, t + 0.06);
+    tl.fromTo(part.glow, {opacity: 0.7}, {opacity: 0, duration: 0.08, ease: 'none'}, t + 0.06 + cue.duration);
+
+    tl.fromTo(tickEls[cue.id], {fill: C.a1, scaleY: 1}, {fill: C.ink, scaleY: 1.5, duration: 0.08, ease: 'power2.out'}, t);
+
+    // sculpture band owners (same cue table)
+    bassPulse(t + 0.02, cue.bands.bass);
+    transientPulse(t + 0.02, cue.bands.transient);
+    treblePulse(t + 0.02, cue.bands.treble, cue.duration);
+
+    // network growth caused by this contact
+    const gr = growth[cue.id];
+    if (i === 0) tl.fromTo($('idea-core'), {scale: 0.35}, {scale: 1, duration: 0.25, ease: 'back.out(2)'}, t + 0.04);
+    let at = t + 0.04;
+    gr.edges.forEach(([a, bb], k) => {
+      const p = edge(a, bb), d = cue.final ? 0.2 : 0.15;
+      tl.fromTo(p, {strokeDashoffset: p.__len}, {strokeDashoffset: 0, duration: d, ease: 'power2.inOut'}, t + 0.04 + k * 0.06);
+      if (k === 0) at = t + 0.04 + d;
+    });
+    if (gr.node) tl.fromTo(nodeEls[gr.node], {scale: 0}, {scale: 1, duration: 0.2, ease: 'back.out(2)'}, at);
+
+    // rebound arc to the next contact
+    const next = table.cues[i + 1];
+    if (!next) return;
+    const arc = table.arcs[i + 1];
+    const x0 = b.cx, y0 = cy, x1 = table.bars[next.bar].cx, y1 = restY(next.bar), yA = arc.apexY;
+    const leave = t + DWELL, T = next.contact - leave;
+    const up = Math.sqrt(y0 - yA), down = Math.sqrt(y1 - yA), tUp = T * up / (up + down);
+    tl.fromTo(ball, {x: x0}, {x: x1, duration: T, ease: 'none'}, leave);
+    tl.fromTo(ball, {y: y0}, {y: yA, duration: tUp, ease: 'power2.out'}, leave);
+    tl.fromTo(ball, {y: yA}, {y: y1, duration: T - tUp, ease: 'power2.in'}, leave + tUp);
+  });
+
+  tl.addLabel('settled', 2.7);
+  tl.to({}, {duration: 0.001}, 2.999);
+  tl.seek(0, false);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

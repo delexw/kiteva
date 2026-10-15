@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-072",
+    "name": "Synthwave, a supplemental design reference in Digital and 3D Aesthetics. It is not claimed as a directly named source style. It is related to Retrofuturism but not interchangeable with it, and VHS treatment is optional.",
+    "visualIdentity": "Explicit cues: 1980s electronic-music imagery with neon night colors, perspective grids, striped sunsets, and occasional mountain or sports-car silhouettes. Magenta, cyan, and warm orange separate against deep blue-purple. The source note says not every suggested detail was verified in the source video.",
+    "suitableUses": "Inferred suitability: music videos, lyric visualizers, and retro event promos, where motion drives toward a clear horizon in sync with musical sections. Horizon-drive imagery works alone. Titles or more structured music may need a hybrid style.",
+    "limitations": "Explicit: VHS texture is optional and must add tape noise, tracking errors, and color bleed without persistent corruption. CRT scanlines alone do not represent VHS. Avoid flashing on every beat and avoid layering vaporwave or cyberpunk, which blurs the identity.",
+    "palette": "Status is a suggestion for new artwork without an approved palette: background #171333, foreground #F8ECDC, accents #E05AAA, #5DCEE0, and #EEA15D. Task-supplied exact colors override these. The gradient is optional and limited to sunset or atmosphere; grid lines, silhouettes, and text stay discrete. Contrast checks cover only two-color pairs, so verify composited frames.",
+    "motionAndInteraction": "Explicit: motion tracks musical sections toward a clear horizon while keeping deliberate cuts and reading holds. Motion references motion-037, -038, and -039 are optional and apply only if scene assets support their defining action. Interactive HTML may suggest reduced-motion and keyboard media controls.",
+    "audio": "Unspecified by the style; no audio layer is mandatory. Suggested: music that changes sections and grid speed on verified beats, with cuts landing on those beats. Voiceover and sung vocals are unspecified. Honor supplied audio first, invent no audio assets, and do not assume beat sync without analysis.",
+    "assetRequirements": "Unspecified; no assets are supplied. Needed when used: authorized music with timing data, local fonts loaded before rendering, and glyph or punctuation assets only if an optional motion reference requires them. Do not invent product copy or brand marks.",
+    "combinations": "Explicit: style-105 supplies section-synchronized horizon, grid speed, and cut timing for music videos and retro promos, with the gradient kept in the sunset. style-093 supplies title and lyric typography in #F8ECDC with a magenta outline accent. Avoid text over the sun's brightest area.",
+    "productionApproach": "HyperFrames is the default pipeline for composition and export; Remotion is only a documented fallback when HyperFrames is unavailable or a verified limitation applies. Three.js with WebGL and GLSL renders grids, vehicles, sunset, and sky, while SVG or DOM handles text. GSAP provides the paused seekable timeline, and chroma-js validates colors and contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

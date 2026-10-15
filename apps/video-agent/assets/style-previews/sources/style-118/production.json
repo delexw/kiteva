@@ -1,0 +1,25 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js",
+    "GLSL"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent. No music, voiceover or sound effects.",
+  "limitations": [
+    "Illustrative procedural heat: the GLSL field is authored (blurred-mask interior falloff, Gaussian hotspots, thinness cooling at nose/ear, seeded value-noise shimmer from uTime), not a physical thermal simulation or measured data; no scale, degrees or legend is shown.",
+    "Canvas 2D is used only once at load to rasterize the silhouette and wire masks into Three.js CanvasTextures; chroma.js only precomputes the 4-stop LAB ramp DataTexture.",
+    "Interior falloff is approximated by 12px/46px Canvas blur passes of the hard mask rather than a true distance transform.",
+    "Network heat spreads along a horizontal coordinate baked into the wire mask, approximating path-length propagation.",
+    "ColorManagement is disabled and renderer.outputColorSpace is LinearSRGBColorSpace so sRGB ramp bytes are written without double gamma correction.",
+    "Three.js 0.186 is vendored locally as three.min.js (esbuild IIFE global THREE from node_modules/three); requires WebGL in the rendering browser.",
+    "Preview only: alternate paper/red scenes of the full video are not included."
+  ]
+}

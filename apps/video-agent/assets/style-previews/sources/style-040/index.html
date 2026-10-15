@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Charcoal on toned paper — An idea becomes a connected system</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#BFC4C6}
+  #root{position:relative;width:100%;height:100%;overflow:hidden;background:#BFC4C6}
+  #stage{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+  #caption{position:absolute;left:90px;top:612px;margin:0;
+    font-family:"Avenir Next","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight:600;font-size:40px;line-height:52px;letter-spacing:.2px;color:#232426;
+    white-space:nowrap;clip-path:inset(0 100% 0 0);opacity:0}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="stage" width="1280" height="720" aria-label="Charcoal drawing of a light bulb whose lines connect into a network of nodes"></canvas>
+  <h1 id="caption">An idea becomes a connected system</h1>
+</div>
+<script src="gsap.min.js"></script>
+<script>
+(function(){
+'use strict';
+var W=1280,H=720;
+// Resolved scene palette: cool blue-grey toned (Ingres-type) paper, compressed charcoal, white chalk.
+var PAPER='#BFC4C6', CHAR='#232426', CHALK='#F3F1EA';
+
+// ---------- deterministic helpers ----------
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function mk(){var c=document.createElement('canvas');c.width=W;c.height=H;return c;}
+function clamp(v,a,b){return v<a?a:v>b?b:v;}
+function seg(p,a,b){return clamp((p-a)/(b-a),0,1);}
+
+// ---------- fixed paper layers (built once, never move) ----------
+function valueNoise(cell,seed){
+  var r=mulberry32(seed),gw=Math.ceil(W/cell)+2,gh=Math.ceil(H/cell)+2,g=new Float32Array(gw*gh);
+  for(var i=0;i<g.length;i++)g[i]=r();
+  return function(x,y){var gx=x/cell,gy=y/cell,ix=gx|0,iy=gy|0,fx=gx-ix,fy=gy-iy;
+    fx=fx*fx*(3-2*fx);fy=fy*fy*(3-2*fy);
+    var a=g[iy*gw+ix],b=g[iy*gw+ix+1],c=g[(iy+1)*gw+ix],d=g[(iy+1)*gw+ix+1];
+    return a+(b-a)*fx+(c-a)*fy+(a-b-c+d)*fx*fy;};
+}
+var nBig=valueNoise(160,7),nMid=valueNoise(22,11),nFine=valueNoise(3,13),nTooth=valueNoise(1.7,17);
+var paper=mk(), tooth=mk(), toothLight=mk();
+(function(){
+  var pc=paper.getContext('2d'),pd=pc.createImageData(W,H),
+      tc=tooth.getContext('2d'),td=tc.createImageData(W,H),
+      lc=toothLight.getContext('2d'),ld=lc.createImageData(W,H);
+  for(var y=0;y<H;y++){
+    var laid=Math.sin(y*0.9)*0.5+0.5; // faint laid lines of toned paper
+    for(var x=0;x<W;x++){
+      var i=(y*W+x)*4;
+      var v=(nBig(x,y)-0.5)*10+(nMid(x,y)-0.5)*6+(nFine(x,y)-0.5)*7+laid*2.2;
+      pd.data[i]=191+v;pd.data[i+1]=196+v;pd.data[i+2]=198+v*0.9;pd.data[i+3]=255;
+      // tooth: valleys of the sheet the stick skips over (alpha = how much mark is removed)
+      var t=nTooth(x,y)*0.75+nFine(x,y)*0.25+laid*0.08;
+      var hole=clamp((t-0.42)*2.6,0,1);
+      td.data[i]=td.data[i+1]=td.data[i+2]=0;td.data[i+3]=hole*215;
+      ld.data[i]=ld.data[i+1]=ld.data[i+2]=0;ld.data[i+3]=clamp((t-0.30)*2.2,0,1)*235;
+    }
+  }
+  pc.putImageData(pd,0,0);tc.putImageData(td,0,0);lc.putImageData(ld,0,0);
+})();
+
+// ---------- geometry ----------
+function cubic(p0,p1,p2,p3,n,out){for(var i=1;i<=n;i++){var t=i/n,u=1-t;
+  out.push([u*u*u*p0[0]+3*u*u*t*p1[0]+3*u*t*t*p2[0]+t*t*t*p3[0],u*u*u*p0[1]+3*u*u*t*p1[1]+3*u*t*t*p2[1]+t*t*t*p3[1]]);}}
+function lineTo(a,b,n,out){for(var i=1;i<=n;i++){var t=i/n;out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}}
+// Bulb outline (from ILLUSTRATION.svg composition), drawn as one hand stroke.
+var bulb=[[380,180]];
+cubic([380,180],[270,180],[230,300],[290,380],28,bulb);
+cubic([290,380],[320,420],[330,440],[330,480],10,bulb);
+lineTo([330,480],[430,480],8,bulb);
+cubic([430,480],[430,440],[440,420],[470,380],10,bulb);
+cubic([470,380],[530,300],[490,180],[380,180],28,bulb);
+var bulbPath=new Path2D();bulb.forEach(function(p,i){i?bulbPath.lineTo(p[0],p[1]):bulbPath.moveTo(p[0],p[1]);});bulbPath.closePath();
+var shade=[[380,180]];
+cubic([380,180],[470,190],[520,300],[470,380],20,shade);
+cubic([470,380],[440,420],[430,440],[430,480],8,shade);
+lineTo([430,480],[390,480],4,shade);
+cubic([390,480],[400,400],[470,320],[380,180],20,shade);
+var shadePath=new Path2D();shade.forEach(function(p,i){i?shadePath.lineTo(p[0],p[1]):shadePath.moveTo(p[0],p[1]);});shadePath.closePath();
+
+function hatchSet(x0,y0,x1,y1,angleDeg,spacing,seed){
+  var r=mulberry32(seed),a=angleDeg*Math.PI/180,dx=Math.cos(a),dy=Math.sin(a),nx=-dy,ny=dx;
+  var cx=(x0+x1)/2,cy=(y0+y1)/2,R=Math.hypot(x1-x0,y1-y0)/2,out=[];
+  for(var o=-R;o<=R;o+=spacing){var j=(r()-0.5)*2.2;
+    out.push([[cx+nx*(o+j)-dx*R,cy+ny*(o+j)-dy*R],[cx+nx*(o+j)+dx*R+(r()-0.5)*6,cy+ny*(o+j)+dy*R]]);}
+  return out;
+}
+var bulbHatch=hatchSet(250,175,515,485,-40,8.5,3);
+var shadeHatch=hatchSet(380,175,515,485,50,7,5);
+var filament=[[350,470],[360,380],[380,410],[400,380],[410,470]];
+var baseBands=[[[336,500],[424,500]],[[340,522],[420,522]],[[352,544],[408,544]]];
+
+var nodes=[[760,220],[900,380],[1080,250],[1040,540],[780,540]];
+var NR=28;
+function nodeRing(c,seed){var r=mulberry32(seed),a0=-2.2+r()*0.6,out=[];
+  for(var i=0;i<=48;i++){var a=a0+i/48*Math.PI*2.12,rr=NR+(r()-0.5)*1.6;out.push([c[0]+Math.cos(a)*rr,c[1]+Math.sin(a)*rr]);}return out;}
+var rings=nodes.map(function(c,i){return nodeRing(c,100+i);});
+var nodeHatch=nodes.map(function(c,i){return hatchSet(c[0]-NR,c[1]-NR,c[0]+NR,c[1]+NR,-40,6,200+i);});
+function edge(a,b,trimA,trimB,seed){var r=mulberry32(seed),dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L;
+  var A=[a[0]+ux*trimA,a[1]+uy*trimA],B=[b[0]-ux*trimB,b[1]-uy*trimB],bow=(r()-0.5)*14,out=[A];
+  for(var i=1;i<=24;i++){var t=i/24,s=Math.sin(t*Math.PI)*bow;out.push([A[0]+(B[0]-A[0])*t-uy*s,A[1]+(B[1]-A[1])*t+ux*s]);}return out;}
+var T=NR+5;
+var edges=[
+  edge([480,320],nodes[0],0,T,1), edge([470,380],nodes[4],0,T,2),
+  edge(nodes[0],nodes[1],T,T,3), edge(nodes[0],nodes[2],T,T,4),
+  edge(nodes[4],nodes[3],T,T,5), edge(nodes[1],nodes[2],T,T,6),
+  edge(nodes[1],nodes[3],T,T,7), edge(nodes[2],nodes[3],T,T,8)
+];
+
+// ---------- marks ----------
+function lengths(pts){var L=[0];for(var i=1;i<pts.length;i++)L.push(L[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));return L;}
+var lenCache=new Map();
+function partial(ctx,pts,p,ox,oy){
+  if(p<=0)return;var L=lenCache.get(pts);if(!L){L=lengths(pts);lenCache.set(pts,L);}
+  var target=L[L.length-1]*p;ctx.beginPath();ctx.moveTo(pts[0][0]+ox,pts[0][1]+oy);
+  for(var i=1;i<pts.length;i++){
+    if(L[i]>=target){var f=(target-L[i-1])/((L[i]-L[i-1])||1);
+      ctx.lineTo(pts[i-1][0]+(pts[i][0]-pts[i-1][0])*f+ox,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*f+oy);break;}
+    ctx.lineTo(pts[i][0]+ox,pts[i][1]+oy);}
+  ctx.stroke();
+}
+// A charcoal stroke = several fixed, offset passes of varying width/pressure (no per-frame randomness).
+var PASSES=[[0,0,1,0.85],[1.1,-0.7,0.55,0.5],[-0.9,0.8,0.7,0.45],[0.4,1.3,0.35,0.6]];
+function charcoal(ctx,pts,p,w,alpha){
+  if(p<=0)return;ctx.lineCap='round';ctx.lineJoin='round';
+  for(var k=0;k<PASSES.length;k++){var q=PASSES[k];ctx.globalAlpha=alpha*q[3];ctx.lineWidth=w*q[2];partial(ctx,pts,p,q[0],q[1]);}
+  ctx.globalAlpha=1;
+}
+function hatch(ctx,lines,p,w,alpha,clip){
+  if(p<=0)return;ctx.save();ctx.clip(clip);ctx.lineCap='round';
+  var n=lines.length,span=0.35;
+  for(var i=0;i<n;i++){var s=(i/n)*(1-span),lp=seg(p,s,s+span);if(lp<=0)break;
+    ctx.globalAlpha=alpha;ctx.lineWidth=w;partial(ctx,lines[i],lp,0,0);
+    ctx.globalAlpha=alpha*0.45;ctx.lineWidth=w*0.5;partial(ctx,lines[i],lp,0.8,0.6);}
+  ctx.restore();ctx.globalAlpha=1;
+}
+
+// ---------- smudge mass (built once, revealed locally) ----------
+var smudge=mk();
+(function(){var c=smudge.getContext('2d');c.filter='blur(22px)';c.fillStyle=CHAR;
+  c.globalAlpha=0.30;c.beginPath();c.ellipse(385,350,215,200,-0.2,0,Math.PI*2);c.fill();
+  c.globalAlpha=0.22;c.beginPath();c.ellipse(455,330,120,170,0.3,0,Math.PI*2);c.fill();
+  c.filter='none';c.globalCompositeOperation='destination-out';c.drawImage(toothLight,0,0);
+  c.globalCompositeOperation='destination-out';c.globalAlpha=0.5;c.filter='blur(14px)';
+  c.fillStyle='#000';c.beginPath();c.ellipse(330,265,52,70,0.5,0,Math.PI*2);c.fill(); // kneaded-eraser bloom
+  c.filter='none';c.globalAlpha=1;c.globalCompositeOperation='source-over';})();
+var underSmudge=mk();
+(function(){var c=underSmudge.getContext('2d');c.filter='blur(7px)';c.strokeStyle=CHAR;c.globalAlpha=0.32;c.lineWidth=12;c.lineCap='round';
+  c.beginPath();c.moveTo(92,676);c.quadraticCurveTo(400,666,770,678);c.stroke();c.filter='none';
+  c.globalCompositeOperation='destination-out';c.drawImage(toothLight,0,0);})();
+
+// ---------- per-frame layers ----------
+var stage=document.getElementById('stage'),ctx=stage.getContext('2d');
+var charL=mk(),cc=charL.getContext('2d'),chalkL=mk(),kc=chalkL.getContext('2d'),maskL=mk(),mc=maskL.getContext('2d');
+
+function revealLocal(src,cx,cy,r,soft){ // soft radial local reveal of a prebuilt layer
+  if(r<=0)return;mc.setTransform(1,0,0,1,0,0);mc.globalCompositeOperation='source-over';mc.clearRect(0,0,W,H);
+  var g=mc.createRadialGradient(cx,cy,Math.max(0,r-soft),cx,cy,r);g.addColorStop(0,'#000');g.addColorStop(1,'rgba(0,0,0,0)');
+  mc.fillStyle=g;mc.fillRect(0,0,W,H);mc.globalCompositeOperation='source-in';mc.drawImage(src,0,0);
+  mc.globalCompositeOperation='source-over';ctx.drawImage(maskL,0,0);
+}
+
+var S={smudge:0,outline:0,hatch:0,shade:0,filament:0,base:0,lift:0,bulbChalk:0,
+  e0:0,e1:0,e2:0,e3:0,e4:0,e5:0,e6:0,e7:0,n0:0,n1:0,n2:0,n3:0,n4:0,c0:0,c1:0,c2:0,c3:0,c4:0,under:0};
+
+function draw(){
+  ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+  ctx.drawImage(paper,0,0);
+  // smudged tonal mass, revealed outward from the bulb
+  revealLocal(smudge,385,345,S.smudge*540,200);
+
+  // charcoal value layer
+  cc.clearRect(0,0,W,H);cc.strokeStyle=CHAR;cc.fillStyle=CHAR;
+  hatch(cc,bulbHatch,S.hatch,1.7,0.62,bulbPath);
+  hatch(cc,shadeHatch,S.shade,1.4,0.55,shadePath);
+  charcoal(cc,bulb,S.outline,6.5,0.95);
+  charcoal(cc,filament,S.filament,3.6,0.95);
+  for(var b=0;b<3;b++)charcoal(cc,baseBands[b],seg(S.base,b*0.25,b*0.25+0.5),8.5,0.95);
+  for(var e=0;e<8;e++)charcoal(cc,edges[e],S['e'+e],4.6,0.88);
+  for(var n=0;n<5;n++){var p=S['n'+n];if(p<=0)continue;
+    hatch(cc,nodeHatch[n],seg(p,0.35,1),1.5,0.6,new Path2D(ringPath(n)));
+    charcoal(cc,rings[n],seg(p,0,0.7),4,0.95);}
+  // eraser lift: highlight pulled out of the charcoal along the bulb's left shoulder
+  if(S.lift>0){cc.save();cc.globalCompositeOperation='destination-out';cc.strokeStyle='#000';cc.lineCap='round';
+    cc.lineWidth=15;cc.globalAlpha=0.85;partial(cc,liftPts,S.lift,0,0);cc.restore();}
+  // fixed paper tooth bites into every charcoal mark (grain anchored to the sheet)
+  cc.globalCompositeOperation='destination-out';cc.drawImage(tooth,0,0);cc.globalCompositeOperation='source-over';
+  ctx.drawImage(charL,0,0);
+
+  // white chalk layer (built separately, only on light-catching edges)
+  kc.clearRect(0,0,W,H);kc.strokeStyle=CHALK;kc.fillStyle=CHALK;
+  charcoal(kc,liftPts,S.bulbChalk,6,0.9);
+  for(var c=0;c<5;c++){var q=S['c'+c];if(q<=0)continue;charcoal(kc,glints[c],q,5,0.95);}
+  kc.globalCompositeOperation='destination-out';kc.drawImage(toothLight,0,0);kc.globalCompositeOperation='source-over';
+  ctx.drawImage(chalkL,0,0);
+
+  if(S.under>0){ctx.save();ctx.beginPath();ctx.rect(80,650,S.under*720,50);ctx.clip();ctx.drawImage(underSmudge,0,0);ctx.restore();}
+}
+var ringPaths=nodes.map(function(c){var p=new Path2D();p.arc(c[0],c[1],NR-1,0,Math.PI*2);return p;});
+function ringPath(n){return ringPaths[n];}
+var liftPts=[];cubic([312,318],[298,280],[310,240],[342,214],16,liftPts);liftPts.unshift([312,318]);
+var glints=nodes.map(function(c){var o=[];for(var i=0;i<=10;i++){var a=-2.75+i/10*1.05;o.push([c[0]+Math.cos(a)*(NR-9),c[1]+Math.sin(a)*(NR-9)]);}return o;});
+
+// ---------- one paused GSAP timeline owns every animated value ----------
+var tl=gsap.timeline({paused:true,onUpdate:draw});
+function at(key,start,dur,ease){var o={};o[key]=1;o.duration=dur;o.ease=ease||'none';tl.to(S,o,start);}
+at('smudge',0.00,0.70,'power2.out');
+at('outline',0.12,0.68,'power2.inOut');
+at('hatch',0.40,0.75,'none');
+at('shade',0.62,0.60,'none');
+at('filament',0.82,0.38,'power2.inOut');
+at('base',0.90,0.40,'power2.inOut');
+at('lift',1.05,0.26,'power2.out');
+at('bulbChalk',1.22,0.26,'power2.out');
+at('e0',1.08,0.36,'power2.inOut');at('e1',1.14,0.36,'power2.inOut');
+at('n0',1.40,0.36,'power2.out');at('n4',1.46,0.36,'power2.out');
+at('e2',1.64,0.26,'power2.inOut');at('e3',1.68,0.32,'power2.inOut');at('e4',1.70,0.32,'power2.inOut');
+at('n1',1.86,0.32,'power2.out');at('n2',1.96,0.32,'power2.out');
+at('e5',2.06,0.22,'power2.inOut');at('e6',2.10,0.22,'power2.inOut');at('e7',2.12,0.22,'power2.inOut');
+at('n3',2.08,0.32,'power2.out');
+at('c0',1.80,0.16,'power2.out');at('c4',1.86,0.16,'power2.out');at('c1',2.20,0.16,'power2.out');
+at('c2',2.30,0.16,'power2.out');at('c3',2.42,0.16,'power2.out');
+tl.fromTo('#caption',{clipPath:'inset(0 100% 0 0)',opacity:0},{clipPath:'inset(0 0% 0 0)',opacity:1,duration:0.5,ease:'power2.out'},1.80);
+at('under',2.20,0.34,'power2.inOut');
+tl.set({},{},3);
+window.__timelines=window.__timelines||{};window.__timelines.video=tl;
+
+function seekTo(t){tl.time(clamp(t,0,3),false);draw();}
+window.addEventListener('hf-seek',function(ev){var d=ev&&ev.detail||{};var t=typeof d.time==='number'?d.time:(typeof d==='number'?d:tl.time());seekTo(t);});
+seekTo(0);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

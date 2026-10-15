@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-109",
+    "name": "Animated Line Art (Motion Design and Cinematography; supplemental provenance; user-requested direction).",
+    "visualIdentity": "Subjects are built from contours, connectors, arrows and paths with consistent widths, caps and joins. Objects appear first, then relationships draw or reorganize. It is distinct from static line art and line boil.",
+    "suitableUses": "Explicitly suited to diagrams and contour reveals. Inferred: process explainers and structure walkthroughs. Punctuation Zoom and Radial Logo Burst fit only when a real mark exists in the scene.",
+    "limitations": "Connectors need continuous endpoints and readable completed structures, not tangled or endlessly repeated drawing. Rough.js gives sketch contours but no handwriting or poses. Only sampled seconds 1–8 were reviewed, with no audio.",
+    "palette": "Background is scene_dependent; #F9F4E7 is only an illustrative swatch. Suggested foreground #27434A gives 9.619:1 on it; accent #AA6945 is decorative only at 3.971:1. Source frames used monochrome ink on a flat field, which is an example rather than a rule. Gradients are off. Approved exact colors override all suggestions.",
+    "motionAndInteraction": "Paths reveal by stroke length; containers finish before their labels, and arrowheads appear only after shafts end. Optional motion-012 and motion-015 suit chapter or story steps; motion-038 and motion-039 need a real mark. Video uses composition time; scroll is interactive-only.",
+    "audio": "No audio was supplied or verified. Restrained ambience or light accents may support pacing, and silence suits reading holds. Music must not compete with narration; beat timing needs inspected audio.",
+    "assetRequirements": "No uploads are specified. Inspect real mark geometry or glyph assets before using motion-038 or motion-039. Load fonts and geometry before animating. Do not invent copy or brand marks.",
+    "combinations": "style-001 Swiss grid: draw in reading order, accent only the active path, and set labels after paths finish. style-024 handwritten notes: one toggleable note per idea, added after the structure is readable.",
+    "productionApproach": "HyperFrames is primary: a paused GSAP timeline registered in window.__timelines, then check, snapshot and render. Remotion is fallback only with a recorded reason. SVG draws shapes; GSAP DrawSVGPlugin or Motion owns motion, one owner per property. chroma.js checks palette contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

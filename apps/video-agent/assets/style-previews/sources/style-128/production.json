@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Volumetric Fire",
+  "displayDescription": "A compressed spark bursts with a shockwave, rises as a raymarched flame, and its smoke branches link three ember nodes into a connected system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "WebGL",
+    "GLSL"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview: no music, effects, voice or lyrics.",
+  "limitations": [
+    "Illustrative procedural volume, not a combustion solver: seeded fBm density advected analytically by time; no fluid simulation or feedback buffers.",
+    "Temperature-to-colour ramp (#FFF0BC -> #FFAD42 -> #F05A28 -> #747B86 smoke) is an authored approximation, not measured thermal emission.",
+    "Smoke uses single-scattering Beer-Lambert absorption toward one point light with 5 noise-free light steps; no multiple scattering or soot chemistry.",
+    "Raymarch bounded to 48 primary steps at 640x360 internal resolution, upscaled to 1280x720; fine detail is softened.",
+    "Shockwave radius and debris are staged deterministic uniforms with closed-form ballistic trajectories, not simulated blast physics.",
+    "Hearth light spill and flicker are analytic approximations; the smoke-branch 'network' is an authored guide shape inside the volume.",
+    "Physically simulated full shots require Blender/Cycles gas simulation with baked frames/volumes; it is unavailable in this environment and reported as missing.",
+    "Small tag and caption copy use #F6EFE3 instead of the illustration's #747B86 to keep text contrast at or above 4.5:1 on #101218."
+  ]
+}

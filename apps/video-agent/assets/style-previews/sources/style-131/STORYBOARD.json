@@ -1,0 +1,100 @@
+{
+  "version": 3,
+  "title": "An Idea Becomes a Connected System — Ukiyo-e dawn print on cool rice-white paper (preview)",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The wave carries the idea to the fleet",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "A persimmon dawn sun (the idea) rises over an indigo sea printed on cool rice-white paper. Persimmon tow-cords join three boats into one fleet. A cropped wave rears up and its swell lifts each linked boat in turn, so the idea becomes a connected system.",
+      "visuals": [
+        "Fixed cool rice-white paper #E4E8E2 with seeded Canvas 2D indigo/key fibre, reused as a multiply layer over the plates",
+        "Stepped bokashi sky from indigo through blue to paper, with a restrained stepped paper-to-persimmon akabokashi band at the horizon",
+        "Patterned cloud bands with key contour and an ochre kasumi stripe",
+        "Distant mountain with an inset indigo plate and a paper snowcap over the key block",
+        "Asymmetric wave cropped at the left edge: key fill, inset indigo plate, blue face plate and fine key contour",
+        "Refined foam claws along the crest and frozen spray droplets in paper colour",
+        "Persimmon sun disc with a persimmon reflection on the water",
+        "Three ochre boats with rowers, joined by persimmon tow-cords",
+        "Static title cartouche on the right reading 'An Idea Becomes a Connected System' on a paper backing",
+        "Caption strip reading 'ORIGINAL STUDY · EDO WAVE-PRINT IDIOM'"
+      ],
+      "assets": [
+        "index.html",
+        "print-scene.js",
+        "gsap.min.js",
+        "MorphSVGPlugin.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 1,
+          "development": "The persimmon sun pops in (0.1-0.6s) and its reflection plate spreads across the water. The wave swells from a low crest to a rising crest (morph A→B, 0.2-1.0s). Tow-cords draw boat to boat (0.55-1.4s). Petals start drifting in from the left, and the cloud band pans slowly.",
+          "captions": [
+            "An Idea Becomes",
+            "a Connected System"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1,
+          "endSeconds": 2.1,
+          "development": "The crest curls into a cropped claw (morph B→C, 1.0-1.75s). Its swell lifts the linked boats one after another (0.95s, 1.2s and 1.45s starts), and the cords flex with them. Foam claws bloom along the crest (1.7-2.55s).",
+          "captions": [
+            "An Idea Becomes",
+            "a Connected System"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.1,
+          "endSeconds": 3,
+          "development": "Spray thrown from the crest comes to rest as frozen spray. The petals and cloud band settle by 2.6s, and the complete print holds for reading until 3.0s.",
+          "captions": [
+            "An Idea Becomes",
+            "a Connected System",
+            "ORIGINAL STUDY · EDO WAVE-PRINT IDIOM"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.4
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "All motion finishes by 2.6s, so the composition is settled before 2.7s.",
+      "The wave morph changes a large share of the left of the frame, well above the 8% pixel-change threshold, and the paper stays fixed.",
+      "Text sits on its own paper backing: #283C49 on #E4E8E2 is about 9.2:1 and #385F84 on #E4E8E2 about 5.4:1. Persimmon is used only for non-text shapes."
+    ],
+    "justifiedHolds": [
+      "The 2.6-3.0s hold lets the viewer read the title cartouche and the finished print."
+    ]
+  },
+  "notes": [
+    "Silent preview.",
+    "This is an original study in the Edo wave-print idiom and does not claim to copy a specific historical print.",
+    "All state comes from the paused GSAP timeline time and is redrawn on hf-seek.",
+    "Typography uses a declared @font-face 'Print Mincho' that resolves to local Mincho/serif faces (local() sources only), falling back to Georgia/serif.",
+    "print-scene.js builds the static plates and exposes the time-derived render(t). index.html builds the paused GSAP timeline inline and registers it at window.__timelines.video.",
+    "Source-frame refresh: BACKGROUND_REVIEW.json (ambiguous-ai-389509, contact sheet second 7) shows a print idiom of flat indigo waves and a vermilion sun disc on paper. Following its background suggestion, the warm #F0E6C9 paper is replaced by a cool rice-white paper with indigo and persimmon print colours for a dawn scene. Its subject, glyph, die, cartouche lettering and layout are not copied.",
+    "No reviewed preview recipes were supplied (the optional recipe list is empty and STYLE.json has no tech.preview_recipes), so this preview demonstrates the primary implementation with the scene-dependent palette refresh."
+  ]
+}

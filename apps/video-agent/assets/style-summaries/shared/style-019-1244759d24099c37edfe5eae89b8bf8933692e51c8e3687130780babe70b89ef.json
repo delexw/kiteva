@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-019",
+    "name": "Editorial Design: an explicit magazine-or-book reading-logic style in the Graphic Design and Design Movements category.",
+    "visualIdentity": "Magazine or book reading logic on one consistent grid, with headlines, short copy, images and annotations. Purposeful serif-sans pairings are used. Reveals follow reading order through cropping, grouped movement and layout changes, not whole-page slides.",
+    "suitableUses": "Explicit: the style stands alone for article-like narratives with images and pull quotes. Inferred: reading-led explainers or pages where text hierarchy and image placement carry meaning. Audience, duration and aspect ratio are unspecified and must come from the task.",
+    "limitations": "Avoid dashboard-style chart walls, new chart fonts and unsourced numbers. Annotations stay in margins or over images, never over body text, with no more than two notes per spread. Handwritten body copy is excluded. Specific font families are unspecified.",
+    "palette": "Suggested, not approved: background #FAF5EA, foreground #252A30, accent_1 #A84235 vermilion. The accent is limited to marker ink or highlighted chart series, and type stays #252A30. Gradients are disabled. Measured two-color contrast is 13.297:1 for foreground on background and 5.525:1 for accent behind background-colored text. Task-supplied colors override these values; recheck composited frames.",
+    "motionAndInteraction": "Explicit: reveals follow reading order through cropping, grouped movement and layout reflow, never whole-page slides. Optional references are motion-037 (serif-sans and reading-order replacement) and motion-038 (punctuation zoom or cropped chapter handoff), used only where scene assets support them. Video state derives from composition time; scroll and pointer input apply only to interactive delivery.",
+    "audio": "Unspecified by the style; no mandatory music, voiceover, sound effect or tempo is assigned. Inferred: restrained music or ambience that leaves room for reading holds, with voiceover only if the topic needs explanation. Keep speech intelligible. The source lists no audio assets, and beat sync needs real audio analysis.",
+    "assetRequirements": "Supplied or authorized images and illustrations are required; photographic assets must not be assumed to exist. Exact headlines, copy and data are task inputs. Fonts must be loaded and measured before layout. Crops keep subject, attribution and grid proportions, and charts need source lines.",
+    "combinations": "Margin notes (style-024): #A84235 handwritten-style callouts in margin columns, drawn after the content they reference, with at most two per spread. Infographic sidebars (style-097): captioned charts in two grid columns, with #A84235 reserved for highlighted series. Add these supports only when annotation or data evidence is needed; Editorial Design stands alone otherwise.",
+    "productionApproach": "HyperFrames handles composition, timing and export; Remotion is used only for a recorded, verified limitation. HTML/CSS and SVG render the visuals on a measured shared grid. GSAP owns the paused timeline; Motion is optional. chroma-js validates palette values, while Cropper.js, Chartist and PhotoSwipe are optional supporting tools."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

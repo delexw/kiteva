@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-088",
+    "name": "Object Animation, a supplemental design reference rather than a directly named style in the source collection. Photographed object animation must be kept distinct from digital simulation.",
+    "visualIdentity": "Everyday objects support the subject while keeping their real material, scale, and contact shadows. Behavior comes from incremental movement, rotation, arrangement, and replacement, not from everything moving together.",
+    "suitableUses": "Explicitly suited to playful product moments. Suggested hybrids extend it to data explainers with supplied figures and to music-led product promos or social loops. Other sectors and formats are unspecified.",
+    "limitations": "No listed renderer exists, so the style needs photographed incremental poses or a clearly labeled digital simulation. Simulated appearance is not proof of physical production or validated physics. Real objects must not be recolored, and values or scales must not be invented or misleading.",
+    "palette": "Reference-dependent optional tokens: background #F1E9DD, foreground #3B423E, accent_1 #8D8977, for new presentation elements only. Task or reference colors override them, and gradients are disabled. Foreground on background measures 8.571, meeting normal text; accent_1 on foreground measures 2.937 and is decorative only. Recheck composited frames.",
+    "motionAndInteraction": "Motion follows the planned pose exposure rate and held states, with designed trajectories and no automatic in-between poses; delivery frame rate may be higher. Video needs no live interaction. Optional references: motion-012 and motion-015 for chapter or story progress, motion-037 and motion-038 only when real objects form verified words or punctuation, and motion-021 only with real 3D depth.",
+    "audio": "Unspecified by the source, which assigns no mandatory layer, genre, or tempo. Inferred fit: music suits music-led product pieces with moves on verified beats, while sound accents or silence can mark key moves and reading holds. Narration must stay intelligible, and only authorized assets may be used.",
+    "assetRequirements": "Needs photographed incremental poses under fixed lighting and camera settings. Prepare layers or numbered frames with alpha channels, consistent dimensions, clear naming, and a layer manifest; Pillow normalizes crops and frame sizes. Inspect real objects first and do not invent copy or brand marks.",
+    "combinations": "Style-097 gives data meaning through real objects arranged as verified quantities with flat labels, one object per stated unit, and held comparisons. Style-105 schedules object moves to beats for product promos, with holds at section changes and no live audio drift.",
+    "productionApproach": "HyperFrames is the default pipeline for composition, timing, validation, and export; Remotion is fallback only with a recorded, verified reason. Photographed assets own the visuals, Pillow, Python, and FFmpeg prepare and encode them, and one paused GSAP timeline drives timing. Verify forward, backward, and direct seeks, and inspect decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

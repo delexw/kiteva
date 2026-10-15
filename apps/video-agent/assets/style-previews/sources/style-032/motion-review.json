@@ -1,0 +1,26 @@
+{
+  "model": "claude-opus-5-5",
+  "sessionId": "52117c4d-5c02-4570-aef6-69e9973a795d",
+  "production": {
+    "pipeline": "HyperFrames",
+    "fallbackReason": null,
+    "styleRenderer": [
+      "SVG"
+    ],
+    "motionEngine": [
+      "GSAP"
+    ],
+    "sourceFile": "index.html",
+    "duration": 3,
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "audioDescription": "Silent preview. No soundtrack or voice was created.",
+    "limitations": [
+      "Silent by request.",
+      "I didn't render this or run it in a browser. The host will run all visual and seek QA.",
+      "The face and hand are a simplified graphic manga style drawn in code. They are not at illustrator-level detail."
+    ]
+  },
+  "reviewNotes": "I built the 3-second silent preview in index.html and fixed three things in the drawing first. Nothing has been rendered or run in a browser, so seek behaviour and the look on screen are unverified until your QA.\n\n**Drawing review.** I checked the character against the guidance in STYLE.json.\n- **Kept as drawn:**\n  - The head reads as a real three-quarter turn. The far eye is narrower and sits closer to the nose than the near eye, and the nose and open mouth sit on the far side of the face.\n  - The neck runs from under the jaw into a sloped collar with a shadow under the chin.\n  - The ear is hidden under the bob, which is plausible.\n  - Solid black is used for the coat, hair and the dark wide shot; screentone only appears in shadow and background areas.\n  - The pencil nib meets the end of the newly drawn line at (930, 404).\n- **Fixed, in both ILLUSTRATION.svg and index.html:**\n  1. **Hair highlights.** The twelve evenly spaced white slots in the hair were the helmet look the guidance warns against. I replaced them with one shine band of 13 tapered streaks of different sizes. They follow the strand direction and are bigger and denser on the upper-right side, where the light from the idea comes from.\n  2. **Gaze.** Both pupils now look up-right at the idea, so the eyes share one gaze. The near eye shifts 5 px, the far eye 3 px. This sits in a fixed offset inside wrapper groups, so the original drawing coordinates are unchanged.\n  3. **Forearm.** The arm and its shadow now run past the right edge of the panel, so the wrist never comes loose from the edge while the hand moves.\n- I added named groups (head, eyes, brows, mouth, hand, panel contents) so each part can be animated without touching its original transforms.\n\n**Motion.** There is one paused GSAP timeline at `window.__timelines.video`. Every tween has fixed start and end values, so seeking forward, backward or straight to a frame gives the same result. There are no callbacks, timers or randomness.\n- **0.1–0.8 s, idea and character:** the idea star turns and grows from its centre, and the focus lines spread out. Her head tips up 3° on a pivot at the neck; it is not slid sideways. Her eyes rise from looking down-left to the idea, her brows lift, her mouth opens, and the \"!\" and surprise marks appear.\n- **0.75–1.35 s, eye close-up:** the panel wipes open left to right, the pupil widens, and the little network in the iris draws on, one node at a time.\n- **1.3–2.0 s, pencil:** the panel wipes open top to bottom. The hand and pencil travel along the new line while the line draws, using the same easing, so the nib stays on the line's end (under 1 px off).\n- **1.95–2.6 s, connected system:** the dark wide shot wipes open, the notes appear one after another, the strings draw between them, the star appears, and the caption \"…and it all connected.\" fades in.\n- **2.6–3.0 s:** everything is settled and holds.\n\nThe panel borders, page background and decorative screentone never move. The caption \"It began as one bright thought.\" is readable from the first frame.\n\nOpening the three panels reveals about 40% of the frame, well above the 8% target, and the whole page never slides. production.json is written."
+}

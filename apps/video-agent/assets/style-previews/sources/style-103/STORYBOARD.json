@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "title": "One idea, linked. — Motion Poster preview",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Idea becomes a system",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "On a single pinned poster stage, a vermilion seed idea grows into a lit disc and connects into an eight-node system, then the headline completes.",
+      "visuals": [
+        "Deep ink-navy ground (#0F1B24) with stationary fixed-seed grain and a muted hairline frame",
+        "Low-value radial rays and a soft vermilion halo behind the disc",
+        "Vermilion signal disc (#E8603F) with a darker halftone dot field",
+        "Off-white links (#EFE9DD) cased in ink, plus a hub and seven nodes",
+        "Off-white heavy grotesk headline; 'linked.' and the underline rule in the signal color"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.98,
+          "development": "Opening still: 'One idea,' with a small vermilion seed dot. The dot gathers slightly, then expands into the full disc as the halo and rays come up.",
+          "captions": ["NO. 01 — SYSTEMS SERIES", "One", "idea,", "An idea becomes a connected system."],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0.1
+        },
+        {
+          "startSeconds": 0.98,
+          "endSeconds": 1.95,
+          "development": "The hub locks in, inner links draw from the hub and the inner nodes pop as the links arrive. Outer links then draw and the outer nodes appear (1 → 8 nodes). 'linked.' starts rising out of its mask.",
+          "captions": ["1 → 8 NODES"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.95,
+          "endSeconds": 3,
+          "development": "'linked.' settles, the signal rule underlines it, and the complete poster holds for reading.",
+          "captions": ["linked.", "PREVIEW 00:00 — 00:03 · SILENT"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0.75
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "The network grows in dependency order: disc, then hub, then inner links and nodes, then outer links and nodes. No node appears before its link reaches it.",
+      "All motion is settled by about 2.25 s, leaving a full-poster hold of about 0.75 s."
+    ],
+    "justifiedHolds": [
+      "2.25–3.0 s: a complete poster still for reading the headline and supporting copy."
+    ]
+  },
+  "notes": [
+    "Source-frame refresh: the warm cream ground is replaced with a dark ink ground. One high-chroma signal color grows in area over time (dot, then disc, then headline word, then rule), as in the reviewed title-sequence frames. The disc reads as the light source of the scene, as in the reviewed sun-disc frames.",
+    "No reviewed preview recipe exists in STYLE.json, so none is claimed.",
+    "Silent: no audio."
+  ]
+}

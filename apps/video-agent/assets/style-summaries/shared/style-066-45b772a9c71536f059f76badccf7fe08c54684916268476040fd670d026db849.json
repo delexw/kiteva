@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-066",
+    "name": "CRT / Analog Video Effects. Category: Digital and 3D Aesthetics. Provenance: explicit.",
+    "visualIdentity": "Explicit analog-display look using scanlines, mild color offsets, persistence, screen curvature and noise, scaled to output resolution. Distortion stays restrained for legibility; persistent flashes and exaggerated noise are excluded.",
+    "suitableUses": "Explicit: a finishing pass over clean content in an analog context. Inferred from pairings: retro game trailers, nostalgic tech stories and in-world broadcasts or terminals. Interactive HTML may offer an optional CRT toggle that keeps text outside the filter.",
+    "limitations": "Explicit: keep main information legible; no persistent flashes or exaggerated noise; no analog distortion on modern screens unless requested; avoid rolling noise bars and CRT over already-blurred art. VideoTexture alone does not guarantee export sync. Two-color contrast checks do not cover video or texture.",
+    "palette": "Background is scene-dependent: #171C24 is only an illustrative swatch, so choose the background from the scene rather than defaulting to cream. Status is reference_dependent_example, not approved. Optional fallback tokens: foreground #E9E5D8 and accent #6A9DAA, for new presentation elements only. Gradients are disabled. Contrast: foreground on background 13.57:1; accent on background 5.713:1. Task-supplied exact colors override these.",
+    "motionAndInteraction": "Motion is restrained: scanline persistence, curvature and color offsets use deterministic parameters, with no flashing. Optional catalog references: motion-037 (glyph scan-out phrase), motion-040 (CRT-preserving screen cuts), motion-020 (glitch cut, adapt or omit), motion-012 and motion-015 (chapters and story steps). Interaction is optional; video uses composition time.",
+    "audio": "Unspecified by the style; audio is a task-specific suggestion. Music, voiceover, effects, ambience or silence may fit the topic, and silence is valid. Do not mandate a layer or let music compete with narration. Source reviews verified no beat synchronization, so timing must come from inspected audio.",
+    "assetRequirements": "No mandatory uploads are specified. Video-textured screens need authorized footage, preloaded media and decoded frames for direct seeks. Local fonts and assets must load before rendering. Pixel-art hybrids need source art at native resolution. Approved colors and source artwork stay unchanged. Audio assets are unspecified.",
+    "combinations": "Explicit rule: use CRT alone as a finishing pass; hybrids only when another style supplies the on-screen content or device. style-057 pixel art: integer upscale with scanlines, avoiding blurred art. style-065 monitor housing: artifacts appear only on the screen. Avoid pairing with Glitch Art as a second corruption layer.",
+    "productionApproach": "HyperFrames is the default pipeline for composition, validation and export; Remotion is fallback only with a recorded reason. Style rendering uses WebGL, GLSL and Three.js, plus VideoTexture for screens. GSAP is the motion engine, and chroma.js validates colors. Seed randomness, derive state from composition time and verify seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

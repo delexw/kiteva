@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-082",
+    "name": "Hand-Drawn Stop-Motion Style (Animation Techniques category).",
+    "visualIdentity": "Simulated hand-drawn stop-motion built from drawn paper assets, clear lines, and limited colors. Changes occur through deliberate replacement or repositioning between held frames, preserving anticipation, weight, and settling. Small drawing variations must be reproducible. It is not physical frame-by-frame photography.",
+    "suitableUses": "Explicitly recommended alone for short, charming loops. Source combination examples name craft tutorials, recipe explainers, personal brand stories, and lyric-free music videos or jingles. Inferred suitability: content where a handmade, paused cadence supports the message. Other uses are unspecified.",
+    "limitations": "The treatment must be identified as simulated, since a simulated appearance is not evidence of physical production. Long body copy should not be hand-lettered. Rough.js hachure fills do not create authentic pencil, ink-wash, or print materials. Duration, resolution, and aspect-ratio limits are unspecified.",
+    "palette": "Suggested only, for use when no approved palette is supplied: background #F7EEDD, foreground #344344, accent_1 #B6785D, accent_2 #819B81. These are four discrete tokens with gradients disabled. Foreground on background measures 8.969, passing the 4.5 target. Accent-background pairings (3.125 and 3.414) fail for body text and are decorative only.",
+    "motionAndInteraction": "Motion uses discrete held frames with replacement or repositioning, and exposure cadence must be preserved. Do not automatically add springs, bounce, or extra in-between poses. Line variations stay fixed and restrained. Optional patterns include gaze following (requires eye layers or a rig), chapter transitions, and scrollytelling. Scroll interaction applies only to interactive delivery, not video.",
+    "audio": "The source names no audio for this style and imposes no mandatory layer or genre; audio is topic-dependent. Combination guidance suggests beat-timed replacement holds for music-led pieces. If speech is used, intelligibility and picture synchronization must be verified. Sound effects, ambience, and specific music choices are unspecified.",
+    "assetRequirements": "Requires prepared drawn layers or numbered frame sequences with alpha transparency, consistent dimensions, and clear naming, inspected before composition. Fonts and assets must load before rendering. Designed drawing variants and discrete hold frames are needed. Seeded Rough.js geometry is optional. Asset counts, formats, and resolution are unspecified.",
+    "combinations": "Hybrids are optional and must be labeled as simulated. style-024 adds hand-lettered annotations stepped on the same exposures, using the accent for single emphasis. style-105 schedules replacement holds on a verified beat table. Avoid per-render jitter, uniform beat-flashing, and live audio-analysis drift.",
+    "productionApproach": "HyperFrames is the default, used for composition and export only: data-composition-id, a paused GSAP timeline registered in window.__timelines, check and snapshot validation, then render. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists, and the reason must be recorded. Canvas 2D draws the artwork; PixiJS or seeded Rough.js with cached paths are optional. Chroma.js checks contrast. Verify decoded frames and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-005",
+    "name": "De Stijl. Supplemental design reference, not claimed as a directly named style in the source collection.",
+    "visualIdentity": "Explicit: horizontal and vertical rules and rectangular color fields divide the frame. The palette is red, yellow, blue, black and white, with controlled line weight and area ratios. No diagonals, rounded corners or gradients.",
+    "suitableUses": "Explicit: rhythmic abstract and identity work, and hybrids where proportional data or short labels sit in orthogonal fields. Motion-040 lists De Stijl as compatible with concise word-card cuts. Motion-040 also says to omit it for dense explanatory text.",
+    "limitations": "Explicit: no arbitrary diagonals, rounded corners, gradients or extra hues. Labels sit on white cells only, and elastic easing and rotated letters are avoided. Two-color contrast checks do not cover images, video or textures, so composited frames must be rechecked.",
+    "palette": "Suggested, not supplied: background #FFFFFF, foreground #000000, accent_1 #D02020 red, accent_2 #F4CB28 yellow, accent_3 #184BA0 blue. Gradients are disabled. Task-supplied exact colors override these. Readable pairs: black on white or yellow (13.42), white on blue (8.226), white on red (5.372).",
+    "motionAndInteraction": "Explicit: rectangles expand, divide, slide and change color on orthogonal axes only, with constant line weight. Motion-040 uses hard word-card cuts with coordinated color changes and readable holds, avoiding glitch or spring effects. Interactive behavior appears only in suggested HTML combinations.",
+    "audio": "Unspecified: no mandatory audio layer, genre, tempo or voice is assigned. Options include music mood and energy, voiceover, sound effects, ambience or silence. Beat-matched cuts need inspected audio timing; the source review verified no beat synchronization.",
+    "assetRequirements": "Unspecified for required assets. Motion-040 needs concise word or phrase copy, and treemap hybrids need categories and values. Glyph assets or approved mark geometry should be inspected first, and local fonts loaded before rendering. No authorized audio or image assets are specified.",
+    "combinations": "Explicit: style-097 maps proportional values to rectangle areas, with at most three colored categories and labels on white cells. Style-093 slides block sans labels orthogonally, using black on white or yellow and white on red or blue. Both require constant line weight.",
+    "productionApproach": "SVG is the style renderer for aligned rectangles and straight-line groups. GSAP is the motion engine on a paused, seekable timeline, with one owner per animated property. Motion is optional and needs verified seek synchronization. HyperFrames is the default pipeline for assembly, validation and export; Remotion is fallback only for a recorded, verified limitation. chroma-js optionally validates palette contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

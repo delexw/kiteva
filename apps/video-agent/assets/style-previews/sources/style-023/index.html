@@ -1,0 +1,57 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:1280px;height:720px;overflow:hidden}svg{width:1280px;height:720px;display:block}</style></head><body><div data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30"><svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720"><defs><pattern id="h" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(38)"><path d="M0 0V5" stroke="#172C49" stroke-width=".6"></path></pattern><pattern id="s" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)"><path d="M0 0V10" stroke="#172C49" stroke-width=".4"></path></pattern><path id="b" d="M286 410C236 360 232 236 330 226C428 236 424 360 374 410Z" fill="none" stroke="#172C49" stroke-width=".8"></path><g id="n"><circle r="24" fill="none" stroke="#172C49" stroke-width=".8"></circle><circle r="22" cx="2" cy="-1" fill="none" stroke="#172C49" stroke-width=".5"></circle><path d="M4-18A20 20 0 0 1 4 20A14 18 0 0 0 4-18Z" fill="url(#h)"></path></g></defs><rect width="1280" height="720" fill="#FCFAF4" data-demo-actor="demo-actor-1"></rect><ellipse cx="340" cy="492" rx="120" ry="14" fill="url(#s)" data-demo-actor="demo-actor-2"></ellipse><use href="#b" data-demo-actor="demo-actor-3"></use><use href="#b" transform="translate(3 -2)" data-demo-actor="demo-actor-4"></use><use href="#b" transform="rotate(1.5 330 320)" data-demo-actor="demo-actor-5"></use><path d="M340 236C410 250 414 356 370 404H352C392 350 392 262 340 236Z" fill="url(#h)" data-demo-actor="demo-actor-6"></path><g fill="none" stroke="#172C49" stroke-linecap="round" stroke-width=".7" data-demo-actor="demo-actor-7"><path d="M290 420h80M294 436h72M300 452h60M314 468h32M306 400l6-70q18-30 36 0l6 70M330 200v-28M252 238l-20-20M408 238l20-20M222 316h-28M438 316h28" data-demo-actor="demo-actor-8"></path><g id="w" data-demo-actor="demo-actor-9"><path d="M440 300C520 250 600 210 676 202M444 330C560 340 700 350 836 360M420 384C520 470 600 512 676 520M716 218L846 340M714 504L842 378M724 198C820 190 920 210 976 226M880 344L984 248M880 376L1022 484M724 522C820 540 940 520 1016 504M1022 246L1130 344M1132 378L1060 486" data-demo-actor="demo-actor-10"></path></g><use href="#w" transform="translate(2 3)" opacity=".45" data-demo-actor="demo-actor-11"></use><path d="M84 628C200 620 330 626 470 618M90 634C220 630 340 632 420 628" stroke-width=".5" data-demo-actor="demo-actor-12"></path></g><use href="#n" x="700" y="200" data-demo-actor="demo-actor-13"></use><use href="#n" x="860" y="360" data-demo-actor="demo-actor-14"></use><use href="#n" x="700" y="520" data-demo-actor="demo-actor-15"></use><use href="#n" x="1000" y="230" data-demo-actor="demo-actor-16"></use><use href="#n" x="1040" y="500" data-demo-actor="demo-actor-17"></use><use href="#n" x="1150" y="360" data-demo-actor="demo-actor-18"></use><g fill="#172C49" font-family="Georgia,&apos;Times New Roman&apos;,serif" font-style="italic" data-demo-actor="demo-actor-19"><text x="80" y="566" font-size="42" data-demo-actor="demo-actor-20">An idea becomes</text><text x="80" y="612" font-size="42" data-demo-actor="demo-actor-21">a connected system</text><text x="1200" y="660" font-size="15" text-anchor="end" data-demo-actor="demo-actor-22">fig. 1 — from one spark to six nodes, sketchbook p.12</text></g></svg></div><script src="gsap.min.js"></script><script src="chroma.min.js"></script><script>
+const plan={"styleId":"style-023","selectedReferenceIds":[],"rationale":"A blue-ink ballpoint sketch: a light bulb with repeated contours on the left, a curved network of six sketched nodes on the right, and an italic headline with a pen underline. There is one scene and no chapter change, so I picked no reference. The scene builds like a sketchbook drawing. The main bulb contour appears first; it is a \u003cuse> clone, so it reveals rather than risking an unreliable dash on the clone. Then the stroked rays, filament and base lines are drawn, and the network curves are drawn across. The nodes appear in a stagger from the central hub outward, and the text group fades in at the end. The paper, shading hatch, the duplicate bulb contours and the duplicate network clone stay still.","tracks":[{"actorId":"demo-actor-3","role":"Primary bulb contour sketches in","action":"reveal","start":0.05,"duration":0.5,"ease":"power2.inOut","pose":{"x":0,"y":0,"scale":0.82,"rotation":0,"opacity":0}},{"actorId":"demo-actor-8","role":"Ink rays, filament and base lines are drawn","action":"draw","start":0.3,"duration":0.6,"ease":"sine.inOut","pose":{"x":0,"y":0,"scale":1,"rotation":0,"opacity":1}},{"actorId":"demo-actor-10","role":"Network ink curves are drawn from the bulb across the system","action":"draw","start":0.7,"duration":0.8,"ease":"power2.inOut","pose":{"x":0,"y":0,"scale":1,"rotation":0,"opacity":1}},{"actorId":"demo-actor-14","role":"Central hub node appears","action":"reveal","start":0.95,"duration":0.4,"ease":"back.out(1.2)","pose":{"x":0,"y":0,"scale":0.7,"rotation":0,"opacity":0}},{"actorId":"demo-actor-13","role":"Upper-left node appears","action":"reveal","start":1.1,"duration":0.4,"ease":"back.out(1.2)","pose":{"x":0,"y":0,"scale":0.7,"rotation":0,"opacity":0}},{"actorId":"demo-actor-15","role":"Lower-left node appears","action":"reveal","start":1.25,"duration":0.4,"ease":"back.out(1.2)","pose":{"x":0,"y":0,"scale":0.7,"rotation":0,"opacity":0}},{"actorId":"demo-actor-16","role":"Upper-right node appears","action":"reveal","start":1.4,"duration":0.4,"ease":"back.out(1.2)","pose":{"x":0,"y":0,"scale":0.7,"rotation":0,"opacity":0}},{"actorId":"demo-actor-17","role":"Lower-right node appears","action":"reveal","start":1.5,"duration":0.4,"ease":"back.out(1.2)","pose":{"x":0,"y":0,"scale":0.7,"rotation":0,"opacity":0}},{"actorId":"demo-actor-18","role":"Far-right node completes the network","action":"reveal","start":1.65,"duration":0.4,"ease":"back.out(1.2)","pose":{"x":0,"y":0,"scale":0.7,"rotation":0,"opacity":0}},{"actorId":"demo-actor-19","role":"Headline and figure caption appear on the closing beat","action":"reveal","start":1.8,"duration":0.55,"ease":"sine.inOut","pose":{"x":0,"y":20,"scale":1,"rotation":0,"opacity":0}}]};
+const svg=document.querySelector('svg');
+const foreground="#172C49";
+const background="#FCFAF4";
+const seenText=new Map();
+Array.from(svg.querySelectorAll('text')).forEach(el=>{
+ const label=el.textContent.trim();const prior=seenText.get(label);
+ if(prior && Math.abs(Number(prior.getAttribute('x'))-Number(el.getAttribute('x')))<12 && Math.abs(Number(prior.getAttribute('y'))-Number(el.getAttribute('y')))<12) {
+  const selected=typeof plan!=='undefined' && plan.tracks.some(track=>track.actorId===prior.getAttribute('data-demo-actor'));
+  if(selected){el.remove();return;}
+  prior.remove();
+ }
+ seenText.set(label,el);
+ // Preserve authored baselines. Tight headline leading can overlap font em-boxes
+ // without overlapping visible glyphs; annotate only baseline gaps of at least one em.
+ const fontSize=Number(getComputedStyle(el).fontSize.replace('px',''));
+ const fill=getComputedStyle(el).fill;
+ if(fontSize<24 && chroma.valid(fill) && chroma(fill).hex()!==chroma(background).hex() && chroma.contrast(fill,background)<4.5){el.setAttribute('fill',foreground);el.setAttribute('opacity','1');el.setAttribute('fill-opacity','1');}
+ if(fontSize>=36){
+  for(const sibling of Array.from(el.parentElement.querySelectorAll(':scope > text'))){
+   if(sibling===el)continue;
+   const gap=Math.abs(Number(sibling.getAttribute('y'))-Number(el.getAttribute('y')));
+   if(gap>=fontSize && gap<=fontSize*1.3 && Math.abs(Number(sibling.getAttribute('x'))-Number(el.getAttribute('x')))<12){el.setAttribute('data-layout-allow-overlap','true');sibling.setAttribute('data-layout-allow-overlap','true');}
+  }
+ }
+ // Outlined display lettering needs a readable fill as well as its decorative outline.
+ if(el.getAttribute('stroke') && el.getAttribute('stroke')!=='none') {el.setAttribute('fill',foreground);el.setAttribute('stroke',background);}
+});
+
+const timeline=gsap.timeline({paused:true});
+const chosen=plan.tracks.map(track=>({track,element:document.querySelector('[data-demo-actor="'+track.actorId+'"]')}));
+if(chosen.some(item=>!item.element))throw Error('Motion references an absent actor');
+for(const item of chosen){
+ if(chosen.some(other=>other!==item&&other.element.contains(item.element)))throw Error('Nested motion actors would double-transform artwork');
+ const el=item.element;
+ if(el.tagName==='rect' && Number(el.getAttribute('width'))>=1200 && Number(el.getAttribute('height'))>=650)throw Error('Background cannot be a motion actor');
+ const wrapper=document.createElementNS('http://www.w3.org/2000/svg','g');
+ el.parentNode.insertBefore(wrapper,el);wrapper.appendChild(el);
+ wrapper.setAttribute('data-demo-motion',item.track.actorId);
+ // Animate a neutral wrapper, never overwrite the artwork's authored matrix.
+ gsap.set(wrapper,{transformOrigin:'50% 50%'});
+ if(item.track.action==='reveal'){
+   gsap.set(wrapper,item.track.pose);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:item.track.ease},item.track.start);
+ }else if(item.track.action==='draw'){
+   const paths=Array.from(el.matches('path,line,polyline,polygon')?[el]:el.querySelectorAll('path,line,polyline,polygon'));
+   const drawable=paths.filter(p=>getComputedStyle(p).fill==='none' && getComputedStyle(p).stroke!=='none' && typeof p.getTotalLength==='function');
+   if(!drawable.length)throw Error('Draw action needs visible unfilled stroked paths');
+   for(const path of drawable){const length=path.getTotalLength();gsap.set(path,{strokeDasharray:length,strokeDashoffset:length});timeline.to(path,{strokeDashoffset:0,duration:item.track.duration,ease:item.track.ease},item.track.start);}
+ }else{
+   timeline.to(wrapper,{...item.track.pose,duration:item.track.duration,ease:item.track.ease},item.track.start);
+   timeline.to(wrapper,{x:0,y:0,scale:1,rotation:0,opacity:1,duration:item.track.duration,ease:'sine.inOut'},Math.min(2.7-item.track.duration,item.track.start+item.track.duration+.2));
+ }
+}
+timeline.to({}, {duration:.001},2.999);window.__timelines={video:timeline};
+</script></body></html>

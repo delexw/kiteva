@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-123",
+    "name": "Pop-Up Book Animation, in the Printmaking and Craft Materials category, extracted in the 2026-10-12 repository sync.",
+    "visualIdentity": "Folded paper structures rise from hinged pages with visible tabs, paper thickness, contact shadows, and consistent creases. Page mechanics drive the reveal. Pop-up labels are printed into panel textures and move with their container.",
+    "suitableUses": "Explicit: reveals where depth, paper thickness, and hinge mechanics carry meaning. Inferred: storybook, craft, or explanatory content that unfolds one structure over time, in video or interactive HTML. One reference poster was inspected, so full-scene fit is unverified.",
+    "limitations": "True 3D is required, since flat SVG cutouts would fake the effect. Hinge constraints are authored per structure, and shadow resolution must be tuned to avoid acne on thin boards. Procedural curl is artistic, not a physical solver. Outline or cel looks and MeshToon are avoided.",
+    "palette": "Suggested tokens, not source-exact: background #F1E5CE and foreground #342B25, with gradients disabled. Contrast is 11.091, meeting the 4.5 normal-text target only on an opaque composited background. The palette lists #F1E5CE as a layout background, while the implementation uses it for page paper. The environment background is unspecified and must stay distinct from book material. Verify rendered frames.",
+    "motionAndInteraction": "Explicit: a single page-opening angle θ, moving from 20° to 180° in the 3-second preview, drives all transforms as a V-fold structure rises. The full video adds pages, each with its own θ track. GSAP owns θ and the camera dolly on a paused timeline, so seeks are exact. Interactivity is unspecified.",
+    "audio": "Unspecified in this style; no music, voiceover, or effects are defined. Inferred: restrained page-turn or fold-settling sounds could mark reveals, with silence or soft ambience during reading holds. Choose per topic and audience, honor any user audio, and verify speech intelligibility and sync.",
+    "assetRequirements": "Unspecified: no concrete assets, fonts, or library IDs are listed. Required: a seeded paper-grain CanvasTexture, Canvas 2D printed linework in dark ink, and label textures for pop-up panels. Local fonts must load before rendering. Normal and roughness maps, if used, are non-color data.",
+    "combinations": "Keep Pop-Up Book Animation dominant. The suggested secondary style is style-047 for physical fold construction, used for its role only. Preserve this style's background and foreground roles and do not import its palette. Avoid competing full-scene treatments. For HTML, make motion optional for reduced-motion preferences.",
+    "productionApproach": "Style renderer: Three.js with soft key and fill lighting, PCFSoftShadowMap contact shadows, and explicit ACES tone mapping checked against paper tokens. Motion engine: GSAP for θ and camera, plus procedural paper curl for large flaps. Pipeline: HyperFrames by default, with Remotion only if a verified fallback condition applies. Validate, snapshot, render, then inspect frames and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

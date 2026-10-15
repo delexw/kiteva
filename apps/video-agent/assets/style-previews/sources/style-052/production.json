@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Letterpress Impression",
+  "displayDescription": "Type and a node network are pressed into cool ash-grey cotton stock in two inks: an idea becomes a connected system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "WebGL2 + GLSL fragment shader (impression height field, normals, soft raking side light, procedural cotton paper, ink coverage mottling)",
+    "Canvas 2D (offscreen glyph and graphic outline masks, deterministic JS box blur for impression shoulders)"
+  ],
+  "motionEngine": [
+    "GSAP 3 paused timeline registered at window.__timelines.video (sole owner of per-group impression depth, ink level, spoke reach and perimeter sweep; redraw on onUpdate and hf-seek)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Blender was not used, at the user's request. Impression depth is approximated by a blurred-mask height field with shader-computed normals, not real geometry or path tracing.",
+    "Paper fibres, tooth and inclusions are deterministic procedural noise, not a scanned stock.",
+    "The compressed-floor darkening of the blind deboss is a stylised approximation of raking-light shading.",
+    "Lettering is drawn into a canvas, so the copy is exposed to assistive tech through the canvas aria-label rather than as DOM text.",
+    "If WebGL2 is unavailable, a flat Canvas 2D ink fallback draws with no impression lighting.",
+    "No source frames matched in BACKGROUND_REVIEW.json; the background choice is scene-derived, not evidence-based.",
+    "No preview_recipes were supplied, so the preview shows the base style implementation."
+  ]
+}

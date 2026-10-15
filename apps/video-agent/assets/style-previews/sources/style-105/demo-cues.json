@@ -1,0 +1,184 @@
+{
+  "label": "demo, not analyzed",
+  "units": "seconds (composition time)",
+  "sampleAttack": 0.012,
+  "bars": {
+    "A": {
+      "cx": 200,
+      "top": 540,
+      "width": 200,
+      "height": 28,
+      "fill": "#628C98",
+      "band": "bass",
+      "note": "C3",
+      "compress": 0.62,
+      "ring": 88
+    },
+    "B": {
+      "cx": 390,
+      "top": 470,
+      "width": 150,
+      "height": 28,
+      "fill": "#BA7B61",
+      "band": "mid",
+      "note": "G3",
+      "compress": 0.72,
+      "ring": 70
+    },
+    "C": {
+      "cx": 560,
+      "top": 400,
+      "width": 110,
+      "height": 28,
+      "fill": "#628C98",
+      "band": "treble",
+      "note": "E4",
+      "compress": 0.8,
+      "ring": 54
+    }
+  },
+  "sculptureOwners": {
+    "bass": {
+      "part": "piston",
+      "property": "rod extension scaleY",
+      "rest": 1,
+      "max": 1.9
+    },
+    "transient": {
+      "part": "aperture",
+      "property": "blade rotation deg",
+      "rest": 0,
+      "max": 32
+    },
+    "treble": {
+      "part": "halo",
+      "property": "brightness (stroke tint + width)",
+      "rest": 0,
+      "max": 1
+    }
+  },
+  "cues": [
+    {
+      "id": "c1",
+      "contact": 0.5,
+      "bar": "A",
+      "point": [
+        200,
+        540
+      ],
+      "note": "C3",
+      "noteOnset": 0.5,
+      "duration": 0.4,
+      "audioPlaceAt": 0.488,
+      "bands": {
+        "bass": 1.0,
+        "transient": 0.9,
+        "treble": 0.1
+      }
+    },
+    {
+      "id": "c2",
+      "contact": 1.0,
+      "bar": "B",
+      "point": [
+        390,
+        470
+      ],
+      "note": "G3",
+      "noteOnset": 1.0,
+      "duration": 0.25,
+      "audioPlaceAt": 0.988,
+      "bands": {
+        "bass": 0.25,
+        "transient": 0.7,
+        "treble": 0.3
+      }
+    },
+    {
+      "id": "c3",
+      "contact": 1.25,
+      "bar": "C",
+      "point": [
+        560,
+        400
+      ],
+      "note": "E4",
+      "noteOnset": 1.25,
+      "duration": 0.15,
+      "audioPlaceAt": 1.238,
+      "bands": {
+        "bass": 0.0,
+        "transient": 0.6,
+        "treble": 1.0
+      }
+    },
+    {
+      "id": "c4",
+      "contact": 1.45,
+      "bar": "B",
+      "point": [
+        390,
+        470
+      ],
+      "note": "G3",
+      "noteOnset": 1.45,
+      "duration": 0.15,
+      "audioPlaceAt": 1.438,
+      "bands": {
+        "bass": 0.2,
+        "transient": 0.55,
+        "treble": 0.35
+      }
+    },
+    {
+      "id": "c5",
+      "contact": 2.2,
+      "bar": "A",
+      "point": [
+        200,
+        540
+      ],
+      "note": "C3",
+      "noteOnset": 2.2,
+      "duration": 0.33,
+      "audioPlaceAt": 2.188,
+      "final": true,
+      "bands": {
+        "bass": 1.0,
+        "transient": 1.0,
+        "treble": 0.2
+      }
+    }
+  ],
+  "arcs": [
+    {
+      "from": "start",
+      "to": "c1",
+      "start": [
+        200,
+        230
+      ]
+    },
+    {
+      "from": "c1",
+      "to": "c2",
+      "apexY": 330
+    },
+    {
+      "from": "c2",
+      "to": "c3",
+      "apexY": 352
+    },
+    {
+      "from": "c3",
+      "to": "c4",
+      "apexY": 345
+    },
+    {
+      "from": "c4",
+      "to": "c5",
+      "apexY": 210,
+      "note": "rest before the final hit; all sculpture parts at rest"
+    }
+  ]
+}

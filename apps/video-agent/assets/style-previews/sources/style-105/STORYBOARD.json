@@ -1,0 +1,107 @@
+{
+  "version": 3,
+  "title": "An idea becomes a connected system \u2014 collision instrument with band-owned sculpture",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Collision instrument drives the system",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Show the full chain from contact to response, driven by one shared demo cue table. Each struck bar plays a note, and band-mapped sculpture parts plus the network grow the idea into a connected system.",
+      "visuals": [
+        "Cool drafting-sheet ground #DFE6E8 with a stationary grid",
+        "Static ink #293B44 headline and subtitle",
+        "Three tuned bars on posts: C3 bass (#628C98), G3 mid (#BA7B61), E4 treble (#628C98)",
+        "Ink #293B44 ball dropping and rebounding between the bars",
+        "Dark #293B44 SYSTEM panel holding the sculpture: IDEA core, six aperture blades, a bass piston and a treble halo",
+        "Network nodes and pale edges growing from the IDEA hub",
+        "Cue strip with a tick at each contact time"
+      ],
+      "assets": [
+        "index.html",
+        "demo-cues.json",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.5,
+          "development": "The SYSTEM panel unfolds; after it completes, its labels and the closed sculpture appear. The ball falls toward the bass bar.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.5,
+          "endSeconds": 1.0,
+          "development": "Cue c1 (C3 bass, 0.50 s): the bar compresses, a ring ripples out and the bar brightens for 0.40 s. The piston extends (bass owner), the aperture opens (transient owner) and the IDEA core grows.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.0,
+          "endSeconds": 1.52,
+          "development": "Dense run: c2 G3 at 1.00 s, c3 E4 at 1.25 s (the halo brightens, treble owner) and c4 G3 at 1.45 s. Each hit opens the aperture, draws an edge and adds a node.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.52,
+          "endSeconds": 2.2,
+          "development": "Rest: the ball hangs in a high arc. Bars, piston, aperture and halo all return to rest.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.68
+        },
+        {
+          "startSeconds": 2.2,
+          "endSeconds": 3.0,
+          "development": "Final c5 C3 bass hit at 2.20 s: deepest compression, the widest ring, full piston extension and the widest aperture opening. Three edges close loops and the last node lands. Everything is still by 2.7 s.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.3
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Contacts are unevenly spaced (0.50, 1.00, 1.25, 1.45, 2.20 s), so density varies across the clip.",
+      "Each response starts on its contact frame, and the 70 ms dwell lets the impact read before the rebound.",
+      "The bass, transient and treble properties each have a single owner, so pulses never conflict."
+    ],
+    "justifiedHolds": [
+      "1.52\u20132.20 s: a rest before the final hit, with every part back at rest.",
+      "2.70\u20133.00 s: a settled hold so the finished system can be read."
+    ]
+  },
+  "notes": [
+    "Covers both recipes: collision_instrument (contact \u2192 compression \u2192 ring \u2192 brightening) and audio_reactive_sculpture (bass \u2192 piston, transient \u2192 aperture, treble \u2192 halo, all bounded).",
+    "The cue table is authored for demonstration, not analyzed. GSAP labels c1\u2013c5 come from it. audioPlaceAt = contact \u2212 0.012 s sample attack, reserved for a full video.",
+    "No Blender was used."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-037",
+    "name": "Watercolor, Drawing and Illustration category. This is a supplemental design reference, not a directly named source-collection style.",
+    "visualIdentity": "Translucent pigment washes, visible paper grain, soft bleeding edges and selective dry-brush detail define the look. Lighter paper areas stay unpainted and pigment overlaps look believable. The source review also notes dark ink contours carrying value and lettering, which is an inferred medium rule.",
+    "suitableUses": "Explicitly suited to gentle narrative or mood pieces and to hybrids for data stories or journal-style labeling. Inferred from these notes: travel, nature, recipe and botanical explainers. Audience, duration and aspect ratio are unspecified.",
+    "limitations": "Avoid uniform blur, repeatedly changing random stains and washes that blur value boundaries. Accent-filled body text fails contrast. The review sampled only seconds 1 to 8 at medium confidence, so motion and audio were not verified.",
+    "palette": "The background policy is scene_dependent, so listed tokens are illustrative, not approved exact colors. Tokens: background #FBF6EB, foreground #3C4E58, accents #8EA8B6, #BF8E7A and #9BAE8E. Foreground on background measures 8.042:1; accent-based text pairs fall short of 4.5:1 and stay decorative. Task-supplied exact colors override these, and no gradient is enabled.",
+    "motionAndInteraction": "Washes should develop gently or reveal in layers, never as uniform blur or shifting stains. Motion-012 and motion-015 are optional and apply only if scene geometry supports their actions. Interactive use may map scroll to progress, with reduced motion showing final washes.",
+    "audio": "No fixed audio is specified for this style. Choose music, narration, effects or ambience per scene to suit the topic, and allow silence. Keep audio clear of narration and essential text; explicit user choices override these suggestions.",
+    "assetRequirements": "No uploads are required by this style. Precompute pigment layers, paper textures and reveal masks, and load local fonts first. Journal combinations need handwritten notes in #3C4E58, and data combinations need chart geometry. Source frames are reference only and must not be copied.",
+    "combinations": "Style-097 suits wash-filled charts and maps with crisp labels in #3C4E58 and pale encodings. Style-024 suits handwritten field notes on retained paper, using one annotation voice and never placing notes over dark washes. Watercolor alone suits gentle narrative best.",
+    "productionApproach": "HyperFrames is the default pipeline, using a paused GSAP timeline registered in window.__timelines with seeded randomness. Canvas 2D renders the washes, Python and Pillow precompute layers, and chroma-js validates colors. Use Remotion only if HyperFrames is unavailable or blocked, and record the reason."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-057",
+    "name": "Pixel Art",
+    "visualIdentity": "Explicitly specified 16-bit sprite appearance: low logical resolution, deliberate pixel clusters, whole-pixel placement and discrete colors. A 320×180 canvas and 32-color limit are optional examples, not fixed requirements.",
+    "suitableUses": "Good for game trailers, looping social clips and clear sprite-based scenes; isometric tile maps suit city-builder explainers. These uses are inferred from the style guidance, not guaranteed outcomes.",
+    "limitations": "Non-integer scaling, smoothing, antialiased edges and blended post-effects soften pixel clusters and palette boundaries. Keep readable text crisp. Pixel appearance does not prove photographed or game-engine production.",
+    "palette": "Use task, brand or approved source colors first. Optional six-color suggestion: background #18253A, foreground #F3EBD3, accents #426A76, #8AA386, #D3A45E and #B56D6F. Keep colors discrete; gradients are disabled. Verify contrast in the finished composition.",
+    "motionAndInteraction": "Animate key poses with few in-betweens, preserving authored exposure rates and holds; place sprites on whole pixels. Palette cycling may change water, neon or day/night colors without shifting silhouettes. Interactive HTML can freeze cycling for reduced motion; use integer scaling and keyboard-accessible tile focus for maps.",
+    "audio": "No fixed genre, tempo, voice or sound layer is specified. Choose music, narration, effects, ambience or silence for the topic and audience; use inspected audio timing for synchronization, and leave room for speech and reading.",
+    "assetRequirements": "No mandatory assets are specified. Create indexed sprites or pixel clusters on a fixed-resolution canvas; Aseprite can author sprites and palettes. Preserve supplied artwork and exact colors. Treat the six-color palette as a fallback suggestion only.",
+    "combinations": "Pixel Art works alone on a fixed grid. Beat-table timing can schedule discrete pose changes and palette cycles; isometric tiles can add spatial depth. Keep cycling discrete, avoid moving every sprite on every beat, and avoid full-screen flashing or arbitrary sprite rotation.",
+    "productionApproach": "Render with Canvas 2D or a suitable sprite renderer, integer scaling and smoothing disabled; drive visual state from shared seekable time. HyperFrames owns composition, synchronization, validation and export; use Remotion only if HyperFrames is unavailable or a verified required capability is missing. Cache stateful motion for direct and backward seeks."
+  },
+  "model": "gpt-6-luna",
+  "provider": "codex"
+}

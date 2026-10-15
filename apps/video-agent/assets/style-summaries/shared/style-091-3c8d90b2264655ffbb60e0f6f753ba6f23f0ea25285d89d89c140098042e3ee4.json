@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-091",
+    "name": "2D Rigged Animation. This is a supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Characters are built from rigged parts with defined joints, pivots, occlusion and motion limits, plus swappable expressions. Motion comes from part transforms, arcs, anticipation and settling. New poses are drawn only when needed.",
+    "suitableUses": "Character-led scenes where poses and expressions carry meaning, such as mascots, character-hosted explainers and storybook stories. This fit is inferred from the compatibility notes. It is a poor fit without a rig or readable eyes.",
+    "limitations": "Avoid excessive stretch, exposed joint seams and any claim that every frame was redrawn. Rig movement is distinct from frame-by-frame drawing. Rough.js adds no rig or poses. Do not distort a single unsupported image into fake articulation.",
+    "palette": "Background is scene-dependent and should be chosen from subject, setting, lighting and mood. The cream, slate, sage and terracotta swatches are optional examples only. Approved task or reference colors override them, and gradients are disabled. Slate on cream reaches 9.09:1, while sage and terracotta fail body text and suit decorative fills only.",
+    "motionAndInteraction": "Rigged parts drive poses, arcs, anticipation and settling. Optional references are gaze following (motion-006), chaptered handoff (motion-012) and scroll storytelling (motion-015). Each is used only when the scene supports it. Video runs on seekable composition time, while pointer or scroll input is interactive-only.",
+    "audio": "Audio is unspecified by the style, and no audio layer is mandatory. Options include silence, restrained accents on key poses, or ambience and music synchronized to motion. Narration must stay intelligible. Explicit user audio choices take priority, and supplied assets must not be invented.",
+    "assetRequirements": "Layers need alpha transparency, consistent dimensions, clear naming and a manifest or numbered frames. Joints, pivots, replacement poses and expressions must be defined, and gaze needs eye layers. Inspect assets before composition. The source review sampled only seconds 1 to 8 of two external examples at medium confidence.",
+    "combinations": "Pair with style-109 for diagram lines that the rigged presenter points to, keeping slate strokes off character fills. Pair with style-101 for parallax background plates, with the character on one depth layer. Keep the rig and palette in charge, and avoid lines crossing joints or the face.",
+    "productionApproach": "HyperFrames is the default pipeline for composition, validation and export. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation applies, and the reason must be recorded. SVG or PixiJS renders visuals, GSAP owns motion, and chroma-js checks colors. Seed randomness and verify snapshots and the decoded video."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

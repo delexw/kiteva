@@ -1,0 +1,111 @@
+{
+  "version": 3,
+  "title": "Cave Wall Painting — An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Torch-lit limestone chamber: pigment on relief",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "A red hand stencil (the idea) leads through finger dots to a bison and a horse. Charcoal lines and red nodes then link them into a connected system, painted onto uneven grey limestone and lit by a single torch.",
+      "visuals": [
+        "Fixed procedural grey limestone #7E7B72 with deep fissures #4E4B44, calcite flowstone streaks #D9D5CA, ochre staining #C49B6B and chalk crust #DDD0B4",
+        "Red #984B32 sprayed negative hand stencil at left",
+        "Bison with a charcoal #3B2B21 contour and rubbed red fill; the contour bends where it crosses the rock ridge",
+        "Horse with a charcoal contour that breaks where a groove crosses it",
+        "Charcoal links and red pigment nodes joining the bison, the horse and three nodes",
+        "Modern caption panel on a calcite backing: AN IDEA BECOMES / a connected system",
+        "Disclosure: Procedural rock & pigment approximation — not archaeological footage"
+      ],
+      "assets": [
+        "index.html",
+        "three.bundle.js",
+        "gsap.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.5,
+          "development": "Red pigment is sprayed in nine puffs around a hand, leaving the negative hand stencil on the limestone.",
+          "captions": [
+            "AN IDEA BECOMES",
+            "a connected system",
+            "Procedural rock & pigment approximation — not archaeological footage"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.5,
+          "endSeconds": 1.3,
+          "development": "Finger dots trail toward the bison. The bison contour is drawn stroke by stroke, then red is rubbed in with diagonal passes, and the horse contour follows.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.3,
+          "endSeconds": 1.8,
+          "development": "Charcoal links are drawn between the bison, the horse and three red nodes, closing the system.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.8,
+          "endSeconds": 2.6,
+          "development": "The torch light moves from upper left to the right while the rock stays fixed. Highlights and shadows shift across the ridge, the flowstone and the pigment.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.6,
+          "endSeconds": 3,
+          "development": "The finished composition holds for reading.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.4
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "The pigment reveal runs from 0.05 to 1.8 s in short ordered strokes. The light sweep tween runs from 1.75 to 2.6 s, so the frame is settled before 2.7 s.",
+      "The caption and disclosure stay visible and static for the whole video."
+    ],
+    "justifiedHolds": [
+      "A 2.6–3.0 s final hold lets the viewer read the finished composition and the caption."
+    ]
+  },
+  "notes": [
+    "Silent preview.",
+    "Refresh: this uses a scene-dependent torch-lit grey limestone background. No preview recipes were supplied, and BACKGROUND_REVIEW.json reported 0 matched sources and no contact sheets.",
+    "No Blender tools were used. The renderers are Three.js, GLSL and Canvas 2D, and GSAP owns the motion.",
+    "Only the pigment reveal and the light position animate. GSAP tweens a uniform proxy, which renders synchronously on every update and on hf-seek.",
+    "The caption font is the macOS system font Gill Sans, declared with @font-face local()."
+  ]
+}

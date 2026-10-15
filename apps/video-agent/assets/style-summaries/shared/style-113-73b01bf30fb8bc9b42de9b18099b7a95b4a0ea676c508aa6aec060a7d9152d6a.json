@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-113",
+    "name": "Aurora Gradients / Glassmorphism",
+    "visualIdentity": "Frosted panels sit over slow aurora bands or mesh gradients using two to four main colors and stable brightness. Fine borders and soft shadows apply; refraction is optional. Text stays sharp.",
+    "suitableUses": "Explicitly suited to ambient hero screens and calm brand moments. Explicit combinations add product-behavior demos and data dashboards. Inferred suitability: premium wellness, finance or energy presentations and app walkthroughs.",
+    "limitations": "Backgrounds must not compete with reading or reduce text contrast. Avoid banding, shimmering edges and excessive blur. Keep data off moving aurora. Two-color checks do not validate translucent panels or animated light.",
+    "palette": "Background is scene-dependent; #142535 is an illustrative swatch only, not a required canvas color. Suggested tokens: foreground #F2F6F4, aurora accents #7FAAD0, #9B87C3, #65AAA5. No approved exact colors were supplied. Foreground on background is 14.3:1; accents on background are 4.9 to 6.4:1. Lab-space aurora gradient is optional and limited to these accents.",
+    "motionAndInteraction": "Panels move precisely and quickly over a slow aurora, which stays subordinate. Optional motion references: card stacking (motion-008), voice-card tilt (motion-011), chapter handoff (motion-012), carousel (motion-013), orb morph (motion-014), narrative steps (motion-015), phrase scatter (motion-037), punctuation zoom (motion-038). Use one only if scene assets support it. Video state derives from composition time, not live input.",
+    "audio": "Unspecified in the source; no soundtrack, voice or effects are mandated. Music, voiceover, sung vocals and effects are optional, topic-based choices. Keep speech intelligible and avoid competing vocals. Silence is valid; do not default to instrumental music.",
+    "assetRequirements": "No uploads or exact copy are mandated. Expected inputs are task text, local fonts and a seeded aurora shader generated in code. Motion references need inspected scene assets before selection. Report missing copy or assets rather than inventing them.",
+    "combinations": "Suggested: style-095 for interface motion on frosted panels, and style-097 for data in frosted cards. Choose a hybrid when panels must demonstrate product behavior or show data. Keep aurora brightness steady behind active data and avoid gradient-filled chart marks.",
+    "productionApproach": "HyperFrames is the default render pipeline; Remotion is a fallback only when its condition is verified and recorded. WebGL/GLSL renders the aurora, HTML/CSS with backdrop-filter renders panels, and GSAP or Motion owns animation. chroma-js validates colors. Verify seeks, contrast and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

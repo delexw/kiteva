@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-010",
+    "name": "Memphis Design, a supplemental Graphic Design and Design Movements reference. The source collection does not name it directly.",
+    "visualIdentity": "Memphis Design combines dots, zigzags, stripes, circles and irregular geometry in bold contrasting colors. Patterns establish rhythm while the headline stays readable. Shapes alternate with elastic offsets and pattern handoffs.",
+    "suitableUses": "The source explicitly suits Memphis to playful brand and pattern pieces. Its named examples are vertical social clips, youth-brand promos, logo stings, onboarding illustrations and stickers. Inferred: concise word-card sequences with readable copy also fit.",
+    "limitations": "Palette checks cover only two-color pairs and do not verify text over video, textures or animated lighting. Gradients are disabled by default. Avoid rapid full-frame flashing, continuous wobble, deformed headlines and captions over faces. Duration, aspect ratio and resolution are unspecified.",
+    "palette": "This palette is a suggestion, not an approved set, and applies only when no exact palette is supplied. Background is #FFF6E8, foreground #202039, accent_1 #ED718E pink, accent_2 #3DBAB1 teal and accent_3 #F4C64F yellow. Foreground on background measures 14.769:1, and accent pairs with foreground measure 5.541, 6.674 and 9.824.",
+    "motionAndInteraction": "Stagger selected movements and animate only a few hero shapes at once. Each animated property needs one owner on a paused, seekable timeline. Optional motion references 007, 012, 015 and 037 to 040 are used only when scene assets support their defining action. Scroll and pointer input belong only to interactive delivery.",
+    "audio": "The style does not specify audio, and no audio layer is mandatory. Suggested options are restrained accents or silence at transitions, speech-synchronized captions, or music if the task chooses it. Honor user audio and avoid competing with narration. Do not claim beat synchronization without inspected audio.",
+    "assetRequirements": "Supplied assets and exact copy are unspecified. Build SVG patterns and reusable shape groups, and load local fonts before rendering. Inspect actual glyphs or approved mark geometry before using phrase or burst references. Do not invent product copy or brand marks.",
+    "combinations": "Memphis alone suits playful brand and pattern pieces. Style-115 adds speech-synchronized emphasis captions with #202039 outlines, kept clear of faces. Style-106 adds squash on a few hero shapes, and headlines must never deform.",
+    "productionApproach": "HyperFrames is the default pipeline for timing, validation and export. Remotion is a fallback only for a verified limitation, and the reason must be recorded. SVG renders the visuals, GSAP owns motion, and chroma-js checks colors. Optional mo.js bursts need deterministic seek verification. Inspect key frames and watch the full video."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

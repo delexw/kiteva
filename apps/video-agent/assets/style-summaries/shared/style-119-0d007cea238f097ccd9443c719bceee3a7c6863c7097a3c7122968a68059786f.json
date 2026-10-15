@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-119",
+    "name": "Engraved Mechanical Diagrams (Motion Design and Cinematography). Source provenance is extracted, added in the 2026-10-12 sync.",
+    "visualIdentity": "Flat engraved diagram on an opaque porcelain field with graphite linework: tick-marked number wheels with tabular rim digits, notched inspection rails, toothed belts over pulleys, and parallel-line shading clipped to bevels. The source states this look explicitly.",
+    "suitableUses": "Explanatory videos or interactive HTML about real mechanical or counting operations, such as carries or readouts. This suitability is inferred from the visual cues and preview. The audience and objective are unspecified.",
+    "limitations": "Every linked movement must explain a real operation, so decorative mechanical motion conflicts with the style. Fine engraving needs moiré checks at output size. Source review covered only sampled seconds 1–8 of one reference, so later scenes are unverified. Simulated motion is not validated physics.",
+    "palette": "Background is scene_dependent, with status style_compatible_suggestion. The source specifies porcelain #F0EEE6 and graphite #222522, but palette tokens remain suggestions unless a task supplies approved colors. Green #416B53 and orange #E78636 are accents, never backgrounds. Opaque text pair contrast is 13.334:1. Gradients are disabled.",
+    "motionAndInteraction": "One GSAP driver, the input crank angle on a paused timeline, derives every linked part. Wheels turn by gear ratio, belt-tooth dash offsets track belt travel, the rail carriage moves, and digits settle with detent easing. Contours draw in with DrawSVGPlugin. Pointer arrowheads appear only after their shafts complete, and wheel labels reveal after their wheel group. Interactivity is unspecified.",
+    "audio": "Audio is unspecified. The direction offers optional background music, voiceover, effects, ambience or silence, chosen per topic. The style fixes no mood, tempo, instrument or voice. Mechanical effects matching belts or detents are plausible inferences, and explicit user choices take priority.",
+    "assetRequirements": "No assets, motion references or audio are supplied with this metadata. The task must provide the subject, audience, exact copy, duration, dimensions, frame rate, audio requirements and output location. Font face is unspecified beyond tabular figures, so local fonts must be loaded before rendering.",
+    "combinations": "Style-097 (Verified explanatory quantities) is the only authored supporting option, for verified quantities within the primary scene. It must not import its palette or replace the porcelain field. Keep one geometry and typography system. HTML use needs a reduced-motion alternative.",
+    "productionApproach": "SVG and HTML/CSS act as style renderers. GSAP with DrawSVGPlugin owns animated properties, with one owner per property. HyperFrames is the default pipeline, and Remotion is used only when its recorded fallback condition is met. chroma-js is optional for color checks. Verify decoded frames, seeks, moiré and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

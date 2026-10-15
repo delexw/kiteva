@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-048",
+    "name": "Origami (Printmaking and Craft Materials category; explicit provenance)",
+    "visualIdentity": "Explicit origami direction: legible creases, facets, and paper continuity under limited paper colors and clean lighting. Folds run sequentially along defined creases, keeping the sheet connected and thick.",
+    "suitableUses": "Explicit: pure folding sequences where crease continuity is the subject. Inferred from listed combinations: tutorials, deployable-structure explainers, product launches, title sequences, and gallery loops.",
+    "limitations": "Not for arbitrary 3D deformation, and the sheet must never stretch, split, or pass through itself. Basic elastic XPBD lacks crease behavior, tearing, and rigid contact. Simulated appearance is not validated physical folding.",
+    "palette": "Suggested, not approved: ivory #F4F0E5 background, slate #304347 foreground, terracotta #BA6F5C and sage #7C9A86 accents, all discrete with no gradients. Foreground on background reaches 9.132:1; accent pairings (3.343, 3.379) are decorative only. Task-supplied colors override these.",
+    "motionAndInteraction": "Folds are sequential rotations along crease hinges, built with parent-child transforms or a rig, with fold order and self-intersections validated first. Blender/bpy owns motion, and GSAP registers the seekable timeline. Scroll input is optional and applies only to interactive delivery. Optional motion-012 and motion-015 apply only if their handoff or story-step actions fit the fold sequence.",
+    "audio": "The source assigns no fixed audio, so direction is unspecified and topic-dependent. Inferred options include restrained fold accents, ambience, voiceover, or silence for reading holds. Keep speech intelligible, avoid clipping, and sync sound to picture time.",
+    "assetRequirements": "No asset list, duration, aspect ratio, resolution, or exact copy is supplied. Inferred needs include a crease-hinged rigged mesh, a validated fold sequence, authorized fonts and audio, and cached simulations. The source requires loading assets before rendering.",
+    "combinations": "Origami alone suits pure folding. Hybrids are allowed only for instructional diagrams or premium reveals, never mixed with other paper deformations. Suggested: style-109 crease diagrams drawn before each fold, and style-104 symmetric frontal staging with camera moves only after folds settle.",
+    "productionApproach": "Blender with Python bpy is the style renderer and motion engine. HyperFrames is the default for composition, timing, audio sync, validation, and export; Remotion is fallback only with a recorded, verified reason. Run check and snapshot before rendering, and state whether deliverables are photographed or simulated."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

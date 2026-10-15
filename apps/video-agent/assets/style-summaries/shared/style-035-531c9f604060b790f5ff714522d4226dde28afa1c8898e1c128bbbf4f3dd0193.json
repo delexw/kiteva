@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-035",
+    "name": "Painterly 3D (Drawing and Illustration category; explicit provenance).",
+    "visualIdentity": "Explicit: 3D forms with painterly surface marks, controlled color masses and stylized lighting. Brush direction follows form, and glossy photoreal highlights stay limited. Distinct from matte clay-style 3D.",
+    "suitableUses": "Inferred: environment pieces, character pieces, hero shots, title shots and key art. Explicit fits: camera dolly, camera orbit, lighting-state progression and chapter motion, when real depth and assets support them.",
+    "limitations": "Blender pre-rendering is required, so keep this style alone for character or environment pieces. Avoid glossy highlights, crawling brush textures and rigid symmetry in character acting. Flat image scaling is not a true dolly. Source evidence covers only one-second samples.",
+    "palette": "Background is scene-dependent and should follow the subject, lighting and mood. Suggested tokens #EFE4D1, #38454A, #7D9A95 and #BB7C65 are optional, not approved exact colors. Foreground on background measures 7.878; accents fail body text. Roles: one ground field, a sky gradient, sparse accent clusters and a neutral focal object.",
+    "motionAndInteraction": "Video motion runs on composition time; live scroll or pointer input applies only to interactive delivery. Gaze following needs separable eye layers or a rig. Orbit must move the camera around a complete subject. Dolly needs real depth or a labeled 2.5D approximation. Lighting progression holds 2–4 states on fixed anchors.",
+    "audio": "Style audio is unspecified; suggestions come from the topic and brief. No audio was verified in source review. Options include instrumental music, restrained effects, narration or silence, and silence suits schematic previews. No soundtrack layer is mandated.",
+    "assetRequirements": "Needs Blender-authored models, stylized materials and stable brush textures, plus complete geometry for orbit patterns. Gaze needs eye layers or a rig; lighting progression needs named environment layers per state. Local fonts and assets should be preloaded. Source mascots or wordmarks must not be copied.",
+    "combinations": "style-104 adds symmetric framing for hero shots, with locked shots and slow dolly moves. style-019 adds editorial typography over calm render areas. Hybrid pairing suits cinematic framing or HTML stories presenting renders, and text should stay off busy brushwork.",
+    "productionApproach": "Blender with Python bpy and EEVEE/Cycles acts as style renderer and motion engine through deterministic keyframes. HyperFrames is the primary composition and export pipeline; Remotion is only a documented fallback. GSAP drives seekable time, and chroma-js checks composited contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

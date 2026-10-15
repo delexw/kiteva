@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Ink Poster",
+  "displayDescription": "Night-ink motion poster: a vermilion idea disc expands, links draw out, eight nodes connect, and the headline completes.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG",
+    "HTML/CSS"
+  ],
+  "motionEngine": [
+    "GSAP (paused seekable timeline)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No audio track, music or voice.",
+  "limitations": [
+    "STYLE.json has no tech.preview_recipes and no reviewed recipes were supplied, so the refresh demonstrates the source-frame palette and construction lessons rather than a named recipe.",
+    "Vector-only approximation of print: the grain is a fixed-seed SVG feTurbulence overlay and the halftone is a regular dot pattern. Neither is a scanned paper or ink texture.",
+    "The halo is a flat radial gradient standing in for light. It is not physically lit.",
+    "The footer copy was changed from 'LOOP 00:00 — 00:06 · ENDPOINTS MATCH' to 'PREVIEW 00:00 — 00:03 · SILENT' because this 3 s preview builds from a seed to the full poster and does not loop.",
+    "The motion libraries suggested in the pool (Motion, mo.js, Anime.js) were not used. GSAP owns every animated property, which keeps a single seekable timeline. Blender was not used, per the user's instruction.",
+    "Typography uses local system Helvetica Neue with Helvetica/Arial fallbacks, so glyph widths can differ slightly between hosts."
+  ]
+}

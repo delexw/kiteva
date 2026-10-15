@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-047",
+    "name": "Paper Craft / Cardboard Craft (Printmaking and Craft Materials). Explicit source provenance, with the visual direction directly named in the source.",
+    "visualIdentity": "Explicit: show paper fibers, cardboard thickness, folds, cuts and assembly seams under soft lighting. Parts assemble or unfold along plausible connections. Board keeps constant thickness and never bends like rubber.",
+    "suitableUses": "Explicit: suited to tactile assembly and unfolding sequences. Inferred from suggested combinations: packaging reveals, maker brands, sustainability stories, process explainers and product ecosystems. Audience and duration are unspecified.",
+    "limitations": "Explicit: no rubber-like bending, no heavy blur, no deep embossing or metallic bevels, and no plastic or clay in the set. Procedural curl is artistic, not a physical paper solver. Aspect ratio, duration and frame rate are unspecified.",
+    "palette": "Suggestion only, with scene-dependent background policy: background #EFE5D2, foreground #47392B, accent #AF8A5D. Not approved, so backgrounds should follow the scene. No gradients. Background/foreground pair is 8.903:1. Accent over foreground is 3.504:1 and decorative only. Task-supplied exact colors override these.",
+    "motionAndInteraction": "Explicit: animate hinges and assembly joints, with unfolding along plausible connections. Optional references (hover door bloom, pointer parallax, scroll chapters, scroll storytelling) apply only if the subject supports them. Video uses composition time. Interactive HTML needs focus or tap equivalents and a reduced-motion final still.",
+    "audio": "Unspecified in the source; no audio requirements were given. Suggested: optional restrained music, voiceover or silence, chosen from the topic. Sparing sound accents may mark folds or hinge actions. Keep speech intelligible. No fixed genre, tempo or voice is mandated.",
+    "assetRequirements": "No uploads are mandatory, and the source frame review lists no sources. Needs derived from the brief: board, kraft and paper materials, hinge and fold geometry, and local fonts. Flower, creature and stage assets are examples only. Missing assets must be stated.",
+    "combinations": "Explicit: style-052 adds shallow title impressions in kraft board under the same side light, for packaging and maker brands. style-079 adds miniature stage boundaries and elevated camera framing, for process explainers. Both require one cardboard thickness scale and only cream, brown and kraft tokens.",
+    "productionApproach": "Explicit: Blender with bpy and Cycles is the style renderer and motion engine for board, creases, seams and hinges. Optional three.js curl deformation applies only to 3D bends. HyperFrames with paused GSAP timelines is the default pipeline. Remotion needs a recorded reason. chroma-js validates contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

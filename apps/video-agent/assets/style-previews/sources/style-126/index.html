@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stained-Glass Light Projection — style-126 preview</title>
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; background: #101216; overflow: hidden; }
+  #root { position: relative; width: 100%; height: 100%; background: #101216; overflow: hidden; }
+  #gl { position: absolute; inset: 0; }
+  #copy { position: absolute; inset: 0; pointer-events: none; color: #F4EEE3;
+    font-family: Georgia, "Times New Roman", serif; }
+  #copy .t { position: absolute; left: 56.25%; margin: 0; white-space: nowrap; opacity: 0; }
+  .kicker { font-size: 1.95vh; letter-spacing: 0.43em; color: #F4EEE3; }
+  #k1 { top: 14.2%; }
+  #h1 { top: 19.5%; font-size: 8.9vh; font-style: italic; font-weight: normal; line-height: 1; }
+  #h2 { top: 31.5%; font-size: 4.7vh; line-height: 1.3; }
+  #k2 { top: 46.2%; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30" data-style-renderer="Three.js, PBR Materials, Postprocessing" data-motion-engine="GSAP">
+  <div id="gl"></div>
+  <div id="copy">
+    <p class="t kicker" id="k1">I · ONE PANE OF LIGHT</p>
+    <h1 class="t" id="h1">An idea</h1>
+    <p class="t" id="h2">becomes a connected<br>system.</p>
+    <p class="t kicker" id="k2">II · CAST ACROSS THE STONE</p>
+  </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<!-- style renderer: Three.js (WebGLRenderer, MeshStandardMaterial PBR, SpotLight.map, shadow map) + Postprocessing (EffectComposer, RenderPass, UnrealBloomPass, OutputPass); bundled locally from node_modules/three via esbuild. Motion engine: GSAP. -->
+<script src="scene.bundle.js"></script>
+<script>
+(function () {
+  var W = 1280, H = 720;
+  var view = window.StainedGlass.createScene(document.getElementById('gl'), W, H);
+
+  // All scene parameters live here; GSAP writes them from the shared timeline time.
+  var st = { hemi: 0.9, fill: 0.35, glass: 0.3, spot: 0, fit: 1.6, tx: -2.6, tz: 3.6, beam: 0, bloom: 0 };
+  function draw() { view.render(st); }
+
+  var tl = gsap.timeline({ paused: true, onUpdate: draw, defaults: { immediateRender: false } });
+  // 1. Dim stone (0 – 0.7 s): cool hemisphere + faint fill, glass barely glowing
+  tl.set(st, { hemi: 0.9, fill: 0.35, glass: 0.3, spot: 0, fit: 1.6, tx: -2.6, tz: 3.6, beam: 0, bloom: 0 }, 0);
+  // 2. Blackout (0.7 – 1.0 s): every light intensity to 0
+  tl.fromTo(st, { hemi: 0.9, fill: 0.35, glass: 0.3 }, { hemi: 0, fill: 0, glass: 0, duration: 0.3, ease: 'power2.inOut' }, 0.7);
+  // 3. Light up (1.0 – 2.4 s): spotlight intensity + angle sweep, pattern travels over the floor
+  tl.fromTo(st, { spot: 0 }, { spot: 6.5, duration: 0.8, ease: 'power2.inOut' }, 1.0);
+  tl.fromTo(st, { glass: 0 }, { glass: 1, duration: 0.6, ease: 'sine.inOut' }, 1.05);
+  tl.fromTo(st, { fit: 1.6 }, { fit: 1.04, duration: 1.3, ease: 'power2.inOut' }, 1.0);
+  tl.fromTo(st, { tx: -2.6, tz: 3.6 }, { tx: 1.6, tz: 5.6, duration: 1.4, ease: 'sine.inOut' }, 1.0);
+  tl.fromTo(st, { beam: 0 }, { beam: 0.05, duration: 0.8, ease: 'sine.inOut' }, 1.2);
+  tl.fromTo(st, { hemi: 0 }, { hemi: 0.18, duration: 0.8, ease: 'sine.inOut' }, 1.4);
+  // 4. White bloom finale is reserved for the full video; bloom stays 0 in this preview.
+  tl.set(st, { bloom: 0 }, 3);
+
+  // Copy (standalone headings; independent timing)
+  tl.fromTo('#k1', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.inOut' }, 0.1);
+  tl.fromTo('#h1', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.inOut' }, 0.2);
+  tl.fromTo('#h2', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.inOut' }, 0.4);
+  tl.fromTo('#k2', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.inOut' }, 1.7);
+
+  tl.progress(1).progress(0); // fully build & record start values
+  draw();
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+
+  function resync(e) {
+    var t = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : null;
+    if (t !== null) tl.seek(t, false);
+    draw();
+  }
+  window.addEventListener('hf-seek', resync);
+  document.addEventListener('hf-seek', resync);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

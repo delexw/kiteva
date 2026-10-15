@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-079",
+    "name": "3D Diorama (Digital and 3D Aesthetics; label normalized from source descriptions that explicitly name a 3D diorama).",
+    "visualIdentity": "A complete miniature stage with bounded edges and consistent scales for buildings, characters and props. An elevated or oblique view with limited depth of field keeps local action and key models readable.",
+    "suitableUses": "Explicit uses: miniature sets, story-driven worlds, explainers, campus maps, product ecosystems and process tours. Compatibility lists also name dolly, orbit and lighting-progression motions. Other fit is inferred, not verified.",
+    "limitations": "Avoid oversized characters, mixed glossy and matte finishes, notes covering key models, and annotations during camera moves. A flat image scale is a zoom, not a dolly. Source review sampled only seconds 1 to 8, with no audio.",
+    "palette": "Background is scene-dependent, chosen from setting and lighting. Example tokens (#EEE6D4, #35433C, #7B9173, #B3885F) are illustrative, not approved. Task colors override. Foreground on background is 8.371; accent text pairs fall short and are decorative only.",
+    "motionAndInteraction": "Eight optional references: parallax (motion-009), orbit circuit (010), chapter handoff (012), narrative steps (015), exploded reveal (017), dolly (019), camera orbit (021), lighting progression (042). Each needs suitable geometry. Orbit the camera, not the subject. Video uses composition time.",
+    "audio": "No audio is specified or verified for this style. Music, narration, effects, ambience or silence should follow the brief; no genre, tempo or voice is mandated. Speech must stay intelligible, and silence is valid for schematic previews.",
+    "assetRequirements": "Use authorized 3D models with consistent scale, named parts and checked pivots; never assume animation clips from filenames. Load local fonts and assets first. Video screens need authorized footage.",
+    "combinations": "Style-078 (matte clay-like figures sharing the set's light rig and scale) suits story-driven worlds. Style-024 (hand-drawn callouts and arrows in foreground ink) suits guided tours. Avoid new accent hues and mixed finishes.",
+    "productionApproach": "HyperFrames handles composition, timing, sync and export; Remotion is fallback only with a recorded reason. Blender with bpy and Cycles or EEVEE renders the set and motion; GSAP holds seekable timeline state. Check decoded frames, audio and loop seams."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

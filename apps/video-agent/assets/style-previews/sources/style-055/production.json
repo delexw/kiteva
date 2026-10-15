@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Sticker Network",
+  "displayDescription": "A peeled idea sticker is pressed onto a dark dot-grid surface, node stickers land and rough links connect them into a labelled system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG (filters: feMorphology alpha-mask dilation for white die-cut borders and contact shadows)",
+    "Rough.js 4.6.6 (seeded generator, locally bundled as rough.bundle.js)"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline (window.__timelines.video) driving plain state objects",
+    "Procedural Paper Curl and Fold Deformation (reflected fold-line clip geometry, authored in-page)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview: no audio track. No soundtrack, effects or voice were created.",
+  "limitations": [
+    "Paper curl is approximated as a flat fold across a moving straight line (mirrored flap in a cool backing grey with a soft shadow); no bending curvature, lighting or physical paper simulation.",
+    "Contact shadows are blurred dilated alpha masks offset by lift height, not physically lit.",
+    "PixiJS, Motion and mo.js were reviewed but not used: the scene has six stickers, so SVG is enough, and their autonomous tickers are unnecessary for seekable video. The spark burst is GSAP-owned SVG lines.",
+    "Background is a scene-dependent ink-navy dot grid chosen from BACKGROUND_REVIEW guidance; the source sampled frames are stills only, so source motion is inferred.",
+    "Typography uses locally available system fonts (Avenir Next with Trebuchet MS/Verdana fallbacks); metrics may vary slightly by machine."
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "version": 2,
+  "durationSeconds": 3,
+  "format": "structured",
+  "sections": [
+    {
+      "heading": "style-116 · Blueprint Drafting Animation — \"An idea becomes a connected system\" (3 s, silent)",
+      "level": 1,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Renderers: SVG (all geometry, hatching, masks), with SVG text in a monospace face. Motion: one paused GSAP timeline ("
+            },
+            {
+              "type": "inlineCode",
+              "value": "window.__timelines.video"
+            },
+            {
+              "type": "text",
+              "value": ") plus DrawSVGPlugin. 1280x720 at 30 fps. Field is #1B3ED2 (stationary) and lines are #FFFFFF (contrast 7.88).\nAll geometry comes from the "
+            },
+            {
+              "type": "inlineCode",
+              "value": "SPEC"
+            },
+            {
+              "type": "text",
+              "value": " object, and the dimension labels are computed from it."
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "columns": [
+            {
+              "key": "Time (s)",
+              "label": "Time (s)",
+              "alignment": null
+            },
+            {
+              "key": "Beat",
+              "label": "Beat",
+              "alignment": null
+            }
+          ],
+          "rows": [
+            {
+              "Time (s)": "0.00–0.35",
+              "Beat": "Minor and major grid fade in. The heading \"AN IDEA BECOMES / A CONNECTED SYSTEM\" fades in from 0.10 to 0.50."
+            },
+            {
+              "Time (s)": "0.25–0.85",
+              "Beat": "The idea part's outlines draw at 2.5 px: the bulb circle Ø180, the inner wall and the 70×54 base."
+            },
+            {
+              "Time (s)": "0.80–1.10",
+              "Beat": "The hidden filament (dashed 8 6, 1.5 px) is revealed by a drawSVG mask over the already-dashed path."
+            },
+            {
+              "Time (s)": "0.85–1.20",
+              "Beat": "Hatch clip rects wipe across the bulb's wall section and the base. The FIG.1 caption appears."
+            },
+            {
+              "Time (s)": "1.00–1.56",
+              "Beat": "Three connector arrows draw out from the idea. Each head switches on at the moment its shaft finishes (1.40, 1.48, 1.56)."
+            },
+            {
+              "Time (s)": "1.15–1.95",
+              "Beat": "Block frames INPUT, CORE, LINK and OUTPUT draw in, then their header hatching wipes in. Each label appears after its frame is complete."
+            },
+            {
+              "Time (s)": "1.60–2.05",
+              "Beat": "Dashed hidden links join the blocks into a system."
+            },
+            {
+              "Time (s)": "1.45–2.40",
+              "Beat": "dim-1 to dim-4: extension lines draw, then each shaft draws from its centre out to both ends. Both heads switch on together at 1.90, 2.05, 2.20 and 2.35, and each label follows 0.05 s later."
+            },
+            {
+              "Time (s)": "2.00–2.38",
+              "Beat": "The title block frame draws, then its text appears."
+            },
+            {
+              "Time (s)": "2.40–3.00",
+              "Beat": "Settled hold."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Rules: arrowheads are separate "
+            },
+            {
+              "type": "inlineCode",
+              "value": "data-arrowhead-for"
+            },
+            {
+              "type": "text",
+              "value": " paths, hidden with autoAlpha 0 and switched on by "
+            },
+            {
+              "type": "inlineCode",
+              "value": "tl.set"
+            },
+            {
+              "type": "text",
+              "value": " at the shaft's end time. Labels carry "
+            },
+            {
+              "type": "inlineCode",
+              "value": "data-reveal-after"
+            },
+            {
+              "type": "text",
+              "value": ". Every state is a function of timeline time, so seeking forward, backward or directly gives the same frame."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

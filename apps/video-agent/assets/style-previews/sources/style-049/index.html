@@ -1,0 +1,208 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Risograph Printing — Idea becomes a connected system</title>
+<style>
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#DDE3E2}
+  #root{position:relative;width:100%;height:100%}
+  #scene{width:100%;height:100%;display:block}
+  .title{font-family:"Arial Black","Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:900;font-size:78px}
+  .caption{font-family:"Courier New",Courier,monospace;font-weight:700;font-size:18px;letter-spacing:3px}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Fixed per-ink grain masks (seeded PNGs from tools/make-grain.mjs). White = ink, dark speckles = dropouts. -->
+    <mask id="m-coral" maskUnits="userSpaceOnUse" x="0" y="0" width="1280" height="720">
+      <image href="assets/grain-coral.png" x="0" y="0" width="1280" height="720" preserveAspectRatio="none"/>
+    </mask>
+    <mask id="m-blue" maskUnits="userSpaceOnUse" x="-20" y="-20" width="1320" height="760">
+      <image href="assets/grain-blue.png" x="-20" y="-20" width="1320" height="760" preserveAspectRatio="none"/>
+    </mask>
+    <!-- Static rough-edge displacement (fixed seed): stencil/drum edge irregularity. -->
+    <filter id="rough" x="-2%" y="-2%" width="104%" height="104%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <pattern id="halftone" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+      <circle cx="5" cy="5" r="2.6" fill="#D95664"/>
+    </pattern>
+    <pattern id="hatch" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)">
+      <rect x="0" y="0" width="6" height="16" fill="#D95664"/>
+    </pattern>
+    <radialGradient id="vignette" cx="50%" cy="48%" r="75%">
+      <stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="1" stop-color="#7C8A90" stop-opacity="0.22"/>
+    </radialGradient>
+    <clipPath id="roll-coral"><rect id="roll-coral-rect" x="0" y="0" width="0" height="720"/></clipPath>
+  </defs>
+
+  <!-- PAPER: cool recycled blue-grey stock; stationary fibre texture and vignette. -->
+  <rect id="paper" x="0" y="0" width="1280" height="720" fill="#DDE3E2"/>
+  <image id="fibre" href="assets/paper-fibre.png" x="0" y="0" width="1280" height="720" preserveAspectRatio="none"/>
+  <rect x="0" y="0" width="1280" height="720" fill="url(#vignette)" style="mix-blend-mode:multiply"/>
+
+  <!-- INK 1: CORAL separation (pattern / field ink). Stationary masked plate; children reveal. -->
+  <g id="plate-coral" mask="url(#m-coral)" filter="url(#rough)" style="mix-blend-mode:multiply">
+    <g id="coral-roll" clip-path="url(#roll-coral)">
+      <rect x="0" y="612" width="1280" height="108" fill="url(#hatch)"/>
+      <circle cx="360" cy="400" r="190" fill="url(#halftone)"/>
+      <rect x="310" y="358" width="100" height="92" fill="#D95664"/>
+    </g>
+    <g id="coral-nodes" fill="#D95664">
+      <circle class="cnode" data-node="0" cx="780" cy="210" r="36"/>
+      <circle class="cnode" data-node="1" cx="1000" cy="320" r="36"/>
+      <circle class="cnode" data-node="2" cx="860" cy="530" r="36"/>
+      <circle class="cnode" data-node="3" cx="1120" cy="540" r="36"/>
+      <circle class="cnode" data-node="4" cx="1130" cy="150" r="36"/>
+    </g>
+    <!-- Coral pass of the headline: the SAME glyph outlines as the blue type, cloned (not duplicate copy) and
+         printed in coral at a fixed misregistration. It is a decorative ink layer, not a second text block. -->
+    <g id="coral-title" fill="#D95664" aria-hidden="true">
+      <use class="cword" data-word="0" href="#bw0" x="10" y="4"/>
+      <use class="cword" data-word="1" href="#bw1" x="10" y="4"/>
+      <use class="cword" data-word="2" href="#bw2" x="10" y="4"/>
+    </g>
+  </g>
+
+  <!-- INK 2: BLUE separation (line / type ink), fixed registration offset (+5,-4). -->
+  <g id="plate-blue" mask="url(#m-blue)" filter="url(#rough)" style="mix-blend-mode:multiply">
+    <g transform="translate(5 -4)">
+      <circle id="ring" class="draw" cx="360" cy="400" r="190" fill="none" stroke="#254687" stroke-width="12" transform="rotate(-90 360 400)"/>
+      <path id="bulb" class="draw" d="M330 450q30-90 60 0" fill="none" stroke="#254687" stroke-width="8" stroke-linecap="round"/>
+      <path id="base1" class="draw" d="M320 520h80" fill="none" stroke="#254687" stroke-width="8" stroke-linecap="round"/>
+      <path id="base2" class="draw" d="M330 548h60" fill="none" stroke="#254687" stroke-width="8" stroke-linecap="round"/>
+      <g id="links" fill="none" stroke="#254687" stroke-width="8" stroke-linecap="round">
+        <line class="draw link" x1="550" y1="400" x2="798" y2="224"/>
+        <line class="draw link" x1="798" y1="224" x2="1018" y2="334"/>
+        <line class="draw link" x1="798" y1="224" x2="878" y2="544"/>
+        <line class="draw link" x1="1018" y1="334" x2="878" y2="544"/>
+        <line class="draw link" x1="1018" y1="334" x2="1148" y2="164"/>
+        <line class="draw link" x1="878" y1="544" x2="1138" y2="554"/>
+        <line class="draw link" x1="1018" y1="334" x2="1138" y2="554"/>
+      </g>
+      <g id="blue-nodes" fill="#254687">
+        <circle class="bnode" data-node="0" cx="798" cy="224" r="36"/>
+        <circle class="bnode" data-node="1" cx="1018" cy="334" r="36"/>
+        <circle class="bnode" data-node="2" cx="878" cy="544" r="36"/>
+        <circle class="bnode" data-node="3" cx="1138" cy="554" r="36"/>
+        <circle class="bnode" data-node="4" cx="1148" cy="164" r="36"/>
+      </g>
+      <g id="blue-title" fill="#254687">
+        <g class="bwrap" data-word="0"><text id="bw0" class="title bword" x="75" y="134">IDEA</text></g>
+        <g class="bwrap" data-word="1"><text id="bw1" class="title bword" x="75" y="134">→</text></g>
+        <g class="bwrap" data-word="2"><text id="bw2" class="title bword" x="75" y="134">SYSTEM</text></g>
+      </g>
+    </g>
+  </g>
+
+  <!-- Paper knockout box (container) cut into the coral hatch band; caption is grouped and revealed after it completes. -->
+  <g id="caption-group">
+    <rect id="caption-box" x="60" y="646" width="0" height="46" fill="#DDE3E2"/>
+    <text id="caption" class="caption" data-reveal-after="caption-box" x="80" y="675" fill="#254687" opacity="0">AN IDEA BECOMES A CONNECTED SYSTEM — 2 INKS / BLUE + CORAL</text>
+  </g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="motion-kit.js"></script>
+<script>
+(function(){
+  const M = window.MotionKit; // Motion: easing + interpolation owner for every visual property
+  const { interpolate, backOut, easeInOut, easeOut, circOut } = M;
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const DUR = 3;
+
+  // Contrast audit of resolved scene palette (no tokens altered).
+  const PAPER = '#DDE3E2', BLUE = '#254687';
+  document.getElementById('root').setAttribute('data-contrast-blue-on-paper', chroma.contrast(BLUE, PAPER).toFixed(2));
+
+  // ---- layout: set title words additively on one baseline (measured once, cached) ----
+  const GAP = 26;
+  const cwords = $$('.cword'), bwords = $$('.bword'), bwraps = $$('.bwrap');
+  let x = 80;
+  const wordX = [];
+  bwords.forEach((el, i) => { wordX[i] = x; x += el.getComputedTextLength() + GAP; });
+  bwords.forEach((el, i) => el.setAttribute('x', wordX[i] - 5)); // blue plate translate(5,-4) => blue word at (wordX, 130)
+  // coral clones sit at use offset (10,4) => (wordX+5, 138): fixed, stable misregistration of the coral pass
+
+  // ---- cached stroke lengths for draw reveals ----
+  const draws = $$('.draw').map(el => {
+    const len = el.getTotalLength();
+    el.setAttribute('stroke-dasharray', len + ' ' + len);
+    return { el, len };
+  });
+  const byId = id => draws.find(d => d.el.id === id);
+  const links = draws.filter(d => d.el.classList.contains('link'));
+
+  // ---- authored cue sheet (seconds) ----
+  const linkCue = [[0.85,1.15],[1.10,1.40],[1.10,1.45],[1.35,1.60],[1.35,1.60],[1.50,1.80],[1.50,1.80]];
+  const nodeArrive = [1.15, 1.40, 1.45, 1.80, 1.60];
+  const wordCue = [0.30, 1.00, 1.48];
+
+  const seg = (t, a, b, ease) => interpolate([a, b], [0, 1], { clamp: true, ease })(t);
+  const cnodes = $$('.cnode'), bnodes = $$('.bnode');
+  const rollRect = $('#roll-coral-rect'), capBox = $('#caption-box'), caption = $('#caption');
+  const r3 = v => Math.round(v * 1000) / 1000;
+
+  function stamp(el, p, cx, cy, dx, dy, s0) {
+    const s = r3(s0 + (1 - s0) * p);
+    el.setAttribute('opacity', r3(Math.min(1, p * 4)));
+    el.setAttribute('transform', `translate(${r3(dx*(1-p))} ${r3(dy*(1-p))}) translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`);
+  }
+
+  function render(t) {
+    t = Math.max(0, Math.min(DUR, t));
+    // 1. Coral drum pass: roller wipes the field ink (hatch band, halftone disc, idea block) left -> right.
+    rollRect.setAttribute('width', r3(1280 * seg(t, 0.0, 0.62, easeInOut)));
+    // 2. Blue ring + idea mark drawn over the coral halftone.
+    const ring = byId('ring'); ring.el.setAttribute('stroke-dashoffset', r3(ring.len * (1 - seg(t, 0.45, 0.95, easeInOut))));
+    const bulb = byId('bulb'); bulb.el.setAttribute('stroke-dashoffset', r3(bulb.len * (1 - seg(t, 0.62, 0.88, easeOut))));
+    const b1 = byId('base1'); b1.el.setAttribute('stroke-dashoffset', r3(b1.len * (1 - seg(t, 0.74, 0.92, easeOut))));
+    const b2 = byId('base2'); b2.el.setAttribute('stroke-dashoffset', r3(b2.len * (1 - seg(t, 0.80, 0.98, easeOut))));
+    // 3. Network links draw outward from the idea; ends hide under nodes.
+    links.forEach((d, i) => d.el.setAttribute('stroke-dashoffset', r3(d.len * (1 - seg(t, linkCue[i][0], linkCue[i][1], easeInOut)))));
+    // 4. Nodes stamp in two separations: coral lands as the link arrives, blue overprints with a registration settle.
+    cnodes.forEach((el, i) => {
+      const p = seg(t, nodeArrive[i] - 0.06, nodeArrive[i] + 0.20, backOut);
+      stamp(el, p, +el.getAttribute('cx'), +el.getAttribute('cy'), 0, 0, 0.45);
+    });
+    bnodes.forEach((el, i) => {
+      const p = seg(t, nodeArrive[i] + 0.04, nodeArrive[i] + 0.30, circOut);
+      stamp(el, p, +el.getAttribute('cx'), +el.getAttribute('cy'), 12, -10, 0.8);
+    });
+    // 5. Headline set additively word by word: coral pass then blue pass settling into register.
+    cwords.forEach((el, i) => {
+      const p = seg(t, wordCue[i], wordCue[i] + 0.16, easeOut);
+      el.setAttribute('opacity', r3(p));
+    });
+    bwraps.forEach((el, i) => { // wrapper owns blue opacity/settle so the coral clones stay independent
+      const p = seg(t, wordCue[i] + 0.08, wordCue[i] + 0.30, circOut);
+      el.setAttribute('opacity', r3(Math.min(1, p * 2)));
+      el.setAttribute('transform', `translate(${r3(14*(1-p))} ${r3(-10*(1-p))})`);
+    });
+    // 6. Paper knockout box opens in the hatch band; caption appears only once the box is complete.
+    capBox.setAttribute('width', r3(840 * seg(t, 1.55, 1.85, easeInOut)));
+    caption.setAttribute('opacity', r3(seg(t, 1.86, 2.0, easeOut)));
+  }
+
+  // Single clock: GSAP owns only `clock.t`; a getter/setter so every seek (forward, backward, direct) re-renders.
+  let cur = 0;
+  const clock = { t(v) { if (v === undefined) return cur; cur = v; render(v); } };
+  const tl = gsap.timeline({ paused: true });
+  tl.fromTo(clock, { t: 0 }, { t: DUR, duration: DUR, ease: 'none', immediateRender: true }, 0);
+  render(0);
+  window.addEventListener('hf-seek', e => {
+    const s = e && e.detail && typeof e.detail.time === 'number' ? e.detail.time : tl.time();
+    render(s);
+  });
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

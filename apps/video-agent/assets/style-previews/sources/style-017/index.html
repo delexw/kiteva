@@ -1,0 +1,282 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Grunge — an idea becomes a connected system</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#C9CDCA}
+  #root{position:relative;width:100%;height:100%;overflow:hidden}
+  #stage{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="stage" width="1280" height="720" role="img" aria-label="IDEA becomes a connected SYSTEM. NO.017 / WIRED FROM ONE THOUGHT"></canvas>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="rough.js"></script>
+<script>
+(function(){
+  'use strict';
+  // ---------- Centralised scene constants ----------
+  var W = 1280, H = 720, DURATION = 3;
+  // Scene palette (scene-dependent refresh): a cold xerox flyer stock instead of the earlier warm swatch.
+  // Charcoal ink and the oxidized-red accent keep the style's ink/rust material roles.
+  var PAL = {
+    paper:  '#C9CDCA',   // cool photocopy stock
+    ink:    '#25282B',   // charcoal toner ink
+    rust:   '#8C5140',   // oxidized red accent (kept from style direction)
+    plateText: '#EFEEE7' // light lettering on the rust plate
+  };
+  // Contrast guard (no recolouring, just report in console for QA).
+  try {
+    console.log('contrast ink/paper', chroma.contrast(PAL.ink, PAL.paper).toFixed(2),
+                'plateText/rust', chroma.contrast(PAL.plateText, PAL.rust).toFixed(2));
+  } catch (e) {}
+  var FONT_DISPLAY = 'Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Black", sans-serif';
+  var FONT_MONO = '"Courier New", Courier, monospace';
+
+  // ---------- Seeded randomness ----------
+  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+  function makeCanvas(w,h){var c=document.createElement('canvas');c.width=w;c.height=h;return c;}
+
+  // Value noise (seeded lattice, bilinear) for distress thresholds.
+  function valueNoise(w,h,cell,seed){
+    var rnd=mulberry32(seed), gw=Math.ceil(w/cell)+2, gh=Math.ceil(h/cell)+2, g=new Float32Array(gw*gh), out=new Float32Array(w*h);
+    for(var i=0;i<g.length;i++) g[i]=rnd();
+    for(var y=0;y<h;y++){var gy=y/cell, y0=Math.floor(gy), fy=gy-y0; fy=fy*fy*(3-2*fy);
+      for(var x=0;x<w;x++){var gx=x/cell, x0=Math.floor(gx), fx=gx-x0; fx=fx*fx*(3-2*fx);
+        var a=g[y0*gw+x0], b=g[y0*gw+x0+1], c=g[(y0+1)*gw+x0], d=g[(y0+1)*gw+x0+1];
+        out[y*w+x]=(a+(b-a)*fx)*(1-fy)+(c+(d-c)*fx)*fy;}}
+    return out;
+  }
+
+  var canvas=document.getElementById('stage'), ctx=canvas.getContext('2d');
+  var rc=rough.canvas(canvas);
+  var gen=rough.generator();
+
+  // =====================================================================
+  // PRECOMPUTE (once): paper grain, scratches, stains, ink textures, masks
+  // =====================================================================
+
+  // ---- 1. Static substrate: paper grain + scratches + stains + tape ----
+  var base=makeCanvas(W,H), bctx=base.getContext('2d');
+  (function buildSubstrate(){
+    bctx.fillStyle=PAL.paper; bctx.fillRect(0,0,W,H);
+    // fine toner grain + coarse mottling, seeded
+    var img=bctx.getImageData(0,0,W,H), d=img.data, rnd=mulberry32(1701);
+    var mott=valueNoise(W,H,90,17), mott2=valueNoise(W,H,22,29);
+    for(var i=0,p=0;i<d.length;i+=4,p++){
+      var n=(rnd()-0.5)*16 + (mott[p]-0.5)*14 + (mott2[p]-0.5)*6;
+      d[i]=Math.max(0,Math.min(255,d[i]+n)); d[i+1]=Math.max(0,Math.min(255,d[i+1]+n)); d[i+2]=Math.max(0,Math.min(255,d[i+2]+n*1.05));
+    }
+    // sparse toner specks
+    for(var s=0;s<2600;s++){var x=(rnd()*W)|0,y=(rnd()*H)|0,k=(y*W+x)*4,dk=40+rnd()*60; d[k]-=dk;d[k+1]-=dk;d[k+2]-=dk;}
+    bctx.putImageData(img,0,0);
+    // photocopy scratch field (stationary, low density so the message stays clear)
+    var r2=mulberry32(4242); bctx.save(); bctx.strokeStyle=PAL.ink; bctx.lineCap='round';
+    for(var j=0;j<70;j++){var sx=r2()*W, sy=r2()*H, len=20+r2()*90, a=(r2()-0.5)*0.9+(r2()<0.3?1.2:0);
+      bctx.globalAlpha=0.08+r2()*0.12; bctx.lineWidth=0.7+r2()*1.1;
+      bctx.beginPath(); bctx.moveTo(sx,sy); bctx.lineTo(sx+Math.cos(a)*len, sy+Math.sin(a)*len); bctx.stroke();}
+    bctx.restore();
+    // coffee-ring style stains with rough.js (seeded), rust at low alpha
+    var ringA=gen.circle(980,170,140,{seed:11,roughness:2.2,stroke:PAL.rust,strokeWidth:5,strokeLineDash:[140,18,60,30]});
+    var ringB=gen.circle(200,560,140,{seed:12,roughness:2.4,stroke:PAL.rust,strokeWidth:5,strokeLineDash:[120,24,70,20]});
+    var rcb=rough.canvas(base);
+    bctx.save(); bctx.globalAlpha=0.34; rcb.draw(ringA); rcb.draw(ringB); bctx.restore();
+    // smeared brush stain under the SYSTEM plate
+    bctx.save(); bctx.globalAlpha=0.22; bctx.strokeStyle=PAL.rust; bctx.lineWidth=40; bctx.lineCap='round';
+    bctx.beginPath(); bctx.moveTo(720,612); bctx.bezierCurveTo(800,560,900,642,1010,592); bctx.stroke(); bctx.restore();
+    // torn tape strip, top-left
+    bctx.save(); bctx.translate(165,80); bctx.rotate(-6*Math.PI/180); bctx.globalAlpha=0.42;
+    rcb.draw(gen.rectangle(-85,-20,170,40,{seed:31,roughness:1.6,fill:PAL.rust,fillStyle:'solid',stroke:'none'}));
+    bctx.restore();
+    // footer caption: standalone, printed into the substrate (ink for small-text contrast)
+    bctx.save(); bctx.fillStyle=PAL.ink; bctx.font='18px '+FONT_MONO; bctx.textBaseline='alphabetic';
+    bctx.fillText('NO.017 / WIRED FROM ONE THOUGHT',60,660); bctx.restore();
+  })();
+
+  // Helper: apply distress (scratches/pinholes/dry-brush) to an ink layer, destination-out.
+  function distress(c2,x0,y0,w,h,seed,scratches){
+    var r=mulberry32(seed);
+    c2.save(); c2.globalCompositeOperation='destination-out';
+    // pinholes / toner dropout
+    for(var i=0;i<900;i++){c2.globalAlpha=0.5+r()*0.5; c2.beginPath(); c2.arc(x0+r()*w,y0+r()*h,0.6+r()*2.2,0,Math.PI*2); c2.fill();}
+    // dry-brush horizontal streaks
+    for(var k=0;k<26;k++){c2.globalAlpha=0.25+r()*0.35; c2.fillRect(x0+r()*w,y0+r()*h,30+r()*140,1+r()*2);}
+    // authored erasure scratches (from the reference composition)
+    c2.globalAlpha=1; c2.lineCap='round';
+    for(var s=0;s<scratches.length;s++){var L=scratches[s]; c2.lineWidth=L[4]; c2.beginPath(); c2.moveTo(L[0],L[1]); c2.lineTo(L[2],L[3]); c2.stroke();}
+    c2.restore();
+  }
+
+  // Helper: build a local reveal threshold (0..255) for a region = noise + directional bias.
+  function buildThreshold(w,h,seed,biasX,biasY){
+    var n1=valueNoise(w,h,26,seed), n2=valueNoise(w,h,7,seed+1), t=new Uint8ClampedArray(w*h);
+    for(var y=0;y<h;y++)for(var x=0;x<w;x++){var p=y*w+x;
+      var v=0.55*n1[p]+0.2*n2[p]+0.25*(biasX*(x/w)+biasY*(y/h));
+      t[p]=Math.round(Math.max(0,Math.min(1,v))*255);}
+    return t;
+  }
+
+  // ---- 2. IDEA wordmark: ink texture + distressed mask ----
+  var IDEA_BOX={x:30,y:130,w:470,h:270};
+  var ideaLayer=makeCanvas(W,H), ictx=ideaLayer.getContext('2d');
+  (function(){
+    ictx.save(); ictx.translate(200,300); ictx.rotate(-3*Math.PI/180); ictx.translate(-200,-300);
+    ictx.fillStyle=PAL.ink; ictx.font='230px '+FONT_DISPLAY; ictx.textBaseline='alphabetic';
+    ictx.fillText('IDEA',50,360); ictx.restore();
+    // uneven toner density inside the glyphs (multiply-like mottling kept in ink family)
+    var img=ictx.getImageData(IDEA_BOX.x,IDEA_BOX.y,IDEA_BOX.w,IDEA_BOX.h), d=img.data, m=valueNoise(IDEA_BOX.w,IDEA_BOX.h,14,77);
+    for(var i=0,p=0;i<d.length;i+=4,p++){ if(d[i+3]){ d[i+3]=Math.round(d[i+3]*(0.80+0.20*m[p])); } }
+    ictx.putImageData(img,IDEA_BOX.x,IDEA_BOX.y);
+    distress(ictx,IDEA_BOX.x,IDEA_BOX.y,IDEA_BOX.w,IDEA_BOX.h,91,[[60,230,420,210,7],[90,330,380,350,7],[205,120,232,400,7]]);
+    ictx.save(); ictx.globalCompositeOperation='destination-out'; ictx.beginPath(); ictx.arc(320,170,26,0,Math.PI*2); ictx.fill(); ictx.restore();
+  })();
+  var ideaPix=ictx.getImageData(IDEA_BOX.x,IDEA_BOX.y,IDEA_BOX.w,IDEA_BOX.h);
+  var ideaThr=buildThreshold(IDEA_BOX.w,IDEA_BOX.h,501,1,0.2);
+
+  // ---- 3. SYSTEM plate (container) + its lettering (revealed after plate completes) ----
+  var PLATE={cx:900,cy:515,w:630,h:130,rot:1.5*Math.PI/180};
+  var plateLayer=makeCanvas(W,H), pctx=plateLayer.getContext('2d');
+  (function(){
+    var rcp=rough.canvas(plateLayer);
+    pctx.save(); pctx.translate(PLATE.cx,PLATE.cy); pctx.rotate(PLATE.rot);
+    rcp.draw(gen.rectangle(-PLATE.w/2,-PLATE.h/2,PLATE.w,PLATE.h,{seed:57,roughness:1.4,fill:PAL.rust,fillStyle:'solid',stroke:PAL.rust,strokeWidth:3}));
+    pctx.restore();
+    // torn right edge of the paste-up
+    var r=mulberry32(58); pctx.save(); pctx.globalCompositeOperation='destination-out';
+    pctx.translate(PLATE.cx,PLATE.cy); pctx.rotate(PLATE.rot); pctx.beginPath(); pctx.moveTo(PLATE.w/2+6,-PLATE.h/2-8);
+    for(var yy=-PLATE.h/2;yy<=PLATE.h/2+8;yy+=6){pctx.lineTo(PLATE.w/2-4-r()*12,yy);} pctx.lineTo(PLATE.w/2+10,PLATE.h/2+10); pctx.closePath(); pctx.fill(); pctx.restore();
+    // sun-faded mottling on the plate
+    var bx=560,by=430,bw=700,bh=170, img=pctx.getImageData(bx,by,bw,bh), d=img.data, m=valueNoise(bw,bh,30,59);
+    for(var i=0,p=0;i<d.length;i+=4,p++){ if(d[i+3]){ var k=(m[p]-0.5)*18; d[i]+=k; d[i+1]+=k; d[i+2]+=k; } }
+    pctx.putImageData(img,bx,by);
+    distress(pctx,600,450,630,130,61,[]);
+  })();
+  var SYS_BOX={x:600,y:450,w:640,h:140};
+  var sysLayer=makeCanvas(W,H), sctx=sysLayer.getContext('2d');
+  (function(){
+    sctx.save(); sctx.translate(PLATE.cx,PLATE.cy); sctx.rotate(PLATE.rot); sctx.translate(-PLATE.cx,-PLATE.cy);
+    sctx.fillStyle=PAL.plateText; sctx.font='108px '+FONT_DISPLAY; try{sctx.letterSpacing='6px';}catch(e){}
+    sctx.textBaseline='alphabetic'; sctx.fillText('SYSTEM',624,557); sctx.restore();
+    distress(sctx,SYS_BOX.x,SYS_BOX.y,SYS_BOX.w,SYS_BOX.h,63,[[640,472,1220,500,6]]);
+  })();
+  var sysPix=sctx.getImageData(SYS_BOX.x,SYS_BOX.y,SYS_BOX.w,SYS_BOX.h);
+  var sysThr=buildThreshold(SYS_BOX.w,SYS_BOX.h,777,0.8,0.3);
+  // jagged leading edge for the torn-paper wipe of the plate
+  var tearJag=(function(){var r=mulberry32(808),a=[];for(var i=0;i<=40;i++)a.push((r()-0.5)*26);return a;})();
+
+  // ---- 4. Network: rough.js drawables, seeded, generated once ----
+  var O={x:500,y:240};
+  var N={A:{x:700,y:140},B:{x:900,y:260},C:{x:1110,y:180},D:{x:780,y:360},E:{x:1080,y:380}};
+  // edges grow outward from the origin in waves; [from, to, start, duration]
+  var EDGES=[
+    [O,N.A,0.95,0.35],[O,N.D,1.00,0.35],
+    [N.A,N.B,1.32,0.30],[N.A,N.D,1.35,0.25],[N.D,N.B,1.38,0.28],[N.D,N.E,1.40,0.30],
+    [N.B,N.C,1.66,0.26],[N.E,N.C,1.70,0.24]
+  ];
+  EDGES.forEach(function(e,i){
+    e.drawable=gen.line(e[0].x,e[0].y,e[1].x,e[1].y,{seed:200+i,roughness:1.3,bowing:1.2,stroke:PAL.ink,strokeWidth:4,strokeLineDash:[60,10,24,14],disableMultiStroke:false});
+  });
+  // node stamp times = when the first edge reaches them
+  var NODE_T={A:1.30,D:1.35,B:1.64,E:1.70,C:1.92};
+  var NODE_ROT={A:-15,D:12,B:-10,E:14,C:-12};
+  var crossDrawables={};
+  Object.keys(N).forEach(function(k,i){
+    crossDrawables[k]=[gen.line(-22,-20,20,22,{seed:300+i,roughness:1.6,stroke:PAL.ink,strokeWidth:7}),
+                       gen.line(20,-24,-18,20,{seed:320+i,roughness:1.6,stroke:PAL.ink,strokeWidth:7})];
+  });
+  var dotDrawable=gen.circle(0,0,52,{seed:400,roughness:1.2,fill:PAL.rust,fillStyle:'solid',stroke:PAL.rust,strokeWidth:2});
+
+  // ---- Easing (GSAP's own parsers, deterministic) ----
+  var E_IO=gsap.parseEase('power2.inOut'), E_BACK=gsap.parseEase('back.out(1.2)'), E_SINE=gsap.parseEase('sine.inOut');
+  function prog(t,s,d){return Math.max(0,Math.min(1,(t-s)/d));}
+
+  // Local threshold reveal: pixels surface where threshold < progress (soft 0.08 band).
+  var scratchCanvasCache={};
+  function revealRegion(pix,thr,box,p,key){
+    if(p<=0) return;
+    if(!scratchCanvasCache[key]){scratchCanvasCache[key]={c:makeCanvas(box.w,box.h)};scratchCanvasCache[key].ctx=scratchCanvasCache[key].c.getContext('2d');scratchCanvasCache[key].img=scratchCanvasCache[key].ctx.createImageData(box.w,box.h);}
+    var sc=scratchCanvasCache[key], out=sc.img.data, src=pix.data, edge=p*1.12*255, band=0.08*255;
+    for(var i=0,q=0;q<thr.length;i+=4,q++){
+      var a=src[i+3]; if(!a){out[i+3]=0;continue;}
+      var f=(edge-thr[q])/band; f=f<0?0:f>1?1:f;
+      out[i]=src[i];out[i+1]=src[i+1];out[i+2]=src[i+2];out[i+3]=a*f;
+    }
+    sc.ctx.putImageData(sc.img,0,0); ctx.drawImage(sc.c,box.x,box.y);
+  }
+
+  // =====================================================================
+  // RENDER(t): pure function of composition time
+  // =====================================================================
+  var COPY='becomes a connected_';
+  function render(t){
+    t=Math.max(0,Math.min(DURATION,t));
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+    ctx.drawImage(base,0,0);                        // stationary substrate & grain
+
+    // IDEA: ink surfaces through precomputed distress threshold, 0.10–0.95 s
+    var pIdea=E_IO(prog(t,0.10,0.85));
+    if(pIdea>=1) ctx.drawImage(ideaLayer,0,0); else revealRegion(ideaPix,ideaThr,IDEA_BOX,pIdea,'idea');
+
+    // Origin dot: rough-inked stamp, 0.80–1.10 s
+    var pDot=prog(t,0.80,0.30);
+    if(pDot>0){var s=0.6+0.4*E_BACK(pDot); ctx.save(); ctx.translate(O.x,O.y); ctx.scale(s,s); ctx.globalAlpha=Math.min(1,pDot*2.5); rc.draw(dotDrawable); ctx.restore();}
+
+    // Links: each rough dashed line drawn from its source, clipped to the grown length
+    for(var i=0;i<EDGES.length;i++){var e=EDGES[i], pe=E_SINE(prog(t,e[2],e[3])); if(pe<=0) continue;
+      var a=e[0], b=e[1], dx=b.x-a.x, dy=b.y-a.y, L=Math.hypot(dx,dy), ux=dx/L, uy=dy/L, nx=-uy, ny=ux, len=L*pe, ext=16;
+      ctx.save();
+      if(pe<1){ctx.beginPath();
+        ctx.moveTo(a.x-ux*ext+nx*18,a.y-uy*ext+ny*18); ctx.lineTo(a.x+ux*len+nx*18,a.y+uy*len+ny*18);
+        ctx.lineTo(a.x+ux*len-nx*18,a.y+uy*len-ny*18); ctx.lineTo(a.x-ux*ext-nx*18,a.y-uy*ext-ny*18); ctx.closePath(); ctx.clip();}
+      rc.draw(e.drawable); ctx.restore();}
+
+    // Scratched X nodes: stamped as the first link arrives
+    for(var k in N){var pn=prog(t,NODE_T[k],0.22); if(pn<=0) continue;
+      var sN=0.7+0.3*E_BACK(pn), rot=NODE_ROT[k]*(1-E_BACK(pn))*Math.PI/180;
+      ctx.save(); ctx.translate(N[k].x,N[k].y); ctx.rotate(rot); ctx.scale(sN,sN); ctx.globalAlpha=Math.min(1,pn*3);
+      rc.draw(crossDrawables[k][0]); rc.draw(crossDrawables[k][1]); ctx.restore();}
+    // keep the origin dot above the link ends
+    if(pDot>0){var s2=0.6+0.4*E_BACK(pDot); ctx.save(); ctx.translate(O.x,O.y); ctx.scale(s2,s2); ctx.globalAlpha=Math.min(1,pDot*2.5); rc.draw(dotDrawable); ctx.restore();}
+
+    // Typewritten line: 1.00–1.62 s, then held
+    var nChars=Math.floor(COPY.length*prog(t,1.00,0.62)+1e-6);
+    if(nChars>0){ctx.save(); ctx.fillStyle=PAL.ink; ctx.font='bold 30px '+FONT_MONO; ctx.textBaseline='alphabetic'; ctx.fillText(COPY.slice(0,nChars),60,440); ctx.restore();}
+
+    // SYSTEM plate: torn-paper wipe left→right 1.62–2.07 s (container first)
+    var pPlate=E_IO(prog(t,1.62,0.45));
+    if(pPlate>=1) ctx.drawImage(plateLayer,0,0);
+    else if(pPlate>0){
+      var x0=590, x1=1250, xe=x0+(x1-x0+30)*pPlate;
+      ctx.save(); ctx.beginPath(); ctx.moveTo(x0-10,420);
+      for(var j=0;j<=40;j++){var yy=420+j*(200/40); ctx.lineTo(xe+tearJag[j],yy);} ctx.lineTo(x0-10,620); ctx.closePath(); ctx.clip();
+      ctx.drawImage(plateLayer,0,0); ctx.restore();
+    }
+    // SYSTEM lettering surfaces only after its plate is complete: 2.07–2.45 s
+    var pSys=E_IO(prog(t,2.07,0.38));
+    if(pSys>=1) ctx.drawImage(sysLayer,0,0); else revealRegion(sysPix,sysThr,SYS_BOX,pSys,'sys');
+  }
+
+  // =====================================================================
+  // GSAP: single seekable owner of composition time
+  // =====================================================================
+  var clock={_t:0};
+  Object.defineProperty(clock,'t',{get:function(){return this._t;},set:function(v){this._t=v;render(v);}});
+  var tl=gsap.timeline({paused:true});
+  tl.fromTo(clock,{t:0},{t:DURATION,duration:DURATION,ease:'none',immediateRender:true},0);
+  tl.addLabel('idea',0.10).addLabel('network',0.95).addLabel('system',1.62).addLabel('hold',2.45);
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+  function redrawFromTimeline(){render(tl.time());}
+  document.addEventListener('hf-seek',redrawFromTimeline);
+  window.addEventListener('hf-seek',redrawFromTimeline);
+  render(0);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

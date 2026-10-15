@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-017",
+    "name": "Grunge is a supplemental design reference in Graphic Design and Design Movements. The source collection does not directly name it as a style.",
+    "visualIdentity": "Worn surfaces with distressed ink, scratches, stains, incomplete lettering and rough substrates. Texture density and scale must keep the message clear. Use local erasures and surface reveals, not whole-frame darkening or persistent noise.",
+    "suitableUses": "Explicitly suited to texture-led title sequences and mood pieces. Music promos, documentary chapter titles and gritty brand statements appear only in combination notes. Other topics are inferred fits, not stated ones.",
+    "limitations": "Texture must never obscure lettering. Avoid persistent full-frame noise, whole-frame darkening, bouncy easing and glossy blur. Glitch-cut transitions fit only when distortion serves the message, not calm editorial scenes. Source review sampled one frame per second for 1–8 seconds and found no strong match.",
+    "palette": "Scene-dependent direction: worn paper, charcoal and restrained oxidized red. Suggested tokens are background #E4DCCD, foreground #302E29 and accent #8C5140. The background is illustrative, not a required canvas color, and approved exact colors override these tokens. Two-color contrast is 9.957:1 for foreground on background and 4.58:1 for accent on background; recheck composited frames. No gradient is enabled.",
+    "motionAndInteraction": "Motion is unspecified beyond the cues. Distressed masks reveal locally and reuse identical textures on every render. Shared guidance favors smooth movement while keeping deliberate hard cuts, impacts and reading holds. Optional references are motion-012 (chaptered handoff), motion-015 (story steps) and motion-020 (glitch cut, listed as a good fit). Scroll interaction is optional; video must stay seekable and independent of live input.",
+    "audio": "Unspecified by the style, with no fixed genre, tempo, instrument or voice. Options are music, voiceover, sung vocals, effects, ambience or silence, chosen from topic and audience. Sound accents may mark glitch or reveal moments, and silence is valid. No audio asset was supplied, and previews may stay silent.",
+    "assetRequirements": "All inputs are optional; no uploads or URLs are specified. Production needs precomputed distressed masks, ink textures and paper grain, reused identically each render. Local fonts and assets must load before rendering, and randomness must be seeded. Exact copy and approved artwork stay intact. Motion references require inspecting the actual scene first.",
+    "combinations": "Works alone for texture-led title sequences and mood pieces. style-093 adds paced reveal of distressed headline words, each held for reading and then worn away. style-101 adds slow parallax worn-substrate planes, with foreground at most about twice background speed. Avoid reversed depth, exposed texture edges and glossy blur. Supporting style definitions were not supplied.",
+    "productionApproach": "Canvas 2D renders textures, brushes and masks as the style renderer. Pillow preprocesses masks, textures and alpha compositing. Rough.js is optional, for seeded scratches or annotation outlines only. GSAP owns motion on a paused seekable timeline, and chroma-js validates colors. HyperFrames is the default pipeline; Remotion is fallback only with a recorded reason. Verify key frames, legibility, loop seams and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

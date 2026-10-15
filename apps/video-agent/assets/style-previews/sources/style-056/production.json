@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Mosaic System",
+  "displayDescription": "Teal glass and gold tesserae flip face-up into a bulb, then terracotta links and gold nodes set themselves on a midnight-slate panel.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186 WebGLRenderer (InstancedMesh tesserae, MeshPhysicalMaterial stone / teal glass / gold leaf, RoomEnvironment PMREM reflections, PCF soft shadows) — reviewed alternative used because Blender 5.2.2 crashes at Metal GPU detection in this sandbox"
+  ],
+  "motionEngine": [
+    "scene/mosaic.js pure poseAt(tile, t) functions driven by one paused GSAP timeline proxy (window.__timelines.video)",
+    "GSAP opacity tweens for the title only"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview with no audio track.",
+  "limitations": [
+    "Blender, Python bpy and Cycles (the reviewed renderer and motion owner) could not run. Blender 5.2.2 crashes in Metal backend detection before any script executes under this sandbox, including with --factory-startup. scene/mosaic_scene.py is the equivalent authored bpy/Cycles scene, but it was never executed. The delivered frames come from the Three.js InstancedMesh alternative listed in STYLE.json.",
+    "Materials are approximations, not path-traced: a clearcoated glass look without real transmission, metallic PBR gold leaf reflecting a procedural RoomEnvironment, and stone with seeded per-tile value, hue and tilt jitter. Shadows are rasterised.",
+    "The wall uses a seeded canvas noise texture, not photographed stone.",
+    "The title is live HTML text on a backing that matches the rendered stone slab. It is not set in tesserae.",
+    "No preview recipe was supplied (tech.preview_recipes is empty). The refresh demonstrates the primary style with a new scene-dependent dark slate and midnight field instead of the earlier beige ground.",
+    "Silent: no soundtrack was requested for this preview."
+  ]
+}

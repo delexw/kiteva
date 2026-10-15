@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>An Idea Becomes a System — style-104 preview</title>
+<style>
+  @font-face{font-family:'Didot';src:local('Didot'),local('Didot Regular');}
+  @font-face{font-family:'Bodoni 72';src:local('Bodoni 72'),local('Bodoni 72 Book');}
+  #title .w{display:inline-block;will-change:transform}
+  html,body{margin:0;padding:0;width:1280px;height:720px;overflow:hidden;background:#0E1C20}
+  #root{position:relative;width:100%;height:100%;overflow:hidden;background:#0E1C20}
+  #stage{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+  .lettering{position:absolute;left:0;right:0;text-align:center;font-family:Didot,"Bodoni 72",Georgia,serif;color:#EEE0C8;white-space:nowrap;margin:0}
+  #kicker{top:122px;font-size:15px;letter-spacing:8px;padding-left:8px;line-height:20px}
+  #title{top:150px;font-size:44px;letter-spacing:4px;padding-left:4px;line-height:56px;font-weight:400}
+  #rule{position:absolute;left:460px;top:214px;width:360px;height:2px;background:#C9A15A;transform-origin:50% 50%}
+  #caption{position:absolute;left:330px;top:652px;width:620px;height:38px;background:#39494B;color:#EEE0C8;font-family:Didot,"Bodoni 72",Georgia,serif;font-size:15px;letter-spacing:6px;line-height:38px;text-align:center;padding-left:6px;box-sizing:border-box;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <canvas id="stage" width="1280" height="720"></canvas>
+  <p id="kicker" class="lettering">ACT ONE</p>
+  <h1 id="title" class="lettering"><span class="w">An</span> <span class="w">Idea</span> <span class="w">Becomes</span> <span class="w">a</span> <span class="w">System</span></h1>
+  <div id="rule"></div>
+  <div id="caption">THE LAMP · THE LINKS · THE LEDGER</div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  // ---- Centralised scene palette (scene-dependent night stage; approved tokens keep their roles) ----
+  const C={
+    night:'#0E1C20', wallLine:'#16292D',
+    ringLo:'#1E3438', ringHi:'#39494B',
+    floorTop:'#132629', floorBot:'#0A1517', seam:'#22393C',
+    slate:'#39494B', sage:'#8B9A81', terracotta:'#B97D66', cream:'#EEE0C8',
+    curtain:'#5E2226', curtainHi:'#7E3236', valance:'#4A1A1E',
+    gold:'#C9A15A', amber:'#E9B35C'
+  };
+  const W=1280,H=720,FY=580,CX=640;
+  const canvas=document.getElementById('stage');
+  const ctx=canvas.getContext('2d');
+  const clamp=v=>Math.max(0,Math.min(1,v));
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const mix=(a,b,t)=>chroma.mix(a,b,clamp(t),'rgb').hex();
+  const amberA=a=>chroma(C.amber).alpha(clamp(a)).css();
+
+  // ---- Cached static layers (built once, never animated) ----
+  function seeded(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  const backLayer=document.createElement('canvas');backLayer.width=W;backLayer.height=H;
+  (function(){const b=backLayer.getContext('2d');b.fillStyle=C.night;b.fillRect(0,0,W,H);
+    b.strokeStyle=C.wallLine;b.lineWidth=2;for(let x=40;x<W;x+=80){b.beginPath();b.moveTo(x,70);b.lineTo(x,FY);b.stroke();}})();
+  const grain=document.createElement('canvas');grain.width=W;grain.height=H;
+  (function(){const g=grain.getContext('2d');const r=seeded(104);for(let i=0;i<9000;i++){const v=r();g.fillStyle=v>0.5?'rgba(238,224,200,0.035)':'rgba(0,0,0,0.05)';g.fillRect(Math.floor(r()*W),Math.floor(r()*H),1+Math.floor(r()*2),1);}})();
+
+  // ---- Geometry helpers ----
+  function quad(p0,c,p1,n){const pts=[];for(let i=0;i<=n;i++){const t=i/n,u=1-t;pts.push([u*u*p0[0]+2*u*t*c[0]+t*t*p1[0],u*u*p0[1]+2*u*t*c[1]+t*t*p1[1]]);}return pts;}
+  function strokePartial(pts,f){if(f<=0)return;let total=0;const seg=[];for(let i=1;i<pts.length;i++){const d=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(d);total+=d;}
+    let left=total*clamp(f);ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+    for(let i=1;i<pts.length&&left>0;i++){const d=seg[i-1];if(d<=left){ctx.lineTo(pts[i][0],pts[i][1]);left-=d;}else{const k=left/d;ctx.lineTo(lerp(pts[i-1][0],pts[i][0],k),lerp(pts[i-1][1],pts[i][1],k));left=0;}}
+    ctx.stroke();}
+  const sideLink=[...quad([592,356],[520,376],[430,438],24),...quad([430,438],[380,475],[330,512],8).slice(1)];
+  const filament=quad([622,356],[640,316],[658,356],20);
+
+  // ---- Animated state: the GSAP timeline is the only owner of these values ----
+  const S={open:0,push:0,rings:0,lamp:0,glow:0,fil:0,ped:0,links:0,nodes:0,ledger:0};
+  let queued=false;
+  const P={};
+  Object.keys(S).forEach(k=>Object.defineProperty(P,k,{enumerable:true,get(){return S[k];},set(v){S[k]=v;if(!queued){queued=true;queueMicrotask(()=>{queued=false;draw();});}}}));
+
+  // ---- Scene drawing: a pure function of S ----
+  function drawRings(){
+    for(let i=0;i<8;i++){const r=70+i*56;
+      ctx.lineWidth=14-i;ctx.strokeStyle=mix(C.ringLo,C.ringHi,S.rings*(1-i*0.06));
+      ctx.beginPath();ctx.arc(CX,360,r,Math.PI,2*Math.PI);ctx.lineTo(CX+r,FY);ctx.moveTo(CX-r,FY);ctx.lineTo(CX-r,360);ctx.stroke();
+      if(i<2&&S.glow>0){ctx.strokeStyle=amberA(0.45*S.glow);ctx.beginPath();ctx.arc(CX,360,r,Math.PI,2*Math.PI);ctx.stroke();}
+    }
+  }
+  function drawGlow(){if(S.glow<=0)return;const g=ctx.createRadialGradient(CX,340,10,CX,340,300);
+    g.addColorStop(0,amberA(0.38*S.glow));g.addColorStop(0.4,amberA(0.12*S.glow));g.addColorStop(1,amberA(0));
+    ctx.fillStyle=g;ctx.fillRect(CX-300,40,600,FY-40);}
+  function drawFloor(){const g=ctx.createLinearGradient(0,FY,0,H+60);g.addColorStop(0,C.floorTop);g.addColorStop(1,C.floorBot);ctx.fillStyle=g;ctx.fillRect(-200,FY,W+400,H-FY+80);
+    ctx.strokeStyle=C.seam;ctx.lineWidth=2;for(let i=-9;i<=9;i++){ctx.beginPath();ctx.moveTo(CX+i*72,FY);ctx.lineTo(CX+i*72*3.2,H+60);ctx.stroke();}
+    for(const y of [612,652,706]){ctx.beginPath();ctx.moveTo(-200,y);ctx.lineTo(W+200,y);ctx.stroke();}
+    if(S.glow>0){const r=ctx.createRadialGradient(CX,0,4,CX,0,240);r.addColorStop(0,amberA(0.3*S.glow));r.addColorStop(1,amberA(0));ctx.save();ctx.translate(0,FY+30);ctx.scale(1,0.35);ctx.fillStyle=r;ctx.fillRect(CX-260,-260,520,520);ctx.restore();}
+    ctx.fillStyle=C.gold;ctx.fillRect(-200,FY-2,W+400,3);}
+  function pedestal(x,w,top,nodeY,r,litFill,lit){
+    ctx.fillStyle=C.slate;ctx.fillRect(x-w/2,top,w,FY-top);
+    ctx.fillStyle=C.gold;ctx.fillRect(x-w/2-4,top-4,w+8,5);
+    if(lit>0){ctx.fillStyle=amberA(0.35*lit);ctx.beginPath();ctx.arc(x,nodeY,r+10*lit,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=mix(C.slate,litFill,0.35+0.65*lit);ctx.strokeStyle=C.gold;ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,nodeY,r,0,Math.PI*2);ctx.fill();ctx.stroke();}
+  function drawSide(mirror,reflect){
+    ctx.save();if(mirror){ctx.translate(W,0);ctx.scale(-1,1);}
+    const dy=(1-S.ped)*220;
+    ctx.save();ctx.translate(0,dy);
+    pedestal(430,40,464,438,26,C.sage,clamp(S.nodes/0.5));
+    pedestal(330,36,532,512,18,C.cream,clamp((S.nodes-0.5)/0.5));
+    ctx.restore();
+    if(!reflect){ctx.strokeStyle=C.amber;ctx.lineWidth=3;ctx.setLineDash([6,7]);strokePartial(sideLink,S.links);ctx.setLineDash([]);}
+    ctx.restore();}
+  function drawLamp(){
+    const dy=(1-S.lamp)*260;ctx.save();ctx.translate(0,dy);
+    ctx.fillStyle=C.slate;ctx.fillRect(596,440,88,FY-440);ctx.fillRect(578,428,124,16);
+    ctx.fillStyle=C.gold;ctx.fillRect(578,426,124,3);ctx.fillRect(596,440,3,FY-440);ctx.fillRect(681,440,3,FY-440);
+    // ledger plate on the plinth front: its rules are written in after the links connect
+    ctx.fillStyle=C.sage;ctx.fillRect(610,470,60,74);ctx.strokeStyle=C.gold;ctx.lineWidth=2;ctx.strokeRect(610,470,60,74);
+    ctx.strokeStyle=C.cream;ctx.lineWidth=2;for(let i=0;i<5;i++){const f=clamp(S.ledger*5-i);if(f>0){ctx.beginPath();ctx.moveTo(618,484+i*12);ctx.lineTo(618+44*f,484+i*12);ctx.stroke();}}
+    ctx.fillStyle=C.sage;ctx.strokeStyle=C.gold;ctx.lineWidth=3;ctx.fillRect(620,398,40,30);ctx.strokeRect(620,398,40,30);
+    ctx.fillStyle=mix(C.terracotta,C.amber,S.glow);ctx.strokeStyle=C.gold;ctx.lineWidth=5;ctx.beginPath();ctx.arc(CX,340,58,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.strokeStyle=C.cream;ctx.lineWidth=5;ctx.lineCap='round';strokePartial(filament,S.fil);ctx.lineCap='butt';
+    ctx.restore();}
+  function drawCurtain(mirror){
+    const o=S.open,e=lerp(642,196,o),tx=lerp(e,e*0.6,o),bx=lerp(e,e*0.88,o);
+    ctx.save();if(mirror){ctx.translate(W,0);ctx.scale(-1,1);}
+    ctx.beginPath();ctx.moveTo(0,70);ctx.lineTo(e,70);ctx.quadraticCurveTo(lerp(e,e*0.98,o),300,tx,470);ctx.quadraticCurveTo(lerp(tx,tx*1.02,o),600,bx,H);ctx.lineTo(0,H);ctx.closePath();
+    ctx.save();ctx.clip();
+    const n=14;for(let i=0;i<n;i++){const x0=i*e/n;ctx.fillStyle=i%2?C.curtainHi:C.curtain;ctx.fillRect(x0,60,e/n+1,H);}
+    const sh=ctx.createLinearGradient(0,0,e+40,0);sh.addColorStop(0,'rgba(0,0,0,0.35)');sh.addColorStop(0.7,'rgba(0,0,0,0)');sh.addColorStop(1,'rgba(0,0,0,0.25)');ctx.fillStyle=sh;ctx.fillRect(0,60,e+60,H);
+    ctx.restore();
+    if(o>0.25){ctx.globalAlpha=clamp((o-0.25)/0.5);ctx.fillStyle=C.gold;ctx.fillRect(0,462,tx+10,14);ctx.beginPath();ctx.arc(tx+10,469,9,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
+    ctx.restore();}
+  function drawProscenium(){
+    ctx.fillStyle=C.slate;ctx.fillRect(0,0,24,H);ctx.fillRect(W-24,0,24,H);
+    ctx.fillStyle=C.valance;ctx.beginPath();ctx.moveTo(0,70);for(let x=0;x<W;x+=80){ctx.quadraticCurveTo(x+40,104,x+80,70);}ctx.lineTo(W,0);ctx.lineTo(0,0);ctx.closePath();ctx.fill();
+    ctx.strokeStyle=C.gold;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,64);for(let x=0;x<W;x+=80){ctx.quadraticCurveTo(x+40,98,x+80,64);}ctx.stroke();
+    ctx.fillStyle=C.gold;ctx.beginPath();ctx.ellipse(CX,34,20,16,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=C.valance;ctx.beginPath();ctx.ellipse(CX,34,11,8,0,0,Math.PI*2);ctx.fill();}
+
+  function draw(){
+    ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.setLineDash([]);
+    ctx.drawImage(backLayer,0,0);
+    // symmetric push-in of the inner set along the central axis (back wall, frame and grain stay fixed)
+    const k=lerp(0.93,1,S.push);ctx.save();ctx.translate(CX,FY);ctx.scale(k,k);ctx.translate(-CX,-FY);
+    drawRings();drawGlow();drawFloor();
+    // faint mirrored floor reflections, clipped to the floor
+    ctx.save();ctx.beginPath();ctx.rect(-200,FY,W+400,H);ctx.clip();ctx.globalAlpha=0.16;ctx.translate(0,2*FY);ctx.scale(1,-1);
+    ctx.save();ctx.beginPath();ctx.rect(-200,0,W+400,FY);ctx.clip();drawSide(false,true);drawSide(true,true);drawLamp();ctx.restore();
+    ctx.restore();ctx.globalAlpha=1;
+    // risers emerge from stage traps: clipped above the floor line
+    ctx.save();ctx.beginPath();ctx.rect(-200,0,W+400,FY-1);ctx.clip();drawSide(false,false);drawSide(true,false);drawLamp();ctx.restore();
+    ctx.restore();
+    drawCurtain(false);drawCurtain(true);drawProscenium();
+    ctx.drawImage(grain,0,0);
+  }
+
+  // ---- One paused, seekable GSAP timeline ----
+  const tl=gsap.timeline({paused:true,onUpdate:draw});
+  tl.to(P,{open:1,duration:1.1,ease:'power2.inOut'},0.15)
+    .to(P,{push:1,duration:2.3,ease:'sine.inOut'},0.1)
+    .to(P,{rings:1,duration:1.0,ease:'sine.inOut'},0.6)
+    .to(P,{lamp:1,duration:0.7,ease:'back.out(1.2)'},0.5)
+    .to(P,{fil:1,duration:0.4,ease:'sine.inOut'},0.95)
+    .to(P,{glow:1,duration:0.5,ease:'sine.inOut'},1.0)
+    .to(P,{ped:1,duration:0.6,ease:'back.out(1.2)'},1.25)
+    .to(P,{links:1,duration:0.65,ease:'power2.inOut'},1.3)
+    .to(P,{nodes:1,duration:0.5,ease:'sine.inOut'},1.7)
+    .to(P,{ledger:1,duration:0.5,ease:'power2.inOut'},2.0)
+    .fromTo('#title .w',{x:i=>(i-2)*34},{x:0,duration:0.8,ease:'power2.inOut'},1.4)
+    .fromTo('#rule',{scaleX:0},{scaleX:1,duration:0.6,ease:'power2.inOut'},1.8)
+    .to({},{duration:0.001},2.999);
+  tl.seek(0);draw();
+  window.addEventListener('hf-seek',()=>draw());
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

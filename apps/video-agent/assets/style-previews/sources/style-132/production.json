@@ -1,0 +1,26 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG",
+    "Canvas 2D"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview: no music, voice or sound effects.",
+  "limitations": [
+    "Procedural approximation: paint scumble is a seeded Canvas 2D stroke bitmap tiled in SVG patterns, not scanned or Krita-painted texture.",
+    "Printed-paper fragments are procedural ruled patterns; the only words are the approved copy (LE SYSTÈME). No scanned newsprint.",
+    "Facets are cached at build time from Paper.js 0.12.18 boolean operations (tools/build-geometry.cjs -> geometry.js); Paper.js is not loaded at frame time.",
+    "Still-life views (profile, top, frontal, side band) are authored 2D outlines, not measured from real objects; no 3D camera or lighting.",
+    "Typography uses OS fonts: Didot (declared via @font-face local(), falling back to Georgia/Times New Roman) and Futura (falling back to Helvetica Neue/Arial). No font files are bundled, so the exact face depends on the render host.",
+    "Scene-dependent background: a dark slate café wall #2F3833 replaces the earlier #DED5BB example swatch (palette.background_policy is scene_dependent). The wall grain uses two authored tints, #3A443E and #262D29, drawn once with a seeded Canvas 2D generator and never animated.",
+    "BACKGROUND_REVIEW.json reports 0 matched sources and no contact sheets, so no source-frame observations were applied; the original craft definition is preserved.",
+    "STYLE.json lists no tech.preview_recipes; the preview demonstrates the primary implementation (Paper.js multi-view facets, registration slide, bottle view swap, hold)."
+  ]
+}

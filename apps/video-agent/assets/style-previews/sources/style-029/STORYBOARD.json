@@ -1,0 +1,67 @@
+{
+  "version": 3,
+  "title": "One Idea, Assembled Into a System",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Idea to system",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Show a single geometric idea splitting into nodes that rotate into place, connect and switch on as one system.",
+      "visuals": [
+        "Static cool night field with seeded stars and stepped triangle ridges",
+        "Terracotta diamond idea with navy facet and a terracotta spark triangle",
+        "Six faceted hex nodes in sage, navy and terracotta",
+        "Light sage-cream connectors drawn outward from the idea",
+        "Warm terracotta glows and cream lamps as the event light"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.55,
+          "development": "The idea diamond rotates up around its pivot, the navy facet folds in, the spark drops into place and a warm glow rises; the headings slide in.",
+          "captions": ["ONE IDEA", "ASSEMBLED INTO A SYSTEM"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.55,
+          "endSeconds": 1.75,
+          "development": "Six hex nodes split out of the idea's coordinates, each rotating one 120-degree step into its home position while connectors draw between arrived nodes.",
+          "captions": [],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.75,
+          "endSeconds": 2.4,
+          "development": "The system switches on: node lamps light cream from the idea outward, the core and end glows rise, and the lower slate appears.",
+          "captions": ["SPLIT · ROTATE · ASSEMBLE"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.4,
+          "endSeconds": 3,
+          "development": "Settled hold on the completed, lit system with all copy legible.",
+          "captions": ["ONE IDEA", "ASSEMBLED INTO A SYSTEM", "SPLIT · ROTATE · ASSEMBLE"],
+          "audio": {"music": "", "effects": [], "lyrics": []},
+          "readingHoldSeconds": 0.6
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Assembly reads as three developments (idea, split/connect, switch-on) with overlapping cues so the eye follows left to right.",
+      "All motion completes by about 2.35 seconds, leaving a settled hold before 3 seconds."
+    ],
+    "justifiedHolds": ["2.4-3.0s final hold lets the viewer read the headings and the completed system."]
+  },
+  "notes": [
+    "Silent preview: no soundtrack or voice.",
+    "No preview recipe was supplied; the base style split/rotate/assemble implementation is demonstrated with a refreshed scene-dependent night palette."
+  ]
+}

@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0F2A2E}
+#root{position:relative;width:100%;height:100%;overflow:hidden}
+#stage{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hud{font-family:"SF Mono",Menlo,Monaco,"Courier New",monospace;font-size:13px;letter-spacing:2px}
+.label{font-family:"SF Mono",Menlo,Monaco,"Courier New",monospace;font-size:15px;letter-spacing:3px}
+.head{font-family:"Avenir Next","Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:700;font-size:44px}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <radialGradient id="vignette" cx="50%" cy="54%" r="70%">
+      <stop offset="0" stop-color="#14363A"/>
+      <stop offset="1" stop-color="#0B2124"/>
+    </radialGradient>
+  </defs>
+  <!-- Stationary stage: deep teal field, faint crosshair guides -->
+  <rect width="1280" height="720" fill="url(#vignette)"/>
+  <g stroke="#5C9790" stroke-width="1" opacity="0.35">
+    <path d="M80 390H1200"/>
+    <path d="M640 200V600" />
+  </g>
+
+  <!-- HUD frame (static design element) -->
+  <g fill="none" stroke="#9DBDB7" stroke-width="1.5">
+    <path d="M40 64V40H64"/><path d="M1216 40H1240V64"/>
+    <path d="M40 656V680H64"/><path d="M1216 680H1240V656"/>
+  </g>
+  <text class="hud" x="1210" y="60" fill="#9DBDB7" text-anchor="end">SHAPE MORPH · 4 STATES</text>
+  <text class="hud" x="70" y="672" fill="#9DBDB7">ONE CONTOUR · TRACKED ANCHORS</text>
+
+  <!-- Headline: independent standalone heading, visible from frame 0 -->
+  <text class="head" x="80" y="118" fill="#F2F5F0">An idea becomes a connected system.</text>
+
+  <!-- System spokes (drawn after the contour reaches its system form) -->
+  <g id="spokes" stroke="#CB8661" stroke-width="3" stroke-linecap="round" fill="none">
+    <path id="spoke-e" d="M770 390H924"/>
+    <path id="spoke-w" d="M510 390H356"/>
+    <path id="spoke-n" d="M640 260V202"/>
+    <path id="spoke-s" d="M640 520V578"/>
+  </g>
+
+  <!-- Contour echoes (lagging copies of the same contour) -->
+  <g transform="translate(640 390)">
+    <path id="echo3" fill="none" stroke="#5C9790" stroke-width="1.5" opacity="0" d="M0-120C66-120 120-66 120 0C120 66 66 120 0 120C-66 120-120 66-120 0C-120-66-66-120 0-120Z"/>
+    <path id="echo2" fill="none" stroke="#5C9790" stroke-width="1.5" opacity="0" d="M0-120C66-120 120-66 120 0C120 66 66 120 0 120C-66 120-120 66-120 0C-120-66-66-120 0-120Z"/>
+    <path id="echo1" fill="none" stroke="#9DBDB7" stroke-width="1.5" opacity="0" d="M0-120C66-120 120-66 120 0C120 66 66 120 0 120C-66 120-120 66-120 0C-120-66-66-120 0-120Z"/>
+    <g id="seed">
+      <path id="contour" fill="#5C9790" stroke="#F2F5F0" stroke-width="3" stroke-linejoin="round"
+        d="M0-120C66-120 120-66 120 0C120 66 66 120 0 120C-66 120-120 66-120 0C-120-66-66-120 0-120Z"/>
+    </g>
+    <circle id="core" r="26" fill="#CB8661" stroke="#F2F5F0" stroke-width="3"/>
+  </g>
+
+  <!-- Hidden morph targets (same start point: top, clockwise) -->
+  <g style="display:none">
+    <path id="t-stretch" d="M0-142C45-60 60-45 142 0C60 45 45 60 0 142C-45 60-60 45-142 0C-60-45-45-60 0-142Z"/>
+    <path id="t-branch" d="M0-158C14-30 30-14 158 0C30 14 14 30 0 158C-14 30-30 14-158 0C-30-14-14-30 0-158Z"/>
+    <path id="t-system" d="M0-130C40-90 90-40 130 0C90 40 40 90 0 130C-40 90-90 40-130 0C-90-40-40-90 0-130Z"/>
+  </g>
+
+  <!-- Outer system nodes -->
+  <g fill="#5C9790" stroke="#F2F5F0" stroke-width="3">
+    <circle id="node-e" cx="940" cy="390" r="16"/>
+    <circle id="node-w" cx="340" cy="390" r="16"/>
+    <circle id="node-n" cx="640" cy="186" r="16"/>
+    <circle id="node-s" cx="640" cy="594" r="16"/>
+  </g>
+
+  <!-- State indicator row -->
+  <rect id="marker" x="216" y="636" width="148" height="3" rx="1.5" fill="#CB8661"/>
+  <g class="label" text-anchor="middle">
+    <text id="lab1" x="290" y="626" fill="#9DBDB7">01 IDEA</text>
+    <text id="lab2" x="523" y="626" fill="#9DBDB7">02 STRETCH</text>
+    <text id="lab3" x="757" y="626" fill="#9DBDB7">03 BRANCH</text>
+    <text id="lab4" x="990" y="626" fill="#9DBDB7">04 SYSTEM</text>
+  </g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="MorphSVGPlugin.min.js"></script>
+<script>
+(function(){
+  gsap.registerPlugin(MorphSVGPlugin);
+  var LIGHT="#F2F5F0", MUTED="#9DBDB7";
+  var tl=gsap.timeline({paused:true});
+  var morphs=[
+    {target:"#t-stretch", at:0.55, dur:0.5, lab:2, ease:"power2.inOut"},
+    {target:"#t-branch",  at:1.15, dur:0.45, lab:3, ease:"power2.inOut"},
+    {target:"#t-system",  at:1.70, dur:0.45, lab:4, ease:"back.out(1.2)"}
+  ];
+  var labelX=[290,523,757,990];
+
+  // Seed: the idea grows from a point (group transform; the path d is owned by MorphSVG)
+  tl.fromTo("#seed",{scale:0.1,svgOrigin:"0 0"},{scale:1,svgOrigin:"0 0",duration:0.45,ease:"back.out(1.2)",immediateRender:true},0);
+  tl.fromTo("#core",{scale:0,svgOrigin:"0 0"},{scale:1,svgOrigin:"0 0",duration:0.35,ease:"back.out(1.2)",immediateRender:true},0.12);
+  tl.fromTo("#lab1",{fill:MUTED},{fill:LIGHT,duration:0.2,immediateRender:true},0.1);
+
+  morphs.forEach(function(m,i){
+    tl.to("#contour",{morphSVG:{shape:m.target,shapeIndex:0},duration:m.dur,ease:m.ease},m.at);
+    // Echoes trail the same contour mapping
+    ["#echo1","#echo2","#echo3"].forEach(function(id,k){
+      tl.to(id,{morphSVG:{shape:m.target,shapeIndex:0},duration:m.dur,ease:m.ease},m.at+0.06*(k+1));
+    });
+    tl.to("#marker",{x:labelX[m.lab-1]-labelX[0],duration:0.35,ease:"power2.inOut"},m.at+0.05);
+    tl.to("#lab"+(m.lab-1),{fill:MUTED,duration:0.2},m.at+0.1);
+    tl.to("#lab"+m.lab,{fill:LIGHT,duration:0.2},m.at+0.2);
+  });
+  // Echo visibility: show while shape is changing, settle to faint history by the end
+  tl.fromTo("#echo1",{opacity:0},{opacity:0.75,duration:0.25,immediateRender:true},0.55);
+  tl.fromTo("#echo2",{opacity:0},{opacity:0.55,duration:0.25,immediateRender:true},0.6);
+  tl.fromTo("#echo3",{opacity:0},{opacity:0.4,duration:0.25,immediateRender:true},0.65);
+  tl.to("#echo1",{opacity:0.35,duration:0.3},2.2);
+  tl.to("#echo2",{opacity:0.2,duration:0.3},2.2);
+  tl.to("#echo3",{opacity:0,duration:0.3},2.2);
+
+  // Spokes draw from the system tips; each node appears only when its spoke arrives
+  ["e","w","n","s"].forEach(function(d,i){
+    var p=document.getElementById("spoke-"+d), len=p.getTotalLength();
+    var at=1.95+i*0.05;
+    tl.fromTo(p,{strokeDasharray:len,strokeDashoffset:len},{strokeDashoffset:0,duration:0.3,ease:"power2.out",immediateRender:true},at);
+    tl.fromTo("#node-"+d,{scale:0,transformOrigin:"50% 50%"},{scale:1,transformOrigin:"50% 50%",duration:0.25,ease:"back.out(1.2)",immediateRender:true},at+0.28);
+  });
+  tl.to({}, {duration:0.001}, 2.999);
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

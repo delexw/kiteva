@@ -1,0 +1,110 @@
+{
+ "version": 3,
+ "title": "An idea becomes a connected system",
+ "durationSeconds": 3,
+ "scenes": [
+  {
+   "id": "scene-1",
+   "title": "Spark",
+   "startSeconds": 0,
+   "endSeconds": 0.85,
+   "purpose": "State the idea and light the bulb on a night navy field",
+   "visuals": [
+    "Headline lines wipe in through masks",
+    "Yellow bulb globe pops in, teal base rises",
+    "Flat lighter halo rings expand",
+    "Coral rays draw on as strokes"
+   ],
+   "assets": [
+    "index.html inline SVG"
+   ],
+   "beats": [
+    {
+     "startSeconds": 0,
+     "endSeconds": 0.85,
+     "development": "Headline masks open; bulb, halo and rays appear",
+     "captions": [
+      "An idea becomes",
+      "a connected system",
+      "SPARK \u00b7 LINK \u00b7 SYSTEM"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-2",
+   "title": "Link",
+   "startSeconds": 0.85,
+   "endSeconds": 2.2,
+   "purpose": "Show the idea connecting into a system",
+   "visuals": [
+    "Cream connector strokes draw from the bulb",
+    "Five rounded-square nodes pop in as each line reaches them"
+   ],
+   "assets": [
+    "index.html inline SVG"
+   ],
+   "beats": [
+    {
+     "startSeconds": 0.85,
+     "endSeconds": 2.2,
+     "development": "Lines draw outward from the bulb; coral hub, two teal nodes, yellow node and cream node assemble in order",
+     "captions": [],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0
+    }
+   ]
+  },
+  {
+   "id": "scene-3",
+   "title": "System hold",
+   "startSeconds": 2.2,
+   "endSeconds": 3,
+   "purpose": "Hold the complete readable scene",
+   "visuals": [
+    "Full composition settled"
+   ],
+   "assets": [],
+   "beats": [
+    {
+     "startSeconds": 2.2,
+     "endSeconds": 3,
+     "development": "Everything holds still for reading",
+     "captions": [
+      "An idea becomes",
+      "a connected system",
+      "SPARK \u00b7 LINK \u00b7 SYSTEM"
+     ],
+     "audio": {
+      "music": "",
+      "effects": [],
+      "lyrics": []
+     },
+     "readingHoldSeconds": 0.8
+    }
+   ]
+  }
+ ],
+ "pacingAudit": {
+  "findings": [
+   "All motion settles by 2.2s, before the 2.7s requirement"
+  ],
+  "justifiedHolds": [
+   "2.2\u20133.0s final hold for reading the headline and network"
+  ]
+ },
+ "notes": [
+  "Silent preview: no music, voice or effects.",
+  "No preview recipe is listed in STYLE.json; this refresh shows the source-frame background lesson: a dark night-key field, light carried by lighter flat fills, one fixed coral accent."
+ ]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-018",
+    "name": "Minimalism (Graphic Design and Design Movements; explicit provenance).",
+    "visualIdentity": "Explicit style: keep only the elements the subject needs. Generous negative space, precise proportions, a limited palette, and consistent edges and spacing. A few elements animate at once with restrained easing, not fades on every transition.",
+    "suitableUses": "Explicit fits: UI and product storytelling, editorial and minimalist layouts, and motion posters or staged geometric compositions. Inferred fits: single-insight explainers and product introductions where one message stays in focus.",
+    "limitations": "Unsuited to dense explanatory text or gentle illustrative sequences. Omit scroll patterns that hide copy or blur hierarchy. Charts need real or clearly labeled data only. The source does not verify a toolchain, so inspect rendered frames.",
+    "palette": "Background policy is scene_dependent; #FAF9F5 is only an illustrative swatch, not a required canvas. Suggested, not approved: foreground #202421 and accent #406B5A. Candidate contrasts are 14.923 (foreground on background) and 5.747 (accent on background), two-color checks only. Gradients are disabled, and task-supplied exact colors override these tokens.",
+    "motionAndInteraction": "Use few-element motion with readable holds; hard cuts suit only concise copy. Scroll references 007, 008, 012 and 015 become composition-time states for video, while interactive versions need a reduced-motion end state. Typography references 037, 038 and 040 are optional and need scene-specific checks.",
+    "audio": "The source fixes no audio layer and assigns no music, voice, or effects. Inferred suggestion: silence or light ambience, with sparse accents at key reveals and no music competing with copy. Reference beat timing is unverified, so sync only after inspecting real audio. No audio asset is specified here.",
+    "assetRequirements": "No upload is mandatory. Optional inputs are exact copy, approved colors or reference art, and real chart data. Load fonts and assets before rendering. Never invent copy, brand marks, or metrics. Typography references need an inspected phrase or mark geometry; omit references the scene does not support.",
+    "combinations": "Usually best alone; combine only for quantitative or structural explanations. Style-097 adds one chart per scene with accent #406B5A on the single key series. Style-109 adds thin single-weight connectors drawn after endpoints appear. Avoid extra series colors, gridline clutter, and arrowhead variety.",
+    "productionApproach": "HTML/CSS and SVG are the style renderers for real text, geometry, and masks. GSAP, a paused seekable timeline, is the motion engine; Motion is optional. HyperFrames handles composition and export by default; Remotion requires a recorded reason. chroma-js checks contrast, while Chartist and tldraw are optional tools."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

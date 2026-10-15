@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-004",
+    "name": "Suprematism. Supplemental graphic-design reference in the Graphic Design and Design Movements category. It is not a directly named style in the source collection.",
+    "visualIdentity": "A few flat squares, circles, crosses and bars arranged on an open field. Relative size, angle, balance and negative space carry the meaning. Forms stay abstract and untextured, using black, white and restrained primary colors.",
+    "suitableUses": "Explicit: exhibition titles, gallery openers, minimal artistic statements and geometric motion posters. Inferred: single-viewport interactive HTML where forms reposition to keep balance. Subject matter beyond abstract geometry is unspecified.",
+    "limitations": "Strongest when used alone. Avoid paragraph text, dense typography and fast kinetic sequences. Keep forms free of textures and illustrative detail. Inferred: poorly suited to narrative or photographic subjects. Aspect ratio, duration and resolution are unspecified optional examples.",
+    "palette": "Background is scene_dependent. #FFFFFF is only an illustrative open-field swatch, so choose the background from the scene and mood. Suggested tokens #000000, #C92B2B, #E8BE30 and #2453A0 are unapproved; task or reference colors override them. Gradients are disabled. Two-color checks reach 21:1 for black/white and 5.4 to 11.8:1 for accent pairs. Recheck composited frames.",
+    "motionAndInteraction": "Slowly shift the position, rotation and proportion of flat SVG forms while keeping a deliberate center of gravity and negative space. Video derives all state from composition time, with no bounce or springs. Interactive HTML may reposition forms responsively and stay static under reduced motion. Motion references motion-007, motion-012 and motion-015 are optional and used only if their action fits the forms.",
+    "audio": "Unspecified. No music, voice or effects are mandated, and none is supplied. Silence or restrained ambience suits this contemplative style; this is an inferred suggestion. Any music or narration must be requested or authorized and must not compete with sparse title words.",
+    "assetRequirements": "No external assets are specified. Forms are generated as flat vector SVG shapes. Any title words need locally loaded fonts and black or one primary token. Optional tldraw exports apply only to diagram or card authoring in motion patterns. No uploads are required.",
+    "combinations": "Usually strongest alone. Optional hybrid with style-093: up to five sparse title words treated as weighted bars, in black or one primary token, with slow drift and rotation and no bounce. Avoid paragraph text, dense layouts and fast kinetic sequences.",
+    "productionApproach": "SVG owns visual construction, geometry and color rendering. GSAP owns the paused, seekable motion timeline; Motion is optional for DOM or SVG layers. HyperFrames is the default pipeline for timing, sync and export. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists. chroma-js validates colors. Verify direct and backward seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

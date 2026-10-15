@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-033",
+    "name": "Anime",
+    "visualIdentity": "The source explicitly directs a coherent anime character-design and rendering language with stable proportions, expressive poses, clean linework, and controlled shadow shapes. It warns against treating all anime as one aesthetic.",
+    "suitableUses": "The source explicitly lists character-driven illustration in its category. Inferred from the suggested pairings, it fits character introductions, opening sequences, and establishing shots that rely on held key poses. Mecha or sci-fi segments are also suggested.",
+    "limitations": "A static cel-shading filter does not constitute character animation. Consistent character drawings or frame sequences are required, and missing character assets must be reported rather than replaced by a filter. The style should stay alone unless layered backgrounds or diegetic interfaces are needed.",
+    "palette": "This is an authored example, not an approved palette: background #F4EFE5, foreground #293447, accent_1 #668DA0, accent_2 #C47C67, with no gradient. Supplied or approved palettes override it. Foreground on background is 10.931:1, while accents pass only as decorative fills, not body text (3.509 and 3.833).",
+    "motionAndInteraction": "Motion should derive from authored key poses, holds, and selectively detailed action. Shared guidance allows smooth movement but preserves deliberate cuts and reading holds. Gaze, chapter, and storytelling patterns are optional and only if the scene supports them. Video state comes from composition time; hover and scroll apply only to interactive delivery.",
+    "audio": "The source specifies no audio requirement. Based on topic, audience, and motion, suggested options include music, voiceover, sound effects, ambience, or silence, and none is mandatory. Supplied audio requirements take precedence. Speech intelligibility, audio balance, and picture synchronization must be verified.",
+    "assetRequirements": "Prepared character drawings or numbered transparent PNG frame sequences are required, with alpha, consistent dimensions, and clear naming. Krita may produce them using onion skin and PNG export. Gaze motion needs separate eye layers or a rig. Stateful simulations must be cached. No fonts or audio assets are specified.",
+    "combinations": "The source recommends keeping Anime alone unless a scene needs extra layers. Style-101 may add painted background planes with parallax under held poses, sharing the lighting direction. Style-112 may add HUD overlays only in sci-fi scenes, using the same palette and linework without neon additions.",
+    "productionApproach": "Explicitly, HyperFrames is the default pipeline for composition, timing, synchronization, and export, while Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists, and the reason must be recorded. Drawing belongs to the style renderer, with Krita as a supporting tool. Verify opening, action, transition, and closing frames and the full video before delivery."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

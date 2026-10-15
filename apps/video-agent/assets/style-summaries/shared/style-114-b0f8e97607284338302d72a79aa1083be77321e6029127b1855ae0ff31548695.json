@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-114",
+    "name": "Liquid Motion (Motion Design and Cinematography; supplemental provenance). It is a user-requested direction developed into practical prompt guidance.",
+    "visualIdentity": "Viscous droplets stretch, string, merge, split and settle elastically, in 2D or 3D. Highlights must not obscure contours. SDF metaballs imitate a fluid appearance without physically accurate behavior. Glass or iridescence is optional, not required.",
+    "suitableUses": "Explicit: logo formations and abstract transitions, where a drop lands, spreads and gathers into a wordmark. Inferred from the pairings: brand stings, beverage or cosmetics titles, event openers, and music-led promos when a track is supplied.",
+    "limitations": "Metaballs cannot hold accurate lettering, so real text is composited after formation and held rigid. The liquid is not physically simulated; physical splashes and collisions need a baked Blender simulation. Long kinetic type sequences dilute the fluid hero.",
+    "palette": "Background policy is scene-dependent, chosen from subject, lighting and mood. Tokens #171E2B (background), #F5ECE0 (foreground), #758FC0 (accent_1) and #C889A6 (accent_2) are illustrative examples, not approved exact colors, and gradients are disabled. Two-color contrast: foreground on background 14.285:1, accent_1 on background 5.128:1, accent_2 on background 6.034:1. Task-supplied colors override these; recheck composited frames.",
+    "motionAndInteraction": "Video motion derives from seekable composition time: a drop lands, spreads, stretches and gathers into a wordmark, then holds still. Optional motion references (motion-003, -012, -014, -015, -038) apply only when scene assets support their action. Interactive HTML may trigger the sequence on click, with a static reduced-motion state.",
+    "audio": "Unspecified by the style; it names no mandatory genre, tempo or audio layer. Suggested: restrained accents on landing or merge moments, or silence to protect reading holds. Beat-synchronized timing requires a supplied track and a precomputed beat map. Any voiceover must stay intelligible over liquid cues.",
+    "assetRequirements": "No required uploads are specified. Lettering uses real fonts or approved glyph geometry, loaded locally and composited after formation. Punctuation Zoom needs an actual approved mark, beat sync needs a supplied track, and splashes need a baked simulation. Otherwise, visuals derive from the brief.",
+    "combinations": "Use alone for logo formations and abstract transitions. style-093 (real-font kinetic typography) can take over once the liquid forms a wordmark, then stays rigid. style-105 (beat-timed merges and splits) requires a supplied track and keeps the two-accent palette regardless of energy.",
+    "productionApproach": "Style renderer: WebGL/GLSL or Three.js with SDF metaballs, smooth unions and full-screen shading; p5.js or Paper.js are optional. Motion engine: GLSL with one paused, seekable GSAP timeline. Pipeline: HyperFrames by default, with Remotion only for a recorded fallback reason. Verify direct, backward and sequential seeks plus decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

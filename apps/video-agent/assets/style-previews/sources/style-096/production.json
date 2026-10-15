@@ -1,0 +1,27 @@
+{
+  "assetNeeds": [],
+  "displayTitle": "Connected Hub",
+  "displayDescription": "A graphite hub rises in a dark studio, threads draw to three nodes that light up, then the lockup settles.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186 WebGL (MeshPhysicalMaterial, LatheGeometry, TubeGeometry, RoomEnvironment PMREM), bundled locally to scene.js",
+    "SVG text overlay",
+    "CSS stationary radial vignette"
+  ],
+  "motionEngine": [
+    "GSAP paused timeline registered inline in index.html at window.__timelines.video, driving a time proxy for the Three.js renderer and the SVG overlay"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no audio track.",
+  "limitations": [
+    "Blender was excluded on user instruction; the product is real-time Three.js geometry with an ACES tone-mapped PBR approximation, not a path-traced render.",
+    "Lighting uses a procedural RoomEnvironment and directional rim lights; there are no contact shadows or ray-traced reflections.",
+    "No preview recipe was supplied in STYLE.json, so this preview covers the base style and the scene-dependent background refresh.",
+    "The background palette was chosen for this scene from the source-frame lessons (low-key field, product as the luminance peak, one accent). It is not an approved brand palette."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-081",
+    "name": "Traditional Cel Animation. Supplemental design reference, not a named style in the source collection. A historical technique, distinct from cel-shaded 3D rendering.",
+    "visualIdentity": "Fixed backgrounds with layered character drawings, consistent linework, flat fills and shadow shapes. Actions are animated through distinct drawings with clean transparent compositing. Digital output is a simulation of the cel look, not photographed cels.",
+    "suitableUses": "Explicit: character-led scenes on simple backgrounds; hybrids suit painted environments or multiplane depth. Inferred from the gouache pairing: character shorts, title sequences and nostalgic narrative pieces. Subject, audience and objective are unspecified.",
+    "limitations": "Digital output must be identified as a simulated cel treatment, never physical production. Palette and motion evidence is limited: one source, sampled seconds 1–8 at medium confidence, with no continuous motion or audio verified. Gaze motion needs eye layers or a rig.",
+    "palette": "Background is scene-dependent, and the swatches are illustrative examples only. Example tokens: background #F6EDD8, foreground #263746, accent_1 #718E9D, accent_2 #BE795F. Foreground on background measures 10.495:1; accents (about 3.5:1) are decorative only. Gradients are disabled. Task-provided or approved exact colors override these examples.",
+    "motionAndInteraction": "Cadence follows the planned drawing exposure rate with held states; delivery frame rate may be higher and no automatic in-betweens or springs are added. Video state derives from composition time, while pointer and scroll apply only to interactive delivery. Optional references are gaze (motion-006), chapter handoff (012), story steps (015), phrase scatter (037), punctuation zoom (038) and logo burst (039).",
+    "audio": "Audio is unspecified by the style, with no fixed music, voice or effect requirement. Propose a direction from the topic, state assumptions and keep silence valid. Honor explicit user audio, keep narration clear of competing sound, and add accents only at drawn actions or reading holds. No measured beat or audio was reviewed.",
+    "assetRequirements": "Layered drawn frame sequences need alpha transparency, consistent dimensions, numbered frames and a layer manifest, plus fixed background plates. Krita draws frames and exports PNG sequences. Typography and mark references need actual glyph or approved mark geometry; do not invent copy or brand marks.",
+    "combinations": "Style-039 gouache plates work as backgrounds only, with no oil impasto, and characters keep flat fills and hard shadows. Style-101 restrained multiplane parallax moves nearer layers faster, locks characters to their ground layer and leaves artwork beyond the crop. Avoid exposed edges, excessive separation or calling the result 3D.",
+    "productionApproach": "HyperFrames is the default for composition, timing and export, using a paused GSAP timeline registered in window.__timelines and validated with check and snapshot. Remotion is a fallback only when a verified limitation applies and must be recorded. PixiJS may serve as an optional style renderer, rendered explicitly on seek. chroma-js validates palette values."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

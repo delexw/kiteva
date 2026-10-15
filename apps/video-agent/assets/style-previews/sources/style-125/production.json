@@ -1,0 +1,29 @@
+{
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js",
+    "Soft Surface Lighting and Material Detail"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent. No audio track; intentional silence for a style motion preview.",
+  "limitations": [
+    "Illustrative procedural scene; no specific historical vase-painting technique, workshop or period is claimed.",
+    "Burnished clay is approximated with procedural seeded value-noise roughness/normal maps; it is not a measured material.",
+    "Painted gloss is approximated by lowering roughness under painted texels; no layered slip or firing simulation.",
+    "Figure silhouettes and ornaments are authored primitives (arcs, strokes, Bezier paths), not traced from real vessels.",
+    "Frieze is authored for the body circumference (~r 210 svg px); figures compress slightly near the lower body where the radius shrinks.",
+    "Handles are TubeGeometry in plain terracotta, without painted decoration.",
+    "Neutral tone mapping slightly shifts lit/shadowed terracotta values; the albedo anchor stays #BA642F and the background clear color is exactly #100D09.",
+    "No ground plane or contact shadow, so the background stays uniform #100D09.",
+    "Preview covers about 90 degrees of rotation; the rest of the continuous narrative is shown only in the full video.",
+    "If WebGL context creation fails, the timeline still registers and the error is logged to the console ([style-125] Three.js scene unavailable); no substitute renderer is used.",
+    "Canvas 2D paints the wrap texture (4096x2048) as part of the Three.js renderer; the Three.js scene is bundled locally with esbuild into scene.bundle.js and the GSAP timeline is inline in index.html."
+  ]
+}

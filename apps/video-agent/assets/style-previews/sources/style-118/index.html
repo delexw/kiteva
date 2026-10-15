@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Thermal Silhouette Imaging — style-118 preview</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #080808; overflow: hidden; }
+  #video { position: relative; width: 100%; height: 100%; background: #080808; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; background: #080808; }
+  #thermal { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; display: block; background: #080808; }
+  .copy { position: absolute; margin: 0; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #FFF1D5; white-space: nowrap; }
+  #title { left: 60px; top: 38px; font-size: 44px; line-height: 52px; font-weight: 900; letter-spacing: -1px; }
+  #subtitle { left: 60px; top: 98px; font-size: 24px; line-height: 30px; font-weight: 400; color: #F07C30; }
+  #disclaimer { right: 60px; bottom: 26px; font-size: 13px; line-height: 16px; letter-spacing: 2px; font-weight: 500; }
+</style>
+</head>
+<body>
+<div id="video" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+  <div id="stage" class="clip" data-start="0" data-duration="3">
+    <canvas id="thermal" width="1280" height="720" data-renderer="Three.js WebGLRenderer + GLSL ShaderMaterial"></canvas>
+    <h1 id="title" class="copy">AN IDEA HEATS UP</h1>
+    <p id="subtitle" class="copy">and spreads into a connected system</p>
+    <p id="disclaimer" class="copy">ILLUSTRATIVE HEAT · NOT MEASURED DATA</p>
+  </div>
+</div>
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script src="three.min.js"></script>
+<script>
+(function () {
+"use strict";
+// Thermal Silhouette Imaging — style-118 preview scene.
+// Renderer: Three.js WebGLRenderer + GLSL ShaderMaterial on an orthographic fullscreen quad.
+// Motion owner: GSAP paused timeline (window.__timelines.video) tweening a uniform-state object.
+// All pixels derive from timeline time only; no clocks, tickers or unseeded randomness.
+const {
+  WebGLRenderer, Scene, OrthographicCamera, PlaneGeometry, Mesh, ShaderMaterial,
+  CanvasTexture, DataTexture, RGBAFormat, UnsignedByteType, LinearFilter,
+  ClampToEdgeWrapping, NoColorSpace, LinearSRGBColorSpace, ColorManagement, Vector2, Vector3
+} = window.THREE;
+
+const W = 1280, H = 720;
+const gsap = window.gsap;
+const chroma = window.chroma;
+
+// Exact palette tokens (sRGB). The ramp is the only permitted gradient.
+const PALETTE = ['#080808', '#C82E20', '#F07C30', '#FFF1D5'];
+
+// Avoid any implicit sRGB<->linear conversion: ramp bytes are sRGB and written straight out.
+ColorManagement.enabled = false;
+
+// ---------- Authored silhouette (head profile from ILLUSTRATION.svg) ----------
+const HEAD_PATH = 'M300 720C300 600 250 520 245 430C235 320 290 200 425 190C545 182 605 262 605 330L640 395L612 405C618 445 606 478 566 476L540 476L545 720Z';
+// Ear: small authored lobe so the thinness term has a second narrow extremity.
+const EAR_PATH = 'M318 330C296 318 282 340 286 366C290 392 306 404 322 398Z';
+const WIRES = [
+  ['M470 290C620 200 760 170 860 180', 9],
+  ['M470 300C640 320 800 330 960 360', 7],
+  ['M470 310C620 430 780 500 880 540', 8],
+  ['M860 180C980 160 1080 140 1200 120', 3],
+  ['M960 360C1060 380 1140 400 1200 410', 2],
+  ['M880 540C990 590 1100 620 1200 640', 3],
+  ['M860 180C900 260 940 300 960 360C940 430 910 490 880 540', 4]
+];
+const NODES = [[860, 180], [960, 360], [880, 540]];
+
+function makeCanvas() {
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  return c;
+}
+
+// R = hard mask, G = small blur (12px), B = large blur (46px): distance-like interior falloff.
+function buildHeadTexture() {
+  const c = makeCanvas();
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+  const head = new Path2D(HEAD_PATH);
+  const ear = new Path2D(EAR_PATH);
+  ctx.globalCompositeOperation = 'lighter';
+  const pass = (color, blur) => {
+    ctx.filter = blur ? `blur(${blur}px)` : 'none';
+    ctx.fillStyle = color;
+    ctx.fill(head);
+    ctx.fill(ear);
+  };
+  pass('rgb(255,0,0)', 0);
+  pass('rgb(0,255,0)', 12);
+  pass('rgb(0,0,255)', 46);
+  ctx.filter = 'none';
+  ctx.globalCompositeOperation = 'source-over';
+  return c;
+}
+
+// R = wire mask, G = spread coordinate along the network (0 at head, 1 at right edge).
+function buildWireTexture() {
+  const c = makeCanvas();
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+  const grad = ctx.createLinearGradient(470, 0, 1200, 0);
+  grad.addColorStop(0, 'rgb(255,0,0)');
+  grad.addColorStop(1, 'rgb(255,255,0)');
+  ctx.strokeStyle = grad;
+  ctx.lineCap = 'round';
+  for (const [d, w] of WIRES) {
+    ctx.lineWidth = w + 1;
+    ctx.stroke(new Path2D(d));
+  }
+  return c;
+}
+
+function buildRamp() {
+  const N = 256;
+  const scale = chroma.scale(PALETTE).mode('lab');
+  const data = new Uint8Array(N * 4);
+  for (let i = 0; i < N; i++) {
+    const [r, g, b] = scale(i / (N - 1)).rgb();
+    data[i * 4] = r; data[i * 4 + 1] = g; data[i * 4 + 2] = b; data[i * 4 + 3] = 255;
+  }
+  // Pin exact anchors.
+  data[0] = 8; data[1] = 8; data[2] = 8;
+  const t = new DataTexture(data, N, 1, RGBAFormat, UnsignedByteType);
+  t.magFilter = LinearFilter; t.minFilter = LinearFilter;
+  t.wrapS = t.wrapT = ClampToEdgeWrapping;
+  t.colorSpace = NoColorSpace;
+  t.needsUpdate = true;
+  return t;
+}
+
+function canvasTex(c) {
+  const t = new CanvasTexture(c);
+  t.colorSpace = NoColorSpace;
+  t.minFilter = LinearFilter; t.magFilter = LinearFilter;
+  t.generateMipmaps = false;
+  t.wrapS = t.wrapT = ClampToEdgeWrapping;
+  t.needsUpdate = true;
+  return t;
+}
+
+const vert = /* glsl */`
+varying vec2 vUv;
+void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }
+`;
+
+const frag = /* glsl */`
+precision highp float;
+varying vec2 vUv;
+uniform sampler2D uHead;
+uniform sampler2D uWire;
+uniform sampler2D uRamp;
+uniform vec2 uRes;
+uniform float uTime;
+uniform float uWarm;
+uniform float uSpread;
+uniform float uShimmer;
+uniform vec3 uHot[4];      // x, y, radius (px)
+uniform float uHotI[4];    // intensity
+uniform vec2 uNode[3];
+uniform float uNodeI[3];
+
+float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float vnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float a = hash(i + 17.0), b = hash(i + vec2(1.0, 0.0) + 17.0);
+  float c = hash(i + vec2(0.0, 1.0) + 17.0), d = hash(i + vec2(1.0, 1.0) + 17.0);
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+vec3 ramp(float h){ return texture2D(uRamp, vec2(clamp(h, 0.0, 1.0) * (255.0/256.0) + 0.5/256.0, 0.5)).rgb; }
+
+void main(){
+  vec2 px = vec2(vUv.x * uRes.x, (1.0 - vUv.y) * uRes.y);
+  vec3 hd = texture2D(uHead, vUv).rgb;
+  vec2 wr = texture2D(uWire, vUv).rg;
+  float headM = step(0.5, hd.r);
+  float wireM = step(0.5, wr.r);
+
+  // Head heat field.
+  float core = smoothstep(0.30, 0.98, hd.b);
+  float thin = headM * (1.0 - smoothstep(0.22, 0.62, hd.b)) * smoothstep(0.35, 0.9, hd.g + 0.25);
+  float hot = 0.0;
+  for (int i = 0; i < 4; i++) {
+    vec2 d = px - uHot[i].xy;
+    float r = uHot[i].z;
+    hot += uHotI[i] * exp(-dot(d, d) / (2.0 * r * r));
+  }
+  float shimmer = (vnoise(px / 46.0 + vec2(uTime * 0.35, -uTime * 0.22)) - 0.5) * 0.10 * uShimmer;
+  float headHeat = 0.10 + uWarm * (0.20 + 0.42 * core) + hot - thin * (0.06 + 0.13 * uWarm) + shimmer * core;
+
+  // Network heat: front travels along the spread coordinate, cooling with distance.
+  float p = wr.g;
+  float front = uSpread * 1.12;
+  float reached = smoothstep(front, front - 0.10, p);
+  float wireHeat = reached * (0.66 - 0.36 * p) + 0.16 * exp(-pow((p - front) / 0.035, 2.0)) * step(p, front + 0.06) * step(0.01, uSpread);
+
+  // Node hotspots: hard-edged discs, Gaussian core.
+  float nodeM = 0.0, nodeHeat = 0.0;
+  for (int i = 0; i < 3; i++) {
+    float d = length(px - uNode[i]);
+    float m = step(d, 30.0) * step(0.001, uNodeI[i]);
+    nodeM = max(nodeM, m);
+    nodeHeat = max(nodeHeat, m * uNodeI[i] * (0.38 + 0.62 * exp(-d * d / (2.0 * 13.0 * 13.0))));
+  }
+
+  float heat = 0.0;
+  float mask = 0.0;
+  if (wireM > 0.5) { heat = max(heat, wireHeat); mask = max(mask, step(0.02, reached)); }
+  if (headM > 0.5) { heat = headHeat; mask = 1.0; }
+  if (nodeM > 0.5) { heat = max(heat, nodeHeat); mask = 1.0; }
+
+  vec3 bg = vec3(8.0 / 255.0);
+  gl_FragColor = vec4(mix(bg, ramp(heat), mask), 1.0);
+}
+`;
+
+// ---------- Setup ----------
+const canvas = document.getElementById('thermal');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, preserveDrawingBuffer: true });
+renderer.outputColorSpace = LinearSRGBColorSpace; // no output transform: shader writes sRGB bytes
+renderer.setPixelRatio(1);
+renderer.setSize(W, H, false);
+renderer.setClearColor(0x080808, 1);
+
+const scene = new Scene();
+const camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+const HOT = [
+  new Vector3(440, 290, 46),  // the idea: bright core
+  new Vector3(395, 395, 92),  // broad cheek/brain warmth
+  new Vector3(470, 300, 30),  // where the network leaves the head
+  new Vector3(360, 560, 110)  // neck/chest glow
+];
+
+const uniforms = {
+  uHead: { value: canvasTex(buildHeadTexture()) },
+  uWire: { value: canvasTex(buildWireTexture()) },
+  uRamp: { value: buildRamp() },
+  uRes: { value: new Vector2(W, H) },
+  uTime: { value: 0 },
+  uWarm: { value: 0 },
+  uSpread: { value: 0 },
+  uShimmer: { value: 0 },
+  uHot: { value: HOT },
+  uHotI: { value: [0, 0, 0, 0] },
+  uNode: { value: NODES.map(([x, y]) => new Vector2(x, y)) },
+  uNodeI: { value: [0, 0, 0] }
+};
+
+const material = new THREE.ShaderMaterial({ uniforms, vertexShader: vert, fragmentShader: frag, depthTest: false, depthWrite: false });
+scene.add(new Mesh(new PlaneGeometry(2, 2), material));
+
+// Uniform-state object: the single property owner is GSAP.
+const S = { time: 0, warm: 0, spread: 0, shimmer: 0, h0: 0, h1: 0, h2: 0, h3: 0, n0: 0, n1: 0, n2: 0 };
+
+function draw() {
+  uniforms.uTime.value = S.time;
+  uniforms.uWarm.value = S.warm;
+  uniforms.uSpread.value = S.spread;
+  uniforms.uShimmer.value = S.shimmer;
+  uniforms.uHotI.value[0] = S.h0; uniforms.uHotI.value[1] = S.h1;
+  uniforms.uHotI.value[2] = S.h2; uniforms.uHotI.value[3] = S.h3;
+  uniforms.uNodeI.value[0] = S.n0; uniforms.uNodeI.value[1] = S.n1; uniforms.uNodeI.value[2] = S.n2;
+  renderer.render(scene, camera);
+}
+
+// ---------- Timeline ----------
+const tl = window.gsap.timeline({ paused: true, onUpdate: draw });
+// Shimmer clock: tweened linearly, then held; amplitude eases out so the frame settles by 2.5 s.
+tl.fromTo(S, { time: 0 }, { time: 2.5, duration: 2.5, ease: 'none' }, 0);
+tl.fromTo(S, { shimmer: 0 }, { shimmer: 1, duration: 0.6, ease: 'sine.inOut' }, 0.2);
+tl.to(S, { shimmer: 0, duration: 0.6, ease: 'sine.inOut' }, 1.9);
+// Warm-up: black -> red -> orange.
+tl.fromTo(S, { warm: 0 }, { warm: 1, duration: 1.3, ease: 'power2.inOut' }, 0.1);
+// Hotspots: the idea ignites to cream.
+tl.fromTo(S, { h1: 0 }, { h1: 0.16, duration: 1.0, ease: 'sine.inOut' }, 0.3);
+tl.fromTo(S, { h3: 0 }, { h3: 0.08, duration: 1.0, ease: 'sine.inOut' }, 0.3);
+tl.fromTo(S, { h0: 0 }, { h0: 0.42, duration: 0.8, ease: 'power2.inOut' }, 0.6);
+tl.fromTo(S, { h2: 0 }, { h2: 0.18, duration: 0.5, ease: 'sine.inOut' }, 1.0);
+// Heat spreads into the connected system.
+tl.fromTo(S, { spread: 0 }, { spread: 1, duration: 1.2, ease: 'power2.inOut' }, 1.05);
+tl.fromTo(S, { n0: 0 }, { n0: 0.95, duration: 0.45, ease: 'back.out(1.2)' }, 1.6);
+tl.fromTo(S, { n1: 0 }, { n1: 0.95, duration: 0.45, ease: 'back.out(1.2)' }, 1.75);
+tl.fromTo(S, { n2: 0 }, { n2: 0.95, duration: 0.45, ease: 'back.out(1.2)' }, 1.9);
+// Standalone copy (independent timing; not inside any container).
+tl.fromTo('#title', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.inOut' }, 0.15);
+tl.fromTo('#subtitle', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.inOut' }, 0.45);
+tl.fromTo('#disclaimer', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'sine.inOut' }, 0.8);
+// Hold to the full duration.
+tl.set({}, {}, 3);
+
+window.__timelines = window.__timelines || {};
+window.__timelines.video = tl;
+
+tl.progress(1).progress(0); // flush all tweens once so seeks in any order are exact
+draw();
+
+function seekFromEvent(e) {
+  const d = e && e.detail;
+  const t = typeof d === 'number' ? d : (d && typeof d.time === 'number' ? d.time : null);
+  if (t !== null) tl.seek(Math.max(0, Math.min(3, t)), false);
+  draw();
+}
+window.addEventListener('hf-seek', seekFromEvent);
+document.addEventListener('hf-seek', seekFromEvent);
+
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

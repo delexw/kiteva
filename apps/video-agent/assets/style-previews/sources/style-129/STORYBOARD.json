@@ -1,0 +1,102 @@
+{
+  "version": 3,
+  "title": "An idea becomes a connected system — Egyptian Register Painting preview",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Idea and procession",
+      "startSeconds": 0,
+      "endSeconds": 3,
+      "purpose": "Two registers show the subject: in the upper register a larger figure (symbolic scale) raises a sun disc, the idea; in the lower register four figures walk in procession carrying disc nodes, and a cord joins them into one connected system.",
+      "visuals": [
+        "Cool gypsum/limestone field #E3E6DE with static fixed-seed SVG grain (a scene-dependent refresh of the earlier warm swatch)",
+        "Frieze border bands in blue, linen, red and green at top and bottom; #3B2D23 register baselines at y=310 and y=580",
+        "Upper register: headline copy on the left, a larger standing man (long kilt, ochre fillet) raising an ochre and red sun disc, and an empty inscription column frame on the right",
+        "Lower register: three men and one woman (ochre skin, sheath dress) in the canonical pose (profile head and legs, frontal shoulders and eye), each carrying a blue and ochre disc node",
+        "Gestures: figure 1 swings its back arm and lifts its disc; figure 2 presents with both hands; figure 3 raises its back hand in adoration; figure 4 lifts its disc",
+        "An ochre cord drawn through the settled nodes",
+        "HTML caption band below the registers"
+      ],
+      "assets": [
+        "index.html (procedural SVG figure library)",
+        "gsap.min.js",
+        "DrawSVGPlugin.min.js",
+        "chroma.min.js"
+      ],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.6,
+          "development": "Headline lines wipe in. The empty inscription frame draws. DrawSVG draws the figure contours in reading order, upper figure first and then the procession left to right; the last contour completes at 0.79s, inside the next beat.",
+          "captions": [
+            "AFTER THE NEBAMUN PAINTINGS · THEBES",
+            "An idea becomes",
+            "a connected system"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.6,
+          "endSeconds": 1.2,
+          "development": "The last contours complete. Each figure's flat mineral fills then wipe in left to right through its own clip, only after that figure's contour is done; the fills finish at 1.38s, inside the next beat.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.2,
+          "endSeconds": 2.67,
+          "development": "The upper figure raises the sun disc. The four figures step 42px to the right in three measured x-only steps while shoulder and elbow pivots lift their discs to one height. The caption reveals at 1.45–1.9s. At 2.42–2.67s the cord draws through the settled nodes.",
+          "captions": [
+            "ONE THOUGHT · MANY HANDS · ONE WOVEN NETWORK"
+          ],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 2.67,
+          "endSeconds": 3,
+          "development": "Hold on the settled, fully legible composition.",
+          "captions": [],
+          "audio": {
+            "music": "",
+            "effects": [],
+            "lyrics": []
+          },
+          "readingHoldSeconds": 0.33
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "All motion settles by 2.67s, before the 2.7s legibility requirement.",
+      "No figure's fill wipe starts before its contour finishes (the last contour ends at 0.79s and the last fill runs 1.0–1.38s).",
+      "Background, grain, border bands and baselines stay fixed for the whole preview."
+    ],
+    "justifiedHolds": [
+      "2.67–3.0s: a final reading hold on the complete headline, procession and caption."
+    ]
+  },
+  "notes": [
+    "Silent preview.",
+    "The figures are original, illustrative drawings in the register convention; they make no claim of archaeological authenticity.",
+    "The inscription column stays empty because no verified text was supplied.",
+    "Every tween is a fromTo on one paused GSAP timeline at window.__timelines.video.",
+    "Background refresh: field changed from #EEE3BB to cool limestone #E3E6DE under the scene_dependent background policy. No source frames matched and there are no preview recipes, so the original style craft is kept."
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "displayTitle": "Particle Art",
+  "displayDescription": "A turning particle sphere flows into a glowing idea bulb that ignites and links itself to three nodes.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js",
+    "Points",
+    "UnrealBloomPass"
+  ],
+  "motionEngine": [
+    "GLSL",
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "audioDescription": "Silent preview. No music, voice or sound effects.",
+  "limitations": [
+    "Illustrative procedural scene, not a physical simulation: about 37k seeded Points (bulb, filament, base, halo, dotted links, three nodes) plus ~3.5k spark trail samples and 700 stationary dust points; no fluid, gas or glass optics are modeled.",
+    "Pose A is a turning sphere shell; pose B is sampled from a procedural bulb SDF (circle ∪ neck), a polyline filament, bézier links and node discs traced from ILLUSTRATION.svg. The 'curl' offset is an analytic sum of sines, not a divergence-free noise field, and is exactly zero once each particle settles.",
+    "Density sets point size and alpha from an 8 px CPU grid count, which approximates screen-space density.",
+    "particle_spectacle recipe: one ignition burst from the bulb core plus messenger sparks solved ballistically (p0 + v·t + ½g·t²) to land on the three nodes; trails are earlier-time samples of the same formula. The node 'flash' is a GSAP-owned brightness uniform, not emitted light.",
+    "Bloom is UnrealBloomPass (strength 0.32, radius 0.35, threshold 0.8) on additive soft discs with alpha capped at 0.85; it approximates glow, not lens optics.",
+    "The subtitle copy '10,000 POINTS · ONE STRUCTURE' is kept from the reference; the actual render uses roughly 41k points.",
+    "All dependencies are separate local files: gsap.min.js, chroma.min.js and scene.bundle.js (src/main.js + three from node_modules, bundled with local esbuild). Three.js internals that reference Math.random/requestAnimationFrame live only in that vendor bundle; the scene never starts an animation loop and renders only on timeline evaluation and hf-seek.",
+    "The agent did not check shaders or composited output in a browser; the host QA render is authoritative."
+  ]
+}

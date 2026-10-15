@@ -1,0 +1,204 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Line Art · An idea becomes a connected system</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#111C22}
+  #root{position:relative;width:100%;height:100%;background:#111C22}
+  #root svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+  text{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- Tonal hatching bands: single hatch in the inner band, crosshatch toward the rim (darker tone) -->
+    <clipPath id="clip-band-a"><path clip-rule="evenodd" d="M640 80a220 220 0 1 0 0.01 0ZM640 150a150 150 0 1 1 -0.01 0Z"/></clipPath>
+    <clipPath id="clip-band-b"><path clip-rule="evenodd" d="M640 80a220 220 0 1 0 0.01 0ZM640 115a185 185 0 1 1 -0.01 0Z"/></clipPath>
+  </defs>
+  <!-- Flat, stationary field (scene-dependent ink-teal night field) -->
+  <rect id="field" width="1280" height="720" fill="#111C22"/>
+
+  <!-- Header: small secondary labels -->
+  <g id="header" font-size="13" fill="#93A7AB" letter-spacing="2.5">
+    <text x="64" y="58">01 / 01</text>
+    <text x="1216" y="58" text-anchor="end">LINE ART STUDY</text>
+  </g>
+
+  <!-- Hatching layers (generated deterministically) -->
+  <g id="hatch-a" clip-path="url(#clip-band-a)" fill="none" stroke="#46646E" stroke-width="1.6" stroke-linecap="round"></g>
+  <g id="hatch-b" clip-path="url(#clip-band-b)" fill="none" stroke="#46646E" stroke-width="1.6" stroke-linecap="round"></g>
+
+  <circle id="orbit-dots" cx="640" cy="300" r="150" fill="none" stroke="#93A7AB" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="0.1 9" opacity="0"/>
+  <!-- negative space keeps the bulb base clear of the hatched band -->
+  <rect x="596" y="426" width="88" height="46" rx="6" fill="#111C22"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- outer ring contour, starts at top -->
+    <path id="ring" d="M640 80A220 220 0 1 1 639.99 80" stroke="#EEF1EC" stroke-width="2"/>
+
+    <!-- spokes from the hub (directional: hub -> node) -->
+    <g id="spokes" stroke="#EEF1EC" stroke-width="2">
+      <path class="spoke" d="M640 300L640 80"/>
+      <path class="spoke" d="M640 300L830 190"/>
+      <path class="spoke" d="M640 300L830 410"/>
+      <path class="spoke" d="M640 300L450 190"/>
+      <path class="spoke" d="M640 300L450 410"/>
+      <path class="spoke" d="M640 470L640 520"/>
+    </g>
+    <!-- outer links -->
+    <g id="links" stroke="#EEF1EC" stroke-width="2">
+      <path class="link" data-from="1" d="M830 190L960 120"/>
+      <path class="link" data-from="2" d="M830 410L1000 330"/>
+      <path class="link" data-from="3" d="M450 190L300 140"/>
+      <path class="link" data-from="4" d="M450 410L280 360"/>
+    </g>
+    <g id="cross-links" stroke="#EEF1EC" stroke-width="2">
+      <path class="xlink" d="M960 120L1000 330"/>
+      <path class="xlink" d="M300 140L280 360"/>
+    </g>
+
+    <!-- The idea: bulb contour (primary weight), filament (secondary), base -->
+    <g id="bulb" stroke="#EEF1EC">
+      <path id="bulb-l" d="M640 220C530 230 540 370 600 420L604 432" stroke-width="3.4"/>
+      <path id="bulb-r" d="M640 220C750 230 740 370 680 420L676 432" stroke-width="3.4"/>
+      <path id="filament" d="M615 420L625 330L640 300L655 330L665 420" stroke-width="2"/>
+      <path class="base" d="M604 432H676" stroke-width="3.4"/>
+      <path class="base" d="M610 448H670" stroke-width="3.4"/>
+      <path class="base" d="M624 464H656" stroke-width="3.4"/>
+    </g>
+    <!-- tonal hatching on the bulb's shadow side -->
+    <g id="bulb-shade" stroke="#46646E" stroke-width="1.6"></g>
+  </g>
+
+  <!-- Nodes: background disc masks hatching, ring contour draws -->
+  <g id="nodes"></g>
+
+  <!-- Hub spark: the single accent role (energised state) -->
+  <g id="hub">
+    <circle id="hub-dot" cx="640" cy="300" r="7" fill="#B77843"/>
+    <path id="hub-halo" d="M640 286A14 14 0 1 1 639.99 286" fill="none" stroke="#B77843" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g id="active-dots" fill="#B77843"></g>
+
+  <!-- Caption -->
+  <path id="rule" d="M600 588H680" fill="none" stroke="#93A7AB" stroke-width="2" stroke-linecap="round"/>
+  <g id="caption" fill="#EEF1EC" text-anchor="middle" font-size="24" letter-spacing="7">
+    <text x="640" y="634" font-weight="300"><tspan class="w">AN</tspan> <tspan class="w">IDEA</tspan> <tspan class="w">BECOMES</tspan></text>
+    <text x="640" y="672" font-weight="500"><tspan class="w">A</tspan> <tspan class="w">CONNECTED</tspan> <tspan class="w">SYSTEM</tspan></text>
+  </g>
+</svg>
+</div>
+<script src="gsap.min.js"></script>
+<script src="DrawSVGPlugin.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  const BG='#111C22', LINE='#EEF1EC', ACCENT='#B77843';
+  gsap.registerPlugin(DrawSVGPlugin);
+  const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+  const mk=(tag,attrs,parent)=>{const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent.appendChild(e);return e;};
+
+  // ---------- deterministic geometry ----------
+  // Hatch A: 45deg lines, 5px spacing, across ring bbox (clipped to band 150..220)
+  const hatchA=[], hatchB=[];
+  const cx=640, cy=300, R=222, sp=5;
+  for(let k=-R*1.42;k<=R*1.42;k+=sp){
+    // line x - y = k (45deg) through bbox, ordered left->right by k
+    const x1=cx+k-R, y1=cy-R, x2=cx+k+R, y2=cy+R; // direction (1,1)
+    hatchA.push(mk('path',{d:`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`},$('#hatch-a')));
+  }
+  for(let k=-R*1.42;k<=R*1.42;k+=sp){
+    const x1=cx+k-R, y1=cy+R, x2=cx+k+R, y2=cy-R; // direction (1,-1)
+    hatchB.push(mk('path',{d:`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`},$('#hatch-b')));
+  }
+  // Bulb shadow side hatching: short diagonal strokes inside right lobe
+  const shade=[];
+  // right inner edge of the bulb contour sampled from its Bezier (y -> x)
+  const edge=[[266,712],[280,719],[305,724],[331,724],[357,719],[381,709],[396,700]];
+  const edgeX=y=>{for(let i=1;i<edge.length;i++){if(y<=edge[i][0]){const a=edge[i-1],b=edge[i],u=(y-a[0])/(b[0]-a[0]);return a[1]+(b[1]-a[1])*u;}}return edge[edge.length-1][1];};
+  for(let i=0;i<9;i++){
+    const y=274+i*14, x=edgeX(y);
+    shade.push(mk('path',{d:`M${(x-26).toFixed(1)} ${y+7}L${(x-10).toFixed(1)} ${y-7}`},$('#bulb-shade')));
+  }
+  // Nodes
+  const nodePts=[[640,80],[830,190],[830,410],[450,190],[450,410],[640,520],[960,120],[1000,330],[300,140],[280,360]];
+  const nodes=nodePts.map(([x,y])=>{
+    const g=mk('g',{},$('#nodes'));
+    const disc=mk('circle',{cx:x,cy:y,r:10,fill:BG,opacity:0},g);
+    const ring=mk('path',{d:`M${x} ${y-10}A10 10 0 1 1 ${x-0.01} ${y-10}`,fill:'none',stroke:LINE,'stroke-width':2.4,'stroke-linecap':'round'},g);
+    return {disc,ring};
+  });
+  const activeIdx=[6,8,2];
+  const actives=activeIdx.map(i=>mk('circle',{cx:nodePts[i][0],cy:nodePts[i][1],r:4.5},$('#active-dots')));
+
+  // contrast audit using resolved scene palette (no overrides)
+  window.__paletteAudit={caption:chroma.contrast(LINE,BG),secondary:chroma.contrast('#93A7AB',BG),accent:chroma.contrast(ACCENT,BG)};
+
+  // ---------- one paused, seekable timeline ----------
+  const tl=gsap.timeline({paused:true});
+  const draw=(el,t,d,ease='power2.inOut')=>tl.fromTo(el,{drawSVG:'0% 0%'},{drawSVG:'0% 100%',duration:d,ease,immediateRender:true},t);
+  // speed-based duration: px/s with clamps so long strokes take longer
+  const byLen=(el,speed,min,max)=>Math.min(max,Math.max(min,DrawSVGPlugin.getLength(el)/speed));
+
+  // 1. The idea: bulb contour draws from the crown down both sides
+  draw($('#bulb-l'),0.05,0.5,'sine.inOut');
+  draw($('#bulb-r'),0.05,0.5,'sine.inOut');
+  $$('.base').forEach((b,i)=>draw(b,0.48+i*0.07,0.16,'power2.out'));
+  draw($('#filament'),0.36,0.34,'power2.inOut');
+  shade.forEach((s,i)=>draw(s,0.55+i*0.025,0.12,'power2.out'));
+
+  // 2. Spark: accent hub ignites at filament apex
+  tl.fromTo('#hub-dot',{scale:0,transformOrigin:'50% 50%'},{scale:1,duration:0.22,ease:'back.out(1.7)',immediateRender:true},0.66);
+  draw($('#hub-halo'),0.74,0.2,'power2.out');
+
+  // 3. Spokes draw outward; each node ring closes when its spoke arrives
+  const spokes=$$('.spoke');
+  spokes.forEach((s,i)=>{
+    const t=0.82+i*0.05, d=byLen(s,520,0.12,0.42);
+    draw(s,t,d,'power2.in');
+    const n=nodes[i];
+    tl.fromTo(n.disc,{opacity:0},{opacity:1,duration:0.01,immediateRender:true},t+d-0.02);
+    draw(n.ring,t+d-0.02,0.16,'power2.out');
+  });
+
+  // 4. Outer ring traces its perimeter, dotted orbit settles in
+  draw($('#ring'),1.0,0.62,'sine.inOut');
+  tl.fromTo('#orbit-dots',{opacity:0},{opacity:0.9,duration:0.3,ease:'sine.inOut',immediateRender:true},1.15);
+
+  // 5. Tonal hatching sweeps in left -> right (secondary action)
+  const sweep=(arr,t0,span,d)=>arr.forEach((h,i)=>draw(h,t0+span*i/arr.length,d,'power2.out'));
+  sweep(hatchA,1.05,0.6,0.22);
+  sweep(hatchB,1.3,0.55,0.22);
+
+  // 6. Outer links extend; outer nodes close
+  $$('.link').forEach((l,i)=>{
+    const t=1.32+i*0.06, d=byLen(l,520,0.18,0.4);
+    draw(l,t,d,'power2.in');
+    const n=nodes[6+[0,1,2,3][i]];
+    tl.fromTo(n.disc,{opacity:0},{opacity:1,duration:0.01,immediateRender:true},t+d-0.02);
+    draw(n.ring,t+d-0.02,0.16,'power2.out');
+  });
+  // 7. Cross links close the loops: the system is connected
+  $$('.xlink').forEach((l,i)=>draw(l,1.78+i*0.06,0.3,'power2.inOut'));
+
+  // 8. Active state accent on three nodes
+  actives.forEach((a,i)=>tl.fromTo(a,{scale:0,transformOrigin:'50% 50%'},{scale:1,duration:0.18,ease:'back.out(1.2)',immediateRender:true},2.02+i*0.06));
+
+  // 9. Caption: rule draws, then words reveal one by one, then hold
+  draw($('#rule'),1.25,0.3,'power2.out');
+  $$('#caption .w').forEach((w,i)=>tl.fromTo(w,{attr:{'fill-opacity':0}},{attr:{'fill-opacity':1},duration:0.14,ease:'sine.inOut',immediateRender:true},1.4+i*0.11));
+
+  // settled by ~2.2s; hold to end
+  tl.set({}, {}, 3);
+  tl.seek(0);
+  window.__timelines=window.__timelines||{};
+  window.__timelines.video=tl;
+  const redraw=e=>{const t=e&&e.detail&&typeof e.detail.time==='number'?e.detail.time:null;if(t!==null)tl.seek(t,false);};
+  window.addEventListener('hf-seek',redraw);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

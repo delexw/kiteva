@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-061",
+    "name": "Photorealism, from the Digital and 3D Aesthetics category, with explicit source provenance. A photoreal appearance does not establish that footage was actually filmed.",
+    "visualIdentity": "Credible scale, roughness, contact shadows, reflections, lighting, and depth of field define the look. Objects need weight and plausible acceleration, with consistent contact and measured camera moves. Avoid unexplained highlights, floating geometry, intersections, and excessive blur.",
+    "suitableUses": "Explicitly suited to product hero shots and material studies where plausible light and contact carry the message. Inferred from the listed pairings: engineering explainers with measured overlays and minimal launch-film motion. Other uses are unspecified.",
+    "limitations": "The source lists no other limits beyond its avoid list. Overlays must stay thin so the render remains dominant, and overlay values must be verified before display. Denoising can lose detail or destabilize frames, and simulated appearance is not validated physics.",
+    "palette": "Reference-dependent example for new presentation elements only: background #F0EDE5, foreground #2B302F, accent #827D6D. The accent is decorative only, since its 3.517 contrast fails body text; foreground on background reaches 11.458. No gradients are enabled, and approved task or brand colors override these tokens.",
+    "motionAndInteraction": "No specific cadence is set beyond measured camera moves and weighted, plausible motion. Optional catalog patterns include chaptered transitions, narrative storytelling, a real-depth camera dolly, and a camera orbit. The gallery carousel needs real images and captions, and interactive delivery needs a reduced-motion fallback.",
+    "audio": "Audio is unspecified by the style and depends on topic, audience, and objective. Options include music, voiceover, effects, ambience, or silence, honoring any explicit user choices. Speech must remain intelligible.",
+    "assetRequirements": "Blender with bundled Python bpy and Cycles or EEVEE handles materials, lights, cameras, and keyframed motion. HyperFrames is primary for composition and export; Remotion is fallback only when HyperFrames is unavailable or a verified limit applies. No specific supplied assets are named.",
+    "combinations": "Photorealism alone suits hero shots where light and contact are the whole message. A hybrid with style-097 keeps the Cycles render dominant, with SVG callouts revealed only on camera holds. A hybrid with style-096 uses slow, single camera moves and sparse real-text titles.",
+    "productionApproach": "Blender owns visuals and motion, while HyperFrames handles timing, audio sync, validation, and export. Bake simulations, seed randomness, and verify key frames and direct seeks before final rendering. Label outputs as photographed or simulated, and state any missing assets."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

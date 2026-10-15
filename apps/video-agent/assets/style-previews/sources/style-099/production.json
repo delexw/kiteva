@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Continuous Shot",
+  "displayDescription": "One unbroken pull-back and rise in a blue-hour 3D scene: a warm idea sends out spokes, and blocks rise and link into a connected system.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "Three.js 0.186.1 (WebGLRenderer, MeshStandardMaterial, ShaderMaterial sky, TubeGeometry, PCF soft shadows)",
+    "DOM/CSS text overlay"
+  ],
+  "motionEngine": [
+    "GSAP 3.15.0 paused timeline (single linear time driver plus parseEase curves; DOM overlay tweens)"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview with no audio track.",
+  "limitations": [
+    "Blender was not used, at the user's instruction. Three.js real-time rendering stands in for the earlier offline-render path.",
+    "Bloom is approximated with additive canvas-gradient halo sprites, not a post-process pass.",
+    "Materials are stylized PBR approximations, and lighting uses a hemisphere light, a directional key and a point light, not global illumination.",
+    "Edges are revealed by stepping the index draw range in 64 segments per tube.",
+    "Overlay text uses system fonts (Georgia, Helvetica/Arial), so glyph metrics may differ slightly between machines.",
+    "Not rendered or browser-tested by the agent; host QA is pending."
+  ]
+}

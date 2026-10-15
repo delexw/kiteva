@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-043",
+    "name": "Silhouette Illustration, in the Drawing and Illustration category. The label was normalized from a flat black silhouette description.",
+    "visualIdentity": "Flat solid silhouettes communicate through outlines, poses and negative space. A limited set of solid colors and clear depth layers carries the image. Detail may be omitted when the silhouette still reads, and limbs must stay separated.",
+    "suitableUses": "The source explicitly says silhouettes are strong alone for symbolic narratives. Combination guidance names storytelling intros, ambient scenes and title sequences. Inferred fit: chaptered explanatory narratives. Audience, duration and subject are unspecified.",
+    "limitations": "Internal detail, texture and fine material rendering are largely unavailable, so detailed subjects are inferred as poor fits. Overlapping silhouettes, gradient fills and fast moves should be avoided. Palette checks are two-color only. The source review sampled only seconds 1–8 and verified no audio.",
+    "palette": "The background policy is scene_dependent, so #F5E9CF is only an illustrative swatch and should not be a default canvas. Choose the field from subject, setting and lighting. Foreground #253442 and accent #647F81 are suggestions. Foreground on background measures 10.579. The accent on background measures 3.563, so it is decorative only. Approved exact colors override all suggestions, and gradients are disabled.",
+    "motionAndInteraction": "Motion should be driven by composition time, with readable holds and deliberate cuts where they serve the story. Optional references are motion-012 chapter handoff, motion-015 stepwise storytelling, and motion-039 radial logo burst. Each needs scene-level evidence before use. Live scroll is optional and not required for video.",
+    "audio": "Audio is unspecified, and no audio was supplied or verified. Options include restrained ambience, sparing accents at transitions, music timed only after real audio analysis, or silence. Any sound must leave space for narration. No beat synchronization should be claimed without inspected audio.",
+    "assetRequirements": "No uploads are required, and silhouette artwork can be created from the brief. Any approved mark or exact copy must come from supplied assets and must not be invented. Fonts and assets must be loaded and verified before rendering. Motion-039 needs an actual approved mark, and optional review evidence exists at a listed outputs path.",
+    "combinations": "Style-101 adds depth layering for silhouette planes. It suits slow plane movement with stable outlines, and HTML can use scroll parallax with a reduced-motion fallback. Avoid overlaps, gradients and fast moves. Style-093 adds title typography in negative space at a slow rhythm. Avoid type over figures and added accents.",
+    "productionApproach": "Use HyperFrames as the primary pipeline for composition, timing, validation and export. Remotion is a conditional fallback, used only when HyperFrames is unavailable or a verified limitation applies, and the reason must be recorded. SVG and Paper.js build silhouette geometry, and GSAP owns the seekable timeline. Motion is optional, and chroma-js checks contrast. Verify direct, backward and sequential seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

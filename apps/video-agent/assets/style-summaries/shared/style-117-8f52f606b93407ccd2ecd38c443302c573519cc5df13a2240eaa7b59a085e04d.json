@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-117",
+    "name": "Holographic Scanline Illustration, a Motion Design and Cinematography style (extracted, added in the 2026-10-12 repository sync).",
+    "visualIdentity": "Black field with cyan contours, narrow white cores and horizontal scan-line fills. Light comes only from line density, with no blur halos or neon particles. The source explicitly assigns black to the hologram and cyan to its grid and lines; white is a core accent.",
+    "suitableUses": "Explicit: subject head or object contours rendered as holographic line illustrations, including the one-subject preview. Inferred: sci-fi or technical reveals, object showcases, and HTML graphics with line-reveal motion. Other topics and audiences are unspecified.",
+    "limitations": "Blur, bloom, glow halos and particles are forbidden. Canvas text is less accessible, so captions should be DOM overlays. The two-color contrast check does not cover textures, transparency or video backgrounds. The reference poster verifies only one scene, not the full video.",
+    "palette": "Suggested tokens for new artwork only: background #07080A (opaque scene field), foreground #45F0DD (grid, scanlines, contours), accent #FFFFFF (1px line core). Three base colors; gradients are disabled. Foreground on background contrast is 14.083, meeting the 4.5 normal-text target. Task-supplied colors override these; verify composited frames.",
+    "motionAndInteraction": "Explicit: contour reveal, top-to-bottom scanline wipe and density shifts, all driven by one GSAP state object on a paused, seekable timeline. A single render(state) runs on timeline updates and after seeks. The 3-second preview draws one outline, sweeps scanlines, then modulates density. No motion references are selected.",
+    "audio": "Not specified by the style, and no audio layer is mandatory. Inferred options include music, voiceover, sound effects, ambience or silence, chosen from topic, audience and narrative. No genre, tempo or voice is assigned. Speech must stay intelligible and unclipped, and must be checked against picture. No audio assets are supplied.",
+    "assetRequirements": "Subjects are Path2D outline geometry authored and cached once; no image or font files are supplied. Task-provided exact copy, source artwork and local fonts must be loaded before rendering. No tool library IDs or motion candidates are listed. Missing assets remain unspecified and should be reported.",
+    "combinations": "Suggested secondary style: style-112, for subordinate schematic labels only. Keep style-117 dominant; do not import style-112's palette or replace the verified background. Avoid competing full-scene treatments and unrelated decorative motion. In HTML, make secondary motion optional for reduced-motion preferences.",
+    "productionApproach": "Canvas 2D renders each frame on #07080A at a fixed devicePixelRatio size, clipping pixel-aligned 1px #45F0DD scanlines to Path2D shapes, then stroking #45F0DD at 3px and #FFFFFF at 1px. GSAP is the motion engine. HyperFrames handles check, snapshot and render; Remotion is a fallback only when HyperFrames is unavailable or a verified limit applies."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

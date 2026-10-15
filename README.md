@@ -11,7 +11,7 @@ Codex account. JEV ranking requires a Typesafe API key.
 
 ```sh
 git clone https://github.com/delexw/kiteva.git
-cd kiteva/apps/video-agent
+cd kiteva
 npm ci
 cp .env.example .env.local
 # Configure your provider credentials and TYPESAFE_API_KEY in .env.local.
@@ -22,7 +22,7 @@ npm start
 Open http://127.0.0.1:4317. For development, keep the backend running and run
 `npx vite` in a second terminal; open http://127.0.0.1:4319.
 
-The app bundles its style and motion catalogs in `apps/video-agent/assets/catalog`,
+The app bundles its style and motion catalogs in `assets/catalog`,
 with reviewed style artwork,
 136 WebM style previews, their authoring sources, and the persistent style brief
 cache. Browsing the bundled gallery does not require regenerating these assets
@@ -39,7 +39,7 @@ provide 720p/30 FPS WebM playback and silent three-second desktop card clips.
 
 ## Verify
 
-Run these from `apps/video-agent`:
+Run these from the repository root:
 
 ```sh
 npm run lint
@@ -48,5 +48,5 @@ npm run build
 ```
 
 Repository-wide formatting and lint configuration lives at the repository root.
-See [the app documentation](apps/video-agent/README.md) and
-[Multiplane integration](apps/video-agent/docs/multiplane-trial.md) for details.
+See [the app documentation](docs/application-guide.md) and
+[Multiplane integration](docs/multiplane-trial.md) for details.

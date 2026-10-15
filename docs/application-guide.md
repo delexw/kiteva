@@ -166,7 +166,7 @@ Upstream: https://github.com/JuliusBrussee/caveman
 
 ## Shared video pacing
 
-Both providers receive content-led video pacing guidance in their system instructions. `src/server/domains/video/pacing.ts` owns shared principles for editorial rhythm, action timing/spacing, viewer attention, legible text and audio coordination. There is no universal beat, shot, gesture or transition duration. Favor economical momentum, varied timing and motivated holds; check both dragging and rushing against the content and audience. Generation, planning, pacing repairs and final review use the same principles; text-only tasks retain their analysis-only system prompt. Preserve requested duration and copy. Sources and application-specific interpretation are documented in [video pacing guidance](docs/video-pacing-guidance.md).
+Both providers receive content-led video pacing guidance in their system instructions. `src/server/domains/video/pacing.ts` owns shared principles for editorial rhythm, action timing/spacing, viewer attention, legible text and audio coordination. There is no universal beat, shot, gesture or transition duration. Favor economical momentum, varied timing and motivated holds; check both dragging and rushing against the content and audience. Generation, planning, pacing repairs and final review use the same principles; text-only tasks retain their analysis-only system prompt. Preserve requested duration and copy. Sources and application-specific interpretation are documented in [video pacing guidance](video-pacing-guidance.md).
 
 ## GPT-6.1 preview planning and session reuse
 

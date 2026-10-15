@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { MotionPatternSchema } from "../src/shared/contracts";
 import { MotionCard } from "../src/client/motion-card";
 const catalog = JSON.parse(
-  readFileSync(new URL("../../../outputs/motion-pattern-catalog.json", import.meta.url), "utf8"),
+  readFileSync(new URL("../assets/catalog/motion-pattern-catalog.json", import.meta.url), "utf8"),
 );
 const motion = MotionPatternSchema.parse(catalog.patterns[0]);
 describe("shared motion card", () => {

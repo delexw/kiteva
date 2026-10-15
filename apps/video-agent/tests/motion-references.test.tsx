@@ -5,7 +5,7 @@ import { MotionPatternSchema } from "../src/shared/contracts";
 import { MotionReferenceList } from "../src/client/motion-references";
 import { loadMotionCatalog } from "../src/client/motion-catalog";
 const catalog = JSON.parse(
-  readFileSync(new URL("../../../outputs/motion-pattern-catalog.json", import.meta.url), "utf8"),
+  readFileSync(new URL("../assets/catalog/motion-pattern-catalog.json", import.meta.url), "utf8"),
 );
 const motion = MotionPatternSchema.parse(catalog.patterns[0]);
 afterEach(() => vi.unstubAllGlobals());

@@ -52,7 +52,7 @@ Questions are labelled with their scope: the project, one preview, or one full v
 
 ## Data and boundaries
 
-The existing `../../outputs/video-style-catalog.json` and motion catalog remain the source of truth. Every style is validated with Zod. New app data, examples, uploads, SQLite events, and editable projects are under `.data/`, which is ignored by Git. The application does not modify OrgKnow.
+The bundled `assets/catalog/video-style-catalog.json` and `assets/catalog/motion-pattern-catalog.json` are the source of truth. The application does not read workspace output folders. Every style is validated with Zod. New app data, examples, uploads, SQLite events, and editable projects are under `.data/`, which is ignored by Git. The application does not modify OrgKnow.
 
 Native SDK processes run outside the browser, use restricted job workspaces and runtime settings, and receive only selected context. The SDK runtime connects to its provider; generated compositions use local assets. Uploaded/fetched content is treated as data. Reference URL fetching validates DNS and redirects, allows loopback addresses only in local agent mode, and blocks other private addresses. The browser receives videos, metadata, and redacted events, never provider keys. SDK-native sandboxing and Claude tool permission checks constrain execution; this single-user local application is not a hardened multi-tenant code-execution service.
 

@@ -5,19 +5,8 @@
 /videos/
 /work/
 
-# Keep only the runtime catalogs and historical fixtures required by tests.
-/outputs/*
-!/outputs/video-style-catalog.json
-!/outputs/motion-pattern-catalog.json
-!/outputs/fable-review/
-/outputs/fable-review/*
-!/outputs/fable-review/motion-reference-review/
-/outputs/fable-review/motion-reference-review/*
-!/outputs/fable-review/motion-reference-review/styles-before.json
-!/outputs/fable-review/motion-reference-review/review.json
-!/outputs/word-smash-cuts-review/
-/outputs/word-smash-cuts-review/*
-!/outputs/word-smash-cuts-review/review.json
+# Workspace outputs never belong to the application.
+/outputs/
 
 # Dependencies, builds, local data, credentials, and temporary tooling state
 node_modules/

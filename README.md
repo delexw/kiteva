@@ -22,7 +22,8 @@ npm start
 Open http://127.0.0.1:4317. For development, keep the backend running and run
 `npx vite` in a second terminal; open http://127.0.0.1:4319.
 
-The repository includes the style and motion catalogs, reviewed style artwork,
+The app bundles its style and motion catalogs in `apps/video-agent/assets/catalog`,
+with reviewed style artwork,
 136 WebM style previews, their authoring sources, and the persistent style brief
 cache. Browsing the bundled gallery does not require regenerating these assets
 or making model calls. Multiplane is installed by the normal dependency install
@@ -30,7 +31,7 @@ and shares the app's Three.js version.
 
 Generated projects, user uploads, room layouts, local databases, credentials,
 logs, and temporary review/render workspaces are intentionally excluded. A new
-clone starts with an empty personal room. The app creates its local data folders
+clone starts with an empty personal room. No workspace `outputs` directory is required. The app creates its local data folders
 when started; the bundled galleries remain available.
 
 Full films retain the original-quality MP4 for downloads. Background copies

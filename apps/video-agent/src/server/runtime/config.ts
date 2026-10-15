@@ -9,7 +9,7 @@ dotenv.config({ path: path.join(appRoot, ".env"), quiet: true });
 dotenv.config({ path: path.join(appRoot, ".env.local"), quiet: true });
 export const dataRoot = path.join(appRoot, ".data");
 mkdirSync(dataRoot, { recursive: true, mode: 0o700 });
-export const catalogRoot = path.resolve(appRoot, "../../outputs");
+export const catalogRoot = path.join(appRoot, "assets", "catalog");
 export const models = {
   codex: process.env.VIDEO_CODEX_MODEL || defaultProviderModels.codex,
   claude: process.env.VIDEO_CLAUDE_MODEL || defaultProviderModels.claude,

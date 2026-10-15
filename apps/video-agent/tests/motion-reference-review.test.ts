@@ -8,12 +8,15 @@ it("records all 405 decisions and adds exactly the approved references without c
   const current = JSON.parse(await readFile(`${catalogRoot}/video-style-catalog.json`, "utf8"));
   const before = JSON.parse(
     await readFile(
-      `${catalogRoot}/fable-review/motion-reference-review/styles-before.json`,
+      new URL("./fixtures/catalog-reviews/styles-before.json", import.meta.url),
       "utf8",
     ),
   );
   const review = JSON.parse(
-    await readFile(`${catalogRoot}/fable-review/motion-reference-review/review.json`, "utf8"),
+    await readFile(
+      new URL("./fixtures/catalog-reviews/motion-reference-review.json", import.meta.url),
+      "utf8",
+    ),
   );
   expect(review.pairs).toHaveLength(405);
   expect(
@@ -72,7 +75,10 @@ it("records all 405 decisions and adds exactly the approved references without c
 it("matches the complete 135-style Word Smash Cuts review to actual references", async () => {
   const catalog = JSON.parse(await readFile(`${catalogRoot}/video-style-catalog.json`, "utf8"));
   const review = JSON.parse(
-    await readFile(`${catalogRoot}/word-smash-cuts-review/review.json`, "utf8"),
+    await readFile(
+      new URL("./fixtures/catalog-reviews/word-smash-cuts-review.json", import.meta.url),
+      "utf8",
+    ),
   );
   expect(review.pairs).toHaveLength(135);
   expect(new Set(review.pairs.map((pair: { styleId: string }) => pair.styleId)).size).toBe(135);

@@ -1,17 +1,17 @@
-import os from "node:os";
 import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { access, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { type SpeechReadiness } from "../../../shared/speech";
+import { speechVoices, type SpeechReadiness } from "../../../shared/speech";
 import { appRoot, dataRoot } from "../../runtime/config";
 import { command } from "../../runtime/process";
 import { probeVideo } from "../../rendering/video-probe";
 import { WorkQueue } from "../../jobs/queue";
 import { CodedError } from "../../../shared/errors";
 import type { SpeechProvider } from "./types";
+import { speechModelDirectory } from "./paths";
 
-const cli = path.join(appRoot, "node_modules/hyperframes/bin/hyperframes.mjs");
+const modelDirectory = speechModelDirectory("kokoro");
 const synthesisQueue = new WorkQueue(1);
 const managedPython = path.join(
   dataRoot,
@@ -31,11 +31,11 @@ async function speechReadiness(signal: AbortSignal): Promise<SpeechReadiness> {
       () => {},
       15000,
     );
-    const cache = path.join(os.homedir(), ".cache/hyperframes/tts");
+
     await Promise.all([
-      access(cli),
-      access(path.join(cache, "models/kokoro-v1.0.onnx")),
-      access(path.join(cache, "voices/voices-v1.0.bin")),
+      access(path.join(appRoot, "scripts/speech/kokoro.py")),
+      access(path.join(modelDirectory, "kokoro-v1.0.onnx")),
+      access(path.join(modelDirectory, "voices-v1.0.bin")),
     ]);
   };
   // Retry transient interpreter/cache errors before declaring the runtime unavailable.
@@ -71,27 +71,28 @@ async function synthesizeSpeech(
     await writeFile(script, text);
     try {
       await command(
-        process.execPath,
+        python(),
         [
-          cli,
-          "tts",
+          path.join(appRoot, "scripts/speech/kokoro.py"),
+          "--model",
+          path.join(modelDirectory, "kokoro-v1.0.onnx"),
+          "--voices",
+          path.join(modelDirectory, "voices-v1.0.bin"),
           "--text-file",
           script,
           "--voice",
           voice,
+          "--language",
+          speechVoices.find((item) => item.id === voice)?.language || "en-us",
           "--speed",
           String(speed),
           "--output",
           temporary,
-          "--json",
         ],
         path.dirname(file),
         signal,
         () => {},
         300000,
-        false,
-        () => {},
-        { HYPERFRAMES_PYTHON: python() },
       );
       const probe = await probeVideo(temporary, signal);
       if (!probe.streams.some((stream) => stream.codec_type === "audio"))

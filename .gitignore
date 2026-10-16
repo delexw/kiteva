@@ -29,3 +29,7 @@ playwright-report/
 coverage/
 *.log
 *.tsbuildinfo
+
+# Downloaded speech model weights and voice states (setup recreates these)
+/models/kokoro/
+/models/pocket-tts/

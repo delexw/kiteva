@@ -36,6 +36,11 @@ logs, and temporary review/render workspaces are intentionally excluded. A new
 clone starts with an empty personal room. No workspace `outputs` directory is required. The app creates its local data folders
 when started; the bundled galleries remain available.
 
+Local speech model weights live in visible, Git-ignored `models/<engine>/`
+directories. Kokoro uses `models/kokoro`; Pocket TTS is planned to use
+`models/pocket-tts`. Engine implementations share a TypeScript interface under
+`src/server/audio/providers`. See [speech setup](docs/speech.md).
+
 Full films retain the original-quality MP4 for downloads. Background copies
 provide 720p/30 FPS WebM playback and silent three-second desktop card clips.
 

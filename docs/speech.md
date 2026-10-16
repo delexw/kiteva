@@ -2,7 +2,7 @@
 
 Turn on **Show lyrics on screen** in the Assistant's Music step. **Speech / vocals** is also available in Settings. Choose on-screen text only, local narration, or an attached spoken/sung recording. Choices are saved with the draft and project. Turning lyrics off retains the choices but disables voice generation and mixing. Existing projects remain voice-off.
 
-Local narration supports the installed HyperFrames Kokoro voices. Language selects the matching voices; speed is 0.75–1.5×. Listen generates a short sample only when clicked. Choose to speak the displayed words, write a separate script, or supply a script. Writing instructions guide script content, not unsupported emotional controls on the voice model. Generated singing is unavailable; TTS is not singing. Upload a voice-only recording under Music for recorded vocals.
+Local narration supports Kokoro voices through an app-owned provider adapter. Language selects the matching voices; speed is 0.75–1.5×. Listen generates a short sample only when clicked. Choose to speak the displayed words, write a separate script, or supply a script. Writing instructions guide script content, not unsupported emotional controls on the voice model. Generated singing is unavailable; TTS is not singing. Upload a voice-only recording under Music for recorded vocals.
 
 ## Local setup
 
@@ -13,9 +13,15 @@ npm install
 npm run speech:setup
 ```
 
-Setup installs Python requirements in ignored `.data/speech-venv`, downloads the Kokoro model/voices using the installed HyperFrames CLI when absent, and synthesizes `.data/speech-setup.wav`. It does not change system Python. The model and voices use HyperFrames' user cache. A fresh clone needs setup; these runtime files are not repository assets.
+Setup installs Python requirements in ignored `.data/speech-venv`, copies the existing HyperFrames Kokoro cache when available, or downloads the Kokoro model/voices when absent, and synthesizes `.data/speech-setup.wav`. It does not change system Python. The model and voices live in visible `models/kokoro/` folders, outside `.data`, and are ignored by Git. The previous `~/.cache/hyperframes/tts` files are preserved. A fresh clone needs setup; these runtime files are not repository assets.
 
 `SPEECH_SETUP_PYTHON` selects the interpreter used to create the environment. Kiteva uses the managed environment automatically when present. `HYPERFRAMES_PYTHON` can override it with another Python environment containing the same requirements. `/api/speech/status` checks dependencies and model files twice before reporting unavailable. No synthesis job downloads models or installs packages automatically.
+
+## Provider ownership
+
+Each speech engine owns a separate TypeScript implementation under `src/server/audio/providers`, sharing the `SpeechProvider` interface. `kokoro.ts` owns interpreter selection, readiness and synthesis; `speech.ts` coordinates scripts, timing, caching and mixing. Renderers do not load speech models.
+
+Pocket TTS is planned to use its own `pocket-tts.ts` adapter and `models/pocket-tts/` directory. It is not yet implemented or available in settings. Model weights and voice data are downloaded runtime files, not bundled source code.
 
 ## Pipeline
 

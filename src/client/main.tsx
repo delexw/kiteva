@@ -529,7 +529,7 @@ function App() {
       setError(errorCode(e));
     }
   }
-  async function full(candidateId: string) {
+  async function full(candidateId: string, onStarted?: () => void) {
     if (!run) return;
     setBusy(true);
     try {
@@ -540,6 +540,7 @@ function App() {
           feedback,
         }),
       });
+      onStarted?.();
       setRun(await api<Run>(`/api/runs/${run.id}`));
       void conversationContextRef.current?.scrollToBottom({ animation: "smooth", wait: true });
     } catch (e) {
@@ -668,7 +669,11 @@ function App() {
       </div>
     );
   }
-  function candidateCard(job: GenerationJob, activity?: React.ReactNode) {
+  function candidateCard(
+    job: GenerationJob,
+    activity?: React.ReactNode,
+    onFullStarted?: () => void,
+  ) {
     const candidate = run!.candidates.find((c) => c.id === job.candidateId)!;
     const title = candidateDisplayTitle(candidate, run!.candidates.indexOf(candidate) + 1);
     const fullVersionBuilt = run!.jobs.some(
@@ -718,6 +723,11 @@ function App() {
         <div className="candidate-body">
           <div className="candidate-heading">
             <h3>{title}</h3>
+            {active && (
+              <Button className="secondary compact" onClick={() => action("cancel", job.id)}>
+                Cancel
+              </Button>
+            )}
           </div>
           <p>{job.outputType === "page" ? "Interactive page" : `${job.duration}s`}</p>
           {job.kind === "preview" && candidate.displayDescription && (
@@ -735,47 +745,44 @@ function App() {
               )}
             </p>
           )}
-          <div className="candidate-actions">
-            {job.outputType === "page" && job.page && (
-              <a
-                className="secondary compact"
-                href={`/api/pages/${run!.id}/${job.id}/index.html`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Open interactive page <ArrowUpRight size={14} />
-              </a>
-            )}
-            {job.phase === "ready" && job.kind === "preview" && (
-              <Button
-                type="primary"
-                className="primary compact"
-                disabled={busy || Boolean(fullBuildActive) || fullVersionBuilt}
-                onClick={() => {
-                  void full(candidate.id);
-                }}
-              >
-                {fullVersionBuilt
-                  ? run?.request.outputType === "page"
-                    ? "Full page built"
-                    : "Full video built"
-                  : run?.request.outputType === "page"
-                    ? "Choose & build full page"
-                    : "Choose & build full video"}{" "}
-                <ArrowUpRight size={16} />
-              </Button>
-            )}
-            {active && (
-              <Button className="secondary compact" onClick={() => action("cancel", job.id)}>
-                Cancel
-              </Button>
-            )}
-            {["failed", "cancelled", "interrupted"].includes(job.phase) && (
-              <Button className="secondary compact" onClick={() => action("retry", job.id)}>
-                <RotateCcw size={14} /> Retry
-              </Button>
-            )}
-          </div>
+          {!active && (
+            <div className="candidate-actions">
+              {job.outputType === "page" && job.page && (
+                <a
+                  className="secondary compact"
+                  href={`/api/pages/${run!.id}/${job.id}/index.html`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open interactive page <ArrowUpRight size={14} />
+                </a>
+              )}
+              {job.phase === "ready" && job.kind === "preview" && (
+                <Button
+                  type="primary"
+                  className="primary compact"
+                  disabled={busy || Boolean(fullBuildActive) || fullVersionBuilt}
+                  onClick={() => {
+                    void full(candidate.id, onFullStarted);
+                  }}
+                >
+                  {fullVersionBuilt
+                    ? run?.request.outputType === "page"
+                      ? "Full page built"
+                      : "Full video built"
+                    : run?.request.outputType === "page"
+                      ? "Choose & build full page"
+                      : "Choose & build full video"}{" "}
+                  <ArrowUpRight size={16} />
+                </Button>
+              )}
+              {["failed", "cancelled", "interrupted"].includes(job.phase) && (
+                <Button className="secondary compact" onClick={() => action("retry", job.id)}>
+                  <RotateCcw size={14} /> Retry
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </Card>
     );
@@ -1105,7 +1112,9 @@ function App() {
                 onView={onView}
                 events={events}
                 controls={previewControls()}
-                renderPreview={candidateCard}
+                renderPreview={(job) =>
+                  candidateCard(job, undefined, () => onView({ ...view, tab: "full" }))
+                }
                 renderFull={fullDelivery}
                 onQuestion={onQuestion}
                 onUpdated={setRun}

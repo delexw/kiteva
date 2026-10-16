@@ -1,123 +1,24 @@
 import { createHash, randomUUID } from "node:crypto";
-import { existsSync } from "node:fs";
 import { access, mkdir, readFile, realpath, rename, rm, writeFile } from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { z } from "zod";
 import {
   activeSpeech,
   SpeechTrackSchema,
   speechVoices,
-  type SpeechReadiness,
   type SpeechTrack,
 } from "../../shared/speech";
 import type { VideoRequest } from "../../shared/domains/video";
 import type { Brief } from "../../shared/agents/schemas/video";
 import { agentTurn, type ProviderEvent } from "../agents/providers";
 import { textModels } from "../agents/models";
-import { appRoot, dataRoot } from "../runtime/config";
 import { command } from "../runtime/process";
 import { probeVideo } from "../rendering/video-probe";
-import { WorkQueue } from "../jobs/queue";
+import { kokoroSpeechProvider } from "./providers/kokoro";
 import { CodedError } from "../../shared/errors";
 
-const cli = path.join(appRoot, "node_modules/hyperframes/bin/hyperframes.mjs");
-const synthesisQueue = new WorkQueue(1);
-const managedPython = path.join(
-  dataRoot,
-  "speech-venv",
-  process.platform === "win32" ? "Scripts/python.exe" : "bin/python",
-);
-const python = () =>
-  process.env.HYPERFRAMES_PYTHON || (existsSync(managedPython) ? managedPython : "python3");
-
-export async function speechReadiness(signal: AbortSignal): Promise<SpeechReadiness> {
-  const checks = async () => {
-    await command(
-      python(),
-      ["-c", "import kokoro_onnx, soundfile; print('ready')"],
-      appRoot,
-      signal,
-      () => {},
-      15000,
-    );
-    const cache = path.join(os.homedir(), ".cache/hyperframes/tts");
-    await Promise.all([
-      access(cli),
-      access(path.join(cache, "models/kokoro-v1.0.onnx")),
-      access(path.join(cache, "voices/voices-v1.0.bin")),
-    ]);
-  };
-  // Retry transient interpreter/cache errors before declaring the runtime unavailable.
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      await checks();
-      return { available: true, detail: "Local narration · Kokoro. No provider credits." };
-    } catch {
-      signal.throwIfAborted();
-    }
-  }
-  return {
-    available: false,
-    detail:
-      "Local speech needs setup. Run npm run speech:setup or see docs/speech.md. Uploaded vocals still work.",
-  };
-}
-
-export async function synthesizeSpeech(
-  text: string,
-  file: string,
-  voice: string,
-  speed: number,
-  signal: AbortSignal,
-) {
-  return synthesisQueue.run(async () => {
-    signal.throwIfAborted();
-    const ready = await speechReadiness(signal);
-    if (!ready.available) throw new CodedError("SPEECH_NOT_READY", ready.detail);
-    await mkdir(path.dirname(file), { recursive: true });
-    const temporary = `${file}.${randomUUID()}.wav`;
-    const script = `${temporary}.txt`;
-    await writeFile(script, text);
-    try {
-      await command(
-        process.execPath,
-        [
-          cli,
-          "tts",
-          "--text-file",
-          script,
-          "--voice",
-          voice,
-          "--speed",
-          String(speed),
-          "--output",
-          temporary,
-          "--json",
-        ],
-        path.dirname(file),
-        signal,
-        () => {},
-        300000,
-        false,
-        () => {},
-        { HYPERFRAMES_PYTHON: python() },
-      );
-      const probe = await probeVideo(temporary, signal);
-      if (!probe.streams.some((stream) => stream.codec_type === "audio"))
-        throw Error("Speech synthesis returned no audio.");
-      signal.throwIfAborted();
-      await rename(temporary, file);
-      return Number(probe.format.duration);
-    } catch (error) {
-      signal.throwIfAborted();
-      throw new CodedError("SPEECH_FAILED", `Voice synthesis failed: ${(error as Error).message}`);
-    } finally {
-      await rm(script, { force: true });
-      await rm(temporary, { force: true });
-    }
-  });
-}
+export const speechReadiness = kokoroSpeechProvider.readiness;
+export const synthesizeSpeech = kokoroSpeechProvider.synthesize;
 
 const ScriptSchema = z.object({ text: z.string().trim().min(1).max(8000) });
 export async function prepareSpeech(

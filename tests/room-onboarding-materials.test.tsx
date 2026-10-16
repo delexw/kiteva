@@ -5,6 +5,8 @@ import {
   attachRoomStepUploads,
   emptyRoomDraft,
   roomDraftRequest,
+  removeRoomDraftAsset,
+  toggleRoomDraftAsset,
   roomMaterialIntake,
   roomMaterialSection,
   roomMaterialSteps,
@@ -40,6 +42,75 @@ const render = (draft: RoomDraft, materials: RoomLibraryAsset[] = []) =>
       onUpload={async () => []}
     />,
   );
+
+it("labels assistant questions, saved replies and the editable composer separately", () => {
+  const html = render(draftAt(2));
+  expect(html).toContain("Assistant · Idea");
+  expect(html).toContain("You · Idea");
+  expect(html).toContain("Assistant · Images");
+  expect(html).toContain("Your reply · ");
+  expect(html).toContain("Editable");
+  expect(html).toContain("room-bubble-assistant");
+  expect(html).toContain("room-bubble-user");
+});
+
+it("gives generation controls a clear settings heading within the existing step", () => {
+  const html = render(draftAt(5));
+  expect(html).toContain("Generation settings");
+  expect(html).toContain("Choose how your project is made.");
+  expect(html).toContain('aria-label="Model"');
+  expect(html).toContain("Assistant · Settings");
+  expect(html).not.toContain("room-reply-label");
+});
+
+it("places the review create action in the same footer as Back and Continue", () => {
+  const html = render(draftAt(6));
+  const footer = html.slice(html.lastIndexOf('class="room-onboarding-actions"'));
+  expect(footer).toContain("Back");
+  expect(footer).toContain("Create previews");
+  expect(footer.indexOf("Back")).toBeLessThan(footer.indexOf("Create previews"));
+  expect(html.match(/Create previews/g)).toHaveLength(1);
+  expect(
+    html.slice(
+      html.indexOf('class="room-review"'),
+      html.lastIndexOf('class="room-onboarding-actions"'),
+    ),
+  ).not.toContain("Create previews");
+});
+
+it("uses matching titled sections for materials, websites, lyrics and review", () => {
+  for (const [step, title] of [
+    [1, "Documents"],
+    [2, "Reference images"],
+    [3, "Website references"],
+    [4, "Music and audio"],
+    [6, "Review your brief"],
+  ] as const) {
+    const html = render(draftAt(step));
+    expect(html).toContain(`<h3>${title}</h3>`);
+    expect(html).toContain("settings-section-heading-icon");
+  }
+  const music = render(
+    draftAt(4, {
+      request: { instructions: "A short film about a lighthouse", lyrics: { mode: "write" } },
+    }),
+  );
+  expect(music).toContain("<h3>On-screen lyrics</h3>");
+  expect(music).toContain("<h3>Speech / vocals</h3>");
+  expect(music).toContain("Choose a narrator or use your own vocal recording.");
+});
+
+it("removes an attachment once without reattaching it on duplicate removal", () => {
+  const image = asset(1, "reference.png");
+  const another = asset(2, "another.png");
+  const attached = toggleRoomDraftAsset(toggleRoomDraftAsset(draftAt(2), image), another);
+  const removed = removeRoomDraftAsset(attached, image);
+  expect(roomDraftRequest(removed).assetIds).toEqual([another.id]);
+  expect(roomDraftRequest(removed).requirements?.images.assetIds).toEqual([another.id]);
+  expect(removed.assets?.map((item) => item.id)).toEqual([another.id]);
+  expect(removeRoomDraftAsset(removed, image)).toBe(removed);
+  expect(removed.request.instructions).toBe(attached.request.instructions);
+});
 
 it("maps each material step to one upload with its own label, file types and limit", () => {
   expect(

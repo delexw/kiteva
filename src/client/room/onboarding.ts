@@ -234,6 +234,11 @@ export function toggleRoomDraftAsset(draft: RoomDraft, asset: RoomLibraryAsset):
     : selected.filter((item) => item.id !== asset.id);
   return { ...draft, request: next, assets };
 }
+export function removeRoomDraftAsset(draft: RoomDraft, asset: RoomLibraryAsset): RoomDraft {
+  return roomDraftRequest(draft).assetIds.includes(asset.id)
+    ? toggleRoomDraftAsset(draft, asset)
+    : draft;
+}
 function sharedRequest(request: CreativeRequest) {
   return Object.fromEntries(
     SharedRequestSchema.keyof().options.flatMap((key) =>

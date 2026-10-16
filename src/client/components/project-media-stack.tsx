@@ -1,3 +1,4 @@
+import { VideoPlayer } from "./video-player";
 import { useEffect, useRef, useState } from "react";
 import { useViewportVisibility } from "../use-viewport-visibility";
 import { Button } from "antd";
@@ -144,11 +145,10 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
               />
             </>
           ) : media?.video ? (
-            <video
+            <VideoPlayer
               aria-label={`Video project: ${projectName(project)}`}
               src={artifact(playbackVideoOf(media)!)}
               poster={media.poster ? artifact(media.poster) : undefined}
-              controls
               playsInline
               preload="none"
             />

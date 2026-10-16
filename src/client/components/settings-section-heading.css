@@ -1,0 +1,27 @@
+.settings-section-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--room-borderStrong, var(--line, #88888840));
+}
+.settings-section-heading-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--room-focus, inherit);
+}
+.settings-section-heading h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--room-text, inherit);
+}
+.settings-section-heading p {
+  margin: 3px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--room-muted, inherit);
+}

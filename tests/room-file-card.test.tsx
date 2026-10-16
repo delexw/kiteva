@@ -1,10 +1,38 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { isValidElement, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FileCard } from "@ant-design/x";
 import { RoomChosenFile, RoomFilePick } from "../src/client/room/room-file-card";
 
 const asset = { id: "a", originalName: "brief.pdf", kind: "", bytes: 1200 };
+it("renders image attachments as compact named rows instead of large image cards", () => {
+  const image = { ...asset, originalName: "reference.jpeg" };
+  for (const markup of [
+    renderToStaticMarkup(<RoomFilePick asset={image} picked={false} onToggle={() => {}} />),
+    renderToStaticMarkup(<RoomChosenFile asset={image} onRemove={() => {}} />),
+  ]) {
+    expect(markup).toContain("room-image-file-card");
+    expect(markup).toContain('src="/api/assets/a/preview"');
+    expect(markup).toContain('width="48"');
+    expect(markup).toContain('height="48"');
+    expect(markup).toContain("reference");
+    expect(markup).toContain(".jpeg");
+    expect(markup).not.toContain("ant-file-card-image");
+  }
+});
+it("deletes a shelf entry separately from selecting it", () => {
+  const onToggle = vi.fn();
+  const onDelete = vi.fn();
+  const item = RoomFilePick({ asset, picked: false, onToggle, onDelete }) as ReactElement<{
+    children: ReactElement<{ onClick: () => void }>[];
+  }>;
+  item.props.children[1].props.onClick();
+  expect(onDelete).toHaveBeenCalledOnce();
+  expect(onToggle).not.toHaveBeenCalled();
+  const markup = renderToStaticMarkup(item);
+  expect(markup).toContain('aria-label="Delete brief.pdf from shelf"');
+  expect(markup).toMatch(/<button[^>]*aria-label="Delete brief.pdf from shelf"/);
+});
 it("gives shelf picks and chosen-file removal real labelled, focusable controls", () => {
   const pick = renderToStaticMarkup(
     <RoomFilePick asset={asset} picked={false} onToggle={() => {}} />,

@@ -1,0 +1,95 @@
+import type { CreativeRequest } from "../../shared/contracts";
+import type { RoomLibraryAsset } from "../../shared/room";
+import { modelDisplayName, providerDisplayName } from "../../shared/model-display-name";
+import { activeSpeech, speechVoices } from "../../shared/speech";
+import { videoRendererOf, videoRenderers } from "../../shared/video-renderers";
+import { roomMaterialSection, roomMaterialSteps, roomQuestions } from "./onboarding";
+
+type ReplyStyle = { id: string; name_en: string };
+function speechReply(request: CreativeRequest, assets: RoomLibraryAsset[]) {
+  if (request.outputType !== "video") return [];
+  const speech = activeSpeech(request);
+  if (!speech) return ["Speech: Off"];
+  if (speech.mode === "uploaded") {
+    return [
+      `Speech: Uploaded vocals — ${assets.find((asset) => asset.id === speech.assetId)?.originalName || "Unavailable audio file"}`,
+    ];
+  }
+  return [
+    "Speech: Narration",
+    `Voice: ${speechVoices.find((voice) => voice.id === speech.voice)?.label || speech.voice}`,
+    `Speech speed: ${speech.speed}×`,
+    `Script source: ${speech.source === "provided" ? "My script" : speech.source === "lyrics" ? "Use lyrics" : "Write a script"}`,
+    speech.source === "provided" && speech.text ? `Narration script:\n${speech.text}` : "",
+    speech.instructions ? `Speech instructions:\n${speech.instructions}` : "",
+  ].filter(Boolean);
+}
+
+export function roomSettingsReply(
+  request: CreativeRequest,
+  styles: ReplyStyle[],
+  assets: RoomLibraryAsset[],
+) {
+  const selectedStyles = request.selectedStyleIds || [];
+  const styleNames = selectedStyles.map(
+    (id) => styles.find((style) => style.id === id)?.name_en || id,
+  );
+  return [
+    `Model: ${request.mainModel ? modelDisplayName(request.mainModel) : providerDisplayName(request.provider)}`,
+    `Output: ${request.outputType === "page" ? "Interactive page" : "Video"}`,
+    ...(request.outputType === "video"
+      ? [
+          `Length: ${request.duration === "auto" ? "Auto" : `${request.duration} seconds`}`,
+          `Aspect ratio: ${request.aspectRatio}`,
+          `Resolution: ${request.resolution || "1080p"}`,
+          `Frame rate: ${request.frameRate || 30} fps`,
+          `Renderer: ${videoRenderers[videoRendererOf(request)].label}`,
+        ]
+      : [`Preview viewport: ${request.viewport === "mobile" ? "Mobile" : "Desktop"}`]),
+    `Creative approach: ${request.preference === "creative" ? "Explore creative ideas" : "Follow my brief"}`,
+    styleNames.length
+      ? `Selected styles: ${styleNames.join(", ")}\nPreview directions: Skipped — build selected styles directly`
+      : `Preview directions: ${request.candidateCount || 5}\nStyles: Select from preview directions`,
+    ...speechReply(request, assets),
+  ].join("\n");
+}
+
+/** Derive replies from the current draft so earlier edits never leave stale conversation text. */
+export function roomOnboardingReplies(
+  request: CreativeRequest,
+  assets: RoomLibraryAsset[],
+  styles: ReplyStyle[],
+) {
+  const selected = assets.filter((asset) => request.assetIds.includes(asset.id));
+  return roomQuestions.map((_, index) => {
+    if (index === 0) return { text: request.instructions, skipped: false };
+    if (index === 5) return { text: roomSettingsReply(request, styles, selected), skipped: false };
+    if (index === 3) {
+      const parts = [
+        request.urls.filter((url) => url.trim()).join("\n"),
+        request.requirements?.urls.instructions,
+      ];
+      const text = parts.filter(Boolean).join("\n\n");
+      return { text: text || "No websites", skipped: !text };
+    }
+    const section = roomMaterialSteps[index as keyof typeof roomMaterialSteps];
+    if (!section) return { text: "", skipped: true };
+    const files = selected.filter((asset) => roomMaterialSection(asset.originalName) === section);
+    const parts = [
+      request.requirements?.[section].instructions,
+      files.length ? `Files:\n${files.map((asset) => asset.originalName).join("\n")}` : "",
+    ];
+    if (index === 4 && request.outputType === "video") {
+      parts.push(
+        request.lyrics?.mode === "provided"
+          ? `Lyrics on screen:\n${request.lyrics.text}`
+          : request.lyrics?.mode === "write"
+            ? "Lyrics on screen: Write lyrics for me"
+            : "Lyrics on screen: Off",
+      );
+      parts.push(...speechReply(request, selected));
+    }
+    const text = parts.filter(Boolean).join("\n\n");
+    return { text: text || "Skipped", skipped: !text };
+  });
+}

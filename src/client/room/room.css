@@ -783,6 +783,13 @@
   flex-direction: column;
   gap: 10px;
 }
+.room-current-step {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 100%;
+  flex-shrink: 0;
+}
 .room-assistant {
   display: flex;
   flex-direction: column;
@@ -906,10 +913,23 @@
 .room-chosen-file {
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding-right: 2px;
+  gap: 8px;
+  padding-right: 8px;
+  width: 100%;
+  min-width: 0;
   border-radius: 10px;
   background: #e58a3e1f;
+}
+.room-chosen-file > .ant-file-card {
+  flex: 1;
+  min-width: 0;
+}
+.room-image-file-card .ant-file-card-file-content {
+  min-width: 0;
+}
+.room-chosen-file > button,
+.room-shelf-item > button {
+  flex-shrink: 0;
 }
 .room-shelf-pick:focus-visible {
   outline: 2px solid var(--room-focus);
@@ -919,6 +939,20 @@
   cursor: pointer;
   border-radius: 10px;
   outline: 1px dashed var(--room-borderStrong);
+}
+.room-shelf-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.room-shelf-item > .room-shelf-pick {
+  flex: 1;
+  min-width: 0;
+}
+.room-shelf-delete {
+  background: var(--room-raised);
 }
 .room-shelf-pick:hover,
 .room-shelf-pick.is-picked {
@@ -976,6 +1010,15 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+.creative-room .style-picker-preview {
+  background: var(--room-raised);
+  border-color: var(--room-borderStrong);
+  color: var(--room-text);
+}
+.creative-room .style-picker-preview > span {
+  background: var(--room-raised);
+  color: var(--room-text);
 }
 .room-review {
   display: flex;
@@ -1830,5 +1873,101 @@
 @media (max-width: 760px) {
   .creative-room .studio-modal .style-detail {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Make speaker, completed replies and editable controls easy to distinguish. */
+.room-onboarding .room-bubble-assistant .ant-bubble-header {
+  color: var(--room-text);
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  margin-bottom: 6px;
+}
+.room-onboarding .room-bubble-assistant .ant-bubble-content {
+  background: var(--room-raised);
+  border-color: var(--room-borderStrong);
+  border-radius: 12px;
+}
+.room-onboarding .room-bubble-user .ant-bubble-header {
+  color: var(--room-focus);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.room-onboarding .room-bubble-user .ant-bubble-content {
+  border-inline-start: 3px solid var(--room-activity);
+  border-radius: 12px;
+  padding: 14px 16px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.room-onboarding .room-bubble-user.is-skipped .ant-bubble-content {
+  border-inline-start: 1px dashed var(--room-borderStrong);
+}
+.room-onboarding .room-chat-turn {
+  gap: 14px;
+  padding-bottom: 8px;
+}
+.room-settings {
+  padding: 16px;
+  background: var(--room-inset);
+  border: 1px solid var(--room-borderStrong);
+  border-radius: 12px;
+  gap: 16px 12px;
+}
+.room-onboarding .room-settings label,
+.room-onboarding .room-settings-styles > span {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--room-text);
+  gap: 8px;
+}
+.room-onboarding > .ant-sender {
+  background: var(--room-inset);
+  border: 1px solid var(--room-borderStrong);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.room-onboarding > .ant-sender:focus-within {
+  border-color: var(--room-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--room-focus) 15%, transparent);
+}
+.room-reply-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--room-hairline);
+  color: var(--room-focus);
+  background: var(--room-raised);
+  font-size: 11px;
+}
+.room-reply-label span {
+  margin-inline-start: auto;
+  color: var(--room-muted);
+}
+
+/* A small tactile lift for browse/result cards, within the room's existing palette. */
+.creative-room :is(.style-card-frame, .studio-result-card) {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .creative-room :is(.style-card-frame, .studio-result-card):hover {
+    transform: translate(-2px, -3px);
+    border-color: var(--room-focus);
+    box-shadow: 6px 7px 0 #00000030;
+  }
+}
+.creative-room :is(.style-card-frame, .studio-result-card):focus-within {
+  transform: translate(-2px, -3px);
+  border-color: var(--room-focus);
+  box-shadow: 6px 7px 0 #00000030;
+}
+@media (prefers-reduced-motion: reduce) {
+  .creative-room :is(.style-card-frame, .studio-result-card):is(:hover, :focus-within) {
+    transform: none;
+    box-shadow: 0 0 0 1px var(--room-focus);
   }
 }

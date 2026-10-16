@@ -495,6 +495,18 @@ export function CreativeRoom({
     }));
     onHome();
   }
+  async function removeMaterial(asset: RoomLibraryAsset) {
+    await api(`/api/room/library/${asset.id}`, { method: "DELETE" });
+    setMaterials((previous) => previous.filter((item) => item.id !== asset.id));
+  }
+  function confirmRemoveMaterial(asset: RoomLibraryAsset) {
+    modal.confirm({
+      title: `Remove ${asset.originalName} from your shelf?`,
+      content: "Projects and drafts that already use it keep their copy.",
+      okText: "Remove",
+      onOk: () => removeMaterial(asset),
+    });
+  }
   function assistantContent() {
     if (currentQuestion && current)
       return (
@@ -529,6 +541,7 @@ export function CreativeRoom({
           styles={styles}
           examples={examples}
           onUpload={upload}
+          onDeleteMaterial={removeMaterial}
           onCreated={(run) => {
             setRoom((previous) => {
               const drafts = { ...previous.drafts };
@@ -614,16 +627,7 @@ export function CreativeRoom({
                       setRenameText(asset.originalName);
                     } else if (key === "download")
                       window.open(`/api/room/library/${asset.id}/file`, "_blank", "noopener");
-                    else
-                      modal.confirm({
-                        title: `Remove ${asset.originalName} from your shelf?`,
-                        content: "Projects and drafts that already use it keep their copy.",
-                        okText: "Remove",
-                        onOk: async () => {
-                          await api(`/api/room/library/${asset.id}`, { method: "DELETE" });
-                          await refreshMaterials();
-                        },
-                      });
+                    else confirmRemoveMaterial(asset);
                   },
                 }}
               >

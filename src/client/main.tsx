@@ -1,3 +1,4 @@
+import { VideoPlayer } from "./components/video-player";
 import { CreativeRoom } from "./room/creative-room";
 import {
   isRoomUtilityPage,
@@ -711,14 +712,14 @@ function App() {
               viewport={run!.request.outputType === "page" ? run!.request.viewport : "desktop"}
             />
           ) : job.video ? (
-            <video
+            <VideoPlayer
               ref={(el) => {
                 if (el) jobVideoRefs.current.set(job.id, el);
                 else jobVideoRefs.current.delete(job.id);
               }}
               src={artifactUrl(run!, job, playbackVideoOf(job)!)}
               poster={job.poster ? artifactUrl(run!, job, job.poster) : undefined}
-              controls
+              aria-label={title}
               muted={job.kind === "preview"}
               loop={job.kind === "preview"}
               playsInline

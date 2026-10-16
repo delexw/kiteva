@@ -1,7 +1,14 @@
 import { Bubble, ThoughtChain, type ThoughtChainItemType } from "@ant-design/x";
 import { useMemo, type ReactNode } from "react";
 import { Button, Collapse } from "antd";
-import { CircleAlert, CircleCheck, CirclePause, Hourglass, LoaderCircle } from "lucide-react";
+import {
+  CircleAlert,
+  CircleCheck,
+  CircleDot,
+  CirclePause,
+  Hourglass,
+  LoaderCircle,
+} from "lucide-react";
 import type { AgentProgressEvent, Run } from "../../shared/contracts";
 import type { ActivityItem } from "../agent-activity-model";
 import { MessageResponse } from "../components/ai-elements/message";
@@ -21,13 +28,22 @@ const stepStatus: Record<NonNullable<ActivityItem["status"]>, ThoughtChainItemTy
 function clock(time: string) {
   return new Date(time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
-function stepItem(item: ActivityItem): ThoughtChainItemType {
+export function roomActivityStep(item: ActivityItem): ThoughtChainItemType {
   return {
     key: String(item.id),
     title:
       item.repetitions && item.repetitions > 1 ? `${item.text} · ${item.repetitions}×` : item.text,
     description: <time dateTime={item.time}>{clock(item.time)}</time>,
     status: item.status ? stepStatus[item.status] : undefined,
+    icon: item.status ? undefined : (
+      <span
+        role="img"
+        aria-label="Progress update"
+        title="Progress update — no separate outcome recorded"
+      >
+        <CircleDot size={14} />
+      </span>
+    ),
   };
 }
 function ContextDetail({ context }: { context: RoomActivityContext }) {
@@ -48,7 +64,7 @@ function ContextDetail({ context }: { context: RoomActivityContext }) {
             key={entry[0].id}
             line="dashed"
             className="room-activity-steps"
-            items={entry.map(stepItem)}
+            items={entry.map(roomActivityStep)}
           />
         ) : (
           <Bubble

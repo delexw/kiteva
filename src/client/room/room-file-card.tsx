@@ -1,6 +1,6 @@
 import { FileCard } from "@ant-design/x";
-import { Button } from "antd";
-import { X } from "lucide-react";
+import { Button, Image } from "antd";
+import { Trash2 } from "lucide-react";
 import type { RoomLibraryAsset } from "../../shared/room";
 import { roomMaterialSection } from "./onboarding";
 
@@ -11,8 +11,24 @@ function cardProps(asset: RoomLibraryAsset) {
     size: "small" as const,
     ...(roomMaterialSection(asset.originalName) === "images"
       ? {
-          src: `/api/assets/${asset.id}/preview`,
-          imageProps: { preview: false, alt: "" },
+          type: "file" as const,
+          className: "room-image-file-card",
+          description: false,
+          styles: {
+            root: { width: "100%", minWidth: 0 },
+            file: { width: "100%", height: 64, padding: 8 },
+            icon: { width: 48, height: 48, flexShrink: 0 },
+          },
+          icon: (
+            <Image
+              src={`/api/assets/${asset.id}/preview`}
+              width={48}
+              height={48}
+              preview={false}
+              alt=""
+              style={{ objectFit: "cover", borderRadius: 6 }}
+            />
+          ),
         }
       : {}),
   };
@@ -23,12 +39,16 @@ export function RoomFilePick({
   asset,
   picked,
   onToggle,
+  onDelete,
+  deleting = false,
 }: {
   asset: RoomLibraryAsset;
   picked: boolean;
   onToggle: () => void;
+  onDelete?: () => void;
+  deleting?: boolean;
 }) {
-  return (
+  const pick = (
     <div
       className={picked ? "room-shelf-pick is-picked" : "room-shelf-pick"}
       role="button"
@@ -45,15 +65,34 @@ export function RoomFilePick({
       <FileCard {...cardProps(asset)} />
     </div>
   );
+  return onDelete ? (
+    <div className="room-shelf-item">
+      {pick}
+      <Button
+        className="room-shelf-delete"
+        size="small"
+        danger
+        loading={deleting}
+        aria-label={`Delete ${asset.originalName} from shelf`}
+        title="Delete from shelf"
+        icon={<Trash2 size={15} />}
+        onClick={onDelete}
+      />
+    </div>
+  ) : (
+    pick
+  );
 }
 
 /** A chosen file, with an optional labelled button to take it out again. */
 export function RoomChosenFile({
   asset,
   onRemove,
+  removing = false,
 }: {
   asset: RoomLibraryAsset;
   onRemove?: () => void;
+  removing?: boolean;
 }) {
   return (
     <div className="room-chosen-file">
@@ -62,8 +101,10 @@ export function RoomChosenFile({
         <Button
           type="text"
           size="small"
+          loading={removing}
           aria-label={`Remove ${asset.originalName}`}
-          icon={<X size={14} />}
+          title="Delete file"
+          icon={<Trash2 size={15} />}
           onClick={onRemove}
         />
       )}

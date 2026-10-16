@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { RequestSchema, type GenerationJob, type Run } from "../src/shared/contracts";
-import { RoomActivity, RoomActivityNow } from "../src/client/room/room-activity";
+import { RoomActivity, RoomActivityNow, roomActivityStep } from "../src/client/room/room-activity";
 
 const job: GenerationJob = {
   id: "preview",
@@ -33,6 +33,29 @@ const events = [
     message: "",
   },
 ];
+
+it("shows an explicit neutral icon for updates without inventing a successful outcome", () => {
+  const base = {
+    id: 1,
+    scope: "project",
+    kind: "notice" as const,
+    text: "Creating your video…",
+    time: "2026-01-01T10:00:00Z",
+  };
+  const update = roomActivityStep(base);
+  expect(update.status).toBeUndefined();
+  expect(renderToStaticMarkup(<>{update.icon}</>)).toContain('aria-label="Progress update"');
+  for (const [status, expected] of [
+    ["complete", "success"],
+    ["failed", "error"],
+    ["running", "loading"],
+    ["stopped", "abort"],
+  ] as const) {
+    const step = roomActivityStep({ ...base, status });
+    expect(step.status).toBe(expected);
+    expect(step.icon).toBeUndefined();
+  }
+});
 
 it("keeps live work to one line above the tabs, with the crew on set", () => {
   const html = renderToStaticMarkup(

@@ -1,3 +1,5 @@
+import { Mic } from "lucide-react";
+import { SettingsSectionHeading } from "./settings-section-heading";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Button, Input, Select, Slider, Space, Typography } from "antd";
 import {
@@ -86,7 +88,11 @@ export function SpeechSettings({
   };
   return (
     <section aria-label="Speech and vocals" className="speech-settings">
-      <Typography.Text strong>Speech / vocals</Typography.Text>
+      <SettingsSectionHeading
+        title="Speech / vocals"
+        description="Choose a narrator or use your own vocal recording."
+        icon={<Mic size={18} />}
+      />
       <Select
         aria-label="Speech mode"
         style={{ width: "100%" }}

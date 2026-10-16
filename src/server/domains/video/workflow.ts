@@ -199,6 +199,8 @@ export async function generateVideo(input: {
               },
             ];
       await corrector.correctRound(findings);
+      job.error = undefined;
+      job.errorCode = undefined;
       job.resultReview = undefined;
       update();
     }

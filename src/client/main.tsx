@@ -737,7 +737,7 @@ function App() {
           )}
           <GenerationTime job={job} now={clock} />
           {activity}
-          {job.error && (
+          {job.phase === "failed" && job.error && (
             <p className="failure">
               {customerErrorMessage(
                 job.errorCode,

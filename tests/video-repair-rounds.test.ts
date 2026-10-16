@@ -100,10 +100,14 @@ it("fixes every individual issue from one QA report before rechecking", async ()
       })
       .mockImplementationOnce(async () => {
         order.push("recheck");
+        expect(job.phase).toBe("rendering");
+        expect(job.error).toBeUndefined();
+        expect(job.errorCode).toBeUndefined();
         return { video: "renders/preview.mp4", poster: "renders/preview.jpg" };
       });
     vi.mocked(agentTurn).mockImplementation(async () => {
       order.push("repair");
+      expect(job.error).toContain("Video QA requires");
       expect(renderJob).toHaveBeenCalledTimes(1);
       return {
         value: { ...production, storyboard: validStoryboard(production.duration) },

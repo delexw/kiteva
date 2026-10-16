@@ -98,7 +98,8 @@ it("stays still until observed on screen and shows waiting dots for a pending de
 });
 
 it("scales the whole production scene down to fit its frame and never above design size", () => {
-  expect(productionSetScale(800, 400)).toBe(1);
+  expect(productionSetScale(800, 400)).toBe(1.12);
+  expect(productionSetScale(380, 165)).toBe(1);
   expect(productionSetScale(productionSetSize.width / 2, 400)).toBe(0.5);
   expect(productionSetScale(800, productionSetSize.height / 4)).toBe(0.25);
   expect(productionSetScale(0, 0)).toBe(1);

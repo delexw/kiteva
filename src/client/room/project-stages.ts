@@ -198,7 +198,12 @@ export function roomActivityContexts(
             : "",
       checkpoints,
     );
-    if (preparation.items.length || preparation.checkpoints.length || (round && current))
+    if (
+      preparation.items.length ||
+      preparation.checkpoints.length ||
+      (current && status === "loading") ||
+      (round && current)
+    )
       timeline.push({
         context: preparation,
         start: round ? record(round)?.startedAt || preparation.items[0]?.time : run.createdAt,

@@ -7,14 +7,29 @@ export interface ActivityItem {
   text: string;
   time: string;
   itemId?: string;
+  purpose?: string;
+  invocationId?: string;
   streaming?: boolean;
   repetitions?: number;
   status?: "running" | "complete" | "failed" | "stopped";
 }
-export function customerToolActivity(name: string, type: string): string {
+const briefTaskLabels: Record<string, { working: string; saving: string }> = {
+  "Brief preparation": { working: "Preparing your brief…", saving: "Saving the draft brief…" },
+  "Brief asset self-review": {
+    working: "Checking references against your story…",
+    saving: "Recording review findings…",
+  },
+  "Brief asset alignment repair": {
+    working: "Revising reference usage…",
+    saving: "Saving the revised brief…",
+  },
+};
+export function customerToolActivity(name: string, type: string, purpose?: string): string {
   if (name.includes("capture_screenshot")) return "Capturing your website reference…";
   if (name.includes("inspect_page") || name.includes("click_control"))
     return "Exploring your website reference…";
+  const task = purpose ? briefTaskLabels[purpose] : undefined;
+  if (task) return /structuredoutput/i.test(name) ? task.saving : task.working;
   if (type === "file_change" || /write|edit|patch/i.test(name)) return "Updating the design…";
   if (/read|glob|grep|list/i.test(name)) return "Reading project content…";
   if (type === "web_search" || /search|fetch/i.test(name)) return "Looking up reference material…";
@@ -28,6 +43,8 @@ export function mergeProgressItems(
 ): ActivityItem | undefined {
   if (
     previous.scope !== item.scope ||
+    previous.purpose !== item.purpose ||
+    previous.invocationId !== item.invocationId ||
     previous.kind === "message" ||
     item.kind !== previous.kind ||
     item.text !== previous.text
@@ -55,6 +72,8 @@ export function activityItems(
       audience?: "customer" | "internal";
       state?: string;
       toolName?: string;
+      purpose?: string;
+      invocationId?: string;
       results?: { itemId: string; failed: boolean; output: string }[];
     };
     // Raw SDK narration and legacy unlabelled text are internal by default.
@@ -66,11 +85,15 @@ export function activityItems(
     )
       continue;
     const scope = `${event.runId}:${event.jobId || "brief"}`;
+    const ownsInvocation = (item: ActivityItem) =>
+      item.scope === scope &&
+      item.purpose === data.purpose &&
+      item.invocationId === data.invocationId;
     const latest = (kind: ActivityItem["kind"]) =>
       items
         .slice()
         .reverse()
-        .find((item) => item.scope === scope && item.kind === kind);
+        .find((item) => ownsInvocation(item) && item.kind === kind);
     const finishText = () => {
       const text = streams.get(scope);
       if (text) text.streaming = false;
@@ -85,6 +108,8 @@ export function activityItems(
         text,
         time: event.time,
         itemId: data.itemId,
+        purpose: data.purpose,
+        invocationId: data.invocationId,
       };
       items.push(item);
       return item;
@@ -152,12 +177,12 @@ export function activityItems(
             .slice()
             .reverse()
             .find(
-              (item) => item.scope === scope && item.kind === "tool" && item.itemId === data.itemId,
+              (item) => ownsInvocation(item) && item.kind === "tool" && item.itemId === data.itemId,
             )
         : event.type === "tool_progress"
           ? latest("tool")
           : undefined;
-      const item = prior || add("tool", customerToolActivity(name, event.type));
+      const item = prior || add("tool", customerToolActivity(name, event.type, data.purpose));
       item.status = data.state === "item.completed" ? "complete" : "running";
       continue;
     }
@@ -170,7 +195,7 @@ export function activityItems(
             .reverse()
             .find(
               (item) =>
-                item.scope === scope && item.kind === "tool" && item.itemId === result.itemId,
+                ownsInvocation(item) && item.kind === "tool" && item.itemId === result.itemId,
             );
           if (tool) {
             tool.status = result.failed ? "failed" : "complete";
@@ -189,7 +214,7 @@ export function activityItems(
       finishText();
       // A turn ending is not evidence that a tool succeeded.
       for (const item of items)
-        if (item.scope === scope && item.status === "running") item.status = "stopped";
+        if (ownsInvocation(item) && item.status === "running") item.status = "stopped";
       continue;
     }
     const notices: Record<string, string> = {

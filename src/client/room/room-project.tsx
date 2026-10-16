@@ -11,7 +11,7 @@ import { projectOverview } from "../lib/project-overview";
 import { ProjectResultPending } from "../components/project-result-pending";
 import { api } from "../lib/api";
 import { scopedAssetQuestions } from "../../shared/asset-question-scopes";
-import { RoomActivity, RoomActivityNow } from "./room-activity";
+import { RoomActivity, RoomActivityNow, RoomActivityTab } from "./room-activity";
 import { roomQuestionScope } from "./question-scope";
 import { roomProjectTabs, type RoomProjectView } from "../../shared/room";
 
@@ -215,7 +215,7 @@ export function RoomProject({
                 ]),
             {
               key: "activity",
-              label: "Activity",
+              label: <RoomActivityTab run={run} />,
               children: <RoomActivity run={run} events={events} />,
             },
           ]}

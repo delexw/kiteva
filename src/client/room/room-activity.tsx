@@ -105,8 +105,32 @@ function ContextStatus({ context }: { context: RoomActivityContext }) {
 function CrewOnSet() {
   return (
     <span className="room-activity-crew" aria-hidden="true">
-      <StoryboardCrew role="director" reaction />
-      <StoryboardCrew role="camera" />
+      <span>
+        <StoryboardCrew role="director" reaction />
+      </span>
+      <span>
+        <StoryboardCrew role="camera" />
+      </span>
+    </span>
+  );
+}
+
+export function RoomActivityTab({ run }: { run: Run }) {
+  const working = isRoomActivityLive(run);
+  return (
+    <span className="room-activity-tab">
+      Activity
+      {working && (
+        <span
+          className="room-activity-crew room-activity-tab-crew"
+          role="status"
+          aria-label="Working"
+        >
+          <span aria-hidden="true">
+            <StoryboardCrew role="director" reaction />
+          </span>
+        </span>
+      )}
     </span>
   );
 }

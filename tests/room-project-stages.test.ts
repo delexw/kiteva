@@ -97,7 +97,10 @@ it("shows the latest real step while working and a recorded total once done", ()
   );
   expect(done.status).toBe("success");
   expect(done.summary).toMatch(/^2 updates · worked for 2m 0s$/);
-  expect(roomActivityContexts(run({ phase: "preparing" }), [])[0]).toBeUndefined();
+  expect(roomActivityContexts(run({ phase: "preparing" }), [])[0]).toMatchObject({
+    status: "loading",
+    summary: "Preparing your project",
+  });
 });
 it("labels question scope as project, preview, or numbered full version", () => {
   const project = run({

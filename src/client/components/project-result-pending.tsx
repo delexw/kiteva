@@ -7,7 +7,7 @@ import { projectOverview } from "../lib/project-overview";
 export const productionSetSize = { width: 380, height: 165 };
 export function productionSetScale(width: number, height: number) {
   if (width <= 0 || height <= 0) return 1;
-  return Math.min(1, width / productionSetSize.width, height / productionSetSize.height);
+  return Math.min(1.12, width / productionSetSize.width, height / productionSetSize.height);
 }
 
 export function ProjectResultPending({ project, visible }: { project: Run; visible?: boolean }) {

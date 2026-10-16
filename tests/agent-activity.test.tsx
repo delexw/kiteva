@@ -290,3 +290,88 @@ it("shows automatic capacity retry progress within the owning job", () => {
     { jobId: "preview-a", kind: "notice", text: "Model is busy. Retrying automatically…" },
   ]);
 });
+
+it("distinguishes preparation, review, repair and recheck without showing internal data", () => {
+  const phases = [
+    ["Brief preparation", "Preparing your brief…", "Saving the draft brief…"],
+    [
+      "Brief asset self-review",
+      "Checking references against your story…",
+      "Recording review findings…",
+    ],
+    ["Brief asset alignment repair", "Revising reference usage…", "Saving the revised brief…"],
+    [
+      "Brief asset self-review",
+      "Checking references against your story…",
+      "Recording review findings…",
+    ],
+  ];
+  const events = phases.flatMap(([purpose], index) => {
+    const data = { purpose, invocationId: `turn-${index}`, audience: "internal" };
+    return [
+      event(index * 4 + 1, "tool", "Read secret-file.txt", "a", {
+        ...data,
+        itemId: "read",
+        toolName: "Read",
+      }),
+      event(index * 4 + 2, "tool_result", "secret raw output", "a", {
+        ...data,
+        results: [{ itemId: "read", failed: false, output: "secret" }],
+      }),
+      event(index * 4 + 3, "tool", "StructuredOutput", "a", {
+        ...data,
+        itemId: "save",
+        toolName: "StructuredOutput",
+      }),
+      event(index * 4 + 4, "reasoning", "secret reasoning", "a", data),
+    ];
+  });
+  const items = activityItems(events);
+  expect(items.map((item) => item.text)).toEqual(
+    phases.flatMap(([, working, saving]) => [working, saving]),
+  );
+  expect(
+    items.filter((item) => item.itemId === "read").every((item) => item.status === "complete"),
+  ).toBe(true);
+  expect(
+    items.filter((item) => item.itemId === "save").every((item) => item.status === "running"),
+  ).toBe(true);
+  expect(JSON.stringify(items)).not.toContain("secret");
+});
+
+it("groups only within the same purpose and invocation, preserving website actions and legacy labels", () => {
+  const tool = (id: number, purpose?: string, invocationId?: string, toolName = "Read") =>
+    event(id, "tool", "raw hidden", "a", { purpose, invocationId, toolName, itemId: String(id) });
+  const items = activityItems([
+    tool(1, "Brief preparation", "one"),
+    tool(2, "Brief preparation", "one"),
+    tool(3, "Brief preparation", "two"),
+    tool(4, "Brief asset self-review", "two"),
+    tool(5, "Brief asset self-review", "two", "mcp__reference_browser__inspect_page"),
+    tool(6, "Brief asset self-review", "two", "mcp__reference_browser__capture_screenshot"),
+    tool(7),
+    tool(8, undefined, undefined, "StructuredOutput"),
+  ]);
+  expect(items).toHaveLength(7);
+  expect(items[0].repetitions).toBe(2);
+  expect(items[1].repetitions).toBeUndefined();
+  expect(items.slice(3).map((item) => item.text)).toEqual([
+    "Exploring your website reference…",
+    "Capturing your website reference…",
+    "Reading project content…",
+    "Finalizing the project details…",
+  ]);
+});
+
+it("does not apply one invocation's tool completion or usage to another invocation", () => {
+  const items = activityItems([
+    event(1, "tool", "Read", "a", { invocationId: "one", itemId: "shared" }),
+    event(2, "tool", "Read", "a", { invocationId: "two", itemId: "shared" }),
+    event(3, "tool_result", "hidden", "a", {
+      invocationId: "one",
+      results: [{ itemId: "shared", failed: true, output: "hidden" }],
+    }),
+    event(4, "usage", "done", "a", { invocationId: "one" }),
+  ]);
+  expect(items.map((item) => item.status)).toEqual(["failed", "running"]);
+});

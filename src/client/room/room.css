@@ -1332,6 +1332,7 @@
 
 /* Activity */
 .room-project-tabs > .ant-tabs-nav {
+  padding-inline: 12px;
   position: sticky;
   top: 0;
   z-index: 4;
@@ -1342,11 +1343,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 12px;
+  margin: 12px 0;
   padding: 6px 8px;
-  border: 1px solid var(--room-hairline);
-  border-radius: 10px;
-  background: var(--room-inset);
+  background: transparent;
 }
 .room-activity-now-text {
   flex: 1;
@@ -1409,19 +1408,23 @@
 .room-activity-crew {
   flex: none;
   display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 34px;
-  padding: 2px 6px 0;
-  border-radius: 8px;
-  background: #efe7da;
-  overflow: hidden;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 2px;
+  background: transparent;
+}
+.room-activity-crew > span {
+  display: block;
+  flex: none;
+  width: 26px;
+  height: 32px;
 }
 .room-activity-crew .manga-crew {
   flex: none;
   transform: scale(0.32);
   transform-origin: 0 0;
-  margin: 0 -50px -68px 0;
+  margin: 0;
 }
 .room-activity-crew .manga-head {
   animation: production-director-nod 4.2s ease-in-out infinite;
@@ -1547,9 +1550,11 @@
 .creative-room .production-waiting-dots > i {
   background: var(--room-primary);
 }
+.creative-room .project-production-slot {
+  flex-basis: 185px;
+}
 .creative-room .project-production-set {
-  border-radius: 10px;
-  background: #efe7da;
+  background: transparent;
 }
 .creative-room .project-status-badge[data-tone="ready"] {
   color: var(--room-success);
@@ -1969,5 +1974,33 @@
   .creative-room :is(.style-card-frame, .studio-result-card):is(:hover, :focus-within) {
     transform: none;
     box-shadow: 0 0 0 1px var(--room-focus);
+  }
+}
+
+.room-activity-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.room-activity-tab-crew {
+  background: transparent;
+  width: 27px;
+  height: 28px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.room-activity-tab-crew > span {
+  display: block;
+  width: 19px;
+  height: 25px;
+}
+.room-activity-tab-crew .manga-crew {
+  margin: 0;
+  transform: scale(0.25);
+}
+@media (prefers-reduced-motion: reduce) {
+  .room-activity-crew .manga-head {
+    animation: none;
   }
 }

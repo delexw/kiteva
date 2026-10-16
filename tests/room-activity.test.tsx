@@ -1,7 +1,12 @@
 import { expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { RequestSchema, type GenerationJob, type Run } from "../src/shared/contracts";
-import { RoomActivity, RoomActivityNow, roomActivityStep } from "../src/client/room/room-activity";
+import {
+  RoomActivity,
+  RoomActivityNow,
+  RoomActivityTab,
+  roomActivityStep,
+} from "../src/client/room/room-activity";
 
 const job: GenerationJob = {
   id: "preview",
@@ -93,4 +98,25 @@ it("says where activity will appear before anything has been recorded", () => {
   expect(renderToStaticMarkup(<RoomActivity run={{ ...run, jobs: [] }} events={[]} />)).toContain(
     "Activity appears here",
   );
+});
+
+it("marks the activity tab while working and clears it after work ends", () => {
+  expect(renderToStaticMarkup(<RoomActivityTab run={run} />)).toContain("Working");
+  for (const phase of ["ready", "failed", "cancelled", "interrupted"] as const) {
+    const html = renderToStaticMarkup(
+      <RoomActivityTab run={{ ...run, phase, jobs: [{ ...job, phase }] }} />,
+    );
+    expect(html).toContain("Activity");
+    expect(html).not.toContain("Working");
+  }
+});
+
+it("shows preparation immediately before any event or checkpoint arrives", () => {
+  const preparing = { ...run, phase: "preparing" as const, jobs: [] };
+  expect(renderToStaticMarkup(<RoomActivity run={preparing} events={[]} />)).toContain(
+    "Preparing your project",
+  );
+  expect(
+    renderToStaticMarkup(<RoomActivityNow run={preparing} events={[]} onOpen={() => {}} />),
+  ).toContain('role="status"');
 });

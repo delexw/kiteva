@@ -29,13 +29,14 @@ const FindingSchema = z.object({
   hint: z.string().nullable().optional(),
   location: z
     .object({
-      file: z.string(),
+      file: z.string().optional(),
       line: z.number().optional(),
       column: z.number().optional(),
     })
+    .passthrough()
     .nullable()
     .optional(),
-  details: z.object({ snippet: z.string().optional() }).nullable().optional(),
+  details: z.object({ snippet: z.string().optional() }).passthrough().nullable().optional(),
 });
 
 export function multiplaneDiagnostics(stdout: string) {
@@ -52,7 +53,7 @@ export function multiplaneDiagnostics(stdout: string) {
           ...finding,
           source: dependency ? "bundled dependency" : file ? "authored source" : "unknown",
           details: finding.details
-            ? { snippet: finding.details.snippet?.slice(0, 400) }
+            ? { ...finding.details, snippet: finding.details.snippet?.slice(0, 400) }
             : undefined,
         }),
       );

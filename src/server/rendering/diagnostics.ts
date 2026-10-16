@@ -27,7 +27,12 @@ const NativeFindingSchema = z
     line: z.number().optional(),
     column: z.number().optional(),
     location: z
-      .object({ file: z.string(), line: z.number().optional(), column: z.number().optional() })
+      .object({
+        file: z.string().optional(),
+        line: z.number().optional(),
+        column: z.number().optional(),
+      })
+      .passthrough()
       .nullable()
       .optional(),
   })

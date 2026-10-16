@@ -82,3 +82,40 @@ it("limits prompt evidence and points to the complete report", () => {
   expect(JSON.stringify(evidence).length).toBeLessThan(25000);
   expect(evidence.reportFile).toBe("renders/report.json");
 });
+
+it("preserves verification findings with frame locations and comparison images", () => {
+  const native = {
+    type: "finding",
+    code: "nondeterministic_output",
+    severity: "error",
+    message: "Frame pixels differ.",
+    hint: "Make render(t) depend only on t and seeded inputs.",
+    location: { t: 1.5, frame: 90 },
+    details: {
+      check: "reorder",
+      changedPixels: 439,
+      maxChannelDiff: 51,
+      images: {
+        reference: "verify/reference.png",
+        actual: "verify/actual.png",
+        diff: "verify/diff.png",
+      },
+    },
+  };
+  const failure = multiplaneFailure(
+    "verify",
+    { type: "result", ok: false },
+    multiplaneDiagnostics(JSON.stringify(native)),
+  );
+  expect(failure).toHaveProperty("diagnostics");
+  if (!("diagnostics" in failure)) throw Error("Missing diagnostics");
+  expect(failure.diagnostics).toMatchObject([
+    {
+      renderer: "multiplane",
+      stage: "verify",
+      code: "nondeterministic_output",
+      source: "unknown",
+      details: { location: { t: 1.5, frame: 90 }, details: native.details },
+    },
+  ]);
+});

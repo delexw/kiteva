@@ -4,6 +4,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 import {
   VideoCorrectionCoordinator,
   videoCorrectionPolicy,
+  technicalCorrector,
 } from "../src/server/domains/video/corrector";
 import {
   videoQaFindings,
@@ -319,3 +320,11 @@ it.each(["layout", "contrast", "technical", "pacing", "style"] as const)(
     );
   },
 );
+
+it("directs determinism repairs to frame evidence without weakening validation", () => {
+  expect(technicalCorrector.instructions).toContain("reference/actual/diff images before editing");
+  expect(technicalCorrector.instructions).toContain("cleared Canvas 2D overlay");
+  expect(technicalCorrector.instructions).toContain(
+    "Do not guess at unrelated code or weaken comparison thresholds",
+  );
+});

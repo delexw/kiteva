@@ -49,7 +49,7 @@ export const technicalCorrector: VideoCorrector = {
     "The reported error no longer occurs, required assets load and the composition initializes and seeks successfully under the existing QA checks.",
   progress: "Repairing the video…",
   instructions:
-    "Fix the reported code, asset, initialization, or rendering contract failure with the smallest change. Inspect only the implicated source files first. Keep browser and Node execution boundaries correct. Preserve the visual design and timing; do not disable validation, weaken sandbox permissions, or introduce unrelated dependencies.",
+    "Fix the reported code, asset, initialization, or rendering contract failure with the smallest change. Inspect only the implicated source files first. Keep browser and Node execution boundaries correct. Preserve the visual design and timing; do not disable validation, weaken sandbox permissions, or introduce unrelated dependencies. For Multiplane nondeterministic_output, inspect the reported time/frame, changed-pixel bounds and reference/actual/diff images before editing. Check all animated state is derived from t and canvas surfaces are reset and redrawn. If differences are confined to animated SVG antialiasing, redraw those marks on a cleared Canvas 2D overlay while preserving their shape, timing and colour. Do not guess at unrelated code or weaken comparison thresholds.",
 };
 export const pacingCorrector: VideoCorrector = {
   focus: "pacing",

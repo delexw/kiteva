@@ -244,6 +244,9 @@ it("tells the agent the Multiplane shot contract with the exact output settings"
     "fps: 60",
     "audioFile",
     "pipeline to Multiplane",
+    "Fully reset and redraw animated canvas overlays",
+    "render those animated marks on a cleared Canvas 2D overlay",
+    "Never relax determinism checks",
   ])
     expect(contract).toContain(text);
   expect(

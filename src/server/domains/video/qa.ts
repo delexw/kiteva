@@ -3,6 +3,10 @@ import {
   type ReviewCorrection,
 } from "../../../shared/agents/schemas/result-review";
 import { z } from "zod";
+import {
+  formatHyperframesDiagnostic,
+  rendererCorrectionEvidence,
+} from "../../rendering/diagnostics";
 
 export type CorrectionFocus = ReviewCorrection["focus"];
 export interface CorrectionFinding {
@@ -67,13 +71,37 @@ export function videoQaFindings(report: z.infer<typeof VideoQaReportSchema>): Co
         findings.push({
           focus,
           cheapEligible: focus !== "style",
-          evidence: { section, findings: [error], snapshots: report.snapshots },
+          evidence: {
+            ...rendererCorrectionEvidence(
+              [
+                error,
+                ...report[section].findings.filter((finding) => finding.severity === "warning"),
+              ].map((finding) => formatHyperframesDiagnostic(section, finding)),
+              "renders/qa-report.json",
+            ),
+            snapshots: report.snapshots,
+          },
         });
       if (!errors.length)
         findings.push({
           focus,
           cheapEligible: focus !== "style",
-          evidence: { section, findings: [], snapshots: report.snapshots },
+          evidence: {
+            ...rendererCorrectionEvidence(
+              [
+                formatHyperframesDiagnostic(section, {
+                  severity: "error",
+                  code: "check_failed",
+                  message: `${section} check failed without an error finding`,
+                }),
+                ...report[section].findings.map((finding) =>
+                  formatHyperframesDiagnostic(section, finding),
+                ),
+              ],
+              "renders/qa-report.json",
+            ),
+            snapshots: report.snapshots,
+          },
         });
     }
   }
@@ -81,7 +109,16 @@ export function videoQaFindings(report: z.infer<typeof VideoQaReportSchema>): Co
     findings.push({
       focus: "technical",
       cheapEligible: false,
-      evidence: { message: "QA did not complete all required browser checks", report },
+      evidence: rendererCorrectionEvidence(
+        [
+          formatHyperframesDiagnostic("check", {
+            severity: "error",
+            code: "incomplete_checks",
+            message: "QA did not complete all required browser checks",
+          }),
+        ],
+        "renders/qa-report.json",
+      ),
     });
   return findings;
 }

@@ -22,6 +22,9 @@ import {
   multiplaneRenderArgs,
   multiplaneResult,
   multiplaneShotProblems,
+  multiplaneDiagnostics,
+  multiplaneFailure,
+  runMultiplane,
 } from "../src/server/rendering/multiplane";
 import { renderJob } from "../src/server/domains/video/render";
 import { renderContract } from "../src/server/domains/video/prompts";
@@ -68,6 +71,80 @@ const ffprobe = (codec: string) =>
     format: { duration: "3" },
   });
 beforeEach(() => vi.clearAllMocks());
+
+const lintFinding = (file: string, severity = "error") =>
+  JSON.stringify({
+    type: "finding",
+    code: "unseeded_random",
+    severity,
+    message: "Unseeded randomness is nondeterministic.",
+    hint: "Use a fixed seed.",
+    location: { file, line: 10, column: 5757 },
+    details: { snippet: "Math.random()" },
+  });
+
+it("forwards structured lint errors and warnings across output chunks and retains the full report", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "multiplane-diagnostics-"));
+  const output = [
+    lintFinding("vendor/gsap.min.js"),
+    lintFinding("shot.html", "warning"),
+    "non-json output",
+    result("inspect", false, {}, { message: "Shot lint checks failed." }),
+  ].join("\n");
+  vi.mocked(isolatedCommand).mockImplementation(
+    async (_exe, _args, _cwd, _signal, _output, _timeout, stdout) => {
+      stdout?.(output.slice(0, 35));
+      stdout?.(output.slice(35));
+      throw Error("exited 1");
+    },
+  );
+  const error = await runMultiplane("inspect", [], workspace, new AbortController().signal).catch(
+    (error: Error) => error,
+  );
+  expect(error).toBeInstanceOf(Error);
+  const message = (error as Error).message;
+  expect(message).toContain("Shot lint checks failed.");
+  expect(message).toContain('"column":5757');
+  expect(message).toContain('"severity":"warning"');
+  expect(message).toContain('"source":"bundled dependency"');
+  expect(message).toContain('"source":"authored source"');
+  expect(message).toContain("Use a fixed seed.");
+  const report = message.match(/Complete diagnostic report: (.+)/)?.[1];
+  expect(report).toBeTruthy();
+  expect(await readFile(path.join(workspace, report!), "utf8")).toBe(output);
+});
+
+it("bounds repair messages without losing the saved findings and ignores malformed events", () => {
+  const output = [
+    "{",
+    JSON.stringify({ type: "finding", code: 3 }),
+    lintFinding("vendor/gsap.min.js"),
+  ].join("\n");
+  const findings = multiplaneDiagnostics(output);
+  expect(findings).toHaveLength(1);
+  const error = multiplaneFailure(
+    "inspect",
+    { type: "result", ok: false },
+    Array(1000).fill(findings[0]),
+    "report.jsonl",
+  );
+  expect(error.message.length).toBeLessThan(25000);
+  expect(error.message).toContain("additional findings omitted");
+  expect(error.message).toContain("report.jsonl");
+});
+
+it("retains warning reports for successful commands without failing the command", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "multiplane-warning-"));
+  vi.mocked(isolatedCommand).mockImplementation(
+    async (_exe, _args, _cwd, _signal, _output, _timeout, stdout) => {
+      stdout?.(`${lintFinding("shot.html", "warning")}\n${result("inspect", true)}`);
+      return "";
+    },
+  );
+  expect((await runMultiplane("inspect", [], workspace, new AbortController().signal)).ok).toBe(
+    true,
+  );
+});
 
 it("keeps HyperFrames the default and lets a project choose the Multiplane trial", () => {
   expect(videoRendererOf(VideoRequestSchema.parse({ instructions: "A visual demo" }))).toBe(

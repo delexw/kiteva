@@ -73,7 +73,11 @@ it("retains structured failing stdout independently of stderr and a failed proce
     expect(error.findings[0]).toMatchObject({
       focus: "layout",
       cheapEligible: true,
-      evidence: { findings: [{ selector: "#label", time: 1.5 }] },
+      evidence: {
+        diagnostics: [
+          { renderer: "hyperframes", stage: "layout", details: { selector: "#label", time: 1.5 } },
+        ],
+      },
     });
     expect(
       JSON.parse(await readFile(path.join(workspace, "renders/qa-report.json"), "utf8")),

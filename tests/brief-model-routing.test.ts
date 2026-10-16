@@ -104,6 +104,14 @@ it.each([
           await readFile(path.join(options.workspace, "input.json"), "utf8"),
         );
         expect(options.prompt).toContain("Return subject as a short idea title of 4–10 words");
+        expect(options.prompt).toContain("Keep previewBeat and any proposed scenes style-neutral");
+        expect(options.prompt).toContain("Do not suggest styles anywhere in the brief.");
+        expect(options.prompt).toContain(
+          "Preserve visual choices explicitly requested by the user",
+        );
+        expect(options.prompt).toContain(
+          "Defer all other visual treatment to the subsequent style-selection stage",
+        );
         expect(options.referenceUrls).toEqual(["http://127.0.0.1:4317/"]);
         expect(input.sourceDescriptions.join(" ")).toContain("Use reference_browser tools");
         const reference = {

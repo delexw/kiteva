@@ -208,15 +208,21 @@ it("routes structured QA categories and ignores advisory findings", () => {
     },
     snapshots: { files: ["snapshots/frame.png"] },
   });
-  expect(videoQaFindings(report)).toEqual([
+  expect(videoQaFindings(report)).toMatchObject([
     {
       focus: "layout",
       cheapEligible: true,
       evidence: {
-        section: "layout",
-        findings: [
-          { severity: "error", code: "content_overlap", selector: "#label", times: [1.5] },
+        diagnostics: [
+          {
+            renderer: "hyperframes",
+            stage: "layout",
+            severity: "error",
+            code: "content_overlap",
+            details: { selector: "#label", times: [1.5] },
+          },
         ],
+        reportFile: "renders/qa-report.json",
         snapshots: { files: ["snapshots/frame.png"] },
       },
     },

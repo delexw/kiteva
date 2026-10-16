@@ -1,10 +1,12 @@
 import { existsSync } from "node:fs";
-import { mkdir } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
 import os from "node:os";
 import path from "node:path";
 import { z } from "zod";
 import { appRoot } from "../runtime/config.js";
 import { isolatedCommand } from "../runtime/process.js";
+import { formatMultiplaneDiagnostic, RendererDiagnosticError } from "./diagnostics";
 
 export const multiplaneCli = path.join(appRoot, "node_modules/multiplane/bin/multiplane");
 export const multiplaneJobsDir = "renders/multiplane-jobs";
@@ -18,6 +20,48 @@ const ResultSchema = z.object({
   data: z.record(z.string(), z.unknown()).nullable().optional(),
 });
 export type MultiplaneResult = z.infer<typeof ResultSchema>;
+
+const FindingSchema = z.object({
+  type: z.literal("finding"),
+  code: z.string(),
+  severity: z.string(),
+  message: z.string(),
+  hint: z.string().nullable().optional(),
+  location: z
+    .object({
+      file: z.string(),
+      line: z.number().optional(),
+      column: z.number().optional(),
+    })
+    .nullable()
+    .optional(),
+  details: z.object({ snippet: z.string().optional() }).nullable().optional(),
+});
+
+export function multiplaneDiagnostics(stdout: string) {
+  const findings: string[] = [];
+  for (const line of stdout.split("\n")) {
+    try {
+      const parsed = FindingSchema.safeParse(JSON.parse(line));
+      if (!parsed.success) continue;
+      const finding = parsed.data;
+      const file = finding.location?.file;
+      const dependency = file && /(^|[\\/])(vendor|node_modules)[\\/]/.test(file);
+      findings.push(
+        JSON.stringify({
+          ...finding,
+          source: dependency ? "bundled dependency" : file ? "authored source" : "unknown",
+          details: finding.details
+            ? { snippet: finding.details.snippet?.slice(0, 400) }
+            : undefined,
+        }),
+      );
+    } catch {
+      continue;
+    }
+  }
+  return findings;
+}
 
 export function multiplaneEnvironment(): Record<string, string> {
   return {
@@ -117,10 +161,30 @@ export function multiplaneProgress(line: string) {
     return undefined;
   }
 }
-export function multiplaneFailure(command: string, result: MultiplaneResult | undefined) {
+export function multiplaneFailure(
+  command: string,
+  result: MultiplaneResult | undefined,
+  diagnostics: string[] = [],
+  report?: string,
+) {
   if (!result) return Error(`Multiplane ${command} did not report a result`);
-  return Error(
-    `Multiplane ${command} failed (${result.code || "unknown"}): ${result.message || "no message"}${result.hint ? ` Hint: ${result.hint}` : ""}`,
+  const budget = 24000;
+  const included: string[] = [];
+  let size = 0;
+  for (const diagnostic of diagnostics) {
+    if (size + diagnostic.length > budget) break;
+    included.push(diagnostic);
+    size += diagnostic.length;
+  }
+  return new RendererDiagnosticError(
+    `Multiplane ${command} failed (${result.code || "unknown"}): ${result.message || "no message"}${result.hint ? ` Hint: ${result.hint}` : ""}` +
+      (report ? `\nComplete diagnostic report: ${report}` : "") +
+      (included.length ? `\nStructured findings:\n${included.join("\n")}` : "") +
+      (included.length < diagnostics.length
+        ? `\n${diagnostics.length - included.length} additional findings omitted from this message; read the complete report.`
+        : ""),
+    diagnostics.map((finding) => formatMultiplaneDiagnostic(command, JSON.parse(finding))),
+    report,
   );
 }
 export async function runMultiplane(
@@ -159,9 +223,15 @@ export async function runMultiplane(
     failure = error;
   }
   const result = multiplaneResult(stdout);
+  let report: string | undefined;
+  if (stdout.trim()) {
+    report = path.join(multiplaneJobsDir, `diagnostics-${randomUUID()}.jsonl`);
+    await mkdir(path.join(workspace, multiplaneJobsDir), { recursive: true });
+    await writeFile(path.join(workspace, report), stdout, "utf8");
+  }
   if (result?.ok) return result;
   if (!result && failure) throw failure;
-  throw multiplaneFailure(command, result);
+  throw multiplaneFailure(command, result, multiplaneDiagnostics(stdout), report);
 }
 
 export type MultiplaneStatus = {

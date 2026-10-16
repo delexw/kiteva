@@ -1250,6 +1250,7 @@
 }
 .room-project .comparison-toolbar {
   flex-wrap: wrap;
+  margin-block: 16px;
 }
 .room-project .comparison-controls {
   margin-bottom: 16px;

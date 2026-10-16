@@ -1,4 +1,5 @@
 import { InputRequired } from "../../../shared/input-checkpoint";
+import { RendererDiagnosticError, rendererCorrectionEvidence } from "../../rendering/diagnostics";
 import { prepareVideoBuildPlan } from "./build-plan";
 import {
   BriefSchema,
@@ -187,7 +188,16 @@ export async function generateVideo(input: {
       const findings =
         error instanceof VideoQaError
           ? error.findings
-          : [{ focus: "technical" as const, cheapEligible: false, evidence: job.error }];
+          : [
+              {
+                focus: "technical" as const,
+                cheapEligible: false,
+                evidence:
+                  error instanceof RendererDiagnosticError
+                    ? rendererCorrectionEvidence(error.diagnostics, error.reportFile)
+                    : job.error,
+              },
+            ];
       await corrector.correctRound(findings);
       job.resultReview = undefined;
       update();

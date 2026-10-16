@@ -1,6 +1,14 @@
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { motion, useDragControls, useReducedMotion } from "motion/react";
 import { Button, Tooltip } from "antd";
+import { useViewportVisibility } from "../use-viewport-visibility";
 import { ArrowLeft, Minus, Maximize2, Minimize2, X } from "lucide-react";
 import type { RoomWindowState } from "../../shared/room";
 import { snapRoomWindow, type RoomArea, type RoomGeometry } from "./window-layout";
@@ -49,6 +57,12 @@ export function RoomWindow({
   const controls = useDragControls();
   const reduced = useReducedMotion();
   const node = useRef<HTMLElement>(null);
+  const content = useRef<HTMLDivElement>(null);
+  const contentVisible = useViewportVisibility(content, 0);
+  const scrollPosition = useRef(0);
+  useLayoutEffect(() => {
+    if (contentVisible && content.current) content.current.scrollTop = scrollPosition.current;
+  }, [contentVisible]);
   const expanded = state.maximized || mobile;
   const [resizing, setResizing] = useState<RoomGeometry>();
   const place = (geometry: Partial<RoomGeometry>) => {
@@ -179,7 +193,15 @@ export function RoomWindow({
           </Button>
         )}
       </header>
-      <div className={`room-window-content ${fill ? "is-fill" : ""}`}>{children}</div>
+      <div
+        ref={content}
+        className={`room-window-content ${fill ? "is-fill" : ""}`}
+        onScroll={(event) => {
+          if (contentVisible) scrollPosition.current = event.currentTarget.scrollTop;
+        }}
+      >
+        {contentVisible && (!mobile || front) ? children : null}
+      </div>
       {!expanded && (
         <button
           type="button"

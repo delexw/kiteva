@@ -22,7 +22,8 @@ it("publishes the original backstage manga style with separate renderer, motion 
     "Anime.js",
     "Matter.js",
   ]);
-  expect(style.tech.recommended_stack.find((tool) => tool.name === "HyperFrames")).toBeTruthy();
+  expect(style.tech.recommended_stack.find((tool) => tool.name === "HyperFrames")).toBeUndefined();
+  expect(style.tech.render_pipeline).toContain("project's renderer setting");
   expect(style.motion_references.candidates.map((entry) => entry.motion_id)).toEqual([
     "motion-012",
     "motion-036",

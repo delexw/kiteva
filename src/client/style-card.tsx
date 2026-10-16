@@ -1,7 +1,7 @@
 import { Button, Card, Popover } from "antd";
 import { useViewportVisibility } from "./use-viewport-visibility";
 import type { ReactNode } from "react";
-import { useEffect, useState, useRef } from "react";
+import { memo, useEffect, useState, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import type { Style, StyleExample } from "../shared/contracts";
@@ -106,19 +106,21 @@ export function StyleExampleMedia({
     setFailed(false);
     setVideoFailed(false);
   }, [styleId, version, videoVersion]);
-  const shouldPlay = playbackEnabled && !reducedMotion && (playOnOpen || visible);
+  const showVideo = Boolean(video) && !videoFailed && !reducedMotion && visible && playbackEnabled;
+  const shouldPlay = showVideo;
   useEffect(() => {
     const el = player.current;
     if (!el) return;
     if (shouldPlay) void el.play().catch(() => {});
     else el.pause();
+    return () => el.pause();
   }, [shouldPlay, video, videoVersion]);
   const poster = `/api/examples/${styleId}${version ? `?version=${encodeURIComponent(version)}` : ""}`;
   return (
     <div ref={container} className="example-media">
       {failed ? (
         <div className="example-placeholder">Claude example is being prepared</div>
-      ) : video && !videoFailed && !reducedMotion ? (
+      ) : showVideo ? (
         <video
           ref={player}
           className="example"
@@ -170,7 +172,7 @@ type StyleCardProps = {
   showPalette?: boolean;
   onSelect: (id: string) => void;
 };
-export function StyleCard({
+export const StyleCard = memo(function StyleCard({
   style,
   example,
   variant = "explorer",
@@ -256,4 +258,4 @@ export function StyleCard({
       )}
     </Card>
   );
-}
+});

@@ -119,8 +119,20 @@ it("keeps closed windows closed through reload, project refresh and Arrange", as
     { ...newRoomWindow("project:d"), minimized: true },
   ]);
   expect(byId(arranged, "project:a")).toMatchObject({ closed: true, minimized: false });
-  expect(isRoomWindowShown(byId(arranged, "project:d"))).toBe(true);
-  expect(isRoomWindowInDock(byId(arranged, "detail:a"))).toBe(true);
+  expect(isRoomWindowInDock(byId(arranged, "project:d"))).toBe(true);
+  expect(isRoomWindowInDock(byId(arranged, "detail:a"))).toBe(false);
+});
+
+it("arranges only displayed windows and preserves inactive and minimized window state", () => {
+  const active = { ...newRoomWindow("detail:a"), maximized: true, placement: "user" as const };
+  const inactive = { ...newRoomWindow("utility:styles"), placement: "user" as const };
+  const minimized = { ...newRoomWindow("project:b"), minimized: true, placement: "user" as const };
+  const closed = { ...newRoomWindow("project:c"), closed: true };
+  const arranged = arrangeRoomWindows([active, inactive, minimized, closed], active.id);
+  expect(arranged[0]).toMatchObject({ maximized: false, minimized: false, placement: "auto" });
+  expect(arranged[1]).toBe(inactive);
+  expect(arranged[2]).toBe(minimized);
+  expect(arranged[3]).toBe(closed);
 });
 
 it("reopens only on an explicit choice: a project from the list, Show all, or its direct link", () => {

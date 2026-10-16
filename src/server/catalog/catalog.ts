@@ -5,7 +5,10 @@ import { z } from "zod";
 import { StyleSchema, MotionPatternSchema } from "../../shared/contracts.js";
 import { catalogRoot } from "../runtime/config.js";
 import { validateCombinationReview } from "../../shared/style-combinations";
-import { resolveStyleTechnology } from "../../shared/style-technology";
+import {
+  resolveStyleTechnology,
+  styleTechnologyRecommendations,
+} from "../../shared/style-technology";
 export async function loadCatalog() {
   const raw = await readFile(path.join(catalogRoot, "video-style-catalog.json"), "utf8");
   const source = JSON.parse(raw);
@@ -57,6 +60,10 @@ export async function loadCatalog() {
   }
   return {
     ...styles,
+    styles: styles.styles.map((style) => ({
+      ...style,
+      tech: styleTechnologyRecommendations(style.tech),
+    })),
     originalStyles: resolvedStyles as Record<string, unknown>[],
     motions: motion.patterns,
     hash: createHash("sha256").update(raw).digest("hex"),

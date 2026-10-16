@@ -108,9 +108,9 @@ describe("style combination recommendations", () => {
     expect(html).toContain(`${style.name_en} + ${catalog.styles[1].name_en}`);
     expect(html).toContain("ant-collapse");
     expect(html).toContain('aria-expanded="false"');
-    expect(html).toContain("Preserve the primary palette.");
-    expect(html).toContain("Video:");
-    expect(html).toContain("HTML:");
+    expect(html).not.toContain("Preserve the primary palette.");
+    expect(html).not.toContain("Video:");
+    expect(html).not.toContain("HTML:");
     expect(html).not.toContain("supporting_styles");
     expect(pageStyleContext(style).suggested_combinations).toEqual(combinations);
     expect(
@@ -123,7 +123,7 @@ describe("style combination recommendations", () => {
       ),
     ).toBe("");
   });
-  it("shows existing primary and supporting motion previews outside the collapsed guidance", async () => {
+  it("shows primary and supporting posters before viewport activation", async () => {
     const catalog = await loadCatalog();
     const style = { ...catalog.styles[0], suggested_combinations: combinations };
     const examples = [style, catalog.styles[1]].map((item) => ({
@@ -142,9 +142,10 @@ describe("style combination recommendations", () => {
         onSelect={() => {}}
       />,
     );
-    expect(html.match(/<video/g)).toHaveLength(2);
+    expect(html).not.toContain("<video");
+    expect(html.match(/<img/g)).toHaveLength(2);
     for (const item of [style, catalog.styles[1]]) {
-      expect(html).toContain(`/api/examples/${item.id}/video`);
+      expect(html).toContain(`/api/examples/${item.id}?version=`);
       expect(html).toContain(`data-style-id="${item.id}"`);
     }
     expect(html).toContain("Individual style previews");

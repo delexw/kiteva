@@ -8,7 +8,7 @@ import { resolveStyleTechnology } from "../src/shared/style-technology";
 import { validateTechnologyReview } from "../src/shared/technology-review";
 
 describe("shared technology pool", () => {
-  it("retains all 943 original assignments and untouched style metadata", async () => {
+  it("retains original source assignments and metadata while separating project renderers", async () => {
     const catalog = await loadCatalog();
     const fingerprints = JSON.parse(
       readFileSync(
@@ -40,14 +40,23 @@ describe("shared technology pool", () => {
     expect(Object.keys(technologyPool)).toHaveLength(93);
     expect(new Set(Object.values(technologyPool).map((entry) => entry.name)).size).toBe(93);
     expect(
-      catalog.styles
+      catalog.originalStyles
         .slice(0, 115)
-        .reduce((count, style) => count + style.tech.recommended_stack.length, 0),
+        .reduce(
+          (count, style) =>
+            count + (style.tech as { recommended_stack: unknown[] }).recommended_stack.length,
+          0,
+        ),
     ).toBeGreaterThanOrEqual(943);
     for (const style of originalStyles) {
       const current = catalog.styles.find((entry) => entry.id === style.id)!;
       expect(current.tech.recommended_stack.map((tool) => tool.name)).toEqual(
-        expect.arrayContaining(originalStackNames[String(style.id)]),
+        expect.arrayContaining(
+          originalStackNames[String(style.id)].filter(
+            (name: string) =>
+              !["HyperFrames", "Remotion", "@remotion/renderer", "Multiplane"].includes(name),
+          ),
+        ),
       );
       if (intentionallyUpdatedIds.has(String(style.id))) continue;
       // This fingerprint predates the requested flexible-background policy.
@@ -179,7 +188,12 @@ it("recommends optional Matter.js only for reviewed 2D physics uses and preserve
   );
   for (const style of matches.filter((entry) => source[entry.id]))
     expect(style.tech.recommended_stack.map((tool) => tool.name)).toEqual(
-      expect.arrayContaining(source[style.id]),
+      expect.arrayContaining(
+        source[style.id].filter(
+          (name: string) =>
+            !["HyperFrames", "Remotion", "@remotion/renderer", "Multiplane"].includes(name),
+        ),
+      ),
     );
 });
 
@@ -204,7 +218,12 @@ it("recommends OpenScreen only as optional external footage preparation for prod
     const tool = style.tech.recommended_stack.find((entry) => entry.name === "OpenScreen")!;
     expect(tool.style_application).not.toBe(technologyPool.openscreen.style_application);
     expect(style.tech.recommended_stack.map((entry) => entry.name)).toEqual(
-      expect.arrayContaining(originalStacks[style.id]),
+      expect.arrayContaining(
+        originalStacks[style.id].filter(
+          (name: string) =>
+            !["HyperFrames", "Remotion", "@remotion/renderer", "Multiplane"].includes(name),
+        ),
+      ),
     );
   }
   expect(

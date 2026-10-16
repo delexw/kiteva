@@ -89,6 +89,13 @@ export function initialRoomRequest(): CreativeRequest {
 export function emptyRoomDraft(): RoomDraft {
   return { step: 0, request: { instructions: "" }, assets: [] };
 }
+
+export function removeRoomEditDraft(drafts: Record<string, RoomDraft>, key: string) {
+  if (!key.startsWith("edit:") || !Object.hasOwn(drafts, key)) return drafts;
+  const remaining = { ...drafts };
+  delete remaining[key];
+  return remaining;
+}
 const strings = (value: unknown) =>
   Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 /**

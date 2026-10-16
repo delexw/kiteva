@@ -86,6 +86,7 @@ import {
   emptyRoomDraft,
   roomDraftFromProject,
   roomMaterialSection,
+  removeRoomEditDraft,
 } from "./onboarding";
 import type { StylePicker } from "../components/style-picker";
 import "./room.css";
@@ -488,7 +489,10 @@ export function CreativeRoom({
   const setDraft = (key: string, draft: RoomDraft) =>
     setRoom((previous) => ({ ...previous, drafts: { ...previous.drafts, [key]: draft } }));
   function arrange() {
-    setRoom((previous) => ({ ...previous, windows: arrangeRoomWindows(previous.windows) }));
+    setRoom((previous) => ({
+      ...previous,
+      windows: arrangeRoomWindows(previous.windows, routeWindowId),
+    }));
     onHome();
   }
   function assistantContent() {
@@ -748,7 +752,7 @@ export function CreativeRoom({
             >
               New idea
             </Button>
-            <Tooltip title="Line up open windows and bring minimized projects back. Closed windows stay closed.">
+            <Tooltip title="Line up visible windows. Minimized and closed windows stay as they are.">
               <Button icon={<LayoutGrid size={15} />} onClick={arrange}>
                 Arrange
               </Button>
@@ -935,6 +939,33 @@ export function CreativeRoom({
                             <ChevronDown size={14} />
                           </Button>
                         </Dropdown>
+                        {conversation.startsWith("edit:") && room.drafts[conversation] && (
+                          <Button
+                            type="text"
+                            danger
+                            size="small"
+                            onClick={() => {
+                              const draftKey = conversation;
+                              modal.confirm({
+                                title: "Remove this editing draft?",
+                                content: "The project, videos and material shelf will be kept.",
+                                okText: "Remove draft",
+                                okButtonProps: { danger: true },
+                                onOk: () => {
+                                  setRoom((previous) => ({
+                                    ...previous,
+                                    drafts: removeRoomEditDraft(previous.drafts, draftKey),
+                                  }));
+                                  setConversation("new");
+                                  setQuestion(undefined);
+                                  if (draftKey === `edit:${editSourceId}`) onHome();
+                                },
+                              });
+                            }}
+                          >
+                            Remove draft
+                          </Button>
+                        )}
                         {questionCount > 0 && (
                           <span className="room-hint">{questionCount} waiting for you</span>
                         )}

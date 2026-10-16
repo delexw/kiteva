@@ -1,5 +1,36 @@
 import { z } from "zod";
 import { technologyPool, type TechnologyDefinition, type TechnologyKey } from "./technology-pool";
+import type { Style } from "./contracts";
+
+const projectRendererTools = new Set([
+  "HyperFrames",
+  "Remotion",
+  "@remotion/renderer",
+  "Multiplane",
+]);
+export function styleTechnologyRecommendations(tech: Style["tech"]): Style["tech"] {
+  return {
+    ...tech,
+    recommended_stack: tech.recommended_stack.filter(
+      (tool) => !projectRendererTools.has(tool.name),
+    ),
+    ...(Array.isArray(tech.alternatives)
+      ? {
+          alternatives: tech.alternatives.filter(
+            (name) => typeof name !== "string" || !projectRendererTools.has(name),
+          ),
+        }
+      : {}),
+    render_pipeline:
+      "Uses the project's renderer setting. Style recommendations select visual and motion tools, not the composition or export framework.",
+    framework_selection: {
+      source: "project.renderer",
+      scope: "Composition and export follow the project setting.",
+    },
+    library_selection:
+      "Choose visual, motion and supporting tools for the style, scene, assets and required fidelity. Use one owner for each animated property and deterministic seekable time. Composition and export follow the project's renderer setting; style suggestions do not override it.",
+  };
+}
 
 const TechnologyReferencesSchema = z
   .object({

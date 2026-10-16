@@ -96,11 +96,11 @@ it("shows a tool window only on its route and keeps it through minimize, close a
   const reopened = openRoomWindow(closed, styles.id)[0];
   expect(reopened).toMatchObject({ x: 480, y: 64, width: 720, height: 520, placement: "user" });
   expect(isRoomWindowDisplayed(reopened, styles.id)).toBe(true);
-  const arranged = arrangeRoomWindows([
-    placed,
-    ...closed.map((w) => ({ ...w, id: "utility:motions" })),
-  ]);
-  expect(arranged[0]).toMatchObject({ minimized: true, placement: "auto" });
+  const arranged = arrangeRoomWindows(
+    [placed, ...closed.map((w) => ({ ...w, id: "utility:motions" }))],
+    placed.id,
+  );
+  expect(arranged[0]).toMatchObject({ minimized: false, placement: "auto" });
   expect(arranged[1]).toMatchObject({ closed: true, minimized: false });
 });
 

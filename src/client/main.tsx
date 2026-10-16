@@ -7,6 +7,7 @@ import {
 } from "./room/utility-windows";
 import { ProjectResultPending } from "./components/project-result-pending";
 import { RoomProject } from "./room/room-project";
+import { styleTechnologyRecommendations } from "../shared/style-technology";
 import { replayPreviewVideos } from "./lib/replay-preview-videos";
 import { ProjectStatus } from "./components/project-status";
 import { StylePicker } from "./components/style-picker";
@@ -49,7 +50,7 @@ const Textarea = Input.TextArea;
 import "./framework.css";
 import { StudioSelect, StudioSelectOption } from "./components/studio-select";
 import { InteractivePagePreview } from "./domains/page/preview";
-import React, { useEffect, useState, useRef, lazy, Suspense } from "react";
+import React, { useEffect, useState, useRef, useCallback, lazy, Suspense } from "react";
 import type { StickToBottomContext } from "use-stick-to-bottom";
 import { createRoot } from "react-dom/client";
 import { MotionConfig } from "motion/react";
@@ -345,13 +346,17 @@ function App() {
       projectNavigation.current++;
     };
   }, [projectId, page, settingsSourceId, navigate]);
+  const styleDetailCache = useRef(new Map<string, Style>());
   useEffect(() => {
-    setDetail(undefined);
-    if (!styleId) return;
+    setDemo(false);
+    const cached = styleId ? styleDetailCache.current.get(styleId) : undefined;
+    setDetail(cached);
+    if (!styleId || cached) return;
     let disposed = false;
     void api<Style>(`/api/styles/${styleId}`)
       .then((style) => {
         if (!disposed) {
+          styleDetailCache.current.set(styleId, style);
           setDetail(style);
           setDemo(false);
         }
@@ -389,9 +394,12 @@ function App() {
       setDeleting(false);
     }
   }
-  function openStyle(id: string) {
-    navigate(`/styles/${id}`);
-  }
+  const openStyle = useCallback(
+    (id: string) => {
+      navigate(`/styles/${id}`);
+    },
+    [navigate],
+  );
   async function upload(
     files: FileList | null,
     section: Exclude<BriefSectionName, "urls"> = "main",
@@ -847,7 +855,7 @@ function App() {
               showId={false}
               showDescription={false}
               example={examples.find((example) => example.styleId === s.id)}
-              playbackEnabled={playDemos}
+              playbackEnabled={playDemos && !detail}
               onSelect={openStyle}
             />
           ))}
@@ -857,10 +865,14 @@ function App() {
     );
   }
   function styleDetailDialog(detail: Style, onUse: (style: Style) => void) {
+    const technology = styleTechnologyRecommendations(detail.tech);
     return (
       <Dialog
         title={detail.name_en}
-        onClose={() => navigate("/styles")}
+        onClose={() => {
+          setDetail(undefined);
+          navigate("/styles");
+        }}
         wide
         footer={
           <Button type="primary" className="primary" onClick={() => onUse(detail)}>
@@ -940,16 +952,16 @@ function App() {
             <h3>Production responsibilities</h3>
             <p>
               <strong>Visuals:</strong>{" "}
-              {detail.tech.style_renderer.recommended_stack_refs.join(", ") ||
+              {technology.style_renderer.recommended_stack_refs.join(", ") ||
                 "Select an appropriate style renderer"}
             </p>
             <p>
               <strong>Motion:</strong>{" "}
-              {detail.tech.motion_engine.recommended_stack_refs.join(", ") ||
+              {technology.motion_engine.recommended_stack_refs.join(", ") ||
                 "Select an appropriate motion engine"}
             </p>
             <p>
-              <strong>Export:</strong> HyperFrames first · Remotion conditional fallback
+              <strong>Export:</strong> Uses the project’s renderer setting
             </p>
             <h3>Palette constraints</h3>
             <ul>
@@ -966,18 +978,18 @@ function App() {
               onSelect={openStyle}
             />
             <Collapse
+              destroyOnHidden
               size="small"
               items={[
                 {
                   key: "Recommended stack",
                   label: "Recommended stack",
-                  forceRender: true,
                   children: (
                     <>
                       <RecommendedStack
-                        libraries={detail.tech.recommended_stack}
-                        implementation={detail.tech.implementation}
-                        selectionGuidance={detail.tech.library_selection}
+                        libraries={technology.recommended_stack}
+                        implementation={technology.implementation}
+                        selectionGuidance={technology.library_selection}
                       />
                     </>
                   ),
@@ -985,12 +997,12 @@ function App() {
               ]}
             />
             <Collapse
+              destroyOnHidden
               size="small"
               items={[
                 {
                   key: "Motion references",
                   label: "Motion references",
-                  forceRender: true,
                   children: (
                     <>
                       <MotionReferences references={detail.motion_references} />
@@ -1000,12 +1012,12 @@ function App() {
               ]}
             />
             <Collapse
+              destroyOnHidden
               size="small"
               items={[
                 {
                   key: "Executable prompt",
                   label: "Executable prompt",
-                  forceRender: true,
                   children: (
                     <>
                       <pre>{detail.executable_prompt_template}</pre>

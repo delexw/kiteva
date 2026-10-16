@@ -51,12 +51,12 @@ export function SuggestedCombinations({
               ))}
             </div>
             <Collapse
+              destroyOnHidden
               className="combination-accordion"
               items={[
                 {
                   key: "guidance",
                   label: "Combination guidance",
-                  forceRender: true,
                   children: (
                     <div className="combination-guidance">
                       <p>

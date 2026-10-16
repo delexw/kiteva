@@ -47,16 +47,13 @@ export function closeRoomWindow(windows: readonly RoomWindowState[], id: string)
 export function showAllProjectWindows(windows: readonly RoomWindowState[], projectIds: string[]) {
   return projectIds.reduce((next, id) => openRoomWindow(next, `project:${id}`), [...windows]);
 }
-/** Line up open windows and bring minimized project cards back; closed windows stay closed. */
-export function arrangeRoomWindows(windows: readonly RoomWindowState[]) {
-  return windows.map((window) => ({
-    ...window,
-    placement: "auto" as const,
-    maximized: false,
-    minimized:
-      !window.closed &&
-      (isRoomRouteWindow(window.id) || (window.minimized && !window.id.startsWith("project:"))),
-  }));
+/** Arrange displayed windows without opening or minimizing any other window. */
+export function arrangeRoomWindows(windows: readonly RoomWindowState[], routeWindowId?: string) {
+  return windows.map((window) =>
+    isRoomWindowDisplayed(window, routeWindowId)
+      ? { ...window, placement: "auto" as const, maximized: false }
+      : window,
+  );
 }
 
 export function roomMobileFront(

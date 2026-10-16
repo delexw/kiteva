@@ -1,0 +1,14 @@
+.speech-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
+}
+.speech-settings audio {
+  width: 100%;
+  max-width: 100%;
+}
+.room-settings > .speech-settings {
+  grid-column: 1 / -1;
+}

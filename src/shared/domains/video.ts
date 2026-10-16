@@ -3,6 +3,7 @@ import { validateStyleSelection } from "../style-selection";
 import { z } from "zod";
 import { SharedRequestSchema } from "./common";
 import { videoRendererIds } from "../video-renderers";
+import { SpeechSettingsSchema, type SpeechTrack } from "../speech";
 import type { JobState } from "./common";
 export { MAX_VIDEO_DURATION } from "../agents/schemas/video";
 import { MAX_VIDEO_DURATION } from "../agents/schemas/video";
@@ -32,6 +33,7 @@ export const VideoRequestSchema = SharedRequestSchema.extend({
   frameRate: z.union([z.literal(30), z.literal(60)]).optional(),
   renderer: z.enum(videoRendererIds).optional(),
   lyrics: LyricsSchema.optional(),
+  speech: SpeechSettingsSchema.optional(),
 }).superRefine(validateStyleSelection);
 export type VideoRequest = z.infer<typeof VideoRequestSchema>;
 export const MIN_AUTO_VIDEO_DURATION = 15;
@@ -46,6 +48,7 @@ export function resolveVideoDuration(
 }
 export { videoStyleCountRange } from "../style-selection";
 export interface VideoGenerationJob extends JobState {
+  speechTrack?: SpeechTrack;
   outputType?: "video";
   page?: never;
   pageProduction?: never;

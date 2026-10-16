@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import { speechConfigurationProblem } from "../../shared/speech";
 import { RequestSchema, type CreativeRequest } from "../../shared/contracts";
 import { SharedRequestSchema } from "../../shared/domains/common";
 import type { PageRequest } from "../../shared/domains/page";
@@ -271,6 +272,10 @@ export function roomDraftFromProject(
   };
 }
 export function roomSubmission(request: CreativeRequest): CreativeRequest {
+  if (request.outputType === "video") {
+    const problem = speechConfigurationProblem(request);
+    if (problem) throw Error(problem);
+  }
   const manual = Boolean(request.selectedStyleIds?.length);
   return RequestSchema.parse({
     ...request,

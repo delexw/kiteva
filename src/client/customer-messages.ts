@@ -9,6 +9,11 @@ const customerErrors: Record<ErrorCode, string> = {
   TOO_MANY_DOCUMENTS: "Use up to 3 documents or other files per project.",
   ASSETS_TOO_LARGE: "Keep all attachments together within 100 MB.",
   AUDIO_TOO_LONG: "Choose audio no longer than 10 minutes per file.",
+  SPEECH_NOT_READY:
+    "Local narration needs setup. Upload a voice recording or run the speech setup.",
+  SPEECH_TOO_LONG:
+    "The voice is longer than the film. Shorten the script, increase speaking speed, or choose a longer film.",
+  SPEECH_FAILED: "We couldn't prepare or mix the voice. Check the speech settings and try again.",
   DOCUMENT_TOO_LONG:
     "Keep documents within 30 pages combined. Text files count 500 words per page.",
   FILE_TYPE_UNSUPPORTED: "This file type isn't supported. Please choose another file.",

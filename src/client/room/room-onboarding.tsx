@@ -23,6 +23,9 @@ import { lyricsFromInput } from "../../shared/domains/video";
 import { providerDisplayName } from "../../shared/model-display-name";
 import { api } from "../lib/api";
 import { RendererChoice } from "./renderer-choice";
+import { SpeechSettings } from "../components/speech-settings";
+import { ensureSpeechGenerationReady } from "../lib/speech";
+import { activeSpeech } from "../../shared/speech";
 import { videoRendererOf, videoRenderers } from "../../shared/video-renderers";
 
 const assistantAvatar = <img className="room-avatar" src="/kiteva-mark.svg" alt="" />;
@@ -51,7 +54,8 @@ function settingsSummary(request: CreativeRequest) {
   const direction = request.selectedStyleIds?.length
     ? `${request.selectedStyleIds.length} chosen style${request.selectedStyleIds.length === 1 ? "" : "s"}, built directly`
     : `${request.candidateCount || 5} preview directions`;
-  return `${providerDisplayName(request.provider)} · ${format} · ${direction} · ${request.preference === "creative" ? "explore creative ideas" : "follow my brief"}`;
+  const speech = request.outputType === "video" ? activeSpeech(request) : undefined;
+  return `${providerDisplayName(request.provider)} · ${format} · ${direction} · ${request.preference === "creative" ? "explore creative ideas" : "follow my brief"}${speech ? ` · ${speech.mode === "narration" ? "Narration" : "Uploaded vocals"}` : ""}`;
 }
 
 export function RoomOnboarding({
@@ -297,18 +301,36 @@ export function RoomOnboarding({
               Show lyrics on screen
             </label>
             {request.lyrics && request.lyrics.mode !== "off" && (
-              <Input.TextArea
-                aria-label="Your lyrics"
-                autoSize={{ minRows: 2, maxRows: 6 }}
-                placeholder="Paste your lyrics, or leave empty and I’ll write them"
-                value={request.lyrics.mode === "provided" ? request.lyrics.text : ""}
-                onChange={(e) => patch({ lyrics: lyricsFromInput(true, e.target.value) })}
-              />
+              <>
+                <Input.TextArea
+                  aria-label="Your lyrics"
+                  autoSize={{ minRows: 2, maxRows: 6 }}
+                  placeholder="Paste your lyrics, or leave empty and I’ll write them"
+                  value={request.lyrics.mode === "provided" ? request.lyrics.text : ""}
+                  onChange={(e) => patch({ lyrics: lyricsFromInput(true, e.target.value) })}
+                />
+                <SpeechSettings
+                  value={request.speech}
+                  onChange={(speech) => patch({ speech })}
+                  audioAssets={selected
+                    .filter((asset) => requirements.music.assetIds.includes(asset.id))
+                    .map((asset) => ({ id: asset.id, name: asset.originalName }))}
+                />
+              </>
             )}
           </div>
         )}
         {step === 5 && (
           <div className="room-settings">
+            {request.outputType === "video" && request.lyrics && request.lyrics.mode !== "off" && (
+              <SpeechSettings
+                value={request.speech}
+                onChange={(speech) => patch({ speech })}
+                audioAssets={selected
+                  .filter((asset) => requirements.music.assetIds.includes(asset.id))
+                  .map((asset) => ({ id: asset.id, name: asset.originalName }))}
+              />
+            )}
             <label>
               Make a
               <Select
@@ -489,6 +511,7 @@ export function RoomOnboarding({
                 setBusy(true);
                 setError("");
                 try {
+                  if (request.outputType === "video") await ensureSpeechGenerationReady(request);
                   const run = await api<Run>("/api/runs", {
                     method: "POST",
                     body: JSON.stringify(roomSubmission(request)),

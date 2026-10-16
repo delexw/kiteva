@@ -1,4 +1,7 @@
 import { registerRoomRoutes } from "./room/routes";
+import { registerSpeechRoutes } from "./audio/routes";
+import { speechConfigurationProblem, activeSpeech } from "../shared/speech";
+import { assetLimitKind } from "../shared/asset-limits";
 import { manualDirection } from "./jobs/manual-direction";
 import { inspectAssetLimits, validateProjectAssetLimits } from "./requests/asset-limits";
 import { assetLimits, validateAssetLimits } from "../shared/asset-limits";
@@ -53,6 +56,7 @@ import {
 } from "./catalog/style-examples";
 export async function createApp(options: { store?: Store } = {}) {
   const app = Fastify({ logger: false, bodyLimit: 26_000_000 });
+  registerSpeechRoutes(app);
   const catalog = await loadCatalog();
   const store = options.store || new Store();
   store.recover();
@@ -96,6 +100,7 @@ export async function createApp(options: { store?: Store } = {}) {
   await app.register(multipart, { limits: { fileSize: assetLimits.audio.bytes, files: 1 } });
   await registerRoomRoutes(app, store);
   app.get("/api/setup", async () => ({
+    speechSupported: true,
     agentMode,
     models,
     jevConfigured: Boolean(process.env.TYPESAFE_API_KEY || process.env.JEV_API_KEY),
@@ -300,6 +305,16 @@ export async function createApp(options: { store?: Store } = {}) {
   }));
   app.post("/api/runs", async (req, reply) => {
     const request = RequestSchema.parse(req.body);
+    if (request.outputType === "video") {
+      const problem = speechConfigurationProblem(request);
+      if (problem) throw new CodedError("INVALID_REQUEST", problem);
+      const speech = activeSpeech(request);
+      if (speech?.mode === "uploaded") {
+        const asset = store.getAsset(speech.assetId);
+        if (!asset || assetLimitKind(asset.originalName || asset.name) !== "audio")
+          throw new CodedError("INVALID_REQUEST", "Choose an attached audio recording for vocals.");
+      }
+    }
     if (request.selectedStyleIds?.length) manualDirection(request, catalog.styles);
     validateBriefSections(request, (id) => store.getAsset(id));
     await validateProjectAssetLimits(request.assetIds, (id) => store.getAsset(id));

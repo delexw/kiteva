@@ -28,6 +28,7 @@ export function projectSettingsDraft(request: CreativeRequest) {
         ? request.lyrics.text
         : "",
     urls: request.urls.join("\n"),
+    speech: request.outputType === "video" ? request.speech : undefined,
     pinnedStyleId: request.pinnedStyleId,
     selectedStyleIds: request.selectedStyleIds || [],
   };

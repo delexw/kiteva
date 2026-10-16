@@ -1,4 +1,6 @@
 import { InputRequired } from "../../../shared/input-checkpoint";
+import { CodedError } from "../../../shared/errors";
+import { prepareSpeech } from "../../audio/speech";
 import { RendererDiagnosticError, rendererCorrectionEvidence } from "../../rendering/diagnostics";
 import { prepareVideoBuildPlan } from "./build-plan";
 import {
@@ -54,6 +56,19 @@ export async function generateVideo(input: {
     request.aspectRatio,
     job.kind === "preview" ? 720 : request.resolution === "1440p" ? 1440 : 1080,
   );
+  job.speechTrack =
+    job.kind === "full"
+      ? await prepareSpeech({
+          request,
+          brief,
+          workspace: job.workspace,
+          duration: job.duration,
+          signal,
+          onEvent,
+          emit,
+        })
+      : undefined;
+  if (job.speechTrack) update();
   const prompt = buildVideoPrompt({
     job,
     candidate: candidate,
@@ -62,6 +77,7 @@ export async function generateVideo(input: {
     request: request,
     ...size,
     feedback,
+    speechTrack: job.speechTrack,
   });
   await writeFile(path.join(job.workspace, "EXECUTABLE_PROMPT.md"), prompt);
   const corrector = new VideoCorrectionCoordinator({
@@ -154,7 +170,13 @@ export async function generateVideo(input: {
         update();
         const renderStarted = Date.now();
         try {
-          return await renderJob(job, production, signal, (type, msg) => emit(type, msg));
+          return await renderJob(
+            job,
+            production,
+            signal,
+            (type, msg) => emit(type, msg),
+            job.speechTrack,
+          );
         } finally {
           job.renderMs = (job.renderMs || 0) + Date.now() - renderStarted;
         }
@@ -180,6 +202,7 @@ export async function generateVideo(input: {
       break;
     } catch (error) {
       if (error instanceof InputRequired) throw error;
+      if (error instanceof CodedError && error.code.startsWith("SPEECH_")) throw error;
       signal.throwIfAborted();
       if (error instanceof VideoQaReportError) throw error;
       job.error = safeMessage(error);

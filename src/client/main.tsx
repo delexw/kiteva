@@ -25,6 +25,9 @@ import { projectName } from "../shared/project-name";
 import { api } from "./lib/api";
 import { appRoute } from "./lib/app-route";
 import { projectSettingsDraft } from "./lib/project-settings";
+import { SpeechSettings } from "./components/speech-settings";
+import { ensureSpeechGenerationReady } from "./lib/speech";
+import type { SpeechSettings as SpeechConfiguration } from "../shared/speech";
 import { candidateDisplayTitle } from "../shared/candidate-copy";
 import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
 import { PreviewLoadingMedia } from "./components/preview-workspace";
@@ -163,6 +166,7 @@ function App() {
   const [aspect, setAspect] = useState<"16:9" | "9:16" | "1:1">("16:9");
   const [lyricsEnabled, setLyricsEnabled] = useState(false);
   const [lyricsText, setLyricsText] = useState("");
+  const [speech, setSpeech] = useState<SpeechConfiguration>();
   const [urls, setUrls] = useState("");
   const [sectionInstructions, setSectionInstructions] = useState({
     music: "",
@@ -296,6 +300,7 @@ function App() {
               setFrameRate(draft.frameRate as 30 | 60);
               setLyricsEnabled(draft.lyricsEnabled);
               setLyricsText(draft.lyricsText);
+              setSpeech(draft.speech);
               setUrls(draft.urls);
               setSectionInstructions(draft.sectionInstructions);
               setAssets(
@@ -504,8 +509,10 @@ function App() {
               resolution,
               frameRate,
               lyrics: lyricsFromInput(lyricsEnabled, lyricsText),
+              speech,
             }),
       };
+      if (request.outputType === "video") await ensureSpeechGenerationReady(request);
       const next = await api<Run>("/api/runs", { method: "POST", body: JSON.stringify(request) });
       if (revision !== draftRevision.current) return;
       setRun(next);
@@ -573,6 +580,7 @@ function App() {
       setFeedback("");
       setLyricsEnabled(false);
       setLyricsText("");
+      setSpeech(undefined);
       setError("");
       setRestoredSettingsId(undefined);
     }
@@ -1446,10 +1454,18 @@ function App() {
                             onChange={(event) => setLyricsText(event.target.value)}
                           />
                           <span>
-                            Leave blank to generate lyrics. Lyrics appear on screen; vocals are not
-                            generated.
+                            Leave blank to generate lyrics. Choose speech below to add a voice.
                           </span>
                         </label>
+                      )}
+                      {outputType === "video" && lyricsEnabled && (
+                        <SpeechSettings
+                          value={speech}
+                          onChange={setSpeech}
+                          audioAssets={assets
+                            .filter((asset) => asset.section === "music")
+                            .map((asset) => ({ id: asset.id, name: asset.originalName }))}
+                        />
                       )}
                     </div>
                     <PromptInputFooter className="composer-toolbar">

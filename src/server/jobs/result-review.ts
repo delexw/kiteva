@@ -79,6 +79,7 @@ export async function reviewFinishedResult(input: {
                 audioDescription: job.production.audioDescription,
               }
             : undefined,
+          preparedVoice: job.speechTrack,
         }
       : {
           request: input.request,

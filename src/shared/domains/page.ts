@@ -8,6 +8,7 @@ export const PageRequestSchema = SharedRequestSchema.extend({
   duration: z.never().optional(),
   aspectRatio: z.never().optional(),
   lyrics: z.never().optional(),
+  speech: z.never().optional(),
 }).superRefine(validateStyleSelection);
 export type PageRequest = z.infer<typeof PageRequestSchema>;
 export { PageProductionSchema } from "../agents/schemas/page";

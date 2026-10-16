@@ -3,6 +3,8 @@ import { withContentReveal } from "../../motion/content-reveal";
 import { withArrowDrawing } from "../../motion/arrow-drawing";
 import type { VideoGenerationJob } from "../../../shared/domains/video";
 import path from "node:path";
+import type { SpeechTrack } from "../../../shared/speech";
+import { mixSpeech } from "../../audio/speech";
 import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { command, isolatedCommand } from "../../runtime/process.js";
 import { appRoot } from "../../runtime/config.js";
@@ -217,6 +219,7 @@ export async function renderJob(
   production: Production,
   signal: AbortSignal,
   emit: (type: string, message: string) => void,
+  speechTrack?: SpeechTrack,
 ) {
   const fps = production.fps ?? 30;
   const out = path.join(job.workspace, "renders");
@@ -231,6 +234,10 @@ export async function renderJob(
   else if (production.pipeline === "Multiplane")
     await renderMultiplane(job, production, rendered, fps, signal, emit);
   else await renderRemotion(job, production, rendered, fps, signal, emit);
+  if (job.kind === "full" && speechTrack) {
+    emit("phase", "Mixing voice and music…");
+    await mixSpeech(rendered, speechTrack, job.duration, signal);
+  }
   const probe = await probeVideo(rendered, signal);
   const picture = probe.streams.find((s) => s.codec_type === "video");
   if (
@@ -292,7 +299,11 @@ export async function renderJob(
   );
   await writeFile(
     path.join(out, "validation.json"),
-    JSON.stringify({ probe, production, verifiedAt: new Date().toISOString() }, null, 2),
+    JSON.stringify(
+      { probe, production, mixedVoice: speechTrack, verifiedAt: new Date().toISOString() },
+      null,
+      2,
+    ),
   );
   return {
     video: path.relative(job.workspace, video),

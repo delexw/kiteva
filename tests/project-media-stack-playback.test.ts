@@ -36,11 +36,11 @@ it.skipIf(!browserExecutablePath())(
               id, kind: 'full', phase: 'ready', createdAt: '2026-01-0' + (index + 2),
               runId: 'example-project', candidateId: id, outputType: 'video', duration: 90,
               model: 'example-model', workspace: '/tmp/example',
-              video: 'renders/full.mp4', cardClip: 'renders/card-3s.webm'
+              video: 'renders/full.mp4', cardClip: location.hash === '#fallback' ? undefined : 'renders/card-3s.webm'
             }))
           };
           createRoot(document.getElementById('root')).render(
-            createElement(ProjectMediaStack, { project, onOpen() {} })
+            createElement(ProjectMediaStack, { project, onOpen() { document.getElementById('root').dataset.opened = 'true'; } })
           );
         </script>`,
               );
@@ -99,6 +99,14 @@ it.skipIf(!browserExecutablePath())(
       await page.waitForSelector("video");
       await page.waitForFunction(() => document.querySelector<HTMLVideoElement>("video")?.paused);
       expect(await page.$$eval("video", (videos) => videos.length)).toBe(1);
+      expect(await page.$$eval(".project-card-play", (buttons) => buttons.length)).toBe(1);
+      await page.goto(`${server.resolvedUrls!.local[0]}stack-playback-test#fallback`);
+      await page.reload();
+      await page.waitForSelector(".project-card-play");
+      expect(await page.$(".project-card-clip")).toBeNull();
+      expect(await page.$$eval(".project-card-play", (buttons) => buttons.length)).toBe(1);
+      await page.click(".project-card-play");
+      expect(await page.$eval("#root", (root) => root.getAttribute("data-opened"))).toBe("true");
     } finally {
       await browser.close();
       await server.close();

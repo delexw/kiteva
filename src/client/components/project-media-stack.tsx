@@ -142,15 +142,6 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
                 playsInline
                 preload="metadata"
               />
-              <Button
-                className="project-card-play"
-                size="small"
-                icon={<Play size={14} />}
-                aria-label={`Play film: ${projectName(project)}`}
-                onClick={onOpen}
-              >
-                Play film
-              </Button>
             </>
           ) : media?.video ? (
             <video
@@ -163,6 +154,17 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
             />
           ) : (
             <ProjectResultPending project={project} visible={visible} />
+          )}
+          {media?.video && hasEnteredViewport && (
+            <Button
+              className="project-card-play"
+              size="small"
+              icon={<Play size={14} />}
+              aria-label={`Play film: ${projectName(project)}`}
+              onClick={onOpen}
+            >
+              Play film
+            </Button>
           )}
         </motion.div>
       </div>

@@ -1,3 +1,5 @@
+import { setTimeout as delay } from "node:timers/promises";
+import { websiteCaptureLimits, readWebsiteRecordings } from "../jobs/subworkflows/website-capture";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { mkdir, readFile, writeFile, copyFile } from "node:fs/promises";
@@ -5,7 +7,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ReferenceScreenshotSchema } from "../../shared/contracts";
 import { prepareBriefImage } from "./brief-images";
-import { createReferenceBrowser } from "./reference-screenshot";
+import { createReferenceBrowser } from "../jobs/subworkflows/website-reference";
 import { referenceToolNames, type ReferenceToolResult } from "./reference-browser-contracts";
 import { WorkQueue } from "../jobs/queue";
 
@@ -23,6 +25,7 @@ export function createReferenceTools(options: {
   urls: string[];
   mode: "local" | "hosted";
   signal: AbortSignal;
+  enableVideoCapture?: boolean;
 }) {
   const server = new McpServer({ name: "reference-browser", version: "1.0.0" });
   const queue = new WorkQueue(1);
@@ -30,11 +33,14 @@ export function createReferenceTools(options: {
   let calls = 0;
   const browser = () =>
     (session ??= createReferenceBrowser(options.urls, options.signal, options.mode));
-  async function run(action: () => Promise<{ result: ReferenceToolResult; image?: Buffer }>) {
+  async function run(
+    action: () => Promise<{ result: ReferenceToolResult; image?: Buffer }>,
+    finalizing = false,
+  ) {
     return queue.run(async () => {
       try {
         options.signal.throwIfAborted();
-        if (++calls > 40)
+        if (!finalizing && ++calls > 80)
           throw Error(
             "Reference browsing limit reached. Use existing captures or omit unsupported steps.",
           );
@@ -76,8 +82,9 @@ export function createReferenceTools(options: {
   server.registerTool(
     referenceToolNames.click,
     {
-      description:
-        "Explore a control identified by its ID in the latest inspection, such as a tab, menu, or existing project. Returns updated page inspection. This isolated browser blocks state-changing HTTP requests; never try to generate, delete, submit forms, sign in, or change real project data.",
+      description: options.enableVideoCapture
+        ? "Click a control from the latest inspection in the same headless recording session. Client-only mock workflows are permitted with sample data. Real state-changing HTTP calls, login and credentials remain blocked; do not change real account data."
+        : "Explore a control identified by its ID in the latest inspection, such as a tab, menu, or existing project. Returns updated page inspection. This isolated browser blocks state-changing HTTP requests; never try to generate, delete, submit forms, sign in, or change real project data.",
       inputSchema: { controlId: z.string().regex(/^\d+$/) },
     },
     ({ controlId }) =>
@@ -117,6 +124,79 @@ export function createReferenceTools(options: {
         };
       }),
   );
+  if (options.enableVideoCapture) {
+    server.registerTool(
+      referenceToolNames.video,
+      {
+        description:
+          "Built-in headless website video capture. Inspect the supplied URL first. Start, interact with the SAME session using click_control/fill_control/scroll_page/wait_for_view, then stop with the returned recording ID. Stop validates silent WebM footage and saves assets plus timed cursor metadata. No desktop app, installation or style dependency. Maximum 120 seconds per take; use multiple takes for longer demos. Stop before returning your production manifest. Never claim simulated UI is real footage.",
+        inputSchema: {
+          action: z.enum(["start", "stop"]),
+          recordingId: z.string().uuid().optional(),
+        },
+      },
+      ({ action, recordingId }) =>
+        run(async () => {
+          const recordings = await readWebsiteRecordings(options.workspace);
+          if (action === "start") {
+            if (recordings.length >= websiteCaptureLimits.recordings)
+              throw Error("Recording limit reached; reuse saved footage");
+            return {
+              result: {
+                kind: "recording_started",
+                recordingId: await (await browser()).startRecording(options.workspace),
+                maxSeconds: websiteCaptureLimits.seconds,
+              },
+            };
+          }
+          if (!recordingId) throw Error("Stop requires the recording ID returned by start");
+          const recording = await (await browser()).stopRecording(recordingId);
+          recordings.push(recording);
+          await writeFile(
+            path.join(options.workspace, "reference-videos.json"),
+            JSON.stringify(recordings, null, 2),
+          );
+          return { result: { kind: "video", recording } };
+        }, action === "stop"),
+    );
+    server.registerTool(
+      referenceToolNames.fill,
+      {
+        description:
+          "Fill an ordinary text/search/URL control from the latest inspection in this fresh browser session. No credentials or real account changes. State-changing HTTP requests remain blocked. Use only non-sensitive demonstration text.",
+        inputSchema: { controlId: z.string().regex(/^\d+$/), value: z.string().max(4000) },
+      },
+      ({ controlId, value }) =>
+        run(async () => ({
+          result: { kind: "inspection", page: await (await browser()).fill(controlId, value) },
+        })),
+    );
+    server.registerTool(
+      referenceToolNames.scroll,
+      {
+        description:
+          "Scroll the current website viewport during inspection or recording. Returns updated controls.",
+        inputSchema: { deltaY: z.number().min(-1800).max(1800) },
+      },
+      ({ deltaY }) =>
+        run(async () => ({
+          result: { kind: "inspection", page: await (await browser()).scroll(deltaY) },
+        })),
+    );
+    server.registerTool(
+      referenceToolNames.wait,
+      {
+        description:
+          "Hold the current view at normal speed for a readable recording beat or client-side UI transition. Does not invent completion or speed up generation.",
+        inputSchema: { milliseconds: z.number().int().min(100).max(5000) },
+      },
+      ({ milliseconds }) =>
+        run(async () => {
+          await delay(milliseconds, undefined, { signal: options.signal });
+          return { result: { kind: "waiting", milliseconds } };
+        }),
+    );
+  }
   return {
     server,
     async close() {

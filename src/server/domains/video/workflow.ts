@@ -94,6 +94,7 @@ export async function generateVideo(input: {
       provider: request.provider,
       model: job.model,
       workspace: job.workspace,
+      referenceUrls: request.urls,
       signal,
       sessionId: job.sessionId,
       schema:

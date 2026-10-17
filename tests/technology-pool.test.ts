@@ -37,8 +37,8 @@ describe("shared technology pool", () => {
       "style-105",
       "style-106",
     ]);
-    expect(Object.keys(technologyPool)).toHaveLength(93);
-    expect(new Set(Object.values(technologyPool).map((entry) => entry.name)).size).toBe(93);
+    expect(Object.keys(technologyPool)).toHaveLength(92);
+    expect(new Set(Object.values(technologyPool).map((entry) => entry.name)).size).toBe(92);
     expect(
       catalog.originalStyles
         .slice(0, 115)
@@ -54,7 +54,13 @@ describe("shared technology pool", () => {
         expect.arrayContaining(
           originalStackNames[String(style.id)].filter(
             (name: string) =>
-              !["HyperFrames", "Remotion", "@remotion/renderer", "Multiplane"].includes(name),
+              ![
+                "HyperFrames",
+                "Remotion",
+                "@remotion/renderer",
+                "Multiplane",
+                "OpenScreen",
+              ].includes(name),
           ),
         ),
       );
@@ -191,44 +197,20 @@ it("recommends optional Matter.js only for reviewed 2D physics uses and preserve
       expect.arrayContaining(
         source[style.id].filter(
           (name: string) =>
-            !["HyperFrames", "Remotion", "@remotion/renderer", "Multiplane"].includes(name),
+            !["HyperFrames", "Remotion", "@remotion/renderer", "Multiplane", "OpenScreen"].includes(
+              name,
+            ),
         ),
       ),
     );
 });
 
-it("recommends OpenScreen only as optional external footage preparation for product demos", async () => {
+it("keeps website recording independent of style technologies", async () => {
   const catalog = await loadCatalog();
-  const matches = catalog.styles.filter((style) =>
-    style.tech.recommended_stack.some((tool) => tool.name === "OpenScreen"),
-  );
-  expect(matches.map((style) => style.id)).toEqual(["style-095", "style-096"]);
-  expect(technologyPool.openscreen).toMatchObject({
-    kind: "desktop_cli_tool",
-    package: null,
-    optional: true,
-    production_roles: ["supporting_tool"],
-  });
-  expect(technologyPool.openscreen.runtime).toContain("display server");
-  expect(technologyPool.openscreen.selection_guidance).toContain("permission");
-  const originalStacks = JSON.parse(
-    readFileSync(new URL("./fixtures/original-style-stack-names.json", import.meta.url), "utf8"),
-  );
-  for (const style of matches) {
-    const tool = style.tech.recommended_stack.find((entry) => entry.name === "OpenScreen")!;
-    expect(tool.style_application).not.toBe(technologyPool.openscreen.style_application);
-    expect(style.tech.recommended_stack.map((entry) => entry.name)).toEqual(
-      expect.arrayContaining(
-        originalStacks[style.id].filter(
-          (name: string) =>
-            !["HyperFrames", "Remotion", "@remotion/renderer", "Multiplane"].includes(name),
-        ),
-      ),
-    );
-  }
+  expect(Object.keys(technologyPool)).not.toContain("openscreen");
   expect(
-    matches[0].tech.recommended_stack.find((tool) => tool.name === "OpenScreen")!.style_application,
-  ).not.toBe(
-    matches[1].tech.recommended_stack.find((tool) => tool.name === "OpenScreen")!.style_application,
-  );
+    catalog.styles.some((style) =>
+      style.tech.recommended_stack.some((tool) => tool.name === "OpenScreen"),
+    ),
+  ).toBe(false);
 });

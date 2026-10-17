@@ -7,12 +7,10 @@ import { afterEach, expect, it, vi } from "vitest";
 vi.mock("node:dns/promises", () => ({ lookup: vi.fn() }));
 vi.mock("puppeteer-core", () => ({ default: { launch: vi.fn() } }));
 vi.mock("../src/server/runtime/browser", () => ({ browserExecutablePath: () => "/browser" }));
+import { referenceResource } from "../src/server/requests/reference-resource";
 import { lookup } from "node:dns/promises";
 import puppeteer from "puppeteer-core";
-import {
-  captureReferencePage,
-  referenceResource,
-} from "../src/server/requests/reference-screenshot";
+import { captureReferencePage } from "../src/server/requests/reference-screenshot";
 
 afterEach(() => vi.restoreAllMocks());
 it("pins screenshot resource connections to validated DNS and preserves binary responses", async () => {
@@ -107,4 +105,161 @@ it("uses a fresh proxied browser, waits for the rendered page, and closes it aft
   expect(page.setRequestInterception).toHaveBeenCalledWith(true);
   expect(page.setBypassServiceWorker).toHaveBeenCalledWith(true);
   expect(browser.close).toHaveBeenCalled();
+});
+
+it.each([
+  {
+    mode: "local" as const,
+    address: "127.0.0.1",
+    contentType: "text/javascript",
+    size: 11_000_000,
+    limit: undefined,
+  },
+  {
+    mode: "local" as const,
+    address: "127.0.0.1",
+    contentType: "image/png",
+    size: 11_000_000,
+    limit: undefined,
+  },
+  {
+    mode: "hosted" as const,
+    address: "93.184.216.34",
+    contentType: "application/javascript",
+    size: 11_000_000,
+    limit: undefined,
+  },
+  {
+    mode: "hosted" as const,
+    address: "93.184.216.34",
+    contentType: "image/png",
+    size: 33_000_000,
+    limit: 32,
+  },
+  {
+    mode: "local" as const,
+    address: "127.0.0.1",
+    contentType: "application/javascript",
+    size: 33_000_000,
+    limit: 32,
+  },
+])(
+  "bounds resource size for $mode $contentType at $size bytes",
+  async ({ mode, address, contentType, size, limit }) => {
+    vi.mocked(lookup).mockResolvedValue([{ address, family: 4 }] as never);
+    vi.spyOn(http, "get").mockImplementation(((
+      _url: URL,
+      _options: http.RequestOptions,
+      callback: (response: IncomingMessage) => void,
+    ) => {
+      const response = new IncomingMessage(new Socket());
+      response.statusCode = 200;
+      response.headers = { "content-type": contentType };
+      const emitter = new EventEmitter();
+      const request = Object.assign(emitter, {
+        destroy(error: Error) {
+          emitter.emit("error", error);
+          return emitter;
+        },
+      });
+      queueMicrotask(() => {
+        callback(response);
+        response.push(Buffer.alloc(size));
+        response.push(null);
+      });
+      return request as unknown as http.ClientRequest;
+    }) as typeof http.get);
+    const result = referenceResource(
+      "http://example.com/app.js",
+      new AbortController().signal,
+      mode,
+    );
+    if (limit) await expect(result).rejects.toThrow(`exceeds ${limit} MB`);
+    else expect((await result).body.length).toBe(size);
+  },
+);
+
+it("rejects blank captures with useful JavaScript diagnostics and closes the browser", async () => {
+  vi.mocked(lookup).mockResolvedValue([{ address: "127.0.0.1", family: 4 }] as never);
+  const page = {
+    setDefaultTimeout: vi.fn(),
+    setViewport: vi.fn(),
+    setBypassServiceWorker: vi.fn(),
+    setRequestInterception: vi.fn(),
+    on: vi.fn((name, callback) => {
+      if (name === "pageerror") callback(Error("Application module failed to load"));
+    }),
+    goto: vi.fn(async () => ({ status: () => 200 })),
+    waitForNetworkIdle: vi.fn().mockResolvedValue(undefined),
+    evaluate: vi.fn(),
+    waitForFunction: vi
+      .fn()
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValue(Error("Still blank")),
+    screenshot: vi.fn(),
+  };
+  const browser = { newPage: vi.fn().mockResolvedValue(page), close: vi.fn() };
+  vi.mocked(puppeteer.launch).mockResolvedValue(browser as never);
+  await expect(
+    captureReferencePage(
+      "http://localhost:4317/",
+      "/tmp/blank.png",
+      new AbortController().signal,
+      "local",
+    ),
+  ).rejects.toThrow("Application module failed to load");
+  expect(page.screenshot).not.toHaveBeenCalled();
+  expect(browser.close).toHaveBeenCalled();
+});
+
+it("accounts concurrent response chunks before buffering and stops downloads when the shared budget rejects them", async () => {
+  vi.mocked(lookup).mockResolvedValue([{ address: "127.0.0.1", family: 4 }] as never);
+  let received = 0;
+  const consumed: number[] = [];
+  const consumeBytes = (bytes: number) => {
+    consumed.push(bytes);
+    received += bytes;
+    if (received > 6) throw Error("Shared session budget reached");
+  };
+  vi.spyOn(http, "get").mockImplementation(((
+    _url: URL,
+    _options: http.RequestOptions,
+    callback: (response: IncomingMessage) => void,
+  ) => {
+    const response = new IncomingMessage(new Socket());
+    response.statusCode = 200;
+    response.headers = { "content-type": "application/octet-stream" };
+    const emitter = new EventEmitter();
+    const request = Object.assign(emitter, {
+      destroy(error: Error) {
+        emitter.emit("error", error);
+        return emitter;
+      },
+    });
+    queueMicrotask(() => {
+      callback(response);
+      response.push(Buffer.alloc(4));
+      response.push(null);
+    });
+    return request as unknown as http.ClientRequest;
+  }) as typeof http.get);
+  const outcomes = await Promise.allSettled(
+    [1, 2].map((index) =>
+      referenceResource(
+        `http://localhost/${index}`,
+        new AbortController().signal,
+        "local",
+        {},
+        consumeBytes,
+      ),
+    ),
+  );
+  expect(consumed).toEqual([4, 4]);
+  expect(outcomes.filter((outcome) => outcome.status === "fulfilled")).toHaveLength(1);
+  expect(outcomes.filter((outcome) => outcome.status === "rejected")).toEqual([
+    {
+      status: "rejected",
+      reason: expect.objectContaining({ message: "Shared session budget reached" }),
+    },
+  ]);
 });

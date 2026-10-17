@@ -71,29 +71,6 @@ export const technologyPool = {
     production_roles: ["render_pipeline"],
     role: "composition_and_export_pipeline",
   },
-  openscreen: {
-    name: "OpenScreen",
-    kind: "desktop_cli_tool",
-    package: null,
-    runtime:
-      "External desktop app/CLI; requires a display server and a real desktop session for recording",
-    purpose:
-      "Prepare real screen recordings with cursor-following zooms, click effects and annotations; export MP4/GIF footage for the video composition.",
-    suggested_apis: [
-      "openscreen help",
-      "openscreen record --duration 30 --project demo.openscreen --json",
-      "openscreen export demo.openscreen -o demo.mp4 --auto-zoom --json",
-      "openscreen info demo.openscreen --json",
-      "openscreen pack demo.openscreen --out bundle/",
-    ],
-    optional: true,
-    docs_url: "https://getopenscreen.com/docs/cli/",
-    style_application:
-      "Prepare source footage when a real product interaction is needed; import the exported footage into the selected composition pipeline.",
-    selection_guidance:
-      "Use as an external installed desktop/CLI supporting tool, not a browser library or bundled renderer. Verify the installed CLI version and help before use; CLI and editable .openscreen project JSON may change between releases. Headless CLI operation still requires a display server. Recording requires OS screen-recording permission; click telemetry may require accessibility permission. Capture only the authorized app or window. Auto-zoom relies on recorded click telemetry. --json emits NDJSON. Keep media alongside editable projects or use pack. Preserve HyperFrames for composition/export and HTML/CSS plus GSAP for the manga storyboard; OpenScreen does not replace them.",
-    production_roles: ["supporting_tool"],
-  },
   matter_js: {
     name: "Matter.js",
     kind: "npm_library",

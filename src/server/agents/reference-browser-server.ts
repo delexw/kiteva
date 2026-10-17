@@ -5,6 +5,7 @@ import { createReferenceTools } from "../requests/reference-browser-tools";
 const config = z
   .object({
     workspace: z.string(),
+    enableVideoCapture: z.boolean().default(false),
     urls: z.array(z.string().url()).min(1),
     mode: z.enum(["local", "hosted"]),
   })

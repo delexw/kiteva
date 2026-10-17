@@ -24667,8 +24667,7 @@
           "html_css",
           "gsap",
           "layered_png_svg_assets",
-          "matter_js",
-          "openscreen"
+          "matter_js"
         ],
         "implementation": "Reconstruct the actual product's components as DOM (cards, numbers, chart states as SVG) using supplied brand tokens, fonts and copy. Neutral #F7F9FA/#263440 is used only for new presentation chrome. A GSAP timeline drives causal state changes: a button press, then a card expands as a shared element (FLIP measured once at build), then numbers count with tabular figures, then the chart path transitions. The camera is a wrapper transform with precise framing. Card labels carry data-reveal-after on their card container. X-ray recipe: exterior and interior supplied layers share one registered transform, and a feathered CSS mask-image radial position animated by GSAP replaces pointer input. No invented internals. 3s preview: tap 0–0.5s → card expansion 0.5–1.4s → metric/chart update 1.4–2.4s → hold. If no real product assets are supplied, report the gap instead of inventing a UI.\nOptional recipe registered_xray: Register exterior/interior media with one coordinate system and shared transform. Reveal matching internal structure through a feathered mask without jumping scale or orientation; retain readable product labels. For export animate the mask with deterministic authored time instead of live pointer state. Keep the primary product/interface central; never manufacture unsupported internal features.",
         "alternatives": ["HTML/CSS + GSAP", "Remotion"],
@@ -24785,12 +24784,6 @@
           "matter_js": {
             "values": {
               "style_application": "Use physics only for a deliberately physical 2D UI interaction such as draggable cards settling or chips colliding. Keep product screens and labels intact and reserve normal UI transitions for the existing timeline."
-            },
-            "remove": []
-          },
-          "openscreen": {
-            "values": {
-              "style_application": "Capture real UI interactions, then use cursor-following zooms and selective click annotations to explain product state changes. Import exported footage as a source layer while preserving authored UI motion and brand tokens."
             },
             "remove": []
           }
@@ -25011,8 +25004,7 @@
           "cropper_js",
           "dragula",
           "anime_js",
-          "leaflet",
-          "openscreen"
+          "leaflet"
         ],
         "implementation": "Composite crisp interface elements and prerender genuine 3D products in Blender when needed. Animate only purposeful details and camera moves.",
         "alternatives": ["Three.js", "Remotion"],
@@ -25105,12 +25097,6 @@
           "leaflet": {
             "values": {
               "style_application": "Use restrained map views, a few markers and clear location transitions when geographic context serves the product story."
-            },
-            "remove": []
-          },
-          "openscreen": {
-            "values": {
-              "style_application": "Capture a clean product walkthrough with restrained zooms and minimal annotations. Export source footage for the existing composition; preserve whitespace, deliberate pacing and readable product detail."
             },
             "remove": []
           }

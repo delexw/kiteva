@@ -6,8 +6,10 @@ import { expect, it, vi } from "vitest";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-vi.mock("../src/server/requests/reference-screenshot", () => ({ createReferenceBrowser: vi.fn() }));
-import { createReferenceBrowser } from "../src/server/requests/reference-screenshot";
+vi.mock("../src/server/jobs/subworkflows/website-reference", () => ({
+  createReferenceBrowser: vi.fn(),
+}));
+import { createReferenceBrowser } from "../src/server/jobs/subworkflows/website-reference";
 import {
   createReferenceTools,
   readReferenceScreenshots,
@@ -37,6 +39,10 @@ it.each([64, 3000])(
         await writeFile(file, png);
         return { title: inspection.title, url: inspection.url, text: inspection.text };
       }),
+      fill: vi.fn().mockResolvedValue(inspection),
+      scroll: vi.fn().mockResolvedValue(inspection),
+      startRecording: vi.fn(),
+      stopRecording: vi.fn(),
       close: vi.fn(),
     };
     vi.mocked(createReferenceBrowser).mockResolvedValue(session);
@@ -107,3 +113,78 @@ it.each([64, 3000])(
     expect(session.close).toHaveBeenCalled();
   },
 );
+
+it("keeps stop available after the interaction budget and preserves earlier recording inventory", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "capture-tools-"));
+  const workspace = root;
+  const id = "00000000-0000-4000-8000-000000000001";
+  const first = {
+    assetPath: `assets/website-video-${id}.webm`,
+    cursorPath: `assets/website-video-${id}.cursor.json`,
+    url: "https://example.com/",
+    duration: 2,
+    width: 1440,
+    height: 900,
+    fps: 30 as const,
+    silent: true as const,
+  };
+  const next = {
+    ...first,
+    assetPath: first.assetPath.replace("0001", "0002"),
+    cursorPath: first.cursorPath.replace("0001", "0002"),
+  };
+  await writeFile(path.join(root, "reference-videos.json"), JSON.stringify([first]));
+  const inspection = {
+    title: "Demo",
+    url: "https://example.com/",
+    text: "Demo",
+    controls: [],
+    sections: [],
+  };
+  const session = {
+    inspect: vi.fn().mockResolvedValue(inspection),
+    click: vi.fn(),
+    fill: vi.fn(),
+    scroll: vi.fn(),
+    capture: vi.fn(),
+    startRecording: vi.fn().mockResolvedValue(id),
+    stopRecording: vi.fn().mockResolvedValue(next),
+    close: vi.fn(),
+  };
+  vi.mocked(createReferenceBrowser).mockResolvedValue(session);
+  const tools = createReferenceTools({
+    workspace,
+    urls: [inspection.url],
+    mode: "local",
+    signal: new AbortController().signal,
+    enableVideoCapture: true,
+  });
+  const client = new Client({ name: "capture-client", version: "1" });
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  try {
+    await tools.server.connect(serverTransport);
+    await client.connect(clientTransport);
+    expect(
+      await client.callTool({ name: "capture_video", arguments: { action: "start" } }),
+    ).toMatchObject({ structuredContent: { kind: "recording_started", recordingId: id } });
+    for (let index = 0; index < 80; index++)
+      await client.callTool({ name: "inspect_page", arguments: {} });
+    expect(await client.callTool({ name: "inspect_page", arguments: {} })).toMatchObject({
+      isError: true,
+    });
+    expect(
+      await client.callTool({
+        name: "capture_video",
+        arguments: { action: "stop", recordingId: id },
+      }),
+    ).toMatchObject({ structuredContent: { kind: "video", recording: next } });
+    expect(JSON.parse(await readFile(path.join(root, "reference-videos.json"), "utf8"))).toEqual([
+      first,
+      next,
+    ]);
+  } finally {
+    await client.close();
+    await tools.close();
+    await rm(root, { recursive: true, force: true });
+  }
+});

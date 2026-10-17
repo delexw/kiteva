@@ -1,7 +1,10 @@
 import puppeteer from "puppeteer-core";
 import { expect, it } from "vitest";
 import { browserExecutablePath } from "../src/server/runtime/browser";
-import { inspectReferenceDocument } from "../src/server/requests/reference-page-inspection";
+import {
+  inspectReferenceDocument,
+  referencePageHasContent,
+} from "../src/server/requests/reference-page-inspection";
 
 it.skipIf(!browserExecutablePath())(
   "returns working capture selectors when several headings share one container",
@@ -30,6 +33,34 @@ it.skipIf(!browserExecutablePath())(
       }
       const second = await page.evaluate(inspectReferenceDocument);
       expect(second.sections).toEqual(first.sections);
+    } finally {
+      await browser.close();
+    }
+  },
+  20000,
+);
+
+it.skipIf(!browserExecutablePath())(
+  "recognizes rendered text and graphics but rejects an empty application shell",
+  async () => {
+    const browser = await puppeteer.launch({
+      executablePath: browserExecutablePath(),
+      headless: "shell",
+      pipe: true,
+    });
+    try {
+      const page = await browser.newPage();
+      for (const [html, expected] of [
+        ['<div id="root"></div>', false],
+        ['<div style="display:none">Hidden content</div>', false],
+        ["<main>Visible application</main>", true],
+        ['<canvas width="300" height="200"></canvas>', true],
+        ['<svg width="300" height="200"><rect width="10" height="10"/></svg>', true],
+        ['<img style="visibility:hidden;width:100px;height:100px">', false],
+      ] as const) {
+        await page.setContent(html);
+        expect(await page.evaluate(referencePageHasContent), html).toBe(expected);
+      }
     } finally {
       await browser.close();
     }

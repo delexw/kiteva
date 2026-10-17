@@ -32,6 +32,7 @@ vi.mock("@openai/codex-sdk", () => ({
     }
   },
 }));
+import { enabledReferenceTools } from "../src/server/requests/reference-browser-contracts";
 import { agentTurn } from "../src/server/agents/providers";
 
 it.each(["claude", "codex"] as const)(
@@ -240,3 +241,45 @@ it("rejects file context on tool-disabled calls rather than silently dropping ev
     }),
   ).rejects.toThrow("requires file-reading tools");
 });
+
+it.each(["claude", "codex"] as const)(
+  "exposes built-in capture to %s implementation without a style requirement",
+  async (provider) => {
+    calls.query.mockClear();
+    calls.codex.mockClear();
+    calls.query.mockImplementation(async function* () {
+      yield {
+        type: "result",
+        subtype: "success",
+        is_error: false,
+        structured_output: { message: "done" },
+        session_id: "capture",
+        usage: {},
+        modelUsage: {},
+      };
+    });
+    await agentTurn({
+      provider,
+      workspace: "/job",
+      referenceUrls: ["https://example.com/"],
+      schema: z.object({ message: z.string() }),
+      signal: new AbortController().signal,
+      onEvent: vi.fn(),
+      prompt: "Capture a website demo",
+    });
+    const options =
+      provider === "claude"
+        ? calls.query.mock.calls[0][0].options
+        : calls.codex.mock.calls[0][0].config;
+    const prompt =
+      provider === "claude" ? options.systemPrompt : calls.streamedPrompt.mock.calls.at(-1)?.[0];
+    expect(prompt).toContain("you MUST use capture_video");
+    expect(prompt).toContain("independent of styles");
+    const server =
+      provider === "claude"
+        ? options.mcpServers.reference_browser
+        : options.mcp_servers.reference_browser;
+    expect(JSON.parse(server.args.at(-1))).toMatchObject({ enableVideoCapture: true });
+    if (provider === "codex") expect(server.enabled_tools).toEqual(enabledReferenceTools());
+  },
+);

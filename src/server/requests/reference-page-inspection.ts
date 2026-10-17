@@ -1,6 +1,8 @@
 export function inspectReferenceDocument() {
   const controls = Array.from(
-    document.querySelectorAll('a,button,[role="button"],[role="tab"],summary'),
+    document.querySelectorAll(
+      'a,button,input:not([type="hidden"]),textarea,select,[role="button"],[role="tab"],summary',
+    ),
   )
     .filter((element) => element.getBoundingClientRect().width > 0)
     .slice(0, 80)
@@ -9,7 +11,13 @@ export function inspectReferenceDocument() {
       element.setAttribute("data-reference-control", id);
       return {
         id,
-        name: (element.getAttribute("aria-label") || element.textContent || "")
+        name: (
+          element.getAttribute("aria-label") ||
+          (element as HTMLInputElement).labels?.[0]?.textContent ||
+          element.getAttribute("placeholder") ||
+          element.textContent ||
+          ""
+        )
           .trim()
           .slice(0, 180),
         role: element.getAttribute("role") || element.tagName.toLowerCase(),
@@ -41,4 +49,18 @@ export function inspectReferenceDocument() {
     controls,
     sections,
   };
+}
+
+/** Executed in the reference page, not in the Node.js host. */
+export function referencePageHasContent() {
+  return Boolean(
+    document.body?.innerText.trim() ||
+    [...document.querySelectorAll("canvas, svg, img, video")].some((element) => {
+      const box = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return (
+        box.width > 0 && box.height > 0 && style.visibility !== "hidden" && style.opacity !== "0"
+      );
+    }),
+  );
 }

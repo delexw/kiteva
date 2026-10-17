@@ -2,7 +2,7 @@ import { ModelCapacityError } from "./capacity-error";
 import { cavemanRuntime, codexCavemanAuth, codexCavemanProvider } from "./caveman";
 import { Codex, type ThreadEvent } from "@openai/codex-sdk";
 import { isolatedCodexHome } from "./sdk-home";
-import { referenceToolNames } from "../requests/reference-browser-contracts";
+import { enabledReferenceTools } from "../requests/reference-browser-contracts";
 import { childEnvironment, safeMessage } from "../runtime/config";
 import type { Agent, ProviderEvent } from "./agent";
 
@@ -90,14 +90,14 @@ export const codexAgent: Agent = {
             ? {
                 reference_browser: {
                   ...referenceServer,
-                  enabled_tools: Object.values(referenceToolNames),
+                  enabled_tools: enabledReferenceTools(options.readOnly),
                   tools: Object.fromEntries(
-                    Object.values(referenceToolNames).map((name) => [
+                    enabledReferenceTools(options.readOnly).map((name) => [
                       name,
                       { approval_mode: "approve" },
                     ]),
                   ),
-                  tool_timeout_sec: 45,
+                  tool_timeout_sec: 180,
                 },
               }
             : {}),

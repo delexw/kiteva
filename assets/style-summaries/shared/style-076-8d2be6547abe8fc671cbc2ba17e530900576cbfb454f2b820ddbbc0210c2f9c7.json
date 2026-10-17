@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-076",
+    "name": "Neumorphism. This is a supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Raised or inset surfaces near the background color, with paired soft highlights and shadows in one consistent light direction. Color stays restrained, yet state differences must remain clear.",
+    "suitableUses": "Explicit source fits: feature walkthroughs of settings panels, smart-home controls, audio apps, and simple control panels where pressed and released states are the whole story. Dashboards for energy, health or device telemetry with supplied values also fit.",
+    "limitations": "Never invent interface copy or data, or show state through shadow depth alone. Keep depth off chart marks and avoid sliding whole screens. Two-color opaque contrast does not validate translucent, glossy or animated surfaces.",
+    "palette": "Background is scene-dependent, so #E7EBED is an illustrative suggestion rather than a required canvas, and no approved palette is supplied. Suggested text color is #303D49 (9.264:1 on background). Accent #506F86 is for active or focus states only, since it reaches just 4.421:1. Gradients are disabled, and task-provided colors override these suggestions.",
+    "motionAndInteraction": "Explicit: animate press and release with apparent depth and shadow changes, keeping text, edges and controls readable. Optional catalog references motion-008, motion-011, motion-012, motion-013 and motion-015 are not required and must suit the actual scene.",
+    "audio": "Unspecified, and no audio layer is mandated. Suggested: restrained accents or silence around press and release moments, with music or ambience only if it never competes with narration or reading holds. Honor explicit user audio choices.",
+    "assetRequirements": "No uploads are mandated, so derive visuals from the brief and use any supplied exact copy or assets. Load local fonts and assets before rendering. Optional PhotoSwipe galleries need accurate image dimensions and fallback links, and apply only to interactive delivery.",
+    "combinations": "Explicit: style-095 for causal state-change walkthroughs, and style-097 for inset data readouts. Data uses only primary tokens, with one series per accent and no decorative depth on marks.",
+    "productionApproach": "HTML/CSS owns surfaces, shadows and text. A paused GSAP timeline owns press motion, with Motion optional and one owner per property. HyperFrames handles timing, validation and export, and Remotion is a fallback only on a verified limit."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-121",
+    "name": "Chalk on Black Paper. Category: Drawing and Illustration. Provenance: extracted, added in the 2026-10-12 sync.",
+    "visualIdentity": "Powdery chalk marks on a dark black-paper field, with broken textured edges and layered opaque and pale strokes. The source says this differs from charcoal drawn on light paper, so the dark paper field must be preserved.",
+    "suitableUses": "Explicit: the source names this treatment and suits sketch-style drawing. Inferred: it fits explanatory or narrative drawings that benefit from staged hand-drawn marks. Target audience, subject and objective are unspecified.",
+    "limitations": "The chalk texture is procedural, so real-material or photographic accuracy is not claimed. Two-color contrast does not verify text over textures or transparency. Dab counts must stay bounded, roughly 30–60k per frame. Background hex is a fallback, not taken from the source.",
+    "palette": "Background is scene-dependent. #15141A is an illustrative suggestion, not an approved exact color. Foreground #F1EBDD gives 15.405:1 on the opaque background, and gradients are disabled. Task-provided exact colors override these tokens. Do not substitute accents or materials for the background.",
+    "motionAndInteraction": "Each stroke's progress is tweened in GSAP on a paused, registered timeline, and every frame is rebuilt from scratch so backward and direct seeks are exact. Arrowheads appear only after their shafts reach the endpoint. Text inside chalk boxes reveals after the box stroke completes. User interactivity is unspecified.",
+    "audio": "Unspecified in the source, and no audio layer is mandated. Options include background music, voiceover, sound effects, ambience, or intentional silence, chosen by topic and pacing. No audio assets are supplied, so no soundtrack or voice should be claimed unless actually produced.",
+    "assetRequirements": "No uploads or motion references are required, and the candidate list is empty. The paper-tooth texture is generated procedurally from seeded noise. Any fonts or other assets must be loaded locally before rendering. Subject, copy, duration and format are unspecified template placeholders.",
+    "combinations": "An optional secondary style, style-030 for original narrative staging, may be added only when the brief benefits from it. Keep the chalk background and foreground dominant, do not import the supporting palette, and inspect transition states. Avoid competing full-scene treatments.",
+    "productionApproach": "Canvas 2D is the style renderer for strokes, grain and texture on an opaque #15141A field. GSAP is the motion engine. HyperFrames is the default pipeline for assembly, timing, validation and export. Remotion is a fallback only for a verified limitation. Optional tools: @remotion/noise for seeded grain and chroma.js for color checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

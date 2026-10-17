@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-065",
+    "name": "Retrofuturism",
+    "visualIdentity": "Explicitly, one historical period's vision of the future governs objects, instruments, interfaces, type and color. Analog controls, early computers and space-age forms are possible directions. Animation should match the chosen mechanical or display language rather than rely only on neon grids.",
+    "suitableUses": "Explicit fit is limited to era-consistent future-vision subjects. Inferred from supporting-style guidance: interactive story worlds, museum-style explainers, brand experiences about invention, and atomic or space-age title sequences. Fit for any specific subject is unspecified.",
+    "limitations": "Do not mix incompatible period templates, such as 1950s chrome with 1980s neon grids. Avoid purely decorative dials; every control needs a visible matching state change. Example palettes and source-review colors are not mandatory. Source review sampled only one frame per second for seconds 1–8, so continuous motion and audio were not verified.",
+    "palette": "Background is scene-dependent, chosen from subject, lighting and mood; cream is not a default. Example tokens #EEE3CB background, #314449 foreground, #6B9693 and #BC7751 accents are suggestions, not approved exact colors. Foreground on background measures 8.027:1. Accent fills fail body-text targets (3.121 and 2.871), so keep them decorative. Gradients are disabled, and task-provided exact colors override all suggestions.",
+    "motionAndInteraction": "Motion should follow the chosen mechanical and display language; deliberate cuts, impacts and reading holds are allowed, and easing is not required everywhere. Optional motion-012 chapter handoffs and motion-015 story steps are progress-driven and must reverse coherently. motion-039 radial burst is optional and only suitable with a real approved mark. Interactive HTML controls need keyboard and ARIA support plus reduced-motion states.",
+    "audio": "Audio is unspecified by the style, and no soundtrack assets were supplied. Suggested options include restrained mechanical sound accents, ambience, voiceover or silence, with no fixed genre, tempo or mandatory layer. Music synchronization requires inspecting actual audio first.",
+    "assetRequirements": "No uploads are mandatory, and exact copy is unspecified. Period-appropriate instruments and interfaces can be built in-scene. An approved mark is needed only if motion-039 is used. Real or local web fonts are needed for chosen period typography. Source-review frames are reference evidence only and must not be copied.",
+    "combinations": "Retrofuturism alone suffices when one era defines the whole world. style-075 adds operable analog dials and switches with matching feedback. style-009 adds mid-century or space-age type and flat background shapes. Supporting styles must come from the same era, and motion-039 is listed as compatible.",
+    "productionApproach": "Style renderer: Three.js or SVG builds era-consistent objects, instruments and interfaces. Motion engine: GSAP, with one owner per animated property; Motion is optional and needs seek verification. Palette: chroma-js validates colors and checks composited contrast. Pipeline: HyperFrames by default with a paused GSAP timeline in window.__timelines; Remotion only if HyperFrames is unavailable, with the reason recorded. Verify forward, backward and direct seeks, decoded frames and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

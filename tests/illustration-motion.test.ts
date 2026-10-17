@@ -75,7 +75,7 @@ describe("illustration-led motion", () => {
     const prompt = illustrationMotionPrompt([{ style, svg: "art.svg", image: "art.png" }]);
     expect(prompt).toContain("using Read");
     expect(prompt).toContain("imageFile");
-    expect(prompt).toContain("Do not select actions from the style name alone");
+    expect(prompt).toContain("Do not select actions from the Motion Graphic name alone");
     expect(prompt).toContain("no references is valid");
   });
 });

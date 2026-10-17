@@ -24,6 +24,42 @@ export const StackEntrySchema = z
     integration_guidance: z.string().optional(),
   })
   .passthrough();
+const variantId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+const guidanceLines = z.array(z.string().min(1)).min(1);
+/** Optional named look of an existing Motion Graphic; the default visual_cues and palette remain primary. */
+export const MotionGraphicVariantSchema = z.object({
+  id: variantId,
+  name: z.string().min(1),
+  source_key: z.string().min(1),
+  summary: z.string().min(1),
+  use_when: z.string().min(1),
+  visual_guidance: guidanceLines,
+  animation_guidance: guidanceLines,
+  palette_guidance: z.string().min(1),
+  illustrative_swatches: z
+    .array(z.object({ role: z.string().min(1), hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/) }))
+    .max(8)
+    .default([]),
+  paired_motion_ids: z.array(z.string()).default([]),
+  limitations: z.array(z.string()).default([]),
+});
+export type MotionGraphicVariant = z.infer<typeof MotionGraphicVariantSchema>;
+/** Optional named mechanism of an existing motion, shown in a stated window of its explorer preview. */
+export const MotionVariantSchema = z.object({
+  id: variantId,
+  name: z.string().min(1),
+  source_key: z.string().min(1),
+  summary: z.string().min(1),
+  use_when: z.string().min(1),
+  motion_sequence: guidanceLines,
+  executable_guidance: z.string().min(1),
+  preview_window_seconds: z
+    .tuple([z.number().min(0), z.number().max(6)])
+    .refine(([start, end]) => start < end, "Preview window must start before it ends"),
+  verification: guidanceLines,
+  limitations: z.array(z.string()).default([]),
+});
+export type MotionVariant = z.infer<typeof MotionVariantSchema>;
 export const StyleSchema = z.object({
   id: z.string(),
   name_en: z.string(),
@@ -65,11 +101,20 @@ export const StyleSchema = z.object({
       required: z.boolean().optional(),
       selection_policy: z.string().optional(),
       candidates: z
-        .array(z.object({ motion_id: z.string(), usage_guidance: z.string() }))
+        .array(
+          z.object({
+            motion_id: z.string(),
+            usage_guidance: z.string(),
+            // Provenance of the reviewed link; kept so API and agent context can cite it.
+            review_evidence: z.string().optional(),
+            reviewed_style_cues_sha256: z.string().optional(),
+          }),
+        )
         .default([]),
       agent_instruction: z.string().optional(),
     })
     .passthrough(),
+  motion_graphic_variants: z.array(MotionGraphicVariantSchema).optional(),
   tech: z
     .object({
       recommended_stack: z.array(StackEntrySchema),
@@ -198,6 +243,7 @@ export const MotionPatternSchema = z
       adapt_or_omit_when: z.array(z.string()),
     }),
     executable_prompt_template: z.string(),
+    variants: z.array(MotionVariantSchema).optional(),
   })
   .passthrough();
 export type MotionPattern = z.infer<typeof MotionPatternSchema>;

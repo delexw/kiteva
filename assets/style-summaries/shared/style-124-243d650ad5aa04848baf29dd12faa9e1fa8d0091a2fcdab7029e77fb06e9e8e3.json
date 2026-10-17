@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-124",
+    "name": "Translucent Tissue-Paper Collage. Printmaking and Craft Materials category, extracted in the 2026-10-12 repository sync.",
+    "visualIdentity": "Overlapping translucent fibers, torn edges and colored tissue layers build underwater depth. Light must transmit through overlaps, and pieces must never read as opaque cardstock.",
+    "suitableUses": "Explicit: underwater tissue scenes with fish, kelp and light shafts, given as authored examples. Inferred: other layered, depth-driven scenes. Audience and objective are unspecified.",
+    "limitations": "The palette is limited to supplied tokens unless approved tissue colors exist, and that gap must be reported. The two-color contrast check ignores textures, transmitted light and animated backgrounds. No motion references are selected.",
+    "palette": "Background is scene_dependent: #172D3A is an authored deep blue-green underwater fallback, not an exact source color. #F2EEE1 is the foreground, reaching 12.284:1 for opaque captions only. Gradients are disabled.",
+    "motionAndInteraction": "GSAP drives a paused, seekable timeline for per-piece sway, depth-scaled drift parallax and layer laydown, and every frame is redrawn. Keep sharp cuts and reading holds. No interaction behavior is specified.",
+    "audio": "Not mandated by the style. Music, voiceover, effects, ambience or silence may suit the unspecified topic and audience; honor any explicit user audio. Do not silently default to instrumental music.",
+    "assetRequirements": "No uploads are required. Tissue shapes are authored polygons with seeded torn edges and fiber textures generated locally. Fonts and assets must load before rendering; chroma-js and @remotion/noise are optional.",
+    "combinations": "style-101 (restrained layer depth) is the only suggested secondary. Keep style-124 dominant, do not import its palette, avoid competing full-scene treatments, and offer reduced motion in HTML.",
+    "productionApproach": "Canvas 2D renders visuals; GSAP owns motion; HyperFrames handles assembly and export. Remotion is fallback only if HyperFrames is unavailable or a verified limit is recorded. Validate with check, snapshot and render."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

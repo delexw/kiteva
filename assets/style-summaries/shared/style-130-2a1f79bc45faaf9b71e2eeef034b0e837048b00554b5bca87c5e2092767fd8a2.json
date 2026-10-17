@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-130",
+    "name": "Illuminated Manuscript. Category: Illustration and Art Media. Provenance: extracted from sampled Fable gallery frames on 2026-10-13. The art-medium label is an authored classification, not a claim about the creator's technique.",
+    "visualIdentity": "Explicit: a parchment page with an ornamental vine border, a decorated initial, a framed miniature and restrained gilded highlights in red, blue and green pigment. Illustration and verified text are arranged as one page, not a generic paper scene.",
+    "suitableUses": "Explicit: a page layout pairing illustration with verified text. Inferred: calm, ornate explainers or storytelling where a framed page and deliberate reveals suit the topic. No other use cases are specified.",
+    "limitations": "Source review sampled only one frame per second from 1 to 8 seconds; motion, audio and later scenes were not verified, and the source prompt is partial. Text appears only with verified copy, otherwise blank ruling, never pseudo-script. Bloom, PBR gold and ScrambleText were rejected; WebGL is overkill for a flat page.",
+    "palette": "Suggested, scene-dependent tokens; hex values are authored fallbacks, not measured source colors: background parchment #EFE4C8, foreground #352D27, gold #B89B51, red #A5433C, blue #3C5487, green #66825D. Approved task colors take precedence. Gradients are disabled. Normal text needs 4.5:1 contrast, checked on the textured composite. Parchment is the medium-defining paper role.",
+    "motionAndInteraction": "Preview timing: 0–0.9s initial outline then fill; 0.6–1.6s border draws, with leaves filling after each stroke; 1.2–2.2s miniature frame completes before its interior reveals; 2.2–2.8s masked gold glint on gilded shapes only, then hold. Full-video options: page turn or slow push-in. Pointer interaction is unspecified. Sharp cuts and reading holds are preserved.",
+    "audio": "Unspecified. The source gives no soundtrack, voice or sound-effect direction, and no audio was verified. Audio should be proposed per task, not assumed to be historical or instrumental. Silent previews need no audio. Any speech must remain intelligible and must not compete with reading holds.",
+    "assetRequirements": "No uploads are mandatory. Needed for text: verified copy and an approved font (font unspecified). Optional: approved calligraphy assets or parchment scans. Miniature and ornament are original vector art. Source characters and branded material must not be copied.",
+    "combinations": "Suggested, optional: style-031 as a secondary illustrative detail; its role is unspecified. Keep the manuscript dominant, preserve approved colors and use one owner per animated property. Avoid generic effects that replace mark-making and avoid invented historical text. Guidance authored 2026-10-13.",
+    "productionApproach": "Style renderer: SVG and HTML/CSS. Motion: GSAP with DrawSVGPlugin on one paused timeline. Pipeline: HyperFrames by default, Remotion only with a recorded reason. chroma-js is optional for contrast checks; Three.js is only for the page-turn option. Verify direct and backward seeks. Runtime availability of the 90 reviewed tools is unverified."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

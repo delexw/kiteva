@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-055",
+    "name": "Sticker Collage (Printmaking and Craft Materials), a normalized label. A dark-field variant, Neon Flat-Sticker Collage on Black, is also defined.",
+    "visualIdentity": "Explicit: uniform white die-cut borders and light contact shadows on paper, notebooks or a simple surface. Stickers are placed, peeled and slightly rotated at constant border scale. Floating stickers are excluded.",
+    "suitableUses": "Explicit: playful arrangements of existing subjects, with the default look for tactile or cosy topics. The neon variant suits energetic, high-contrast tutorials or explainers. Inferred: avoid sticker-explainer pairings, which would duplicate it.",
+    "limitations": "Explicit: keep border width constant; the neon variant drops contact shadows. Avoid generative smear morphs and roughening every cutout edge. Procedural curl is artistic, not a physics solver. Source review covered sampled seconds 1–8 only, without audio.",
+    "palette": "Explicit: background is scene-dependent and no approved exact colours were supplied. Illustrative tokens: background #F3EBD9 (not required), foreground #273F49 (9.346:1 on it), border #FFFFFF. Accents #D78267 and #77A397 are decorative only, under 4:1 with foreground. Gradients are disabled.",
+    "motionAndInteraction": "Explicit: placing, peeling, lifting and slight rotation through layer transforms, with pops or slides on deliberate cues, then holds. Optional: mo.js bursts, paper curl, Motion. Motion references 037 and 038 apply only when assets support them. No automatic springs or bounce.",
+    "audio": "Unspecified by the style; no audio layer is mandatory. Suggested per topic: music, voiceover, sparse placement sounds, ambience or silence, never competing with narration. No audio was supplied. Any soundtrack must be real, verified audio.",
+    "assetRequirements": "Explicit: alpha-masked cutouts expanded to uniform white borders, approved local fonts, exact copy, and actual punctuation or glyphs for motion-037/038. Do not invent brand marks or copy. No photos or website captures were supplied.",
+    "combinations": "Explicit optional hybrids: style-025 doodle characters (foreground linework; coral and sage fills only) and style-024 notebook annotations (foreground ink, coral emphasis, never on borders). Use them only when stickers need characters or notes.",
+    "productionApproach": "SVG style renderer; PixiJS for large sprite sets; Rough.js only for sketch interiors. One owner per animated property. HyperFrames is the default pipeline, with a paused GSAP timeline in window.__timelines; Remotion only as a recorded fallback. Verify seeks and composited contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

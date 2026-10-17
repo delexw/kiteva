@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-044",
+    "name": "Vintage Photo Collage, in the Printmaking and Craft Materials category, with explicit provenance. Its visual direction is directly named in the source.",
+    "visualIdentity": "Explicitly combines period-consistent photographs, newspaper fragments, clipped objects and visible paper edges. Grain and print characteristics stay distinct within one unified palette, and the collage keeps a coherent theme.",
+    "suitableUses": "Explicit: source combinations target historical documentaries, archives and history explainers. Inferred: archival or nostalgic subjects that have real period imagery. Catalog reviews list the style for gallery, phrase, punctuation-zoom and device-feed patterns.",
+    "limitations": "No period photographs or newspaper fragments are supplied, so report them as missing rather than inventing them. Cropping alone cannot extract subjects, remove backgrounds or create parallax layers. Simulated appearance is not photographed production. Typography is unspecified.",
+    "palette": "Background is scene-dependent, so #EDE3CD is only an illustrative swatch, not a required canvas color. #393329 and #85765D are optional suggestions, not approved exact colors, and apply only to new presentation elements. Photographs keep their colors. Foreground on background measures 9.806:1; the accent on background (3.47:1) is decorative only. Gradients are disabled.",
+    "motionAndInteraction": "Explicit style motion: cutout movement, modest parallax and object-based scene connections. Optional catalog references 012, 015, 018, 037, 038 and 046 apply only where real scene assets support them, and choosing none is valid. Video state must derive from composition time, with no pointer input.",
+    "audio": "No audio is supplied or specified. Inferred suggestion: restrained, texture-led ambience, with narration only if the topic needs explanation. Pattern 046 suggests optional clicks at activation and absorption plus one output-burst accent. Previews stay silent, and no beat timing should be claimed without audio analysis.",
+    "assetRequirements": "Unspecified: period photographs, newspaper fragments, fonts and exact copy are not supplied. Needed: transparent cutouts and print-textured assets from real archival sources, keeping their grain. Pattern 046 needs an original or authorised device illustration, labelled illustrative when fictional.",
+    "combinations": "Optional style-024 adds handwritten archival labels in #393329 that appear after cutouts settle and never cover faces. Optional style-097 adds paper-strip timelines with accurate dates and no fabricated data. Avoid invented photos, colored notes, modern UI charts and excess parallax.",
+    "productionApproach": "HyperFrames is the default pipeline for assembly, timing, sync and export; Remotion is a fallback only when its recorded condition is met. GSAP owns motion on one paused, seekable timeline. PixiJS is an optional 2D renderer that must render explicitly on each seek. Pillow prepares cutouts, masks and textures."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-116",
+    "name": "Blueprint Drafting Animation, in the Motion Design and Cinematography category, extracted and added 2026-10-12.",
+    "visualIdentity": "Flat blueprint-blue field with a white grid, clean dimension lines, dashed hidden edges and fine 45-degree hatching. Geometry stays measured and labels stay readable, not sketched.",
+    "suitableUses": "Inferred fit: explaining measured technical objects through part views and dimensions. The preview is 3 seconds with one view, about four dimensions, hatching and labels. Audience is unspecified.",
+    "limitations": "Dense hatching can alias at 1080p, so spacing needs checking. Measured precision argues against sketch-like treatment. The reviewed layout is 1920x1080; other formats are unspecified. The poster's cream PAPER stage must not transfer to this style.",
+    "palette": "Blue #1B3ED2 is source-assigned to the blueprint stage, but background_policy is scene_dependent, so it is a suggestion for this scene. White #FFFFFF text measures 7.876 contrast. Two colors, no gradient. Task-approved colors override these values.",
+    "motionAndInteraction": "One paused timeline: the grid fades in, outlines draw, hidden edges draw, the hatch wipes in, then dimension shafts draw toward their arrows. Arrowheads and labels appear only after their lines finish. No interaction is specified.",
+    "audio": "Unspecified by the style. Options are background music, voiceover, vocals, sound effects, ambience or silence, chosen from the brief. No layer is mandatory, and silence is valid for a silent preview.",
+    "assetRequirements": "No uploads, motion references or library IDs are supplied. Implementation needs one measured geometry spec, exact label copy and local monospaced technical fonts, none of which are provided. Audio assets are unspecified.",
+    "combinations": "Keep this style dominant. Optional secondary: style-109 for precise contour reveals, sharing the scene and timing without importing its palette. Avoid competing full-scene treatments, accent backgrounds and decorative motion.",
+    "productionApproach": "SVG and HTML/CSS render geometry, hatching and labels. GSAP with DrawSVGPlugin owns motion on one timeline. HyperFrames exports by default; Remotion is used only if HyperFrames is unavailable, with the reason recorded."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-067",
+    "name": "Glitch Art. The label was normalized from source descriptions. Category: Digital and 3D Aesthetics.",
+    "visualIdentity": "A digital glitch look built on a clear fault model, such as signal interruption, data loss or displacement. Brief strip offsets, RGB channel separation and block damage occur at narrative or transition points, then clarity is restored. Source colors outside intentional faults are preserved.",
+    "suitableUses": "Explicit: short, transition-led edits with a clear fault model. Hybrids suit typography or a system interface that brief glitches interrupt. Inferred, not stated as requirements: tech promos, cybersecurity messages, punchy social cuts and sci-fi or security incident explainers.",
+    "limitations": "Unsuitable for calm editorial scenes or where distortion undermines communication. Avoid continuous random corruption of every element and glitching body copy. Clean text should remain visible for most of the runtime. Each glitch event needs start, damage and restore phases.",
+    "palette": "The background is scene-dependent: choose it from subject, environment, lighting and mood, not a default cream or yellow. Optional unapproved tokens are background #111A24, foreground #F2F0E6, accent_1 #47B3AF and accent_2 #D16A84, with gradients disabled. Two-colour contrast checks give foreground on background 15.356, background on accent_1 6.963 and background on accent_2 5.101. Task or approved colors override these, and composited frames must be rechecked.",
+    "motionAndInteraction": "Each glitch event uses bounded strip offsets, RGB channel splits and localized block damage, then restores the clean source. The video example suggests six to ten frame bursts at transitions. The interactive HTML example triggers once on hover or focus, is disabled under reduced motion and keeps text selectable. Motion-020 is a glitch cut, and video timing derives only from composition time.",
+    "audio": "Unspecified for this style; no mandatory audio layer is assigned. Topic-driven options include background music, voiceover, sound effects, ambience or silence, and glitch accents may suit transitions. Speech must stay intelligible. No real audio is assumed, and gallery previews remain silent.",
+    "assetRequirements": "Unspecified for this style; no uploads are required. Useful inputs are the scene's real text layouts or approved imagery to damage, plus local fonts. Motion-037 and motion-038 need actual phrase or punctuation assets, which must be inspected first, and no copy or brand mark may be invented.",
+    "combinations": "Style-093 kinetic typography: glitches interrupt clean headlines and then restore them. Style-112 HUD: a breach glitch damages only the panels named in the story. Motion-020 suits glitch cuts, while motion-037 and motion-038 suit phrase and punctuation handoffs. Avoid glitching every panel or all copy, and choose no reference when unsuitable.",
+    "productionApproach": "WebGL with GLSL owns the style renderer and the displacement, channel-separation and damage passes. GSAP owns the paused event timeline. HyperFrames is the default for composition, validation and export; Remotion is fallback only when its condition is verified. Chroma-js validates colors and contrast, randomness is seeded, and decoded frames are verified."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

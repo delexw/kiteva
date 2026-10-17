@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-052",
+    "name": "Letterpress Printing, a supplemental Printmaking and Craft Materials reference, not a named source-collection style.",
+    "visualIdentity": "Thick paper with shallow debossed edges, natural ink coverage and simple type or graphics, revealed by soft side light. Metallic bevels and deep embossed lettering are excluded.",
+    "suitableUses": "Explicitly suited to short typographic statements and stationery. Editorial pairings target literary promos, publisher brands and annual-report covers; card pairings target invitations and business cards.",
+    "limitations": "Impressions must stay shallow and uniform, and whole pages must not slide. The source review covers only one frame per second from 1 to 8 seconds, so sub-second motion, audio and later scenes are unverified.",
+    "palette": "Background is scene-dependent; the cream #F6EDD9 is only an illustrative suggestion, not a required canvas. Suggested tokens are foreground #343932 and accent #914839, with contrast 10.147 and 5.653 against the background. Gradients are off, and approved exact colors override these.",
+    "motionAndInteraction": "Typesetting, pressing and localized reveals should move with restraint. Video follows composition time, while scroll drives only interactive delivery. Optional motion-012 and motion-015 need scene fit and are not required.",
+    "audio": "Audio is unspecified. Inferred options include restrained press accents, ambience, music, voiceover or silence for reading holds. No genre, tempo, instrument or voice is prescribed, and explicit user choices override these.",
+    "assetRequirements": "No uploads are required. Needed are locally loaded fonts, glyph or graphic outlines for impressions, and paper or ink textures; body copy stays live text. Exact copy, duration and resolution are unspecified.",
+    "combinations": "Letterpress alone fits short statements. Style-019 adds a page grid with one oxblood accent; style-096 adds slow raking-light macro passes on one card. Avoid gold sparkle and heavy blur.",
+    "productionApproach": "HyperFrames is the default for composition, timing and export; Remotion is a fallback only if HyperFrames is unavailable or a verified limitation exists. Blender with Python bpy and Cycles is the recommended renderer and motion engine, with tool availability unverified. GSAP provides the timeline, and chroma-js is optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-043",
+    "name": "Silhouette Illustration, in the Drawing and Illustration category. The label was normalized from a flat black silhouette description.",
+    "visualIdentity": "Communicates through recognizable outlines, poses and negative space. Uses filled solid silhouettes, limited solid colors and clear depth layers. Internal detail may be omitted when the silhouette reads.",
+    "suitableUses": "Explicit: symbolic narratives, storytelling intros, ambient scenes and title sequences with type in negative space. Inferred: explanatory subjects with clear outlines. Brand reveals only with an approved mark.",
+    "limitations": "Avoid overlapping silhouettes, gradient fills, fast moves, busy motion, type over figures and added accents. Subjects should read by outline and pose alone, which is inferred from the visual cues. Gradients are disabled in the proposed palette.",
+    "palette": "Suggested, not approved: background #F5E9CF is illustrative because background policy is scene-dependent, so derive the field from the setting. Foreground #253442 gives 10.579:1 on it. Accent #647F81 is decorative only at 3.563:1. Source examples show one dominant field, one subject color and one neutral accent; their hues are not style constants. Approved exact colors override.",
+    "motionAndInteraction": "Smooth authored movement; keep sharp cuts, impacts, constant-speed sections and reading holds. Optional patterns: chapter handoffs (motion-012), step storytelling (motion-015), radial logo burst (motion-039). Video uses composition time; scroll is for interactive delivery only.",
+    "audio": "Unspecified; no music, voice or effects are required. Guidance proposes topic-based music, voiceover, effects, ambience or silence, without a fixed genre or tempo. No audio was verified in the source samples. Keep speech intelligible when present.",
+    "assetRequirements": "No uploaded assets are specified. Silhouettes need filled contours, pose groups with explicit pivots and separated limbs. Fonts and assets must load before rendering. Exact copy, duration and output paths are unspecified.",
+    "combinations": "style-101 adds slow depth planes with stable outlines; avoid overlaps and fast moves. style-093 adds title typography in negative space with slow rhythm. Motion patterns 012, 015 and 039 are optional and need scene support.",
+    "productionApproach": "HyperFrames handles assembly, timing, validation and export; Remotion is a fallback only with a recorded reason. SVG or Paper.js draws silhouettes, GSAP drives motion, Motion is optional and chroma-js validates colors. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

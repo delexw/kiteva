@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-112",
+    "name": "Futuristic UI (FUI) / HUD Design",
+    "visualIdentity": "Dark technical field with fine wireframes, one limited cyan or magenta accent and readable monospaced data. Panels, reticles and progress rings each serve a defined function; neon stays restrained. Not every cyberpunk scene is a HUD.",
+    "suitableUses": "Explicit: fictional interfaces and title sequences; hybrids with real data for dashboards, mission-control reports and sensor diagnostics. Inferred: interactive HUD dashboards with reduced-motion static states. Data must be real or clearly labelled fictional.",
+    "limitations": "Explicit: avoid microtext, excessive spinning rings, overexposed neon, CRT curvature that harms legibility and unlabeled fictional data; keep waveforms inside panels and bloom on selected luminous elements only. Motion-043 needs finished 3D geometry; partial arcs must be labelled.",
+    "palette": "Background is scene-dependent: the dark direction is explicit, but the exact hue is not. Unapproved suggested tokens #0C1822, #E7F4F3 and #55C7CF give 15.933:1 foreground on background and 8.942:1 dark text on cyan. No gradients are enabled; task colors override.",
+    "motionAndInteraction": "Explicit: startup, scanning, acquisition and feedback animate so each data change matches a visible event; video state derives from composition time. Candidate references: motion-043 (orbit a wireframe hero), motion-017 (exploded reveal), motion-037/038/039 (asset-dependent). Motion-011/012/015 are not FUI-listed.",
+    "audio": "No fixed soundtrack is required; music, voiceover, effects, ambience or silence are task-specific options. Cyan waveform traces can mark acquisition beats. No audio was supplied, so any soundtrack or voice must be actually produced and verified before it is claimed.",
+    "assetRequirements": "No uploads are mandatory. Optional needs: local monospaced fonts (none named), readout data labelled as fictional or real, finished geometry for motion-043 or approved mark geometry for motion-037/038/039, and attributed authorized map tiles for Leaflet.",
+    "combinations": "style-097: D3 or Leaflet data panels with bloom only on active cyan values and readouts tied to data changes. style-063: cyan oscilloscope traces inside bounded panels, not oscilloscope green. Avoid off-palette accents and decorative spinning rings.",
+    "productionApproach": "Three.js and SVG draw wireframes, scales and reticles; UnrealBloomPass glows only selected elements. One paused GSAP timeline owns motion; Motion is optional. HyperFrames is the default pipeline; Remotion requires a recorded reason. Chroma-js checks contrast; D3 and Delaunator are optional geometry helpers."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

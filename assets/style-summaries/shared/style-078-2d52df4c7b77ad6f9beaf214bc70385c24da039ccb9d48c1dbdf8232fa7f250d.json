@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-078",
+    "name": "Clay-Style 3D is a supplemental digital 3D surface treatment. It is not a named source style and is not physical clay stop motion.",
+    "visualIdentity": "Rounded forms, restrained handmade surface detail, matte materials, broad lights, credible contact shadows and limited colors. Describe results as clay-like 3D, never as filmed clay.",
+    "suitableUses": "Explicitly suited to mascot or product shots, loading moments and playful product reveals. Soft-subject brand intros are an inferred fit. HTML uses prerendered loops triggered by interaction.",
+    "limitations": "Motion shows only weight and slight elasticity, never continuous melting, liquid flow or constant wobble. Keep apparent volume and readable silhouettes. Optional XPBD gives elastic bodies only, not fluid, plastic or origami behavior.",
+    "palette": "The background is scene-dependent, so choose it from subject and mood; cream #F2E9DA is only illustrative. Unapproved suggestions are foreground #3E4A46 and accents #93AD9E and #C7917B. Task-exact colors override them, and gradients stay off. Foreground on #F2E9DA measures 7.675:1; accent pairings are decorative only.",
+    "motionAndInteraction": "Video uses keyframed anticipation, squash on landing and elastic settle, timed from composition time. HTML plays on click or tap and shows the settled pose under reduced motion. Motion references are optional; none is required.",
+    "audio": "The style does not mandate audio. Choose music, voiceover, impact accents, ambience or silence from the topic; explicit user audio takes priority. Beat synchronization requires measured data.",
+    "assetRequirements": "Blender must author meshes, materials and lighting, since no physical clay exists. Fonts and assets must load locally first. Full orbits such as motion-043 need finished geometry on all sides or enough turntable views.",
+    "combinations": "style-079 adds diorama staging with matching matte materials, keeping depth of field off the main character. style-106 adds squash-and-stretch timing. Set props stay matte, not glossy PBR. Describe hybrids as clay-like 3D.",
+    "productionApproach": "Blender with bpy and Cycles is the style renderer and motion engine. HyperFrames is the default pipeline; Remotion is a fallback only under its documented condition. chroma-js and XPBD are optional. Verify seeks, frames and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-114",
+    "name": "Liquid Motion. Category: Motion Design and Cinematography. Provenance: supplemental, based on a user-requested direction.",
+    "visualIdentity": "Explicit: viscous forms stretch, string, merge, split and settle elastically, and a drop may gather into a wordmark. The surface may be 2D or 3D, and highlights must not hide contours. SDF metaballs imitate fluidity, not physics.",
+    "suitableUses": "Inferred: logo formations, abstract transitions, brand stings, beverage or cosmetics titles and event openers. Strongest when liquid gathers into real type. Weak fit where physically accurate fluid behaviour is required.",
+    "limitations": "Explicit: metaballs cannot render accurate lettering, so real text must be composited after formation and kept rigid. The style is not a validated fluid simulation. Physical splashes need baked simulation. Long kinetic type sequences dilute the fluid hero.",
+    "palette": "Background policy is scene_dependent; #171E2B is an illustrative swatch, not a requirement. Example tokens: #F5ECE0 foreground, #758FC0 and #C889A6 accents, no gradient. Two-colour contrast: #F5ECE0 on #171E2B 14.285; #171E2B on #758FC0 5.128; #171E2B on #C889A6 6.034. Task-supplied colours override these; recheck composited frames.",
+    "motionAndInteraction": "Explicit: motion is deterministic and evaluated from composition time, using stretch, merge and settle phases. Do not add springs or bounce automatically. Optional references: motion-003 drop-and-growth, motion-012 chapter handoff, motion-014 metaball orb, motion-015 story steps, motion-038 punctuation zoom. Interactive delivery may start on click or tap, with a keyboard equivalent.",
+    "audio": "Not mandated; the choice is task-specific. Inferred: restrained accents on drops and merges, or silence during reading holds. Music is appropriate only with a supplied track. Any speech must stay intelligible. No genre, instrument or voice is prescribed.",
+    "assetRequirements": "No uploads are mandatory. Needed: exact copy or wordmark, preloaded fonts or verified glyph distance fields, and an approved palette if one exists. Physical splashes need baked simulation. Punctuation zoom needs a real mark in the scene; keyword-glyph variant needs a meaningful headline glyph.",
+    "combinations": "style-093: real kinetic type takes over once liquid forms a phrase, then stays rigid. style-105: beat-mapped merges and splits, only with a supplied track. Liquid Motion alone suits logo formations and abstract transitions; pair it only when real text follows or a track sets timing.",
+    "productionApproach": "HyperFrames is primary for composition timing, validation, snapshots and export. Remotion is fallback only if HyperFrames is unavailable or a verified limit applies, with the reason recorded. WebGL/GLSL metaballs render the visuals; GLSL with GSAP owns motion. Verify seeks and decoded text legibility."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-024",
+    "name": "Handwritten Annotations (Drawing and Illustration; explicit name in source).",
+    "visualIdentity": "Explicit: handwritten lettering, underlines, arrows, circles and simple diagrams with slightly uneven marker edges. Ink and accent colors are restricted. Annotations point at the subject before each note appears, in explanatory order.",
+    "suitableUses": "Explicit: needs a subject to annotate, so it fits markup over screenshots or document walkthroughs. Inferred: annotated charts, product callouts and mechanism explainers, when the subject is drawn in a neutral companion style.",
+    "limitations": "Explicit: no hand-drawn wobble on data marks, no annotations obscuring values, no invented trends, no crowded simultaneous notes, and no handwritten paragraphs. Body text uses a readable font. Rough.js cannot supply authentic handwriting.",
+    "palette": "Background is scene_dependent: #FFFDF7 is only an illustrative swatch, so choose the backdrop from subject, lighting and mood rather than defaulting to cream. Suggested roles: foreground #233346; accent #B54A3E reserved for annotations; no gradient. Measured pairs: 12.639 and 5.144. Approved exact colors override these suggestions; recheck composited frames.",
+    "motionAndInteraction": "Explicit: annotations draw in explanatory order. Arrows, circles and underlines reveal by stroke length, and each note appears after its target is pointed to. Allow reading holds. Interactive hotspots may draw arrows on focus. Arrowheads stay hidden until shafts arrive. The motion-045 portal transition is optional.",
+    "audio": "Unspecified in source; no audio was analysed. Options depend on topic: background music, voiceover, sound effects, ambience or silence, with no mandatory layer. Motion-045 suggests a soft marker scratch or silence. Previews stay silent.",
+    "assetRequirements": "Unspecified in source; no uploads are required. Lettering needs approved handwritten assets or a suitable font. Subject artwork must come from the brief or supplied material. Motion-045 reference frames and illustrations are not reusable. Supplied audio or voice needs authorization; none is assumed.",
+    "combinations": "Explicit: style-097 provides clean charts explained by marker circles, with one insight per state and accent reserved for annotations. Style-027 provides precise line art that arrows point at before notes appear. Avoid color fills inside line art and wobble on data marks.",
+    "productionApproach": "SVG paths and HTML/CSS text render visuals; Rough.js and tldraw are optional. GSAP DrawSVGPlugin owns stroke reveals, optionally with Motion. HyperFrames is the default pipeline; Remotion is fallback only with a recorded reason. Drive state from composition time and verify seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

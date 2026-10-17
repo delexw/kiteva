@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-135",
+    "name": "Cave Wall Painting",
+    "visualIdentity": "Red/ochre and charcoal animal outlines and hand marks follow an uneven rock surface. Pores and irregular pigment edges belong to the material. Cartoon outlines, neon glow and decorative pseudo-inscriptions are excluded.",
+    "suitableUses": "Use cases are unspecified in the metadata. Inferred fit: textured, ancient-wall or primitive-art themes where rock relief and gradual pigment reveal carry the mood.",
+    "limitations": "Rock and pigment are a procedural approximation, not archaeological footage, so disclosure is required on screen or in credits. Lighting is approximate. The source review sampled only 1–8 second frames.",
+    "palette": "Background is scene-dependent; #AF845A is an illustrative swatch only. Fallback tokens: foreground #2B211A, ochre #C49B6B, red #984B32, charcoal #3B2B21, chalk #DDD0B4. Approved task or reference colors override them. Use no gradient, and check text contrast against a 4.5:1 target.",
+    "motionAndInteraction": "Preview timing: short pigment strokes reveal over 0–1.8 seconds, then a slow light sweep crosses the fixed rock from 1.8–3.0 seconds. Interactivity is unspecified. GSAP tweens shader uniforms synchronously from shared time for seekable playback.",
+    "audio": "Audio is not specified in the metadata. Options include music, voiceover, ambience or silence, chosen per task. No historical soundtrack is assumed, and no audio asset is supplied or verified.",
+    "assetRequirements": "No uploads are required; procedural generation is the default. Optional inputs are an approved rock photo as albedo (disclosed as composited), authored pigment frame sequences or transparent hand marks, and offline NumPy/Pillow height and stroke-order maps.",
+    "combinations": "Optional secondary example: style-021, with its role unspecified. Keep this medium dominant, preserve approved colors, and use one owner per animated property. Avoid generic effects that replace mark-making and any invented historical text.",
+    "productionApproach": "Style renderer: Three.js WebGLRenderer with a fixed orthographic quad, GLSL ShaderMaterial and Canvas 2D pigment strokes. Motion: GSAP tweens uniforms. Pipeline: HyperFrames by default, with Remotion only for a verified limitation. chroma-js is optional for contrast checks. Bloom is rejected. Runtime availability is unverified."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

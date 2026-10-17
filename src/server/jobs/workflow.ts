@@ -7,6 +7,7 @@ import { validateAssetLimits } from "../../shared/asset-limits";
 import { RequestSchema } from "../../shared/contracts";
 import { AssetQuestionAnswerSchema } from "../../shared/agents/schemas/asset-needs";
 import { acceptsBriefAttachment } from "../../shared/brief-sections";
+import { withMotionGraphicVariantPolicy } from "../../shared/catalog-variants";
 import {
   assetQuestionBuildScope,
   assetIdsForQuestionScope,
@@ -412,7 +413,7 @@ export class Workflow {
                 (run.request.outputType === "page"
                   ? "Prepare a responsive interactive page brief. The previewBeat is one representative section with a meaningful user interaction; no video timing. List sections and interactionGoals. Do not include video duration. "
                   : "") +
-                `${assetRequirementsPolicy.guidance}\n${briefExplorationInstructions}\n${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\nDuring preparation identify the core idea and main scenes first, then align extracted attachment content and proposed usage with those scenes. Repair unsuitable captures before returning where tools permit. The independent self-review will verify this handoff.\nRead input.json and brief-images.json. For uploaded images, inspect the listed inspectionPath first; if text or detail is unclear, inspect the unchanged originalPath at full resolution. Pica copies are only for brief inspection, never production assets. When URLs are provided, complete the REQUIRED WEBSITE REFERENCE EXPLORATION procedure before returning this brief: build the requested-view checklist, inspect supplied pages, navigate relevant existing projects/results for missing views, and capture those views. Report the navigation attempted for any item still unavailable. Captured website-reference screenshots in assets/ are available product images, not missing uploads. Respect instructions to omit unavailable optional steps, rather than adding placeholder scenes or unrequested asset requirements. Inspect them and use only the page states actually shown. A URL screenshot does not prove unseen pages or interactions. Produce a truthful structured content brief. Return subject as a short idea title of 4–10 words, capturing the core idea rather than repeating the prompt, scene list, requirements or settings. This title becomes the project heading after preparation completes. Identify one representative preview beat shared across styles. Keep previewBeat and any proposed scenes style-neutral: describe the narrative action, change and intended meaning, not an invented palette, background, lighting, material, drawing technique, visual effect or camera treatment. For example, describe an overlooked insight becoming clear and shareable. Do not suggest styles anywhere in the brief. Preserve visual choices explicitly requested by the user or evidenced in supplied assets; do not turn your own visual suggestions into facts or constraints. Defer all other visual treatment to the subsequent style-selection stage. Do not invent facts or describe image content without inspecting it. Infer audience and objective only when omitted and list assumptions in constraints. For video only, suggest a full duration based on content and explain it. Auto full-video duration must be at least ${MIN_AUTO_VIDEO_DURATION} seconds, with distinct story scenes rather than a stretched preview. Previews remain 3 seconds. Respect explicit duration up to the ${MAX_VIDEO_DURATION}-second (5-minute) maximum. Auto duration must not exceed this maximum. For video requests, read the lyrics setting: supplied lyrics are exact creative copy, and write mode reserves time for on-screen lyrics that will be prepared separately; do not write the lyrics yourself. Off means no lyric captions. Lyrics alone never authorize generated vocals. A separate video request.speech setting is explicit voice authorization: narration is prepared by the application with local Kokoro before full-film implementation; uploaded mode uses the selected attached recording. Plan readable on-screen text and reserve space for spoken content when that setting is active. Do not claim singing support, synthesize speech during preparation, or ask for a voice upload merely because local narration was selected. Previews remain silent.`,
+                `${assetRequirementsPolicy.guidance}\n${briefExplorationInstructions}\n${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\nDuring preparation identify the core idea and main scenes first, then align extracted attachment content and proposed usage with those scenes. Repair unsuitable captures before returning where tools permit. The independent self-review will verify this handoff.\nRead input.json and brief-images.json. For uploaded images, inspect the listed inspectionPath first; if text or detail is unclear, inspect the unchanged originalPath at full resolution. Pica copies are only for brief inspection, never production assets. When URLs are provided, complete the REQUIRED WEBSITE REFERENCE EXPLORATION procedure before returning this brief: build the requested-view checklist, inspect supplied pages, navigate relevant existing projects/results for missing views, and capture those views. Report the navigation attempted for any item still unavailable. Captured website-reference screenshots in assets/ are available product images, not missing uploads. Respect instructions to omit unavailable optional steps, rather than adding placeholder scenes or unrequested asset requirements. Inspect them and use only the page states actually shown. A URL screenshot does not prove unseen pages or interactions. Produce a truthful structured content brief. Return subject as a short idea title of 4–10 words, capturing the core idea rather than repeating the prompt, scene list, requirements or settings. This title becomes the project heading after preparation completes. Identify one representative preview beat shared across Motion Graphics. Keep previewBeat and any proposed scenes Motion Graphic-neutral: describe the narrative action, change and intended meaning, not an invented palette, background, lighting, material, drawing technique, visual effect or camera treatment. For example, describe an overlooked insight becoming clear and shareable. Do not suggest Motion Graphics anywhere in the brief. Preserve visual choices explicitly requested by the user or evidenced in supplied assets; do not turn your own visual suggestions into facts or constraints. Defer all other visual treatment to the subsequent Motion Graphic selection stage. Do not invent facts or describe image content without inspecting it. Infer audience and objective only when omitted and list assumptions in constraints. For video only, suggest a full duration based on content and explain it. Auto full-video duration must be at least ${MIN_AUTO_VIDEO_DURATION} seconds, with distinct story scenes rather than a stretched preview. Previews remain 3 seconds. Respect explicit duration up to the ${MAX_VIDEO_DURATION}-second (5-minute) maximum. Auto duration must not exceed this maximum. For video requests, read the lyrics setting: supplied lyrics are exact creative copy, and write mode reserves time for on-screen lyrics that will be prepared separately; do not write the lyrics yourself. Off means no lyric captions. Lyrics alone never authorize generated vocals. A separate video request.speech setting is explicit voice authorization: narration is prepared by the application with local Kokoro before full-film implementation; uploaded mode uses the selected attached recording. Plan readable on-screen text and reserve space for spoken content when that setting is active. Do not claim singing support, synthesize speech during preparation, or ask for a voice upload merely because local narration was selected. Previews remain silent.`,
             }),
           );
           prepared = await reviewBriefAssets({
@@ -527,12 +528,12 @@ export class Workflow {
             .transform((checkpoint) => checkpoint.summaries),
         ]),
         () => {
-          this.emit(run, "input", "Preparing style information for your project…");
+          this.emit(run, "input", "Preparing Motion Graphic information for your project…");
           return prepareStyleSummaries(
             this.catalog,
             run.request.provider,
             controller.signal,
-            this.providerEvent(run, undefined, "Style information extraction"),
+            this.providerEvent(run, undefined, "Motion Graphic information extraction"),
           );
         },
       );
@@ -540,7 +541,7 @@ export class Workflow {
         run.request.pinnedStyleId &&
         !this.catalog.styles.some((style) => style.id === run.request.pinnedStyleId)
       )
-        throw Error("Pinned style was not found");
+        throw Error("Pinned Motion Graphic was not found");
       await writeFile(
         path.join(workspace, "style-summaries.json"),
         JSON.stringify(summaries, null, 2),
@@ -590,8 +591,8 @@ export class Workflow {
                 previousDirections: run.candidates,
                 regenerationRound: run.directionRound || 0,
               },
-              onEvent: this.providerEvent(run, undefined, "Style combination proposals"),
-              prompt: `${assetRequirementsPolicy.guidance}\nOutput type: ${run.request.outputType || "video"}. For pages, evaluate responsive layout and working user interactions rather than video timing. Read all ${summaries.length} cached style summaries in style-summaries.json before proposing directions. There is no individual-style shortlist: consider every style both as a primary identity and as a useful supporting contribution. Propose ${Math.max(12, run.request.candidateCount * 4)} distinct candidate options for the brief in the required input JSON. These are proposals for JEV to evaluate, not the final selected directions. Offer meaningfully different visual approaches, not cosmetic variations of one idea. Each direction must contain ${styleRange.min}–${styleRange.max} total distinct styles, counting the primary plus supporting styles. ${run.request.outputType === "page" ? "" : "This range comes from the full video duration, not the 3-second preview. Style count is separate from the requested number of preview directions."} Include single styles when permitted and compatible combinations with specific scene roles and honest asset feasibility. Read style-combinations.json for the full recommendations and their roles, rationale, consistency rules and pitfalls; compressed summaries are not the complete suggestion list. ${suggestedCombinationGuidance} ${candidateCopyGuidance} Keep one primary identity and add supporting styles within the permitted count only when they contribute meaningfully. Do not force the maximum; vary combination sizes where appropriate. Preserve the primary palette and visual identity, assign subordinate roles, and explain shared typography and motion rhythm. IDs must come from style-summaries.json. A primary style may appear in multiple genuinely distinct combinations. ${run.request.pinnedStyleId ? `Every primary style must be ${run.request.pinnedStyleId}.` : ""} Only when the model and available tools cannot fulfil a requested requirement, including inaccessible supplied URLs, return a focused assetNeeds question with its capability or access cause. Missing uploads alone do not warrant questions. Propose an honest adapted direction using available material; do not invent references. Use supplied images where appropriate and available code-generated visuals where none are supplied. Do not list multiple copies of the same combination, including reordered supporting styles.`,
+              onEvent: this.providerEvent(run, undefined, "Motion Graphic combination proposals"),
+              prompt: `${assetRequirementsPolicy.guidance}\nOutput type: ${run.request.outputType || "video"}. For pages, evaluate responsive layout and working user interactions rather than video timing. Read all ${summaries.length} cached Motion Graphic summaries in style-summaries.json before proposing directions. There is no individual Motion Graphic shortlist: consider every Motion Graphic both as a primary identity and as a useful supporting contribution. Propose ${Math.max(12, run.request.candidateCount * 4)} distinct candidate options for the brief in the required input JSON. These are proposals for JEV to evaluate, not the final selected directions. Offer meaningfully different visual approaches, not cosmetic variations of one idea. Each direction must contain ${styleRange.min}–${styleRange.max} total distinct Motion Graphics, counting the primary plus supporting Motion Graphics. ${run.request.outputType === "page" ? "" : "This range comes from the full video duration, not the 3-second preview. Motion Graphic count is separate from the requested number of preview directions."} Include single Motion Graphics when permitted and compatible combinations with specific scene roles and honest asset feasibility. Read style-combinations.json for the full recommendations and their roles, rationale, consistency rules and pitfalls; compressed summaries are not the complete suggestion list. ${suggestedCombinationGuidance} ${candidateCopyGuidance} Keep one primary identity and add supporting Motion Graphics within the permitted count only when they contribute meaningfully. Do not force the maximum; vary combination sizes where appropriate. Preserve the primary palette and visual identity, assign subordinate roles, and explain shared typography and motion rhythm. IDs must come from style-summaries.json. A primary Motion Graphic may appear in multiple genuinely distinct combinations. ${run.request.pinnedStyleId ? `Every primary Motion Graphic must be ${run.request.pinnedStyleId}.` : ""} Only when the model and available tools cannot fulfil a requested requirement, including inaccessible supplied URLs, return a focused assetNeeds question with its capability or access cause. Missing uploads alone do not warrant questions. Propose an honest adapted direction using available material; do not invent references. Use supplied images where appropriate and available code-generated visuals where none are supplied. Do not list multiple copies of the same combination, including reordered supporting Motion Graphics.`,
             }),
           );
           run.referenceScreenshots = await readReferenceScreenshots(workspace);
@@ -650,7 +651,7 @@ export class Workflow {
           );
           if (!selected.candidates.length)
             throw Error(
-              "No feasible style option passed the brief constraints. Supply the missing assets or clarify the request.",
+              "No feasible Motion Graphic option passed the brief constraints. Supply the missing assets or clarify the request.",
             );
           return selected;
         },
@@ -817,7 +818,11 @@ export class Workflow {
               const c = run.candidates.find((c) => c.id === job.candidateId)!;
               return [c.primaryStyleId, ...c.supportingStyleIds].includes(s.id);
             })
-            .map((style) => (run.request.outputType === "page" ? pageStyleContext(style) : style)),
+            .map((style) =>
+              run.request.outputType === "page"
+                ? pageStyleContext(style)
+                : withMotionGraphicVariantPolicy(style),
+            ),
           motions:
             run.request.outputType === "page"
               ? this.catalog.motions.map((m) => ({
@@ -1057,7 +1062,10 @@ export class Workflow {
     )
       throw new CodedError("PROJECT_ACTIVE", "Wait for the current work to finish", 409);
     if (run.request.candidateCount === 0 || run.request.selectedStyleIds?.length)
-      throw new CodedError("INVALID_REQUEST", "Manual styles do not use generated directions");
+      throw new CodedError(
+        "INVALID_REQUEST",
+        "Manual Motion Graphics do not use generated directions",
+      );
     if (!run.brief) throw new CodedError("INVALID_REQUEST", "Prepare the brief first");
     const round = (run.directionRound || 0) + 1;
     const checkpoints = run.preparation?.checkpoints || {};

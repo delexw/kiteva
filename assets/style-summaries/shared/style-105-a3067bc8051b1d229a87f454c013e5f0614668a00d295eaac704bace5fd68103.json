@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-105",
+    "name": "Music-Synchronized Animation is a timing method, not a standalone aesthetic. It is layered over a chosen visual style and is explicitly named in the source.",
+    "visualIdentity": "Identity comes from timing: beats, downbeats and sections schedule reveals, cuts and accents, and density follows musical energy. The source's flat SVG ball striking tuned bars is a demonstration only.",
+    "suitableUses": "Music videos and lyric videos are explicit uses. Rhythm-led explainers are inferred suitable. Interactive HTML fits only with a precomputed beat map and pause, since live analysis is excluded.",
+    "limitations": "Beats must be measured offline and manually verified; live audio analysis is excluded from export. Silent previews show only a labelled demonstration cue table. Source review sampled frames at 1–8 seconds and verified no audio or continuous motion.",
+    "palette": "Background is scene-dependent. The cream, ink, teal and terracotta swatches are illustrative, not approved colours, and task colours override them. Ink on cream reaches 9.836:1; teal and terracotta fail body-text targets and serve decoration only. Keep one hue per instrument and a near-white impact flash.",
+    "motionAndInteraction": "Motion is event-driven: each contact compresses the bar, ripples, then brightens it for the note duration. Impacts read before rebound, a pause precedes the final hit, and density varies. Optional references need inspected audio before beat-scheduling; video must stay seekable.",
+    "audio": "Audio is a task choice; no genre, voice or layer is mandated, and silence is valid. Full videos need measured beat, onset and band-energy data shared by visuals and sound placement. The source preview was silent, so no soundtrack was verified.",
+    "assetRequirements": "Full videos need an authorised or locally generated soundtrack and an offline cue table of contact time, point, note and duration. Local fonts, approved colours and inspected scene assets must load first. Motion references need actual punctuation or glyphs.",
+    "combinations": "A visual style hybrid is required. style-094 abstract shapes suit music videos: shapes divide on beats, primary palette only. style-093 lyric typography suits lyric videos: words land on stressed beats with reading holds.",
+    "productionApproach": "HyperFrames is primary, with a paused GSAP timeline registered per composition, then checked and rendered. Remotion is a fallback only when HyperFrames is unavailable or a verified limit applies, and the reason must be recorded. SVG draws, GSAP moves, and Python librosa/NumPy analyse audio offline."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

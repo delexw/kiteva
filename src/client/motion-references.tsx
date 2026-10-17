@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { MotionPattern, Style } from "../shared/contracts";
 import { loadMotionCatalog } from "./motion-catalog";
 import { MotionCard } from "./motion-card";
+import { MotionVariantList } from "./catalog-variants";
 
 export function MotionReferenceList({
   references,
@@ -16,7 +17,7 @@ export function MotionReferenceList({
       <p>{references.required ? "Required motion references" : "Optional motion suggestions"}</p>
       {references.selection_policy && <p>{references.selection_policy}</p>}
       {references.candidates.length === 0 && (
-        <p>No motion references suggested. Use this style’s own motion direction.</p>
+        <p>No motion references suggested. Use this Motion Graphic’s own motion direction.</p>
       )}
       {references.candidates.map((reference) => {
         const motion = motions.find((item) => item.id === reference.motion_id);
@@ -48,6 +49,7 @@ export function MotionReferenceList({
                 </ol>
                 <h4>Adaptation for video</h4>
                 <p>{motion.video_adaptation}</p>
+                <MotionVariantList variants={motion.variants} />
               </details>
             )}
           </article>

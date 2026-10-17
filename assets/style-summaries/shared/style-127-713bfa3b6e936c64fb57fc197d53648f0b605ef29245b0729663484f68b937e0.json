@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-127",
+    "name": "Cutaway / Exploded 3D Illustration",
+    "visualIdentity": "Genuine 3D geometry explains internal structure through section views and exploded assemblies. Parts separate along meaningful axes, labels stay attached through motion, and assembly orientation is preserved.",
+    "suitableUses": "Explicit: explaining internal structure of 3D components via cutaways, exploded assemblies and labeled flow paths. Inferred: other modelable technical objects in readable explainers.",
+    "limitations": "Flat SVG depth illusions are rejected; genuine 3D geometry is required. Procedural approximations, such as lens transmission, must be disclosed. Simulated appearance is not validated physics.",
+    "palette": "Background is scene_dependent: #101820 is an unverified illustrative default, and exact task colors override it. Roles: foreground #EFF4F7, steel #8196A5, glass #61D4DC, flow blue #628BF4, warm flow #EF9F5C. No gradients; check composited contrast.",
+    "motionAndInteraction": "GSAP offsets parts along meaningful axes and drives a calm camera arc, then holds a labeled cutaway before exact reassembly. Leader arrowheads appear only after their shafts finish. Orbit (motion-043) runs only while held, never during separation.",
+    "audio": "Source leaves audio unspecified. Choose music, ambience, voice or silence with stated assumptions; mechanism sounds only for meaningful action. Previews are silent; honor supplied audio and invent no assets.",
+    "assetRequirements": "No uploads required; procedural geometry is default, and glTF parts are used only with authorized assets. Subject, exact copy, duration and aspect ratio are unspecified. Orbit requires finished 3D geometry or a captured turntable.",
+    "combinations": "Keep this style dominant. style-097 adds causal labels and internal flow explanation; style-093 adds concise technical headings. Keep material and background roles and one timing system; avoid competing full-frame treatments.",
+    "productionApproach": "Three.js with PBR materials and clipping-plane cutaways is the renderer, with SVG labels reprojected on every seek. GSAP is the motion engine. HyperFrames handles composition and export; Remotion is fallback only with a recorded reason. chroma.js is optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

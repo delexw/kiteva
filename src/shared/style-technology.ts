@@ -22,13 +22,13 @@ export function styleTechnologyRecommendations(tech: Style["tech"]): Style["tech
         }
       : {}),
     render_pipeline:
-      "Uses the project's renderer setting. Style recommendations select visual and motion tools, not the composition or export framework.",
+      "Uses the project's renderer setting. Motion Graphic recommendations select visual and motion tools, not the composition or export framework.",
     framework_selection: {
       source: "project.renderer",
       scope: "Composition and export follow the project setting.",
     },
     library_selection:
-      "Choose visual, motion and supporting tools for the style, scene, assets and required fidelity. Use one owner for each animated property and deterministic seekable time. Composition and export follow the project's renderer setting; style suggestions do not override it.",
+      "Choose visual, motion and supporting tools for the Motion Graphic, scene, assets and required fidelity. Use one owner for each animated property and deterministic seekable time. Composition and export follow the project's renderer setting; Motion Graphic suggestions do not override it.",
   };
 }
 

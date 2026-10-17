@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-120",
+    "name": "Raymarched Fractal Landscapes (Digital and 3D Aesthetics; extracted; synced 2026-10-12).",
+    "visualIdentity": "Reflective fractal solids emerge from dark fog, evolve into a landscape and return to sculptural lettering. Coherent reflections, spatial scale and depth define the look; flat imagery or SVG would fake them.",
+    "suitableUses": "Explicit: a 3-second preview where fractal solids emerge from fog with a slow dolly; the full concept adds landscape and sunset. Inferred: atmospheric 3D title or concept reveals. Interactive HTML use is unspecified.",
+    "limitations": "Reflections are single-bounce approximations, not path-traced, and the lower internal render resolution softens fine detail. Sculptural lettering is absent from the preview and is planned as a precomputed glyph-distance SDF, a limitation to report.",
+    "palette": "Background is scene-dependent: #080A0C is the specified fog colour and an authored fallback, not sampled source truth; the poster only confirms near-black surroundings. Foreground #F2EEE5 is a suggestion with 17.125:1 contrast on an opaque background. Gradients are disabled, and supplied exact colours override these tokens.",
+    "motionAndInteraction": "GSAP tweens uniforms on one paused timeline: uEmerge (fog density and fractal power), the camera path, and uLandscape (terrain blend). Each seek renders synchronously with no frame accumulation. Optional motion-043 orbit keeps the solid fixed; HTML interactivity is unspecified.",
+    "audio": "The source specifies no audio. The suggested direction is only a proposal, chosen from topic and audience, with no fixed genre, tempo or mandatory layer. No audio assets were supplied, and the 3-second preview may stay silent. Music synchronisation requires measured audio data.",
+    "assetRequirements": "Only one reference poster (xanares-738984) was supplied, and it does not verify the full video. Lettering needs a precomputed glyph distance texture and fonts, and neither is supplied. Motion-038 needs an actual punctuation mark or approved glyph. Copy is unspecified.",
+    "combinations": "Supporting style-099 adds a continuous camera path; keep style-120 dominant and do not import its palette. Avoid competing full-scene treatments or replacing the dark background with an accent or subject material. Motion-038 and motion-043 are optional and conditional on scene support.",
+    "productionApproach": "Style renderer: Three.js ShaderMaterial with GLSL raymarching, bounded iterations and steps, rendered offscreen at about 0.5–0.66 scale. Motion engine: GSAP paused timeline. Pipeline: HyperFrames by default; Remotion only with a recorded reason. chroma.js is optional for colour checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

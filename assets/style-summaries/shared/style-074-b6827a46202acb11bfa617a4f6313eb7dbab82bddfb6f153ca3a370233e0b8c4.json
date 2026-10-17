@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-074",
+    "name": "Y2K Design. Supplemental reference, not a directly named style in the source collection.",
+    "visualIdentity": "Turn-of-the-millennium digital optimism built from chrome type, transparent plastic, rounded devices, early web elements and bright accents. Chrome and plastic are the main material roles, and metallic highlights must stay subordinate to the message.",
+    "suitableUses": "Explicit: optimistic brand moments featuring chrome and plastic. Inferred from combinations: retro-themed app launches, campaign microsites, playful product teasers and social ads. A hybrid is suited where early-web interfaces must function.",
+    "limitations": "Metallic glare must never obscure words, and chrome is reserved for one hero element. Avoid glassmorphism blur and do not squash text. Omit glitch transitions for calm scenes. Do not orbit chrome wordmarks, which read mirrored from behind. Duration, aspect ratio and resolution are unspecified.",
+    "palette": "Background is scene-dependent, so #E9EDF0 is illustrative only. Suggested tokens are foreground #293341 and accents #7497D0, #DB8CBB and #A5C365, none of which are approved exact colours. Foreground on background measures 10.849:1, and accent_2 and accent_3 pass normal-text checks with the foreground. accent_1 at 4.306:1 is decorative only. Task-supplied colours override these tokens, and gradients are disabled.",
+    "motionAndInteraction": "Motion uses rotations, elastic reveals and interface assembly. GSAP paused timelines own motion by default, and Motion is an optional DOM/SVG layer that must be synchronised to composition time. Volume-preserving squash applies to plastic devices and buttons only, not text. Interactive buttons need visible focus and reduced-motion press states. Video state derives only from seekable time.",
+    "audio": "The style specifies no audio. Direction should derive from topic and audience, with no fixed genre, tempo or voice mandated. Silence is valid. Explicit user audio and supplied assets take priority. Speech must stay intelligible, and music must not compete with narration or essential text. Do not claim beat synchronisation without inspected audio.",
+    "assetRequirements": "No assets are mandatory. Local fonts and assets must load before rendering. Metallic type and plastic objects need 3D or textured geometry, while interface elements use real DOM or SVG. Phrase or mark motion needs the actual approved copy or mark, and no copy or brand mark may be invented. Orbit motion needs finished geometry on every side.",
+    "combinations": "style-095 adds interface assembly and state transitions around one chrome hero, using primary tokens and no glassmorphism. style-106 adds volume-preserving elastic squash for plastic buttons and devices, without a uniform spring. Optional references include motion-037, 038, 039, 040 and 043, plus motion-020 only for abrasive scenes. Use a reference only when scene assets support its action.",
+    "productionApproach": "HyperFrames is the default pipeline for assembly, timing, validation and export. Remotion is fallback only when a verified limitation applies, and that reason must be recorded. Three.js renders 3D chrome and plastic, HTML/CSS and SVG render interface elements, GSAP owns motion, and chroma-js is optional for colour and contrast checks. Chrome appearance is simulated, not photographed."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

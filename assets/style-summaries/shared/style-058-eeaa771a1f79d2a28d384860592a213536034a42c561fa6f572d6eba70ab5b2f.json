@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-058",
+    "name": "Voxel Art (Digital and 3D Aesthetics; explicit provenance)",
+    "visualIdentity": "Explicit: figures and spaces are built from cubes of one voxel size, with stepped contours, controlled light and color blocks establishing depth. Voxel art is not pixel art; a pixel texture on an arbitrary mesh is not voxel geometry.",
+    "suitableUses": "Explicit: block-built characters and worlds. Inferred: isometric system overviews and game-world tours with style-077 framing, or unit-based counts where each voxel stands for a stated unit with style-097.",
+    "limitations": "Keep one cube size. Avoid perspective shrinkage, pixel textures on non-voxel meshes, free camera spin and decorative block explosions. Motion must preserve scale. Counts need verified data, a stated unit and zero-based scales.",
+    "palette": "Background is scene-dependent, chosen from subject, lighting and mood, not a default beige. Illustrative tokens only (#EEE9DB background, #30444C foreground, #63928D and #C0845D accents), not approved exact colors. Foreground/background contrast is 8.418; both accents fail 4.5 for body text, so use them decoratively. Keep overlay UI separate and recheck composited contrast.",
+    "motionAndInteraction": "Animate complete forms or purposeful block assembly at constant scale, driven by composition time with no wall-clock loops. A 360° orbit (motion-043) needs every cube face present, a fixed light and moderate speed to avoid moiré. Pointer orbit (motion-021) and dolly (motion-019) need real 3D depth.",
+    "audio": "Unspecified by the style; choose per task. Options include restrained music, narration, ambience or silence that protects reading holds. No genre, tempo or voice is mandated, and no measured beat or speech timing exists to claim synchronization.",
+    "assetRequirements": "Cube instances at one size, full geometry for orbits, enough captured views for turntable use, and facial layers or a rig for gaze motion. Fonts and assets load locally. The source review covered only sampled seconds 1–8 of two examples, not audio.",
+    "combinations": "Voxel Art alone suits block-built subjects. With style-077, keep voxel sizes equal, edges parallel and an orthographic isometric camera. With style-097, use teal and terracotta as two categories, zero-based scales and stated units.",
+    "productionApproach": "Three.js with InstancedMesh renders cubes, materials and lighting as the style renderer. One owner per animated property, such as a pure time function or paused GSAP timeline. HyperFrames handles composition and export by default; Remotion is used only for a verified need. Verify seeks and composited contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

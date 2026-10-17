@@ -20,7 +20,7 @@ export const preparationStepNames: Record<PreparationStep, string> = {
   inputs: "Reference material",
   brief: "Brief",
   lyrics: "Lyrics",
-  styles: "Style information",
+  styles: "Motion Graphic information",
   proposals: "Creative directions",
   selection: "Direction selection",
 };

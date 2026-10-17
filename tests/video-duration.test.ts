@@ -37,7 +37,7 @@ it.each([
   [179, 1, 5],
   [180, 2, 6],
   [300, 2, 6],
-])("uses the full %ss duration for the %s–%s style range", (duration, min, max) => {
+])("uses the full %ss duration for the %s–%s Motion Graphic range", (duration, min, max) => {
   expect(videoStyleCountRange(duration)).toEqual({ min, max });
   const option = {
     primaryStyleId: "style-001",

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-090",
+    "name": "Rotoscoping (style-090), a supplemental Animation Techniques reference. It is not a directly named style in the source collection.",
+    "visualIdentity": "Motion is traced or reconstructed frame by frame from filmed movement. Contours, fills and simplification rules stay consistent, preserving weight and proportions. Random edge changes, generated motion or ordinary filters do not qualify.",
+    "suitableUses": "Explicit: realistic traced motion from supplied live-action footage, with combinations for music videos, documentaries, editorial films, biomechanics and sports or dance analysis. Inferred: video output. Interactive HTML is documented only for step-controlled playback of traced sequences.",
+    "limitations": "Requires a verified live-action reference; without footage, report the gap. Python or OpenCV can aid extraction but do not prove tracing occurred. No renderer is listed. The source review sampled only seconds 1–8, one frame each, with no listed sources, so continuous motion, audio and later scenes are unverified.",
+    "palette": "Background policy is scene_dependent. The swatches #F1EBDD background, #314249 foreground and #9D8A72 accent are unapproved examples, not canon, and must not be defaulted to. Task-supplied exact colors override them. Foreground on background measures 8.807 for body text. Accent on foreground at 3.146 is decorative only. Gradients are disabled, and no approved exact colors are supplied.",
+    "motionAndInteraction": "Motion follows traced positions with time-based interpolation. Stop-motion stepping is not implied by the style name. Optional motion-012 (chaptered handoff) and motion-015 (narrative stages) are candidates that need scene support. Documented HTML interaction: keyboard step controls and a reduced-motion key frame. Video must derive all state from composition time.",
+    "audio": "Unspecified in the metadata; no mandatory audio layer is assigned. Options include music, voiceover, vocals, effects, ambience or silence, chosen from topic, audience and motion cadence. Explicit requests and supplied assets take precedence. No audio assets are supplied.",
+    "assetRequirements": "Verified live-action footage, prepared as numbered frames or alpha layers with consistent dimensions and clear names. A layer manifest is recommended. Transparent Krita-drawn PNG sequences are an alternative. No footage is supplied (sources list is empty). The referenced motion-pattern-catalog.json and shared_motion_guidance text are not included.",
+    "combinations": "Style-049 riso fill: traced contours in #314249, filled with #9D8A72 on #F1EBDD, using fixed grain and a constant registration offset. Drop riso's other inks; no third ink. Style-109 overlay: thin trajectory paths and joint angle arcs derived from traced positions, one accent color, never obscuring the figure.",
+    "productionApproach": "Traced drawing via Krita or prepared sequences. No style renderer or motion engine is listed, so tools are chosen by visual fidelity. HyperFrames is the default for composition, timing, audio sync and export. Remotion is a fallback only if HyperFrames is unavailable or a verified limitation applies. Drive visuals from shared, seekable time with seeded randomness."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

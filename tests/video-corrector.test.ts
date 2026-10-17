@@ -67,7 +67,7 @@ it("allows five GPT-6.1 full-video repair rounds, charges once per round and reu
     sessionId: "generation-session",
   });
   const findings = [
-    { focus: "style" as const, cheapEligible: false, evidence: "Style needs repair" },
+    { focus: "style" as const, cheapEligible: false, evidence: "Motion Graphic needs repair" },
     { focus: "pacing" as const, cheapEligible: false, evidence: "Pacing needs repair" },
   ];
   for (let round = 0; round < videoCorrectionPolicy.gpt61Full.main; round++)
@@ -92,7 +92,9 @@ it.each([
     value: { ...production, storyboard: validStoryboard() },
     sessionId: "generation-session",
   });
-  const findings = [{ focus: "style" as const, cheapEligible: false, evidence: "Repair style" }];
+  const findings = [
+    { focus: "style" as const, cheapEligible: false, evidence: "Repair Motion Graphic" },
+  ];
   await coordinator.correctRound(findings);
   await coordinator.correctRound(findings);
   await expect(coordinator.correctRound(findings)).rejects.toThrow("round limit");

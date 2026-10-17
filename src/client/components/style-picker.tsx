@@ -48,8 +48,8 @@ export function StylePicker({
       <Select
         mode="multiple"
         prefix={<Layers size={16} aria-hidden="true" />}
-        aria-label="Choose your own styles"
-        placeholder="Browse style previews or search by name"
+        aria-label="Choose your own Motion Graphics"
+        placeholder="Browse Motion Graphic previews or search by name"
         value={selectedIds}
         maxCount={limit}
         optionFilterProp="label"
@@ -64,7 +64,7 @@ export function StylePicker({
         onChange={onChange}
       />
       {selectedIds.length > 0 && (
-        <div className="style-picker-previews" aria-label="Selected style previews">
+        <div className="style-picker-previews" aria-label="Selected Motion Graphic previews">
           {selectedIds.map((id) => {
             const style = styles.find((entry) => entry.id === id);
             return style ? (

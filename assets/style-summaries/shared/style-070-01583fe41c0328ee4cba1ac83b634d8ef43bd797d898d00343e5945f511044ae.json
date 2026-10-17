@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-070",
+    "name": "Iridescent Materials, Digital and 3D Aesthetics; normalized from pearlescent silk and molten glass descriptions.",
+    "visualIdentity": "One dominant pearlescent, silk or molten-glass surface with coherent highlights and controlled color shifts on a quiet background. Reveal through measured flow, folds or macro framing, not rainbow noise.",
+    "suitableUses": "Explicit: macro material studies, product finish reveals, and beauty or fashion campaigns in editorial layouts. Inferred: quiet hero loops and product pages with one dominant finish.",
+    "limitations": "Avoid rainbow shaders, blown highlights, chrome type and quick cuts. Basic XPBD gives silk deformation only, not iridescence or molten glass. Two-color contrast checks do not verify text over video or animated light.",
+    "palette": "Background is scene_dependent, chosen from subject and mood, not a fixed beige. Example tokens (#F1EDEA, #3F4351, #A99DC1, #9FB9B2, #D3ADA1) are unapproved; task-exact colors override them. Foreground on background is 8.458:1; accent_1 is decorative only.",
+    "motionAndInteraction": "Reveal through measured flow, folds, rotation or macro framing via keyframes or cached simulation. Motion-043 fits one stationary object under fixed lights, with capped highlights and no flow during the orbit. Interactive pointer or scroll motion is optional.",
+    "audio": "Audio is unspecified and not mandatory. Inferred: silence or soft ambience suits material studies, with at most one restrained accent at a key reveal. Do not claim beat or speech sync without measured data.",
+    "assetRequirements": "No uploads are required. Renders need Blender with Cycles or bpy. Supplied exact colors and assets override defaults. Orbit motion needs complete 3D geometry; flat art supports only a labelled partial-arc adaptation.",
+    "combinations": "style-020: serif headlines in #3F4351 on #F1EDEA, with color only from the material. style-096: one move per shot, avoiding rainbow shaders and quick cuts.",
+    "productionApproach": "Blender with Cycles and bpy serve as style_renderer and motion_engine. HyperFrames is the default pipeline; Remotion is fallback only with a recorded reason. GSAP owns the paused timeline; chroma-js and XPBD (silk only) are optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

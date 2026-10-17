@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-045",
+    "name": "Hand-drawn Collage (Printmaking and Craft Materials; explicit provenance).",
+    "visualIdentity": "Layers drawn characters, handwritten text and cut paper in one brush-and-paper language. Uneven edges, tape and light contact shadows support the craft. Pieces are placed, peeled or hinged, not continuously wobbling.",
+    "suitableUses": "Explicitly suited to crafted narratives; explainers and social clips are inferred fits. Hybrids suit paper-piece diagrams (style-097) and stepped placement timing (style-082).",
+    "limitations": "Rough.js adds no handwriting, paper texture, rigs or authentic media. Continuous wobble, line boil and glossy charts break the style. Source review covered only sampled seconds 1–8, without audio or continuous motion.",
+    "palette": "Background is scene_dependent, chosen from subject, lighting and mood. Non-binding examples: background #F6EDD9, foreground #3C4345, accent_1 #B97259, accent_2 #819777. Foreground on background is 8.666:1; accent text pairs (about 3.2:1) are decorative only. Task-provided exact colors override these examples.",
+    "motionAndInteraction": "Video motion runs on composition time with no pointer or scroll dependency. Placing, peeling and hinged moves need reading holds before exits. Optional references: motion-037 (peeling paper letters) and motion-038 (cut-paper punctuation zoom) when assets support them; motion-006, 007, 012 and 015 need suitable layers or scene states.",
+    "audio": "Unspecified by the style. Options include background music, voiceover, sound effects, ambience or silence, chosen by topic and audience; no genre or mandatory layer is set. Keep sound clear of narration and reading. Sync only to measured audio; silence is valid.",
+    "assetRequirements": "Transparent alpha-channel layers or numbered frame sequences with consistent dimensions and a layer manifest. Separate paper pieces, lettering and character parts with explicit pivots and shared paper textures. Motion-006 needs eye layers or a rig; motion-038 needs a real punctuation mark. Uploads are optional; none are specified.",
+    "combinations": "Standalone works for crafted narratives. style-097 adds Rough.js diagrams on paper pieces with primary palette, same ink weight and accurate data; avoid glossy charts. style-082 adds stepped timing to placements only, with no line boil, shared textures or added colors.",
+    "productionApproach": "HyperFrames is the default pipeline for assembly, timing, sync and export; Remotion only if HyperFrames is unavailable or a verified limitation exists, with reason recorded. Rough.js (seeded, cached) and optional PixiJS render visuals; GSAP owns motion; Pillow or Sharp prepare assets; chroma-js checks contrast. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

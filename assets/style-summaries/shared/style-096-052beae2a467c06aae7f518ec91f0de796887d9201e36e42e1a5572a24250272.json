@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-096",
+    "name": "Minimalist Product Motion Design",
+    "visualIdentity": "Explicit: one product and a few meaningful details in generous space, with concise copy, precise proportions, restrained materials and light, smooth close-ups and selective reveals. A presentation direction, not a historical movement.",
+    "suitableUses": "Explicit: product-focused video and interactive HTML showcases. Inferred: hero reveals, launches and short spec callouts. Inferred poor fit: multi-product catalogs or dense explainers.",
+    "limitations": "Explicit: keep product accuracy, avoid copying campaign shots, invent no product copy or brand marks, and keep text off the product silhouette. Use Remotion only under its documented fallback condition.",
+    "palette": "Background is scene-dependent, so choose it from subject, environment and mood. #F6F2EA and #2A3030 are illustrative swatches, not approved colors or a cream default. Product and brand colors stay exact; tokens apply only to new elements. Gradients are off. Source examples show a low-key field, one accent and a screen-tone change; these are not style rules. Recheck composited contrast, since 12.026 is two-color only.",
+    "motionAndInteraction": "Smooth authored movement with deliberate settling, selective reveals and reading holds; one moving text line at a time; no automatic springs or bounce. Video uses composition time; scroll or drag is interactive-only. Catalog motion references are optional and used only when the scene supports them.",
+    "audio": "No audio is supplied, and no genre, tempo or voice is fixed. Inferred: restrained ambience, one accent at a product reveal, or silence to protect reading holds, never competing with narration. Claim no beat sync without measured timing.",
+    "assetRequirements": "Unspecified: product assets, exact copy, duration, format and audio. Supplied product assets stay unchanged. Genuine 3D needs an accurate, complete model or authorized CAD/glTF with no invented back panels.",
+    "combinations": "Metadata says best used alone. Optional: style-104 for axial hero framing and push-ins with no added props, and style-093 for a few spec lines, one moving line at a time. Keep only the two primary tokens.",
+    "productionApproach": "SVG composites crisp UI elements; Blender prerenders genuine 3D products and camera moves. Motion or Anime.js are optional DOM/SVG engines; the HyperFrames-registered GSAP timeline owns time. Use one owner per property. HyperFrames assembles, syncs and exports; verify seeks and composited frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

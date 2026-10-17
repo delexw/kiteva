@@ -146,7 +146,7 @@ export function resultReviewFindings(review?: ResultReview): CorrectionFinding[]
       focus: "style",
       cheapEligible: false,
       evidence:
-        "The delivered appearance needs correction to match the selected style combination.",
+        "The delivered appearance needs correction to match the selected Motion Graphic combination.",
     });
   return findings;
 }

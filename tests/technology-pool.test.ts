@@ -88,9 +88,15 @@ describe("shared technology pool", () => {
                 "motion-040",
                 "motion-041",
                 "motion-042",
+                "motion-043",
+                "motion-044",
+                "motion-045",
+                "motion-046",
               ].includes(entry.motion_id),
           );
       }
+      // Optional Motion Graphic variants are a later additive field (mg-frame-findings).
+      delete (preservedStyle as Record<string, unknown>).motion_graphic_variants;
       expect(createHash("sha256").update(JSON.stringify(preservedStyle)).digest("hex")).toBe(
         fingerprints[String(style.id)],
       );
@@ -152,7 +158,7 @@ describe("shared technology pool", () => {
       ]),
     ).toThrow(/every pool key/);
     expect(() => validateTechnologyReview({ ...review, styles: [] }, ["style-116"])).toThrow(
-      /every requested style/,
+      /every requested Motion Graphic/,
     );
     expect(() =>
       validateTechnologyReview(

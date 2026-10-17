@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-106",
+    "name": "Squash and Stretch",
+    "visualIdentity": "An animation principle, not an art movement: anticipation, impact compression, velocity stretch, rebound and settling that keep volume and silhouette. Reference look: flat 2D bodies with contact pivots. Explicitly stated in the source.",
+    "suitableUses": "Explicit fits: one hero object or logo with a single expressive moment, mascot explainers, short onboarding loops, and title emphasis words. Inferred for interactive HTML: one squash cycle on press or keyboard focus.",
+    "limitations": "Authored deformation is the default; physics is optional. Basic XPBD lacks fluid, plasticity, tearing, rigid contact and crease behavior, and Matter.js is rigid-body only. Avoid continuous wobble, uniform spring presets, and deforming every object at once.",
+    "palette": "Background is scene-dependent, chosen from subject, lighting and mood rather than defaulted to cream. Example tokens #F4EDDF, #32444A, #66978E and #C78461 are unapproved suggestions; task-approved colors override them. Only #32444A on #F4EDDF passes normal text (8.745); both accents are decorative only, and gradients are disabled.",
+    "motionAndInteraction": "Reference sequence: anticipation at scaleY 0.85, stretch along velocity at 1.25, impact at scaleX 1.3 with scaleY 1/1.3 to keep area, then rebound, a short hold and settle. Objects time differently and only one deforms at a time. Interactive HTML triggers once per press or focus, and reduced motion shows the settled pose.",
+    "audio": "Unspecified in the source, and no audio is mandatory. Inferred: optional restrained accents on impact moments, silence during reading holds, and no sound on every movement. Any soundtrack needs measured timing and must not compete with narration.",
+    "assetRequirements": "No uploads are required; flat SVG with explicit pivots and local fonts suffice. Optional: a Three.js glass soft-body using baked XPBD states, labeled an approximation. Liquid Glass 069 applies only if clear transmission is requested. Motion references need matching assets or rigs.",
+    "combinations": "style-028 flat vector characters suit mascots with volume-preserving squash. style-093 kinetic type suits one emphasis word per phrase, not body copy. Optional motion-003 (drop, impact, growth) and motion-012 (chapter handoff); motion-006 requires a rig.",
+    "productionApproach": "HyperFrames is primary: data-composition-id, a paused GSAP timeline registered in window.__timelines, then check and snapshot before render. Remotion is only a recorded fallback. SVG draws, GSAP owns transforms, and chroma-js validates colors. Matter.js or XPBD must be baked for video."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -31,7 +31,7 @@ it("shows selected settings without result verification claims", () => {
     "60 fps",
     "16:9",
     "No lyrics",
-    "Manual styles",
+    "Manual Motion Graphics",
     "Watercolor",
   ])
     expect(html).toContain(text);
@@ -89,7 +89,7 @@ it("hides model-suggested styles even after a direction is selected", () => {
   );
   expect(html).toContain("Selected project settings");
   expect(html).toContain("3 directions");
-  expect(html).not.toContain("Styles:");
+  expect(html).not.toContain("Motion Graphics:");
   expect(html).not.toContain("Watercolor");
   expect(html).not.toContain("Preview Watercolor");
 });

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-108",
+    "name": "Isometric Motion Graphics: isometric projection combined with shallow or layered 2.5D graphics. Supplemental provenance.",
+    "visualIdentity": "Consistent isometric axes, shared scale and one light direction for flat graphics or shallow 3D objects. Top and side faces show modest thickness with contact shadows. Labels stay in 2D, and distant objects never shrink by perspective.",
+    "suitableUses": "Explicitly suited to assembled systems or spaces, such as infrastructure, logistics and data-pipeline explainers, and SaaS or platform overviews paired with flat UI. Inferred: miniature sets and editorial introductions are also listed. Other topics are unevaluated.",
+    "limitations": "Camera tilt, perspective zoom or skewed labels break the projection. Parallax must not expose layer gaps or break ground contact. Use exploded reveals only for truly separable parts. Simulated appearance is not validated physics.",
+    "palette": "Background is scene-dependent, chosen from subject, lighting and mood, not a default cream. Unapproved suggestions: background #F3EFE6, foreground #2C424F, accent_1 #63968D, accent_2 #C58662. Foreground on background measures 9.153; accents fail 4.5 and are decorative only. Task-supplied exact colors override these.",
+    "motionAndInteraction": "Objects assemble and move only along scene axes, with preparation, action, settling and readable holds. Optional patterns include depth parallax, chapter handoffs, story steps and exploded reveals. HTML may use hover, focus, keyboard and reduced-motion states. Video needs an authored deterministic path.",
+    "audio": "Audio is unspecified and optional; no layer is mandated. Topic-fitting options include restrained ambience or sparse accents at assembly or transitions, with narration kept intelligible. Silence is valid for reading holds. No audio is supplied here.",
+    "assetRequirements": "No uploads are required. Local fonts and assets must load before rendering. Diagrams and UI may be native SVG or exported from authoring tools. Creature sprites are needed only for the optional hop in the parallax pattern.",
+    "combinations": "Style-109 adds isometric-axis connectors with flow pulses that appear after objects land. Style-095 places flat UI on device tops, cutting to a flat view for interaction. Keep one light direction, primary tokens only, and no diagonal connectors.",
+    "productionApproach": "Three.js with OrthographicCamera, or native SVG/Canvas when sufficient, renders visuals. A paused GSAP timeline drives motion with one owner per property. HyperFrames is the default pipeline; Remotion applies only if HyperFrames is unavailable or verifiably limited. chroma-js is optional for contrast checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

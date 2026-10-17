@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-092",
+    "name": "Line Boil. Supplemental design reference, not a directly named source-collection style.",
+    "visualIdentity": "Two-tone hand-drawn line art whose contours shimmer by cycling two or three carefully drawn variants. Silhouette, glyph structure and position stay fixed. The boil is controlled, not random noise.",
+    "suitableUses": "Explicit: illustrations and titles where a two-tone hand-drawn shimmer is the core idea. Inferred: handcrafted title sequences, short quotes and lecture-style explainers in video or interactive HTML.",
+    "limitations": "A jittery edge alone does not establish Line Boil; controlled drawing variants are required. Per-frame random noise is not allowed. Rough.js cannot supply handwriting, brush simulation or authentic pencil or ink media.",
+    "palette": "Background is scene-dependent. #F6EFDF is only an illustrative swatch, so choose the background from the scene and do not default to cream. Monochrome suggestion: #F6EFDF with #354142, contrast 9.229, checked on two colors only. No approved exact colors were supplied, and gradients are disabled.",
+    "motionAndInteraction": "Explicitly, contour variants cycle at a stable cadence with exposure holds, and the boil coordinates with subject motion. Optional references are motion-006 gaze following, which needs eye layers or a rig, motion-012 chaptered handoff, and motion-015 storytelling. None is required, and interactive scroll or reduced-motion behavior is only a suggested pairing.",
+    "audio": "Unspecified for this style. The source gives no fixed genre, tempo, voice or mandatory layer, and silence is valid. Any music, voiceover or effects should follow the topic and audience and honor explicit user requirements. No audio was supplied or created.",
+    "assetRequirements": "No uploaded assets, exact copy or fonts are specified. Production needs two or three aligned line-art variants per drawing or glyph, prepared before cycling. Fonts and assets must load before capture. Gaze-style references need suitable facial layers or a rig.",
+    "combinations": "style-093 kinetic typography supplies word order and timing for boiled lettering, with two tokens and a constant boil cadence. style-026 diagram drawing supplies causal-order diagrams, with a smaller boil on labels and no extra fills. Avoid random per-glyph noise and accent hues.",
+    "productionApproach": "Style renderer: Canvas 2D or SVG for cached variants, with optional seeded Rough.js for sketch contours. Motion engine: a paused GSAP timeline, or optional Motion, with one owner per property. Pipeline: HyperFrames by default, with Remotion only for a recorded reason. Validate colors with chroma.js and verify seeks and frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-026",
+    "name": "Whiteboard Animation",
+    "visualIdentity": "Explicit source direction: a clean pale background, simplified line diagrams and legible lettering. Draw only objects that help explain the subject. No drawing hand is required, and none should be fabricated.",
+    "suitableUses": "Explicit: causal explainers that reveal diagrams in causal order, then add annotations. Inferred: step-through HTML explainers, suggested by combination examples rather than by the style alone.",
+    "limitations": "Do not invent a drawing hand or present generated stroke order as authored drawing. Rough.js gives sketch contours only, not handwriting or paper texture. Avoid polished dashboards and invented values. Erasure or redraw transitions need reading pauses.",
+    "palette": "Suggested tokens only, not approved exact colors: background #FFFFFF, foreground #23282C, accent #245B9B, no gradient. Background is scene-dependent, though visual cues call for a clean pale field. Two-color checks: foreground on background 14.879:1, white on accent 6.897:1. Task colors override.",
+    "motionAndInteraction": "Explicit: reveal diagrams in causal order, then add annotations, using erasure or redraw transitions with reading pauses. Motion-012 and motion-015 are optional scroll-driven references; for video, schedule only supported states on composition time. Interactive scroll is not required.",
+    "audio": "Unspecified in source; audio_direction is a suggestion prompt. Inferred fit: restrained voice or silence that protects reading holds, with optional light accents on reveals. No audio layer is mandatory. Any soundtrack must be real, verified audio.",
+    "assetRequirements": "No uploads are required. Subject, exact copy, duration, aspect ratio, resolution, frame rate and output directory are unspecified. Prepare diagram paths and local fonts before timing. Motion references and support styles are used only when they fit the scene.",
+    "combinations": "Optional style-097 for quantitative beats: axes and series draw in order, highlighted only in accent blue, with reading pauses. Optional style-025 for recurring doodle presenters: marker lines only, no fills, never overlapping the diagram. Add them only when the brief needs them.",
+    "productionApproach": "Style renderer: SVG primary, tldraw optional for authoring, Rough.js only for authorized sketch treatment. Motion engine: GSAP DrawSVGPlugin for stroke reveals, with Motion or Anime.js optional and one owner per property. Pipeline: HyperFrames default; Remotion only with a recorded fallback reason."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

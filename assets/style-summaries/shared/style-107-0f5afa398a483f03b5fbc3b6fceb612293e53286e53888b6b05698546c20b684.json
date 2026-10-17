@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-107",
+    "name": "Mixed-Media Animation. This normalized label does not prove that physical stop-motion footage was used.",
+    "visualIdentity": "One shared color, line, texture and lighting system governs photos, drawings, paper, type and 3D objects. Each medium keeps a narrative role and its material difference within one coherent composition.",
+    "suitableUses": "Explicit: mixing supplied photos, drawings and paper in editorial or explanatory pieces. Inferred: documentary summaries, heritage openings and multi-input process explainers. No brief-specific subject is supplied in this metadata.",
+    "limitations": "Requires compatible source media, since the style supplies no footage. Rough.js cannot supply handwriting, paper texture or character poses. Glitch cuts suit only abrasive subjects and are omitted for calm scenes. Source color and motion evidence covers sampled seconds only, with no audio analysis.",
+    "palette": "Background is scene-dependent, so the #F1E6D1 ground, #3B4948 ink, #688E87 and #B97A5C accents are unapproved examples with gradients disabled. Foreground on background reaches 7.605:1, while accents suit only decorative fills at about 2.9:1. Exact approved colors override these examples.",
+    "motionAndInteraction": "Optional references: chapter handoffs (motion-012), story steps (motion-015), glitch cuts (motion-020, omitted for calm scenes), phrase scatter (motion-037), punctuation zoom (motion-038), radial burst (motion-039), word smash cuts (motion-040) and device-feed pipeline (motion-046, for real multi-input processes). Video runs on composition time; interactive delivery adds scroll or keyboard with reduced-motion states. Arrowheads stay hidden until shafts arrive, and labels wait for their containers.",
+    "audio": "Audio is not mandated. Suggestions include restrained clicks or one burst accent for motion-046, music synchronized only after measured audio analysis, and voiceover only where speech aids comprehension. Silence is valid. No source audio was analysed, so no beat or speech timing is verified.",
+    "assetRequirements": "Requires supplied or authored photographs, drawings, paper, type and transparent 3D sequences, preprocessed for consistent color, edges and dimensions. Device-feed patterns need an original device illustration, with any fictional interface labelled illustrative. Source CRT and UI assets are non-reusable.",
+    "combinations": "Use this style alone when supplied media already share rules. Annotation layer style-024 suits documentary or research pieces, with labels and arrows appearing after their medium settles. Parallax style-101 suits openings and chapter breaks, using small offsets, fixed depth planes, one light direction and reduced-motion disabling. Avoid mismatched layer directions.",
+    "productionApproach": "HyperFrames is the default pipeline, using data-composition-id, one paused GSAP timeline in window.__timelines, and check, snapshot and render commands. Remotion is a verified fallback only. PixiJS (autoStart false, explicit render on seek) or DOM/SVG renders visuals, Rough.js serves sketch layers only, and GSAP owns motion with one owner per property. Verify forward, backward, direct and fresh-page seeks plus decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

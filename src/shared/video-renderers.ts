@@ -4,7 +4,7 @@ export const videoRenderers = {
 } as const;
 export type VideoRenderer = keyof typeof videoRenderers;
 export const videoRendererIds = Object.keys(videoRenderers) as [VideoRenderer, ...VideoRenderer[]];
-export const multiplaneVersion = "0.3.8";
+export const multiplaneVersion = "0.3.10";
 
 export function videoRendererOf(request: { renderer?: VideoRenderer }): VideoRenderer {
   return request.renderer ?? "hyperframes";

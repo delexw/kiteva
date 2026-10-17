@@ -58,10 +58,10 @@ export async function summarizeStyle(
   const folder = path.join(cacheFolder, "shared");
   const file = path.join(folder, `${styleId}-${hash}.json`);
   const reuse = (entry: CachedSummary) => {
-    if (entry.summary.styleId !== styleId) throw Error("Summary cache style mismatch");
+    if (entry.summary.styleId !== styleId) throw Error("Summary cache Motion Graphic mismatch");
     onEvent({
       type: "summary_cache",
-      message: "Cached style information reused",
+      message: "Cached Motion Graphic information reused",
       data: { model: entry.model, provider: entry.provider, styleId },
     });
     return entry.summary;
@@ -87,7 +87,7 @@ export async function summarizeStyle(
       );
       if (entry.provider !== previousProvider || entry.model !== previousModel)
         throw Error("Summary cache author mismatch");
-      if (entry.summary.styleId !== styleId) throw Error("Summary cache style mismatch");
+      if (entry.summary.styleId !== styleId) throw Error("Summary cache Motion Graphic mismatch");
       await saveSummaryCache(file, entry, signal);
       return reuse(entry);
     } catch (error) {
@@ -97,7 +97,7 @@ export async function summarizeStyle(
       const summary = StyleSummarySchema.parse(
         JSON.parse(await readFile(path.join(cacheFolder, previousProvider, previousName), "utf8")),
       );
-      if (summary.styleId !== styleId) throw Error("Summary cache style mismatch");
+      if (summary.styleId !== styleId) throw Error("Summary cache Motion Graphic mismatch");
       const entry = { summary, model: previousModel, provider: previousProvider };
       await saveSummaryCache(file, entry, signal);
       return reuse(entry);
@@ -122,10 +122,11 @@ export async function summarizeStyle(
       signal: AbortSignal.any([signal, AbortSignal.timeout(180000)]),
       schema: StyleSummarySchema,
       onEvent,
-      prompt: `Read ALL supplied original metadata without skipping fields. Write concise COMPLETE sentences, about 200 characters per field where practical; never cut off a sentence to fit a limit. Target about 1800 characters across the full summary by compressing phrasing, not omitting decision constraints. Extract decision-useful information for Jev to choose styles for either videos or interactive HTML. Cover identity, use cases, limitations, palette roles/constraints (distinguish scene-dependent background suggestions from approved exact colors), motion and interactions, audio, assets, compatible combinations and production responsibilities. Distinguish explicit facts from inferred suitability. Do not invent missing information; say unspecified. Resolve prompt placeholders conceptually rather than copying executable prompts. Names of libraries are useful only with their visual or interaction capability. Preserve exceptions and constraints. Return styleId ${styleId}. Read the complete originalSource in the required input JSON. Do not write code, browse, modify files or inspect unrelated sources.`,
+      prompt: `Read ALL supplied original metadata without skipping fields. Write concise COMPLETE sentences, about 200 characters per field where practical; never cut off a sentence to fit a limit. Target about 1800 characters across the full summary by compressing phrasing, not omitting decision constraints. Extract decision-useful information for Jev to choose Motion Graphics for either videos or interactive HTML. Cover identity, use cases, limitations, palette roles/constraints (distinguish scene-dependent background suggestions from approved exact colors), motion and interactions, audio, assets, compatible combinations and production responsibilities. Distinguish explicit facts from inferred suitability. Do not invent missing information; say unspecified. Resolve prompt placeholders conceptually rather than copying executable prompts. Names of libraries are useful only with their visual or interaction capability. Preserve exceptions and constraints. Return styleId ${styleId}. Read the complete originalSource in the required input JSON. Do not write code, browse, modify files or inspect unrelated sources.`,
     });
     const summary = StyleSummarySchema.parse(result.value);
-    if (summary.styleId !== styleId) throw Error("Model returned a different style summary");
+    if (summary.styleId !== styleId)
+      throw Error("Model returned a different Motion Graphic summary");
     await saveSummaryCache(file, { summary, model, provider }, signal);
     return summary;
   });

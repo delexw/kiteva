@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-036",
+    "name": "Post-Impressionist Painting, in the Drawing and Illustration category. The label is normalized from one Van Gogh Starry Night reference and does not define every Post-Impressionist work.",
+    "visualIdentity": "Expressive, directional brushwork, rhythmic colour relationships and simplified painted forms. Build the look from one chosen painting reference, not from default swirling skies. Light and colour must stay coherent across layers.",
+    "suitableUses": "Explicitly suggested uses: atmospheric intros, museum or cultural promos, art-education process reels and opening reveals. Inferred suitability: topics where mood and painterly reveals matter more than precise data. Subject, audience and duration are unspecified.",
+    "limitations": "A filter cannot reproduce the whole movement, so do not claim that it does. Avoid default swirling skies, line boil, parallax that exposes plane edges, and neon vector lines over paint. Motion is simulated appearance, not physical paint. The source review covered only seconds 1 to 8, with no audio verified.",
+    "palette": "The background policy is scene_dependent, so the #EEE2C2 swatch is illustrative only; choose the background from the subject, lighting and mood. Example tokens are foreground #344F60, accents #B58B42, #638873 and #B26B57. Foreground on background measures 6.696 and passes normal text, while accent pairs (2.768 to 3.174) are decorative only. Reference hues belong to one painting, not the style; keep one complementary accent family. Approved exact colours override all examples.",
+    "motionAndInteraction": "Brush reveals, localized repainting and layered-plane movement are style-native. The optional motion-012 (progress-linked chapter handoff) and motion-015 (narrative step orchestration) apply only if the scene's action supports them. Video runs on composition time; scroll-driven behaviour is for interactive delivery only, with a static reduced-motion state.",
+    "audio": "Unspecified: no audio was supplied and none is mandatory. Options depend on the topic: restrained ambience or sparse music synchronized to reveals, voiceover only if explanation is needed, or silence for reading holds. Avoid a sound for every text entrance, and verify speech and balance in the final render.",
+    "assetRequirements": "No uploads are mandatory. Useful production inputs are layered painting assets or numbered frames with alpha, consistent dimensions and clear naming, plus brush masks and local fonts. Exact copy, subject and any painting reference are unspecified; a supplied reference takes precedence.",
+    "combinations": "style-101 (layered scenery depth) suits slow painted planes sharing one light direction, with one brush direction per plane and no large parallax. style-109 (underdrawing reveal) uses a brief #344F60 line stage that is fully replaced by paint. Use this style alone when one painting reference drives the piece.",
+    "productionApproach": "HyperFrames is the default pipeline for scene assembly, timing, audio sync, validation and export. Remotion is a fallback only when a verified HyperFrames limitation applies; an existing React project is not a reason. Canvas 2D renders the painted layers and masks, GSAP owns the seekable motion timeline, and chroma-js optionally checks contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

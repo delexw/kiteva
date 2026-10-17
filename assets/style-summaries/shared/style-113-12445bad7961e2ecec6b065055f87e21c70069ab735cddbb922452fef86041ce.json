@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-113",
+    "name": "Aurora Gradients / Glassmorphism",
+    "visualIdentity": "Frosted panels with fine borders, highlights and soft shadows sit over slow aurora bands, diffuse fields or mesh gradients in two to four main colors at stable brightness. Refraction is optional; foreground text stays sharp.",
+    "suitableUses": "Explicit: ambient hero screens and calm brand moments. Inferred: premium product or app motion, and panels presenting metrics when paired with a supporting style. Not a synonym for Liquid Glass.",
+    "limitations": "Avoid banding, shimmering edges, excessive blur and busy backgrounds; blur must not reduce text contrast. Blur alone is not refraction. Two-color checks do not validate translucent panels or animated light; recheck composited frames.",
+    "palette": "Background is scene-dependent; #142535 is only an illustrative swatch. Suggested aurora accents are #7FAAD0, #9B87C3 and #65AAA5 with #F2F6F4 foreground; approved exact colors override these. Opaque ratios: foreground on #142535 is 14.3; accents on it range 4.9 to 6.4. Optional LAB gradient, aurora background only.",
+    "motionAndInteraction": "Aurora moves slowly; panels move precisely and quickly without bounce. Video state derives from composition time; hover, scroll and pointer apply only to interactive delivery. Optional, none required: card stacking (motion-008), phrase step-in (037), circular punctuation reveal (038). Choose none when unsupported.",
+    "audio": "Unspecified; no audio was supplied and none is mandated. Choose music, voiceover, effects, ambience or silence from the topic, honoring explicit user choices; silence is valid. Do not default silently to instrumental music. Claim audio only when actually created.",
+    "assetRequirements": "Metadata supplies no images, fonts, copy, subject, duration, aspect ratio or output directory; treat these as unspecified. Load local fonts and assets before rendering, seed noise, and cache stateful simulations.",
+    "combinations": "style-095 (crisp panel-state transitions with #7FAAD0 active states) suits product motion; style-097 (metric cards on panels) suits dashboards. Avoid gradient-filled chart marks and data placed over moving aurora. Aurora alone suits ambient hero screens.",
+    "productionApproach": "HyperFrames (default) owns assembly, timing, sync, validation and export via a paused GSAP timeline in window.__timelines; Remotion is only a recorded fallback. WebGL/GLSL renders the aurora from shared time; HTML/CSS owns sharp text and backdrop-filter panels; chroma-js checks contrast. Verify seeks and composited frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-014",
+    "name": "Surrealism, a supplemental design reference not directly named in the source collection. An unusual scene is not automatically Surrealism.",
+    "visualIdentity": "Impossible scales, object relationships or gravity are placed inside convincing space and lighting. One coherent dream logic applies, photorealistic or painterly. Transformations unfold calmly while composition and narrative continuity hold.",
+    "suitableUses": "Explicit fit: single dreamlike images, and camera journeys or staged compositions that carry the narrative. Suggested hybrids target brand films, music videos, narrative openers and art-campaign key frames. Other suitability is unspecified.",
+    "limitations": "Avoid hidden cuts, camera-geometry intersections, rushed transformations, generic pastel grading, busy prop clutter and mixed rendering styles. Dense text during camera travel is unsuitable. Source review covered only sampled seconds 1–8, with no audio or later scenes verified.",
+    "palette": "Background policy is scene_dependent, so choose it from subject, environment, light and mood rather than defaulting to cream. Example tokens (#EDE5D7, #302D35, #617C8B, #B26E51) are illustrative, not approved exact colors. Foreground/background contrast is 10.815; accent text pairs fail 4.5:1, so use them decoratively only. Gradients are disabled. Source frames show one motivated key light, tinted haze and a darker midground silhouette.",
+    "motionAndInteraction": "Calm, eased motion driven by keyframes or cached simulation, evaluated from composition time. Video has no live pointer or scroll input. Optional motion references are motion-002 (vortex passage), motion-005 (gateway with mist), motion-012 (chapter handoff), motion-015 (story steps) and motion-038 (punctuation zoom), each only if the scene supports its defining action.",
+    "audio": "Audio is not specified by the style and is task-specific. Options include music, voiceover, sung vocals, sound effects, ambience or silence, chosen to support the story and leave room for speech. Honor explicit user choices and do not invent audio assets. Punctuation-zoom beat sync requires real audio analysis.",
+    "assetRequirements": "No uploads are required by the style. Inspect any supplied assets first. Punctuation zoom needs an actual punctuation or glyph asset, or approved mark geometry, never an invented brand mark. Layered or gateway scenes need separable planes and mist layers or cache. Local fonts and assets load before rendering.",
+    "combinations": "Surrealism alone suits single dreamlike images. Hybrid style-099 adds a continuous camera path through impossible spaces under one lighting logic, with no hidden cuts. Hybrid style-104 adds frontal symmetrical staging with slow push-ins. Keep the palette from the selected reference and avoid mixed rendering styles.",
+    "productionApproach": "HyperFrames is the default for assembly, timing, validation and export. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists, with the reason recorded. Blender with Python bpy and Cycles or EEVEE owns rendering and keyframed motion, and chroma-js checks contrast. Verify forward, backward and direct seeks, and inspect composited frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-109",
+    "name": "Animated Line Art (Motion Design and Cinematography; supplemental, user-requested direction; distinct from static line art and line boil).",
+    "visualIdentity": "Subjects are built from monoline contours, connectors, arrows and paths with consistent widths, caps and joins. Objects appear before their relationships, which are then drawn or followed. Endpoints stay continuous and completed structures stay readable.",
+    "suitableUses": "Explicitly suited to explanatory diagrams, process or system explainers, node-link relationships and path or chart reveals. The catalog lists it as a fit for motion-038 and motion-039. Topic, audience and brand are unspecified.",
+    "limitations": "Avoid arbitrary tangled lines and endless repeated drawing. Containers complete before their contents appear. The source review sampled only seconds 1–8, with no verified sub-second timing, continuous motion or audio. Rough.js roughness is not authentic handwriting or pencil.",
+    "palette": "Scene-dependent, style-compatible suggestion, not an approved palette: background #F9F4E7, foreground #27434A, accent #AA6945. The background may change to suit the scene. Foreground on background measures 9.619; accent on background measures 3.971, so it is decorative only. Gradients are disabled, and task-approved colors override these tokens.",
+    "motionAndInteraction": "Reveal objects first, then draw connectors with stroke-dash or DrawSVGPlugin; labels appear after their path completes. Arrowheads stay hidden until their shafts reach endpoints. Motion-012 and motion-015 suit story handoffs; motion-038 needs real punctuation or an approved mark; motion-039 needs an approved central mark. Video uses composition time.",
+    "audio": "No audio is specified. Optional suggestion: restrained accents on key node or connector completion, ambience or silence during reading holds, and music only if requested. Narration is unspecified. Sync only to inspected audio, and never claim unverified sound.",
+    "assetRequirements": "No uploads are required; geometry can be built from the brief. Optional inputs are exact copy, approved mark or glyph geometry for motion-038 or motion-039, and brand colors. Absent optional assets are not blockers.",
+    "combinations": "Swiss-grid style-001 suits precise diagrams with flush-left labels and reading-order draws. Handwritten annotation style-024 suits teaching notes added only after structures read clearly, one per idea. Both are optional; the style works alone.",
+    "productionApproach": "HyperFrames is primary: a paused GSAP timeline registered in window.__timelines, then check, snapshot and render. Remotion is fallback only, with a recorded reason. SVG renders; GSAP DrawSVGPlugin or stroke-dash owns reveals; Anime.js or Motion are optional, with one owner per property. Seed randomness and verify seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

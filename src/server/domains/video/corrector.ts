@@ -63,12 +63,12 @@ export const pacingCorrector: VideoCorrector = {
 export const styleCorrector: VideoCorrector = {
   focus: "style",
   expectedFix:
-    "Repair the reported visual or motion mismatch so the chosen styles make their intended contributions, preserving the selected combination and story.",
+    "Repair the reported visual or motion mismatch so the chosen Motion Graphics make their intended contributions, preserving the selected combination and story.",
   acceptanceCriteria:
-    "The subsequent style review verifies the selected combination, without replacing it or substituting generic motion.",
-  progress: "Refining the selected style…",
+    "The subsequent Motion Graphic review verifies the selected combination, without replacing it or substituting generic motion.",
+  progress: "Refining the selected Motion Graphic…",
   instructions:
-    "Inspect the saved QA evidence and relevant selected-style guidance. Repair the actual appearance or authored movement so each selected style contributes as intended. Preserve the chosen combination, medium, palette, assets, duration, and story. Do not substitute generic fades or simplify the design to satisfy QA.",
+    "Inspect the saved QA evidence and relevant selected Motion Graphic guidance. Repair the actual appearance or authored movement so each selected Motion Graphic contributes as intended. Preserve the chosen combination, medium, palette, assets, duration, and story. Do not substitute generic fades or simplify the design to satisfy QA.",
 };
 const correctors = {
   layout: layoutCorrector,

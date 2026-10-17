@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-104",
+    "name": "Symmetrical Cinematic Composition",
+    "visualIdentity": "Axially symmetric, frontal theatrical framing with arranged sets, props and ordered staging. It adapts cinematic principles rather than a generic pastel filter or a copied film scene. Provenance is normalized from a Grand Budapest Hotel reference, and the source videos were not all watched.",
+    "suitableUses": "Explicit: the style works alone for staged scenes and can pair with miniature sets or title cards. Inferred: it suits brand storytelling films and chapter-card videos. HTML use is possible only through pre-rendered frames or layered artwork.",
+    "limitations": "Avoid oblique views and deep bevels. Camera tilt can break the isometric projection. Visual review covered only seconds 1–8 of two references, with no continuous motion or audio verified. Subject-specific hues are examples, not style rules.",
+    "palette": "Background policy is scene-dependent, so backgrounds follow subject, lighting and mood. The example tokens #EEE0C8, #39494B, #8B9A81 and #B97D66 are illustrative, not required, and no exact approved colors were supplied. Foreground on background is 7.239:1. Accents are decorative only. Gradients are disabled. Source lesson: saturated framing contrasts with lighter moving exteriors. Recheck contrast on composited frames.",
+    "motionAndInteraction": "Measured lateral moves, push-ins and ordered character actions, with deliberate cuts and reading holds kept intact. Pointer and scroll input apply only to interactive delivery; video runs on composition time. Optional references: motion-009 parallax, motion-012 chapter handoff, motion-015 story steps and motion-039 logo burst.",
+    "audio": "The style prescribes no audio layer. Music, voiceover, sung vocals, effects, ambience or silence are all task-dependent options, and explicit user choices come first. Without inputs, propose a coherent direction and state assumptions. Silence is valid. Music-timed accents need inspected audio.",
+    "assetRequirements": "No mandatory uploads are specified; sets and props are created by the renderer. An approved mark is required for motion-039, and optional creature art applies to motion-009. Layered 2.5D artwork needs crop margins. Local fonts and assets must load before rendering. Exact copy is unspecified.",
+    "combinations": "style-079 miniature diorama stages: frontal lateral moves with axial symmetry and no oblique views. style-052 letterpress chapter cards: centred type and no deep bevels. motion-009 suits dioramas and constrained isometric scenes.",
+    "productionApproach": "HyperFrames is the default composition and export pipeline; Remotion is a fallback only for a verified limitation, not an existing React project. Blender with Python bpy and Cycles or EEVEE builds symmetric 3D scenes or balanced 2D art. GSAP drives seekable timelines for HTML layers. Validate with npx hyperframes check, snapshot and render."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

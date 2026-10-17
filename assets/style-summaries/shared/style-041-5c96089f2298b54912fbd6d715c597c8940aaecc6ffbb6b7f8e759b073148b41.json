@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-041",
+    "name": "Chinese Calligraphy (Drawing and Illustration). The label is normalized from calligraphic subtitles and seal imagery. Verify glyphs and stroke order before use.",
+    "visualIdentity": "Authentic calligraphic gesture, character spacing and negative space define the look. Vertical text, a vermilion seal and limited imagery may support it. The sampled source showed monochrome ink and grey washes on fibrous paper, but that paper tone is only an example.",
+    "suitableUses": "Explicitly, the source lists poetry and cultural greetings as best fits, and calligraphy works strongest alone with verified glyph paths. Inferred: short fixed-wording titles or verses where reading holds matter. Long narration is not addressed by the source.",
+    "limitations": "Writing animation requires separate, correctly ordered stroke paths, and an outlined font is not equivalent to brush animation. Characters must not be stretched into incorrect forms. The only visual evidence is one medium-confidence kanji example with rounded strokes, sampled at seconds 1–8.",
+    "palette": "Background policy is scene_dependent, so the paper swatch #F5EFDE is only illustrative and should be chosen from subject, lighting and mood. Suggested ink #20211E and optional vermilion #B4382A are fallback tokens; approved exact colors override them. Ink on paper measures 14.089 contrast and vermilion on paper 5.165. No gradient is enabled, and composited frames must be rechecked.",
+    "motionAndInteraction": "Writing is revealed through separate, ordered stroke paths, and complete character groups must stay readable. Optional motion-012 handoffs and motion-015 story steps apply only if the scene supports them. Video runs on composition time, while scroll is an interactive-only option that needs a static reduced-motion state.",
+    "audio": "The brief leaves audio unspecified, and the source review verified no audio. Suitable options include restrained music, voiceover, sound effects, ambience or silence, chosen per subject and audience. No fixed genre or voice is required, and any user audio choice takes priority.",
+    "assetRequirements": "Writing animation requires authentic calligraphy assets (alpha layers or numbered frames) or verified glyph paths with ordered strokes. Exact wording, a consistent script and local fonts are needed. Ink imagery and a seal are optional and unspecified, and missing wording or assets must never be invented.",
+    "combinations": "Style-038 ink wash may add secondary imagery, fading in only after the calligraphy completes. Calligraphy dominates, using black and vermilion only with verified stroke order. Avoid outlined strokes, stretched characters and large wash areas. HTML outputs can add accessible text equivalents with optional stroke animation.",
+    "productionApproach": "SVG paths, masks and clip paths act as the style renderer for glyphs and strokes. GSAP DrawSVGPlugin is the motion engine for stroke reveal, and Motion is optional with seek verification. HyperFrames owns composition and export by default, with Remotion only for a recorded fallback reason. chroma-js is optional for contrast checks, and Canvas 2D brushes are an alternative."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

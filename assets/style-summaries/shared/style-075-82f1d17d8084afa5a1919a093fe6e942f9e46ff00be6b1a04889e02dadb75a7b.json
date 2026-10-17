@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-075",
+    "name": "Skeuomorphism. Supplemental design reference from the Digital and 3D Aesthetics category, not a directly named style in the source collection.",
+    "visualIdentity": "Interface elements resemble specific physical controls, materials and mechanisms. Lighting, edges and shadows must match across the scene, and labels stay readable. The physical resemblance must serve a function. Specific finishes are unspecified and are chosen per subject.",
+    "suitableUses": "Explicit: interface concepts where physical resemblance aids use, such as audio plugin UIs, hardware companion apps and tutorials. Inferred: product-control demonstrations with knobs, switches or buttons whose presses map to clear state changes.",
+    "limitations": "The source presents this as a standalone approach for interface concepts, not a general visual style. Avoid decorative textures without function, low-contrast engraved labels and mismatched lighting. Heavy image assets harm mobile performance. Palette evidence covers only sampled seconds 1–8.",
+    "palette": "The background policy is scene_dependent: choose it from subject, environment, lighting and mood, not by default to cream or beige. Tokens #E7DFD0, #3A352D and #8B7151 are unapproved illustrative examples for new elements only. Foreground on background is 9.185:1; the accent on background is 3.465:1 and decorative only. Gradients are disabled. Task-provided exact colors override these tokens.",
+    "motionAndInteraction": "Every press or rotation must align with its state change and give visible feedback. GSAP is the recommended motion engine; Motion is optional and needs seek verification. Video state derives only from composition time. Motion references are optional: pointer tilt, chapter handoff, swipe carousel, scroll storytelling, exploded reveal (only for separable parts) and camera orbit (requires real 3D).",
+    "audio": "The source does not mandate audio. Suggest music, voiceover, effects, ambience or silence from topic and audience, honoring explicit user choices. Effects can mark presses and state changes, with silence during reading holds. Claim audio only when real assets exist, and keep speech intelligible.",
+    "assetRequirements": "The source mandates no uploads. Local fonts and assets must load before rendering. Prerendered photoreal material plates are optional and must match CSS shadow direction, with labels kept as live text. Font families, aspect ratio and duration are unspecified.",
+    "combinations": "style-095 adds state-change timing and feedback; knobs with detents update readouts, and interactive versions use ARIA sliders with arrow-key steps and a visible focus ring. style-061 adds prerendered material plates for premium hardware simulators. Both require consistent lighting and functional, readable labels.",
+    "productionApproach": "HTML/CSS and SVG own controls, materials, labels and shadows. GSAP owns motion with one owner per property. HyperFrames is the default for assembly, validation and export; Remotion is a fallback only with a recorded limitation. Seed randomness, verify forward, backward and direct seeks, and inspect decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-071",
+    "name": "Cyberpunk (supplemental provenance; not a directly named source-collection style)",
+    "visualIdentity": "Technology-dense urban or industrial settings with controlled neon, atmosphere and localized reflections. The subject holds the clearest luminance, while devices, streets or signal systems visibly function.",
+    "suitableUses": "Explicit: world-building scenes with a strong environment; combinations cite sci-fi trailers, speculative product narratives and hacking sequences. Inferred: explainers about functioning devices or signals. Topic and audience are unspecified.",
+    "limitations": "Avoid decorative HUD clutter and purple-blue washes everywhere. Neon belongs only to defined light sources. Glitch appears only at transitions or story events, never as constant corruption or strobing. Recheck contrast on composited frames, since two-color ratios are not sufficient.",
+    "palette": "Background is scene-dependent; #111D25 is only an illustrative swatch, so choose the canvas from scene and lighting. Fallback tokens, used only when no exact task colors exist: foreground #F1F0E3, cyan #52B3AC, amber #DAA259, muted magenta #B96887. Foreground on background measures 14.934:1. Magenta is decorative only (4.398:1). Gradients are disabled, and exact task or approved colors override these tokens.",
+    "motionAndInteraction": "Optional references: motion-012 chapter handoff, motion-015 story steps, motion-020 glitch cut (disrupted transitions only), motion-037 glyph scatter and motion-039 startup burst (functional copy or devices only). Video follows composition time; interactive delivery needs keyboard, reduced-motion and static fallbacks.",
+    "audio": "Unspecified for this style; no genre, tempo, voice or mandatory layer is set. Inferred options are ambience, restrained device sounds at functioning moments, or silence for reading holds. Narration must stay intelligible. Claim beat sync only after real audio analysis.",
+    "assetRequirements": "No uploaded assets or source video are specified. Use task copy, local fonts and approved geometry, and inspect glyph or mark assets before using motion-037 or motion-039. Do not invent brand marks, product copy or real photographs.",
+    "combinations": "style-112 provides diegetic interfaces tracked to in-world devices. style-067 provides brief glitch punctuation at transitions. Use a hybrid only when interfaces are story-critical and sparse; Cyberpunk alone suits environment-led world-building.",
+    "productionApproach": "HyperFrames is the default pipeline for timing, validation and export; Remotion is fallback only if HyperFrames is unavailable or a verified limitation applies, with the reason recorded. Three.js with PBR materials and postprocessing is the recommended scene renderer. SVG/HTML composites text, GSAP drives motion, chroma-js is optional, and all state derives from seekable composition time."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

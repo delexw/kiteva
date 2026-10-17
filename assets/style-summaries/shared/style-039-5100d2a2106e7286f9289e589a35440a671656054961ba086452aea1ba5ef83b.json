@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-039",
+    "name": "Oil Painting / Gouache",
+    "visualIdentity": "Supplemental painted-medium style, not a named source-collection style. Choose one primary medium: oil (varied paint thickness, visible brushwork) or gouache (matte, opaque color masses). Keep lighting and palette coherent.",
+    "suitableUses": "Explicit: painted scenes, landscape stories, painted intros, event promos and social posters. Inferred from motion-012 and motion-015 fit notes: product or editorial introductions and explanatory narratives with clear chapters or steps.",
+    "limitations": "Choose oil or gouache, not both, and do not force both material behaviors onto one object. Avoid generic material filters, glossy effects, fake brush jitter, busy loops and excess parallax. Source review covered only sampled seconds 1–8, without audio.",
+    "palette": "Hex tokens are unapproved examples; background_policy is scene_dependent, so choose the background from subject and light. Task-supplied exact colors override them. Gradients are disabled. Foreground on background measures 7.272:1; accent fills (3.07–4.07:1) are decorative only.",
+    "motionAndInteraction": "Motion is medium-native: repainting, brush reveals and layered scenery, not generic filters. Optional motion-012 (chapter handoff) and motion-015 (story steps) run on scroll progress for interactive delivery or composition time for video; select neither if unsupported. Keep cuts and reading holds sharp.",
+    "audio": "The source specifies no genre, tempo, voice or required layer. Suggested per topic: restrained music or ambience, voiceover only if it explains content, and silence during reading holds. Keep speech clear and avoid clipping. No audio assets are supplied.",
+    "assetRequirements": "Prepared layered paint assets are required by the implementation route: alpha-channel layers or numbered frame sequences, consistent dimensions, a layer manifest and coverage masks. Pillow may crop, resize, composite and mask them. No uploads are specified.",
+    "combinations": "style-101 (separated paint planes for scene depth) suits landscapes and painted intros, with shared lighting and minimal parallax. style-103 (single gouache poster layout with one loop focal point) suits promos; avoid busy loops. Other supporting-style details are unspecified.",
+    "productionApproach": "HyperFrames is the default for assembly, timing, validation and export, using data-composition-id, clip timing and one paused GSAP timeline in window.__timelines. Remotion is fallback only with a recorded reason. The style renderer owns paint layers and masks; GSAP owns motion; other libraries are optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

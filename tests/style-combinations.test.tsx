@@ -148,7 +148,7 @@ describe("style combination recommendations", () => {
       expect(html).toContain(`/api/examples/${item.id}?version=`);
       expect(html).toContain(`data-style-id="${item.id}"`);
     }
-    expect(html).toContain("Individual style previews");
+    expect(html).toContain("Individual Motion Graphic previews");
     expect(html.indexOf("combination-preview-grid")).toBeLessThan(
       html.indexOf("combination-accordion"),
     );

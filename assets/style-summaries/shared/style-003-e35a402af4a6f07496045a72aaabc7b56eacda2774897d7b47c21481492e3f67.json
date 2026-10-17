@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-003",
+    "name": "Constructivism, a supplemental Graphic Design and Design Movements reference. It is not a directly named style in the source collection.",
+    "visualIdentity": "Forceful diagonals, wedges, circles, rectangular blocks, photographic cutouts and bold typography direct attention. A restricted red, black and cream system gives high contrast, with headlines and one focal point kept dominant.",
+    "suitableUses": "Explicit uses: headline posters, calls to action, campaign posters, editorial openers and slogan promos. Inferred use: process explainers built around one hero device, only when the topic truly has several inputs and an output.",
+    "limitations": "Only sampled seconds 1 to 8 were reviewed, with no continuous motion, audio or later scenes verified. Source photographs and the CRT device are non-reusable. Two-colour contrast checks do not cover textures, transparency or animated overlays.",
+    "palette": "The palette is a scene-dependent suggestion, not an approved exact palette, so the ground should follow the subject. Suggested tokens are #F4ECD8 background, #171717 foreground and #C72C2C accent, with contrast ratios 15.227 and 4.663. Task-provided colours override these; gradients are disabled, and the accent stays subordinate.",
+    "motionAndInteraction": "Optional references: motion-046 (fixed hero device, arrowheads shown only at shaft ends), motion-040 (hard word cuts), motion-038 (actual punctuation zoom), motion-039, motion-037, and motion-007, 012 or 015 for structure. Use directional entrances and hard cuts; avoid soft easing or bounce on kinetic type. Video runs on composition time; pointer or scroll input is interactive-only.",
+    "audio": "Audio is unspecified, and no audio was supplied or analysed. Suggest restrained music or silence, optional narration, and sparing accents on hard cuts or bursts. Motion-046 optionally uses clicks and one output accent. Claim beat or speech sync only after inspecting actual audio.",
+    "assetRequirements": "No uploads were supplied, so none are mandatory. Subject, audience, duration, aspect ratio, resolution, frame rate, exact copy and output directory are unspecified. Needed: headline copy, original or authorised cutouts, local fonts, and an original device illustration only if motion-046 is used.",
+    "combinations": "Style-050 halftone cutouts suit photo-led posters: #171717 dots, red only as flat wedges, and one diagonal per scene. Style-093 kinetic typography suits slogan promos: heavy condensed sans, one red word, and no bounce. Motion-046 suits collage or flat-vector explainers.",
+    "productionApproach": "Use HyperFrames by default, with data-composition-id, data dimensions, timed clips and one paused GSAP timeline registered in window.__timelines. Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists. Build visuals with HTML/CSS, SVG masks and real text; GSAP owns motion; Canvas or WebGL repaints from shared time."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

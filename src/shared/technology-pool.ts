@@ -12,7 +12,7 @@ export const technologyPool = {
     package: "hyperframes",
     runtime: "HTML composition in browser; CLI orchestration in Node.js",
     purpose:
-      "Primary pipeline for scene assembly, seekable composition timing, media and audio synchronization, validation, and final export. Visual construction and motion design remain owned by the selected style renderer and motion engine.",
+      "Primary pipeline for scene assembly, seekable composition timing, media and audio synchronization, validation, and final export. Visual construction and motion design remain owned by the selected Motion Graphic renderer and motion engine.",
     suggested_apis: [
       "data-composition-id",
       "data-width / data-height",
@@ -37,7 +37,7 @@ export const technologyPool = {
       },
     ],
     style_application:
-      "Compose the output of the selected visual and motion layers. Supply seekable time or integrate baked assets; do not replace the style-specific rendering or motion method with framework defaults.",
+      "Compose the output of the selected visual and motion layers. Supply seekable time or integrate baked assets; do not replace the Motion Graphic-specific rendering or motion method with framework defaults.",
     selection_guidance:
       "Use HyperFrames by default. Fall back to Remotion only when the documented fallback condition is met, and record the reason. Do not mix framework APIs.",
     priority: "primary",
@@ -64,9 +64,9 @@ export const technologyPool = {
     optional: true,
     docs_url: "https://github.com/LBEILC/Multiplane",
     style_application:
-      "Draw the selected style's visual and motion layers inside #stage from time t alone; the renderer adds sampling and encoding only.",
+      "Draw the selected Motion Graphic's visual and motion layers inside #stage from time t alone; the renderer adds sampling and encoding only.",
     selection_guidance:
-      "Use only when the project's renderer setting is the Multiplane trial. Pinned to multiplane 0.3.8 in the app package, sharing the app's Three.js. Do not mix with HyperFrames or Remotion APIs, CSS animations, timers or media playback. One local audio file at most, passed by the app.",
+      "Use only when the project's renderer setting is the Multiplane trial. Pinned to multiplane 0.3.10 in the app package, sharing the app's Three.js. Do not mix with HyperFrames or Remotion APIs, CSS animations, timers or media playback. One local audio file at most, passed by the app.",
     priority: "trial",
     production_roles: ["render_pipeline"],
     role: "composition_and_export_pipeline",
@@ -93,7 +93,7 @@ export const technologyPool = {
     optional: true,
     docs_url: "https://brm.io/matter-js/docs/",
     style_application:
-      "Use when 2D physical contact, bounce, stacking or constrained movement contributes to the story. Keep the style renderer responsible for appearance.",
+      "Use when 2D physical contact, bounce, stacking or constrained movement contributes to the story. Keep the Motion Graphic renderer responsible for appearance.",
     selection_guidance:
       "For video, precompute poses with seeded initial conditions and fixed Engine.update steps, then sample cached states by composition time for direct and backward seeking. Do not drive exports with Runner.run or a wall-clock loop. For interactive pages, a live runner is appropriate. This is 2D rigid-body physics, not 3D, fluid or true soft-body simulation; authored deformation remains a separate layer. Bodies.fromVertices may need poly-decomp for concave shapes. Keep critical text and imagery readable.",
     production_roles: ["motion_engine"],
@@ -152,7 +152,7 @@ export const technologyPool = {
     package: "remotion",
     runtime: "React in browser; rendering orchestrated by Node.js",
     purpose:
-      "Conditional fallback pipeline for scene assembly, seekable composition timing, media and audio synchronization, validation, and final export. Visual construction and motion design remain owned by the selected style renderer and motion engine.",
+      "Conditional fallback pipeline for scene assembly, seekable composition timing, media and audio synchronization, validation, and final export. Visual construction and motion design remain owned by the selected Motion Graphic renderer and motion engine.",
     suggested_apis: [
       "Composition",
       "Sequence",
@@ -164,7 +164,7 @@ export const technologyPool = {
     optional: true,
     docs_url: "https://www.remotion.dev/docs/",
     style_application:
-      "Compose the output of the selected visual and motion layers. Supply seekable time or integrate baked assets; do not replace the style-specific rendering or motion method with framework defaults.",
+      "Compose the output of the selected visual and motion layers. Supply seekable time or integrate baked assets; do not replace the Motion Graphic-specific rendering or motion method with framework defaults.",
     priority: "fallback",
     selection_guidance:
       "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
@@ -177,7 +177,7 @@ export const technologyPool = {
     runtime: "browser; motion/react for mounted React components",
     role: "animation_library",
     purpose:
-      "Optional animation of DOM or SVG layers for International Typographic Style (Swiss Style). Preserve the style-specific timing and visual cues; verify deterministic video seeking before use.",
+      "Optional animation of DOM or SVG layers for International Typographic Style (Swiss Style). Preserve the Motion Graphic-specific timing and visual cues; verify deterministic video seeking before use.",
     suggested_apis: ["animate", "stagger", "animation.pause()"],
     integration_guidance:
       "Use the JavaScript entry point for HTML compositions. Motion is an optional layer, not a drop-in replacement for the HyperFrames GSAP timeline contract. Explicitly synchronize and verify seeking; use GSAP when that integration is not established. Use motion/react only within a React component runtime.",
@@ -205,7 +205,7 @@ export const technologyPool = {
       "chroma(color).css()",
     ],
     integration_guidance:
-      "Start with task-provided colors and the style visual_cues. Keep a shared, deterministic palette and named color tokens. Generate gradients or interpolate colors only when the style permits them; keep limited-palette, monochrome, pixel, and print treatments discrete where required. Evaluate animated color from shared composition time. Check contrast against the actual composited background; a two-color ratio alone does not verify text over transparency, gradients, textures, or video. Pass output through the selected renderer's color API and preserve its color-space handling. Native CSS/SVG colors remain sufficient when no color processing is needed.",
+      "Start with task-provided colors and the Motion Graphic visual_cues. Keep a shared, deterministic palette and named color tokens. Generate gradients or interpolate colors only when the Motion Graphic permits them; keep limited-palette, monochrome, pixel, and print treatments discrete where required. Evaluate animated color from shared composition time. Check contrast against the actual composited background; a two-color ratio alone does not verify text over transparency, gradients, textures, or video. Pass output through the selected renderer's color API and preserve its color-space handling. Native CSS/SVG colors remain sufficient when no color processing is needed.",
     optional: true,
     docs_url: "https://gka.github.io/chroma.js/",
     style_application:
@@ -230,7 +230,7 @@ export const technologyPool = {
       "chart.detach",
     ],
     integration_guidance:
-      "Bundle Chartist and its required chart CSS locally. Initialize at fixed composition dimensions after fonts and layout are ready, then wait for the created event before capture. Style the generated SVG using the selected palette, typography, stroke weights, and contrast rules. Cache chart geometry and animate SVG transforms, masks, opacity, or stroke reveals from the shared paused, seekable composition timeline. Do not use autonomous SMIL animation, timers, or live resize-driven changes during export. update reconstructs the SVG DOM, so update only at deliberate data changes and rebind animation targets afterward; do not call it every frame. Keep axes, units, and labels truthful and legible; do not invent product metrics. Use native SVG when a chart library is unnecessary.",
+      "Bundle Chartist and its required chart CSS locally. Initialize at fixed composition dimensions after fonts and layout are ready, then wait for the created event before capture. Motion Graphic the generated SVG using the selected palette, typography, stroke weights, and contrast rules. Cache chart geometry and animate SVG transforms, masks, opacity, or stroke reveals from the shared paused, seekable composition timeline. Do not use autonomous SMIL animation, timers, or live resize-driven changes during export. update reconstructs the SVG DOM, so update only at deliberate data changes and rebind animation targets afterward; do not call it every frame. Keep axes, units, and labels truthful and legible; do not invent product metrics. Use native SVG when a chart library is unnecessary.",
     optional: true,
     docs_url: "https://chartist.dev/",
     style_application:
@@ -399,7 +399,7 @@ export const technologyPool = {
     determinism_guidance:
       "Resolve random particle properties into explicit reproducible values before building the effect. Do not regenerate random values with generate() during export or depend on live click triggers. Keep effect state derivable from requested time. Verify initial visibility, direct, repeated, backward and out-of-order seeks against sequential playback, including delays and end holds. If the chosen mo.js effect cannot be reliably evaluated this way, recreate it with the existing GSAP/SVG route rather than introducing a separate playback clock.",
     color_guidance:
-      "Use the resolved palette tokens directly for stroke and fill. Keep limited and monochrome palettes discrete. Animate color interpolation only when the style and palette permit it; do not adopt example-code colors or add arbitrary particle hues. Preserve typography, approved assets and material treatment.",
+      "Use the resolved palette tokens directly for stroke and fill. Keep limited and monochrome palettes discrete. Animate color interpolation only when the Motion Graphic and palette permit it; do not adopt example-code colors or add arbitrary particle hues. Preserve typography, approved assets and material treatment.",
     selection_guidance:
       "Choose mo.js when its shape, burst or swirl modules simplify a meaningful effect. Existing GSAP or native SVG can remain sufficient. Supported shape-property animation does not establish arbitrary path morphing, fluid physics, handwriting, character rigging, frame-by-frame drawing or automatic music analysis.",
     optional: true,
@@ -551,7 +551,7 @@ export const technologyPool = {
     runtime: "browser Canvas or SVG; generator geometry can also be prepared in Node.js",
     role: "sketch_rendering",
     purpose:
-      "Optionally generate hand-drawn-like geometric contours and patterned or solid fills for styles that explicitly support sketch-like artwork.",
+      "Optionally generate hand-drawn-like geometric contours and patterned or solid fills for Motion Graphics that explicitly support sketch-like artwork.",
     suggested_apis: [
       "rough.canvas(canvasElement)",
       "rough.svg(svgRoot)",
@@ -582,7 +582,7 @@ export const technologyPool = {
     optional: true,
     docs_url: "https://github.com/rough-stuff/rough/wiki",
     selection_guidance:
-      "Use only where the style and brief call for sketch-like contours, hachure or doodles. Do not apply roughness to precise grids, clean vectors, product UI, pixel clusters, photorealistic materials or existing assets unless that specific treatment is authorized.",
+      "Use only where the Motion Graphic and brief call for sketch-like contours, hachure or doodles. Do not apply roughness to precise grids, clean vectors, product UI, pixel clusters, photorealistic materials or existing assets unless that specific treatment is authorized.",
     style_application:
       "Optional sketch marks, arrows and rough frames within the torn-paper composition; retain actual photocopy and paper textures.",
     production_roles: ["style_renderer"],
@@ -616,7 +616,7 @@ export const technologyPool = {
     video_guidance:
       "PhotoSwipe is not a video renderer or a composition-time animation engine. For rendered video, recreate the chosen thumbnail expansion, swipe, zoom, pan and reading holds as authored DOM/SVG/Canvas transforms driven by GSAP and the selected framework clock. Do not depend on live touch input, dynamic dialog state or asynchronous lightbox transitions for exported frames. Preserve HyperFrames as primary and Remotion as the existing conditional fallback.",
     selection_guidance:
-      "Designed primarily as an image lightbox dialog, not a general inline carousel. Use native scroll snapping or a suitable carousel library for inline cards, mixed interactive card content or persistent neighboring cards. PhotoSwipe does not generate the artwork or determine its visual style.",
+      "Designed primarily as an image lightbox dialog, not a general inline carousel. Use native scroll snapping or a suitable carousel library for inline cards, mixed interactive card content or persistent neighboring cards. PhotoSwipe does not generate the artwork or determine its visual Motion Graphic.",
     optional: true,
     docs_url: "https://photoswipe.com/getting-started/",
     methods_docs_url: "https://photoswipe.com/methods/",
@@ -631,7 +631,7 @@ export const technologyPool = {
     runtime: "browser; initialize after the image and editing container are mounted",
     role: "image_crop_authoring",
     purpose:
-      "Optionally author image crop regions and export prepared raster assets for layouts or video compositions. This is an asset-preparation or interactive editing tool, not a style generator or video animation engine.",
+      "Optionally author image crop regions and export prepared raster assets for layouts or video compositions. This is an asset-preparation or interactive editing tool, not a Motion Graphic generator or video animation engine.",
     api_version_guidance:
       "The documented 2.x API uses Cropper custom elements and CropperSelection.$toCanvas(). Verify the installed version before implementation; do not mix it with 1.x methods such as getCroppedCanvas().",
     suggested_apis: [
@@ -847,7 +847,7 @@ export const technologyPool = {
       },
     ],
     integration_guidance:
-      "Observe and validate graph input before processing: stable unique node/edge IDs, existing source/target IDs, directedness, weights and optional compound parents. Choose analysis and layout to fit the question. Register completion handling before running asynchronous layouts; a layoutstop event can also indicate cancellation, so confirm the intended layout completed. Cache validated node positions and use preset with explicit viewport settings for export. Precompute paths and metrics. Evaluate positions, visibility, emphasis, pan and zoom from shared composition time; do not rerun stochastic layouts or autonomous Cytoscape animations for each frame. Either use the browser renderer with verified frame readiness or pass graph data and cached geometry to SVG/Canvas/PixiJS for custom style treatment. Load fonts and assets first, initialize browser containers after mount, and dispose graph instances and listeners on teardown.",
+      "Observe and validate graph input before processing: stable unique node/edge IDs, existing source/target IDs, directedness, weights and optional compound parents. Choose analysis and layout to fit the question. Register completion handling before running asynchronous layouts; a layoutstop event can also indicate cancellation, so confirm the intended layout completed. Cache validated node positions and use preset with explicit viewport settings for export. Precompute paths and metrics. Evaluate positions, visibility, emphasis, pan and zoom from shared composition time; do not rerun stochastic layouts or autonomous Cytoscape animations for each frame. Either use the browser renderer with verified frame readiness or pass graph data and cached geometry to SVG/Canvas/PixiJS for custom Motion Graphic treatment. Load fonts and assets first, initialize browser containers after mount, and dispose graph instances and listeners on teardown.",
     constraints:
       "Cytoscape.js is a graph library, not a general chart library, knowledge extractor, 3D engine or video framework. Core PNG/JPG export requires a rendered instance, not a headless one; do not assume SVG export is built in. Extensions such as additional layouts require separate installation and compatibility checks. Headless layouts may need explicit bounds or styling for dimension-sensitive placement. Preserve approved palette tokens and label semantics rather than applying default graph colors. Keep HyperFrames primary and Remotion conditional fallback; shared_motion_guidance governs animated diagram changes. Provide keyboard-accessible controls and a text/table representation where interactive graph meaning would otherwise be inaccessible.",
     verification:
@@ -1079,7 +1079,7 @@ export const technologyPool = {
       "Depends on the selected solver implementation: JavaScript, WebAssembly, native offline code or a supported GPU backend",
     role: "constraint_based_physics_simulation",
     purpose:
-      "Optionally simulate compliant constrained motion for cloth, elastic deformable bodies and suitable physical interactions. XPBD is an algorithm, not a visual style, renderer, animation framework or package name.",
+      "Optionally simulate compliant constrained motion for cloth, elastic deformable bodies and suitable physical interactions. XPBD is an algorithm, not a visual Motion Graphic, renderer, animation framework or package name.",
     suggested_apis: [],
     implementation_selection:
       "Prefer an existing maintained solver that explicitly supports XPBD and the required constraint and collision models. Verify its actual API, licensing, runtime and determinism before use. Do not assume that a generic physics package implements XPBD, or invent a universal XPBD API. The reference examples are educational starting points, not a production dependency recommendation.",

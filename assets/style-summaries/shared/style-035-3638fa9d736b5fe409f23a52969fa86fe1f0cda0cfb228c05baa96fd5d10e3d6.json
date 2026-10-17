@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-035",
+    "name": "Painterly 3D (category: Drawing and Illustration; provenance explicit).",
+    "visualIdentity": "3D forms carry painterly surface marks, controlled color masses and stylized lighting. Brush direction follows form, glossy photoreal highlights stay limited, and the look differs from matte clay-style 3D.",
+    "suitableUses": "Explicit: environment showcases, title shots, key art in motion, and character or environment pieces. Inferred: interactive stories or case studies presenting renders. Orbit, dolly and lighting-state patterns fit when geometry supports them.",
+    "limitations": "Blender pre-rendering is needed, so reserve it for character or environment pieces. Camera moves need real depth or a labelled 2.5D approximation, and flat scaling is not a dolly. Brush textures must not crawl; strict isometric or flat poster frames conflict with orbits.",
+    "palette": "Background is scene_dependent, chosen from subject, environment, lighting and mood. Example tokens #EFE4D1, #38454A, #7D9A95 and #BB7C65 are optional suggestions, not approved exact colors; task colors override them. Gradients are disabled. Foreground on background measures 7.878 contrast; accents are decorative only.",
+    "motionAndInteraction": "Motion is deterministic from composition time: a 360° camera orbit around a fixed hero (motion-043), 2–4 lighting states (motion-042), and chaptered handoffs. Hold opening and ending views and keep textures stable. Cursor and scroll inputs (motion-006, -010, -021) belong to interactive delivery only.",
+    "audio": "Unspecified; no audio was verified in source review. Suitable options include silence, soft ambience or swell across an orbit, or one restrained accent as the camera settles. Avoid a whoosh per turn, keep speech clear, and do not claim beat sync without measured data.",
+    "assetRequirements": "No uploads are mandatory. Orbits need finished 3D geometry on every side or a captured turntable with enough views. Blender models, materials and stable brush textures are authored locally, and fonts and assets load before rendering.",
+    "combinations": "style-104 (symmetric hero framing) suits locked shots with slow dolly; style-019 (editorial typography) suits accompanying text. Keep copy off busy brushwork and avoid rigid symmetry in character acting.",
+    "productionApproach": "Blender with Python bpy in background mode and EEVEE or Cycles creates stylized materials, lighting and keyframed camera or geometry. HyperFrames handles composition, GSAP timeline registration, validation and export. Remotion is fallback only; chroma-js optionally checks contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

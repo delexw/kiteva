@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-118",
+    "name": "Thermal Silhouette Imaging (style-118, Drawing and Illustration category), extracted in the 2026-10-12 repository sync.",
+    "visualIdentity": "Sharp authored silhouettes, such as a head profile, are filled with a black-to-red-to-orange-to-cream heat ramp. Cores run warmer than edges, narrow extremities cool, and hotspots mark warm points. It is illustrative art, not measured temperature.",
+    "suitableUses": "The source explicitly supports thermal-style illustration where silhouettes and hotspots carry the idea. Stylized explainers or art are inferred suitable. Measured data, scientific claims or real thermal photography are unspecified.",
+    "limitations": "Heat is illustrative, so no degrees, scale or legend should imply measurement. Textures, materials and transmitted light fall outside the two-color contrast check. The poster verifies one reference scene only. Avoid double gamma correction in the ramp.",
+    "palette": "The background is scene-dependent: heated head scenes sit on black, alternating with paper and red later. Suggested tokens, not exact source hex, are background #080808, foreground #FFF1D5, accents #C82E20 and #F07C30. Gradient applies only to the silhouette ramp, and foreground contrast is 17.924.",
+    "motionAndInteraction": "The silhouette warms from black through red to cream hotspots, with slow seeded shimmer. GSAP tweens hotspot intensities and warm-up on one paused timeline. Paper and red scenes are separate clips, and thermal clips keep black. HTML interaction and motion references are unspecified.",
+    "audio": "The source leaves audio open, offering music, voiceover, effects, ambience or silence with no fixed genre or tempo. Silence suits reading holds. Any chosen audio must be authorized, justified, and checked for speech clarity and sync.",
+    "assetRequirements": "No uploads are specified. The head silhouette is authored in Canvas 2D, so no external illustration is required. Local fonts and assets must load before rendering. The yellow poster is only an opening-card reference.",
+    "combinations": "Style-093 is an optional secondary for readable caption timing, and style-118 stays dominant. Do not import its palette or replace the black scene background. For HTML, make motion optional under reduced-motion preferences.",
+    "productionApproach": "HyperFrames is the default pipeline; Remotion is a fallback only if HyperFrames is unavailable or a verified limitation exists, with the reason recorded. Three.js with GLSL renders the heat field, Canvas 2D builds the mask, and GSAP drives paused, seekable state."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

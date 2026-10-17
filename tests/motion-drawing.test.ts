@@ -24,6 +24,25 @@ function drawCommands(id: string, time: number) {
   return commands;
 }
 describe("motion explorer preview coverage", () => {
+  it("keeps coordinates finite and frames independent of previous seeks", () => {
+    for (const id of supportedMotionIds) {
+      const reference = drawCommands(id, 2.75);
+      const invalidCoordinates: { time: number; value: number }[] = [];
+      for (let frame = 0; frame <= 72; frame++) {
+        const commands = drawCommands(id, frame / 12);
+        for (const command of commands) {
+          if (!Array.isArray(command)) continue;
+          for (const argument of command) {
+            if (typeof argument === "number" && !Number.isFinite(argument)) {
+              invalidCoordinates.push({ time: frame / 12, value: argument });
+            }
+          }
+        }
+      }
+      expect(invalidCoordinates, id).toEqual([]);
+      expect(drawCommands(id, 2.75), id).toEqual(reference);
+    }
+  });
   it("implements every catalog motion with different scheduled frames", async () => {
     const catalog = await loadCatalog();
     expect(supportedMotionIds).toEqual(catalog.motions.map((motion) => motion.id));
@@ -144,19 +163,23 @@ it("settles glitch type into sharp stable glyphs without a cursor wipe", () => {
   ).toBe(true);
   const settled = drawCommands("motion-036", 4);
   expect(settled).toEqual(drawCommands("motion-036", 6));
-  expect(
-    settled
-      .filter((command) => Array.isArray(command) && command[0] === "fillText")
-      .map((command) => (Array.isArray(command) ? command[1] : ""))
-      .join(""),
-  ).toBe("FLIGHT");
+  // The ghost-smear option (mg-frame-findings) adds an in-place subtitle after the title
+  // hold; the oversized title glyphs still come first and settle unchanged.
+  const glyphs = settled
+    .filter((command) => Array.isArray(command) && command[0] === "fillText")
+    .map((command) => (Array.isArray(command) ? command[1] : ""));
+  expect(glyphs.slice(0, 6).join("")).toBe("FLIGHT");
+  expect(glyphs.join("")).toBe("FLIGHTTAKESOFF");
   expect(settled.filter((command) => Array.isArray(command) && command[0] === "scale")).toEqual(
     Array.from({ length: 6 }, () => ["scale", 1, 1]),
   );
 });
 
 it("settles the complete glitch title at a moderate pace", () => {
-  expect(drawCommands("motion-036", 1.45)).toEqual(drawCommands("motion-036", 6));
+  // The title still completes by 1.45 s and holds unchanged until the separate ghost-smear
+  // subtitle begins at 2.3 s; the whole frame then holds from 3.2 s to the end.
+  expect(drawCommands("motion-036", 1.45)).toEqual(drawCommands("motion-036", 2.25));
+  expect(drawCommands("motion-036", 3.2)).toEqual(drawCommands("motion-036", 6));
   expect(drawCommands("motion-036", 0.5)).not.toEqual(drawCommands("motion-036", 1.45));
 });
 
@@ -173,7 +196,9 @@ it("anchors glitch glyphs to their final positions throughout their entrance", (
 
 it("settles all three extracted motions into stable final scenes", () => {
   for (const id of ["motion-037", "motion-038", "motion-039"]) {
-    expect(drawCommands(id, 4.5)).toEqual(drawCommands(id, 6));
+    // motion-038 now continues with the keyword-glyph portal option (mg-frame-findings)
+    // and settles at 5.05 s instead of 3.2 s.
+    expect(drawCommands(id, id === "motion-038" ? 5.1 : 4.5)).toEqual(drawCommands(id, 6));
     expect(drawCommands(id, 0.8)).not.toEqual(drawCommands(id, 6));
   }
   const words = drawCommands("motion-037", 6).filter(
@@ -181,7 +206,9 @@ it("settles all three extracted motions into stable final scenes", () => {
   );
   expect(words).toHaveLength(5);
   expect(drawCommands("motion-038", 2.4)).toContainEqual(["scale", 64, 64]);
-  expect(drawCommands("motion-038", 6)).toContainEqual(["fillText", "NEXT CHAPTER", 320, 190]);
+  // The punctuation field still reveals the next chapter, now held 3.2–3.8 s before the
+  // glyph portal carries it into a full-frame picture.
+  expect(drawCommands("motion-038", 3.5)).toContainEqual(["fillText", "NEXT CHAPTER", 320, 190]);
   expect(
     drawCommands("motion-039", 6).filter(
       (command) => Array.isArray(command) && command[0] === "lineTo",
@@ -356,30 +383,34 @@ type RankedRow = {
   value?: number;
   valueColor?: string;
 };
-// Reads each labelled row back from the command stream: the bar drawn just before a
-// category label is that category's bar, and the numeric label after it is its value.
+// Match labelled rows to their painted bars by hue and vertical center. Labels may
+// be painted after all bars so later bars cannot cover an earlier category label.
 function rankedRows(time: number) {
   const rows: RankedRow[] = [];
+  const bars: { fill: string; width: number; centerY: number }[] = [];
   let alpha = 1,
-    fill = "",
-    barFill = "",
-    barWidth = 0;
+    fill = "";
   let pending: RankedRow | undefined;
   for (const command of drawCommands("motion-041", time) as Command[]) {
     const [name, ...args] = command;
     if (name === "globalAlpha") alpha = Number(args[0]);
     else if (name === "fillStyle") fill = String(args[0]);
     else if (name === "roundRect") {
-      barFill = fill;
-      barWidth = Number(args[2]);
+      bars.push({ fill, width: Number(args[2]), centerY: Number(args[1]) + Number(args[3]) / 2 });
     } else if (name === "fillText") {
       const label = String(args[0]);
       if (flavorNames.includes(label)) {
-        pending = { name: label, y: Number(args[2]), alpha, barFill, barWidth };
+        pending = { name: label, y: Number(args[2]), alpha, barFill: "", barWidth: 0 };
         rows.push(pending);
       } else if (pending && /^\d+$/.test(label)) {
         pending.value = Number(label);
         pending.valueColor = fill;
+        const bar = bars.find(
+          (bar) => bar.fill === fill && Math.abs(bar.centerY - (pending!.y - 6)) < 0.001,
+        );
+        expect(bar, `${pending.name} must label its own painted bar`).toBeDefined();
+        pending.barFill = bar!.fill;
+        pending.barWidth = bar!.width;
         pending = undefined;
       }
     }
@@ -392,6 +423,17 @@ const periodStamp = (time: number) =>
     .find((label) => /^WEEK \d$/.test(label));
 
 describe("motion-041 ranked bar race", () => {
+  it("keeps the leading categories identifiable during the multi-rank crossover", () => {
+    for (const time of [2.3, 2.4, 2.5]) {
+      const leaders = rankedRows(time).filter((row) =>
+        ["Mint", "Mango", "Plum"].includes(row.name),
+      );
+      expect(leaders.filter((row) => row.alpha > 0.3).length).toBeGreaterThanOrEqual(2);
+      expect(
+        Math.max(...leaders.map((row) => row.y)) - Math.min(...leaders.map((row) => row.y)),
+      ).toBeGreaterThan(42);
+    }
+  });
   it("settles on the final ranking and holds it unchanged from 5s to 6s", () => {
     const final = drawCommands("motion-041", 6);
     expect(drawCommands("motion-041", 5)).toEqual(final);

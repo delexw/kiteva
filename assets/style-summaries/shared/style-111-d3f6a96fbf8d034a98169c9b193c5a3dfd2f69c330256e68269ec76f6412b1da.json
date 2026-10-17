@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-111",
+    "name": "Sticker-Style Explainer Animation. A supplemental, user-requested descriptive combination of sticker graphics and education, not an established art movement.",
+    "visualIdentity": "Scientific objects and symbols become consistent stickers with white borders, rounded silhouettes and light shadows. Concepts keep stable colors or symbols. Short labels and purposeful arrows carry a question, mechanism and conclusion.",
+    "suitableUses": "Explicit: concept walkthroughs in question, objects, mechanism and conclusion order. Inferred: science and education explainers. Hybrids suit real quantities or teacher commentary. Audience and objective are unspecified in the metadata.",
+    "limitations": "Decoration must not obscure the explanation. Base cues specify light shadows, but motion-046 keeps heavy outlines and hard shadows, so the brief must decide. Motion-046 suits only real multi-input processes. The source review covered one frame per second at seconds 1 to 8 only.",
+    "palette": "Scene-dependent background: #F5EFDF is an illustrative swatch, not a required canvas. Suggested tokens: foreground #2C424D, borders #FFFFFF, accents #73A59E and #D28C67. Accents are decorative only, since body text fails contrast on them. Foreground on background is 9.177:1. Gradients are disabled. Approved exact colors override these suggestions.",
+    "motionAndInteraction": "Explicit: placing, peeling, path movement and restrained bounce. Arrowheads appear only after their shafts complete. Labels stay hidden until their container completes. Video must use seekable composition time. No interactive behaviour is specified. Optional references motion-012, motion-015 and motion-046 apply only when they serve the story.",
+    "audio": "Unspecified: the metadata lists suggestion dimensions for music, voiceover, effects, ambience and silence but chooses none. No source audio was analysed. Silent previews need no soundtrack. Motion-046 optionally allows restrained clicks and one burst accent.",
+    "assetRequirements": "No uploads, exact copy or subject are specified. Scientific objects and symbols must be original or authorised. Motion-046 needs an original device illustration. Source-derived artwork is non-reusable. Maps need authorised geographic data. Referenced review evidence files were not inspected.",
+    "combinations": "Suggested supports: style-097 (flat D3/SVG charts without white borders) and style-024 (handwritten arrows and notes in foreground ink). Motion-046 fits styles such as Constructivism and Flat Vector Illustration. The neon-on-black variant is an optional dark-stage alternative. Motion-045 is referenced but not supplied.",
+    "productionApproach": "Style renderer: SVG with real text in one scene coordinate system. Motion engine: GSAP master timeline, with Motion, mo.js or Anime.js optional and one owner per property. HyperFrames renders by default; Remotion requires a recorded reason. Validate colors with chroma-js and verify seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

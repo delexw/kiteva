@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-048",
+    "name": "Origami (Printmaking and Craft Materials category; explicit provenance).",
+    "visualIdentity": "Legible folded paper with crease-defined facets, limited paper colors and clean lighting. Sheets fold sequentially along defined creases, stay connected and show visible thickness. Arbitrary 3D deformation is not origami.",
+    "suitableUses": "Explicit: pure folding sequences, step-by-step tutorials on deployable folding structures, product launches, title sequences and gallery loops. Inferred: premium reveals suit this style only when folding remains the central action.",
+    "limitations": "Sheets must not stretch, split or pass through themselves. Basic XPBD does not supply origami crease behavior, fluid merging, tearing or rigid contact. Subject, duration, aspect ratio, resolution and frame rate are unspecified.",
+    "palette": "Non-approved, scene-dependent suggestion: ivory #F4F0E5, foreground #304347, terracotta #BA6F5C, sage #7C9A86. Ivory is illustrative, not a required canvas. Foreground on ivory measures 9.132:1. Terracotta and sage are decorative fills only (3.343 and 3.379). Exact task colors override these tokens. Gradients are disabled.",
+    "motionAndInteraction": "Folds run sequentially along crease hinges via parent-child transforms or a rig, validated for fold order and self-intersections. Video uses one seekable timeline with no live input. Interactive HTML may use stepper controls with reduced-motion end states. Orbit (motion-043) fits only a settled fold, never during folding.",
+    "audio": "Unspecified; no audio was supplied. Silence, restrained ambience or sparing fold accents are valid options, none mandatory. Nothing should compete with narration. Any soundtrack must be produced with available local tools and verified.",
+    "assetRequirements": "No uploads, URLs or footage were supplied, and source review is empty. Fold geometry, paper materials and local fonts must be authored. Optional crease-diagram and framing references are not supplied. Motion-043 derives from a conversation source, not reviewed footage.",
+    "combinations": "Style-109 crease diagrams: draw valley and mountain lines before each matching fold. Style-104 symmetric framing: push in only after folds settle. Use Origami alone for pure folding; hybrids only for instructional or premium reveals, never with other paper deformations.",
+    "productionApproach": "Blender with Python bpy handles geometry, materials, lighting and keyframed folds. XPBD is optional, only for constrained folds. HyperFrames is the default for composition and export; Remotion is fallback only on a verified limitation. chroma.js is optional for color checks. Verify decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

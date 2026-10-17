@@ -57,7 +57,7 @@ describe("reviewed native style previews", () => {
     expect(reviewedStyleProductionSchema(style).safeParse(production).success).toBe(true);
     const catalogPreview = reviewedStyleProductionSchema(style).parse({
       ...production,
-      displayTitle: "A descriptive catalog style name",
+      displayTitle: "A descriptive catalog Motion Graphic name",
     });
     expect(catalogPreview).not.toHaveProperty("displayTitle");
     expect(

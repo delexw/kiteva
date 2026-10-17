@@ -579,7 +579,7 @@ export function RoomOnboarding({
                 </label>
               )}
               <div className="room-settings-styles">
-                <span>Pick styles yourself (optional — skips preview directions)</span>
+                <span>Pick Motion Graphics yourself (optional — skips preview directions)</span>
                 <StylePicker
                   styles={styles}
                   examples={examples}

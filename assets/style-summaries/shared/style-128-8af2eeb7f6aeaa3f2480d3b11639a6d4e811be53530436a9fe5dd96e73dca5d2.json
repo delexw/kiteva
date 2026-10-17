@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-128",
+    "name": "Volumetric Fire & Smoke (category: Digital and 3D Aesthetics; extracted provenance).",
+    "visualIdentity": "Emissive 3D flame and translucent smoke render as coherent volumes with readable depth, buoyant motion, cooling soot and light spill on a stable dark or contrasting stage. Flat glow sprites, liquid blobs and particle showers are explicitly excluded as substitutes.",
+    "suitableUses": "Explicitly suited to fire, ignition and smoke subjects, plus an optional explosion aftermath recipe (blast_aftermath). Inferred: suited to dramatic explainers where volumetric depth matters. Audience, objective and exact copy are unspecified.",
+    "limitations": "The volume is an illustrative procedural approximation, not a combustion solver, and temperature colors are approximate rather than measured. Physically simulated shots need Blender/Cycles gas simulation with baked frames, which is unavailable here and must be reported as missing. Raymarching is capped at 64 primary and 6 light steps.",
+    "palette": "Authored default tokens, not approved exact colors: background #101218 (scene-dependent, so choose per scene), foreground #F6EFE3, coal #4B403A, flame_core #FFF0BC, flame_amber #FFAD42, flame_orange #F05A28, smoke #747B86. Task-approved colors override these. Gradients are disabled; verify composited contrast against a 4.5 target for normal text.",
+    "motionAndInteraction": "Explicit 3-second preview timing: ignition 0–0.6s, tall readable flame 0.6–2.0s, cooling translucent smoke 2.0–3.0s. Smoke advects upward through closed-form buoyancy and curl driven by uTime, with no feedback buffers. Interactive HTML behavior is unspecified beyond optional reduced-motion controls. Any blast recipe must stage several causal states rather than a single white flash.",
+    "audio": "Unspecified; audio_direction lists options (music, ambience, voiceover, sound effects) but requires none. Any combustion or mechanism sound should match only visible action. User-supplied audio takes precedence, and catalog previews are silent. Silence is a valid choice.",
+    "assetRequirements": "The source names no mandatory uploads, and optional inputs are unspecified. Local fonts and assets should be loaded before rendering. Motion reference candidates are empty and optional. Any audio assets must be authorized and selected separately from visual construction.",
+    "combinations": "Optional supporting styles: style-061 for grounded environmental illumination and style-105 for measured visual and audio event timing. Keep style-128 dominant, preserving its material and background roles. Avoid competing full-frame treatments and invented measurements or physically inaccurate claims.",
+    "productionApproach": "Style renderer: raw WebGL2 and GLSL fullscreen-triangle raymarch at bounded 640×360 resolution, upscaled. Motion engine: GSAP paused timeline setting uTime, uIgnite and uCool, redrawing one frame per seek. Pipeline: HyperFrames by default (check, snapshot, render); Remotion only as recorded fallback. Chroma.js is optional for color checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

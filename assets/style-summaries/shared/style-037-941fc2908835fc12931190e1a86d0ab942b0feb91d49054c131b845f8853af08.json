@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-037",
+    "name": "Watercolor. Supplemental design reference, not a directly named style in the source collection.",
+    "visualIdentity": "Translucent pigment washes over visible paper grain, with soft edges and selective dry-brush detail. Unpainted paper stays light, and washes overlap believably. Source review, at medium confidence, notes dark ink contours carry the main value contrast.",
+    "suitableUses": "Explicit fit: product and editorial introductions, explanatory illustrated narratives, and abstract or cinematic sequences with meaningful chapters. Best alone for gentle narrative or mood. Inferred fit: journal or botanical explainers with labels, and washed data stories.",
+    "limitations": "Omit or adapt for topics too short for chapters, or where transitions obscure causality or cuts break a continuous-shot or loop requirement. Two-color contrast checks do not verify text over textures, video or animated light. Source review sampled only seconds 1 to 8.",
+    "palette": "Background is scene-dependent; choose the paper tone from the subject, not a default cream. Listed tokens are illustrative, not approved exact colors. Foreground #3C4E58 on #FBF6EB gives 8.042:1 for text. Accents fail 4.5:1 for text, so keep them decorative. Gradients are disabled; task-provided colors override all suggestions.",
+    "motionAndInteraction": "Animate wash development and layered reveals gently, without uniform blur or changing random stains. Smooth movement suits the action, while deliberate cuts, impacts and reading holds stay sharp. Optional motion-012 (chapter handoff) and motion-015 (narrative steps) apply only when scene geometry supports them.",
+    "audio": "Unspecified in the metadata; no fixed genre, voice or mandatory layer is required. Subtle ambience or soft music may suit a gentle mood, and silence is valid for reading holds. Narration only if the topic needs explanation. Any requested soundtrack must be actual, synchronized audio.",
+    "assetRequirements": "No uploads are mandatory. The metadata leaves unspecified: subject, audience, exact copy, duration, aspect ratio, resolution, frame rate, output directory and audio preferences. Paper textures, pigment layers and reveal masks must be generated or supplied locally, and fonts must load before rendering.",
+    "combinations": "Style-097 (wash-filled charts and maps) suits reflective data stories; encodings use pale accents and labels use #3C4E58. Style-024 (handwritten field notes) suits journals and botanical explainers; notes stay on retained paper, never over dark washes. Avoid random stains on data.",
+    "productionApproach": "HyperFrames is the default pipeline for composition and export; Remotion is a fallback only if HyperFrames is unavailable or a verified limitation exists. Canvas 2D renders precomputed pigment layers and masks, and GSAP drives motion. Python with Pillow prepares assets, and chroma.js validates colors. All state derives from composition time."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

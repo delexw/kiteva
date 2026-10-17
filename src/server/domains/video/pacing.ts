@@ -3,7 +3,7 @@
 // not universal shot lengths, reading speeds or animation-duration limits.
 export const videoPacingPolicy = {
   editorial:
-    "Use economical, readable timing shaped by the audience, purpose, emotion and selected style. Time each development to what the viewer must notice, understand or feel; do not impose a fixed interval between developments or cuts. Vary quick accents, sustained actions and deliberate holds when the content calls for contrast. A steady rhythm is valid when it serves the brief.",
+    "Use economical, readable timing shaped by the audience, purpose, emotion and selected Motion Graphic. Time each development to what the viewer must notice, understand or feel; do not impose a fixed interval between developments or cuts. Vary quick accents, sustained actions and deliberate holds when the content calls for contrast. A steady rhythm is valid when it serves the brief.",
   action:
     "Distinguish shot length, action duration, spacing/easing and delivery frame rate. Give an action appropriate preparation, execution, follow-through and a readable result; use only the phases that serve that action. Choose duration and spacing from travel distance, weight, intent and reference, not one entrance/gesture preset. Avoid stretched easing and unmotivated dead time, but preserve purposeful anticipation, reactions, tension and stillness.",
   attention:
@@ -17,7 +17,7 @@ export const videoPacingPolicy = {
 export const videoPacingSystemGuidance = `VIDEO PACING DEFAULT: For video tasks, favor purposeful momentum without rushing comprehension. ${videoPacingPolicy.editorial} ${videoPacingPolicy.action} ${videoPacingPolicy.attention} ${videoPacingPolicy.reading} ${videoPacingPolicy.audio} Preserve the selected total duration using grounded developments and justified holds rather than stretching a short preview, repeating filler or inventing claims. Delivery frame rate does not define story pace; do not force cuts, movement or new information on every encoded frame. Respect the assigned stage: plan or review timing when read-only, implement only when asked, and let the app own rendering and browser QA.`;
 
 export const videoPacingRules = `DURATION AND PACING RULES:
-Preserve the requested duration and exact copy. Develop a richer story, not longer versions of the same six scenes. These rules apply to every style and combination; energetic and calm styles both need intentional timing.
+Preserve the requested duration and exact copy. Develop a richer story, not longer versions of the same six scenes. These rules apply to every Motion Graphic and combination; energetic and calm Motion Graphics both need intentional timing.
 ${videoPacingPolicy.editorial}
 Build a timed storyboard covering the whole duration. Identify each beat's communication or emotional purpose and its primary focus: for example a discovery, example, comparison, transformation, reaction, anticipation or payoff. Ground additions in the brief; do not invent facts, product capabilities or extra claims. A longer shot can sustain a meaningful action or feeling without adding new facts or cuts. A purposeful still pose can carry the beat. Decorative loops and ambient drift alone do not justify otherwise empty time; lyrics may carry meaning when the requested format calls for them.
 ${videoPacingPolicy.action}

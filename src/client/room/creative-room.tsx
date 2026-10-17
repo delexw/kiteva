@@ -388,7 +388,7 @@ export function CreativeRoom({
     setQuestion(undefined);
     reveal("assistant");
     onHome();
-    void toast.success(`${name} is now the style for your new idea`, 4);
+    void toast.success(`${name} is now the Motion Graphic for your new idea`, 4);
   }
   const draftKeys = Object.keys(room.drafts).filter((key) => key.startsWith("edit:"));
   const conversationItems = [

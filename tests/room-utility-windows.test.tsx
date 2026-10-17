@@ -135,16 +135,16 @@ it("shows a minimized tool window in the dock as an icon with restore and close"
   const close = vi.fn();
   const tile = RoomDockUtilityTile({
     page: "styles",
-    title: "Style explorer",
+    title: "Motion Graphic explore",
     onRestore: restore,
     onClose: close,
     menuOpen: false,
     onMenuOpenChange: () => {},
   });
-  find(tile, (props) => props["aria-label"] === "Close Style explorer").props.onClick();
+  find(tile, (props) => props["aria-label"] === "Close Motion Graphic explore").props.onClick();
   find(
     tile,
-    (props) => props["aria-label"] === "Restore Style explorer, minimized",
+    (props) => props["aria-label"] === "Restore Motion Graphic explore, minimized",
   ).props.onClick();
   expect([restore.mock.calls.length, close.mock.calls.length]).toEqual([1, 1]);
 });
@@ -276,7 +276,9 @@ it("fills a phone with the open tool or project page, however that page was reac
   const shown = ["assistant", "library", "utility:governance"];
   expect(roomMobileFront(shown, undefined, "utility:governance")).toBe("utility:governance");
   expect(roomMobileFront(shown, "assistant", "utility:governance")).toBe("assistant");
-  expect(roomMobileFront(shown, "utility:styles", "utility:governance")).toBe("utility:governance");
+  expect(roomMobileFront(shown, "utility:Motion Graphics", "utility:governance")).toBe(
+    "utility:governance",
+  );
   expect(roomMobileFront(["assistant", "detail:p1"], undefined, "detail:p1")).toBe("detail:p1");
   expect(roomMobileFront(["assistant"], undefined, "utility:motions")).toBeUndefined();
   expect(roomMobileFront(shown)).toBeUndefined();

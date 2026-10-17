@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-064",
+    "name": "Demoscene Graphics",
+    "visualIdentity": "Explicit 1990s demoscene direction. Use one coherent retro theme, such as plasma fields, tunnels, rotating geometry or bitmap lettering. Sections relate to music and return to a shared motif.",
+    "suitableUses": "Listed best uses are intros, music-driven title sequences, credits, greetings scrollers and retro brand messages. Explanatory or calm editorial fit is unspecified and only inferred.",
+    "limitations": "Do not stack plasma, tunnel and rotozoomer, or switch algorithms without rhythm. Keep flashing under three times per second. Pixel text must use unsmoothed integer scaling. Avoid dense text during fast travel.",
+    "palette": "Background is scene-dependent; #171629 is only an illustrative swatch. Suggested tokens are foreground #F3EACF and accents #906ECC, #D87589, #53ADBD; none is an approved exact color. Gradients are disabled. Foreground on background is 14.774:1; accent_1 is decorative only.",
+    "motionAndInteraction": "Shader sections change only at verified event boundaries, with one primary effect each. Bitmap scrollers follow the beat grid only when timing is measured. Interactive HTML drives a WebGL canvas from audio currentTime, with pause and reduced-motion modes. Motion references are optional.",
+    "audio": "Unspecified: the style relates sections to music but mandates no genre, tempo, voice or effects. Beat-locked changes need measured audio timing, and none is supplied. Silence and narration are not excluded.",
+    "assetRequirements": "No uploads are required. Beat-locked changes need an authorized track with a verified event table. Bitmap lettering needs a local pixel font and exact task copy. Cited review recordings are evidence only.",
+    "combinations": "style-105 schedules effect changes from section and beat timing, best for intros with a supplied track. style-057 adds integer-scaled bitmap scrollers and greetings, mirrored in the DOM for assistive tech.",
+    "productionApproach": "WebGL, GLSL and Three.js own procedural visuals, with GLSL also owning shader motion. HyperFrames is the default for composition and export only; Remotion is a fallback only if HyperFrames is unavailable, with the reason recorded. chroma.js is optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

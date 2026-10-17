@@ -56,7 +56,7 @@ it("requires concise model-authored preview titles and descriptions", () => {
   expect(
     CandidateCopySchema.safeParse({ ...copy, displayDescription: "x".repeat(161) }).success,
   ).toBe(false);
-  expect(candidateCopyGuidance).toContain("Neither field may expose style names");
+  expect(candidateCopyGuidance).toContain("Neither field may expose Motion Graphic names");
   expect(CandidateCopySchema.safeParse({ ...copy, displayTitle: "One Two Three" }).success).toBe(
     false,
   );

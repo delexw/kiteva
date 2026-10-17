@@ -54,7 +54,6 @@ export function PaletteSwatches({
             />
           </Popover>
         ))}
-        {flexibleBackground && <span className="palette-background-note">Flexible background</span>}
       </div>
     );
   return (
@@ -132,13 +131,13 @@ export function StyleExampleMedia({
           playsInline
           preload="none"
           onError={() => setVideoFailed(true)}
-          aria-label="Three-second silent style motion demo"
+          aria-label="Three-second silent Motion Graphic motion demo"
         />
       ) : (
         <img
           className="example"
           src={poster}
-          alt="Claude-authored illustrative style study"
+          alt="Claude-authored illustrative Motion Graphic study"
           loading="lazy"
           onError={() => setFailed(true)}
         />

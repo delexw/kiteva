@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-005",
+    "name": "De Stijl. Supplemental reference; the source collection does not directly name this style.",
+    "visualIdentity": "Horizontal and vertical rules divide flat rectangular color fields. Line weight and area ratios carry the composition. Flat vector geometry only: no arbitrary diagonals, rounded corners or gradients.",
+    "suitableUses": "Explicitly suited to rhythmic abstract and identity work. Inferred fit: short title cards, and proportional data when rectangle areas encode real values. Poor fit for dense explanatory text.",
+    "limitations": "Palette and geometry are tightly restricted, so curved or ornate imagery does not fit. Two-color contrast checks do not prove legibility over moving or textured fields; recheck composited frames. Springs and elastic easing are avoided.",
+    "palette": "Background policy is scene_dependent; the white swatch is illustrative, not required. Unapproved suggested tokens: background #FFFFFF, foreground #000000, accent_1 #D02020, accent_2 #F4CB28, accent_3 #184BA0. Gradients are disabled, and task-provided exact colors override these. Checked pairs: black on white 21:1, white on accent_1 5.372:1, black on accent_2 13.42:1, white on accent_3 8.226:1.",
+    "motionAndInteraction": "Animate rectangle expansion, division, sliding and color change on orthogonal axes with constant line weights. Hard cuts suit emphasis. Word Smash Cuts (motion-040) fits best; motion-007, -012 and -015 are optional after scene review. Reduced motion shows the completed state.",
+    "audio": "Unspecified by the style; no audio layer is mandatory. Options to propose from the topic: restrained music, supplied speech, sparing accents at cuts, or silence for reading holds. No beat synchronization was verified, so do not claim beat alignment.",
+    "assetRequirements": "No uploads are required; exact copy and subject are unspecified. Load local fonts first. Word Smash Cuts needs concise word or phrase copy and inspected glyph or mark geometry. The source review used artwork frames only; no exact hex values were extracted.",
+    "combinations": "style-097 maps real proportional values to rectangles, with at most three colored categories and labels on white cells. style-093 slides block sans labels orthogonally within cells. Both avoid gradients; style-093 also excludes rotated letters.",
+    "productionApproach": "SVG renders aligned rectangles and straight-line groups. GSAP owns motion on one paused timeline; Motion and chroma-js are optional. HyperFrames is the default pipeline; Remotion is a fallback only for a recorded, verified limitation. Drive state from composition time and verify seeks before export."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-021",
+    "name": "Hand-drawn Illustration (Drawing and Illustration category; explicit provenance).",
+    "visualIdentity": "Explicit cues: pressure-varied, slightly irregular linework, limited flat fills, subtle paper texture and consistent character proportions. A hand-drawn look alone does not prove frame-by-frame drawing; that method must be chosen explicitly.",
+    "suitableUses": "Listed fits: narrative or warm brand pieces, character holds, illustrated brand loops, title illustrations, and recipe, travel or process explainers. Explanatory labels need a support style. Other uses are inferred, not stated.",
+    "limitations": "Rough.js cannot supply handwriting, pressure-sensitive brushes, paper texture or character poses. The source review sampled one frame per second for seconds 1–8 from two sources, with no continuous motion, sub-second timing or audio verified.",
+    "palette": "Background is scene-dependent; the sampled warm tan reflects one author's choice, not a style rule. Suggested tokens, not approved: background #F7EFDF, foreground #343E42, accents #BC705A and #758D72, no gradient. Foreground on background measures 9.597:1, while accent fills fail body-text contrast (3.278 and 3.162) and are decorative only. Exact task colors override all suggestions.",
+    "motionAndInteraction": "Use smooth movement where it helps, and keep deliberate cuts, impacts and reading holds. Line boil cycles two or three fixed-seed variants on one cadence while fills stay static. Interactive HTML can swap boil variants on a CSS step timer and pause under reduced motion. Gaze, chapter-transition and story-step references are optional, none required.",
+    "audio": "Unspecified in the source. Suggest per topic: music, voiceover, sound effects, ambience or silence; no genre, tempo or voice is assigned. Claim only real authored or supplied audio, and keep speech intelligible.",
+    "assetRequirements": "No uploads are mandatory. Needed: authentic drawn or pressure-sensitive artwork, transparent PNG layers or numbered frames of consistent size, fixed-seed boil variants, and preloaded fonts. Eye-following needs separate eye layers or a suitable rig.",
+    "combinations": "style-092 adds two or three boil cycles to holds while fills stay fixed and procedural noise is avoided. style-024 adds handwritten callouts with #343E42 notes, #BC705A underlines and brush-matched arrows whose heads appear only after shafts reach endpoints. Avoid a third accent; add supports only when holds feel dead or labels are needed.",
+    "productionApproach": "Canvas 2D renders brushes and textures; Rough.js is optional for sketch contours, with other renderers only when needed. One GSAP paused timeline owns motion. HyperFrames is primary for composition and export; Remotion is fallback only when a verified limitation is recorded. Verify direct, backward and forward seeks, decoded frames and contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -12,7 +12,7 @@ it.each([
   [179, 5],
   [180, 6],
   [300, 6],
-] as const)("limits %is to %i manual styles", (duration, max) => {
+] as const)("limits %is to %i manual Motion Graphics", (duration, max) => {
   expect(manualStyleLimit("video", duration)).toBe(max);
   const selectedStyleIds = Array.from({ length: max }, (_, i) => `style-00${i + 1}`);
   expect(

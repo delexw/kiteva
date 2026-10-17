@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-068",
+    "name": "Glassmorphism (normalized label; category Digital and 3D Aesthetics). The label comes from a frosted-glass interface description, and negative examples are not positive evidence.",
+    "visualIdentity": "Explicit: translucent frosted panels with thin borders, soft shadows and restrained highlights. Background color shows through while text contrast stays high. Avoid stacked blur layers.",
+    "suitableUses": "Explicit: simple layered UI cards over color, product presentations and dashboards with charts in panels. Inferred: app feature demos, SaaS onboarding and analytics summaries. Motion references are optional and scene-screened.",
+    "limitations": "Explicit: no blur on blur, no low-contrast white text and no charts on busy gradients. Two-color ratios do not validate glass, so inspect composited frames. Provide a solid fallback where backdrop-filter is unsupported.",
+    "palette": "Background policy is scene_dependent. #182837 is an illustrative swatch, not a required canvas, so choose backgrounds from scene and mood. Unapproved suggestions: foreground #F6F7F0 (13.94:1 on #182837), accent_1 #7AAEB4 and accent_2 #A698C5. Exact task-provided colors override these. An optional lab gradient from #7AAEB4 to #A698C5 applies only behind glass.",
+    "motionAndInteraction": "Explicit: restrained panel, mask and modest parallax motion. Video evaluates every state from paused composition time; hover, scroll and keyboard input apply only to interactive delivery. Optional scene-screened references: 008 card stacking, 011 voice-card tilt, 012 chapter handoff, 013 swipe track, 015 storytelling, and 038 punctuation zoom only with an actual punctuation mark.",
+    "audio": "Unspecified by the style; no genre, tempo, voice or mandatory layer is required. Suggest per topic: music bed, voiceover, restrained sound accents, or silence for reading holds. Any playback needs authorized audio and stays separate from visual tilt.",
+    "assetRequirements": "Unspecified: subject, exact copy and duration; no upload is mandatory. If used: real product content, verified chart data only, local fonts, an actual punctuation glyph for 038, and authorized audio. Do not invent metrics or brand marks.",
+    "combinations": "Explicit: style-095 product motion for feature demos, and style-097 charts inside panels for dashboards. Keep at most two stacked blur layers and place gradients only behind glass. Avoid pairing with other translucent or aurora styles, which duplicate it.",
+    "productionApproach": "HyperFrames is the default pipeline; Remotion is only the documented fallback. HTML/CSS backdrop-filter and SVG render the glass, and a paused seekable timeline owns motion. Use a color-contrast validator, then verify seeks and composited frames before export."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

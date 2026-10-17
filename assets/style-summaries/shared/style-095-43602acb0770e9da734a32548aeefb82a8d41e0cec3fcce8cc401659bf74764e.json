@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-095",
+    "name": "UI Animation / Product Motion Design: a commercial presentation format, not an art movement. Provenance is explicit.",
+    "visualIdentity": "Accurate product interfaces with real copy and branding. Cards, numbers, charts and states animate as separate elements. Features are explained through causal state changes, shared elements and precise camera framing.",
+    "suitableUses": "Explicit: feature demos built from real interfaces. Inferred: product launch and release reels, and interactive feature tours. Add diagrams only where the interface cannot show a relationship.",
+    "limitations": "Needs real product assets, exact copy and brand tokens; if absent, report the gap rather than inventing UI or copy. Never slide whole screenshots. Two-color contrast checks do not verify composited frames.",
+    "palette": "Background is scene_dependent, chosen from subject, lighting and mood, not a default cream. #F7F9FA and #263440 are illustrative chrome tokens only; brand and product colors override them. Source colors are not approved. No gradients. Recheck composited contrast.",
+    "motionAndInteraction": "Causal chain: tap, card expands as a shared element (FLIP measured once), numbers count, chart path transitions, then a hold. Camera is a wrapper transform. Video uses one paused GSAP timeline; live input is interactive-only. The 3s timing is an adaptable example, not a mandate.",
+    "audio": "Not specified or verified. Options depend on the brief: restrained interaction accents, ambience, music or silence. Keep sound clear of narration and text, and sync only to measured audio timing.",
+    "assetRequirements": "Real product screenshots or layered PNG/SVG with alpha, brand fonts and exact copy, supplied by the user. X-ray reveal needs registered exterior and interior layers. Ranked-data variants need an authorized, cited, time-indexed dataset.",
+    "combinations": "Works alone. Optional: style-093 for short kinetic feature headlines; style-109 for connectors between UI cards with one stroke width. Motion references 008, 012, 013, 015 and 018 suit product stories; 017 only for separable parts.",
+    "productionApproach": "DOM/HTML-CSS for real UI type and SVG for chart states, with one paused GSAP timeline and one owner per property. HyperFrames is the default pipeline (check, snapshot, render); Remotion only with a recorded, verified reason. Verify decoded frames and direct and backward seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

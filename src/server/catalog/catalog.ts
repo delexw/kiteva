@@ -5,6 +5,7 @@ import { z } from "zod";
 import { StyleSchema, MotionPatternSchema } from "../../shared/contracts.js";
 import { catalogRoot } from "../runtime/config.js";
 import { validateCombinationReview } from "../../shared/style-combinations";
+import { validateCatalogVariants } from "../../shared/catalog-variants";
 import {
   resolveStyleTechnology,
   styleTechnologyRecommendations,
@@ -58,6 +59,7 @@ export async function loadCatalog() {
     for (const candidate of candidates)
       if (!ids.has(candidate.motion_id)) throw Error(`Unknown motion ${candidate.motion_id}`);
   }
+  validateCatalogVariants(styles.styles, motion.patterns);
   return {
     ...styles,
     styles: styles.styles.map((style) => ({

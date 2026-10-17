@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-006",
+    "name": "Art Deco (supplemental design reference; not a directly named source style).",
+    "visualIdentity": "Explicit: axial symmetry, stepped silhouettes, sunbursts and repeated geometric ornament. Precise geometric display type. Forms draw toward the center and layers reveal. Controlled highlight sweeps, not indiscriminate gold effects.",
+    "suitableUses": "Explicit: ornament-led titles and posters, premium editorial layouts, cinematic staging, hotel, theater or gala openers, invitations, menus, product launches and premium landing pages. Inferred from these notes; not exhaustive.",
+    "limitations": "Explicit: avoid pastel film grading, asymmetric handheld moves, repeated gold shimmer, blur or sparkle effects, ornament competing with copy, and beige editorial backgrounds. Two-color contrast checks do not prove readability over texture, video or animated light. Delivery aspect ratio, duration and resolution are unspecified.",
+    "palette": "Suggestion only, not approved. Background #151515 is illustrative; background is scene-dependent and not required, so choose it from subject and lighting. Foreground #F6EEDC. Accent #B99A57 for ornament and one highlight sweep. Gradients disabled. Jewel-tone palettes are also allowed. Contrast: foreground on background 15.811; accent on background 6.802. Task-supplied exact colors override these.",
+    "motionAndInteraction": "Explicit: reveal layers, draw forms toward the center, and use controlled highlight sweeps. Video runs on composition time. Interactive scroll progress is optional, with a static centered state under reduced motion. Optional references: motion-012 chapter handoff, motion-015 story steps, and motion-039 radial burst. Motion-039 lists Art Deco as a good fit but needs real mark assets and restrained, sparkle-free accents.",
+    "audio": "Unspecified: the source requires no music, voiceover or sound effects. Inferred: sparse, restrained sound suits this style and leaves room for copy. No genre, tempo or voice is fixed. Any sound or beat synchronization requires inspected audio; none is claimed otherwise.",
+    "assetRequirements": "No uploads are required. The source supplies no fonts, marks, images or exact copy, so font choice is unspecified and display type must be selected and loaded locally. Motion-039 needs approved mark geometry or glyph assets; do not invent a brand mark or product copy. Its referenced review file was not inspected.",
+    "combinations": "style-104: axial camera staging with symmetric push-ins toward sunburst centers; gold limited to ornament and one sweep; no asymmetric moves. style-020: copy hierarchy with ornament framing content, never sitting behind body text; one display face and one text face. Art Deco alone suits titles and posters.",
+    "productionApproach": "SVG owns paths, ornaments, masks, clipping and stroke reveals. GSAP's paused, seekable timeline owns motion; Motion is optional and must be synchronized to it. HyperFrames is the default pipeline for assembly, timing, audio and export; Remotion only on a verified fallback condition. chroma-js is optional for contrast checks. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

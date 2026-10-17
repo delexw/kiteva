@@ -45,7 +45,7 @@ export async function generatePage(input: {
             schema: PageProductionSchema,
             onEvent: input.onEvent,
             prompt: reuse
-              ? `The user answered a question about this existing page. Continue this session and apply only the decision below. Inspect any newly supplied files listed in style-context.json assetInputs before using them. Keep the selected styles, approved visuals and unaffected sections unchanged. Return the page production manifest.\n\n${input.decisions}`
+              ? `The user answered a question about this existing page. Continue this session and apply only the decision below. Inspect any newly supplied files listed in style-context.json assetInputs before using them. Keep the selected Motion Graphics, approved visuals and unaffected sections unchanged. Return the page production manifest.\n\n${input.decisions}`
               : attempt === 0
                 ? prompt
                 : `Repair this page validation failure: ${job.error}. Preserve approved visuals. Return the page production manifest.`,

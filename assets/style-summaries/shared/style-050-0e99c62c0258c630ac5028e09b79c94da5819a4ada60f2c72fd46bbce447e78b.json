@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-050",
+    "name": "Halftone Printing",
+    "visualIdentity": "Explicit print look: tone comes only from dot size or density, with consistent dot shape, spacing and angle. Limited colour separations, clear outlines and paper texture define it. Dots stay anchored to the artwork during motion, and smooth gradient fills are not allowed.",
+    "suitableUses": "Explicit: tonal imagery as the content, feature stories, documentary intros, archival explainers and comic-print product spins. Inferred: retro technical objects. Halftoning body copy is explicitly avoided, so text-heavy explainers are a weak fit.",
+    "limitations": "Explicit: keep dot spacing, angle and local coordinates fixed; test moiré and lost text detail at delivery scale; never halftone text; avoid glossy reflections, dot crawl and dot frequencies near the pixel grid. Two-colour contrast checks do not verify textured or animated composites.",
+    "palette": "Background is scene-dependent: #F8EFD9 is an illustrative swatch, not a required canvas. Suggested roles: foreground #253E56 and accent #C25143. Foreground/background contrast is 9.642:1. The accent gives only 4.029:1 on the background, so it is decorative only. Approved task colours override these suggestions; gradients are disabled.",
+    "motionAndInteraction": "Video uses composition time only, so live pointer or scroll input is not needed. Optional references: 012 chapter handoff, 015 story steps, 037 phrase scatter, 038 punctuation zoom, 039 radial burst, 040 word smash cuts. 037–039 apply only when their phrase, punctuation or approved mark exists; 040 needs concise copy. 012, 015 and 040 lack the review_evidence that 037–039 carry.",
+    "audio": "Unspecified: no audio is supplied, and the source reviews verified no audio or beat synchronization. The metadata permits music, voiceover, effects, ambience or silence with no fixed genre. Silence is valid. Keep speech intelligible, and use beat timing only after inspecting real audio.",
+    "assetRequirements": "No uploads are mandatory. Chosen routes may need artwork or subject luminance for halftone separations, local fonts, optional paper texture, and either an approved mark (039) or a real phrase or punctuation mark (037/038). Subject, audience, exact copy, duration, aspect ratio, resolution, frame rate and output directory are unspecified placeholders.",
+    "combinations": "Halftone alone suits tonal imagery. Explicit hybrids: style-019 editorial grid and type around halftoned images (text is never halftoned; red is used for at most one emphasis per view). Style-060 toon-lit 3D form can drive dot tones using only paper, blue and red, with a fixed dot frequency and no glossy reflections.",
+    "productionApproach": "HyperFrames is the default pipeline; Remotion is a fallback only if its documented condition is verified and recorded. Canvas 2D or a luminance halftone shader renders visuals, and a paused GSAP timeline registered in window.__timelines owns motion. Validate with npx hyperframes check, snapshot and render. chroma-js checks contrast; Pillow or Sharp preprocesses assets."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

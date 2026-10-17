@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-034",
+    "name": "Rubber Hose Animation. Normalized label from a Cuphead-inspired reference, not a named source style.",
+    "visualIdentity": "Rounded figures, flexible tube-like limbs, bold silhouettes and expressive poses. Anticipation, arcs and clear reactions keep character identity stable. Avoid arbitrary limb distortion and identical bounces on every object.",
+    "suitableUses": "Explicit: character gags, music videos, jingles, looping brand mascots, episodic shorts and retro brand stories. Inferred: expressive mascot or explainer characters, especially where rhythmic poses carry the message.",
+    "limitations": "Best used alone for character gags. Avoid colored inks, texture on characters, long text-heavy cards, and content that needs audio to be understood. Source evidence covers only sampled frames, not continuous motion or sound.",
+    "palette": "Suggested only: background #F4ECD9 and foreground #1C1B18, with scene_dependent background policy. The warm off-white is an example, not a default; choose the background from scene and mood. Use one tinted tonal ramp plus one focal accent. Approved exact colors override all suggestions. The 14.636 contrast covers two colors only, so recheck composited frames.",
+    "motionAndInteraction": "Use deliberate arcs, pivots and squash-and-stretch, not unconstrained distortion. Keep sharp cuts, impacts and reading holds rather than easing everything. Optional motion-006 gaze, motion-012 chapter handoff and motion-015 story steps apply only when the scene supports them. Interactive behavior is unspecified.",
+    "audio": "Unspecified; no audio layer is mandatory. Inferred: beat-timed music for rhythmic poses, restrained effects on impacts, and quiet space around reading holds. Voiceover is optional. No genre, tempo or voice is fixed, and no audio assets are supplied.",
+    "assetRequirements": "No uploads are specified. Characters need curved, replaceable pose parts; gaze motion needs eye-socket layers or a rig. Local fonts and assets must load before rendering. Character count, dimensions and any supplied artwork are unspecified.",
+    "combinations": "style-105 adds beat-keyed poses for music videos, jingles and mascots; keep only the two base colors and never let beat sync break anticipation. style-052 adds letterpress title cards between scenes on the same palette, with no texture on characters. The metadata does not define these IDs beyond these notes.",
+    "productionApproach": "Style renderer: Canvas 2D or SVG for curved paths; PixiJS is optional for large sprite sets. Motion: one owner per animated property, using GSAP or Motion. Pipeline: HyperFrames by default, with Remotion only if its fallback condition is verified. Evaluate all state from shared time with seeded randomness, then verify seeks and frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

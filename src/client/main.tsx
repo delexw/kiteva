@@ -87,6 +87,7 @@ import { Dialog } from "./dialog";
 import { SuggestedCombinations } from "./style-combinations";
 import { MotionExplorer } from "./motion-explorer";
 import { MotionReferences } from "./motion-references";
+import { MotionGraphicVariants } from "./catalog-variants";
 import { RecommendedStack } from "./recommended-stack";
 import "./style.css";
 const GovernancePage = lazy(() =>
@@ -143,7 +144,7 @@ function App() {
   const [setup, setSetup] = useState<Setup>();
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All styles");
+  const [category, setCategory] = useState("All Motion Graphics");
   const [detail, setDetail] = useState<Style>();
   useEffect(() => {
     const refresh = () =>
@@ -369,10 +370,10 @@ function App() {
       disposed = true;
     };
   }, [styleId]);
-  const categories = ["All styles", ...new Set(styles.map((s) => s.category))];
+  const categories = ["All Motion Graphics", ...new Set(styles.map((s) => s.category))];
   const filtered = styles.filter(
     (s) =>
-      (category === "All styles" || s.category === category) &&
+      (category === "All Motion Graphics" || s.category === category) &&
       `${s.name_en} ${s.category} ${s.visual_cues}`.toLowerCase().includes(search.toLowerCase()),
   );
   async function deleteProject() {
@@ -807,8 +808,8 @@ function App() {
   function stylesExplorer() {
     return (
       <PageTemplate
-        eyebrow="Library / Style explorer"
-        title="A style for every story."
+        eyebrow="Library / Motion Graphic explore"
+        title="A Motion Graphic for every story."
         description={
           <p>
             Explore {styles.length} visual directions. Choose the medium, movement, and palette.
@@ -819,8 +820,8 @@ function App() {
             <div className="search-field">
               <Search size={18} />
               <Input
-                aria-label="Search styles"
-                placeholder="Search styles, materials, or visual cues…"
+                aria-label="Search Motion Graphics"
+                placeholder="Search Motion Graphics, materials, or visual cues…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -828,7 +829,7 @@ function App() {
             <label className="category-select">
               <SlidersHorizontal size={16} />
               <StudioSelect
-                aria-label="Style category"
+                aria-label="Motion Graphic category"
                 value={category}
                 onValueChange={(value) => setCategory(value)}
               >
@@ -861,7 +862,7 @@ function App() {
             />
           ))}
         </div>
-        {!filtered.length && <p className="empty">No styles match this search.</p>}
+        {!filtered.length && <p className="empty">No Motion Graphics match this search.</p>}
       </PageTemplate>
     );
   }
@@ -877,7 +878,7 @@ function App() {
         wide
         footer={
           <Button type="primary" className="primary" onClick={() => onUse(detail)}>
-            Use this style <ArrowRight size={16} />
+            Use this Motion Graphic <ArrowRight size={16} />
           </Button>
         }
       >
@@ -893,9 +894,9 @@ function App() {
             />
             <p className="example-disclaimer">
               {examples.find((e) => e.styleId === detail.id)?.authorship === "application"
-                ? "Application-authored style study; not reference footage."
+                ? "Application-authored Motion Graphic study; not reference footage."
                 : examples.find((e) => e.styleId === detail.id)?.source
-                  ? "Model-authored single-page style study; not reference footage."
+                  ? "Model-authored single-page Motion Graphic study; not reference footage."
                   : "Illustrative sketch; a model-authored page is being prepared."}
             </p>
             {examples.find((e) => e.styleId === detail.id)?.source && (
@@ -906,7 +907,7 @@ function App() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Open style study <ArrowUpRight size={16} />
+                  Open Motion Graphic study <ArrowUpRight size={16} />
                 </a>
                 <p className="example-disclaimer">
                   {examples.find((e) => e.styleId === detail.id)?.model}
@@ -954,7 +955,7 @@ function App() {
             <p>
               <strong>Visuals:</strong>{" "}
               {technology.style_renderer.recommended_stack_refs.join(", ") ||
-                "Select an appropriate style renderer"}
+                "Select an appropriate Motion Graphic renderer"}
             </p>
             <p>
               <strong>Motion:</strong>{" "}
@@ -972,6 +973,7 @@ function App() {
             </ul>
             <h3>Audio direction</h3>
             <p>{detail.audio_direction.prompt}</p>
+            <MotionGraphicVariants variants={detail.motion_graphic_variants} />
             <SuggestedCombinations
               style={detail}
               styles={styles}
@@ -1198,7 +1200,7 @@ function App() {
                 className={page === "styles" ? "selected" : ""}
                 onClick={() => setPage("styles")}
               >
-                <Grid2X2 size={17} /> Style explorer <span>{styles.length}</span>
+                <Grid2X2 size={17} /> Motion Graphic explore <span>{styles.length}</span>
               </Button>
               <Button
                 type="text"
@@ -1436,7 +1438,7 @@ function App() {
                     </PromptInputBody>
                     <div className="composer-context">
                       <label className="field-label manual-style-picker">
-                        Choose your own styles · up to {styleLimit}
+                        Choose your own Motion Graphics · up to {styleLimit}
                         <StylePicker
                           styles={styles}
                           examples={examples}
@@ -1449,9 +1451,9 @@ function App() {
                         />
                         <span>
                           {manual
-                            ? "First style is primary. Builds the full video directly; no direction proposals or ranking."
+                            ? "First Motion Graphic is primary. Builds the full video directly; no direction proposals or ranking."
                             : duration === "auto"
-                              ? `Auto duration allows ${styleLimit} styles. Set a duration to select more.`
+                              ? `Auto duration allows ${styleLimit} Motion Graphics. Set a duration to select more.`
                               : "Leave empty to generate directions."}
                         </span>
                       </label>
@@ -1644,10 +1646,12 @@ function App() {
                             }
                           >
                             <StudioSelectOption value="context">
-                              {manual ? "Using your selected style" : "Follow my brief"}
+                              {manual ? "Using your selected Motion Graphic" : "Follow my brief"}
                             </StudioSelectOption>
                             <StudioSelectOption value="creative">
-                              {manual ? "Using your selected style" : "Explore creative ideas"}
+                              {manual
+                                ? "Using your selected Motion Graphic"
+                                : "Explore creative ideas"}
                             </StudioSelectOption>
                           </StudioSelect>
                         </div>
@@ -1680,14 +1684,14 @@ function App() {
                       {outputType === "page"
                         ? `Up to ${count} interactive page previews`
                         : manual
-                          ? "Full video using your selected styles"
+                          ? "Full video using your selected Motion Graphics"
                           : `Up to ${count} silent, 3-second previews`}
                     </span>
                     <span>Enter to generate · Shift + Enter for a new line</span>
                   </div>
                   <p id="creative-approach-help" className="creative-approach-help">
                     {manual
-                      ? "Build directly with your chosen styles. No direction proposals or ranking calls."
+                      ? "Build directly with your chosen Motion Graphics. No direction proposals or ranking calls."
                       : preference === "context"
                         ? "Follow my brief: choose visuals that stay close to your message."
                         : "Explore creative ideas: try unexpected visuals while keeping your message."}
@@ -1703,7 +1707,7 @@ function App() {
               <div className="inspiration-heading">
                 <h2>Start with a visual direction</h2>
                 <Button className="text-button" onClick={() => setPage("styles")}>
-                  Explore all styles <ArrowRight size={15} />
+                  Explore all Motion Graphics <ArrowRight size={15} />
                 </Button>
               </div>
               <div className="inspiration-grid">
@@ -1722,7 +1726,9 @@ function App() {
               </div>
             </>
           )}
-          <footer>CODE-CREATED VISUALS · STYLE-LED MOTION · LOCAL COMPOSITION & EXPORT</footer>
+          <footer>
+            CODE-CREATED VISUALS · MOTION GRAPHIC-LED MOTION · LOCAL COMPOSITION & EXPORT
+          </footer>
         </main>
       </div>
       {deleteTarget && (

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-030",
+    "name": "Storybook Illustration",
+    "visualIdentity": "Recognizable characters in narrative environments, small props and warm colors, optionally with paper texture and drawn edges. Stresses reactions, emotional change and character continuity.",
+    "suitableUses": "Picture-book narratives, children's stories, brand fables and illustrated explainers. Explicitly suited to scenes that give viewers time to read reactions and emotions. Other subjects are an inferred fit.",
+    "limitations": "Subject, duration, aspect ratio and exact palette are unspecified. Rough.js gives sketch contours only, not handwriting, paper texture or poses. Do not copy the source mascot or wordmark.",
+    "palette": "Background is scene-dependent; cream #F6E9CE is an illustrative swatch. Foreground #493E32 gives 8.65:1 text contrast on it. Accent_3 #D5AB55 can back foreground text (4.85:1). Accent_1 #BA7254 and accent_2 #6F8871 are decorative only. No gradient; no approved exact colors were supplied.",
+    "motionAndInteraction": "No style motion is specified. Optional references, used only where the scene supports them: door bloom (motion-001), bounded gaze (motion-006), chapter handoff (motion-012), story steps (motion-015), lighting progression (motion-042). Video uses composition time.",
+    "audio": "Source specifies no audio; music, voiceover, effects, ambience or silence are unspecified. Suggested: restrained ambience or sparing accents at key reactions, leaving room for narration and reading holds. Silence is valid. No audio was created here.",
+    "assetRequirements": "Layered character and background PNGs with alpha, consistent dimensions and clear naming, or numbered frames. Lighting states need named environment layers; gaze needs eye layers or a rig; bloom needs flower layers. No supplied assets are specified.",
+    "combinations": "Parallax environment layers (style-101) add gentle depth while sharing palette, texture and overscan, without fast pans. Rigged poses and expressions (style-091) keep drawn edges, avoiding rubbery stretch and visible seams.",
+    "productionApproach": "HyperFrames handles composition, timing and export; Remotion is fallback only when its condition is verified. Canvas 2D or PixiJS builds artwork; Rough.js is optional for sketch contours; GSAP drives a paused, seekable timeline. Verify seeks and decoded frames before delivery."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

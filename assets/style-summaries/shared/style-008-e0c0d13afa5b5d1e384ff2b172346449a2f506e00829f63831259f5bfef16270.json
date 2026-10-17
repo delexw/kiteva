@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-008",
+    "name": "Modernist Graphic Design. Supplemental reference, not a directly named style in the source collection. Category: Graphic Design and Design Movements.",
+    "visualIdentity": "Function-first layouts use simplified forms, shared alignment and a clear reading sequence. The palette is limited, and hierarchy comes from size and placement. Movement explains structural or informational change rather than decorating it.",
+    "suitableUses": "Explicit: functional layouts and explanatory videos or interactive HTML that show structural or informational change. Inferred from catalog good-fit lists: product and UI storytelling, editorial narratives, process sequences and feature comparisons.",
+    "limitations": "The source says modernist design alone handles functional layouts well, and advises hybrids when structural relationships or spatial systems need explaining. Omit recomposition that alters hierarchy without aiding the explanation. Stacks and carousels must not hide essential copy or comparison labels.",
+    "palette": "Background policy is scene_dependent: #FAF8F2 is only an illustrative swatch, so choose a background that fits the scene. Foreground #202020 and single blue accent #235DA8 are unapproved suggestions; task-provided exact colors override them. Gradients are disabled. Two-color contrast is 15.342 for foreground on background and 6.174 for background on accent; recheck composited frames.",
+    "motionAndInteraction": "Video uses a timed storyboard with reading holds and one time-driven owner per property. Optional catalog patterns (pinned recomposition, card stacking, chaptered handoff, carousel track, phrase step-in, punctuation zoom) need matching scene assets. Interactive delivery maps scroll, swipe or keyboard to states; reduced motion shows the completed state.",
+    "audio": "Unspecified by the source, and the style requires no audio layer. Suggested only by topic: restrained accents, ambience or silence at transitions and reading holds. Music should not compete with narration, and any music timing needs inspected audio.",
+    "assetRequirements": "No uploaded assets are specified. Local fonts must load before timing. Phrase or punctuation patterns need actual matching glyphs or approved marks, never invented copy or brand marks. Hybrid diagrams need supplied or generated SVG.",
+    "combinations": "style-109 adds connector line art in #202020, with blue only on the active path and uniform strokes. style-108 adds shallow isometric system diagrams with flat labels and neutral tints from existing tokens, avoiding 3D lighting and teal or terracotta.",
+    "productionApproach": "HyperFrames is the default for composition, timing, validation and export; Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists. HTML/CSS and SVG render text and shapes. GSAP owns a paused seekable timeline; Motion, PixiJS and chroma-js are optional, with one owner per property. Verify opening, key, transition and closing frames, seeks and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-060",
+    "name": "Cel-Shaded 3D",
+    "visualIdentity": "Explicit: 3D forms drawn with discrete shadow bands, consistent outlines and selective highlights. Fills stay flat and matte. Realistic gradients and reflections are excluded. Light direction and outline width stay fixed through motion.",
+    "suitableUses": "Inferred: rounded heroes such as capsules or gems, characters and collectibles. Explicit reference: a cartoon reward reveal. Suits video or interactive HTML. Subject, duration, aspect ratio, resolution and frame rate are unspecified.",
+    "limitations": "Requires true 3D; flat SVG is ruled out. Outlines come from a normal/depth pass, not EdgesGeometry alone. Hatching and halftone are optional. Orbit shots need finished rear geometry. Interactive input cannot drive exported video.",
+    "palette": "Authored suggestions, not approved colors: background #F4ECD9, foreground #26394A, accent_1 #547E8F, accent_2 #BA7461. Background policy is scene_dependent, so the cream is an example, not a default. Foreground on background measures 10.1:1; accent text pairs fail and are decorative only. Gradients are off. Sampled frames (seconds 1–8) show role relationships, not canvas colors.",
+    "motionAndInteraction": "Reference beats: idle sway 0–0.6s, rarity step 0.6–1.2s, charge squash 1.2–1.8s, burst 1.8–2.1s, isolated reveal, settle by 3s. Video runs on authored timeline time. Interactive HTML may add pointer or orbit input, with a static reduced-motion view. The 360° orbit (motion-043) is a separate shot.",
+    "audio": "Unspecified in source; no audio supplied. Suggested options: restrained accents on the rarity step and burst, soft ambience, or silence. No measured beat or speech data exists, so do not claim synchronization. Previews stay silent.",
+    "assetRequirements": "No uploads specified. Hero is a procedural rounded Three.js form or an authorized glTF with verified node names and clips. Load fonts before rendering. Burst particles are seeded and kept outside the silhouette. Number labels are HTML cards.",
+    "combinations": "style-031 (comic panels, SFX lettering) suits trailers and promos. style-050 (halftone within mid-tone bands only) suits retro product shots. Both keep ink, light direction and outline width fixed. Avoid reflections and crawling dots.",
+    "productionApproach": "Three.js MeshToonMaterial with a 3-step DataTexture gradientMap and a normal/depth outline ShaderPass own visuals. A paused GSAP timeline, registered with HyperFrames, owns hero transform, rarity uniform and camera. HyperFrames is default; Remotion requires a recorded reason. chroma.js is optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -76,7 +76,7 @@ export const correctionTypeLabels: Record<string, string> = {
   contrast: "Contrast correction",
   technical: "Technical correction",
   pacing: "Pacing correction",
-  style: "Style correction",
+  style: "Motion Graphic correction",
 };
 
 export function correctionActivityPurpose(metadata: Record<string, unknown>): string | undefined {

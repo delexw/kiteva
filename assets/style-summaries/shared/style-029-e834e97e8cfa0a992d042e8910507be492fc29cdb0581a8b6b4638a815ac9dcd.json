@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-029",
+    "name": "Geometric Illustration, in the Drawing and Illustration category. The label was normalized from source descriptions and references.",
+    "visualIdentity": "Figures, objects and environments are built from a limited geometric vocabulary. Shared angles, proportions, line weights and palette unify the scene. Forms may be decomposed, assembled and resized while keeping their identity and visual balance.",
+    "suitableUses": "Explicitly compatible with Punctuation Zoom and Radial Logo Burst, which both list this style as a good fit. Inferred suitability: flat modular explainers, shape-based transitions and brand idents. Audience and copy requirements are unspecified.",
+    "limitations": "Palette contrast was checked only for two-color pairs, and accent_1 and accent_2 fail body-text contrast at 3.33 and 3.43, so they are decorative only. Punctuation Zoom and Radial Logo Burst require a real punctuation mark or approved mark. Avoid blobby organic morphs.",
+    "palette": "Background is scene-dependent: #F3EFE4 is only an illustrative swatch, not a required canvas. Suggested tokens are foreground #253849, accent_1 #BF6D45 and accent_2 #638878, in a navy, terracotta and sage direction. Foreground on background measures 10.501:1. No gradient is enabled. Approved exact colors override these suggestions. The source review showed one cool navy night example, which is not a constraint.",
+    "motionAndInteraction": "Forms split, rotate around explicit shared pivots and reassemble, with readable holds on assembled figures. Optional references: bounded gaze tracking (requires eye layers or a rig), chaptered scene handoffs, staged narrative steps, Punctuation Zoom, and Radial Logo Burst (regular pulses, compact confetti and a palette-inversion circular mask). Video runs on composition time. Reduced motion shows the completed composition.",
+    "audio": "Unspecified by the style. No soundtrack, voiceover, sound effects or ambience is approved. Suggestions depend on the topic and motion cadence and may include music, narration, ambience or silence. Beat-synced accents require measured audio analysis. The Radial Logo Burst beat interval is not measured here.",
+    "assetRequirements": "No uploads were supplied, and none are mandatory. Punctuation Zoom needs actual punctuation from the copy or an approved mark. Radial Logo Burst needs an approved mark. Gaze tracking needs eye layers or a rig. Fonts and geometry must load before rendering. Brand marks and product copy must not be invented.",
+    "combinations": "Geometric Illustration is coherent on its own. Supported add-ons: style-100 for shape-morph transitions that preserve angles, palette and holds, and style-001 for Swiss grid typography. Swiss use is limited to primary tokens, flush-left sans type and no decorative type. Swiss red is excluded.",
+    "productionApproach": "Style renderer: SVG, with optional tldraw, p5.js or Paper.js for generated geometry. Motion engine: one paused GSAP timeline, with a single owner per property. Pipeline: HyperFrames is primary, and Remotion is used only when HyperFrames is unavailable or a verified limit applies. Use chroma-js for contrast checks and verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

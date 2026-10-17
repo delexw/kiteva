@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-080",
+    "name": "Frame-by-Frame Animation (Animation Techniques). This is a supplemental design reference, not a directly named source style.",
+    "visualIdentity": "Stated: each frame is independently drawn with consistent proportions and intentional line variation, planned as key drawings, in-betweens and exposure holds. Animation on twos at 24 fps uses 12 drawings per second.",
+    "suitableUses": "Stated: best for character performance shots alone, or as a hybrid with separate background art or living holds. Inferred: dialogue holds, title cards and reaction beats.",
+    "limitations": "Stated: moving one image or adding random jitter does not qualify, so drawn frames must exist. Rough.js and p5.js do not create authentic poses. Unspecified: duration, resolution, aspect ratio and fonts. No fixed genre, tempo or audio layer is mandated.",
+    "palette": "The background is scene-dependent. The example tokens #F5EEDC, #303C44, #72929A and #BF7C65 are illustrative, not approved, and task-supplied colors override them. Use discrete tokens with no gradient. Foreground on background measures 9.78:1; the accents measure about 3.39:1 and are decorative only.",
+    "motionAndInteraction": "Stated: authored key poses and exposure holds, stepped rather than auto-interpolated, with no generated in-betweens or springs. Delivery frame rate may exceed exposure rate. HTML may add play/pause, frame-step and reduced-motion locking. Optional references motion-006, -012, -015, -037, -038 and -039 apply only when scene assets support them.",
+    "audio": "Unspecified in the source. Suggested only: restrained music, voiceover, sound effects, ambience or silence, chosen by topic. Keep speech clear. Sync to beats only after measured audio analysis; the source review verified no audio.",
+    "assetRequirements": "Stated: prepared layers or numbered frame sequences with alpha, consistent dimensions and clear naming, all inspected before composition. The specific asset list, exact copy and fonts are unspecified. Do not invent brand marks or product copy.",
+    "combinations": "style-037 supplies static watercolor plates behind drawn characters, and those plates never boil. style-092 supplies two or three aligned line-boil variants during exposure holds only, never over action drawings. Avoid random jitter and mismatched textures.",
+    "productionApproach": "HyperFrames is the primary pipeline for composition and export, using a paused GSAP timeline registered in window.__timelines, then check, snapshot and render. Remotion is a fallback only with a recorded reason. Canvas 2D or PixiJS draws the frames, GSAP owns timing, chroma.js validates colors and Rough.js is optional. Verify seeks and decoded video."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

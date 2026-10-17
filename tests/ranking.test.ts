@@ -161,7 +161,7 @@ it("reports missing ranking credentials and real SDK API failures without invent
 });
 
 it.each([undefined, "style-046"])(
-  "retains separately ranked combinations with the same primary style (%s)",
+  "retains separately ranked combinations with the same primary Motion Graphic (%s)",
   async (pinnedStyleId) => {
     vi.stubEnv("TYPESAFE_API_KEY", "test-only-placeholder");
     vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {

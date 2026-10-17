@@ -88,8 +88,10 @@ it("requires all combination styles to appear within the same three-second previ
     expect(fullPrompt).toContain("duration MUST be 120");
   }
   expect(prompt).toContain("Paper Cutout Illustration + Shape Morphing + Line Art");
-  expect(prompt).toContain("make every supporting style's distinctive contribution visible");
-  expect(prompt).toContain("do not postpone a supporting style");
+  expect(prompt).toContain(
+    "make every supporting Motion Graphic's distinctive contribution visible",
+  );
+  expect(prompt).toContain("do not postpone a supporting Motion Graphic");
   expect(prompt).toContain("transition must start and finish within the three seconds");
   expect(
     buildVideoPrompt({ ...input, candidate: { ...candidate, supportingStyleIds: [] } }),

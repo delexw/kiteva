@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-084",
+    "name": "Cutout Animation",
+    "visualIdentity": "Layered photographic cutouts, paper, drawn objects and lettering share one theme. Explicit: cut edges, slight paper thickness and consistent contact shadows are preserved, with pivots and occlusion defined before motion. Photographed or simulated production are both valid.",
+    "suitableUses": "Explicit: themed collages, editorial shorts, explainers and scene openers. Narrative transitions are a listed motion pattern. Explicit: HTML variants with static reduced-motion states appear in combinations. Other domains are unspecified.",
+    "limitations": "Source review covered sampled seconds 1–8 only; continuous motion, sub-second timing and audio are unverified. Procedural paper curl is artistic, not a physical solver. Matter.js gives 2D rigid bodies only. Rough.js adds no handwriting or paper texture. Source morph effects cannot be reproduced exactly.",
+    "palette": "Backgrounds are scene-dependent; no fixed canvas color is required. #F0E5D0, #3B3C34 and #987A5C are unapproved illustrative tokens for new presentation elements only. Foreground on background measures 8.94:1; accent_1 on background measures 3.19:1, decorative only. Gradients are disabled. Source medium: matte paper with white torn rims.",
+    "motionAndInteraction": "Explicit: motion is authored on one paused, seekable timeline, covering placing, peeling, hinged pose replacement and limited parallax. A 12 fps art cadence is optional. Pointer or scroll input is for interactive delivery only; video must not depend on live input.",
+    "audio": "Unspecified in the brief; no audio layer is mandatory. Suggested options depend on topic: optional music, voiceover, restrained sound accents or silence. Honor explicit user audio; sync music only after real analysis; keep speech intelligible over reading holds.",
+    "assetRequirements": "Optional inputs, required only if supplied: cutout photos with clean edges, paper pieces, drawn objects and exact lettering. Gaze motion needs eye layers or a rig. Do not invent copy, brand marks or photographs; load local fonts before rendering.",
+    "combinations": "Use alone when photos and drawn pieces share a theme. Explicit: style-054 for photocopy headlines, without its red accent; style-101 for capped parallax with consistent shadows and no exposed edges. Motion references 037 and 038 are optional when real glyph assets exist.",
+    "productionApproach": "Explicit: PixiJS or native SVG/DOM renders visuals; GSAP is the motion engine; Rough.js is optional for sketch contours. HyperFrames assembles and exports; Remotion only if its fallback condition is verified. Preprocess with Pillow. Verify forward, backward and direct seeks, decoded frames and a contact sheet."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

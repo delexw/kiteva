@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-040",
+    "name": "Charcoal Drawing / Pastel, Drawing and Illustration category. Supplemental design reference, not a named source-collection style; charcoal and pastel are separate techniques.",
+    "visualIdentity": "Dry-media drawing using charcoal or pastel as the primary medium. Charcoal stresses tonal mass, hatching and smudging; pastel shows layered pigment with visible grain. Paper texture and powder edges remain visible while marks are revealed or erased.",
+    "suitableUses": "Explicit: tonal drawings alone, or hybrids for figure motion from supplied footage and documentary intros or moody storytelling. Inferred: atmospheric narrative or editorial pieces. Subject, audience and objective are unspecified.",
+    "limitations": "Supplemental reference only; no source frames, sub-second timing or audio were reviewed. Only two-color contrast was checked, so composited text and video need recheck. Avoid uniform noise, moving paper texture, added hues and photo detail.",
+    "palette": "Background is scene_dependent: #EDE7DC is only an illustrative swatch, so choose the background from subject, lighting and mood. Foreground #353330 is a candidate at 10.233:1 two-color contrast. No approved exact colors were supplied. Keep ink and ground monochrome with no gradient; pastel hues must come from a pastel reference.",
+    "motionAndInteraction": "Smooth authored motion only where the action benefits; keep deliberate cuts, reading holds, stepped exposure and line-boil cadence. Avoid automatic springs or bounce. Motion-012 and motion-015 are optional and unselected, since no scene supports them. Scroll use needs a reduced-motion fallback.",
+    "audio": "Unspecified; no audio layer is mandatory. Silence or restrained ambience suits drawn reading holds. Music or voiceover only if the brief calls for it; no genre, tempo or voice is assigned. Any audio must be authorized and must not compete with narration.",
+    "assetRequirements": "No uploads supplied; source list is empty. Grain brushes, smudge masks and paper layers must be generated locally. Rotoscoped figure motion needs supplied footage. Fonts and assets must load before rendering. Exact copy, duration and aspect ratio are unspecified.",
+    "combinations": "Charcoal or pastel works best alone. style-090 (rotoscoped motion reference) needs supplied footage, fixed grain per frame and charcoal-only tones. style-101 (atmospheric depth planes) needs paper-anchored grain, limited movement and no added colors.",
+    "productionApproach": "HyperFrames handles composition, timing and export; Remotion is fallback only when HyperFrames is unavailable or a verified limitation blocks a required capability. Canvas 2D renders grain brushes, smudge masks and paper layers. Python with Pillow prepares assets. A paused GSAP timeline is the suggested motion owner, registered with HyperFrames. Derive all state from seekable time; verify direct, backward and forward seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

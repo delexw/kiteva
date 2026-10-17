@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-054",
+    "name": "Photocopy Art / Zine Design (supplemental reference, Printmaking and Craft Materials)",
+    "visualIdentity": "Raw photocopied zine collage: high-contrast photos, visible grain, cutout headlines, tape or staples, irregular page layouts, and one information center. Supplemental reference, not a named source style.",
+    "suitableUses": "Suggested for activist explainers, DIY guides, community announcements, band promos, lyric zines and event recaps. Raw collages and cut-paste explainers are inferred fits; other briefs are unspecified.",
+    "limitations": "Monochrome with at most one accent, so it is a poor fit for full-color or polished brand work. Avoid handwriting body text, a third ink, annotations over faces, full-frame flashing and pasting everything at once. Keep lettering readable.",
+    "palette": "Background is scene-dependent: #FFFFFF, #000000 and #BF3232 are illustrative suggestions, not approved colors. Exact task or approved colors override them. Choose the ground from the scene; keep one optional accent and no gradients. Black on white is 21:1; white on #BF3232 is 5.649:1.",
+    "motionAndInteraction": "Animate page changes, pasting and recomposition with readable holds. Optional references motion-037, -038, -040 and -044 (-044 for heavy display type) only when scene copy supports them. Scroll patterns 007, 008, 012 and 015 need time-driven adaptation for video.",
+    "audio": "No audio was supplied or analysed. Music can follow paste rhythm only from verified beat timing. Voiceover, ambience or silence should follow the brief. Keep speech intelligible and protect reading holds.",
+    "assetRequirements": "No uploads are supplied. When used, prepare high-contrast photos, cut headline glyphs, fixed seeded grain, tape or staple shapes and local fonts with Pillow or Sharp. Do not invent copy or brand marks.",
+    "combinations": "Style-024 adds black or red marker pointers with one focal point, never for body text. Style-105 adds beat-locked paste timing from a verified beat table with fixed grain. Use the style alone for raw page collages.",
+    "productionApproach": "HyperFrames is the default for composition, validation and export; Remotion is only a recorded fallback. Pillow and chroma-js preprocess assets and check colors. Renderer and motion engine are unspecified; GSAP provides the seekable timeline."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

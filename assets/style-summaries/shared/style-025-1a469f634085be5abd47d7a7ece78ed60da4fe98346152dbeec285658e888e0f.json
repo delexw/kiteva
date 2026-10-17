@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-025",
+    "name": "Doodle Art. Explicit source style in Drawing and Illustration, distinct from graffiti.",
+    "visualIdentity": "Explicit: simple contours, expressive faces and a few exaggerated details with a casual drawing rhythm. Forms stay consistent, colors stay light and backgrounds stay quiet. Source provenance is explicit.",
+    "suitableUses": "Explicit: casual explainers and social content used alone. Explicit: characters with clear poses and short reactions. Inferred: less suited to precise measured geometry, since the Rough.js guidance keeps roughness away from precise grids and clean vectors.",
+    "limitations": "Explicit: characters are built from a few drawn paths and replaceable expression groups. Rough.js provides no animation, handwriting, brush simulation, paper texture or character poses. Avoid arbitrary shaking and identical expressions. Unspecified: duration, aspect ratio, resolution and frame rate.",
+    "palette": "Background is scene_dependent, so #FFFBF2 is only an illustrative swatch. Suggested tokens are foreground #34343D, accent_1 #E6AF9C and accent_2 #94C1B3, all unapproved. No exact colors were supplied. Gradients are disabled. Foreground on background measures 11.928:1, and accent pairs measure 6.439 and 6.182 against foreground. These are two-color checks only and must be rechecked over composited frames. Source lessons suggest a quiet tinted field, opaque light reading cards, one dark ink and one accent family. Choose the field and accent from the subject.",
+    "motionAndInteraction": "Explicit: animate clear poses, short reactions and natural pauses. Optional motion-006 gaze following needs eye layers or a rig. Optional motion-012 and motion-015 need chapter or story states; none is mandatory. Video is driven by composition time. Scroll and pointer input belong only to interactive delivery. Inferred: the boiling-contour suggestion must stop for pose changes.",
+    "audio": "Unspecified: no audio was supplied or verified. Suggested direction, not mandatory: restrained music or sound accents, optional voiceover, or silence that leaves room for reading holds. Speech, if used, needs intelligibility checks. Source frame review was visual only, so no sound design evidence exists.",
+    "assetRequirements": "No uploads are mandatory. Characters need drawn paths, replaceable expression groups and fixed-seed contour variants prepared before use. Gaze following needs eye layers or a rig. Chapter transitions need defined scene layers. Fonts and any supplied artwork must be loaded before rendering. Cache generated sketch geometry.",
+    "combinations": "Suggested: style-092 adds a gentle line boil to characters during holds. Fills stay fixed, expressions swap from predefined groups and backgrounds stay still. Suggested: style-115 adds reaction captions timed to character beats, one per beat, shorter than the pose motion. Use #34343D on #FFFBF2 or accent chips. Avoid glowing captions and captions over faces.",
+    "productionApproach": "Style renderer: SVG, Canvas 2D or PixiJS for visuals, with Rough.js only for approved sketch contours. Motion engine: GSAP as the paused, seekable timeline, with Motion optional and synchronized. Pipeline: HyperFrames by default, Remotion only on the documented fallback condition. Paper.js is optional for path geometry. Verify direct, backward and sequential seeks, decoded frames, palette and text."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

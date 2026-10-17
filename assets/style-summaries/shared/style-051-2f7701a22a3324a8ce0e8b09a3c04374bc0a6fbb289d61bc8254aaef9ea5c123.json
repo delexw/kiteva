@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-051",
+    "name": "Screen Printing (Printmaking and Craft Materials). Supplemental reference; the source collection does not name it as a directly named style.",
+    "visualIdentity": "Flat spot-colour inks on visible paper, built from strong positive-negative shapes and overprints. Slight handmade edge variation supports the print look. Smooth gradients must not become the main feature.",
+    "suitableUses": "Explicitly suggested by the source for gig posters, festival announcements and limited-edition promos as a poster hybrid. Other bold flat-ink graphics are inferred suitability and should be checked against the brief.",
+    "limitations": "Use two to four discrete spot inks plus paper; texture and coverage never license extra inks or gradients. Gradients are disabled. Two-colour contrast checks do not cover text over textures, transparency or motion. Source review sampled only seconds 1–8.",
+    "palette": "Background is scene-dependent; #F4E9D4 is only an illustrative paper swatch, so choose the paper tone from scene and mood. Suggested #233E45 foreground and #B95A43 accent are authored, not approved. Foreground on that swatch is 9.452:1; accent on it is 3.789:1, decorative only.",
+    "motionAndInteraction": "Build motion from absolute composition time, revealing flat ink layers in a plausible print order. Optional references: motion-037 phrase step-in, motion-038 punctuation zoom, motion-039 radial burst and motion-040 word smash cuts, used only when scene assets support them. Reduced motion shows the finished composition.",
+    "audio": "The style itself requires no audio. Music, voiceover, effects, ambience or silence are task-specific suggestions, and none was supplied. Sync cues to beats only after inspecting actual audio, and leave holds for reading. No audio was verified for this style.",
+    "assetRequirements": "No uploads were supplied or required by the style. Production needs separated spot-colour layers, fixed ink-edge textures, visible paper and locally loaded fonts for sharp lettering. Photos, audio or source artwork must be supplied or authorised; none was created here.",
+    "combinations": "Motion Poster (style-103) adds a usable still frame and matched loops for poster work. Silhouettes from style-043 can serve as plates using its rust accent, not its slate accent; keep limbs separated. Avoid gradients, constantly moving headlines and mismatched loop endpoints.",
+    "productionApproach": "SVG renders spot-colour layers, masks and textures; Python with Pillow prepares assets. One GSAP paused timeline owns each animated property. HyperFrames is the default pipeline; Remotion applies only if its fallback condition is verified. Verify direct, forward and backward seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

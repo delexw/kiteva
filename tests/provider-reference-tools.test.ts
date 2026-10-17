@@ -247,7 +247,7 @@ it("rejects file context on tool-disabled calls rather than silently dropping ev
 });
 
 it.each(["claude", "codex"] as const)(
-  "exposes built-in capture to %s implementation without a style requirement",
+  "exposes built-in capture to %s implementation without a Motion Graphic requirement",
   async (provider) => {
     calls.query.mockClear();
     calls.codex.mockClear();
@@ -278,7 +278,7 @@ it.each(["claude", "codex"] as const)(
     const prompt =
       provider === "claude" ? options.systemPrompt : calls.streamedPrompt.mock.calls.at(-1)?.[0];
     expect(prompt).toContain("you MUST use capture_video");
-    expect(prompt).toContain("independent of styles");
+    expect(prompt).toContain("independent of Motion Graphics");
     const server =
       provider === "claude"
         ? options.mcpServers.reference_browser

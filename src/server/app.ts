@@ -134,7 +134,7 @@ export async function createApp(options: { store?: Store } = {}) {
   }));
   app.get<{ Params: { id: string } }>("/api/styles/:id", async (req, reply) => {
     const s = catalog.styles.find((s) => s.id === req.params.id);
-    return s || reply.code(404).send({ code: "NOT_FOUND", error: "Style not found" });
+    return s || reply.code(404).send({ code: "NOT_FOUND", error: "Motion Graphic not found" });
   });
   app.get("/api/motions", async () => catalog.motions);
   app.get("/api/renderers", async () => ({
@@ -265,12 +265,12 @@ export async function createApp(options: { store?: Store } = {}) {
         codex: models.codex,
       },
       {
-        function: "Brief preparation, style information extraction and generated lyrics",
+        function: "Brief preparation, Motion Graphic information extraction and generated lyrics",
         claude: textModels.claude,
         codex: textModels.codex,
       },
       {
-        function: "Style combination proposals",
+        function: "Motion Graphic combination proposals",
         claude: combinationModels.claude,
         codex: combinationModels.codex,
       },

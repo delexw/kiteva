@@ -9,6 +9,7 @@ import { Dialog } from "./dialog";
 import { MotionCard } from "./motion-card";
 import { MotionPreview } from "./motion-preview";
 import { RecommendedStack } from "./recommended-stack";
+import { MotionVariantList } from "./catalog-variants";
 export function MotionExplorer() {
   const [motions, setMotions] = useState<MotionPattern[]>([]);
   const [error, setError] = useState("");
@@ -124,6 +125,7 @@ export function MotionExplorer() {
                 </ul>
                 <h3>Video adaptation</h3>
                 <p>{selected.video_adaptation}</p>
+                <MotionVariantList variants={selected.variants} />
                 <Collapse
                   size="small"
                   items={[

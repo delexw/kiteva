@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-091",
+    "name": "2D Rigged Animation",
+    "visualIdentity": "Characters are built from rigged parts with defined joints, pivots, occlusion and motion limits. Expressions are swapped and replacement poses are drawn when needed. Movement follows arcs, anticipation and settling, avoiding excessive stretch and visible joint seams.",
+    "suitableUses": "Explicit: the source recommends it for character-led scenes where poses, arcs and expressions carry the story. Inferred: character-hosted explainers, onboarding stories and educational shorts, suitable for both video and interactive HTML.",
+    "limitations": "Rig quality was not confirmed from stills. Rigged parts do not mean every frame was redrawn, so no frame-by-frame claim should be made. Review covered one frame per second for seconds 1–8 only, with no audio, sub-second timing or later scenes verified. Medium confidence applies.",
+    "palette": "Background policy is scene_dependent, so the listed cream, slate, sage and terracotta tokens are illustrative examples, not approved colors. Choose the background from the scene, lighting and mood. Keep the hero's single local color as the most saturated mass. Foreground-on-background reaches 9.092:1, while sage and terracotta reach only about 3.5:1 and are decorative only.",
+    "motionAndInteraction": "Motion comes from rig transforms, pose changes, arcs, anticipation and settling, with replacement artwork for exceptional poses. Motion references motion-006 (bounded pupil following), motion-012 (chapter handoff) and motion-015 (narrative steps) are optional and only fit if the scene supports them. Video state must derive from composition time, while interactive HTML may use pointer, scroll or step input with reduced-motion static states.",
+    "audio": "Audio direction is unspecified; no genre, tempo, voice or mandatory layer is fixed. Suggest music, voiceover, sound effects, ambience or silence from the topic and motion. Keep accents sparse, marking pose landings or key reveals, and avoid competing with narration. No audio assets are supplied or created by this metadata.",
+    "assetRequirements": "Prepared layered character artwork with alpha transparency, consistent dimensions, clear naming and a layer manifest or numbered frames is required. Joints, pivots and replacement expression or pose layers must be defined before animation. Background plates, fonts and any audio are task-dependent and unspecified here, and all assets must be inspected before use.",
+    "combinations": "Optional style-109 supplies diagram line art the rigged presenter points to, using slate strokes with accents only on the active path. Optional style-101 supplies layered parallax background plates behind the rig. Use these only when the subject calls for them, keeping the rig as the only articulated element and avoiding diagram lines across the character's joints or face.",
+    "productionApproach": "Visual construction uses SVG by default, with PixiJS for sprite sets or Rough.js only for sketch-like contours when the brief calls for them. Motion uses GSAP as the single timeline owner, with Motion optional and synchronized to composition time. HyperFrames handles assembly, timing, audio sync and export, with Remotion as a fallback that requires a recorded reason. Verify direct, backward and forward seeks in rendered frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

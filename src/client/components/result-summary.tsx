@@ -16,10 +16,12 @@ export function ResultSummary({
   return (
     <section className="production-summary" aria-label="Result summary">
       <strong>Result summary</strong>
-      <p>Style: {styleNames.join(" + ") || "Your chosen direction"}</p>
-      {review?.styleMatch === "matched" && <p>Chosen style matched</p>}
-      {review?.styleMatch === "needs_review" && <p>Style match needs a review</p>}
-      {(!review || review.styleMatch === "not_verified") && <p>Style match hasn’t been verified</p>}
+      <p>Motion Graphic: {styleNames.join(" + ") || "Your chosen direction"}</p>
+      {review?.styleMatch === "matched" && <p>Chosen Motion Graphic matched</p>}
+      {review?.styleMatch === "needs_review" && <p>Motion Graphic match needs a review</p>}
+      {(!review || review.styleMatch === "not_verified") && (
+        <p>Motion Graphic match hasn’t been verified</p>
+      )}
       {job.outputType === "video" && request.outputType === "video" && (
         <>
           <p>Aspect ratio: {request.aspectRatio} · matched</p>

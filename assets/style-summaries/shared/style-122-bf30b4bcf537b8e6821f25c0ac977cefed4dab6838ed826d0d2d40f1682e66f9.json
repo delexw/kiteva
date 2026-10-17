@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-122",
+    "name": "Sand-on-Light-Table Animation, Drawing and Illustration category. Extracted and added in the 2026-10-12 repository sync.",
+    "visualIdentity": "A backlit warm light table shows dark granular sand silhouettes, scraped negative-space lines and changing sand density. Explicitly, light shines through thin sand and gaps, not a white page.",
+    "suitableUses": "Explicitly suited to sand-like silhouette animation where shapes form, thin, get scraped and transition. Inferred: tactile, illuminated explainers. Subject, audience and copy are unspecified.",
+    "limitations": "This is an illustrative granular look, not sand physics. Check grain for flicker and banding. Source stills (1–8 s sampled, medium confidence) show no scrape lines or backlight through gaps. Stop-motion photography is unavailable.",
+    "palette": "The background is scene-dependent; #F5E3B5 is only an illustrative swatch, not a required canvas. Foreground #3A291B gives 10.931:1 on it, meeting the 4.5 normal-text target. Gradients are disabled. No exact approved colors were supplied, so textured or transmitted-light areas need composited checks.",
+    "motionAndInteraction": "Sand thins, a scrape line cuts through, then the shape morphs into the next form. GSAP tweens morph, scrape and pour radius on a paused timeline. The 3 s preview is one example; full videos chain more mask pairs. Keep sharp cuts and reading holds. HTML interaction is unspecified.",
+    "audio": "No audio is specified or supplied. Options include music, voiceover, vocals, effects, ambience or silence, with no fixed genre or tempo. Choose from subject, audience and motion while honoring explicit requirements. Any soundtrack must be real audio.",
+    "assetRequirements": "No uploads, exact copy, duration, aspect ratio or output path are supplied, so placeholders stay unresolved. Canvas 2D masks must be authored from the brief. No motion references or library IDs exist. All assets are optional.",
+    "combinations": "style-043 (granular silhouettes) is the only authored secondary option. Keep style-122 dominant, preserve its background and foreground roles, and avoid importing its palette or adding competing full-scene treatments.",
+    "productionApproach": "Three.js and GLSL render the density shader from Canvas 2D masks, and GSAP drives motion on a paused timeline; chroma.js is optional. HyperFrames is the default pipeline, and Remotion requires a recorded fallback reason. Verify with check, snapshot, render and seek tests."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

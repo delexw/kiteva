@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-131",
+    "name": "Ukiyo-e Woodblock Print",
+    "visualIdentity": "Ukiyo-e Woodblock Print: dark key-block contours over flat registered color planes, asymmetric cropped compositions, patterned waves and clouds, and restrained sky gradation on print paper. Choose a specific Japanese print reference per scene, not generic carved monochrome texture.",
+    "suitableUses": "Explicit: further prints and lateral scene passages within a full video. Inferred: narrative or editorial scenes with a clear cropped subject. Interactive HTML use is unspecified; if used, keep accessible captions and reduced motion.",
+    "limitations": "No blur or volumetric light. Halftone and hatching are rejected as non-woodblock idioms, and shader displacement is avoided because it softens carved contours. Evidence covers only sampled seconds 1 to 8 of one source, with no audio or continuous motion verified. Hex values are suggestions, not measured source colors. Do not copy source characters, branded material or invented historical text.",
+    "palette": "Authored fallback tokens: background #F0E6C9, foreground key #283C49, indigo #385F84, blue #6E9FB3, rose #C58B95, ochre #BCA16C. Background policy is scene_dependent, so #F0E6C9 is an illustrative swatch; choose a paper, rock or field ground from subject and mood. Cool blue-grey or rice-white paper is also viable. Approved task or reference colors take precedence. Sky may use a restrained ink gradient, never a rainbow. Caption contrast target is 4.5:1 for normal text, checked on the final textured composite.",
+    "motionAndInteraction": "MorphSVG moves through three authored, compatible wave-crest states; key block and color plates share one time-derived progress value. Petals drift along a lateral path with slight rotation, and the cloud band pans slowly. Paper stays fixed. Use one paused GSAP timeline. Keep sharp cuts, impacts and reading holds where they serve the content. Interactivity is unspecified.",
+    "audio": "Unspecified for this style; the medium does not imply a historical soundtrack. Decide whether music, voiceover, vocals, effects or silence serve the topic. Source audio was not verified. Silent catalog previews need no audio. If audio is used, keep speech intelligible and leave reading holds clear.",
+    "assetRequirements": "No uploads are required. Procedural: a seeded Canvas 2D paper-fibre texture generated once and reused as a multiply mask over the plates. Optional: approved layered PNG or SVG separated plates prepared with Pillow, keeping registration; Paper.js for variable-width outlines. Caption typeface and font files are unspecified.",
+    "combinations": "Optional supporting style-053 for a secondary detail; its role is unspecified. Keep Ukiyo-e dominant and preserve its palette. Avoid generic effects that replace key-block mark-making. No motion references are selected.",
+    "productionApproach": "SVG layered key block and color plates, with Canvas 2D paper fibre, form the style renderer. GSAP with MorphSVGPlugin owns motion, with one owner per animated property. chroma.js is optional and interpolates only between existing tokens. HyperFrames is the default composition pipeline; Remotion is a fallback only with a recorded reason. Verify direct and backward seeks and decoded frames, and disclose procedural approximations."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

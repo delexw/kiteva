@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-132",
+    "name": "Cubist Painted Collage (Illustration and Art Media; extracted from sampled video frames on 2026-10-13). Category labels are authored classifications, not claims about the creator's technique.",
+    "visualIdentity": "Explicit: intersecting planar facets show one subject from several viewpoints, in compressed space, with muted ochre, gray and umber paint and selective printed-paper fragments. Subject anchors must stay recognizable. Low-poly 3D alone does not establish Cubism.",
+    "suitableUses": "Explicit: the compatibility set lists this style as a good fit for itself. Inferred: still-life or object explainers, and art-themed narratives where fragmented multi-view subjects carry the meaning. Other subjects are untested and unspecified.",
+    "limitations": "The procedural preview is a schematic study, not the source video. Source review sampled only seconds 1–8, one frame per second, with no audio or later scenes verified. Exact source hex values were not measured. Krita texture runtime is unverified. The source prompt is partial. Some tool entries cite Swiss or Mid-Century styles and are inconsistent with this style, so they should not be applied.",
+    "palette": "Authored fallback tokens: background #DED5BB (illustrative; scene-dependent, not a required canvas), foreground #332E29, ochre #AD9369, gray #85867D, umber #705F4B, paper #ECE4D0. Approved task or reference colors take precedence. Gradients are disabled. Normal text needs at least 4.5:1 contrast, checked on the textured composite.",
+    "motionAndInteraction": "Preview timing: 0–1.2s facets slide into registration from per-view offsets; 1.2–2.0s the bottle's profile facet and top-view facet swap; 2.0–3.0s a readable hold. Use fixed GSAP tweens on group transforms. Random shattering and perspective cameras are ruled out. Pointer interaction is unspecified.",
+    "audio": "Audio is unspecified: no audio was reviewed or supplied. Options include background music, narration, sound effects, ambience or silence, and silence is valid. Do not assume a historical soundtrack. Any requested audio must be created or authorized separately and checked against picture.",
+    "assetRequirements": "The procedural route needs no uploads: named subject parts from 2–3 viewpoints, seeded Canvas scumble textures, and fragments carrying approved words only (or a plain ruled pattern). Full video may use approved printed-paper scans, hand-drawn cutouts, or stop-motion collage photographs. Load fonts and assets before rendering.",
+    "combinations": "Optional supporting style style-045 may add a secondary narrative detail, with this medium kept dominant. Phrase Scatter & Step-In (motion-037) is optional and fits only if printed words exist in the scene and support its defining action. Avoid generic effects replacing mark-making and invented historical text.",
+    "productionApproach": "SVG and Canvas own visual construction, with Paper.js preparing facet geometry once at build time. GSAP owns motion, with one owner per animated property. HyperFrames is the primary composition and export pipeline; Remotion is a fallback only for a verified limitation. Verify forward, backward and direct seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

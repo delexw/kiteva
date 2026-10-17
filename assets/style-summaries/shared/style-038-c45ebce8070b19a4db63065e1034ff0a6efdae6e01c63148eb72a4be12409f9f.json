@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-038",
+    "name": "Ink Wash Painting: a supplemental reference, not a directly named source-collection style.",
+    "visualIdentity": "Pressure-sensitive brush marks, diluted ink washes, empty space and restrained tonal contrast. Choose one tradition, Chinese ink wash or Japanese sumi-e, and keep its composition logic. These traditions are not interchangeable.",
+    "suitableUses": "Inferred fit: cultural, poetic or meditative pieces where empty space carries meaning. Subject, audience and objective are unspecified. Dense, fast explainers are not indicated by this metadata.",
+    "limitations": "Avoid fast camera moves, generic splash effects and added accent colours. Source review covered only seconds 1–8 of two clips; continuous motion, sub-second timing and audio were not verified.",
+    "palette": "Background #F4EFDF and foreground #242724 (contrast 13.129) are optional, scene-dependent suggestions, not approved exact colours. Choose the substrate per scene, such as cool grey xuan paper or dusk-blue for night. Stay monochrome, using wash opacity for tone.",
+    "motionAndInteraction": "Motion is unspecified beyond style guidance: slow, coherent movement with deliberate holds; springs and bounce are not mandated. Motion-012 and motion-015 are optional, unselected candidates needing scene screening.",
+    "audio": "Unspecified; no audio asset supplied. Inferred fit: restrained ambience or silence with reading holds, avoiding vocals that compete with copy. Any voice or music must be authorized and locally produced.",
+    "assetRequirements": "No assets are supplied or mandated. Use authentic ink assets or controlled Canvas brush and wash masks with consistent stroke direction. Inscriptions need real text and verified stroke paths.",
+    "combinations": "Ink wash works best alone. Inscription style-041 fits only a Chinese tradition, in ink-only colours. Depth style-101 uses wash opacity and slow drift. Never mix sumi-e with Chinese inscriptions.",
+    "productionApproach": "Canvas 2D renders brushes and washes; Python with Pillow preprocesses assets. HyperFrames is the default pipeline for timing, audio and export, using a paused GSAP timeline. Remotion is fallback only, with the reason recorded. chroma-js checks composited contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

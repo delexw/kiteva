@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-018",
+    "name": "Minimalism",
+    "visualIdentity": "Explicitly described style. Keeps only the elements needed to communicate the subject, with generous negative space, precise proportions, consistent edges and spacing, and a limited palette.",
+    "suitableUses": "Explicit fits: UI and product storytelling, editorial minimalist layouts, motion posters, and staged geometric compositions. Inferred fit: single-message explainers. Audience, duration, and aspect ratio are unspecified.",
+    "limitations": "Smash cuts are omitted for dense explanatory text or gentle illustrative sequences. Two-color contrast checks must be rechecked on composited frames. Source-derived timings are approximate, with no verified easing or music synchronization.",
+    "palette": "Background is scene-dependent; #FAF9F5 is illustrative only. Suggested direction: quiet warm neutrals with one muted green accent. Non-approved fallback tokens: #202421 foreground and #406B5A accent, with contrast 14.923 and 5.747. Exact task colors override these, and gradients are disabled.",
+    "motionAndInteraction": "Animate a few elements at a time with restrained easing and readable holds; avoid fades on every transition. Seven optional motion references (007, 008, 012, 015, 037, 038, 040) apply only when the scene supports their defining action. Video runs on composition time.",
+    "audio": "No mandatory audio is specified. Suggest music only for pacing, silence for reading holds, and voiceover only when speech stays intelligible. Do not default to instrumental music or invent audio assets.",
+    "assetRequirements": "No uploads are specified. Load local fonts and assets before rendering. Charts need supplied or clearly labeled data. Do not invent copy, brand marks, or photographs. Motion references need inspected glyph or mark geometry first.",
+    "combinations": "Usually use alone, since added styles dilute minimalism. Hybrids only for quantitative or structural explanations: style-097 for one chart per scene and style-109 for thin connectors. The accent marks only the highlighted series or active path.",
+    "productionApproach": "HyperFrames owns composition and export. Remotion is a fallback only when HyperFrames is unavailable or verifiably limited, with the reason recorded. HTML/CSS and SVG render visuals, a paused GSAP timeline drives motion, and Motion, chroma-js, and Chartist are optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

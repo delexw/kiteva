@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-125",
+    "name": "Ancient Greek Vase Painting. Category: Printmaking and Craft Materials; provenance extracted from the 2026-10-12 sync.",
+    "visualIdentity": "Terracotta vessel with dark figure silhouettes, meander and tongue bands, and a continuous frieze around its curved surface. Pale #F3DFC0 incised lines. No historical technique is claimed.",
+    "suitableUses": "Explicit: objects whose story wraps around them, such as painted vessel friezes. Inferred: single-object explainers in video or interactive HTML. Audience, duration and aspect ratio are unspecified.",
+    "limitations": "A flat SVG unroll loses curvature, so a 3D lathe mesh is needed. Toon shading is excluded. Motion-043 would stop the vessel rotation the style specifies. Soft shadows do not establish photorealism.",
+    "palette": "Authored suggestions, not approved colors: background #100D09 (scene_dependent), foreground #F3DFC0, vessel #BA642F. Poster shows a dark brown-black scene; terracotta is never the background. Two-color contrast is 14.884, not a composited check.",
+    "motionAndInteraction": "GSAP rotates the vessel about 90° in a 3 s preview, continuing through the full video, while a mask reveals figures in register order. Motion-043 is an optional screened orbit. Interactive orbit should use motion-021 or motion-010.",
+    "audio": "Unspecified: none supplied or mandated. Inferred suggestion: restrained ambience or silence, with at most one soft accent as an orbit settles. Previews stay silent. Avoid beat-sync claims without measured data.",
+    "assetRequirements": "No painted layers, photos, fonts or exact copy were supplied; figures must be authored as Canvas 2D paths. Texture about 4096 px wide, seamless around the vessel. Subject, duration and output are unspecified.",
+    "combinations": "Optional secondary style-043 (Painted story figures) for figure work only; it must not import its palette or replace the background. Motion-043 fits only if a fixed vessel with camera orbit is acceptable.",
+    "productionApproach": "Three.js renders the vessel and Canvas 2D paints its texture; GSAP paused timeline owns rotation. HyperFrames is the default pipeline; Remotion only if its fallback condition is verified and recorded."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

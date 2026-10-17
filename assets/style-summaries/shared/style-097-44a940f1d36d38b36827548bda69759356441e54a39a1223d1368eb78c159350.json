@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-097",
+    "name": "Scientific Visualization / Data Storytelling: a normalized explanatory format inspired by The Pudding and 3Blue1Brown. The source toolchain is unverified.",
+    "visualIdentity": "Explanatory format: define concepts, variables, units, data and causal links before drawing. Keep color and label meanings consistent. Introduce mechanisms and conclusions gradually, with pauses. Avoid misleading scales, invented values and decorative motion that replaces explanation.",
+    "suitableUses": "Explicit: science explainers, research summaries, process mechanisms and data stories, including HTML steppers with alt text and data tables. Inferred: other explanatory topics backed by verified data. Use this style alone when charts and labeled mechanisms suffice.",
+    "limitations": "Never invent values, scales or causal claims. Ranked races need an authorized time-indexed dataset. Orbit views need finished 3D geometry. Sketch or decorative marks must not alter measured values. Source review covered only sampled seconds 1–8, with no audio verified.",
+    "palette": "Background is scene_dependent: derive it from subject, environment and mood; #FAF7EF is only an illustrative swatch. Example accents #367E88, #C17E49 and #856B9A carry semantic roles, not fixed meanings. No exact colors were supplied. Foreground #263744 on background gives 11.455:1; accents fail 4.5:1 for body text.",
+    "motionAndInteraction": "Optional references: motion-004 camera helix path, motion-012 chapter handoff, motion-015 story steps, motion-017 exploded reveal for separable parts only, motion-037 phrase step-in, motion-041 ranked race for data only, motion-043 orbit for full 3D only. Video follows composition time; scroll applies only to interactive delivery.",
+    "audio": "Not mandated; suggest topic-fitting narration, restrained music or sound accents, and silence where reading needs space. The source review verified no audio. Claim beat sync only from measured analysis, and verify speech clarity and balance.",
+    "assetRequirements": "No uploads are required. Subject, data, exact copy, duration and resolution are unspecified. Charts and rankings need real, cited data. Map tiles need provider authorization and attribution. Fonts and assets must load before capture.",
+    "combinations": "style-109 adds mechanism diagrams with arrows; style-098 adds nested scale zooms with a persistent scale bar. Optional libraries: Cytoscape.js for verified networks, Leaflet for geographic regions, Delaunator for 2D triangle meshes, Rough.js for sketch marks, p5.js for procedural layers.",
+    "productionApproach": "HyperFrames is the default for composition, timing and export: register a paused GSAP timeline in window.__timelines, then check, snapshot and render. Remotion is fallback only for verified limits. Manim handles math objects, NumPy data, and SVG/D3 charts. Keep one owner per property and verify seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

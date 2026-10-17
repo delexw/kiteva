@@ -125,7 +125,7 @@ it("keeps closed windows closed through reload, project refresh and Arrange", as
 
 it("arranges only displayed windows and preserves inactive and minimized window state", () => {
   const active = { ...newRoomWindow("detail:a"), maximized: true, placement: "user" as const };
-  const inactive = { ...newRoomWindow("utility:styles"), placement: "user" as const };
+  const inactive = { ...newRoomWindow("utility:Motion Graphics"), placement: "user" as const };
   const minimized = { ...newRoomWindow("project:b"), minimized: true, placement: "user" as const };
   const closed = { ...newRoomWindow("project:c"), closed: true };
   const arranged = arrangeRoomWindows([active, inactive, minimized, closed], active.id);

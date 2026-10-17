@@ -54,8 +54,14 @@ it("records all 405 decisions and adds exactly the approved references without c
           "motion-040",
           "motion-041",
           "motion-042",
+          "motion-043",
+          "motion-044",
+          "motion-045",
+          "motion-046",
         ].includes(entry.motion_id),
     );
+    // Optional Motion Graphic variants are a later additive field (mg-frame-findings).
+    delete style.motion_graphic_variants;
     // Matter.js and OpenScreen are intentional additive stack changes; compare all prior content unchanged.
     style.tech.recommended_stack_keys = style.tech.recommended_stack_keys.filter(
       (key: string) => !["matter_js", "openscreen"].includes(key),

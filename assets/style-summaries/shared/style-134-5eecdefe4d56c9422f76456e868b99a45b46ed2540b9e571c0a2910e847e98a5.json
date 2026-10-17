@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-134",
+    "name": "Fine-Line Chinese Painted Scroll, in the Illustration and Art Media category, with extracted provenance. Its art-medium label is an authored classification, not a claim about the creator's technique.",
+    "visualIdentity": "Fine bounded #3B544D contours outline jade mountains, ornamental cloud curls, architecture, flowers and carefully drawn figures. Translucent pale washes sit on a light paper or silk field with generous open space. This is source-inspired, not representative of all Chinese painting.",
+    "suitableUses": "Explicitly suited to horizontal scroll previews and full-video scroll-unrolling panoramas over a painted composition. Inferred suitability: calm, contemplative or cultural-atmosphere subjects with slow reveals. Interactive HTML use is unspecified; a combination note suggests accessible captions and reduced motion.",
+    "limitations": "No ink splashes, thick outlines, WebGL ink diffusion or Rough.js sketch strokes are permitted. Parallax stays shallow. Figures need rigged layers or drawn gesture frames, and calligraphy or seals are used only if verified. Source review covered sampled 1–8 second frames only, with no audio or continuous motion verified.",
+    "palette": "The background is scene-dependent; #F0EEDD silk is only an illustrative swatch, and approved task or reference colors override it. Suggested roles: foreground #3B544D, jade #86B6A2, mountain #B5CEC0, warm paper #D8C6A5 and rose #D2A6A3. Gradients are disabled. Check normal text at 4.5:1 against the actual textured field.",
+    "motionAndInteraction": "From 0–1.3 seconds, DrawSVG draws the contours, and each wash reveals only after its contour group completes. From 1.3–3.0 seconds, a bird follows an authored path, petals drift, a sleeve sways about a pivot, and the cloud band shifts 1–2%, then holds. Full video scroll-pans across a longer panorama. Sharp cuts and holds are allowed.",
+    "audio": "Audio is unspecified for this style, and no historical soundtrack is assumed. Music, voiceover, effects or silence are options to choose per brief. Supplied audio is honored, silent previews need none, and any speech must stay intelligible.",
+    "assetRequirements": "No mandatory uploads are required. Optional inputs include layered illustration or high-resolution PNG/SVG parallax layers for full video, rigged figure layers or gesture frames, verified calligraphy or seal assets, and local caption fonts. Exact copy, subject and duration are unspecified placeholders.",
+    "combinations": "Optional supporting style-038 may add a secondary medium or narrative detail while this medium stays dominant. Use SVG and DrawSVGPlugin for contours, Canvas 2D for the seeded silk weave, and optional chroma.js for contrast checks. Avoid generic effects replacing brushwork and invented historical text.",
+    "productionApproach": "SVG and Canvas 2D own rendering and texture. One paused GSAP timeline owns motion, with one owner per animated property. HyperFrames is the default for timing and export, and Remotion is used only as a recorded fallback. Verify direct and backward seeks with decoded frames. Runtime tool availability is unverified."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

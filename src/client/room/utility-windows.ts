@@ -2,7 +2,7 @@ import { BookOpen, Grid2X2, Play, ShieldCheck, Wrench, type LucideIcon } from "l
 import type { RoomWindowState } from "../../shared/room";
 
 export const roomUtilities = {
-  styles: { title: "Style explorer", path: "/styles", icon: Grid2X2 },
+  styles: { title: "Motion Graphic explore", path: "/styles", icon: Grid2X2 },
   motions: { title: "Motion explorer", path: "/motions", icon: Play },
   technologies: { title: "Technology pool", path: "/technologies", icon: Wrench },
   governance: { title: "Governance", path: "/governance", icon: ShieldCheck },

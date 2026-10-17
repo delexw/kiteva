@@ -114,7 +114,7 @@ it.each(["brief", "lyrics", "styles", "proposals", "selection"] as const)(
         audio: "Optional",
         assetRequirements: "Code",
         combinations: "Optional",
-        productionApproach: "Style led",
+        productionApproach: "Motion Graphic led",
       }));
     });
     vi.mocked(rankOptions).mockImplementation(async () => {
@@ -444,7 +444,7 @@ it("regenerates the chosen count in fresh sessions and extends the selected roun
       audio: "Optional",
       assetRequirements: "Code",
       combinations: "Optional",
-      productionApproach: "Style led",
+      productionApproach: "Motion Graphic led",
     })),
   );
   vi.mocked(rankOptions).mockResolvedValue({
@@ -532,6 +532,6 @@ it("refuses regeneration during active work or for manual styles", async () => {
     candidateCount: 0,
     selectedStyleIds: ["style-018"],
   });
-  expect(() => workflow.regenerateDirections(run)).toThrow("Manual styles");
+  expect(() => workflow.regenerateDirections(run)).toThrow("Manual Motion Graphics");
   expect(agentTurn).not.toHaveBeenCalled();
 });

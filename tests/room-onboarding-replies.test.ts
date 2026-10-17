@@ -61,8 +61,8 @@ it("lists actual generation settings and selected style names rather than counts
     "1440p",
     "60 fps",
     "Multiplane",
-    "Selected styles: Mosaic",
-    "build selected styles directly",
+    "Selected Motion Graphics: Mosaic",
+    "build selected Motion Graphics directly",
   ])
     expect(reply).toContain(value);
 });

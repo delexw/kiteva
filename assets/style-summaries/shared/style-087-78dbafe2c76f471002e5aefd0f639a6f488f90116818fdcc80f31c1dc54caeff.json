@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-087",
+    "name": "Puppet Animation (style-087, supplemental design reference, not a directly named source style).",
+    "visualIdentity": "Articulated puppets, identifiable materials, stable costumes and miniature sets. Poses show weight, balance and foot contact. Avoid rubber-like deformation, costume flicker and joint intersections. Distinguish physical photography from digital rigs.",
+    "suitableUses": "Explicit: character drama alone, or as a hybrid for formal staging or guiding text. Inferred from best_for: whimsical shorts, theatrical brand stories, educational puppet pieces and story chapters. Other audiences or formats are unspecified.",
+    "limitations": "No listed renderer exists; it requires photographed puppets or a labelled Blender rig. Avoid pastel grading over real costumes, copying film scenes, handheld drift and long hand-lettered copy. Simulated appearance is not evidence of physical production.",
+    "palette": "Background is scene_dependent, chosen from subject, environment and mood. Example tokens #EDE4D1, #414638 and #8E8263 are unapproved suggestions for new presentation elements only; costumes and sets keep their colors. Foreground/background contrast is 7.701; accent on background is 3.009, decorative only.",
+    "motionAndInteraction": "Smooth authored motion is valid; stop-motion stepping is not imposed, though held replacement poses are allowed. Reference patterns: gaze, miniature parallax, camera orbit, chaptered handoff and storytelling. Orbit (motion-043) is conversation-inspired, not footage-verified. Video uses composition time; pointer or scroll only for interactive delivery.",
+    "audio": "The source is silent on audio, so suggest music, voiceover, effects, ambience or silence from topic and brief. Honor explicit user audio, never invent audio assets, and avoid beat-sync claims without measured data. Keep speech intelligible and uncompeted.",
+    "assetRequirements": "No uploads are mandatory. Puppet work needs photographed frames or layers with alpha, consistent dimensions, numbered sequences and a layer manifest. A full 360° orbit needs complete geometry or a stated view count; partial arcs must be labelled. Specific asset inventories are unspecified.",
+    "combinations": "style-104 supports axial, symmetrical staging with lateral or axial moves and feet in contact. style-024 suits brief ink notes on holds only, using #414638 with #8E8263 accent, never covering faces. Puppet alone suits character drama.",
+    "productionApproach": "Photograph puppets frame by frame, or use a labelled Blender rig with held keyframes; the style renderer owns visuals and the motion engine owns trajectories. HyperFrames is the default pipeline for timing, validation and export; Remotion only when HyperFrames is unavailable or a verified limitation blocks a requirement. FFmpeg encodes sequences and audio."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

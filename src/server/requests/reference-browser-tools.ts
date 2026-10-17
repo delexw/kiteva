@@ -129,7 +129,7 @@ export function createReferenceTools(options: {
       referenceToolNames.video,
       {
         description:
-          "Built-in headless website video capture. Inspect the supplied URL first. Start, interact with the SAME session using click_control/fill_control/scroll_page/wait_for_view, then stop with the returned recording ID. Stop validates silent WebM footage and saves assets plus timed cursor metadata. No desktop app, installation or style dependency. Maximum 120 seconds per take; use multiple takes for longer demos. Stop before returning your production manifest. Never claim simulated UI is real footage.",
+          "Built-in headless website video capture. Inspect the supplied URL first. Start, interact with the SAME session using click_control/fill_control/scroll_page/wait_for_view, then stop with the returned recording ID. Stop validates silent WebM footage and saves assets plus timed cursor metadata. No desktop app, installation or Motion Graphic dependency. Maximum 120 seconds per take; use multiple takes for longer demos. Stop before returning your production manifest. Never claim simulated UI is real footage.",
         inputSchema: {
           action: z.enum(["start", "stop"]),
           recordingId: z.string().uuid().optional(),

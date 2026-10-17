@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-093",
+    "name": "Kinetic Typography",
+    "visualIdentity": "Text carries the narrative through size, weight, spacing, position and movement order. Copy stays concise, actions follow meaning, and holds separate phrases. Words stay real DOM text, not identical per-letter springs.",
+    "suitableUses": "Explicitly suited to quotes, manifestos and copy-led spots. Inferred extensions: beat-timed lyric or promo pieces with a supplied track, and grid-based corporate openers. Bold display titles suit ink-flood handoffs.",
+    "limitations": "Dense explanatory copy fits poorly unless a rigid grid governs it. Canvas or WebGL text loses measurement and accessibility, so text stays in the DOM. Font-to-path conversion is unavailable, so architectural glyph outlines must be authored.",
+    "palette": "The implementation names a #FAF5E9 background, #252D39 text and one #B84F3F accent word. Palette metadata marks these as scene-dependent suggestions, and no approved exact colors are supplied. Choose backgrounds from the scene, keep the accent to one word, and recheck composited contrast. The #102820/#F4E9D5/#F2B544 recipe palette applies only if explicitly adopted.",
+    "motionAndInteraction": "A paused GSAP timeline animates size, the weight axis, tracking and position as deliberate steps, varying ease, duration and holds per word. Optional MorphSVGPlugin bends only a load-bearing stroke. Video is time-driven; live input is unspecified.",
+    "audio": "The source specifies no audio, voice or music, and none is supplied; silence is valid. Inferred options: restrained music or accents tied to phrase holds, or voice timing once speech exists. Beat sync requires analysed audio; the recipe preview is silent.",
+    "assetRequirements": "No photography or external media is required. Locally loaded fonts must be ready before measuring, and weight animation needs a variable font with a weight axis. Exact copy must be supplied or authored. Architectural glyph outlines must be authored as SVG paths.",
+    "combinations": "Style-105 adds beat mapping for a supplied track; style-001 adds a Swiss grid using only primary tokens. Optional motion references: 037 phrase scatter, 038 punctuation zoom, 040 smash cuts, 044 ink-flood handoff. Reference 041 needs authorized ranked data.",
+    "productionApproach": "HyperFrames is the primary pipeline for assembly, validation and export, with one paused GSAP timeline registered in window.__timelines. Remotion is fallback only when HyperFrames is unavailable or verifiably limited. HTML/CSS and SVG render text; GSAP owns motion; chroma-js checks contrast. Optional mo.js or Matter.js effects need precomputed, seekable states."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

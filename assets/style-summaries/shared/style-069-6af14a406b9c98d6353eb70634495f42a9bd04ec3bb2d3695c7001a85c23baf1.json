@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-069",
+    "name": "Liquid Glass (explicit style; not interchangeable with frosted glass). Category: Digital and 3D Aesthetics.",
+    "visualIdentity": "Clear glass edges, plausible refraction, edge highlights and limited dispersion, with a recognizable background visible through the form. Droplets, lenses or flexible panels keep deformation and refraction continuous. Plain translucent blur does not qualify.",
+    "suitableUses": "Explicit best fits: hero optical moments where refraction is the feature; device or feature launches stressing clarity or optics; abstract brand loops and fluid UI concept films. Inferred: single-lens product shots with restrained copy.",
+    "limitations": "Never use frosted or ordinary blur, and never place text behind a refracting region. Keep dispersion minimal; avoid rainbow-heavy effects, overlapping lenses and unbaked chaotic splashing. A simulated look is not validated physics.",
+    "palette": "Background is scene_dependent, chosen from subject, environment, lighting and mood, not from a default cream or yellow. Tokens #EDEBE3, #293C49 and #91ACB0 are unapproved examples for new presentation elements only; task-supplied exact colors override them. Recheck contrast on the composited glass.",
+    "motionAndInteraction": "Deformation and refraction must stay on one surface. Optional motion-038 punctuation lens enlarges with edge highlights and refraction, never blur. Optional motion-043 orbit needs true 3D transmission, a complete environment and an undeformed form. Video state derives only from composition time; interactive versions need static fallbacks.",
+    "audio": "Unspecified by the style; the topic decides among music, voiceover, effects, ambience or silence, with no required genre or layer. Silence suits reading holds. Claim beat synchronization only from measured audio analysis.",
+    "assetRequirements": "Unspecified; no uploads are required. Needed: a recognizable background visible through the glass, actual punctuation for motion-038, and complete surroundings for any 3D orbit. Turntable captures need enough views. Do not invent brand marks.",
+    "combinations": "Style-114 droplet merge drives deformation, with refraction derived from the same surface. Style-096 product pacing uses one glass element per shot, with typography outside the refracting area. Liquid Glass alone suits hero optical moments.",
+    "productionApproach": "Style renderer: Three.js MeshPhysicalMaterial transmission with WebGLRenderTarget background sampling; a labelled SVG displacement is a 2D approximation only. GSAP paused timeline and optional chroma.js handle timing and contrast. HyperFrames is the pipeline; Remotion applies only on a verified fallback. Verify seeks on decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

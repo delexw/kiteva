@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-047",
+    "name": "Paper Craft / Cardboard Craft (Printmaking and Craft Materials; explicit source direction).",
+    "visualIdentity": "Explicit: tactile paper and cardboard showing fibers, board thickness, folds, cuts and assembly seams under soft, material-suited light. Board keeps constant thickness and never bends like rubber; parts assemble or unfold along plausible joints.",
+    "suitableUses": "Explicit: packaging reveals, maker brands, sustainability stories, process explainers, and city or workshop miniatures. Hybrids suit printed titles (style-052) or a defined miniature stage (style-079). Interactive HTML can use prerendered stills or scrubbable turntable frames with focusable hotspots, no autoplay, and a final still under reduced motion.",
+    "limitations": "Procedural bends are artistic deformations, not physical paper simulation; keep flat scenes as SVG or Canvas cutouts. Board must not bend like rubber, and deep embossing, metallic bevels, heavy blur and unexplained floating parts are excluded. Source review sampled only 1 to 8 seconds, with no listed sources.",
+    "palette": "Background policy is scene_dependent, so the cream, kraft and ink values are illustrative suggestions, not requirements. Suggested tokens: background #EFE5D2, foreground #47392B, accent #AF8A5D. Foreground on background measures 8.903:1; accent-as-text (3.504:1) is decorative only. Gradients are disabled. Approved exact colors override all suggestions.",
+    "motionAndInteraction": "Explicit: hinges, folds and assembly joints animate along plausible connections, with sharp cuts and reading holds kept deliberate. Optional references: reversible door bloom (motion-001), miniature parallax (motion-009), chapter handoff (motion-012), scroll storytelling (motion-015), and 360° orbit (motion-043), which requires a finished 3D model.",
+    "audio": "Source gives no fixed audio rule; genre, tempo, voice and layers are unspecified. Inferred: restrained ambience or silence suits tactile craft, with optional soft accents on hinge or fold actions. Keep narration intelligible. No audio asset is specified, so any soundtrack must be actually produced and synchronized.",
+    "assetRequirements": "Subject, exact copy, duration, aspect ratio, resolution and frame rate are unspecified placeholders. Requires Blender-generated board geometry, creases, seams and paper materials. Optional references need finished 3D models, or enough captured views for turntable use. No uploads are mandated.",
+    "combinations": "Explicit: style-052 adds shallow printed titles pressed into kraft board under the same light, sharing paper physics. Style-079 adds a bounded miniature stage with a shared thickness scale and framing. Avoid mixing clay or plastic, heavy blur, and floating parts. No other combinations are listed.",
+    "productionApproach": "Blender with Python bpy and Cycles serves as style renderer and motion engine for board geometry, creases, seams, hinges and soft light. Optional three.js paper curl adds artistic bends only. HyperFrames is the default pipeline with a paused GSAP timeline; Remotion needs a recorded reason. chroma-js is optional. All state derives from composition time."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

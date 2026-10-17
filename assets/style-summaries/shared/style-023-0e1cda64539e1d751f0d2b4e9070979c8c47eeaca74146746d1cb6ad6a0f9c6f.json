@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-023",
+    "name": "Ballpoint Pen Drawing",
+    "visualIdentity": "Explicit: thin blue-black or black pen lines, repeated contours and dense-to-sparse hatching on clean white or lightly warm paper. It keeps a sketchbook character, with marks revealed in drawing order. Heavy outlines and smooth vector fills are avoided.",
+    "suitableUses": "Explicit: sketchbook-style storytelling, which works alone. Source-stated best fits: travel journals, field notes, idea-to-product stories, long narration holds and looping sketch backgrounds. Inferred: explanatory sketches. Precise grids or product UI conflict with its hand-drawn character.",
+    "limitations": "Explicit: Rough.js provides no handwriting, pressure-sensitive brush, paper texture or character poses, and hachure is not authentic pencil or print. Do not roughen precise grids, clean vectors, product UI or photorealistic assets. Simulated appearance is not evidence of physical production.",
+    "palette": "background_policy is scene_dependent, so #FCFAF4 paper and #172C49 ink are illustrative suggestions, not approved colors. Choose the background from the scene while keeping the paper character. Keep ink monochrome and express tone with hatching or opacity. Their 13.477:1 contrast is a two-color check, so recheck composited frames. Gradients are disabled; task-supplied colors override.",
+    "motionAndInteraction": "Explicit: marks reveal in drawing order, suited to SVG stroke reveals, and boil must not run while lines are still drawing. Optional hold boil alternates two hatch-placement variants at one fixed slow cadence; random displacement and boiling lettering are avoided. Motion-012 and motion-015 are optional, scene-screened references. Interactive notes may appear on sketch-region focus or tap, with a static reduced-motion state.",
+    "audio": "Explicit: no audio is mandatory and no genre, tempo, instrument or voice is fixed. Suggest audio from the topic and audience, and honour any explicit brief requirements. Silence is valid. Any voiceover must stay intelligible. The source supplies no audio assets, so none may be claimed.",
+    "assetRequirements": "Explicit: no uploads are required, and the source supplies no asset list. Author contours and hatching as SVG paths, and add fine pen texture with Canvas 2D. Load local fonts before rendering any text. Motion references are optional, and exact task colors override the suggested palette.",
+    "combinations": "Explicit: style-024 margin notes use same-pen arrows and labels in one ink with thin strokes, appearing only after the referenced drawing completes. Style-092 hold boil alternates fixed variants during narration, without fast cadence or random noise. Ballpoint alone suits sketchbook storytelling.",
+    "productionApproach": "HyperFrames is the default for composition and export, using a paused GSAP timeline registered in window.__timelines. Remotion is a fallback only if HyperFrames is unavailable or a verified limitation exists, and the reason must be recorded. SVG draws the marks, Canvas 2D adds pen texture, and GSAP drives motion; Motion and Rough.js are optional. Verify seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,11 +1,27 @@
 import { PageTemplate } from "./components/page-template";
 import { useState } from "react";
-import { Button, Card, Empty, Input, Select, Table, Tag, Typography, type TableColumnsType } from "antd";
+import {
+  Button,
+  Card,
+  Empty,
+  Input,
+  Select,
+  Table,
+  Tag,
+  Typography,
+  type TableColumnsType,
+} from "antd";
 import { Search } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Dialog } from "./dialog";
 import { TechnologyCard } from "./components/technology-card";
-import { technologyCardPath, filterTechnologyEntries, groupTechnologyEntries, technologyEntries, type TechnologyEntry } from "./technology-pool-model";
+import {
+  technologyCardPath,
+  filterTechnologyEntries,
+  groupTechnologyEntries,
+  technologyEntries,
+  type TechnologyEntry,
+} from "./technology-pool-model";
 
 const readable = (value: string) => value.replaceAll("_", " ");
 const kinds = [...new Set(technologyEntries.map((entry) => entry.kind))].sort();
@@ -86,7 +102,7 @@ export function TechnologyPoolPage() {
       className="technology-pool-page"
       eyebrow="Library / Technology pool"
       title="Technology pool."
-      description={<p>Explore tools for styles, motion and production.</p>}
+      description={<p>Explore tools for Motion Graphics, motion and production.</p>}
       actions={<Tag>{technologyEntries.length} technologies</Tag>}
       controls={
         <>

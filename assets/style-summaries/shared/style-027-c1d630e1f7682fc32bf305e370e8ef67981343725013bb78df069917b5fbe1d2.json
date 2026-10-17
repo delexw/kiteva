@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-027",
+    "name": "Line Art (Drawing and Illustration category). The label was normalized from source references.",
+    "visualIdentity": "Contours and structural lines define objects with limited internal detail. Line weights form a consistent hierarchy on a simple background, with small accent colors for emphasis.",
+    "suitableUses": "The source suggests product or icon reveals, technical explanation and editorial layouts. Inferred fit: explanatory diagrams. Avoid pairing with Animated Line Art as a near-duplicate.",
+    "limitations": "Sketch roughness, hatching and line boil need brief authorization; hatching is not authentic pencil or print media. Keep precise grids and clean vectors unroughened. Gradients stay disabled.",
+    "palette": "Background is scene-dependent, not fixed. Example tokens #FAF8F1, #273D42 and #B77843 are illustrative. Foreground on background is 10.785:1; the accent is 3.418:1, so use it decoratively only. Approved colors override.",
+    "motionAndInteraction": "Reveal contours by stroke length using GSAP DrawSVGPlugin. Give each property one owner. Optional references: motion-012 chapter handoff, motion-015 story steps, motion-039 outlined rays without filled particles or glow. Pointer input is interactive-only.",
+    "audio": "Audio is unspecified. Source options are music, voiceover, vocals, sound effects, ambience or silence, chosen per topic without a fixed genre. Honor user audio. Claim beat sync only after real audio analysis.",
+    "assetRequirements": "Uploads are unspecified; subject, audience, copy, duration, ratio, resolution, frame rate and output directory are placeholders. Approved mark geometry is needed for motion-039. Load local fonts and assets first.",
+    "combinations": "style-097 suits mechanism explanation: stroke-revealed object, labeled stages, #B77843 only on the active part. style-019 suits editorial grids with figures inside frames. Avoid filled shapes, misleading scale and overlapping text.",
+    "productionApproach": "Native SVG paths form the style renderer; tldraw is optional for exported assets. Rough.js and hatching apply only when authorized; Paper.js is optional for precise geometry. GSAP runs one paused timeline. HyperFrames handles composition, check, snapshot and render."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

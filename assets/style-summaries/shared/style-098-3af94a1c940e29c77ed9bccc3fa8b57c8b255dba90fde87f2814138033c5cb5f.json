@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-098",
+    "name": "Infinite Zoom: an explicit camera and transition technique, not an art movement.",
+    "visualIdentity": "Explicit: connected worlds or scales where the next scene already exists inside a visible object, lens or portal. The camera follows one continuous zoom path, and the transition aligns as the portal fills the frame. Medium and style are otherwise unspecified.",
+    "suitableUses": "Explicit fits: educational scale tours, looping brand journeys and illustrated narrative zooms. Inferred fits: abstract spatial passages and nested worlds sharing one drawing language. Interactive HTML can map scroll or arrow keys to level states, with pause and reduced-motion jump cuts.",
+    "limitations": "Avoid dense text during travel. Keep labels in a stable 2D layer that does not scale with the scene. Raster textures blur when magnified, so use vector art, and avoid wildly varying detail density between levels. Flat image scaling is a zoom, not a true dolly.",
+    "palette": "Background is scene-dependent: choose it from subject, lighting and mood, not a default cream. Example tokens (#F4EFE3, #30404A, #688D96, #B78462) are illustrative, not approved. Foreground on background measures 9.348:1; accent-background pairs fail body-text targets and serve as decoration only. Gradients are disabled. No exact approved colours were supplied, so none are locked. Source frames (seconds 1–8 only) show a dark void with neutral materials and one semantic accent; they are examples, not mandatory.",
+    "motionAndInteraction": "Drive camera scale and progress from absolute composition time, with a continuous zoom and deliberate holds or cuts where reading requires them. Optional motion references include vortex passage, gateway mist, chapter handoffs, depth dolly and punctuation or annotation portals; none is required. Motion-005 is a doorway with mist, not a cursor trail. Pointer parallax applies only to interactive delivery.",
+    "audio": "Audio is unspecified in the brief and was not analysed. Suggest optional restrained ambience or a soft accent at transitions. Silence is valid for reading holds. Music, narration and beat synchronisation are not mandated and require measured audio before timing cues to them.",
+    "assetRequirements": "No uploads are mandated. Prepare layered, high-resolution assets with alpha and consistent dimensions, and inspect portal or mark geometry before use. Motion-045 needs a drawn annotation that actually encloses the next section's region. No real photography or web capture is implied.",
+    "combinations": "style-027 (contour line art) keeps nested worlds crisp at any zoom, with portal contours aligned to the next world's frame. style-097 (annotation layer) supplies scale labels and units outside the zoom. Pair them when worlds need a consistent drawing language or factual labelling. Stand alone when the nested-world concept is the content.",
+    "productionApproach": "Style renderer: Canvas 2D or PixiJS for drawing, portals and materials; Three.js only where real depth is needed. Motion engine: one paused GSAP timeline with one owner per property. Pipeline: HyperFrames by default; Remotion only if HyperFrames is unavailable or a verified limitation exists. Verify direct, backward and forward seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

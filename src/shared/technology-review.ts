@@ -18,7 +18,7 @@ export function validateTechnologyReview(input: unknown, expectedStyleIds: strin
     new Set(styleIds).size !== styleIds.length ||
     expectedStyleIds.some((id) => !styleIds.includes(id))
   )
-    throw Error("Technology review must cover every requested style exactly once");
+    throw Error("Technology review must cover every requested Motion Graphic exactly once");
   for (const assessment of review.assessments) {
     if (
       assessment.matchingStyleIds.some((id) => !expectedStyleIds.includes(id)) ||
@@ -38,7 +38,9 @@ export function validateTechnologyReview(input: unknown, expectedStyleIds: strin
         ["hyperframes", "remotion"].includes(key),
       )
     )
-      throw Error("Composition pipelines cannot replace style renderers or motion engines");
+      throw Error(
+        "Composition pipelines cannot replace Motion Graphic renderers or motion engines",
+      );
     if (
       keys.some(
         (key) =>

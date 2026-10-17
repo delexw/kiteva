@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-033",
+    "name": "Anime, explicitly named in the source as a direct visual direction under Drawing and Illustration.",
+    "visualIdentity": "Coherent anime character design: stable proportions, expressive poses, clean linework, controlled shadow shapes. Motion comes from key poses, holds and selective detail. It is not one fixed aesthetic, and a static cel filter is not character animation.",
+    "suitableUses": "Explicit fits: character-led scenes with key-pose timing, character introductions, scenic openings with parallax layers, and sci-fi segments with in-world HUD. Inferred fits: illustrated narratives and mascots. Audience and duration are unspecified.",
+    "limitations": "Needs prepared, consistent character art; missing character assets must be reported, never replaced by a filter. Avoid faking animation with parallax alone, mixing design languages, over-blurred depth, or HUD covering faces. Source review sampled only seconds 1–8, not continuous motion or audio.",
+    "palette": "Background is scene-dependent, chosen from subject, lighting and mood, not a default cream. Example tokens, not approved colors: background #F4EFE5, foreground #293447, accents #668DA0 and #C47C67. Foreground on background is 10.931:1; accents fail 4.5:1 for body text. No approved palette was supplied; gradients are off.",
+    "motionAndInteraction": "Video motion is authored key poses, holds and purposeful action driven by composition time. Optional references: motion-006 bounded pupil following, with delayed brows and blinks only if eye layers exist, and not viewer tracking; motion-012 chapter handoff; motion-015 story steps. Pointer or scroll behavior applies only to interactive delivery.",
+    "audio": "Unspecified; the source sets no fixed audio rule. Options are music, voiceover, sound effects, ambience or silence, chosen for the topic. Honor explicit requests, keep speech intelligible, and avoid competing with narration. Source audio was not reviewed, and no soundtrack is claimed unless actually created.",
+    "assetRequirements": "Consistent character drawings or numbered transparent PNG sequences with alpha, uniform dimensions and a layer manifest; Krita is optional for drawing. Eye layers or a rig are needed for gaze. Load fonts and assets before rendering. Audio, voice, photos and URLs are optional and unspecified unless supplied.",
+    "combinations": "style-101: parallax background planes under held character poses, sharing one light direction, with proportions unchanged. style-112: HUD only inside sci-fi device frames, using #293447, #668DA0 and #C47C67 with no neon. Otherwise keep style-033 alone.",
+    "productionApproach": "Style renderer: prepared cel-style art via Krita or SVG/DOM/PixiJS. Motion engine: one paused GSAP timeline with a single owner per property. Pipeline: HyperFrames primary (window.__timelines, check, snapshot, render); Remotion only if HyperFrames is unavailable, with reason recorded. chroma-js is optional. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

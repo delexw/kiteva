@@ -175,7 +175,7 @@ type DockUtilityProps = {
   onRestore: () => void;
   onClose: () => void;
 };
-/** A minimized tool window (style explorer, governance…) in the dock, icon only. */
+/** A minimized tool window (Motion Graphic explore, governance…) in the dock, icon only. */
 export function RoomDockUtility(props: DockUtilityProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   return <RoomDockUtilityTile {...props} menuOpen={menuOpen} onMenuOpenChange={setMenuOpen} />;

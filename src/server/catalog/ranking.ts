@@ -142,7 +142,7 @@ export async function rankOptions(
     const invocationId = randomUUID();
     onEvent({
       type: "invocation",
-      message: "Style evaluation started",
+      message: "Motion Graphic evaluation started",
       data: {
         provider: "jev",
         model: "jev-latest",
@@ -160,7 +160,7 @@ export async function rankOptions(
     const r = await client.systemOne({ model: "jev-latest", state, questions }, { signal });
     onEvent({
       type: "usage",
-      message: "Style evaluation complete",
+      message: "Motion Graphic evaluation complete",
       data: { provider: "jev", model: r.model, invocationId, usage: r.usage },
     });
     model = r.model;

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-073",
+    "name": "Vaporwave, a supplemental Digital and 3D Aesthetics reference. The source collection does not name it directly. Keep it distinct from Synthwave.",
+    "visualIdentity": "Nostalgic consumer imagery, early digital interfaces, sculpture or advertising fragments sit in a coherent pastel palette with selective distortion. The mood is slow repetition, drift and displaced time.",
+    "suitableUses": "Explicit: slow nostalgic loops, music visuals and editorial or album-art pieces. Inferred: retro advertising or interface-history topics where supplied fragments carry the meaning. Audience and duration are unspecified.",
+    "limitations": "Avoid fast Synthwave pacing, neon grids, busy asymmetric clutter and unlicensed logos. Imagery must be supplied or authorized, never invented. Two-color contrast checks miss textures and video, so recheck composited frames.",
+    "palette": "Background is scene_dependent; #EAE0F0 is illustrative, not required. Rose, mint and lavender tokens are unapproved suggestions: foreground #474257; accents #CE9BB8, #8DBBB8, #B2A4D0. Foreground on background is 7.515; #8DBBB8 with foreground is 4.546 for text. #CE9BB8 and #B2A4D0 are decorative only. Gradients are disabled. Task exact colors override.",
+    "motionAndInteraction": "Slow drift and local distortion from deterministic time; keep sharp cuts and reading holds. Optional references: motion-008 card stacking, motion-012 chapter handoff, motion-015 storytelling, motion-037 phrase step-in; choose none if the scene lacks their subject. HTML may add scroll parallax with a reduced-motion freeze; video ignores live input.",
+    "audio": "Unspecified; no mandatory layer, genre, tempo or voice. Consider music, voiceover, sung vocals, effects, ambience or silence based on the topic, and honor explicit requests. Real audio needs local generation; if unavailable, report it in assetNeeds.",
+    "assetRequirements": "No uploads are mandatory. Supplied layers need transparency, consistent size and clear names, or numbered frames. Load fonts locally first. Photographic or advertising fragments must be supplied or authorized; none were provided. Unlicensed brand marks are excluded.",
+    "combinations": "style-044 adds supplied photo and advertising collage tinted to primary accents, for nostalgia visuals. style-104 adds centered symmetric staging for album loops and gallery pieces. Hybrids depend on licensed or supplied assets.",
+    "productionApproach": "HyperFrames handles assembly, timing, sync, validation and export; Remotion is fallback only if HyperFrames is unavailable or a verified limit exists, with reason recorded. Canvas 2D is the primary renderer; PixiJS is optional for sprites. GSAP owns motion as one paused seekable timeline. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

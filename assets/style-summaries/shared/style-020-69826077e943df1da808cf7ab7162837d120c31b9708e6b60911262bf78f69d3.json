@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-020",
+    "name": "Luxury Editorial (Graphic Design and Design Movements; provenance explicit).",
+    "visualIdentity": "One highlighted subject with refined display type, concise copy, generous space and selective cropping. Restrained color, sparing material highlights, smooth camera moves, subtle parallax and precise settling. Excess gold, sparkle or blur are not part of the style.",
+    "suitableUses": "Explicit catalog fits: product and editorial introductions, fashion, hospitality, invitations, premium product reveals, lookbooks, property showcases and collection launches. Inferred: strongest with one subject and refined type, not stacked with many other styles.",
+    "limitations": "Strongest alone; hybrids are only for letterpress title moments or measured depth on cropped imagery. Avoid metallic bevels, gold gradients, paper texture on every scene, heavy depth blur, fast multi-axis parallax and exposed layer edges. The source review sampled seconds 1 to 8 only.",
+    "palette": "Background policy is scene_dependent: choose it from subject, lighting and mood, not a default cream. The suggested direction is ivory, dark brown and muted taupe, with tokens #F4EFE7, #29251F and #817159 as unapproved examples. Text pair contrast is 13.308:1; accent on background is 4.132:1, decorative only. Gradients are off, and task-supplied exact colors override. Source review: a dark photo hero, a light flat page, and one warm accent for keyword, rule or numeral.",
+    "motionAndInteraction": "Smooth camera moves, subtle parallax and precise settling; one camera move per scene with measured ease-out. Optional references: 012 chapter handoff, 013 swipe card track, 015 scroll story steps, 018 curved draggable gallery with synced caption, 038 punctuation zoom. Video uses composition time; drag and scroll are interactive-only.",
+    "audio": "Unspecified by the style; audio is an open suggestion, not a fixed genre, tempo, instrument or voice. Choose music, voiceover, effects, ambience or silence from topic and audience; silence is valid. Gallery previews stay silent. Punctuation Zoom timing needs real audio analysis before any sync claim.",
+    "assetRequirements": "Use only supplied or authorized imagery; never generate fill or assume photographs exist. Punctuation Zoom needs an actual punctuation mark or approved glyph. Galleries need real images and captions. Crops need overscan and a recorded recipe. Load fonts locally. Do not invent product copy or brand marks.",
+    "combinations": "style-052 letterpress is for title moments only: a shallow, single-direction deboss in #29251F, with #817159 for one rule or monogram. style-101 2.5D parallax uses supplied imagery only, in two or three planes, with palette unchanged and one camera move per scene.",
+    "productionApproach": "HyperFrames is primary for composition timing, validation and export; Remotion is fallback only if HyperFrames is unavailable or a verified limit applies. HTML/CSS and SVG render visuals, and a paused GSAP timeline owns motion. Motion is optional only with explicit sync. chroma-js checks contrast on composited frames. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

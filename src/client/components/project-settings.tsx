@@ -32,7 +32,9 @@ export function ProjectSettings({
           request.lyrics && request.lyrics.mode !== "off" ? "Lyrics on" : "No lyrics",
         ]
       : [request.viewport === "mobile" ? "Mobile layout" : "Desktop layout"]),
-    request.candidateCount === 0 ? "Manual styles" : `${request.candidateCount} directions`,
+    request.candidateCount === 0
+      ? "Manual Motion Graphics"
+      : `${request.candidateCount} directions`,
     ...(request.candidateCount > 0
       ? [request.preference === "creative" ? "Explore creative ideas" : "Follow my brief"]
       : []),
@@ -46,7 +48,7 @@ export function ProjectSettings({
       </div>
       {selectedStyles.length > 0 && (
         <p>
-          Styles:{" "}
+          Motion Graphics:{" "}
           {selectedStyles.map((style, index) => {
             const example = examples.find((entry) => entry.styleId === style.id);
             return (

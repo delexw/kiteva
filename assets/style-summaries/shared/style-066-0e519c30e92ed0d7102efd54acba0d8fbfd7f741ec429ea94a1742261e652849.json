@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-066",
+    "name": "CRT / Analog Video Effects",
+    "visualIdentity": "Explicit CRT treatment: scanlines, mild color offsets, persistence, screen curvature and noise within a defined analog-display context. Details scale to output resolution. Category: Digital and 3D Aesthetics.",
+    "suitableUses": "Explicitly fits analog-display presentation. Inferred fit, not confirmed: a finishing pass over clean content, such as retro game trailers or nostalgic tech stories.",
+    "limitations": "Keep interruptions and distortion restrained so information stays legible. Avoid persistent flashes and exaggerated noise. Do not add analog distortion to modern screens unless requested.",
+    "palette": "Background is scene-dependent, so choose it from subject, lighting and mood, not by default. Tokens #171C24, #E9E5D8 and #6A9DAA are illustrative, not approved, and apply only to new elements. Two-color contrast checks are 13.57 and 5.713; recheck composited frames.",
+    "motionAndInteraction": "Use seeded, deterministic noise and modest persistence, not per-frame grain. Optional references: motion-012 chapter handoff, motion-015 narrative steps, motion-020 glitch cut (omit for calm scenes), motion-037 phrase scan-out and motion-040 CRT-preserving cuts; use each only if the scene supports it.",
+    "audio": "Audio is unspecified by this style. Suggest music, voiceover, effects, ambience or silence from topic and audience. Silence is valid, and no fixed genre, tempo or voice is required.",
+    "assetRequirements": "Requires high-quality source imagery for screen-space postprocessing. Video-textured screens need authorized, preloaded footage with decoded-frame synchronization. Local fonts and assets must load before rendering, and approved colors stay unchanged.",
+    "combinations": "Use CRT as a finishing pass, not a second filter. Compatible: style-057 pixel art displayed on screen, and style-065 monitor housing with artifacts only on the screen. Avoid rolling noise bars and stacking Glitch Art.",
+    "productionApproach": "HyperFrames is the default pipeline; use Remotion only with a recorded fallback reason. WebGL, GLSL and Three.js render CRT postprocessing. A paused GSAP timeline owns motion, and chroma-js validates colors."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

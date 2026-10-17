@@ -56,7 +56,7 @@ describe("preview source publication", () => {
       await publishStylePreviewSource(workspace, "style-001", sources);
       expect(await readdir(path.join(sources, "style-001"))).not.toContain("stale.js");
       await expect(publishStylePreviewSource(workspace, "../escape", sources)).rejects.toThrow(
-        "Invalid style ID",
+        "Invalid Motion Graphic ID",
       );
     } finally {
       await rm(root, { recursive: true, force: true });

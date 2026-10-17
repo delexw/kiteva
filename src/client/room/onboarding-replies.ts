@@ -53,7 +53,7 @@ export function roomSettingsReply(request: CreativeRequest, styles: ReplyStyle[]
       : [`Preview viewport: ${request.viewport === "mobile" ? "Mobile" : "Desktop"}`]),
     `Creative approach: ${request.preference === "creative" ? "Explore creative ideas" : "Follow my brief"}`,
     styleNames.length
-      ? `Selected styles: ${styleNames.join(", ")}\nPreview directions: Skipped — build selected styles directly`
+      ? `Selected Motion Graphics: ${styleNames.join(", ")}\nPreview directions: Skipped — build selected Motion Graphics directly`
       : `Preview directions: ${request.candidateCount || 5}\nStyles: Select from preview directions`,
   ].join("\n");
 }

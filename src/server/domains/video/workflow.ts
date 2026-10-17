@@ -131,7 +131,7 @@ export async function generateVideo(input: {
   } else if (decisions) {
     emit("state", "Applying your decision…");
     await buildTurn(
-      `The user answered a question about this existing ${job.kind === "preview" ? "preview" : "full video"}. Continue this session and apply only the decision below to the current composition. Inspect any newly supplied files listed in style-context.json assetInputs before using them. Keep the selected styles, ${job.duration}s duration, dimensions, ${fps} fps and every unaffected scene unchanged. Read STORYBOARD.json completely and return the updated production manifest and complete storyboard.\n\n${decisions}`,
+      `The user answered a question about this existing ${job.kind === "preview" ? "preview" : "full video"}. Continue this session and apply only the decision below to the current composition. Inspect any newly supplied files listed in style-context.json assetInputs before using them. Keep the selected Motion Graphics, ${job.duration}s duration, dimensions, ${fps} fps and every unaffected scene unchanged. Read STORYBOARD.json completely and return the updated production manifest and complete storyboard.\n\n${decisions}`,
     );
     update();
   }

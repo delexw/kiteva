@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-053",
+    "name": "Woodcut / Linocut",
+    "visualIdentity": "Carved-print look: directional cut marks, bold positive-negative shapes, form-following hatching. Woodcuts may show grain; linocuts favor clean carved masses. Supplemental, not a named source style.",
+    "suitableUses": "Explicit: single striking images, or hybrids for multi-scene narratives and declarative type. Inferred: heritage, folk, documentary or campaign topics suited to bold carved weight, in video or interactive HTML.",
+    "limitations": "Keep carving marks visible, never uniform noise. Avoid soft washes, gradients and fake grain over text. Carved lettering only at display sizes, with no deforming glyphs or per-letter springs. Stay monochrome.",
+    "palette": "Suggested only: #262820 ink on #F2E6CA paper, with scene_dependent background policy, so the cream is illustrative and the ground should follow the scene. Keep one ink, no gradients, tone via hatching or opacity. Contrast 12.047. Task-provided exact colors override.",
+    "motionAndInteraction": "Smooth authored movement where it helps; keep sharp cuts, impacts, constant-speed sections and reading holds; no automatic springs or bounce. Print regions reveal in sequence. Optional motion-012 and motion-015 map scroll progress to time; choose none if they do not fit.",
+    "audio": "Unspecified; no mandatory layer. Options: restrained music, sound accents at carving or reveal moments, ambience, or silence for reading holds. Honor user choices; do not invent assets or default to instrumental music. Silence is valid.",
+    "assetRequirements": "No uploads required; inputs are optional. Load local fonts and assets before rendering; use a real font for small text. Python/Pillow may prepare textures. Subject, copy, duration, aspect ratio, resolution and frame rate are unspecified.",
+    "combinations": "style-030 (narrative character staging): one ink, consistent carvings, no warm storybook palette or soft washes. style-093 (headline sequencing): monochrome only, no red accent, words in reading order. Hybrids keep carving marks.",
+    "productionApproach": "SVG draws carved paths, masks and textures; Python/Pillow preprocess assets; Motion or GSAP owns movement, one owner per property. HyperFrames is the default for timing, audio and export; Remotion is fallback only when its condition is met and recorded."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

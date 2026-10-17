@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-101",
+    "name": "2.5D Parallax Animation",
+    "visualIdentity": "Flat artwork is split into foreground, midground and background layers with plausible occlusion. Restrained relative layer motion reveals extra artwork beyond the crop. This is layered parallax, not 3D modeling.",
+    "suitableUses": "Source-named fits: narrative explainers and children's stories (storybook plates) and historical documentaries (period photo cutouts). Inferred fit: illustrated explainers built from layered artwork, for video or interactive HTML.",
+    "limitations": "Avoid reversed depth motion, exposed edges and excessive separation. The source review covered sampled seconds 1–8 only, with no audio or continuous motion verified. Strict isometric scenes need translation-only offsets, not camera tilt.",
+    "palette": "Background is scene-dependent, chosen from subject and mood. Example tokens #EFE7D6, #34473F and #8A9C85 are unapproved suggestions; no exact colors are specified. Use one dark, low-value hue family per scene with a stable light anchor. Foreground/background contrast is 8.056:1; accent_1 at 3.386:1 is decorative only.",
+    "motionAndInteraction": "Video uses a timed storyboard with a shared camera transform plus per-layer offsets evaluated from composition time. Optional references: motion-009 (depth-dependent response, pointer input only for interactive delivery), motion-012 (one progress-linked chapter handoff) and motion-015 (narrative step states). Verify direct, backward and forward seeks.",
+    "audio": "The source does not specify audio. Options include music, voiceover, sung vocals, effects, ambience or silence, chosen per topic and audience; no genre or layer is mandatory. Honor explicit user audio, state assumptions, and keep speech intelligible.",
+    "assetRequirements": "Layered PNG or SVG with alpha, consistent dimensions, clear naming and a layer manifest, or numbered frames, with overscan beyond the crop. Creature assets are optional for motion-009's hop. Period photos are needed only if supplied; they must never be invented.",
+    "combinations": "style-030 storybook plates suit a slow camera push. style-044 period photo cutouts suit modest drift. Conflict: style-044 says to tint photos to primary tokens, but palette rules keep source photos unchanged, so tokens apply only to new elements.",
+    "productionApproach": "HyperFrames is the primary pipeline for composition, clip timing, window.__timelines registration, checks, snapshots and delivery rendering. Remotion is a fallback only for a recorded, verified limitation. PixiJS or DOM/SVG renders artwork with explicit repaint on seek; GSAP owns motion; Three.js is only for true 3D; chroma-js validates colors."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

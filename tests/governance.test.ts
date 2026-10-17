@@ -66,7 +66,7 @@ it("differences cumulative Claude per-model snapshots across functions and conti
   });
   const result = projectGovernance(run, [
     event(1, "usage", usage("one", "Brief preparation", 10, 0.1)),
-    event(2, "usage", usage("two", "Style combinations", 15, 0.15)),
+    event(2, "usage", usage("two", "Motion Graphic combinations", 15, 0.15)),
   ]);
   expect(result.activity[0]).toMatchObject({ inputTokens: 130, outputTokens: 10, costLow: 0.1 });
   expect(result.activity[1].inputTokens).toBe(5);
@@ -127,7 +127,10 @@ it("does not attribute additional SDK models to the primary model's generation t
 });
 it("records cache hits with no new model call or token spend", () => {
   const result = projectGovernance(run, [
-    event(1, "summary_cache", { model: "gpt-6-luna", purpose: "Style information extraction" }),
+    event(1, "summary_cache", {
+      model: "gpt-6-luna",
+      purpose: "Motion Graphic information extraction",
+    }),
   ]);
   expect(result.activity[0]).toMatchObject({
     calls: 0,
@@ -266,7 +269,7 @@ it("separates correction types and repair tiers using recorded metadata", () => 
   );
   const activity = projectGovernance(run, events).activity;
   expect(activity).toHaveLength(10);
-  for (const label of ["Layout", "Contrast", "Technical", "Pacing", "Style"]) {
+  for (const label of ["Layout", "Contrast", "Technical", "Pacing", "Motion Graphic"]) {
     expect(activity).toContainEqual(
       expect.objectContaining({
         purpose: `${label} correction · initial lower-cost repair`,

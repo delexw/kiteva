@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-083",
+    "name": "Stop-Motion Animation (supplemental design reference, not a directly named source-collection style). Authentic output requires photographed frames.",
+    "visualIdentity": "Physical-looking objects with stable materials, consistent light, contact shadows and believable space. Held frames and incremental poses convey weight. Keep controlled craft without accidental defects. Distinguish photographed stop motion from digital simulation.",
+    "suitableUses": "Inferred from supplied combination guidance: craft brand films, product launches, and process or educational pieces built from photographed sequences. Pure craft pieces can stand alone; text layers can be added as a hybrid.",
+    "limitations": "No listed renderer exists, and authentic output needs photographed frames, which are not supplied. Code simulation must be labelled as simulated and is not validated physics. Source review covered only sampled seconds 1–8, not continuous motion or audio.",
+    "palette": "Background policy is scene_dependent, chosen from subject, environment and mood. #ECE4D4, #3C443C and #917F67 are optional reference examples, not approved exact colors. Foreground/background contrast is 7.972; accent/background is 3.057 and is decorative only. Gradients are disabled. Keep matte physical material values, with object colors contrasting the backdrop in hue and value.",
+    "motionAndInteraction": "Drive all state from composition time using held exposures and planned trajectories; delivery frame rate may exceed exposure rate. Avoid automatic springs, bounce or extra in-betweens. Optional references (parallax, chapter handoff, phrase scatter, punctuation zoom, 360° orbit) apply only when actual assets support them.",
+    "audio": "Unspecified in the source; no fixed genre, tempo or layer is mandated. Suggest a soft mood and texture suited to the topic, with silence valid. Leave space for narration and reading holds. Any soundtrack must be real audio, and music sync requires measured beat data.",
+    "assetRequirements": "Required for authentic output: numbered photographed frames or alpha-channel layers with consistent dimensions, clear names and a layer manifest. None are supplied. Fonts and assets must load before composition. Motion references need matching assets. Exact copy is unspecified.",
+    "combinations": "style-093: kinetic type steps on the photographed exposure cadence and never covers contact shadows or key objects. style-024: handwritten callouts appear only during holds, using #3C443C ink with #917F67 as the sole accent. Avoid new accent hues and spring presets on letters.",
+    "productionApproach": "HyperFrames owns composition, timing and export; Remotion is a fallback only when HyperFrames is unavailable or a verified limitation exists. Photography, or a labelled Blender simulation, owns visuals. A single-owner motion engine, such as GSAP on a paused timeline, owns motion. Python with Pillow prepares frames; FFmpeg encodes at delivery rate."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

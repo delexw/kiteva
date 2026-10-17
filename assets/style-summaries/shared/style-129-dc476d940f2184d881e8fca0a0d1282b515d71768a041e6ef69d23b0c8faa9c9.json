@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-129",
+    "name": "Egyptian Register Painting: an extracted Illustration and Art Media style, sampled from Fable gallery frames on 2026-10-13.",
+    "visualIdentity": "Flat profile heads and legs with frontal shoulders, symbolic scale, and orderly horizontal registers on a pale papyrus or plaster field. Bounded mineral fills sit within fine dark contours. No specific historical reference is supplied.",
+    "suitableUses": "Suited to video procession scenes with figures arranged on horizontal registers. Interactive HTML use is unspecified; accessible captions and reduced motion are only suggested, so that suitability is inferred.",
+    "limitations": "Inscription columns stay empty unless verified text is supplied. Perspective, shadows, 3D and Rough.js are rejected. Source review covers one frame per second from 1–8 seconds only, so motion and audio are unverified.",
+    "palette": "No approved palette is supplied. The background is scene-dependent; the #EEE3BB papyrus field is only an example. Fallback tokens are foreground #3B2D23 and pigments ochre #B9793C, red #A84532, blue #426C88 and green #738261. Gradients are disabled, and hex values are not measured from source.",
+    "motionAndInteraction": "Seekable timeline: contours draw 0–0.8s, fills clip-wipe after each contour 0.6–1.4s, then x-only baseline steps with small pivot gestures 1.2–2.6s, then a hold. No perspective or shadow. Pointer or interactive behavior is unspecified.",
+    "audio": "No audio is supplied or required. Music, narration and sound effects are optional suggestions, and no historical soundtrack should be assumed. Silence is valid, and silent previews need no soundtrack.",
+    "assetRequirements": "No assets are mandatory. Optional inputs are approved layered figures, Krita-drawn gesture frames (runtime unverified), and a live-action gait reference used only for timing. Hieroglyph inscriptions need verified supply before they are revealed.",
+    "combinations": "style-125 is the only suggested supporting style, for minor detail only, while keeping this medium's picture plane and approved colors. Avoid generic effects that replace its mark-making and invented historical text. The motion reference list is empty.",
+    "productionApproach": "SVG and HTML/CSS render figures, registers and captions. GSAP with DrawSVGPlugin owns motion on one paused timeline. chroma.js checks caption contrast against the composited background. HyperFrames handles composition and export; Remotion is a fallback only with a recorded reason. Tool notes naming Swiss Style or Art Nouveau do not apply here."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

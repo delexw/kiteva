@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-019",
+    "name": "Editorial Design (style-019; Graphic Design and Design Movements; explicit provenance). Wider suitability beyond the source's stated scope is inferred.",
+    "visualIdentity": "Explicit: magazine or book reading logic on a consistent grid, with purposeful serif-sans pairing, short copy, images and annotations. Information reveals in reading order; transitions use cropping and grouped movement, not whole-page slides.",
+    "suitableUses": "Explicit: article-like narratives with images and pull quotes. Inferred: feature stories, explainers and product introductions. Use style-024 for case studies or style-097 for data reports.",
+    "limitations": "Avoid dashboard-style chart walls, handwritten body copy and unsourced numbers. Adapt or omit when an overlap hides copy or provenance. Source review covered only sampled seconds 1–8; no continuous motion or audio was verified.",
+    "palette": "Background is scene-dependent: choose the page tone from the subject, not a default cream. Suggested #FAF5EA, #252A30 and #A84235 are examples, not approved colors; none were supplied. One dark ink carries type, rules and charts; the accent marks only semantic emphasis. Ink on paper measures 13.297:1 and accent on paper 5.525:1 as two-color checks; recheck composited frames. No gradients are enabled.",
+    "motionAndInteraction": "Reveals follow reading order through cropping, grouped movement and layout reflow. Optional references: 007 pinned hero, 008 card stacking, 012 chapter handoff, 013 swipe track, 015 narrative steps, 018 curved gallery (only with real images and captions), 037 phrase scatter and 038 punctuation zoom (only with a scene mark). Choosing none is valid. Video uses composition-time keyframes; scroll and swipe are interactive-only.",
+    "audio": "Unspecified by the brief. Suggest restrained narration, ambience or silence to leave room for reading holds; any music stays subordinate to speech. Sparse sound accents are optional. Do not invent beat timing without measured audio.",
+    "assetRequirements": "No uploads are mandatory. Use supplied or clearly labeled authored images; never assume photographs. Measure real fonts before fixing the grid. Mark-based motion needs a glyph present in the scene. Charts need sourced data, a caption and a source line. Do not invent copy or metrics.",
+    "combinations": "Stands alone for article-like narratives. Style-024 adds margin notes in #A84235, drawn after their referenced content, at most two per spread. Style-097 adds grid-aligned charts with #252A30 data and the accent only on the highlighted series.",
+    "productionApproach": "HyperFrames is primary: data-composition-id, clip timing, one paused GSAP timeline in window.__timelines, then check, snapshot and render. Use Remotion only if HyperFrames is unavailable or a verified limitation exists, and record the reason. HTML/CSS and SVG render visuals; GSAP owns motion; Motion is optional and must sync. chroma-js validates colors. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -33,7 +33,7 @@ export function validateStyleSelection(
     context.addIssue({
       code: "custom",
       path: ["candidateCount"],
-      message: "Select styles for zero directions, or request 1–5 generated directions.",
+      message: "Select Motion Graphics for zero directions, or request 1–5 generated directions.",
     });
   if (
     new Set(ids).size !== ids.length ||
@@ -42,6 +42,6 @@ export function validateStyleSelection(
     context.addIssue({
       code: "custom",
       path: ["selectedStyleIds"],
-      message: "Choose distinct styles within the duration limit.",
+      message: "Choose distinct Motion Graphics within the duration limit.",
     });
 }

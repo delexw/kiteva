@@ -5,7 +5,7 @@ export function reviewedStyleProductionSchema(style: Style) {
   const renderers = style.tech.style_renderer.recommended_stack_refs;
   const motion = style.tech.motion_engine.recommended_stack_refs;
   if (!renderers.length || !motion.length)
-    throw Error("Reviewed style needs rendering and motion owners");
+    throw Error("Reviewed Motion Graphic needs rendering and motion owners");
   return ProductionSchema.omit({ displayTitle: true, displayDescription: true }).extend({
     pipeline: z.literal("HyperFrames"),
     sourceFile: z.literal("index.html"),

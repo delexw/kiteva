@@ -21,7 +21,7 @@ it("keeps selected style previews visible below the picker without exposing styl
       onChange={() => {}}
     />,
   );
-  expect(html).toContain('aria-label="Selected style previews"');
+  expect(html).toContain('aria-label="Selected Motion Graphic previews"');
   expect(html).toContain('src="/api/examples/style-002"');
   expect(html).toContain("Ink Wash");
   expect(html).not.toContain('src="/api/examples/style-001"');
@@ -31,7 +31,7 @@ it("does not show a selected preview gallery before choosing styles", () => {
   const html = renderToStaticMarkup(
     <StylePicker styles={styles} examples={[]} selectedIds={[]} limit={2} onChange={() => {}} />,
   );
-  expect(html).not.toContain('aria-label="Selected style previews"');
+  expect(html).not.toContain('aria-label="Selected Motion Graphic previews"');
   expect(html).toContain("lucide-layers");
   expect(html).toContain('aria-hidden="true"');
 });

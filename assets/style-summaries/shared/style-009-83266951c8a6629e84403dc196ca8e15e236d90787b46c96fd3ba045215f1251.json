@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-009",
+    "name": "Mid-Century Modern: a supplemental graphic-design reference, not a directly named source-collection style. Category: Graphic Design and Design Movements.",
+    "visualIdentity": "Simplified figures, organic contours and geometric color fields form a relaxed but ordered composition. The palette is limited to mustard, brick red, teal and cream, with optional print grain. Poses stay readable; neon and glossy plastic finishes are excluded.",
+    "suitableUses": "Explicitly suited to illustrations and posters. Inferred fits: illustrated explainers, retro ads, title sequences and layered travel or architecture intros. Moving characters or depth may need a hybrid style.",
+    "limitations": "Style cues do not set audio, timing or photographic treatment. Gaze tracking needs suitable eye layers or a rig and is illustrated character motion, not viewer tracking. The source frame review lists no sources and found no verified palette match. Fonts and grain strength are unspecified.",
+    "palette": "Status: a style-compatible suggestion for new artwork only when no approved palette is supplied. Background is scene-dependent; cream #F3E9D5 is illustrative, not required. Tokens: foreground #332C26; accents #C49A35, #A64E3D and #357B78; no gradients. Foreground on background measures 11.398:1. Accent_3 text fails 4.5:1, so it is decorative only. Task-provided colors override all tokens.",
+    "motionAndInteraction": "Optional, scene-screened references: motion-006 bounded gaze following with optional delayed brows and blinks, motion-012 progress-driven chapter handoff, and motion-015 story-step orchestration. Video uses composition time only, with no live loops. HTML may use pointer or scroll input and needs reduced-motion fallbacks. Sharp cuts and reading holds are preserved.",
+    "audio": "Unspecified by the style: no genre, tempo, voice or mandatory audio layer is assigned. Propose audio from the topic and audience, honoring explicit user choices. Silence or restrained accents are valid. Do not invent audio assets; any soundtrack must be real, authorized and measured.",
+    "assetRequirements": "No uploads are mandatory, and none are listed. Needed: in-project simplified figures, organic shapes and color fields. Eye layers or a rig are needed only for gaze motion. Seeded print grain is optional. Local fonts are unspecified. Photographic cutouts are not part of this style.",
+    "combinations": "Style-084 cutout animation adds hinged limbs and pose swaps; video uses a 12 fps art cadence, and HTML uses pivot reactions that pause under reduced motion. Style-101 2.5D parallax adds flat layers with restrained speeds and no blur; HTML parallax is disabled on reduced motion and small screens. Mid-Century alone suits illustrations and posters.",
+    "productionApproach": "SVG or Canvas 2D draws the visuals, with GSAP as the default motion engine and Motion as optional. chroma-js can validate colors and contrast. HyperFrames is the default pipeline for assembly, checks and export. Remotion is a fallback only when its condition is met and the reason is recorded. Canvas or WebGL must repaint explicitly on seek."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

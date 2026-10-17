@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-133",
+    "name": "Impressionist Painting (Illustration and Art Media, extracted from Fable gallery frames, 2026-10-13).",
+    "visualIdentity": "Broken, visible brush marks, atmospheric outdoor light and adjacent color touches describe a fleeting scene. Light, reflected color and soft edges stay coherent, unlike the forceful directional structure of Post-Impressionism. The medium label is an authored classification, not a verified production technique.",
+    "suitableUses": "Explicit: fleeting outdoor scenes, shown by a river landscape preview with one small subject. Inferred: calm atmospheric nature pieces where soft light matters more than structure. Full video depends on layered assets or verified tooling. Audience, duration and text density are unspecified.",
+    "limitations": "Blur, swirl and whole-image boil filters are forbidden, and gradients are disabled. The procedural result is an approximation of the manner and must be disclosed as such. Review sampled only single frames at seconds 1–8, so sub-second timing and runtime availability are unverified.",
+    "palette": "Fallback tokens: background #F0E9D7 (illustrative, scene-dependent, not a required canvas), foreground #364747, sky #9EBCC8, foliage #829C79, sunlight #D8BF7A, rose #C59D9D. No approved task or reference colors were supplied. Caption contrast must reach 4.5:1 on the composited textured field.",
+    "motionAndInteraction": "Preview: 0–1.0s regional paint-on by per-dab threshold against GSAP progress; 1.0–3.0s reflection shimmer and slight grass sway, then hold. Shimmer is a pure function of time with bounded jitter. No interaction is specified, and motion beyond 3 seconds is unspecified.",
+    "audio": "Unspecified. No audio is supplied or implied, and music, voice, ambience or silence are each optional per task. Any requested soundtrack or voice must be made with available local tools, or reported as a capability gap with a silent fallback and stated assumptions.",
+    "assetRequirements": "No uploads are required, because the preview is procedural. Full video may use approved or newly painted layered assets, such as Krita layers (runtime unverified), animated with local motion only. No motion reference candidates are supplied, and none is required.",
+    "combinations": "Optional supporting style-036 for one secondary detail, with its role unspecified. Keep Impressionist Painting dominant, and avoid generic effects replacing mark-making or invented historical text. Video shares seekable timing; HTML keeps accessible captions and reduced motion.",
+    "productionApproach": "Canvas 2D renders the dabs, with static layers rasterized once offscreen; only the reflection and one subject are redrawn. GSAP drives a single time proxy. HyperFrames is the default for composition and export, with Remotion only as a recorded fallback. chroma.js is optional. Some metadata names other styles for Canvas and GSAP, so verify before reuse."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-110",
+    "name": "3D Motion Graphics (Digital and 3D Aesthetics, supplemental provenance).",
+    "visualIdentity": "Genuine 3D geometry in a chosen mode: photorealistic, cartoon or stylized. Needs coherent bevels, roughness, reflections, contact shadows and a clear key light. Framing is deliberately perspective or orthographic.",
+    "suitableUses": "Explicit: product launch films, brand stings, hero renders and hardware breakdowns. Inferred from catalog: complete-hero 360° orbits (motion-043), real-depth dollies (motion-019) and exploded reveals of separable parts (motion-017).",
+    "limitations": "Orbits and dollies need finished geometry or real depth; flat art cannot support them. Perspective orbits clash with strict isometric, flat poster or print typography. Keep text out of 3D. XPBD adds no fluid or tearing behavior.",
+    "palette": "Background is scene-dependent, chosen from subject, lighting and mood; #EDE9E1 is illustrative only. Example tokens #303C40, #748E8A and #B9866C are unapproved. Foreground on background is 9.395:1; accent pairs (3.2–3.6:1) are decorative only. Exact task colors override.",
+    "motionAndInteraction": "Weighted rotation, assembly and camera moves without intersections or floating parts. The 360° orbit keeps the hero fixed, circles at fixed radius, holds opening and ending views, and returns to the start pose. Scroll and pointer are interactive-only.",
+    "audio": "Unspecified by the style; no audio is mandated. Silence is valid; orbits may take soft ambience or one restrained accent at settle, not a sound per turn. Do not claim beat sync without measured analysis. Narration must stay clear.",
+    "assetRequirements": "Complete modeled geometry, an authored scene, or a captured turntable with enough views and finished rear surfaces. Use only authorized assets; an exporter string does not prove license. Normal and roughness maps are non-color data.",
+    "combinations": "Style-093 kinetic titles over Cycles shots, sharing camera easing and kept out of geometry. Style-109 leader lines attached to exported 3D anchors, drawn only at rest. Avoid callouts covering the model.",
+    "productionApproach": "Blender with bpy and Cycles renders models, materials, lights and frames; Three.js handles browser 3D. GSAP or a pure time function owns motion. HyperFrames is the default pipeline; Remotion is fallback only with a recorded reason."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

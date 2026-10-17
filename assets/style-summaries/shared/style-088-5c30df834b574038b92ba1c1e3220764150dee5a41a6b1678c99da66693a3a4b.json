@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-088",
+    "name": "Object Animation: a supplemental Animation Techniques reference, not a directly named style in the source collection.",
+    "visualIdentity": "Everyday objects carry the subject while keeping their real material, scale and contact shadows. Behavior comes from incremental movement, rotation, arrangement and replacement. Avoid moving everything together without clear relationships between objects.",
+    "suitableUses": "Explicitly suited to product promos, social loops and finance, sustainability or consumption explainers using supplied data. Playful standalone product moments fit alone; data-led or music-led pieces suit hybrids. Other uses are unspecified.",
+    "limitations": "Requires photographed incremental poses under fixed lighting and camera, or a clearly labeled digital simulation that must not be presented as photography. A simulated look does not prove physical production or validated physics. No style renderer is listed.",
+    "palette": "Background policy is scene_dependent: the swatches #F1E9DD background, #3B423E foreground and #8D8977 accent are illustrative, not required canvas colors. Foreground on background measures 8.571:1; accent on foreground measures 2.937:1 and is decorative only. Gradients are disabled. Task-provided exact colors override these, and real object colors are never recolored.",
+    "motionAndInteraction": "Plan held pose exposure; delivery frame rate may be higher, with no automatic in-betweens. Optional references 037, 038 and 043 list this style as compatible but need actual objects, actual punctuation or a captured camera circuit. Reference 021 needs real 3D depth, while 012 and 015 are chapter or story patterns not listed for this style. Choose none when unsupported. Interactive HTML may switch photographed stills with buttons or scrub seekable playback with pause and mute.",
+    "audio": "Audio is not fixed by the style; music, voiceover, sung vocals, sound effects, ambience or silence are optional and chosen by topic. Honor any user audio choices. Beat-synchronized moves require measured beat timing, and no audio in the reviewed sources was verified.",
+    "assetRequirements": "Needs photographed incremental poses or labeled simulation frames with alpha channels, consistent dimensions and clear naming; a layer manifest helps. Pillow handles crop and resize. Orbit circuits need a stated view count and must not interpolate unseen angles. Subject, copy and duration are unspecified.",
+    "combinations": "style-097 suits data meaning: one object equals one stated unit, labels use tokens, and no values are invented. style-105 suits music timing: moves land on verified beats, holds mark section changes, and lighting stays steady. Avoid every object moving on every beat.",
+    "productionApproach": "HyperFrames is the default for scene assembly, seekable timing, audio sync, validation and export; Remotion is a fallback only for a recorded HyperFrames limitation. Python and Pillow prepare frames, FFmpeg encodes, and GSAP may drive a paused timeline. No style renderer or motion engine is listed, so one owner per animated property must be chosen."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -134,7 +134,7 @@ export const codexAgent: Agent = {
             !(caveman && e.item.server === "caveman" && e.item.tool === "caveman_retrieve")))
       )
         throw Error(
-          "Style extraction requires a text-only model response; tool activity was rejected",
+          "Motion Graphic extraction requires a text-only model response; tool activity was rejected",
         );
       const mapped = codexEvent(e);
       if (mapped) onEvent({ ...mapped, message: safeMessage(mapped.message) });

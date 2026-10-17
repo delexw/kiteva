@@ -16,10 +16,10 @@ export function SuggestedCombinations({
   const combinations = style.suggested_combinations;
   if (!combinations) return null;
   return (
-    <section className="suggested-combinations" aria-label="Suggested style combinations">
+    <section className="suggested-combinations" aria-label="Suggested Motion Graphic combinations">
       <h3>Suggested combinations</h3>
       <p>{combinations.selection_guidance}</p>
-      {!combinations.suggestions.length && <p>This style works best on its own.</p>}
+      {!combinations.suggestions.length && <p>This Motion Graphic works best on its own.</p>}
       {combinations.suggestions.map((suggestion) => {
         const supportingStyles = suggestion.supporting_styles.flatMap((supporting) => {
           const match = styles.find((item) => item.id === supporting.style_id);
@@ -33,13 +33,13 @@ export function SuggestedCombinations({
             title={title}
           >
             <p className="example-disclaimer">
-              Individual style previews · shown together for comparison
+              Individual Motion Graphic previews · shown together for comparison
             </p>
             <div className="combination-preview-grid">
               {[style, ...supportingStyles].map((previewStyle, index) => (
                 <div key={previewStyle.id}>
                   <p className="combination-preview-role">
-                    {index === 0 ? "Primary style" : "Supporting style"}
+                    {index === 0 ? "Primary Motion Graphic" : "Supporting Motion Graphic"}
                   </p>
                   <StyleCard
                     style={previewStyle}

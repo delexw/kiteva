@@ -11,7 +11,7 @@ export async function publishStylePreviewSource(
   styleId: string,
   sourceRoot = stylePreviewSourceFolder,
 ) {
-  if (!/^style-\d{3}$/.test(styleId)) throw Error("Invalid style ID");
+  if (!/^style-\d{3}$/.test(styleId)) throw Error("Invalid Motion Graphic ID");
   await mkdir(sourceRoot, { recursive: true });
   const temporary = await mkdtemp(path.join(sourceRoot, ".publish-"));
   const excluded = new Set([

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-004",
+    "name": "Suprematism (supplemental reference, not a named style in the source collection).",
+    "visualIdentity": "Abstract flat squares, circles, crosses and bars on an open field. Relative size, angle, balance and negative space carry the meaning. Black, white and restrained primary colors; no textures or illustrative detail.",
+    "suitableUses": "Explicit: exhibition titles, gallery openers, minimal artistic statements, editorial minimal layouts, motion posters. Inferred: abstract, non-literal messages where a slow, sparse arrangement is the point.",
+    "limitations": "Explicit: at most five words; no paragraphs, dense type, fast kinetic sequences, textures or bounce. Motion patterns are dropped if they obscure the subject, break reading order or violate a required continuous shot.",
+    "palette": "Suggestion only: white swatch (scene-dependent, not required), black, red #C92B2B, yellow #E8BE30, blue #2453A0. Use flat discrete fills, no gradients. Task or approved colors override. Contrast checks are two-color only.",
+    "motionAndInteraction": "Slow drift, rotation and proportion shifts; no bounce. Optional references: motion-007 pinned recomposition, motion-012 chaptered handoff, motion-015 narrative steps; choosing none is valid. Video uses composition time; interactive uses scroll with static reduced-motion states.",
+    "audio": "Unspecified; no audio layer is fixed. Source suggests music, voiceover, effects, ambience or silence chosen from topic and motion. Inferred fit: restrained beds or silence that leave room for speech. Task audio requirements override.",
+    "assetRequirements": "No uploads required; forms are flat SVG shapes. Preload local fonts if text appears. Optional exported tldraw or SVG artwork. The referenced motion-pattern catalog contents are not supplied; unspecified.",
+    "combinations": "Explicit: style-093 kinetic typography, with one or two sparse title words treated as weighted bars in black or one primary token and slow drift only. Usually strongest alone; avoid paragraphs and dense type.",
+    "productionApproach": "Renderer: flat SVG (Canvas 2D alternative). Motion: GSAP paused timeline; Motion optional if synchronized. Pipeline: HyperFrames default; Remotion only if HyperFrames is unavailable or a verified limit exists. chroma-js optional for contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

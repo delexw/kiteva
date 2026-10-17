@@ -104,13 +104,15 @@ it.each([
           await readFile(path.join(options.workspace, "input.json"), "utf8"),
         );
         expect(options.prompt).toContain("Return subject as a short idea title of 4–10 words");
-        expect(options.prompt).toContain("Keep previewBeat and any proposed scenes style-neutral");
-        expect(options.prompt).toContain("Do not suggest styles anywhere in the brief.");
+        expect(options.prompt).toContain(
+          "Keep previewBeat and any proposed scenes Motion Graphic-neutral",
+        );
+        expect(options.prompt).toContain("Do not suggest Motion Graphics anywhere in the brief.");
         expect(options.prompt).toContain(
           "Preserve visual choices explicitly requested by the user",
         );
         expect(options.prompt).toContain(
-          "Defer all other visual treatment to the subsequent style-selection stage",
+          "Defer all other visual treatment to the subsequent Motion Graphic selection stage",
         );
         expect(options.referenceUrls).toEqual(["http://127.0.0.1:4317/"]);
         expect(input.sourceDescriptions.join(" ")).toContain("Use reference_browser tools");
@@ -184,7 +186,7 @@ it.each([
         expect(input).toEqual(summaries);
         expect(input).toHaveLength(catalog.styles.length);
         expect(options.prompt).toContain(
-          `Read all ${catalog.styles.length} cached style summaries`,
+          `Read all ${catalog.styles.length} cached Motion Graphic summaries`,
         );
         expect(options.prompt).toContain("Propose 20 distinct candidate options");
         expect(options.prompt).toContain("not an allowlist");
@@ -284,11 +286,13 @@ it.each([
       if (outputType === "video") {
         const proposalCall = vi.mocked(agentTurn).mock.calls[2][0];
         expect(proposalCall.prompt).toContain(
-          duration === 300 ? "2–6 total distinct styles" : "1–5 total distinct styles",
+          duration === 300
+            ? "2–6 total distinct Motion Graphics"
+            : "1–5 total distinct Motion Graphics",
         );
         expect(proposalCall.prompt).toContain("full video duration, not the 3-second preview");
       }
-      for (const purpose of ["Brief preparation", "Style combination proposals"]) {
+      for (const purpose of ["Brief preparation", "Motion Graphic combination proposals"]) {
         expect(store.events(run.id)).toContainEqual(
           expect.objectContaining({
             type: "invocation",

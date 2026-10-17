@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-082",
+    "name": "Hand-Drawn Stop-Motion Style, a simulated digital treatment, not photographed stop-motion.",
+    "visualIdentity": "Explicit style of drawn paper assets with clear lines and limited colours, replaced or repositioned between held frames. Preserve anticipation, weight and settling. Keep small drawing variations fixed and reproducible.",
+    "suitableUses": "Metadata suggests short loops, craft tutorials, recipe explainers, personal brand stories, lyric-free music videos and social loops. These are suggested fits, not verified requirements.",
+    "limitations": "Must be labelled a simulation, never physical stop-motion photography. Avoid long hand-lettered copy, smooth tweened text over stepped drawings, random per-render jitter and uniform beat flashing. Rough.js cannot supply handwriting, paper texture or character poses.",
+    "palette": "Background is scene-dependent; #F7EEDD is an illustrative swatch, not required. No exact approved colours were supplied, so the four hex tokens are suggestions. Keep one dark linework ink, one or two sparing accents and matte paper. #344344 on #F7EEDD reaches 8.969:1. Accent pairs fail 4.5:1 for body text and are decorative only.",
+    "motionAndInteraction": "Video is driven by absolute composition time with discrete held exposures; delivery frame rate may exceed exposure rate. Interactive HTML may use taps or scroll only as delivery input, with reduced motion showing the final state. Optional motion references need matching assets; choose none if unsupported. Radial burst confetti stays local to the icon and never launches upward.",
+    "audio": "No audio is specified or supplied, so silence is valid. Any music or voice should suit the topic and leave room for reading holds. No measured beat or speech timing exists, so do not sync to audio that has not been inspected.",
+    "assetRequirements": "Prepare drawn paper layers or numbered frames with transparency, consistent size and clear names, inspected before composition. Exact copy, subject and brand marks are unspecified and must not be invented. Load local fonts and assets first.",
+    "combinations": "style-024 adds hand-lettered labels in the same ink, stepped on drawing exposures. style-105 schedules replacement holds on a verified beat table, with a reading pause after text changes. Otherwise use style-082 alone for short loops.",
+    "productionApproach": "HyperFrames is the primary pipeline: a paused GSAP timeline registered in window.__timelines, then check, snapshot and render. Remotion is a fallback only with a recorded reason. Canvas 2D renders the drawn assets and GSAP drives motion. Duration, aspect ratio, resolution and frame rate are unspecified."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-077",
+    "name": "Isometric Illustration: a supplemental projection-based reference, not a named source-collection style.",
+    "visualIdentity": "Consistent isometric axes with clear scale, depth and occlusion, limited colors and light shadows. Objects move without perspective shrinkage, and labels stay in a readable 2D layer.",
+    "suitableUses": "Explicit: spatial overviews that explain themselves, and hybrids when relationships, flows or quantities need explanation. Inferred: infrastructure or architecture explainers. Interactive HTML can use an orthographic Three.js or SVG scene with a DOM label layer.",
+    "limitations": "Explicit: no perspective shrinkage, skewed labels, invented values, 3D-extruded charts, or text on decorative fills. Palette checks are two-color only. Source review covered one sampled frame per second for seconds 1 to 8, without motion, audio or later scenes.",
+    "palette": "Background is scene-dependent, chosen from subject and lighting. Suggested tokens #F3EFE5, #2D444D, #6E9990 and #C98961 are not approved colors, and task-supplied exact colors override them. Foreground on background measures 8.941:1; accents are decorative only. No gradient is enabled.",
+    "motionAndInteraction": "Movement follows the isometric axes with authored easing where helpful, keeping sharp cuts and reading holds. Optional motion-009, -012, -015 and -017 apply only when scene content supports them. Video uses composition time, not pointer input.",
+    "audio": "No genre, tempo or voice is fixed. Suggest audio from the topic; silence is valid, and restrained accents may mark reveals. Keep narration intelligible, and never claim audio exists unless it was produced.",
+    "assetRequirements": "No uploads are required. Local fonts and assets must load before rendering. Creature assets matter only for the optional motion-009 hop, and stateful simulations must be cached before rendering.",
+    "combinations": "style-097 adds a flat 2D data overlay; style-109 adds connectors along isometric axes, drawn after objects settle. Skip Isometric Motion Graphics as a near-duplicate. Avoid free diagonals and endlessly looping draw animations.",
+    "productionApproach": "Three.js OrthographicCamera or consistent isometric SVG geometry renders the visuals. One paused GSAP timeline owns motion; Motion is optional. HyperFrames handles composition by default, with Remotion only for a recorded fallback. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

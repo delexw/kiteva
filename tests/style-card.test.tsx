@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PaletteSwatches, StyleCard, type StyleCardData } from "../src/client/style-card";
 const style: StyleCardData = {
   id: "style-001",
-  name_en: "Example visual style",
+  name_en: "Example visual Motion Graphic",
   category: "Illustration",
   visual_cues: "Bold geometry and readable typography",
   palette: { tokens: { background: "#FFFFFF", foreground: "#000000" }, constraints: [] },
@@ -20,7 +20,8 @@ describe("shared style card variants", () => {
         />,
       );
       expect(html).not.toContain("#FFF5DA");
-      expect(html).toContain(compact ? "Flexible background" : "Background follows the scene");
+      expect(html).not.toContain("Flexible background");
+      if (!compact) expect(html).toContain("Background follows the scene");
       expect(html).toContain("#18243B");
       expect(html).toContain("#D8B54A");
     },
@@ -32,23 +33,28 @@ describe("shared style card variants", () => {
     expect(html).toContain("background #FFF5DA");
     expect(html).not.toContain("Background follows the scene");
   });
-  it("uses the scene policy on style cards and their missing-preview placeholders", () => {
-    const html = renderToStaticMarkup(
-      <StyleCard
-        style={{
-          ...style,
-          palette: {
-            ...style.palette,
-            tokens: { background: "#FFF5DA", foreground: "#18243B" },
-            background_policy: "scene_dependent",
-          },
-        }}
-        onSelect={() => {}}
-      />,
-    );
-    expect(html).not.toContain("#FFF5DA");
-    expect(html).toContain("Flexible background");
-  });
+  it.each(["explorer", "compact"] as const)(
+    "keeps scene-dependent %s cards free of background labels",
+    (variant) => {
+      const html = renderToStaticMarkup(
+        <StyleCard
+          variant={variant}
+          style={{
+            ...style,
+            palette: {
+              ...style.palette,
+              tokens: { background: "#FFF5DA", foreground: "#18243B" },
+              background_policy: "scene_dependent",
+            },
+          }}
+          onSelect={() => {}}
+        />,
+      );
+      expect(html).not.toContain("#FFF5DA");
+      expect(html).not.toContain("Flexible background");
+      expect(html).toContain("#18243B");
+    },
+  );
   it("shows every exact palette value with a visible label and rectangular swatch", () => {
     const tokens = { background: "#FFFFFF", foreground: "#000000", accent_secondary: "#3455db" };
     const html = renderToStaticMarkup(<PaletteSwatches tokens={tokens} />);

@@ -5,10 +5,10 @@ import { CodedError } from "../../shared/errors";
 export function manualDirection(request: CreativeRequest, styles: Style[]): StyleCandidate {
   const selected = (request.selectedStyleIds || []).map((id) => {
     const style = styles.find((entry) => entry.id === id);
-    if (!style) throw new CodedError("INVALID_REQUEST", "Selected style does not exist");
+    if (!style) throw new CodedError("INVALID_REQUEST", "Selected Motion Graphic does not exist");
     return style;
   });
-  if (!selected.length) throw new CodedError("INVALID_REQUEST", "Choose a style first");
+  if (!selected.length) throw new CodedError("INVALID_REQUEST", "Choose a Motion Graphic first");
   return {
     id: randomUUID(),
     primaryStyleId: selected[0].id,
@@ -17,7 +17,7 @@ export function manualDirection(request: CreativeRequest, styles: Style[]): Styl
       (style, index) =>
         `${index === 0 ? "Primary identity" : "Supporting visual contribution"}: ${style.name_en}`,
     ),
-    rationale: "Styles selected by you. No proposal or ranking call.",
+    rationale: "Motion Graphics selected by you. No proposal or ranking call.",
     displayTitle: "Your selection",
     displayDescription: selected.map((style) => style.name_en).join(" + "),
     feasible: true,

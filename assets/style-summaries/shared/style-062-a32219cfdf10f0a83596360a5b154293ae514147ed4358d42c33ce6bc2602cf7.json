@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-062",
+    "name": "Particle Art is a Digital and 3D Aesthetics style with explicit provenance in the source.",
+    "visualIdentity": "Subjects are formed from particle density, size, brightness and color against a contrasting background. Trails may show direction. Stable silhouettes hold at key moments, and glow must not erase detail.",
+    "suitableUses": "Named uses: abstract brand moments and transformations between silhouettes. Combination guidance adds openers, titles and data stories where particles represent real quantities. Long text rendered as particles is unsuitable.",
+    "limitations": "Particle forms can lose legibility, so readable text must be real type. Bloom must stay bounded and never cover labels. Avoid repeated small bursts. Simulated appearance is not validated physics.",
+    "palette": "Background policy is scene_dependent, so #111C29 is an illustrative swatch only. Suggested tokens are #EFF5EE foreground, with #65BEC2 and #CEAF79 accents; these are not approved exact colors. Gradients are disabled. Contrast is 15.521 for foreground on background and 7.936 to 8.21 for accent text pairs; recheck composited frames.",
+    "motionAndInteraction": "A shader morph moves between two sampled poses, with staggered per-particle easing and analytic drift set from composition time. Reference timing is drift 0–0.8s, flow into silhouette 0.8–2.0s, and hold 2.0–3.0s. Fireworks use analytic trajectories with fading trails. Style-level interactive behavior is unspecified.",
+    "audio": "The source specifies no audio. Music, voiceover, effects, ambience or silence may be proposed per topic, but none is required. Do not claim beat or speech timing without inspecting actual audio.",
+    "assetRequirements": "No uploads are specified. Production needs seeded fixed point samples from a pose A shape and a pose B silhouette, generated procedurally or from an approved mark. Motion references motion-037 to motion-039 need supplied phrase, punctuation or mark assets.",
+    "combinations": "Style-097 fits data: particle counts map to real units, with labels in #EFF5EE. Style-093 fits titles: particles resolve into glyphs, then real type holds for reading. Optional motion references apply only when the scene supports their action.",
+    "productionApproach": "HyperFrames is the default composition and export pipeline; Remotion is a fallback only with a recorded reason. Three.js Points, BufferGeometry, GLSL and UnrealBloomPass own visuals and bounded bloom. GSAP owns the paused timeline and uniforms. Optional chroma-js checks contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-081",
+    "name": "Traditional Cel Animation is a supplemental Animation Techniques reference, not a directly named style in the source collection. It is a historical technique, distinct from cel-shaded 3D rendering.",
+    "visualIdentity": "Explicit: fixed backgrounds, layered character drawings, consistent linework, flat fills and shadow shapes. Actions use distinct drawings with clean transparent compositing. Digital output is a simulation; do not imply photographed cels.",
+    "suitableUses": "Explicit: character-led scenes on simple backgrounds, and HTML use through a layered PixiJS scene with frame stepping and alt text. Inferred: short character narratives or explainers. Inferred: weaker fit for topics without characters.",
+    "limitations": "Digital output is simulated, not physical production. Avoid painted texture on characters, plates that outshine characters, and mixing oil with gouache. The source review sampled only seconds 1–8 at medium confidence, without verified motion, sub-second timing or audio.",
+    "palette": "Background policy is scene_dependent, chosen from setting, lighting and mood. Example tokens (#F6EDD8, #263746, #718E9D, #BE795F) are optional, not approved. Foreground on background measures 10.495:1, while accents fail body text. Use flat fills with no gradients except translucent light, and reserve the warmest accent for the focal object. Exact approved colors override these examples; recheck composited frames.",
+    "motionAndInteraction": "Animate through distinct drawings at a planned exposure rate with held states; no automatic in-betweens, springs or bounce. A paused GSAP timeline owns transforms, and PixiJS repaints explicitly on seek. Optional references motion-006, 012, 015, 037, 038 and 039 apply only where scene assets support them. Pointer and scroll input belong only to interactive delivery.",
+    "audio": "Unspecified by the style; no fixed genre, voice or audio layer is required. Options include restrained music, narration, sound accents, ambience or silence, chosen for the topic. No audio was supplied or verified, so music timing claims need inspected audio and no beat synchronization is assumed.",
+    "assetRequirements": "Layered drawn frames or prepared layers with alpha, consistent dimensions, clear naming and a layer manifest, plus fixed background plates and local fonts. Krita can draw frames and export numbered PNG sequences. Phrase, punctuation or mark geometry is needed only for motion-037, 038 and 039; eye layers or a rig are needed for motion-006.",
+    "combinations": "Explicit: gouache plates (style-039) serve only as backgrounds, must stay gouache-only, and remain subordinate to characters. Multiplane parallax (style-101) applies to background layers, with characters locked to their ground layer. Use the style alone for character-led scenes; use a hybrid for painted environments or depth.",
+    "productionApproach": "HyperFrames is the default pipeline, using data-composition-id, clip timing and one paused GSAP timeline registered in window.__timelines. Remotion is a fallback only with a recorded reason. Responsibilities: PixiJS draws layers, GSAP owns motion, and HyperFrames assembles and exports. Verify direct, backward and forward seeks and decoded frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

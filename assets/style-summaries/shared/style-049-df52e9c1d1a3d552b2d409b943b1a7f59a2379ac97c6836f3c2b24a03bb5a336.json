@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-049",
+    "name": "Risograph Printing (Printmaking and Craft Materials; explicit provenance).",
+    "visualIdentity": "Explicit: two or three spot inks on natural paper, with overprints making extra tones. Grain, dots and slight registration offsets stay controlled without sacrificing text. Color separations may be revealed, and registration stays stable rather than jittering.",
+    "suitableUses": "Explicit: posters and illustrations where two-ink overprint is the identity. Inferred: hybrids with style-093 suit typography-led messages, and style-028 suits explainers, with supporting styles collapsed into the inks. Video and interactive HTML are both described.",
+    "limitations": "Explicit: no third independent ink and no gradients. Coral text at 3.2:1 contrast is too weak for body copy. Only sampled seconds 1–8 were visually reviewed; audio, sub-second motion and later scenes are unverified.",
+    "palette": "Background is scene_dependent; #F4EBD8 is only an illustrative paper swatch, not a required canvas. Suggested inks, for new artwork only: foreground #254687 and accent #D95664. Blue text on paper gives 7.69:1; coral is decorative only. Approved task colors override these; source hues are examples.",
+    "motionAndInteraction": "Explicit cadence: reveal separations, swap printed forms, and keep registration fixed. Optional references, only if scene assets fit: motion-037, -038, -039 and -040. motion-039's white and dark pieces must map to paper and the two inks. motion-012 and -015 are scroll-driven and need timeline scheduling for video.",
+    "audio": "Unspecified in source; no audio was verified. Topic-driven options include background music, voiceover, restrained accents, ambience or silence, with no mandatory genre or layer. Honor explicit user choices. A real soundtrack or voice requires actual audio tools, and speech must stay intelligible.",
+    "assetRequirements": "No uploads are mandatory. Use supplied exact copy, approved colors and local fonts when provided. Motion-037 and -038 need a real phrase or punctuation mark in the scene, and motion-039 needs an approved mark. Do not invent copy, brand marks or photographs.",
+    "combinations": "style-093 kinetic type: blue plate first, then coral with a fixed offset, with coral reserved for large display text. style-028 flat vector: separate figures into two plates and drop its palette. Avoid small coral text, per-frame grain reseeding and identical springs on every glyph.",
+    "productionApproach": "SVG is the style renderer, with seeded Python/Pillow grain and separations; Canvas is an alternative. A paused GSAP timeline owns motion, and Motion is used only with verified sync. chroma-js checks contrast. HyperFrames is the default pipeline; Remotion is used only if HyperFrames is unavailable, with a recorded reason."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

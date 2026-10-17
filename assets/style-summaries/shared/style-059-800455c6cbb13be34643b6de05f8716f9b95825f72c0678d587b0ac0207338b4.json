@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-059",
+    "name": "Low-Poly 3D, in the Digital and 3D Aesthetics category, with explicit provenance. The source directly describes this visual direction.",
+    "visualIdentity": "Deliberately limited faceted meshes with readable silhouettes, faceted shading and selected color fields. Joints and ground contact must stay credible, and camera framing must stay clear. Reduce polygons only until the subject would become unrecognizable.",
+    "suitableUses": "Explicitly described for faceted characters and objects with clear silhouettes. Inferred suitability: explainers, teasers and hero-object shots with stable 3D motion. Miniature stages and terrain built from verified data are suitable hybrids.",
+    "limitations": "Avoid smoothed normals, mixed realistic textures and polygon reduction that makes the subject unrecognizable. Orbit and dolly patterns need real depth or finished geometry; flat art cannot support them. Runtime limits are unspecified.",
+    "palette": "Background is scene_dependent, so the suggested tokens (#F1EBDF, #34484C, #799C8C, #C28A68) are illustrative, not approved. Foreground on background measures 8.124:1; accents are decorative only. Value range matters more than any single hue, and no gradient is enabled.",
+    "motionAndInteraction": "Stable 3D movement with credible contact. Optional references: gaze tracking, miniature parallax, chapter handoffs, scroll storytelling, dolly and camera orbits. Motion-043 orbits only the camera around a fixed hero. Video uses composition time, not live input.",
+    "audio": "Unspecified by the source; no audio is mandatory. Consider music, voiceover, restrained effects, ambience or silence according to topic and pacing. No fixed genre or tempo is set. Claim beat sync only with measured data. Previews may stay silent.",
+    "assetRequirements": "No uploads are required. A full orbit needs finished geometry on every side or enough turntable views; flat art cannot provide them. The source review sampled only seconds 1–8 of two example videos, with no audio or later scenes verified.",
+    "combinations": "Miniature stage (style-079) suits contained game or travel teasers, with flat shading and a consistent facet density. Terrain (style-097) suits verified elevation data with stated exaggeration and fixed category meanings. HTML may scrub prerendered turntable frames.",
+    "productionApproach": "Blender with Python bpy and EEVEE should own geometry, flat shading, materials, lighting and motion. HyperFrames handles assembly and export; Remotion is fallback only when its condition is met. chroma-js validates colors, and Delaunator is optional for 2D. Inspect decoded frames and audio sync."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

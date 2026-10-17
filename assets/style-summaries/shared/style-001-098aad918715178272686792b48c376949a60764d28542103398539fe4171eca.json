@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-001",
+    "name": "International Typographic Style (Swiss Style). Supplemental reference; not a directly named style in the source collection.",
+    "visualIdentity": "Column-grid, baseline-aligned layouts with asymmetric composition and generous negative space. Left-aligned sans-serif type with clear hierarchy, black and white with restrained accents, and grid-aligned photography.",
+    "suitableUses": "Explicit: posters, identity and typographic statements where grid and type carry the message. Hybrids add data explanation or kinetic headlines. Inferred: title sequences and editorial or product storytelling.",
+    "limitations": "Chart colors stay within #000000, #FFFFFF and #D32F2F; extra categories use weight or pattern. Avoid centered or rotated labels, decorative chart motion, springs and overshoot. Punctuation Zoom needs a real mark in the scene.",
+    "palette": "Background is scene_dependent; #FFFFFF is only an illustrative swatch, not a required canvas. Suggested tokens are #000000 foreground and #D32F2F accent; gradients are disabled. Exact task colors override these. Black on white is 21:1; white on red is 4.979:1 in two-color checks, so recheck composited frames.",
+    "motionAndInteraction": "Movement follows layout axes and settles on shared alignment points with linear-to-ease-out timing and no springs. Reading order must not change mid-motion. Catalog-listed fits include pinned heroes, chaptered handoffs, swipe card tracks and story steps.",
+    "audio": "The source assigns no genre, tempo, voice or mandatory layer; choose music, voiceover, effects or silence from the topic. Audio must not compete with narration, and silence is valid. Music sync needs actual audio analysis.",
+    "assetRequirements": "No uploads are required. Needs a locally loaded sans-serif font (family unspecified), optional grid-aligned photography, SVG geometry and truthful chart data. Punctuation Zoom needs actual mark geometry.",
+    "combinations": "Use alone for posters, identity and type-led statements. Hybrid with style-097 adds grid-based charts without new hues. Hybrid with style-093 adds kinetic headlines with one sans family and red on one element per frame.",
+    "productionApproach": "HyperFrames is the default pipeline; Remotion is fallback only when HyperFrames is unavailable or a verified limitation exists. HTML/CSS Grid and SVG render visuals, GSAP drives a paused seekable timeline, and chroma-js checks contrast. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -1,0 +1,1060 @@
+{
+  "model": "claude-opus-5-5",
+  "scope": "Rewrite all 43 code-authored illustrative previews; keep catalog descriptions and Motion Graphic links unchanged.",
+  "completedAt": "2026-10-17T06:36:36.300Z",
+  "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+  "beforeImagesRead": 43,
+  "motionCount": 43,
+  "sharedProjection": {
+    "source": "src/client/motion-orbit-preview.ts",
+    "sourceHash": "838291dd4bd4653e89e2e2d7d5009af96e800ffa39116c850f2d8fe1680752ce",
+    "notes": "Opus rewrote the shared 3D implementation. Host replaced its custom shadow hull with the existing d3-polygon library, then rendered the final implementation for the motion-043 review."
+  },
+  "catalogHashes": {
+    "assets/catalog/motion-pattern-catalog.json": "d67a88ac8126a297013a62808f47cc9fd067a9810bdc3d3ee5c10bcfef17af94",
+    "assets/catalog/video-style-catalog.json": "9e2fbf629ce4d59681ab771741abfa60c775b158e59b9805e35ce9563b2f6b50"
+  },
+  "validation": {
+    "drawingTests": "41 tests passed, including catalog coverage, motion semantics, seek independence, finite coordinates, projected geometry and the multi-rank crossover regression.",
+    "browser": "All 43 final previews passed card/detail, search, pause/resume, rendered pixel change, repeatable seeking, offscreen pause and reduced-motion checks; no page errors.",
+    "fullSuite": {
+      "testFiles": 153,
+      "testsPassed": 879,
+      "maxWorkers": 4,
+      "note": "The default parallel run timed out in the existing video-encoding test, which passed alone and in the complete suite with bounded concurrency."
+    },
+    "build": "Passed",
+    "lint": "Passed",
+    "formatting": "Passed for changed motion source, tests, browser verifier and review record."
+  },
+  "reviewRounds": [
+    {
+      "sessionId": "acd0a649-3896-4af7-b863-aa8069988a5e",
+      "motionIds": [
+        "motion-001",
+        "motion-002",
+        "motion-003",
+        "motion-004",
+        "motion-005",
+        "motion-006",
+        "motion-007",
+        "motion-008"
+      ],
+      "failedIds": ["motion-007", "motion-008"],
+      "imageResults": 8
+    },
+    {
+      "sessionId": "96350955-3b6d-446b-a3fe-3eaad36e56aa",
+      "motionIds": ["motion-007", "motion-008"],
+      "failedIds": [],
+      "imageResults": 2
+    },
+    {
+      "sessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+      "motionIds": [
+        "motion-009",
+        "motion-010",
+        "motion-011",
+        "motion-012",
+        "motion-013",
+        "motion-014",
+        "motion-015",
+        "motion-016",
+        "motion-017",
+        "motion-018",
+        "motion-019",
+        "motion-020"
+      ],
+      "failedIds": ["motion-010", "motion-011", "motion-017"],
+      "imageResults": 12
+    },
+    {
+      "sessionId": "68be75d0-76d4-4821-bd59-218d500406cb",
+      "motionIds": ["motion-010", "motion-011", "motion-017"],
+      "failedIds": ["motion-010"],
+      "imageResults": 3
+    },
+    {
+      "sessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+      "motionIds": [
+        "motion-021",
+        "motion-022",
+        "motion-023",
+        "motion-024",
+        "motion-025",
+        "motion-026",
+        "motion-027",
+        "motion-028",
+        "motion-029",
+        "motion-030",
+        "motion-031",
+        "motion-032"
+      ],
+      "failedIds": ["motion-025", "motion-030"],
+      "imageResults": 12
+    },
+    {
+      "sessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+      "motionIds": [
+        "motion-033",
+        "motion-034",
+        "motion-035",
+        "motion-036",
+        "motion-037",
+        "motion-038",
+        "motion-039",
+        "motion-040",
+        "motion-041",
+        "motion-042",
+        "motion-043"
+      ],
+      "failedIds": ["motion-041"],
+      "imageResults": 11
+    },
+    {
+      "sessionId": "12411fe2-7fec-4fc5-bb72-bc031625943d",
+      "motionIds": ["motion-010", "motion-025", "motion-030"],
+      "failedIds": [],
+      "imageResults": 3
+    },
+    {
+      "sessionId": "6801d770-1daa-4cc1-a69e-7574752f34d4",
+      "motionIds": ["motion-041"],
+      "failedIds": [],
+      "imageResults": 1
+    }
+  ],
+  "limitations": [
+    "Reviews used actual six-timestamp browser-rendered contact sheets and source code; linked original footage was not watched.",
+    "Studies are silent, deterministic illustrations. Projection uses sorted Canvas faces rather than a depth buffer; cloth/flocking/bounce are authored motion studies rather than physical simulations."
+  ],
+  "motions": [
+    {
+      "id": "motion-001",
+      "name": "Hover-Triggered Door Bloom Interaction",
+      "source": "src/client/motion-previews/motion-001.ts",
+      "sourceHash": "820e03ada016dbbea3af66d6b26436b562d41f4cd408ccbc22e83515737bf378",
+      "changes": "Replaced the flat card that only shrank in width with a hinged door on a wall. The door swings toward the viewer, with its free edge foreshortening and growing taller, and its two panels and knob ride the same plane. One authored progress value (HOVER_KEYS) drives both the hinge and the bloom. A pointer path (POINTER_KEYS) with a dashed hover zone sets the hover state. The schedule opens to 0.55, the pointer slips out and both actions retrace to 0.25, then it re-enters, fully opens, holds, exits and closes. Seven flowers start at the doorway centre with stems rooted at the threshold, are staggered inside the bloom, and are drawn behind the door so it hides them. The state caption changes: CLOSED, HOVER·OPENING, EXIT·REVERSING FROM CURRENT POSE.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "acd0a649-3896-4af7-b863-aa8069988a5e",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0s shows a closed hinged door, a dashed hover zone and the cursor outside it. 1.2s and 2.4s show the door partly swung open, with the label 'HOVER · OPENING'. 3.6s shows the door fully open with seven stemmed blossoms fanned out from the threshold. 4.8s shows the blossoms shrinking back toward the opening as the door closes, labelled 'EXIT · REVERSING FROM CURRENT POSE'. 6.0s is closed again.",
+        "One value, p from keyed(HOVER_KEYS), drives both the hinge (p/0.7) and the bloom ((p-0.18)/0.82). Opening and blooming therefore share one reversible sequence: on exit the flowers pull back first and the door closes last, with no snap.",
+        "The authored interruption runs from 1.6s to 2.2s: progress falls from 0.55 to 0.25 while the pointer path leaves the zone (crossing around 1.63s), then rises again when the pointer re-enters (around 2.15s). This shows reversal from the current playhead mid-opening, and the cursor timing matches the hover state.",
+        "Stems root at the threshold, and blossoms start at the doorway centre and move outward. The door is drawn after the flowers, so it correctly hides them while it swings toward the viewer.",
+        "The open state holds from 3.3s to 4.3s, and the end state holds from 5.4s to 6.0s. The 16px phase labels are readable at card size."
+      ],
+      "limitations": [
+        "The six frames happen to miss the 1.6–2.2s interruption reversal. I verified it from HOVER_KEYS and POINTER_KEYS in the source, not from a frame.",
+        "At 3.6s the cursor slightly overlaps one blossom. This is cosmetic."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-002",
+      "name": "Scroll-Driven Vortex Transit",
+      "source": "src/client/motion-previews/motion-002.ts",
+      "sourceHash": "a8393dee6299215322362a144af8923ef828e70059bee7173b6b8def8f5c08fa",
+      "changes": "Rewrote it as camera passage. Sixteen cloud bands sit at fixed world depths, each made of six arc segments with a depth-based twist. Only the camera depth changes, so near bands grow past the frame and are dropped once behind the camera. A dark exit disc at depth 17 is projected with the same focal length and grows until it overfills the 640×360 frame. The 'INTO THE STORM' hero holds and then fades as travel begins. The next chapter ('CHAPTER 02 / The Calm Beyond', with stars and a horizon sun) resolves only after the frame is fully dark, then holds. A stage clip fixes the overflow seen in the before sheet.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "acd0a649-3896-4af7-b863-aa8069988a5e",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0s shows the hero card 'INTO THE STORM / scroll to enter' on a dark pill over concentric twisted cloud bands. At 1.2s the hero is mid-fade. At 2.4s the camera is deep in the tunnel: the near bands have passed beyond the frame and a dark central opening is visible. At 3.6s the dark opening fills most of the frame, with only the corners still showing. 4.8s and 6.0s show 'CHAPTER 02 · The Calm Beyond' with a sun on the horizon and stars.",
+        "The bands sit at fixed world depths (z=1..16) and only cameraDepth(t) changes. The expansion past the frame edges therefore comes from genuine camera passage, not decorative spinning. The twist is a property of depth.",
+        "At t≈4.2s the exit radius is about 767px, which fully covers the frame. The destination fade only starts at 4.25s, so the order of full coverage then reveal is correct. The destination holds readably from 4.95s to 6.0s.",
+        "The camera path is time-based with clamp, and the stars are placed deterministically."
+      ],
+      "limitations": [
+        "Minor transient: during the 4.25–4.95s fade, the sun and the horizon fill are each drawn with the same partial globalAlpha. The bottom half of the sun therefore shows through the ground as a grey ghost disc, visible at 4.8s. It is gone by about 5.0s. It could be removed by drawing the destination to an offscreen layer, or by clipping the sun to y<262. I don't consider it a blocking issue."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-003",
+      "name": "Immersive Float",
+      "source": "src/client/motion-previews/motion-003.ts",
+      "sourceHash": "412224b3de48edbe0bd5bbc3b366ea51558bf37a0c70a9d5dfa531682e132923",
+      "changes": "Rebuilt it as a staged sequence: a weightless hover bob, a click ring at TRIGGER, a small anticipation lift, then an accelerating (quadratic) fall to CONTACT. On contact the orb is scaled about its contact point with a damped squash and overshoot; it stretches slightly while falling. The contact shadow tightens as the orb nears. Growth starts at the impact point only after contact, as a surface-space ellipse clipped to the mound. Tufts and flowers pop when the front's reach passes their stored surface distance, and sparks ride the front boundary. The final transformed state holds, with captions HOVERING, DROP, IMPACT · GROWTH SPREADS, TRANSFORMED.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "acd0a649-3896-4af7-b863-aa8069988a5e",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0s and 1.2s: the orb bobs above a dark oval soft form, casting a soft shadow, labelled 'HOVERING'. 2.4s: the orb sits in the surface just after impact, with a small green patch starting under it. 3.6s: a green growth cap spreads outward from the impact point, with tufts and flowers appearing. 4.8s and 6.0s: the surface is fully green with flowers and tufts, labelled 'TRANSFORMED' (held from 4.6s to 6.0s).",
+        "The source sequences a click ring at 1.25s, an anticipation lift from 1.25s to 1.5s, an accelerating p² fall from 1.5s to 1.95s with stretch, and a squash at contact pivoting on the contact point with damped recovery. Growth starts at 2.02s, after contact, and is absent before it.",
+        "The growth mask is an ellipse clipped to the mound and centred under the impact point. Accents appear only when the front reaches their surface distance. Sparks ride the front and stay inside the mound.",
+        "Backward seeks restore the pre-impact state, because every stage is derived from t."
+      ],
+      "limitations": [
+        "The 'DROP' label phase (1.25–1.95s) and the squash peak fall between the sampled frames. I verified them from the source.",
+        "The squash starts at full strength on the contact frame, with no ramp. That is an accepted cartoon impact choice."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-004",
+      "name": "Scroll-Driven Helix Flow",
+      "source": "src/client/motion-previews/motion-004.ts",
+      "sourceHash": "56a4b7aaee1582c4bda7dcc3c768547c1dcf2ba020341b4c43e0ef72789849b5",
+      "changes": "Replaced the 2D helix that was scaled up and overflowed the frame. A fixed double helix (two strands plus rungs with end nodes) is now projected through a Three.js PerspectiveCamera, depth-sorted and drawn with perspective line widths and fog. The camera path is keyed: wide hold, a dolly to a close view where individual rungs are readable, a slow drift while reading, then a swing to a wide view from the opposite side (angle π). Three copy cards (THE STRUCTURE / THE RUNGS / THE OTHER SIDE) are tied to those stages with short crossfades, and a stage indicator shows three dots.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "acd0a649-3896-4af7-b863-aa8069988a5e",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0s and 1.2s: a wide view of a two-strand helix with rungs, and copy '01 · THE STRUCTURE / Two strands, one spiral'. 2.4s and 3.6s: a close perspective view where individual rungs and their end nodes are clearly readable, with copy '02 · THE RUNGS / Every pair is a bond'. 4.8s and 6.0s: a wide view from the opposite side, with the strands visibly swapped front and back, and copy '03 · THE OTHER SIDE / Same form, new perspective'.",
+        "A real three PerspectiveCamera is posed from cameraPose(t). The stages are: wide hold from 0 to 0.9s, dolly in from 0.9s to 2.5s, close drift from 2.5s to 3.4s, orbit to angle π at distance 12 from 3.4s to 5.0s, and hold from 5.0s to 6.0s. The helix itself stays fixed, so this is a viewpoint journey, not objects travelling along the helix.",
+        "Segments are depth-sorted, painting far to near, so occlusion is correct in the close view. The copy windows (1.9s and 4.1s) and the three stage dots come from the same time, with 0.3s crossfades.",
+        "Each copy state gets well over a second of settled exposure, and the dark copy panel keeps the text legible over the strands."
+      ],
+      "limitations": [
+        "In the close view the copy panel covers a small bottom-left part of the orange strand (2.4s and 3.6s). This is acceptable and protects legibility.",
+        "The 14px title text is small at card size but still readable on the sheet."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-005",
+      "name": "Cursor-Driven Luminous Flow",
+      "source": "src/client/motion-previews/motion-005.ts",
+      "sourceHash": "c787d1201ae687ebf1016d3b3e989d956cb52d4992cffd8c76e768a862ed028c",
+      "changes": "Replaced the bare rectangle outline with a layered horizon scene: banded sky, far ridges, ground with converging guide lines and doorway light spill, an arched glowing doorway, rising mist and foreground stones. Each layer has a depth factor. The slow advance scales the layers about the doorway base by depth, and a bounded authored pointer path offsets them by depth (it is neutral at both ends). Mist puffs loop from ground to dissolution, with alpha at zero at both ends of each cycle. A small pointer marker shows only while parallax is active. Title: 'THE THRESHOLD'.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "acd0a649-3896-4af7-b863-aa8069988a5e",
+      "visualReviewPassed": true,
+      "observations": [
+        "All frames keep a glowing arched doorway centred on the horizon under the title 'THE THRESHOLD', with converging ground lines, light spilling onto the ground, ridges and dark foreground stones.",
+        "advance = ease(t/6) scales each layer about the doorway base, weighted by depth. The doorway grows only slightly, while the foreground stones grow and leave the frame by 6.0s. The scene advance is visible across the frames.",
+        "Mist puffs rise from y≈330 toward the horizon on a closed modular loop ((t*0.22+i*0.37)%1). There is no accumulated history, so any seek is deterministic.",
+        "The authored pointer path is a separate driver from 1.2s to 5.5s and is neutral at both ends. Parallax is bounded (±26px on the nearest layer), and the small ring marker at 2.4s and 3.6s appears only while it is active. There is no cursor light trail.",
+        "The layers are oversized (from -200/-300 to 840/940), so no missing artwork is exposed at maximum offset and scale."
+      ],
+      "limitations": [
+        "The parallax is subtle at contact-sheet scale. I confirmed it mostly from the source offsets, not from obvious differences between frames."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-006",
+      "name": "Cursor-Driven Gaze Tracking",
+      "source": "src/client/motion-previews/motion-006.ts",
+      "sourceHash": "4e595804133cb5022a2799e7e36693d7310dafb221888dbf04b5e948f3dcc82e",
+      "changes": "Rebuilt the face with ears, cheeks, white sockets with outlines, and pupils clipped inside each socket. Each pupil aims at the target from its own eye position, so near targets make the eyes converge. The target is a firefly on an authored path that reaches extreme corners and passes close to the face. Brows sample the path 0.22 s earlier and the head tilt 0.35 s earlier, as an analytic delay. Blinks are scheduled at 1.85 s and 4.15 s, with lids drawn inside the socket clip. A single mouth shape morphs from a flat line to a surprised 'o' as the firefly comes close. Attention falls to zero when the firefly flies off, so the gaze returns to neutral.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "acd0a649-3896-4af7-b863-aa8069988a5e",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0s: neutral face with centred pupils and no target. 1.2s: a firefly at the right/lower right, with pupils looking right and down. 2.4s: the firefly at the far lower left (80,310), with pupils looking left and down. 3.6s: the firefly hovers in front of the forehead, the eyes converge upward and the mouth becomes a small 'o'. 4.8s: the firefly at upper right, with pupils looking up and right. 6.0s: neutral pose again.",
+        "Each pupil aims from its own eye centre and is clipped to its socket, with travel bounded at 13×10px, so near targets make the eyes converge. Brows use target(t-0.22) and head tilt uses target(t-0.35). This analytic delay does not depend on playback history.",
+        "Blinks are scheduled at 1.85s and 4.15s, with an eyelid inside the socket clip. attention(t) fades the gaze back to neutral from 5.0s to 5.5s, and the firefly leaves the frame."
+      ],
+      "limitations": [
+        "Neither blink falls on a sampled frame. I verified them from the source.",
+        "The brows have a permanently knit slant, even in the neutral pose, and the 'knit when close' behaviour mentioned in the code comment is not implemented. This is an expression detail, not a behavioural defect."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-007",
+      "name": "Scroll-Driven Pinned Hero Recomposition",
+      "source": "src/client/motion-previews/motion-007.ts",
+      "sourceHash": "b5d856da7cf6f77f9e54ab60afe0ee447e5737d6c8b4c175b621eb90b7cbfcb0",
+      "changes": "Added a fixed, clipped stage frame with a scrollbar whose thumb moves for the whole clip, which shows the stage is pinned rather than frozen. Inside the stage, two forearms with extended index fingers start fingertip to fingertip and separate. A focal ring grows behind them. The centred 'ONE IDEA' headline clears upward. Corner copy blocks ('01 · CONTEXT / Where it starts', '02 · RESULT / Where it lands') slide in from their corners and hold. At 4.9–5.6 s the pin releases: the stage lifts and a 'NEXT SECTION' band rises, and the badge changes from PINNED to PIN RELEASED.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "96350955-3b6d-446b-a3fe-3eaad36e56aa",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0s: the hero stage is fixed in place with a 'PINNED' badge. The centred 'ONE IDEA' headline sits above two hands (a light one from the left and a peach one from the right) whose fingertips meet at a small accent ring. This matches the metadata's starting arrangement.",
+        "1.2s: the headline is fading and moving up (fades out from 1.0 to 1.7s). The hands have started to separate (0.9 to 2.6s) and the ring is beginning to grow (1.2 to 3.0s). The stage frame does not move, but the scrollbar thumb keeps going, so the stage reads as pinned while its contents change.",
+        "2.4s: the headline has cleared. The hands are near their outer positions, about ±110px from centre, and the ring is about 100px in radius. The ring is drawn before the hands, so the hands correctly sit in front of it.",
+        "3.6s and 4.8s: the corner copy has arrived. '01 · CONTEXT / Where it starts' slides in to the top-left and '02 · RESULT / Where it lands' to the bottom-right (2.7 to 3.5s), then holds for about 1.4s before the release. It stays inside the stage clip, is readable at card size, and does not touch the ring or the hands.",
+        "6.0s: the pin releases (4.9 to 5.6s). The whole stage, including its badge, moves up 70px as one unit and the 'NEXT SECTION' band rises with it, so there is no jump at the exit. The top-left label going off the canvas here is the stage scrolling away, not a layout fault.",
+        "The order of actions matches the recipe: the elements separate, the ring grows, the headline clears, the copy moves to the corners, it holds, then the pin releases. Every value comes from motionProgress(t,…), with no accumulated state or wall-clock time, so the frames can be sought in any order."
+      ],
+      "limitations": [
+        "Six frames cannot show every in-between frame; I judged the motion between them from the source code.",
+        "The hands are drawn as simple diagrams (forearm, palm and finger shapes), not original reference artwork. This is a code-authored study and does not claim to match the source video.",
+        "There is about 1s between the headline clearing (1.7s) and the corner copy arriving (2.7s) where the centre holds only the growing ring. I treated this as intended, not as dead time."
+      ],
+      "reviewFollowUps": [
+        {
+          "sessionId": "acd0a649-3896-4af7-b863-aa8069988a5e",
+          "changes": "Fixed the collision between the PINNED / PIN RELEASED badge and the stage's corner copy. Before, the badge was drawn at a fixed y=24, after the stage's release lift had already been undone. So while the stage rose (4.9–5.6s), 'Where it starts' (baseline STAGE.y+60−lift, which is 24 at full lift) moved under the stationary badge, as the 6.0s frame shows. The badge is now drawn inside the stage's own translate(0,−lift) group, at y = STAGE.y−10 (same visual spot as before while pinned). It is part of the stage and moves up with it, so it keeps the same spacing from the corner copy at every point of the release and can never overprint it. The label still switches from PINNED to PIN RELEASED when the release starts, and leaves the frame together with the stage. The pin/release action is unchanged: the scrollbar keeps moving, the 70px stage lift and the rising NEXT SECTION run on the same motionProgress windows, and the internal recomposition is untouched. No clip was added. The text alignment, fill and font are set explicitly before the badge draws, so the canvas state the badge uses is unchanged."
+        }
+      ]
+    },
+    {
+      "id": "motion-008",
+      "name": "Scroll-Driven Section Reveal and Card Stacking",
+      "source": "src/client/motion-previews/motion-008.ts",
+      "sourceHash": "622d91b3f89c2b0a0d60f6289063835236285b6bc124e4d2a8228d1972f60ae0",
+      "changes": "Card 1 is now present and readable at t=0 (the before sheet started empty). Each card has a title, body lines and placeholder lines, and anchors at the sticky line with an 18 px header offset. Incoming cards rise over the earlier ones; covered cards scale down (5 % per covering card) and dim continuously during the incoming card's arrival, while their headers stay visible. At 4.5–5.3 s the whole stack releases upward as one group and reveals 'ALL SECTIONS READ'. A scroll indicator keeps moving.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "96350955-3b6d-446b-a3fe-3eaad36e56aa",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0 to 1.2s: Section 1 ('Research the problem / Interview five users') is fixed at the anchor line, marked by a small dash on the left, and holds while the scroll indicator moves.",
+        "2.4s: Section 2 (accent colour) has risen from below (1.1 to 1.9s) and covers Section 1. Section 1 shrinks to 95% and dims, but keeps an 18px strip at the top where its 'SECTION 1' header stays visible. Cards are drawn in order, so the newest card is always on top.",
+        "3.6s: Section 3 (warm colour) is on top. Section 1 is at 90% scale with the heaviest dimming, and Section 2 is at 95%. The three stepped headers show the order clearly, and the active card's title and body are readable.",
+        "4.8s: the stack is releasing (4.5 to 5.3s) and all cards move up together by the same amount. Section 3's header is going off the top edge, which is normal exit motion.",
+        "6.0s: 'ALL SECTIONS READ / the stack released · page continues' appears where the stack used to be. Its fade-in starts at 4.8s, while the stack is still lifting off.",
+        "How far each card is covered is worked out from t alone, as the sum of the later cards' arrival progress, not from a history of events. Scrolling backward or seeking straight to a time therefore rebuilds the same card order and scale."
+      ],
+      "limitations": [
+        "Six frames cannot show every in-between frame; I judged the arrival and release motion from the source code.",
+        "Polish notes, not failures: each card's header baseline is only 13px from its top edge, so 'SECTION n' sits very close to the edge. The darkest covered header (Section 1 at 3.6s, dark text under a 0.55 dim overlay) has reduced but still usable contrast. Moving the header baseline to about 18–20px, or drawing covered headers after the dim overlay, would improve both.",
+        "The reading holds are moderate: about 0.8s for Section 2 and about 1.0s for Section 3. That is enough for two short lines at preview length, but a full production would size the holds to its real copy."
+      ],
+      "reviewFollowUps": [
+        {
+          "sessionId": "acd0a649-3896-4af7-b863-aa8069988a5e",
+          "changes": "No change. I re-checked it against the corrected sheet, where the cross-cell ghost stacks are gone. 0.0s and 1.2s show card 1 anchored. At 2.4s card 2 is the active layer, with card 1's header visible behind it, scaled and dimmed. At 3.6s card 3 is active, with the headers of cards 1 and 2 stacked behind it in order. At 4.8s the whole stack is mid-release and exiting through the top edge as one group. 6.0s shows the 'ALL SECTIONS READ' follow-on content. Card order is fixed and derived from time, each active card gets a reading hold, and nothing is duplicated. The 'SECTION n' titles sit close to the top edge of each card's 18px peek strip, but they are readable. That is a spacing preference rather than a substantive problem, so I left it."
+        }
+      ]
+    },
+    {
+      "id": "motion-009",
+      "name": "Cursor-Driven Miniature Scene Parallax",
+      "source": "src/client/motion-previews/motion-009.ts",
+      "sourceHash": "370d9932f62724a55f9dd295d6617750a8afe6a2ffd2360becb5871d82046e44",
+      "changes": "Rebuilt the terrarium with explicit depth factors for each layer: rear backdrop and reeds, moss ground with pebbles, a frog, foreground ferns, and a glass highlight that moves opposite to the pointer. Inner layers are clipped inside the jar and the art is oversized, so there are no edge gaps. A visible authored pointer sweeps the jar and makes a quick flick, which triggers a frog hop (parabolic arc, landing squash, contact shadow). The pointer then exits and influence fades to zero, so every layer settles to neutral. A fixed caption reads 'MOSS TERRARIUM'.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+      "visualReviewPassed": true,
+      "observations": [
+        "Terrarium jar holds separate depth layers drawn back to front: rear backdrop and reeds (-0.35), ground and pebbles (0.25), frog (0.25, the same depth as the ground so it stays in contact), front ferns (0.9, drawn over the frog for correct overlap) and a glass highlight (-0.8) moving against the pointer.",
+        "All inner layers are clipped to the jar ellipse and the art is oversized (rear rect 440x320), so the maximum shift (26/10 px x depth) leaves no gaps at the edges. The jar rim and plinth stay fixed.",
+        "The pointer path is authored from composition time. Pointer influence = clamp(1.6 - distance), which is 0 at 0 s and from about 5 s on (pointer outside the jar), so the layers settle back to a reproducible neutral pose.",
+        "A quick flick to the right at 3.05–3.25 s triggers a one-off hop at 3.3–3.85 s. The 3.6 s frame shows the frog mid-air above its ground shadow, and it lands at x=352 with a brief squash, matching the optional secondary hop in the metadata.",
+        "Everything is derived from t through pure functions with no accumulated state, so it should be seekable."
+      ],
+      "limitations": [
+        "The parallax offsets are deliberately small, so between the 1.2 s and 2.4 s frames only small shifts in the reeds and ferns are visible. Their direction and size were checked in the source.",
+        "The 'MOSS TERRARIUM' label is 16 px on a 640 px canvas and becomes small at contact-sheet size, but it is only a secondary caption."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-010",
+      "name": "Scroll-Driven Character Orbit Rotation",
+      "source": "src/client/motion-previews/motion-010.ts",
+      "sourceHash": "441139931de9f581357e8356b750c342f060b066878eb5b6865bf5748d8ed8ca",
+      "changes": "Replaced the single rotating box with a stationary blocky 'wanderer' on an octagonal pedestal. The figure has an asymmetric right-hand lantern, a rear backpack, a left-hip scroll case, a hat and eyes, all as closed boxes. It is rendered through a moving PerspectiveCamera with a world-space shadow and ground grid, using the shared helpers in motion-orbit-preview.ts. The 'MEET THE WANDERER' title fades as the orbit starts. Three annotations (LANTERN at 90°, PACK at 180°, SCROLL CASE at 270°) appear by angular distance: the leader draws first, then the label card. The camera returns exactly to the front, then 'Every side tells the story' appears. An orbit progress track sits at the bottom.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "12411fe2-7fec-4fc5-bb72-bc031625943d",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0s: front view of a blocky wanderer on an eight-sided pedestal, with the title 'MEET THE WANDERER'. The lantern is on the viewer's right, which is the figure's left hand (+x when the figure faces +z). This matches the 'left hand' note.",
+        "1.2s: the camera is at π/2, looking at the figure's left side. The lantern faces the camera and the backpack shows behind it on the right (-z), which is the correct depth for this side view. The title has faded, and the LANTERN note's line runs to its label.",
+        "2.4s: rear view (π). The backpack covers the back of the cloak, and the 'PACK — only visible from behind' note appears at the right angle.",
+        "3.6s: the camera is at 3π/2. The scroll case on the right hip (-x) faces the camera, and its note box sits on the left.",
+        "4.8s: back at the front view, the same pose as at 0s, so the circuit joins up. The closing line starts at 4.8s, full by about 5.05s, and is visible at 6.0s, giving roughly 0.95s of fully legible hold.",
+        "In the source, the camera moves on sin/cos(angle)·RADIUS with a fixed look-at target, and the figure's parts never move, so this is a true camera orbit, not a cutout sliding around. cameraAngle(t) is a pure function of keyframes, and it returns 0 (front) outside the orbit range instead of resetting.",
+        "Each note's visibility depends only on the angle offset. The line is fully drawn before the label fades in, so labels never float before their line exists, and scrubbing backward reverses them with no leftover state. The progress bar fills over the full circuit."
+      ],
+      "limitations": [
+        "Six frames can't show every in-between frame. I checked continuity and seeking through the pure cameraAngle and note functions in the source.",
+        "The note body text is 12px on a 640px canvas. It is readable at card size but small.",
+        "This is a code-drawn study, not compared with any original footage."
+      ],
+      "reviewFollowUps": [
+        {
+          "sessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+          "changes": "Fixed the swapped left/right labels to match the figure, which faces the viewer (+z): the lantern box at x=+0.52 is its left hand and the scroll case at x=-0.42 is its right hip. The LANTERN note now reads 'carried in the left hand' and the SCROLL CASE note 'strapped to the right hip', and the part comments in PARTS say the same. The geometry, the angle each note appears at and the label positions are unchanged. I also fixed the minor hold note: ORBIT_END is now 4.6 instead of 4.9, so the closing line is fully readable from about 5.05 s to 6.0 s (about 0.95 s) at the front view. The full circuit is kept, and everything is still a pure function of t."
+        },
+        {
+          "sessionId": "68be75d0-76d4-4821-bd59-218d500406cb",
+          "changes": "Only source/motion-previews/motion-010.ts was edited. (1) The single cosine-eased 0.9–4.6 s orbit is replaced by a fixed list of [time, angle] keys covering one full circuit with smoothstep-eased turns: front hold with the title 0–0.5 s; turn to π/2 0.5–1.15 s; LANTERN pause 1.15–1.85 s; turn to π 1.85–2.3 s; PACK pause 2.3–3.0 s; turn to 3π/2 3.0–3.45 s; SCROLL CASE pause 3.45–4.15 s; turn back to 2π (the same as 0) 4.15–4.75 s; front hold after that. cameraAngle() returns 0 outside this range and is a pure function of t, so seeking forward, backward or directly still gives the same frame. The subject stays fixed and only the camera moves. (2) The labels are still triggered by camera angle but have a wider fully opaque range. The leader is clamp((0.8 − offset)/0.3), fully drawn by 0.5 rad. The label is clamp((0.45 − offset)/0.2), fully opaque within 0.25 rad and only after its leader has arrived. This should give each label about 0.9 s at full opacity: the 0.7 s pause plus the eased approach and departure. (3) The title now fades out 0.5–0.85 s. The closing line fades in 4.8–5.05 s and keeps about a 0.95 s legible hold. (4) ease is now imported from ./drawing. The labels, their positions and the progress track are unchanged. These timings come from the code, not from a new render; nothing was rendered, type-checked or tested."
+        }
+      ]
+    },
+    {
+      "id": "motion-011",
+      "name": "Hover-Driven 3D Voice Card Spatial Interaction",
+      "source": "src/client/motion-previews/motion-011.ts",
+      "sourceHash": "8c6aca7c850f2145dd1d7c9cdfc5b7af4240697a592ef05641c9505943c175d3",
+      "changes": "Pointer offsets now map to bounded rotateX (from vertical offset) and rotateY (from horizontal offset) with perspective. Card content is painted through affine plane transforms at raised depths (title −10, waveform −22, play button −36), so the inner layers separate under tilt and the text tilts with the card. A sheen slides with the tilt and a shadow shifts opposite it. The authored pointer enters, sweeps the card's quadrants and exits. Hover weight then eases the card back to rest, and the caption goes REST, HOVER · TILT FOLLOWS POINTER, EXIT · SETTLING TO REST.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "68be75d0-76d4-4821-bd59-218d500406cb",
+      "visualReviewPassed": true,
+      "observations": [
+        "The tilt is bounded and follows the pointer. Vertical pointer offset drives rotateX (MAX 0.26 rad) and horizontal offset drives rotateY (MAX 0.34 rad), through a perspective projection with a focal value of 700. The pointer-side edge comes toward the viewer every time: the right side grows at 2.4 s with the pointer at top right, and the left side grows at 3.6 s with the pointer at bottom left.",
+        "The inner layers sit at their own depths: the title at z −10, the waveform at −22 and the play button at −36. They shift slightly against the card face under tilt, giving parallax. The specular sheen is clipped to the projected card shape, so it never spills past the edge.",
+        "Entry and exit timing hangs together. The hover weight ramps up from 0.55 s, as the pointer crosses the card edge, and decays from 4.0 to 4.9 s, as the pointer leaves. The card then holds at rest until 6.0 s. The cursor is hidden while outside the card bounds (0 s, 4.8 s, 6 s). The status line moves through REST, then HOVER · TILT FOLLOWS POINTER, then EXIT · SETTLING TO REST, then REST.",
+        "'VOICE NOTE', 'Maya · 0:42' and the play button stay legible even at the strongest tilt. No part of the card is clipped, and the waveform stays inside the card edges.",
+        "The preview is honestly silent. The waveform is a static drawing, as the source comments say, and the tilt never triggers playback or panning. That matches the rule that visual tilt does not imply audio.",
+        "Every value is a pure function of t, with keyframed pointer motion and no damping state, so seeking is deterministic."
+      ],
+      "limitations": [
+        "Playback is not demonstrated as a separate interaction. That is acceptable for a silent visual study, and nothing in it claims audio exists.",
+        "Six frames sample the motion only; I checked the in-between pointer path and the timing of the hover weight in the source."
+      ],
+      "reviewFollowUps": [
+        {
+          "sessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+          "changes": "The shine strip is now clipped to the card's projected outline: c.save(), path through the four projected corners, c.clip(), draw the strip with withPlane(0, ...), c.restore(). It can no longer spill past the card's perspective edge onto the background at any tilt. Its slide (ry*hover*90), the tilt mapping, the depth layers and the rest/exit behaviour are unchanged."
+        }
+      ]
+    },
+    {
+      "id": "motion-012",
+      "name": "Scroll-Driven Chaptered Scene Transition",
+      "source": "src/client/motion-previews/motion-012.ts",
+      "sourceHash": "ea74484e52bb90b658cefb68448dc8058422ed4d76608b52f4b3296e0ad81277",
+      "changes": "Replaced two sliding cards with two complete chapter scenes. Chapter One 'The Seed' is a night field with a seedling; Chapter Two 'The Bloom' is warm, with the same plant position in flower. A diagonal mask wipe is driven by one scroll progress value. The authored scroll scrubs to 0.6, scrolls back to 0.35 (the wipe and copy retrace), then resolves to 1 and holds. Copy is part of each layer and also slides with the same progress. A scroll indicator is included.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+      "visualReviewPassed": true,
+      "observations": [
+        "One scroll value drives a slanted mask wipe between two complete chapter scenes (night Seed and day Bloom), each with its own copy. Outgoing copy slides left and incoming copy settles from the right on the same progress value.",
+        "The 2.4 s frame shows both scenes split at the wipe line with readable, correctly masked copy. Chapter One holds clean from 0 to 1.2 s and Chapter Two from 3.8 to 6.0 s.",
+        "The authored scroll goes forward to 0.6, back to 0.35 (the wipe retraces) and then on to 1. A scroll indicator dot tracks progress. The plant stays at the same x across chapters, giving a shared anchor (seedling → bloom).",
+        "State is a pure function of t, so direct and backward seeks should match."
+      ],
+      "limitations": [
+        "The backward retrace (2.2–2.7 s) falls between sampled frames and was checked in the source."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-013",
+      "name": "Swipe Card Carousel",
+      "source": "src/client/motion-previews/motion-013.ts",
+      "sourceHash": "971a55dfb41b3f462183a2fc908a6c841d2a4618361050e63d1715f3de5646cd",
+      "changes": "Rebuilt as a clipped viewport with four themed cards (Plan, Sketch, Build, Test). Each card has a number tile, title and note; the active card is full scale and its neighbours are scaled and dimmed. The track has one owner (TRACK_KEYS): a linear finger drag, an ease-out settle to card 2, a next-button press to card 3, then a second drag and settle to card 4. Prev/next buttons enable and disable at the ends, and the dots plus the 'Title · n of 4' caption follow the selection. The finger is drawn at a position derived from the track offset, so it moves exactly with the cards.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+      "visualReviewPassed": true,
+      "observations": [
+        "A horizontal track of four step cards (Plan, Sketch, Build, Test) sits in a clipped viewport and has a single owner of track position, keyed in card units. Neighbouring cards are scaled down and dimmed.",
+        "Sequence: hold, then a linear finger drag to 0.42 (a visible cursor moves exactly with the track), an ease-out snap to card 2, a press on the 'next' button at about 3.05 s, then a second drag and snap ending on card 4. The ends are finite: the next button is disabled on the last card in the 6.0 s frame.",
+        "The dots and the 'Sketch · 2 of 4' style caption follow the rounded selection, and the active card is fully readable in each held frame."
+      ],
+      "limitations": ["The button-press highlight around 3.05 s is not in the sampled frames."],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-014",
+      "name": "Fluid Morphing Energy Orb",
+      "source": "src/client/motion-previews/motion-014.ts",
+      "sourceHash": "91aba0a9a5c415dffa2265f8ebf2293ccf2afa2a98e585581d4e87140bafd3e0",
+      "changes": "Removed the unrelated 'contained flow variant' that cut in at 3 s. There is now one cohesive orb whose silhouette is a bounded polar field. A deformation envelope takes it from a calm sphere through lobes and folds and back to a calm sphere. Layered inner fills are offset toward a fixed key light, surface-flow bands travel around the form, and the orb has a specular highlight, a bounded glow and a floor reflection. All phases are whole cycles over 6 s, so t=0 and t=6 geometry match (a closed loop).",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+      "visualReviewPassed": true,
+      "observations": [
+        "The orb outline is a bounded polar field: base radius 92 plus lobes up to about ±22%, scaled by an envelope that is zero before 0.6 s and after about 5.3 s. Calm → flowing → settled matches the 0, 1.2–4.8 and 6.0 s frames.",
+        "Inner shading layers are offset toward a fixed upper-left light and clipped inside the body. Surface flow bands complete whole cycles over the 6 s loop, as does the small breathing term (sin 4w), so the geometry and flow phase at t=0 and t=6 are identical.",
+        "The outline stays cohesive with no spikes or self-intersections in the sampled frames. Glow is moderate. Nothing claims physical fluid simulation."
+      ],
+      "limitations": [
+        "This is a 2D canvas treatment, not Three.js displacement or metaballs. That is acceptable for a preview, but it gives no true 3D normals."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-015",
+      "name": "Scroll-Driven Storytelling",
+      "source": "src/client/motion-previews/motion-015.ts",
+      "sourceHash": "c178e304b8c18461c5c11fed8c4d79534e705185f690d5903628f2bcd92ab212",
+      "changes": "Turned the line between two dots into a scrollytelling layout: step copy on the left and a sticky graphic panel on the right, sharing one story state. The four steps are QUESTION ('How does one idea spread?'), CONTEXT (two allies), MECHANISM (each ally invites two more) and OUTCOME (closing links turn the tree into a system). Each link draws before its child node pops. The framing pulls back as the network grows, the node counter reads the same state, and a step progress bar is shown. Copy crossfades only at step boundaries.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+      "visualReviewPassed": true,
+      "observations": [
+        "Four story steps (QUESTION → CONTEXT → MECHANISM → OUTCOME) drive both the left-hand copy and the pinned network graphic on the right from one step index. Each link draws before its child node pops in, the framing pulls back as the graph grows, and the node counter matches the visible nodes (1, 3, 7, 7).",
+        "Copy fades in at step boundaries and stays fully readable in between, with about 1.3 s per step and a long hold on the conclusion from about 4.3 to 6 s. Closing loop links turn the tree into a 'system' and the nodes recolour to accent.",
+        "State comes directly from t, with no stale state between steps."
+      ],
+      "limitations": [
+        "Minor: the closing link 6→3 runs about 7 px below the root's centre, so at 4.8 and 6.0 s it crosses the orange root ring and can read as attached to the origin. Bowing that link or shifting node 3 or 6 would clear it. I did not count this as a failure."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-016",
+      "name": "Cinematic Manga Opening Sequence",
+      "source": "src/client/motion-previews/motion-016.ts",
+      "sourceHash": "292cd59ce104f83595a6793aab812b071a7765fb83f84b12bb727b436ea1f3a5",
+      "changes": "Rebuilt with narrative beats on a light manga page. Panel borders ink in with a stroke-dash reveal (unfilled paths only). Beat 1: the eye opens from a closed lid line into a socket with a clipped iris, over screentone, as radial focus lines close in. Beat 2: 'ZAP!' punches in on a warm starburst with a slight rotation and overshoot settle. Beat 3: a comet streaks into the top-right panel with speed lines that shorten on impact and an impact ring. Beat 4: a speech bubble with a tail forms, and only then does 'IT ALL / CONNECTS!' appear. The final hold runs from about 4.15 s.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+      "visualReviewPassed": true,
+      "observations": [
+        "Separate manga beats: panel borders draw in as strokes (0–0.69 s), the eye opens (0.45–1.05 s) with radial focus lines, a 'ZAP!' starburst punches in and settles (1.3–1.95 s), a comet streaks right-to-left into panel 2 with trailing speed lines (lines behind its direction of travel) and an impact ring (2.5–3.0 s), then the speech bubble forms (3.3–3.75 s) before 'IT ALL CONNECTS!' appears (3.8 s). This follows the rule that labels wait for their container.",
+        "The final layout holds readable from about 4.15 to 6 s, and the change between frames is obvious at thumbnail size. Filled art uses fades and scale entrances; dashed-stroke drawing is used only on the unfilled borders."
+      ],
+      "limitations": [
+        "The 0.0 s frame shows the closed-eye line and dot texture before any panel border exists, which slightly contradicts 'panel borders ink in first'. Optional fix: wait until about 0.3 s, or until the left border completes, before drawing the eye and texture.",
+        "The ZAP starburst crosses the top border of panel 1 by a few pixels. That is acceptable manga panel-break styling.",
+        "The impact ring at 2.5–3.0 s is not in the sampled frames."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-017",
+      "name": "Cursor-Driven Hotspot Exploded Reveal",
+      "source": "src/client/motion-previews/motion-017.ts",
+      "sourceHash": "b2dfc0396a224a2d7e8e6567af2a68f40af5d06ebbc63974a2fab22680b6fd83",
+      "changes": "Replaced the flat bars with a puck device built from four isometric discs (BASE, BATTERY, CIRCUIT with chips, TOP SHELL with a pulsing hotspot). They are drawn bottom to top and explode along the shared vertical assembly axis, with a dashed axis guide and a stagger. Leader lines run from each layer's rim to a label column. Each label (name and note) appears only after its leader is complete, and labels ride their layer anchors. The pointer approaches and hovers on the hotspot's rest position, then leaves. Progress reverses continuously back to assembled, and the caption updates.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "68be75d0-76d4-4821-bd59-218d500406cb",
+      "visualReviewPassed": true,
+      "observations": [
+        "The assembled puck has a visible pulsing hotspot on its top shell. The authored cursor reaches the hotspot by 0.95 s, the explosion runs from 1.0 to 2.0 s, holds, the cursor leaves between 3.8 and 4.4 s, and the parts reassemble between 4.0 and 5.0 s. The 1.2 s frame shows the explosion just starting, 2.4 s and 3.6 s show it fully exploded, and 4.8 s and 6.0 s show it back together.",
+        "All four parts move along one shared vertical axis with a slight stagger: the base moves down while the circuit and top shell move up. Painter's order, bottom disc first, keeps each upper disc on top, and when the stack separates the top faces of the lower discs show correctly. The circuit chips ride with the circuit layer.",
+        "Each label stays attached to its own layer. Its leader line starts at the layer's right rim and draws to the label column before the text fades in (text only appears once the reveal passes 0.8). That keeps labels from floating free. TOP SHELL, CIRCUIT, BATTERY and BASE, with their notes, are legible and do not collide at full explosion.",
+        "Labels are fully readable from about 1.85 to about 4.15 s, which is plenty for four short label pairs. The status caption switches to '4 parts · one assembly axis' while the stack is exploded.",
+        "Reversal reuses the same progress mapping, so going back is a mirror of going forward, and every state comes from t, which makes seeking deterministic. During the hover, the cursor tracks the hotspot as it moves up with the shell."
+      ],
+      "limitations": [
+        "The model is a planar-isometric disc stack drawn on Canvas, not a true 3D assembly. That is acceptable under the pattern's SVG/planar option.",
+        "Keyboard, focus and reduced-motion behaviour belong to interactive delivery and cannot be judged from this video study."
+      ],
+      "reviewFollowUps": [
+        {
+          "sessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+          "changes": "The scripted cursor now stays on the moving hotspot. Its y is taken from the top shell's live position after the layer loop: hotspotY = shell.y (falling back to HOTSPOT_REST_Y), py = 300 + (hotspotY + 4 - 300) * approach * (1 - leave). While the parts are separated (about 2.0-4.0 s) the cursor tip rides up with the shell to about y=98 instead of sitting on the CIRCUIT layer's chips. When the parts are together the position is the same as before (shell.y = 152). The approach, leave and explode/reassemble timing and the labels are unchanged, and everything is still deterministic in t."
+        }
+      ]
+    },
+    {
+      "id": "motion-018",
+      "name": "Swipe Gallery Carousel",
+      "source": "src/client/motion-previews/motion-018.ts",
+      "sourceHash": "607f671acd76231076a0abd87be917eb37bdde3aea51e8ddbceb43806d4793db",
+      "changes": "Cards now sit on a virtual cylinder: angle maps to x, depth scale, an arc-tangent tilt and an edge drop. They are depth-sorted so the selection is on top. Five items each have a distinct building illustration: Harbor Loft, Courtyard House, Hilltop Studio, Garden Pavilion and Lake Cabin. A linear finger drag (finger position = arc travel) settles on Hilltop Studio; a keyboard → keycap press advances to Garden Pavilion. The caption at (320,312) and the five dots update with the settled selection, dimming while in motion.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+      "visualReviewPassed": true,
+      "observations": [
+        "Five authored illustrations of buildings (each one labelled), not photos, sit on a virtual cylinder. The angle sets x position, depth sets scale and opacity, cards drop toward the edges and tilt along the arc, and they are drawn back to front with the selected card on top. This is the curved gallery, distinct from the flat card carousel in motion-013.",
+        "A linear finger drag (cursor visible at 1.2 s) settles on Hilltop Studio, then a → key press at about 3.25 s moves to Garden Pavilion. The caption and dots update with the selection, and the caption dims while the cards are moving (1.2 s and 3.6 s) and returns to full strength once settled.",
+        "The selected card is clear in each held frame. Cards at the far edge are clipped by the gallery bounds as context only."
+      ],
+      "limitations": [
+        "The key-cap prompt (fully visible only around 3.0–3.5 s) is not in the sampled frames.",
+        "Neighbour cards are slightly translucent (alpha ≈ 0.93), so far cards can faintly show through them. This is cosmetic."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-019",
+      "name": "Scroll-Driven Camera Dolly",
+      "source": "src/client/motion-previews/motion-019.ts",
+      "sourceHash": "eb37abeb0e47270623e3dbee4f9813a21850d0896a4e810364123c9a1aee355d",
+      "changes": "Replaced the hand-rolled projection with a Three.js PerspectiveCamera at a constant 42° FOV that translates along the corridor axis toward a fixed look-at target. The scene uses shared box faces: pillar pairs, a plinth, and a camera product with dial, shutter button and projected lens rings. Floor lines and pillar faces behind the camera are culled. The pillars sweep off the frame edges much faster than the product grows, which a flat zoom cannot do. Scroll keys arrive at the detail view, hold, scrub back to 55 % and return. Detail callouts ('50 mm prime lens', 'Machined mode dial') draw their leaders first and then their labels, and hide when scrubbing back. A readout shows camera z and FOV.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+      "visualReviewPassed": true,
+      "observations": [
+        "A true perspective camera (fixed FOV 42°, three.js projection) moves along z from 12 to 3.3 toward a camera product on a plinth, with a fixed look-at target. Pillars sweep out past the frame edges much faster than the product grows, which is real dolly parallax, not a flat zoom.",
+        "Sequence: forward to the detail view (by 3.3 s), held, scrubbed back to 0.55 (the 4.8 s frame shows z 6.4 and the callouts gone) and forward again to the detail view at 6.0 s. The z readout and scroll dot reflect the same progress value.",
+        "Callout leaders draw before their label boxes. The 'Machined mode dial' and '50 mm prime lens' leaders point at the right parts."
+      ],
+      "limitations": [
+        "Minor: in the detail view the grey camera readout and scroll track lie on top of the grey plinth (3.6 s and 6.0 s), which lowers contrast. A backing pill would help.",
+        "The leader-line build-up near p≈0.82 falls between sampled frames."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-020",
+      "name": "Scroll-Driven Glitch Cut",
+      "source": "src/client/motion-previews/motion-020.ts",
+      "sourceHash": "5ad087f39826062392b6473823bae409b6f9b7e331edf5320aa045edc912b473",
+      "changes": "Narrowed the distortion window to 1.9–2.9 s. Inside it, ten horizontal slices offset in discrete glitch frames, with strength sin(πp) so it is zero at both edges. Slices hand ownership to the incoming scene in a scattered order, and a red/cyan channel echo appears on the headline. The outgoing scene (DESIGN STUDIO) and incoming scene (IDEAS IN MOTION) now have distinct textures (dots vs stripes). A scroll scrubber marks the glitch window, and the status reads CHAPTER 01 · CLEAN, GLITCH WINDOW, CHAPTER 02 · CLEAN.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "fea666fc-871b-4e11-b3d2-abc1a2b59449",
+      "visualReviewPassed": true,
+      "observations": [
+        "Two clean, readable scenes ('DESIGN STUDIO / CHAPTER 01' and 'IDEAS IN MOTION / CHAPTER 02') are separated by a narrow 1.0 s window (1.9–2.9 s). Inside it, ten horizontal slices shift in discrete glitch frames, scaled by a factor that is zero at both window edges, while each slice hands over to the incoming scene once in a scattered order. A red/cyan colour split appears only on the headline.",
+        "Outside the window the frames are clean (0, 1.2, 3.6, 4.8 and 6.0 s). The 2.4 s frame shows the bounded mid-glitch state. The scrubber marks the window and the status text changes to 'GLITCH WINDOW'.",
+        "Each slice switches once and does not flicker back and forth, so there is no repeated full-frame flashing. Slices are clipped to the stage."
+      ],
+      "limitations": [
+        "The scrubber handle is plain time (t/6), so the reversible scrub is described in the code rather than shown. That is acceptable for a video preview, but backward seeking was not tested."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-021",
+      "name": "Cursor-Driven Camera Orbit",
+      "source": "src/client/motion-previews/motion-021.ts",
+      "sourceHash": "272c821f9b5c7c84545f74f8b32740d84a3dbcc428ffc07e9ed2a40b46de822a",
+      "changes": "Replaced the wire cube with a stationary toy robot made of closed boxes: mat, legs, torso, head, front-only visor, antenna, asymmetric arms and a rear battery pack. It is rendered through a PerspectiveCamera orbiting a fixed target at a fixed radius, with a world light and ground shadow. The authored pointer maps to bounded azimuth (±0.62 rad) and elevation (±0.22 rad) using a stateless 0.15 s lag. On exit the influence eases to 0. A gizmo arc with a live marker and an 'az · el' readout is included; the cursor is shown only while inside.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+      "visualReviewPassed": true,
+      "observations": [
+        "The robot is drawn from fixed boxes. Only the camera moves: azimuth and elevation stay within REST ± LIMIT (±35°/±13°), at a fixed RADIUS of 6 around a fixed TARGET.",
+        "The pointer path enters (0.6s), moves right then lower-left, and leaves at 4.4s. The influence term eases the camera back, so 0.0s and 6.0s are identical (az 0°, el 0°). The 2.4s (+14°) and 3.6s (−14°) frames clearly show the platform and battery pack seen from different sides.",
+        "The camera follows a lagged pointer sample, pointer(t−0.15), so the follow is smooth without any stored damping.",
+        "The orbit gizmo and readout support the main action rather than competing with it."
+      ],
+      "limitations": [
+        "The 14px footer and the 12px az/el readout are small at card size, but they are secondary text.",
+        "Keyboard/touch controls and the reduced-motion view belong to interactive delivery and aren't shown in this video study."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-022",
+      "name": "Terminal Typing",
+      "source": "src/client/motion-previews/motion-022.ts",
+      "sourceHash": "20b37934a08ef4621e80d9b27703d44409c30b8e53bc0c328d74b346705a6a2b",
+      "changes": "Added a terminal window (title bar, traffic lights, 'zsh — 80×24') and a '$' prompt. Text is split with Intl.Segmenter graphemes when available. Each grapheme is drawn on a fixed monospace grid with the cursor in the next cell. Keystroke times are authored, with longer gaps after spaces and a beat before 'flight'. The cursor blinks with a 0.5 s period during the lead-in and idle, and stays solid while typing. After the hold, an output line and a fresh blinking prompt appear.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+      "visualReviewPassed": true,
+      "observations": [
+        "The cursor blinks during a lead-in (0.0s, before TYPE_START 0.9s). Characters are split into graphemes with Intl.Segmenter and appear on a fixed monospace grid, with the cursor parked in the next cell (1.2s 'Ide', 2.4s 'Ideas take ').",
+        "The authored pause before 'flight' is visible. The finished phrase holds from 3.6s onward, then the output line and a new prompt print with a blinking cursor (4.8–6.0s).",
+        "The layout stays put; text is large and high-contrast inside the terminal window."
+      ],
+      "limitations": [
+        "Not every keystroke time is visible across six frames; the cadence was checked from KEY_TIMES in the source."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-023",
+      "name": "Cursor Wipe",
+      "source": "src/client/motion-previews/motion-023.ts",
+      "sourceHash": "b56de61df145f9041beb1e1606cc752317de6978fba4dbc46922e8721579741f",
+      "changes": "The block cursor is now one continuous object. It types 'CREATE' on a monospace grid, expands from its own rect to the exact full stage (held 2.55–2.95 s), hides the scene swap at 2.7 s, and then collapses into a cursor at the end of the incoming 'TAKE FLIGHT' headline (teal scene with a sun, plus the subline 'chapter two begins'). It blinks there and bows out at 4.6 s. Glitch slivers trail the block only while it is moving.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+      "visualReviewPassed": true,
+      "observations": [
+        "One rectangle does everything: it is the typing cursor (0.0–1.8s), grows into a full-stage block (1.8–2.55s), and collapses to the landing cursor at x=456 (2.95–3.55s). The cursor and the wipe are clearly the same object.",
+        "The scene changes at 2.7s, while the block fully covers the stage (2.55–2.95s), so the incoming scene is never shown mid-change.",
+        "The glitch slivers draw only while the block is expanding or collapsing, and are gone before the 'TAKE FLIGHT' hold. The cursor fades out between 4.6 and 5.0s.",
+        "The incoming headline and subtitle are readable and don't collide with the sun disc."
+      ],
+      "limitations": [
+        "The completed 'CREATE' holds for only about 0.5s (1.30–1.8s) before the expansion. That is enough for one word but not tested here; none of the six frames shows the full word."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-024",
+      "name": "Focus Reveal",
+      "source": "src/client/motion-previews/motion-024.ts",
+      "sourceHash": "17bd2c9ad4542df3a3c39616b3389faf2a3ae5973321e0d2e1c40cc1f5bee030",
+      "changes": "Words now reveal one at a time ('FROM A ROUGH IDEA / TO REAL CREATION'), each rising out of blur and sharpening to filter 'none' before the hold. The highlight grows only behind the key word 'CREATION'; the glyphs switch to dark exactly where the highlight has swept, using a clip. At 4.0–4.6 s 'CREATION' leaves upward through the same line mask while 'MOTION' enters from below and the highlight resizes. The result is a crisp hold.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+      "visualReviewPassed": true,
+      "observations": [
+        "Words rise 18px out of a 9px blur and are fully sharp when progress reaches 1 (1.2s shows 'IDEA' still blurred; by 2.4s everything is crisp).",
+        "The highlight grows left to right behind 'CREATION' only (2.25–2.75s), and glyphs switch to dark wherever the highlight has grown, which keeps the contrast right.",
+        "The swap from CREATION to MOTION travels vertically through the same clipped line mask (4.0–4.6s) while the highlight resizes. The final 'MOTION' holds crisp from 4.6 to 6.0s."
+      ],
+      "limitations": [
+        "Word centres are hard-coded estimates rather than measured, so 'FROM A' is tightly spaced. After the swap, 'MOTION' stays centred at x=404, which leaves a wide gap after 'REAL'. This is a layout polish note, not a semantic failure.",
+        "The highlight's alignment depends on font metrics in the render environment."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-025",
+      "name": "Gallery Focus",
+      "source": "src/client/motion-previews/motion-025.ts",
+      "sourceHash": "41329cfa547aa4c19652a311ba74befd46d9fa7e5b7682da5494f2c107ddf73b",
+      "changes": "The grid now holds six illustrated studies (Summit, Coastline, City, Forest, Dunes, Aurora), each drawn by one artwork function in a local 160×96 frame, with captions. A cursor clicks Coastline (press-scale feedback). The header copy clears, and neighbours yield away from the selection while fading. The same tile grows FLIP-style into the focus frame with its art scaled. The caption 'Coastline — Study 02 / morning fog over the bay' appears only after the frame arrives. It holds, then returns to its grid slot and the copy comes back.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "12411fe2-7fec-4fc5-bb72-bc031625943d",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0s: a 3×2 grid of six distinct illustrated studies under the heading 'SIX FIELD STUDIES'. Coastline is clearly selected with an accent outline and accent-coloured label.",
+        "1.2s: the heading and subtitle are partway through fading out. A cursor moves in from 0.3s, and the tile does a small press at 0.9s.",
+        "2.4s: the same Coastline artwork, scaled up evenly (same 5:3 shape), fills the focus frame. The other tiles have moved outward and faded. The caption is fading in under the frame because it waits until the grow is at least 90% done.",
+        "3.6s: settled focus hold. 'Coastline — Study 02' and 'morning fog over the bay' sit on a dark backing plate with no overlap. The caption is fully visible from about 2.6s to about 4.6s, roughly 2s.",
+        "4.8s: the tile shrinks back toward its grid slot while the other tiles return and fade back in. The selected tile draws on top of them.",
+        "6.0s: back to the original overview, with the heading and subtitle restored, so the return to the grid is continuous.",
+        "grow(t) and copyFade(t) are differences of pure motionProgress windows, so forward, backward and direct seeks all give the same state."
+      ],
+      "limitations": [
+        "The tile labels are 12px, which is readable at card size.",
+        "In-between overlap during the return is only partly sampled (one frame at 4.8s).",
+        "This is a code-drawn study, not compared with the source videos."
+      ],
+      "reviewFollowUps": [
+        {
+          "sessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+          "changes": "The focus artwork no longer stretches. FOCUS is now {x:125, y:42, w:390, h:234}, the same 5:3 shape as the 160×96 tile, so the rect stays 5:3 at every step of the grow and the sun stays round. As a backstop, tile() now scales uniformly with Math.min and centres the art instead of scaling x and y separately; this also covers the click press, which shrinks the rect proportionally. The caption no longer sits on another tile. Neighbour alpha changed from 1−0.85g to 1−g, so the neighbours fade out completely during the focus hold and the Dunes tile is gone from behind the caption. The caption also sits on a dark rounded backing plate at (200, 288, 240×56), with text at y=312 and y=334, so the warm subtitle has guaranteed contrast. The focus frame now ends at y=276, so there is a gap between the frame and the plate. All timing is unchanged: click, copy clear, grow, caption, hold and return to the grid slot. Every frame is still computed from t alone, with nothing carried between frames."
+        }
+      ]
+    },
+    {
+      "id": "motion-026",
+      "name": "UI Recompose",
+      "source": "src/client/motion-previews/motion-026.ts",
+      "sourceHash": "057f68bb5d5b0ca3fe3afa46fd377bc0c5b40ed7c2d4a33dbe710f859880ec5d",
+      "changes": "The 'hello' note card now persists from a hero layout into the first pill-shaped row of a notes app. Rect, radius, type size, text anchor and avatar are interpolated together, and the text stays left-anchored, so the alignment never jumps. The surrounding layout arrives around it: a toolbar with NOTES and '+ new', sibling rows (meeting notes, groceries) sliding up, and a detail pane showing the selected note. The hero subline fades as the card compacts.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+      "visualReviewPassed": true,
+      "observations": [
+        "One card object is drawn with interpolated rect, corner radius, font size, avatar position and text anchor (1.0–2.5s). It is never swapped, so the 'hello' card keeps its identity from hero to list row.",
+        "The hero-only subline fades out first (1.0–1.4s). The toolbar and detail pane fade in (1.6–2.4s), and the sibling rows slide up in a stagger. The card is drawn last, so it stays on top while the layout changes.",
+        "The settled state holds from about 2.65s to 6.0s with clear, readable labels."
+      ],
+      "limitations": [
+        "The middle of the recomposition (about 1.4–2.3s) falls between the 1.2s and 2.4s samples; I checked it in the source only."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-027",
+      "name": "Elastic Arrival",
+      "source": "src/client/motion-previews/motion-027.ts",
+      "sourceHash": "58e47ae95a133cca7a881205361011859621027df166aada7421be0697232bb7",
+      "changes": "Replaced the sine-hack bounces with an analytic bounce model: constant gravity, restitution 0.42, four contacts, and contact squash scaled by impact speed. Four letter tiles (L-A-N-D) fall with a staggered start, stretch while fast, squash about the baseline contact point, and rebound lower and shorter each time. A contact shadow tightens and darkens near the ground. The 'landed softly' tagline appears after every tile has settled.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+      "visualReviewPassed": true,
+      "observations": [
+        "Fall, contact squash and rebound are computed analytically from each tile's age, with restitution 0.42, so each bounce is lower and shorter. Squash scales about the baseline contact point (translate to BASELINE − height, rect drawn upward from 0).",
+        "The contact shadow tightens and darkens as each tile nears the baseline. Tiles land in a stagger: L, A, N, D (1.2s shows them at different phases).",
+        "'LAND' is settled by 2.4s, and the tagline appears only after all tiles have settled (2.75s+) and holds to 6.0s."
+      ],
+      "limitations": [
+        "The peak first-impact squash (about 0.08s) isn't sampled in these frames. Peak squash widens a tile to about 99px against an 84px pitch, but neighbours land at staggered times, so the overlap is brief and unlikely."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-028",
+      "name": "Travel Loop",
+      "source": "src/client/motion-previews/motion-028.ts",
+      "sourceHash": "7ad8d4003af7b6864fd977e4074f06ef570338f517e679751529a1a5e47ad87c",
+      "changes": "Rebuilt as one kinematic chain. Ground speed is 160 px/s. The wheel radius is chosen so the wheels turn exactly 5 times per loop with no slip against the road dashes. The crank turns at a 2.5 gear ratio, and the legs are solved with two-bone IK onto the pedals (far leg behind the frame, near leg in front). The torso bobs with the pedal stroke. Trees move at ½ and hills at ⅕ speed, with periods that divide the loop; the sun is static. A caption documents the depth ratios.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+      "visualReviewPassed": true,
+      "observations": [
+        "Wheel rotation is distance divided by WHEEL_R (no slip, exactly 5 turns per loop). The crank turns at a fixed gear ratio, and two-bone IK puts the legs on the pedals with the knee in front. Body bob is tied to the crank angle.",
+        "Road dashes move at 1×, trees at ½× and hills at ⅕×, and every period divides evenly into the 6s loop, so 0.0s and 6.0s match.",
+        "The far leg is grey and sits behind the frame; the near leg is drawn in front, so the layering is correct."
+      ],
+      "limitations": [
+        "The 14px speed-ratio label is small at card size.",
+        "Foot-on-pedal contact at every frame can't be confirmed from six frames; the IK limits in the source keep the leg within reach."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-029",
+      "name": "Stroke Reveal",
+      "source": "src/client/motion-previews/motion-029.ts",
+      "sourceHash": "da7e27ace063f99379f6b96e656b487e1648bcff3a8a739423cd78c81dfbf173",
+      "changes": "Replaced the single sine line with an authored drawing revealed by arc length in order: horizon, mountain ridge, sun circle, birds. A pen tip rides the active stroke, oriented to the tangent. Pigment washes (the ridge wash sweeping left to right, the sun filling from its centre) start only after their outlines exist and are painted beneath the ink, so outlines are never erased. A caption appears last on a paper card.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+      "visualReviewPassed": true,
+      "observations": [
+        "Strokes are revealed by arc length in the authored order: horizon (0.35–0.85s), ridge (0.95–2.05s), sun (2.15–2.75s), birds (2.85–3.1s). The pen tip follows each path's tangent (1.2s on the ridge, 2.4s on the sun circle).",
+        "Colour fills go in only after their outlines and sit beneath the ink. At 3.6s the ridge fill is partway across from left to right and the outline is intact.",
+        "The finished drawing holds from about 4.0s to 6.0s, with the 'morning ridge' caption appearing after everything is done."
+      ],
+      "limitations": [
+        "The source for partialStroke and the fill details was only partly expanded; the timing order was confirmed from the STROKES constants and the visible frames."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-030",
+      "name": "Data Build",
+      "source": "src/client/motion-previews/motion-030.ts",
+      "sourceHash": "d65ddab972d73832621d4613b1ceba112f9c1148dc67618e6ed89bdd018fb247",
+      "changes": "Nodes are now labelled (USER, APP, API, DB) and grow in a short stagger. They are always four arcs, so they exist before any link. The four links then draw in order, from node edge to node edge, and each arrowhead appears only after its shaft lands. The percentage, the 'k of 4 links' line and per-node degree badges (roundRect) all read the same linkState(t). The APP label is offset clear of its links, and the conclusion 'Every service is reachable' holds.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "12411fe2-7fec-4fc5-bb72-bc031625943d",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0s: only the counter heading shows ('0% connected / 0 of 4 links'). It counts as a standalone heading, and the diagram hasn't appeared yet.",
+        "1.2s: all four nodes (USER, APP, API, DB) are in fixed positions with labels, and no links yet. Nodes come before connections, as required.",
+        "2.4s: two links are complete with arrowheads. The 50% figure, '2 of 4 links' and the degree badges (USER 1, APP 2, API 1) all match the linkState data. In the source, the arrowhead is drawn only when progress ≥ 1, so no head appears before its line lands.",
+        "3.6s: all four links are complete, at 100%, with correct degrees (APP 3, API 2, DB 2, USER 1). The badges sit away from where the links meet each node, so nothing collides.",
+        "4.8s–6.0s: the line 'Every service is reachable' (fades in 3.6–4.0s) holds with no other motion. That claim matches the topology: everything can be reached from USER.",
+        "The percentage, link count and badges all come from linkState(t), a pure clamp function of time, so they share one source of truth and can be seeked."
+      ],
+      "limitations": [
+        "Partly drawn lines between frames are checked from the source only.",
+        "The '0 of 4 links' subtitle is 13px grey and small at card size, but still legible.",
+        "This is a code-drawn study, not compared with the source videos."
+      ],
+      "reviewFollowUps": [
+        {
+          "sessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+          "changes": "Each node now has its own badge position (bx/by), so badges sit on the side away from the links. DB's badge moved to its upper-left (x 290–310, y 232–250). That clears both the API→DB arrowhead coming in from the upper right and the vertical APP→DB arrowhead at x≈314–326. USER's badge also moved to its upper-left, because the old (+10, −28) spot overlapped the start of the USER→APP line. APP and API keep their original spots, which were already clear of their links. The badge numbers still come from the same linkState(t) data, and the arrowheads still appear only when their line is complete. Node, link and conclusion timing is unchanged."
+        }
+      ]
+    },
+    {
+      "id": "motion-031",
+      "name": "Medium Swap",
+      "source": "src/client/motion-previews/motion-031.ts",
+      "sourceHash": "50b45fc445b88059b906441ca9192d91fb380559fe319fe2a43021d7a617b348",
+      "changes": "A shared pose function (a waving figure beside a table, plus the horizon) is rendered in two media. The first is a 1920s ink sketch on sepia paper, with deterministic wobbly double lines and hatching. The second is 2020s flat vector, with capsule limbs, a sun and a flat table. The medium swaps through eight authored vertical strips that drop top to bottom in a fixed scattered order (a single union clip) while the wave continues. Era labels live inside each medium's layer.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+      "visualReviewPassed": true,
+      "observations": [
+        "Both styles render from one shared pose(t) skeleton, so the head, shoulder, hip, knee and foot positions and the wave phase are identical. The horizon (y=290) and table are shared anchors.",
+        "Eight vertical strips drop in a fixed authored order [3,5,1,6,0,4,7,2] (1.4–3.6s) while the wave continues (2.4s shows a mixed frame with the same arm pose across the boundary).",
+        "Each era label lives in its own layer, so it changes with the same strips. The flat-vector state holds from 3.6s to 6.0s with a readable label and correct layering (head drawn over the arm)."
+      ],
+      "limitations": [
+        "In the ink-sketch medium the waving forearm crosses the head outline, which is acceptable for line art. In the mixed frame the label is briefly split across strips ('2020 · FLAT VI'), as the strip method intends."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-032",
+      "name": "Flock Flow",
+      "source": "src/client/motion-previews/motion-032.ts",
+      "sourceHash": "7236d53b2a5ea293cbff60639b87fd408f405cf34988f4deb13db5927c5fdd07",
+      "changes": "98 oriented agents sit on a lattice (14 rows of lag × 7 lanes) along a shared figure-eight flow, with a faint guide path. Lag spacing breathes, so the group stretches and compresses, and the lateral width narrows; the crossing makes the group coil through itself. Each agent has a small bounded periodic wobble and points along its own velocity. Every term is periodic, so 0 s and 6 s match.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "423b6ff5-0743-4d32-a361-3a9ee8294a92",
+      "visualReviewPassed": true,
+      "observations": [
+        "98 separate arrow agents are each computed in closed form from (row, lane, t) along one shared figure-eight path, so jumping to any time reproduces the same positions, and the 6s loop closes (0.0s and 6.0s match).",
+        "Row spacing and lane width breathe twice per loop. Across the frames the group visibly stretches (1.2s, 3.6s) and bunches up around the path's turns (2.4s, 4.8s). Each agent points along its own velocity.",
+        "The figure-eight path stays inside the stage; agents stay within the tile in every sampled frame."
+      ],
+      "limitations": [
+        "The group spans at most about 0.29 of a cycle, so it never actually crosses itself at the figure-eight intersection. The 'coil' reads as bending around the lobes rather than looping through itself. Agents are individually visible but tightly packed at the turns, and separation isn't enforced, only bounded by the lattice offsets."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-033",
+      "name": "Build Assembly",
+      "source": "src/client/motion-previews/motion-033.ts",
+      "sourceHash": "3aff75157b75accbda8dbd2b08da3a85ece65e2e0f244b169df122cab91fd5e8",
+      "changes": "Replaced the slide-in side bars with a staged house build. A dashed blueprint comes first. The slab slides in horizontally; the walls rise from the slab; openings are cut; the roof descends vertically and lands with a small settle. The door slides into its opening and the window scales in. The chimney drops behind the roof plane so the slope hides its base. Contact ticks flash at the landings, and an 'ASSEMBLED' pill appears last.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0s: empty stage with only the ground line. 1.2s: dashed blueprint outline of the walls and roof, with the slab in place. 2.4s: walls are up, door and window openings are dark, and the roof is landing. 3.6s: door and window filled in, chimney placed. 4.8s and 6.0s: the 'ASSEMBLED' pill holds.",
+        "Source: each part moves along a believable axis. The slab slides in horizontally, the walls grow upward from the slab, the roof drops down with a small settle, the door slides in, the window scales up, and the chimney drops in behind the roof so the roof slope hides its base. The stages run in order from 0.1 to 3.75 s, the label appears at 3.95–4.35 s, and the result then holds for about 1.65 s.",
+        "Brief tick marks flash at each contact. The label appears only after the build is finished."
+      ],
+      "limitations": [
+        "The landing bounce lets the roof dip about 5 px into the wall tops for a moment. Six frames can't show this, and it's minor.",
+        "The 15 px stage header 'PLAN · SLAB · WALLS · ROOF · FIT-OUT' is small at card size, but it is supporting copy."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-034",
+      "name": "Cloth Response",
+      "source": "src/client/motion-previews/motion-034.ts",
+      "sourceHash": "e212baa85e664433b1fa9482fa63053899a887f1d60822de116df44f02ed1b23",
+      "changes": "The banner now has shaded cells whose brightness follows the fold slope. A gust enters at 0.8 s with streaks; a damped fold wave travels left to right, with amplitude growing with distance from the top edge and vanishing at the pins; it relaxes to rest by 5.6 s. Printed artwork (the letters 'HI' and a stripe) is defined in uv space and mapped through the same surface, so it deforms with the cloth. Pins are drawn exactly at (160,85) and (480,85), and the state caption changes.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+      "visualReviewPassed": true,
+      "observations": [
+        "Both pin points stay at exactly (160,85) and (480,85) in every frame. The deformation is multiplied by sin(u·π), which is zero at the pins, and by v, which is zero along the top edge.",
+        "The 'HI' letters and the warm stripe are drawn in the sheet's own surface coordinates, so they bend with the cloth (visible at 1.2 s). Shading follows the fold slope.",
+        "Timeline: at rest, a gust arrives at 0.8 s with one pass of wind streaks, a damped fold wave travels left to right, and it fades to rest between 4.6 and 5.6 s. The status label correctly changes from AT REST to GUST · FOLDS TRAVEL to RELAXED."
+      ],
+      "limitations": [
+        "The motion is a hand-written wave formula, not a physics simulation, and the source says so. After about 2.4 s the fold amplitude is subtle at card size."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-035",
+      "name": "Orbit Choreography",
+      "source": "src/client/motion-previews/motion-035.ts",
+      "sourceHash": "764e6cd10b90143c9d7ef4087380256a94aba909572207fe701754d9e1db2707",
+      "changes": "Corner brackets now show a locked camera. Four bodies on tilted ellipses use whole-number turns per loop (3, 2, 1, −2) and align in front of the hub at 3 s, with an 'ALIGNMENT' cue. A moon orbits body 2. Depth order is computed per frame: bodies behind the hub are painted before it and bodies in front after it (the old version always drew the hub first). Sizes scale with depth, and trails show the true earlier positions, kept subordinate.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+      "visualReviewPassed": true,
+      "observations": [
+        "The corner brackets stay fixed, so the camera is clearly locked. Four numbered bodies orbit hub 'A' on tilted ellipses with whole-number speeds (3, 2, 1 and −2 turns), and a moon orbits body 2.",
+        "Draw order is re-sorted every frame by depth. At 0.0s, bodies 1 and 3 are behind the hub and correctly partly hidden; bodies 2 and 4 are in front. Short fading trails stay secondary to the bodies.",
+        "Everything lines up at 3 s with an 'ALIGNMENT' cue, and the state at 6 s matches 0 s, so the loop is seamless (the 0.0s and 6.0s frames match)."
+      ],
+      "limitations": [
+        "The 3 s alignment moment isn't among the sampled frames. Its behaviour comes from reading the source.",
+        "The moon is always drawn on top of body 2 and never passes behind it. The digits on the far-side bodies are very small at card size (they shrink to about 10 px). Both are minor."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-036",
+      "name": "Glitch Type Build",
+      "source": "src/client/motion-previews/motion-036.ts",
+      "sourceHash": "865f367dc61ed8117a317c70880c99074bdf0aef7444ff51cdf8dd7170a31807",
+      "changes": "Restructured with named constants and kept each glyph anchored at its final translate. Red/cyan echoes now jump between discrete glitch frames instead of sliding, and a torn scanline slice crosses the unstable glyph. Scale is exactly 1 once settled. The background ring is centred on the title.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+      "visualReviewPassed": true,
+      "observations": [
+        "'FLIGHT' is built one glyph at a time. Each glyph is fixed to its final anchor and enters up to 5× oversized and blurred, with red and cyan echoes that jump in discrete steps plus a torn scanline. The 1.2s frame shows an enlarged T with echoes overlapping the settled 'FLIGH'.",
+        "Glyphs reach exactly scale 1, zero blur and no echoes. Settled glyphs never move. The title is complete at 1.40 s and holds sharp and correctly spelled through 6.0s, with all letters inside the frame."
+      ],
+      "limitations": [
+        "Only one of the six frames catches a glyph mid-entrance. Overlap during the earlier glyphs is confirmed from the source, not from rendered frames.",
+        "The build takes about 1.3 s and the hold about 4.6 s. The hold is long but readable, so this is a pacing preference, not a defect."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-037",
+      "name": "Phrase Scatter & Step-In",
+      "source": "src/client/motion-previews/motion-037.ts",
+      "sourceHash": "91e9f8022520154a40654a439f21fed5eacc7a58642b4e95d58956e2c7bead0c",
+      "changes": "The outgoing phrase now holds intact for 1 s (it was 0.4 s). Glyphs are released in turn with bounded tilt, accelerating fall and a fade, and are fully gone by about 2.34 s. Incoming words are re-centred and step in with meaning-based beats: THIS IS A, a pause, the warm italic serif 'NEW' with a small punch that settles to exactly 1, then IDEA.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+      "visualReviewPassed": true,
+      "observations": [
+        "0.0s: 'OLD TALE' is fully intact. 1.2s: the first glyphs tilt and drop (the O is visibly rotated). The source gives each glyph a limited rotation, a downward drift that speeds up, and a full fade, so nothing lingers.",
+        "The new phrase steps in word by word: 'THIS', 'IS', 'A' (1.55–2.0 s), a pause, then the emphasis word 'NEW' in a warm italic serif with a small punch that settles to exactly scale 1 (2.55 s), another pause, then 'IDEA' (3.25 s). The full phrase holds from about 3.6 s to 6.0 s.",
+        "Falling glyphs are mostly faded before they reach the new words' baseline, so the two phrases don't collide in a readable way."
+      ],
+      "limitations": ["The pauses are set by meaning only. No audio is involved."],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-038",
+      "name": "Punctuation Zoom",
+      "source": "src/client/motion-previews/motion-038.ts",
+      "sourceHash": "4312bec50d81b141485f4c7904a74958c1280f4627d0de39e1c5c910d188c214",
+      "changes": "Fixed the zoom target. The sentence is right-aligned so the full stop sits exactly after its last letter. The view pans onto the dot while zooming exponentially to 64×, where the dot's 384 px radius covers the frame. The next composition ('CHAPTER 2 / NEXT CHAPTER', with an echo dot) is revealed inside the warm punctuation field.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+      "visualReviewPassed": true,
+      "observations": [
+        "The full stop at the end of 'Then came a pause' is the shared element. Between 1.0 and 2.4 s the view pans toward it and zooms exponentially up to 64×. At that scale the dot's 384 px radius covers the 367 px half-diagonal, so the 2.4s frame is entirely the warm dot colour.",
+        "The next composition ('CHAPTER 2' / 'NEXT CHAPTER' plus a small echo dot) fades in inside the same warm field at 2.55–3.2 s and holds through 6.0s. The dark text is legible on the warm background.",
+        "This is a real zoom into the punctuation mark, not a generic fade or a stand-in rectangle."
+      ],
+      "limitations": [
+        "The full stop is a canvas circle placed after the text, not the font's own '.' glyph. It still reads as the sentence's punctuation."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-039",
+      "name": "Radial Logo Burst",
+      "source": "src/client/motion-previews/motion-039.ts",
+      "sourceHash": "18f2e4883e58f556efe392d48d27c0045e8cc1e5248287573eed1c24154ce15d",
+      "changes": "Restructured into named WAVE, CONFETTI and INVERSION configs with mark, confettiPiece and wave functions. The inversion is now a true circular mask: inside the mask the field and mark use the inverted palette (via a clip while the radius is under 45 px), outside they keep the original. A 'BURST' wordmark lands for the identity hold. Pop, hang, gravity and the beat waves are numerically preserved.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+      "visualReviewPassed": true,
+      "observations": [
+        "A fixed 16-ray mark sits at the centre. Five soft white waves leave the centre every 0.4 s from 0.45 s; each fades as it expands, and two fronts are visible together at 1.2s and 2.4s.",
+        "At 1.2s there is a compact burst of white and dark squares, triangles, circles and crosses. Pieces start tiny at the centre, grow in apparent size in front of the mark, and spread only a little. The source holds them for 0.35 s before gravity takes over, and the 2.4s frame shows them falling below the mark. The burst stays close to the icon and never spreads across the canvas.",
+        "From 3 to 4.2 s a circular mask expands from the same centre and inverts the field and mark colours (3.6s). The 'BURST' wordmark arrives at 3.7–4.2 s and the identity holds from 4.8s to 6.0s."
+      ],
+      "limitations": [
+        "The 0.4 s wave spacing is a chosen rhythm and isn't tied to any audio. The burst spread is flattened vertically (×0.35), which is a stylised take on depth."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-040",
+      "name": "Word Smash Cuts",
+      "source": "src/client/motion-previews/motion-040.ts",
+      "sourceHash": "128c9a62b488e0ec7b44043fb973474804c85c833351b827df0c7c1c3eaacf13",
+      "changes": "Moved the schedule into a typed CARDS table and added a cardAt() lookup. The lead-in 'Let's' now has a fixed left edge, so the added dots no longer shift the word. Other cards stay centred at the same baselines.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+      "visualReviewPassed": true,
+      "observations": [
+        "Hard cuts change copy, background and text colour on the same frame. Nothing moves within a card, and there is no glitch or spring effect.",
+        "Lead-in: 'Let's' gains one dot at a time on lime, with a fixed left edge so the word never shifts (0.0s vs 1.2s confirm this). Then come MAKE (dark), SOMETHING (lime), AND (plum), GO BIG at 190 px crossing the frame edges for emphasis, and finally MAKE IT REAL, held for 1.4 s.",
+        "Every card lasts at least 0.4 s, and short words get short holds, which reads fine. Contrast is strong on every card."
+      ],
+      "limitations": [
+        "The oversized GO BIG card (3.8–4.6 s) isn't among the sampled frames. Its frame-edge crossing is confirmed from the source only."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-041",
+      "name": "Ranked Bar Race",
+      "source": "src/client/motion-previews/motion-041.ts",
+      "sourceHash": "f4aa61855ff94af07f742374a4ffe9875553aa8a353a88a02937c1df6990bb94",
+      "changes": "Reorganised into module-level data, a chartState(t) and a labelAlphas() function, with the same interpolation, label-yield and draw-order logic. Added a source footer: 'Source: invented sample for this demo'.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "6801d770-1daa-4cc1-a69e-7574752f34d4",
+      "visualReviewPassed": true,
+      "observations": [
+        "The setup is all there at 0.0s: the title 'Smoothie Flavor Race', the subtitle 'DEMO DATA · fictional votes, running total', an axis with ticks at 0, 50, 100 and 150, five ranked rows plus a dimmed Blueberry row below the cutoff line, a 'top 5 shown' note, the WEEK 1 stamp with step dots, and the footer 'Source: invented sample for this demo'. The fictional data is labelled honestly and no real-world values are invented.",
+        "Values on screen match the dataset as it moves between weeks. At 1.2s the eased transition from week 1 to week 2 is about 0.78 complete, and Plum shows 75 (55 + 25 × 0.784). At 3.6s Mint shows 120 (112 + 38 × 0.216). At 4.8s and 6.0s every value equals the week-4 data exactly.",
+        "Each flavor's color comes from its own data entry, never from its rank. The colors stay with their flavors as the order changes from Plum/Mango/Mint (week 1) to Mint/Mango/Blueberry/Plum/Berry (week 4). Value labels use the same color as their bar.",
+        "Swaps are calculated in advance from where each pair's interpolated values actually cross. When one row is in two swaps, the swaps run one after another, so no more than two rows share a lane at once. At 2.4s, Mint and Plum are caught mid-swap: Plum is the thinner bar on top, and both labels (Plum 92, Mint 91) are still readable. Berry and Blueberry are also swapping in that frame, with a clear lane between the two pairs.",
+        "Labels fade according to how close another row is and which row has priority. When two rows fully share a lane, the falling row's name and value fade to zero, so the doubled text seen in the source frames is avoided. All labels are drawn after all bars, so no bar covers a label.",
+        "The cutoff is clear. Below rank 5 a row fades to 25% opacity: Blueberry rises into the top five during the week 2→3 change, and Lime drops out and stays dim. This matches the dimmed threshold row in the source frames.",
+        "The week stamp and the step dots read from the same data index. The stamp changes at the midpoint of each transition (WEEK 2 at 1.2s, WEEK 3 at 2.4s and 3.6s, WEEK 4 afterwards).",
+        "The final week holds from 4.3s to at least 6.0s. The 4.8s and 6.0s frames are identical, which confirms a still hold for reading.",
+        "The palette is a quiet dark field with a light ink for the title and stamp, muted grey for the axis, subtitle and source, and six distinct flavor colors that contrast well with the background. Nothing is clipped or collides in any of the six frames."
+      ],
+      "limitations": [
+        "Six frames cannot show every in-between frame. Swap ordering, label fading and the eased spacing were checked by reading the source, not by watching the animation.",
+        "I didn't run any seek tests. The claim that seeking gives the same frame rests on the code: every frame is computed from t alone, with no timers, animation loop or saved state.",
+        "The holds at weeks 2 and 3 last only about 0.4s, which is enough for a schematic preview. A full production with real data might want longer stops at each period.",
+        "The 12px source footer and the 25%-opacity row below the cutoff are faint at card size. The dimming follows the brief; neither is a functional defect.",
+        "The axis doesn't rescale (the maximum is fixed at 160). The brief doesn't require rescaling and the source evidence can't show whether it rescaled. I didn't judge fidelity to the unseen original footage."
+      ],
+      "reviewFollowUps": [
+        {
+          "sessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+          "changes": "Fixed the cause of the 2.4 s collision: every row's rank used to move on one shared timer, so in week 2→3 Plum, Mango and Mint met in the same lane and Mango and Plum disappeared. Each rank change is now a swap between two neighbouring rows. When the module loads, the code works out the moment each pair's values actually cross, from the existing fictional data, and gives that swap a short window centred there (SWAP_SPAN 0.28 of the step). Swaps that share a row run one after another, so no more than two rows ever share a lane. Week 2→3 order: Mango passes Plum and Blueberry passes Lime (0.11–0.39), Mint passes Plum (0.42–0.70), Blueberry passes Berry (0.43–0.71), Mint passes Mango (0.70–0.98). At 2.4 s Mango is alone in the top lane and Mint and Plum are about 24 px apart, mid-swap. Each row's rank position is built from its swapping pairs, so it moves continuously and lands exactly on the next week's ranking. Weeks 1→2 and 3→4 are each a single swap and behave as before. Values, colours, the week stamp and cutoff dimming still come from one dataset and are calculated from time alone. Rows are marked rising or falling only while their own swap is active, not by their net move over the week. Rising bars are drawn first; the falling bar goes on top, thinner and with a thin dark outline, so both colours stay visible instead of one bar being hidden. Labels are drawn after all bars. Removed the now-unused moving/progress fields; added the ease import."
+        }
+      ]
+    },
+    {
+      "id": "motion-042",
+      "name": "Lighting State Progression",
+      "source": "src/client/motion-previews/motion-042.ts",
+      "sourceHash": "b770305bbb080e83c09b58eb8d37f742161354aeafce6ff977bf69ca446340d3",
+      "changes": "Reorganised into typed state data, fixed geometry constants, and paintEnvironment, paintFront and paintKettle functions with a HANDOFFS table. The command order is preserved.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+      "visualReviewPassed": true,
+      "observations": [
+        "The lakeside stage keeps the same geometry (ridge, lake, meadow, pines, cabin, stone) across DAY → DUSK → NIGHT. The copper kettle hero is drawn last and keeps the same shape and colours in every state.",
+        "Each change is a wavy cloud front moving left to right, with the complete next state already painted behind its edge (a masked reveal, not a crossfade). It also casts a ground shadow. The windows are 1.2–2.5 s and 3.4–4.7 s.",
+        "Each state has its own sun or moon and stars, lake reflections, shadow direction, cabin window glow and night fireflies. Shadow offsets agree with where the light is (sun at right, shadow to the left; moon at left, shadow to the right). Final NIGHT holds from 4.7 to 6.0 s."
+      ],
+      "limitations": [
+        "The front is almost off-screen at 2.4s and starts at 1.2s, so no sampled frame shows a wipe in mid-crossing. The masking is confirmed from the source."
+      ],
+      "reviewFollowUps": []
+    },
+    {
+      "id": "motion-043",
+      "name": "360° Camera Orbit (360度环绕运镜)",
+      "source": "src/client/motion-previews/motion-043.ts",
+      "sourceHash": "c09666b9226ad7f9f8fe834769b0582ccc2c7e00ef6f438759baf444aee31c9b",
+      "changes": "Rewrote the orbit module with closed box and prism faces, a camera factory, a projector, flat shading under a fixed world light, near-plane culling, a ground grid, and world-space cast shadows (light projection plus convex hull). The hero is fixed and asymmetric (front window, rear hatch, side annex, vent) with three landmarks. Timing is a 0.9 s hold, a sine-eased 360° circuit to 5.1 s, and an exact return pose. The 'FRONT' label is reprojected and shown only when the front faces the camera, and the closing line appears after the camera stops.",
+      "authoringSessionId": "95780f8f-6f04-47cb-90f3-f231224fb778",
+      "visualReviewSessionId": "6fa589e8-30df-444c-bf0f-32c36f41f560",
+      "visualReviewPassed": true,
+      "observations": [
+        "Real Three.js camera maths: a PerspectiveCamera on a fixed circle (radius 7, height 3, FOV 40) looking at a fixed target. The pose is a pure function of time: 0.9 s opening hold, a 4.2 s sine-eased 360° orbit, then exactly θ0 again (0.0s and 6.0s frames match).",
+        "The hero is asymmetric (window, rear hatch, side annex, vent, offset roof block) and its transform never changes. The world light, cast shadows and three landmark posts stay fixed in world space. Parallax and occlusion change correctly: at 2.4s (rear view) the near landmark covers the hero, and the reprojected 'FRONT' label hides when the front faces away.",
+        "Faces are back-face culled and painter-sorted, and all boxes are closed, so there are no open rear surfaces. The closing line appears only after the camera stops (5.2–5.5 s) and stays readable until 6.0 s."
+      ],
+      "limitations": [
+        "Faces are painted by average-depth sorting on Canvas rather than a WebGL depth buffer. That is fine for these well-separated boxes but could misorder thin protruding parts at grazing angles that weren't sampled.",
+        "The closing line has only about 0.5 s of fully legible time. That's short but acceptable for a preview."
+      ],
+      "reviewFollowUps": []
+    }
+  ]
+}

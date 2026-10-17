@@ -1,0 +1,519 @@
+{
+  "schema_version": 1,
+  "kind": "frame_findings_implementation",
+  "source": {
+    "description": "User-supplied recording: motion-graphics intro of a Bilibili tutorial (channel watermark 在下鱼酥), 910×512, 30 fps, 60 s, frames 1–1800.",
+    "reuse_policy": "Source copy, illustrations, photographic CRT, UI and colors are not reused. All previews are original code-drawn Canvas 2D studies; source palettes are illustrative only."
+  },
+  "analysis_provenance": {
+    "model": "claude-opus-5-5",
+    "consolidation_session_id": "db119551-bfab-4049-ae2a-1d3deaad6b42",
+    "batch_session_ids": [
+      "f8d48396-c1aa-4c5f-b03e-fd20a76772d6",
+      "6b0bb5b6-3e80-45ff-9c20-0c6c53498917",
+      "965e3d6c-3402-4e80-b2a8-0884f4899a0c",
+      "183c35f5-d990-40bf-a1c9-21c9ff54bab8",
+      "4decd27f-c375-4f09-b7c7-a197798af5de",
+      "61de6085-8e76-4040-bf6d-f73d85294273"
+    ],
+    "completed_at": "2026-10-17T07:12:32.508Z",
+    "coverage": "Six batches inspected all 1,800 thumbnails and 60 contact sheets; 59 distinct full-resolution frames were inspected across the analysis workflow. No audio was analysed."
+  },
+  "implementation_provenance": {
+    "author": "Claude Opus 5.5 (claude-opus-5-5) via the Claude Agent SDK",
+    "authoring_session_id": "da01b6ac-f8aa-4d47-80d4-64a5fd2201cc",
+    "authored_on": "2026-10-17",
+    "full_resolution_frames_read_this_pass": [
+      370, 701, 707, 860, 1232, 1241, 1300, 1672, 1700, 1733, 1737, 1744
+    ],
+    "method": "Read implementation-candidates.json completely, inspected the listed evidence frames, then implemented previews, catalog entries, optional typed variant fields, UI and tests. Before noticing the no-shell constraint, the author ran one read-only inventory shell command (ls and wc to list files and sizes); it modified nothing. All later work used file read, search and edit tools only. The author ran no tests, type-checks or builds; all test and type-check results come from host runs."
+  },
+  "visual_review": {
+    "status": "passed",
+    "first_review": {
+      "model": "claude-opus-5-5",
+      "session_id": "5f6d7510-c62d-4f6b-8434-8e9f55627cd7",
+      "completed_at": "2026-10-17T08:48:01.172Z",
+      "method": "A separate session reviewed twelve-timestamp contact sheets of ten rendered previews; motion-046 failed (step-2 arrowhead hidden under a docked chip; completed diagram visible for about 0.1 s), and the other nine passed with minor issues."
+    },
+    "repairs": [
+      "motion-046: arrows end on free bezel edge outside every docked chip, with heads outside the device and a light keyline; the completed diagram holds 3.95–4.45 s before the burst; 'illustrative output' is 14 px.",
+      "motion-045: the region copy uses a uniform cover scale; the 72 loop samples are perimeter-resampled with the four corners as exact samples, and the locked frame uses mitred joins; the box tightening is blended in with straightening to remove a start pop; the subtitle is 19 px.",
+      "motion-038: the ¶ tile is about 85 px and sits in the headline line; the bowl slides and flattens into the colour patch; CHAPTER 2 is dark 20 px.",
+      "motion-040: cream spikes and a dark keyline on the incoming word; GO BIG holds about 0.47 s; the squash moves to 4.45–4.95 s; two-tone ornaments arrive with the 3.8 s emphasis cut and persist.",
+      "motion-025: tile labels wait for the last landing (0.70 s); the complete hub holds about 0.46 s; the hero subtitle is two lines starting at x = 362.",
+      "motion-026: connector symbols are drawn 1.5× about the seam; the avatar hops over the title on a late-peaking arc.",
+      "motion-044: the panel expansion is eased once; the caption is 18 px.",
+      "motion-008: the subtitle is shortened and set at 19 px."
+    ],
+    "note": "Claude Opus 5.5 reviewed twelve browser-rendered timestamps for all ten changed/new motion previews after repairs, and four live-app Motion Graphic variant sections. All passed. Sampled images plus source inspection do not prove every in-between frame or source-video/audio fidelity; host browser checks separately verify repeated seeks and playback.",
+    "final_review": {
+      "model": "claude-opus-5-5",
+      "session_id": "8aa4ed03-1837-4e76-b139-7c3f8e0c992c",
+      "completed_at": "2026-10-17T09:08:39.056Z",
+      "sample_times_seconds": [0, 0.6, 1.2, 1.8, 2.2, 2.6, 3, 3.4, 3.8, 4.4, 5.2, 6],
+      "source_hashes": {
+        "motion-008": "c11706c778937ffa6ecb4fdc52a8e5bc1761d86107daf8c4e9fca8d0f3ef74bc",
+        "motion-025": "99eef7b36fa2cd5333655f3f6d9632edf0c95a52d0ecf093a05f4c7ae8714a81",
+        "motion-026": "1077bb6a04403b6914ffa4427437eccaabc3da7cc5a1d10e03920d2196780654",
+        "motion-029": "55e93aebefee3c09c76f892f51a09a26e5c0d7fce5df932c682662afd1529eb6",
+        "motion-036": "58fdd33a75f0a0fd1441a9b06e38354d6bbc3d3f02991ee0dd1f59ea5caacf7b",
+        "motion-038": "45a2817d6295e2a0401fdd8bdf08e497aa25777c0fb53671211a7794bc22826a",
+        "motion-040": "fefd6ca4ebd0f0bef1277c78d101d6f09c34eef7da4e12902a9213ec47dd6b6e",
+        "motion-044": "ca66b85ca167de83063f594d6db1709f98bdcc8e0d39f2ec2b8a02a7d6a3275e",
+        "motion-045": "09565ebc2df5856498bd6caf2e7494759315fd936a2fd55f22bbfed588cbae1b",
+        "motion-046": "d2f9811450451d57a7a25a8e5ee282d293851c6ae6c68fc548fc245ca71395c3"
+      },
+      "preview_reviews": [
+        {
+          "id": "motion-008",
+          "imageRead": true,
+          "passed": true,
+          "observations": [
+            "The original stacking is intact. Section 1 is anchored at 0–0.6 s. Sections 2 and 3 rise over the stack while the covered cards scale down, dim and keep their headers (1.2–3.0 s), and the group releases upward at 3.4 s.",
+            "The deck variant runs in its window [3.6, 6]. A single REF 1 card fades in at 3.8 s. Siblings are skipped until fan.start (k>0 && t<4.25 → continue), so they are exactly hidden. They fan about the shared pivot (320,300) at 4.4 s, de-rotate into the offset stack (5.2 s) and hold unchanged at 6.0 s.",
+            "Repair verified: the subtitle is now 19 px and short ('one reference becomes four'), and it reads in the 4.4–6.0 s samples.",
+            "deckPose normalises -0 so the collapsed pose is exactly 0. Every value is a pure function of t."
+          ],
+          "issues": [
+            "Minor: the 'REF n' labels are 13 px (about 6.5 px at 320×180), so the cards read by colour rather than by label at card size. Raising them to about 16 px would help, but they are not essential copy."
+          ],
+          "limitations": [
+            "The fan is sampled only at 4.4 s and 5.2 s. The peak angle and the absence of intersection artefacts in between come from the source, not from pixels."
+          ]
+        },
+        {
+          "id": "motion-025",
+          "imageRead": true,
+          "passed": true,
+          "observations": [
+            "The hub fling with rays shows at 0–0.6 s. The spokes are clearly visible with the tile labels at 1.2 s. Repair verified: the complete hub now holds 0.92–1.38 s, the click is at 1.28 s and the copy fades from 1.38 s.",
+            "Repair verified: the tile labels are gated on LAST_TILE_LANDS (0.70 s), and the spokes start at 0.72 s, after every tile has landed and only toward real slots.",
+            "Gallery Focus is retained. The copy clears and the neighbours yield and fade (1.8 s), and the same artwork grows at an aspect-correct 5:3 (2.2 s). The caption on its backing plate fades in after arrival (2.6–3.8 s) and clears before 3.9 s.",
+            "Zoom-through: there is a near-white flash at the 4.4 s peak. The hero lands with the folded corner (5.2 s), and the '02 COASTLINE' copy appears only after landing. Repair verified: the subtitle is split into two lines and stays well inside the right edge."
+          ],
+          "issues": [],
+          "limitations": [
+            "The pass-through itself (3.9–4.9 s) is seen only at the 4.4 s flash peak. The continuity of the thick near-white frame is verified from the source."
+          ]
+        },
+        {
+          "id": "motion-026",
+          "imageRead": true,
+          "passed": true,
+          "observations": [
+            "The original recompose is retained. The 'hello' card interpolates its rect, radius, type size and avatar into the first row while the toolbar, sibling rows and pane arrive (1.8–2.6 s).",
+            "Repair verified: the avatar now hops above the title on a late-peaking sin(π·p³) arc with exactly zero lift at both ends. At 1.8 s and 2.2 s it sits above the card text rather than crossing the letters.",
+            "Repair verified: the symbol stages are drawn at 1.5× about the seam. '~' at 3.0 s and ')(' at 3.4 s are recognisable at card size. connectorStage returns one stage per time, so direct seeks cannot double-draw.",
+            "The final '][' is drawn unscaled and splits into corner brackets that end exactly on the row (40,92,260,62) and pane (320,92,300,244) bounding-box corners, holding from 4.4 to 6.0 s. A checker tile pops at the seam."
+          ],
+          "issues": [
+            "Minor: mid-split (around 3.8 s) the travelling row brackets pass over the 'hello' row text for about 0.15 s. This is transient and acceptable; optionally route the row half above the row."
+          ],
+          "limitations": [
+            "The zig-zag (2.7–2.95 s), × (3.12–3.29 s) and '][' (3.46–3.62 s) stages are not sampled and were verified from the source."
+          ]
+        },
+        {
+          "id": "motion-029",
+          "imageRead": true,
+          "passed": true,
+          "observations": [
+            "The stroke order is retained: horizon, ridge, sun, birds (0.6–3.0 s). The pen tip follows the tangent. The washes arrive after the outlines and are painted beneath the ink (3.4–3.8 s), and the caption follows at 4.4 s.",
+            "The annotation lifecycle stays on its own layer. The note and the shaft start at 4.4 s. At 5.2 s the hooked arrow is complete with its head, and at 6.0 s the arrow has retracted into the sun. head = drawn ≥ 1 && t < retract.start, so the endpoint rule holds in every seek direction.",
+            "The drawing layer is never modified."
+          ],
+          "issues": [
+            "Minor (unchanged from the initial review): the note hold is 0.37 s (4.78–5.15 s). That is adequate for the two-word note, but scale it to the copy if longer notes are used. The 16 px italic note is about 8 px at card size, which is marginal."
+          ],
+          "limitations": [
+            "The draw (4.38–4.78 s) and retract (5.35–5.65 s) phases are not sampled. The head visibility comes from annotationState in the source."
+          ]
+        },
+        {
+          "id": "motion-036",
+          "imageRead": true,
+          "passed": true,
+          "observations": [
+            "The original Glitch Type Build is retained. Glyphs enter oversized with blur, red/cyan echoes and a scanline tear, overlapping their settled neighbours (0.6 s, 1.2 s). The scale is exactly 1 once settled, and 'FLIGHT' holds from 1.4 s.",
+            "The ghost-smear variant runs in its window [2.3, 3.12]. At 2.6 s 'TAK' is solid and 'E' is a grey streaked ghost; at 3.0 s 'TAKES O' is solid and 'F' is a ghost. There is no scale, overlap or x offset, and the STREAKS and shift values are fixed constants.",
+            "The lockup is legible at card size and holds from 3.12 to 6.0 s."
+          ],
+          "issues": [],
+          "limitations": [
+            "The oversized 'T' at 1.2 s crosses the right frame edge during its entrance. That is transient and by design. The stability of the streaks across re-seeks is verified from the source."
+          ]
+        },
+        {
+          "id": "motion-038",
+          "imageRead": true,
+          "passed": true,
+          "observations": [
+            "The original Punctuation Zoom is retained. The real full stop is panned and zoomed exponentially to 64× (1.8–2.2 s), and the next chapter is revealed inside the warm dot field (2.6 s).",
+            "Repair verified: the ¶ tile is now about 85 px (scale 1.85) and sits in the headline line as '¶ NEXT CHAPTER'. It reads as its character from about 3.2 to 3.8 s. 'CHAPTER 2' is now 20 px dark ink and legible.",
+            "Repair verified: bowlCenter interpolates the bowl's centre toward the patch position while it shrinks and the patch grows from that centre. The stems rotate into ruled lines, with no crossfade.",
+            "At 4.4 s a tilted card is emitted from the tile centre with seeded multicolour spikes. It de-rotates to 0° and fills the frame. The caption appears only after emit = 1 (5.2–6.0 s)."
+          ],
+          "issues": [
+            "Minor: the 'CHAPTER 2' line and the small dot are centred on 320, over the text only, so the '¶ NEXT CHAPTER' group sits slightly right-heavy, and the tile nearly touches the 'N'. This is aesthetic. Optionally centre the tile and text as one group with about a 20 px gap."
+          ],
+          "limitations": [
+            "The morph (3.8–4.2 s) falls between samples, so the intermediate shapes were judged from the source. The spike peak is seen only at 4.4 s."
+          ]
+        },
+        {
+          "id": "motion-040",
+          "imageRead": true,
+          "passed": true,
+          "observations": [
+            "The original cuts are retained. 'Let's' gains dots from a fixed left edge (0–1.2 s), and MAKE, SOMETHING and AND swap copy and colour at single scheduled instants.",
+            "Repair verified: the burst spikes are now CREAM and the oversized 'GO BIG' has a dark keyline. At the 3.8 s peak the lime letters separate clearly from the spikes. The slam settles to scale 1 by 3.98 s, and at 4.4 s 'GO BIG' is at rest, crossing the edges as intended.",
+            "Repair verified: SQUASH now starts at 4.45 s, giving about 0.47 s of settled GO BIG, and matches the metadata window [4.45, 4.95]. The ornaments appear from 3.8 s and stay outside the scaled group. 'MAKE IT REAL' holds from 4.95 to 6.0 s.",
+            "cardAt makes each swap a single instant, so a backward seek before 3.8 s or 4.7 s restores the previous word."
+          ],
+          "issues": [],
+          "limitations": [
+            "The spark (3.5–3.62 s) and the band minimum at 4.7 s are not sampled; both were verified from the source."
+          ]
+        },
+        {
+          "id": "motion-044",
+          "imageRead": true,
+          "passed": true,
+          "observations": [
+            "'FORMAT' is fully legible for the 1.6 s hold (0–1.2 s samples).",
+            "Real glyph-ink dilation: each glyph is stroked with a round-joined strokeText of width 2·r, ranked centre-out. At 1.8 s R and M are blobs while F, O, A and T are still readable. At 2.2 s the counters are closed and the word is a fused black mass whose rim follows the letter silhouettes. This is not a rectangle wipe.",
+            "A core fillRect at lock (2.5 s) guarantees no holes. The navy recolour still keeps the glyph silhouette at 2.6 s. At 3.0 s the rect grows while the ragged rim and fixed notches relax, and the panel is complete by 3.4–3.55 s.",
+            "Repair verified: the expansion now uses the motionProgress easing once. The subtitle is 18 px. The incoming title is gated on panelComplete and writes on from 3.62 s (3.8 s partial), then holds to 6.0 s. The brackets and crosses stay fixed."
+          ],
+          "issues": [
+            "Minor (carried over): the write-on is a rectangular clip wipe of the incoming title rather than a per-glyph write. It is acceptable for a schematic."
+          ],
+          "limitations": [
+            "The rank-2 dilation finish (2.34 s) and the lock (2.5 s) fall between the 2.2 s and 2.6 s samples. The absence of holes was confirmed from the core-fill logic plus the 2.6 s mass."
+          ]
+        },
+        {
+          "id": "motion-045",
+          "imageRead": true,
+          "passed": true,
+          "observations": [
+            "One cobalt stroke draws by arc length from the reference card into a rounded lasso (1.2 s partial) and holds closed (1.8–2.2 s), with the illustration readable.",
+            "markPoints returns the same 96-point list in every phase. At 2.6 s the stroke has straightened into a rectangle, the connector has collapsed and a faint lasso trail is visible. It then zooms (3.0 s) and locks as the frame at 3.4 s.",
+            "Repair verified: regionCoverScale applies a uniform cover scale, so the sun stays round at 3.0 s and 3.4 s. The perimeter-resampled UNIT_LOOP snaps exact corner samples and uses mitred joins once straight, so the locked frame has square corners for 3.8–6.0 s.",
+            "The ticks (3.72 s) and the title (3.9 s) appear only after the lock. The 19 px subtitle is legible. The draw is clamp-monotonic, so a backward seek un-draws it."
+          ],
+          "issues": [
+            "Moderate continuity pop at t = 2.4 s (straighten start). The region copy is clipped to the lasso box (232×144) and scaled by regionCoverScale(box) ≈ 1.24 from the very first straighten frame. It is drawn over the original 196×116 artwork at scale 1.0, so the art jumps about 24% larger and fills the lasso margin in one frame (compare 2.2 s with 2.6 s). Repair: start the copy from the original state. Interpolate the clip rect from REGION to the box with straighten, and interpolate the scale with k = mix(1, regionCoverScale(box), straighten) (or blend over the zoom). The copy then begins exactly on the original art.",
+            "Minor: during straightening (2.4–2.62 s) the copy is clipped to a sharp rectangle while the stroke is still a rounded lasso, so the clip corners can poke outside the stroke. Clip to the current markPoints polygon, as the metadata asks ('use the current shape as the clip')."
+          ],
+          "limitations": [
+            "The straighten (2.4–2.62 s) and zoom peak are sampled once or twice. The scale pop is established from the source arithmetic and the 2.2 s and 2.6 s comparison, not from an exact 2.41 s frame."
+          ]
+        },
+        {
+          "id": "motion-046",
+          "imageRead": true,
+          "passed": true,
+          "observations": [
+            "Repair verified (endpoint rule): the step arrows now end on free bezel edge. Step 1 ends at (404,106), above both chips. Step 2 ends at (404,222), below the step-2 chip including its shadow (which ends at y 209). The heads sit outside the device. At 2.6 s the step-2 head is visible at the lower-left bezel and is not covered. The heads draw only when p ≥ 1, and the shaft stops at the head base.",
+            "Repair verified (processing hold): the nodes pop at 3.45–3.81 s and the connectors draw at 3.7–3.95 s, each only after both endpoint nodes exist. The finished diagram holds 3.95–4.45 s. The 4.4 s sample shows all three nodes and both connectors before the burst.",
+            "Step context is retained. The chips dock at the screen edge (1.8–2.6 s), fan left after the pull-back (3.4 s), and stay visible with cumulative feed arrows through the output (5.2–6.0 s). Card contents build only after each entrance completes (0.6 s blank, 1.2 s built).",
+            "Repair verified: the 'illustrative output' label is 14 px and readable. The arrows have a light GLOW halo, so they read on the teal ground and over the dark screen. The output contents appear only after the burst settles. The spikes and halftone come from fixed tables."
+          ],
+          "issues": [
+            "Minor: during step 2's absorb (2.8–3.1 s) its feed arrow fades at fixed geometry while the card has already moved toward the dock. At 3.0 s a faint, detached arrow floats where the card used to rest. Fade it over the first 30–40% of the absorb, or attach its tail to the moving card.",
+            "Minor: the step-2 dock rect (y 150–203) covers the lower ~21 px of the step-1 chip (y 118–171), so the tiny '1 ASSETS' chip is partly hidden from about 3.0 s until the pull-back. This is acceptable as an 'absorbed' stack, but a small dock offset would keep both chips identifiable."
+          ],
+          "limitations": [
+            "The 4.45–4.8 s halftone and spike burst never falls on a sample. Its seeding and its order relative to the output window were verified only from the source.",
+            "The step-1 arrow's head window (1.4–1.6 s) is not sampled; its clearance was verified from the geometry."
+          ]
+        }
+      ],
+      "motion_graphic_ui_review": {
+        "imagesRead": [
+          "ui/style-003.png",
+          "ui/style-016.png",
+          "ui/style-055.png",
+          "ui/style-111.png"
+        ],
+        "passed": true,
+        "issues": [
+          "Minor: style-055 and style-111 both use the variant name 'Neon Flat-Sticker Collage on Black'. Each parent has its own description, swatch labels ('field' vs 'stage') and Use when text, so it is clear in context. In a cross-catalog search, though, the two can look like duplicates. Consider adding the parent's role to the name, for example '… (sticker explainer)' for style-111.",
+          "Minor: the grey intro disclaimer ('Optional named variants … always win') is the smallest, lowest-contrast text in each section. It is legible in these screenshots, but it carries the key non-binding-palette message, so one step more contrast would help."
+        ],
+        "observations": [
+          "All four sections are headed 'Optional variants', with the same disclaimer: the default visual direction and palette stay the baseline, variant swatches are illustrative and never binding, and task-provided or approved colors always win.",
+          "These are three recipes attached to four existing Motion Graphics, not new catalog cards. style-003 has 'Retro Propaganda Sunburst Device Collage' (pairs with motion-046). style-016 has 'Punk-Zine Brush Kinetic Title Card' (pairs with motion-044, 045, 036 and 040). style-055 and style-111 each carry an adapted 'Neon Flat-Sticker Collage on Black' (pairs with motion-045, and with motion-045 and 046).",
+          "Every section has a one-line description, labelled swatch chips, a Use when line that names when to keep the parent's default look, Visual and Animation bullets, a Palette paragraph and Pairs with. All body copy is legible, nothing is clipped or overlapping, and the contrast is good on the dark panel.",
+          "No forced default palette. Each Palette paragraph calls the source hues demonstrations, not mandatory, and says the ground is chosen per scene or from the brief. style-003 keeps only the parent's restricted red, black and paper family, which is the parent's identity, not a new default. style-016, 055 and 111 explicitly say to recheck contrast.",
+          "The recipes keep the source-frame rules: style-111 says 'arrows with heads only at shaft completion', style-055 and 111 say to avoid generative smear morphs, and style-016 calls for fixed-seed jitter that stays stable across seeks."
+        ]
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "key": "glyph-ink-flood-container-handoff",
+      "kind": "new_motion",
+      "motion_id": "motion-044",
+      "preview_module": "src/client/motion-previews/motion-044.ts",
+      "evidence_frames": [701, 703, 707],
+      "implementation": "Per-glyph morphological dilation (round-joined text stroke) from absolute time, centre glyphs first; hole-free core fill at lock; fixed ragged-rim offsets; recolour to the container hue; bounds expand into the panel; the incoming title is revealed only after the panel completes (3.55 s).",
+      "limitations": [
+        "The source method (choke/dilate or a hand-drawn matte) is unknown.",
+        "The recolour is visible in only about two source frames."
+      ]
+    },
+    {
+      "key": "annotation-mark-portal-transition",
+      "kind": "new_motion",
+      "motion_id": "motion-045",
+      "preview_module": "src/client/motion-previews/motion-045.ts",
+      "evidence_frames": [1232, 1240, 1241, 1243, 860],
+      "implementation": "One point list (connector plus rounded lasso) is drawn by arc length, held, morphed to a rectangle with the same point count (perimeter-resampled, exact corners), collapses its connector tail and scales to the final frame while clipping a uniformly cover-scaled region copy; ticks and the next title appear only after the frame locks.",
+      "limitations": [
+        "Whether the source zoom includes a cross-dissolve is visible only across f1240–1242.",
+        "The highlighter form is documented but not shown in the preview."
+      ]
+    },
+    {
+      "key": "cumulative-device-feed-pipeline",
+      "kind": "new_motion",
+      "motion_id": "motion-046",
+      "preview_module": "src/client/motion-previews/motion-046.ts",
+      "evidence_frames": [1586, 1631, 1672, 1678, 1700, 1733, 1737, 1744],
+      "implementation": "Data-modelled device, screen, two step cards (enter, build, arrow, absorb, fan) and output window; card labels wait for the complete card, arrowheads wait for complete shafts and end on free bezel edge outside every chip, chips persist through the output, nodes pop before connectors and the completed diagram holds 0.5 s, and seeded spikes plus halftone dots burst the screen into the output window before its contents appear.",
+      "limitations": [
+        "Source arrowhead timing is unconfirmed; the endpoint rule is applied.",
+        "The source CRT is replaced by an original code-drawn device.",
+        "Pull-back is implemented as chip motion to fan targets, not a camera move."
+      ]
+    },
+    {
+      "key": "keyword-glyph-portal-emission",
+      "kind": "existing_motion_variant",
+      "motion_id": "motion-038",
+      "variant_id": "keyword-glyph-portal",
+      "preview_module": "src/client/motion-previews/motion-038.ts",
+      "preview_window_seconds": [3.8, 5.05],
+      "evidence_frames": [917, 947, 952],
+      "implementation": "After the unchanged punctuation zoom reveals the chapter, an ≈85 px pilcrow (¶) ruled-paper tile in the headline line morphs by authored parts into a lined page (the bowl slides and flattens into the colour patch), emits a de-rotating picture card with seeded spikes, and the landed card's caption appears afterwards.",
+      "limitations": [
+        "Source morph frames look generative and are not reproduced.",
+        "The pilcrow is an English stand-in for the source glyph 文."
+      ]
+    },
+    {
+      "key": "squash-to-band-card-flip",
+      "kind": "existing_motion_variant",
+      "motion_id": "motion-040",
+      "variant_id": "squash-to-band-flip",
+      "preview_module": "src/client/motion-previews/motion-040.ts",
+      "preview_window_seconds": [4.45, 4.95],
+      "evidence_frames": [268, 273, 611],
+      "implementation": "The GO BIG card (field plus copy) scales in height only to 4% about mid-frame, swaps to MAKE IT REAL exactly at 4.7 s and expands back; corner ornaments, present since the 3.8 s cut, stay outside the scaled group.",
+      "limitations": ["Easing is not measurable from stills."]
+    },
+    {
+      "key": "ghost-smear-glyph-build",
+      "kind": "existing_motion_variant",
+      "motion_id": "motion-036",
+      "variant_id": "ghost-smear-build",
+      "preview_module": "src/client/motion-previews/motion-036.ts",
+      "preview_window_seconds": [2.3, 3.12],
+      "evidence_frames": [623, 860, 410],
+      "implementation": "After the unchanged oversized FLIGHT build and hold, the subtitle TAKES OFF builds in place: each glyph shows a 0.1 s grey streaked ghost at its final position, then turns solid; no scale or translate is used.",
+      "limitations": ["The source technique (echo, motion tile or datamosh) is unknown."]
+    },
+    {
+      "key": "burst-masked-word-swap-slam",
+      "kind": "existing_motion_variant",
+      "motion_id": "motion-040",
+      "variant_id": "burst-masked-swap-slam",
+      "preview_module": "src/client/motion-previews/motion-040.ts",
+      "preview_window_seconds": [3.5, 4.0],
+      "evidence_frames": [1418, 970, 1546],
+      "implementation": "A spark appears between the glyphs of AND, seeded cream spikes grow behind it, the copy swaps to GO BIG exactly at the 3.8 s peak and slams from 1.6× to 1× with a dark keyline while the burst clears; earlier clean cuts are unchanged.",
+      "limitations": [
+        "The possible overshoot between f972 and f973 is unresolved.",
+        "The fixed-foreground-hero case is documented, not drawn."
+      ]
+    },
+    {
+      "key": "morphing-connector-to-frame-brackets",
+      "kind": "existing_motion_variant",
+      "motion_id": "motion-026",
+      "variant_id": "connector-to-frame-brackets",
+      "preview_module": "src/client/motion-previews/motion-026.ts",
+      "preview_window_seconds": [2.7, 3.95],
+      "evidence_frames": [178, 214],
+      "implementation": "After the recompose settles, a seam connector steps zig-zag → ~ → × → )( → ][ and its halves split into corner brackets ending exactly at the row and detail-pane corners, with checker tiles at the seam.",
+      "limitations": [
+        "Stepped swaps are used because interpolation in the source is unknown.",
+        "The source's card convergence is not shown."
+      ]
+    },
+    {
+      "key": "brush-annotation-lifecycle",
+      "kind": "existing_motion_variant",
+      "motion_id": "motion-029",
+      "variant_id": "annotation-lifecycle",
+      "preview_module": "src/client/motion-previews/motion-029.ts",
+      "preview_window_seconds": [4.3, 5.85],
+      "evidence_frames": [640, 1032, 1372],
+      "implementation": "On a separate annotation layer, a brush arrow from a note draws with its head hidden until the shaft completes, holds, straightens through the same points, then retracts from its tail into the sun with the head hidden from the first retract frame; the drawing itself is never erased.",
+      "limitations": [
+        "The source arrowhead forms early (f1032); the endpoint rule is applied instead.",
+        "The over/under weave is unconfirmed and not shown."
+      ]
+    },
+    {
+      "key": "burst-hub-selected-card-zoom-through",
+      "kind": "existing_motion_variant",
+      "motion_id": "motion-025",
+      "variant_id": "burst-hub-zoom-through",
+      "preview_module": "src/client/motion-previews/motion-025.ts",
+      "preview_window_seconds": [0, 5.3],
+      "evidence_frames": [976, 1027],
+      "implementation": "Tiles are flung from the title hub by a starburst; spokes are drawn only after the last tile lands. After the focus hold, the same tile (artwork, border, folded corner) zooms past the camera through a near-white frame and lands as the next section's hero before its copy appears.",
+      "limitations": [
+        "Observed only at contact-sheet resolution; spoke timing is ambiguous.",
+        "This replaces the preview's former return-to-grid ending."
+      ]
+    },
+    {
+      "key": "card-split-fan-deck",
+      "kind": "existing_motion_variant",
+      "motion_id": "motion-008",
+      "variant_id": "one-card-fan-deck",
+      "preview_module": "src/client/motion-previews/motion-008.ts",
+      "preview_window_seconds": [3.6, 6],
+      "evidence_frames": [1124],
+      "implementation": "The stacking and group release are kept (retimed to finish at 3.9 s); the revealed content is one reference card whose hidden siblings fan about one bottom pivot and rotate into a flat offset stack.",
+      "limitations": ["Low-confidence source; the smeared split stage is not reproduced."]
+    },
+    {
+      "key": "punk-zine-brush-kinetic-card",
+      "kind": "existing_motion_graphic_variant",
+      "style_ids": ["style-016"],
+      "variant_id": "punk-zine-brush-kinetic-card",
+      "evidence_frames": [370, 640, 701],
+      "implementation": "Optional motion_graphic_variants entry on Punk Graphics with visual and animation guidance, illustrative swatches and pairings (motion-044, motion-045, motion-036, motion-040); rendered in Motion Graphic details and passed to agents via style-context.json.",
+      "limitations": ["Palette hexes approximate compressed video and are not binding."]
+    },
+    {
+      "key": "neon-sticker-collage-on-black",
+      "kind": "existing_motion_graphic_variant",
+      "style_ids": ["style-055", "style-111"],
+      "variant_id": "neon-sticker-collage-on-black",
+      "evidence_frames": [1232, 1300],
+      "implementation": "Optional dark-field variant on Sticker Collage and Sticker-Style Explainer Animation; the default paper/contact-shadow and light chapter-field looks remain the baseline.",
+      "limitations": ["Generative smear transitions from this phase are excluded."]
+    },
+    {
+      "key": "retro-propaganda-device-collage",
+      "kind": "existing_motion_graphic_variant",
+      "style_ids": ["style-003"],
+      "variant_id": "retro-propaganda-device-collage",
+      "evidence_frames": [1672, 1733],
+      "implementation": "Optional variant on Constructivism paired with motion-046; requires an original or authorised device illustration.",
+      "limitations": ["The source CRT asset is not reusable."]
+    }
+  ],
+  "motion_graphic_links": [
+    {
+      "style_id": "style-003",
+      "motion_id": "motion-046",
+      "reason": "Restricted-palette poster explainer around a fixed hero object (source phase 3)."
+    },
+    {
+      "style_id": "style-016",
+      "motion_id": "motion-044",
+      "reason": "Heavy cut-out lettering on paper; the source ink flood occurs in this visual phase."
+    },
+    {
+      "style_id": "style-016",
+      "motion_id": "motion-045",
+      "reason": "Handwritten marks are part of Punk Graphics' material vocabulary."
+    },
+    {
+      "style_id": "style-024",
+      "motion_id": "motion-045",
+      "reason": "The mechanism turns an explanatory annotation into the transition."
+    },
+    {
+      "style_id": "style-044",
+      "motion_id": "motion-046",
+      "reason": "Cut-out period device with clipped paper inputs."
+    },
+    {
+      "style_id": "style-054",
+      "motion_id": "motion-044",
+      "reason": "Toner-heavy photocopy type can choke into a solid block."
+    },
+    {
+      "style_id": "style-093",
+      "motion_id": "motion-044",
+      "reason": "Typography carries the transition and becomes the container."
+    },
+    {
+      "style_id": "style-098",
+      "motion_id": "motion-045",
+      "reason": "A drawn portal leading into the scene it encloses."
+    },
+    {
+      "style_id": "style-107",
+      "motion_id": "motion-046",
+      "reason": "Distinct media roles (device, paper cards, output) in one causal chain."
+    },
+    {
+      "style_id": "style-111",
+      "motion_id": "motion-046",
+      "reason": "Question → mechanism → conclusion with purposeful arrows and sticker cards."
+    }
+  ],
+  "test_baseline_handling": "Hash-based historical tests (camera-orbit, technology-pool, motion-reference-review, catalog-visual-review) strip only motion-044–046 links, motion `variants` and `motion_graphic_variants`; their recorded hashes are unchanged.",
+  "host_verification": {
+    "test_files": 154,
+    "tests_passed": 913,
+    "build": "passed",
+    "lint": "passed",
+    "motion_explorer": {
+      "previews": 46,
+      "sharedCards": true,
+      "search": true,
+      "pauseAndResume": true,
+      "seekableRenderedMotion": true,
+      "offscreenPause": true,
+      "reducedMotion": true,
+      "pageErrors": []
+    },
+    "motion_graphic_variants": {
+      "motionCount": 46,
+      "motionGraphicCount": 136,
+      "variantDetails": [
+        {
+          "id": "style-003",
+          "variants": ["retro-propaganda-device-collage"]
+        },
+        {
+          "id": "style-016",
+          "variants": ["punk-zine-brush-kinetic-card"]
+        },
+        {
+          "id": "style-055",
+          "variants": ["neon-sticker-collage-on-black"]
+        },
+        {
+          "id": "style-111",
+          "variants": ["neon-sticker-collage-on-black"]
+        }
+      ],
+      "pageErrors": [],
+      "flexibleBackgroundLabelRemoved": true
+    },
+    "generation_started": false
+  }
+}

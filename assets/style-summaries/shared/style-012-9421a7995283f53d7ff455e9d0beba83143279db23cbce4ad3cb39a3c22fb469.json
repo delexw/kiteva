@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-012",
+    "name": "Op Art. This is a supplemental design reference, not a directly named style in the source collection. A kaleidoscope alone does not establish Op Art.",
+    "visualIdentity": "Optical illusions built from stripes, checkerboards, concentric circles and repeated geometry. Line weight, density and positive-negative relationships are controlled deliberately. Motion changes phase, spacing and deformation at continuous, measured speeds.",
+    "suitableUses": "Explicit: illusion-led pieces, used alone. Explicit hybrid use: exhibition posters, album covers and event key art with a reserved text block. Inferred: a centered optical mark may suit the optional radial burst reference, which lists Op Art as compatible.",
+    "limitations": "Keep text away from the strongest illusion zones and avoid high-frequency flicker. Pairing with other styles easily causes flicker or illegibility. Moiré must be inspected at the final output size. Exact legibility thresholds and maximum speeds are unspecified.",
+    "palette": "Background policy is scene_dependent, so #FFFFFF is only an illustrative swatch, not a required canvas. Suggested monochrome tokens are #FFFFFF and #000000, at 21:1 contrast in a two-color check only. Task-provided exact colors override these, and no gradient is enabled. Add no accent hues.",
+    "motionAndInteraction": "Explicit: animate phase, spacing and deformation at continuous, measured speeds and avoid flicker. Optional references: motion-039 ring expansion for a centered mark only if the actual mark supports it; motion-002 and motion-012 for chapter passages. Interactive HTML may pause for reduced motion; video must not depend on live input.",
+    "audio": "Unspecified by the style, with no fixed genre, tempo, instrument, voice or mandatory layer. Choose from the brief among music, voiceover, sound effects, ambience or silence. Silence suits reading holds. Do not claim beat or speech sync without inspected audio.",
+    "assetRequirements": "No mandatory assets are specified. Subject, exact copy, duration, aspect ratio, resolution and frame rate are unspecified. The radial burst reference needs an actual approved mark with inspected geometry. Do not invent a brand mark or product copy. Load fonts and assets locally before rendering.",
+    "combinations": "Explicit: Op Art is best used alone for illusion-led pieces. Supporting style-103 poster structure: reserve a solid black or white text block outside illusion zones, keep strictly black and white, and hold a slow, constant phase with matched loop endpoints. Avoid text over stripes, flicker and loop jumps.",
+    "productionApproach": "HyperFrames is the default pipeline; Remotion is a fallback only if HyperFrames is unavailable or a verified limitation exists, with the reason recorded. Canvas 2D is the style renderer for parametric repeated geometry driven by shared time. GSAP is the motion engine on a paused, seekable timeline. chroma-js is optional for contrast checks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

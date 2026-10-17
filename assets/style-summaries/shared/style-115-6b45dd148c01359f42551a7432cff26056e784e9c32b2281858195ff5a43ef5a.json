@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-115",
+    "name": "Animated Reaction Captions (supplemental; Motion Design and Cinematography category, user-requested direction).",
+    "visualIdentity": "Concise emphasis text in expressive display lettering, with consistent layered outlines, hard shadows, reaction stickers and small doodles. Each emotion gets a distinct color and motion. It is distinct from continuous dialogue subtitles and general kinetic typography.",
+    "suitableUses": "Explicit: short reaction and emphasis captions for video, with 9:16 framing given as an optional example. Inferred: vertical short-form clips. Interactive HTML is an inferred overlay option; the source does not specify it.",
+    "limitations": "Not suited to continuous subtitles or dense kinetic text. Captions must not cover faces, dialogue subtitles or platform UI. Reading holds outrank beat density. Source review covered only sampled seconds 1–8, with no audio or later scenes verified.",
+    "palette": "Background is scene-dependent, chosen from topic, mood and environment; listed tokens are illustrative, not mandatory. Tokens: background #FFF5E5, foreground #282E3B, accents #DA855C, #668FA3, #A47CA3; no gradient. Foreground on background is 12.592:1. Accent_1 with foreground is 4.851:1; accent_2 and accent_3 are decorative only. Assign each accent to one emotion. No approved exact colors were supplied.",
+    "motionAndInteraction": "Short spring entrances, squash, bounce and wobble are timed to reactions or verbal stress, followed by readable holds. Optional motion-037 (Phrase Scatter & Step-In) applies only if scene assets support it. Motion is time-driven with no pointer dependency. Reduced motion shows the completed state.",
+    "audio": "The brief specifies no audio, and no audio layer is mandatory. Options include restrained accents on reactions, music timing only with a supplied soundtrack, or silence. Any narration needs clear speech without competing vocals. No audio was verified in the source.",
+    "assetRequirements": "No uploads are mandatory. Needed: actual display fonts for outlines and shadows, sticker and doodle assets, and exact copy, which is unspecified. The source mascot and confetti are demonstrations only. Glyph assets must be inspected before using motion-037.",
+    "combinations": "Usually best used alone, since doodles, stickers and squash are already included. Style-105 pairs only when a supplied soundtrack drives entrances, with reading holds taking priority over beat density. Avoid a pop on every beat and beat-reactive colors outside the palette. Motion-037 is the sole motion reference candidate.",
+    "productionApproach": "HTML/CSS and SVG render real text, layered outlines and stickers. Optional Rough.js doodles and mo.js bursts may be added. A paused GSAP timeline owns motion, with one owner per property. HyperFrames is the default pipeline; Remotion applies only with a recorded, verified limitation. Verify with checks, snapshots, seeks and composited contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

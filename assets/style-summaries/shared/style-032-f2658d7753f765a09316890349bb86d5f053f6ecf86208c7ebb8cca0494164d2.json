@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-032",
+    "name": "Manga (explicit provenance; Drawing and Illustration category).",
+    "visualIdentity": "Authored manga illustration with controlled ink weights, selective screentones and cinematic panels. The brief picks the subject; human faces, eyes and hands are optional, never a required template.",
+    "suitableUses": "Explicit fit: illustrated storytelling with panel reveals and motivated action. Inferred fit: explanatory mechanical or environmental narratives. Cinematic openings are a named compatible context.",
+    "limitations": "Artwork must be authored SVG or deterministic Canvas; generated, raster, traced or sprite art is prohibited. Strictly monochrome. The still must read before motion is added. Source timing is approximate.",
+    "palette": "Suggested tokens #FFFFFF and #171717 give 17.928:1 two-color contrast; these are not approved exact colors. Background is scene_dependent, so no canvas color is mandated. Gradients are disabled; recheck composited frames.",
+    "motionAndInteraction": "Optional references: motion-016 for openings, motion-012 or motion-015 for chapters. motion-006 is illustrated gaze needing eye layers, not viewer tracking. motion-037, -038 and -039 need an actual mark. Pointer input is interactive-only.",
+    "audio": "No audio is mandated; music, ink or impact accents, narration or silence may fit. Gallery demos stay silent. Claim no beat or speech synchronization without inspected timing.",
+    "assetRequirements": "No uploads are mandated. Story art, screentones and panel masks must be code-drawn; references are optional study inputs only. Do not invent copy or brand marks.",
+    "combinations": "Strongest alone in black and white. Optional style-101 parallax suits hero panels with unchanged screentone scale. Optional style-024 annotations use #171717 only, never overlapping speech balloons.",
+    "productionApproach": "HyperFrames is the default pipeline for composition and export only; Remotion needs a recorded reason. SVG renders the style, GSAP owns seekable motion, Motion is optional, and Python or Pillow support preparation."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

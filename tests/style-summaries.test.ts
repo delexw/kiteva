@@ -171,7 +171,7 @@ it("does not cache failures or accept summaries for another style", async () => 
     "Model unavailable",
   );
   await expect(summarizeStyle(source, "claude", signal, folder, generate)).rejects.toThrow(
-    "different style",
+    "different Motion Graphic",
   );
   await expect(summarizeStyle(source, "claude", signal, folder, generate)).resolves.toEqual(
     summary,

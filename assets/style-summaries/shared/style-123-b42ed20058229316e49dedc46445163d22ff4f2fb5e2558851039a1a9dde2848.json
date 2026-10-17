@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-123",
+    "name": "Pop-Up Book Animation",
+    "visualIdentity": "Folded paper structures rise from hinged pages with visible tabs, paper thickness, contact shadows and consistent creases. Page mechanics drive the reveal, so true 3D is required.",
+    "suitableUses": "Explicit fit: video briefs needing a physical pop-up book reveal. Inferred fit: interactive HTML, since the source is video-oriented. Subject, audience and objective are unspecified.",
+    "limitations": "Curl is an artistic procedural bend, not a physical paper solver; XPBD was rejected. Hinges must be authored per structure, and shadow-map resolution needs tuning to avoid acne. Source review sampled only one frame per second from 1–8 seconds.",
+    "palette": "Background policy is scene_dependent, so #F1E5CE and #342B25 are fallback suggestions, not approved colors; task-supplied colors override them. Keep book material distinct from the environment. Verified opaque pair: #342B25 on #F1E5CE at 11.091:1; gradients disabled.",
+    "motionAndInteraction": "Preview runs 3 seconds: the book opens from 20° to 180° as one V-fold structure rises with shadows. Full video adds pages, each with its own opening track. Interaction is unspecified; pop-up labels must stay with their panels.",
+    "audio": "No audio is mandated. Proposed direction should come from topic, audience and page-action beats: music, voiceover, effects, ambience or silence. No audio assets are supplied, and tempo, genre and voice are unspecified.",
+    "assetRequirements": "No uploads are required. Materials are procedural: #F1E5CE paper CanvasTexture with seeded grain and #342B25 linework in Canvas 2D. Motion reference candidates are empty and not required. Fonts and panel artwork are unspecified.",
+    "combinations": "Keep Pop-Up Book Animation dominant. Optional secondary style-047 adds physical fold construction only, without its palette or background replacement. Avoid competing full-scene treatments and unrelated decorative motion. Preserve one typography hierarchy.",
+    "productionApproach": "Three.js is the style renderer for geometry, materials, lighting and shadows; Canvas 2D supplies textures. GSAP owns page angle and camera on a paused timeline. HyperFrames is the default pipeline; Remotion is fallback only if its condition is verified. chroma.js is optional."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

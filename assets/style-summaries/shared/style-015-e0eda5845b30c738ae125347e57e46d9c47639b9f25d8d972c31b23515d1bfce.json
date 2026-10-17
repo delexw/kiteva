@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-015",
+    "name": "Brutalist Web Design: explicit web-design treatment, not architectural Brutalism. Category: Graphic Design and Design Movements.",
+    "visualIdentity": "Explicit: web screenshots, bold type, raw interface fragments, hard-edged blocks and deliberately mismatched media in rough collage. Clear information order must stay readable despite the abrasive look.",
+    "suitableUses": "Explicit: raw, direct sites and promos, indie launches, culture sites, manifesto promos, design critiques, product teardowns and dev logs. Inferred: rough interface recomposition for explainers. Omit for calm editorial scenes or dense explanatory copy.",
+    "limitations": "Avoid unreadable text over grain, random rotation and meaningless glitches. Background is scene-dependent, and no approved exact colors are supplied. Two-color contrast does not cover screenshots, grain or video, so recheck composited frames.",
+    "palette": "Raw black and white with one sharp lime accent. Suggested tokens, not approved colors: background #FFFFFF, foreground #000000, accent #CEFF24. Background is scene-dependent, not a default cream. Contrast: black on white 21:1, black on lime 17.954:1. No gradients.",
+    "motionAndInteraction": "Explicit: direct cuts, scrolling and rough collage, with stable asset dimensions and typography. Video runs from composition time; interactive delivery uses scroll or swipe. Optional references: 008, 012, 013, 015, 020 (abrasive scenes only), 037, 038 and 040.",
+    "audio": "Unspecified: no audio is supplied or verified. Inferred: restrained music or silence, optional narration, and accents only at hard cuts or impacts. No fixed genre or tempo; sync beats only after inspecting real audio.",
+    "assetRequirements": "No upload is mandated. Needs task-supplied exact copy plus any screenshots, transparent assets or photos. Use real text, local fonts, fixed grain and HTML alt text. Motion 037, 038 and 040 need matching scene assets. Do not invent copy or brand marks.",
+    "combinations": "Explicit: style-054 photocopy treatment for screenshots and photos (lime only, fixed grain, no random rotation), and style-024 markup annotations (black or lime ink, point before note). Brutalist alone suits raw sites and promos.",
+    "productionApproach": "HTML/CSS and Canvas 2D render layers; a GSAP paused, seekable timeline drives motion, with Motion optional. HyperFrames is the default for composition and export; Remotion only if HyperFrames is unavailable or limited, with the reason recorded. Verify seeks and inspect frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

@@ -233,7 +233,7 @@ export function GovernancePage() {
                         <dt>Creative approach</dt>
                         <dd>
                           {project.request.pinnedStyleId
-                            ? "Using selected style"
+                            ? "Using selected Motion Graphic"
                             : project.request.preference === "creative"
                               ? "Explore creative ideas"
                               : "Follow my brief"}
@@ -244,7 +244,7 @@ export function GovernancePage() {
                         <dd>{project.request.candidateCount}</dd>
                       </div>
                       <div>
-                        <dt>Primary style</dt>
+                        <dt>Primary Motion Graphic</dt>
                         <dd>{project.request.pinnedStyleId || "Automatic"}</dd>
                       </div>
                       {project.request.outputType === "page" ? (
@@ -308,7 +308,7 @@ export function GovernancePage() {
                     ) : (
                       <p>None</p>
                     )}
-                    <h3>Candidate styles</h3>
+                    <h3>Candidate Motion Graphics</h3>
                     <p>{project.selectedStyles.join(" · ") || "Not selected yet"}</p>
                   </div>
                 ),

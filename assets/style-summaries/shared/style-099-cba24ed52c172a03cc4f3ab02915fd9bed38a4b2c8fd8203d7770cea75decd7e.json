@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-099",
+    "name": "Continuous Shot. Normalized label from an explicit request for one continuous shot, not a verified source title.",
+    "visualIdentity": "One readable camera path moves through continuous space, preserving subjects, lighting and occlusion. Internal action, scale change or transformation structures the shot, with deliberate acceleration and pauses. No fixed medium or palette is defined.",
+    "suitableUses": "Metadata lists fit for any single unbroken camera journey, including company tours and process walkthroughs in a diorama environment (style-079) and manifestos with spatial text (style-093). Also listed as compatible with Infinite Zoom, 3D Motion Graphics and Lighting State Progression. Suitability for a given brief is unverified until the scene is checked.",
+    "limitations": "Avoid unexplained resets, wall intersections and hidden discontinuities. Dense reading during travel, overdetailed sets and oblique text are poor fits. Flat art needs real depth or a labelled 2.5D approximation, since a flat image scale is not a dolly. Unfinished rear geometry breaks orbits.",
+    "palette": "Background is scene_dependent: choose it from subject, environment, lighting and mood. Example swatches (#F2EBDD background, #343E43 foreground, #8D957D accent) are illustrative, not approved. Foreground/background contrast is 9.239. Accent-as-background with foreground is 3.511, decorative only. Task-supplied exact colors override all suggestions.",
+    "motionAndInteraction": "Camera pose is a pure function of absolute composition time, with no integration, damping or live input in video. Motion-043 (360° orbit) uses eased progress, held endpoints and an identical start and end view. Motion-002 vortex passage and motion-010 orbit are optional, only when the scene supports them. Scroll-driven spline navigation is an interactive-only option.",
+    "audio": "Audio is unspecified by this style. Inferred direction: silence or soft ambience through long travel, with at most one restrained accent as the camera settles. Avoid a sound per turn. No source audio was verified and no beat data exists, so do not claim music sync. Narration must stay intelligible.",
+    "assetRequirements": "Finished 3D geometry on every visible side, or a captured turntable with enough views. Flat art requires a labelled partial-arc adaptation. Load local fonts and assets before rendering. Punctuation or glyph geometry is needed only for motion-038. Do not invent brand copy or marks.",
+    "combinations": "Style-079 diorama as a bounded environment and style-093 spatial text, readable frontally at reading moments. Motion-042 lighting progression keeps fixed anchors. Motion-043 orbit works as one segment of a continuous path. Motion-002 is only for meaningful chapter transitions. Motion-038 requires an actual punctuation mark. Keep Three.js as the single renderer.",
+    "productionApproach": "Three.js owns geometry, materials, lights and a time-driven PerspectiveCamera. GSAP is the paused motion engine, with one owner per animated property. HyperFrames is the primary pipeline for composition, sync and export, with check, snapshot and render steps. Remotion is used only if its documented fallback condition is verified. chroma-js is optional for contrast checks. Verify forward, backward and direct seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

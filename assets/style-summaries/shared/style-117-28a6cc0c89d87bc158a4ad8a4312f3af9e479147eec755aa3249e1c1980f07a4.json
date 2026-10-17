@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-117",
+    "name": "Holographic Scanline Illustration. Category: Motion Design and Cinematography. Provenance: extracted, added in the 2026-10-12 repository sync.",
+    "visualIdentity": "Explicit: a black field with cyan contours, narrow white cores and horizontal scan-line fills. Light is shown only through line density, with no blur halos or generic neon particles.",
+    "suitableUses": "Explicit: animated scan-line subject illustrations in video, including a 3-second preview and fuller videos reusing the renderer. Inferred: holographic or technical explainers where density carries light. Interactive HTML use is unspecified.",
+    "limitations": "Explicit: no shadowBlur, bloom, particles or blur halos. Canvas text is less accessible, so captions should be DOM overlays. Background evidence is one reference poster, so full-video scene verification is not claimed. The two-color contrast check does not cover material, transmitted or textured colors.",
+    "palette": "Background policy is scene_dependent. The suggested field is #07080A, with #45F0DD for grid and lines and #FFFFFF as a line-core accent. The source assigns these explicitly, but only one poster supports them. Foreground contrast on the background is 14.083. Task-supplied colors override these suggestions, and no gradient is enabled.",
+    "motionAndInteraction": "Explicit: a paused GSAP timeline drives a plain state object for contour reveal, top-to-bottom scan-line wipe and density shifts. One render function is called on update and after every seek, so direct seeks match. Preview: one outline draws, scan lines sweep, then density modulates. Interaction is unspecified.",
+    "audio": "Unspecified for this style, and no music, voice or effect layer is required. Options to weigh from the topic include music, voiceover, sung vocals, sound effects, ambience or silence. Inferred: restrained texture or silence suits reading holds, though the brief should decide the final choice.",
+    "assetRequirements": "No uploads are required. Subjects are authored as Path2D contour outlines, cached once, with contour lengths precomputed through offscreen SVG getTotalLength. Local fonts and assets should load before rendering. Motion references are empty and optional. The subject list is unspecified.",
+    "combinations": "Style-112 may supply subordinate schematic labels only, with style-117 kept dominant and style-112's palette not imported. Avoid competing full-scene treatments. Optional technique refs are geometry_outline_rendering and tonal_crosshatching_shader. The template names Rough.js, p5.js, Cytoscape.js, Anime.js and Paper.js, but none appear in the recommended stack.",
+    "productionApproach": "Canvas 2D is the style renderer, at a fixed devicePixelRatio, clearing to #07080A. GSAP is the motion engine on one paused timeline. HyperFrames is the default pipeline for composition, timing, audio and export. Remotion is a fallback only with a recorded reason. chroma.js is optional for contrast checks. Delivery needs seek, frame and audio verification."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

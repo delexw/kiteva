@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-013",
+    "name": "Psychedelic Art is an explicit style under Graphic Design and Design Movements. Its provenance is explicit in the source metadata.",
+    "visualIdentity": "Explicit: flowing curves, saturated waves, vortices and looping geometry in an organized color palette. Distorted lettering may support the image, but key information needs stable reading moments. Morphs and color movement develop around one visual theme.",
+    "suitableUses": "Explicit: ambient visuals. Inferred from listed combinations: music videos, festival visuals, album visualizers, concert posters and title cards. Inferred from motion compatibility: infinite-zoom, kaleidoscopic and surreal spatial passages with meaningful chapters.",
+    "limitations": "Dense text during travel and over-distorted information text are unsuitable. Two-color contrast checks do not verify readability over animated waves, textures or video. Avoid beat-strobing color, unrelated stacked effects and live audio drift. Source morph frames cannot be reproduced exactly.",
+    "palette": "Suggested tokens only, not approved exact colors: background #201337, foreground #FFF3DB, accents #D957A5, #DA873F and #7464D2. Background is scene-dependent, so choose it from the scene and keep roles coherent. Foreground on background measures 15.785:1. Accent_3 with foreground measures 4.247:1 and is decorative only. An optional LAB gradient uses the three accent stops. Task-provided colors override these.",
+    "motionAndInteraction": "Motion should be continuous morphs and color flow from one shared timeline, not stacked unrelated effects. Optional references: motion-002 vortex camera passage, motion-012 chaptered handoff, motion-014 bounded orb deformation, motion-015 narrative steps, and motion-037 to 039 for phrase, punctuation or mark actions. Motion-037 to 039 need matching scene assets. Interactive delivery is optional, and video must not depend on live input.",
+    "audio": "Fixed audio is unspecified. Metadata suggests music, voiceover, vocals, effects, ambience or silence, chosen by topic, with no mandatory layer. Music may structure morph sections in a music-video hybrid, but must not drive strobing color. Speech must stay intelligible, and silence is valid. This summary creates no audio.",
+    "assetRequirements": "No uploaded assets are specified. Fonts and any supplied assets must be loaded locally before rendering. Motion-037 to 039 require actual phrase, punctuation or approved mark assets in the scene. Approved reference palettes, if supplied, replace the suggested tokens and stops. Copy and brand marks must come from the brief.",
+    "combinations": "Style-105 gives section-level timing for morphs and color flow, with text on #201337 and one visual theme. Style-007 adds a Nouveau border overlay in #FFF3DB or psychedelic accents, not Nouveau greens. Key information stays stable, and dense ornament must not cover the field. Gradient samples are not extra base colors.",
+    "productionApproach": "Style renderer: WebGL with GLSL full-screen shaders for flowing fields, optionally via Three.js, with a shared time uniform. Motion engine: GSAP paused timeline for transforms and masks, with GLSL for shader motion. HyperFrames is the default pipeline for check, snapshot and render, with Remotion only under its documented fallback. Composite text separately and verify seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

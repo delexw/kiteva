@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-085",
+    "name": "Shadow Puppetry, from the Animation Techniques category. Explicit provenance, normalized from shadow-theatre and paper-silhouette references.",
+    "visualIdentity": "Dark, readable silhouettes sit before a translucent, glowing screen in distinct depth layers. Colors stay limited, props stay legible in outline, and limbs stay separate from the torso under one consistent light.",
+    "suitableUses": "Explicit: folk-tale and theatrical moments, narrative fables, cultural storytelling, and theatrical intros. Inferred: short stage-framed illustrative scenes. Explanatory or product uses are unspecified.",
+    "limitations": "Avoid exposed joint gaps, rubbery stretch, and colored rig parts. Do not add accent hues beyond the chosen palette. Two-color contrast does not prove readability over textures or animated light, so recheck composited frames.",
+    "palette": "Background is scene-dependent. #EFE0BC and #272821 are an unapproved, monochrome suggestion for new work without an approved palette. Gradients are disabled, and the pair contrasts at 11.375:1. Reviewed source hues are example scene choices, not style rules. The reviewed warm light accent conflicts with the monochrome constraint, so keep monochrome unless approved. Task-approved colors override these tokens.",
+    "motionAndInteraction": "Animate poses, shadow size, and stage movement through explicit pivots and arcs, avoiding rubbery stretch and imposed stop-motion. Video runs on composition time. Interactive delivery may use step controls with reduced-motion key poses. Motion references motion-012 and motion-015 are optional and need scene-supported actions.",
+    "audio": "Audio direction is unspecified, and no audio layer is mandatory. Weigh music, voiceover, sung vocals, effects, ambience, or silence for the topic. Honor explicit choices and avoid defaulting to instrumental music. Source audio was not reviewed. If audio is produced, verify speech clarity and picture sync.",
+    "assetRequirements": "No uploads are specified. Needed: layered silhouette puppets with defined pivots, a separate translucent screen layer, and local fonts if text appears. Hybrids or motion references need their own compatible assets. Missing assets are not required uploads.",
+    "combinations": "style-091 adds rig pivots, joint limits, and replacement poses for fables and intros. style-038 adds single-ink wash backdrops for mood scenes. Both keep #272821 on #EFE0BC, use one light source, and avoid limb overlap with the torso. Hybrids must stay within two tokens.",
+    "productionApproach": "SVG and Canvas 2D are the style renderers for silhouettes, screen, and washes. GSAP owns the motion timeline. Motion is optional for DOM/SVG after sync checks. chroma-js optionally validates contrast. HyperFrames handles assembly, validation, and export. Remotion is a fallback only with a recorded reason. Verify direct seeks and sampled frames."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

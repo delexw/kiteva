@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-022",
+    "name": "Pencil Drawing (Drawing and Illustration; explicit provenance).",
+    "visualIdentity": "Fine graphite lines, exploratory contours and localized hatching on pale paper. Volume comes from pencil marks, not digital gradients. Lines reveal in drawing order with coherent pressure and paper texture.",
+    "suitableUses": "Explicitly best alone for intimate studies and sketch reveals. Inferred fits: design, anatomy or natural-history studies. Duration, aspect ratio, resolution and frame rate are unspecified.",
+    "limitations": "No gradients or broad digital tone. Vector hachure is not graphite, and Rough.js adds no handwriting or pose rig, so paper and graphite texture need separate work. Task copy must stay readable, even though source captions are tiny and low-contrast.",
+    "palette": "Background is scene-dependent; #F5F2EA and #383838 are unapproved suggestions with 10.481 two-color contrast. The pair stays monochrome with no gradient. Sources used one optional accent pigment; approved task colors override.",
+    "motionAndInteraction": "Video draws contours, then hatching, then notes, in order, with reading pauses, fixed-seed line-boil variants and no springs. Interactive use reveals on scroll progress, with a reduced-motion full-reveal. Motion-012 and motion-015 are optional, only if the scene supports them.",
+    "audio": "Unspecified by the brief; music, voiceover, ambience or silence are options chosen by topic and audience. No genre, tempo or voice is mandated, and speech must stay intelligible. Source audio was not reviewed.",
+    "assetRequirements": "No uploads or exact copy are specified. Prepare paper texture, graphite brushes, local fonts and seeded geometry. Source review covered only seconds 1–8, one frame per second, without audio or later scenes.",
+    "combinations": "Best alone unless sketches need labels or layout. style-024 adds graphite notes in #383838; style-019 adds an editorial serif grid and captions. Avoid red markers, smooth arrows and pencil texture on body text.",
+    "productionApproach": "HyperFrames is the default pipeline (paused GSAP timeline in window.__timelines, then check, snapshot and render); Remotion only when its fallback condition is verified and recorded. Canvas 2D draws graphite, Rough.js is optional for seeded contours, GSAP owns motion, and chroma.js checks contrast."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

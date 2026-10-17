@@ -1,0 +1,1301 @@
+{
+  "motionId": "motion-043",
+  "model": "claude-opus-5-5",
+  "sessionId": "0a336eac-ff67-4a15-9503-c9be3feee966",
+  "createdAt": "2026-10-17T05:12:03.392Z",
+  "catalogHash": "23ec600195a824adf5088c86244ec42ba287ed95226d02718382e0f0f3b5ab21",
+  "sourceConversation": "chatgpt-conversation://6ad2c85c-6620-8321-af12-57e2b595fcfc",
+  "originalMotionCatalogHash": "6edc1a15d8f87fb0b8a7f97323c5ddc137cdbb2fe77d157cefa6dd6266a767e1",
+  "originalModelDraft": {
+    "name": "360° Camera Orbit (360度环绕运镜)",
+    "description": "motion-043 · A camera recipe based on the user conversation. It is not drawn from a reference video, and no source footage, measurements or visual review exist. The camera makes one full 360-degree circuit around a STATIONARY hero, timed by absolute composition time, with a held opening view and a held ending view. The camera is the only thing that moves. The subject keeps its identity, scale, pivot and pose. The look-at target, projection, lens, light directions, occlusion, shadows and world landmarks (ground, horizon, props, backdrop) stay fixed in world space. Each frame: camera.position = target + (r·cos θ, h, r·sin θ), θ = θ0 + direction·2π·progress, then camera.lookAt(target). Here progress is an eased, clamped function of composition time, so the last frame matches the first view. How it differs from related entries: motion-010 is scroll-driven and ties annotations to specific angles. motion-021 maps cursor input to a limited orbit. motion-035 moves objects around a center in a fixed view. This preset is an authored, time-driven full circuit with no required annotations and no live input. A real full orbit needs complete geometry, a fully authored scene, or a clearly described captured turntable with enough views. Bounded 2.5D parallax, depth images and flat sprites cannot show unseen back surfaces, so they must not be called a full orbit. Any partial arc must be labelled as an adaptation.",
+    "motion_sequence": [
+      "Opening hold: show the stationary {{subject}} from the starting view θ0, with target, horizon, ground contact, key light and world landmarks fixed. Hold long enough for the viewer to read the hero and its surroundings.",
+      "Ease in: progress starts from zero velocity. The camera begins moving along a fixed radius and height circle while camera.lookAt stays on the fixed target. The subject does not rotate.",
+      "Full circuit: θ = θ0 + direction·2π·progress sweeps through side, rear and opposite-side views. Parallax between the hero and world landmarks, occlusion changes and fixed shadow directions show that the camera is moving, not the subject.",
+      "Ease out: progress settles to exactly 1 as the camera returns to θ0 + direction·2π, which is the same pose as the opening view.",
+      "Ending hold: keep the returned front view still. Any closing title or label is revealed only after the camera has stopped and is held long enough to read."
+    ],
+    "video_adaptation": "Write camera pose as a pure function of absolute composition time t, then render. tOrbit = clamp((t − openHold) / orbitDuration, 0, 1). progress = ease(tOrbit), using a symmetric ease-in-out such as sine or power2, or linear for a mechanical turntable feel. θ = θ0 + direction·2π·progress. Position comes from the fixed radius r and height h around the fixed target, followed by lookAt(target) with a constant up vector. Do not integrate per frame, damp, use requestAnimationFrame, timers, OrbitControls, pointer, scroll or wall-clock state. Direct seeks forward, backward and to a fresh page must give identical frames. When t ≥ openHold + orbitDuration, the frame equals the opening view, so the ending hold is a true return. Choose orbit duration from subject complexity and what the viewer must notice. Large travel needs enough time to read rear details without strobing or motion smear. Short clips may hold less, but never cut the circuit short silently. If a shorter arc (for example 90° or 180°) is chosen, label it 'partial arc adaptation'. For a captured turntable, index frames by θ only at captured angles, and state how many views exist and how the background and lighting behave (a physical turntable rotates the subject against fixed lights, which differs from a camera orbit). Optional text belongs to a screen-space layer timed to the holds. Container-owned labels follow data-reveal-after rules. Any arrow hides its head until the shaft completes.",
+    "suggested_controls": [
+      "subject_asset (complete mesh / authored scene / captured turntable set)",
+      "orbit_target",
+      "camera_radius",
+      "camera_height_or_elevation",
+      "starting_angle_theta0",
+      "orbit_direction (+1 / −1)",
+      "opening_hold",
+      "orbit_duration",
+      "ending_hold",
+      "progress_easing",
+      "projection_and_fov (kept constant)",
+      "world_landmarks_visibility",
+      "turntable_view_count (captured route only)",
+      "partial_arc_degrees (labelled adaptation only)",
+      "reduced_motion_static_view"
+    ],
+    "implementation": "Choose the renderer route by asset capability. (1) Genuine 3D: in a Three.js scene, the hero group's transform is never animated by this preset. A PerspectiveCamera with constant FOV, or an OrthographicCamera when the Motion Graphic needs orthographic but not strict isometric framing, sits on a circle of radius r at height h around a fixed Vector3 target. On every seek, call setCameraForTime(t): compute θ, set camera.position, call camera.lookAt(target), then renderer.render(scene, camera) synchronously. Lights, shadow cameras, environment maps, ground and landmarks are world-space and do not follow the camera unless the brief asks for a camera-attached rim light, which must be disclosed. Check that rear and underside surfaces seen from height h are finished, with no open meshes, missing backfaces or unpainted UV areas. Fit radius so the silhouette stays inside safe margins at every θ. Check near and far planes so nothing clips. (2) Prerendered: an offline 3D render, such as Blender, with the same camera-math path can be baked to an image sequence and indexed by frame from time. (3) Captured turntable: index real photographs by angle and state the coverage. Do not interpolate unseen angles or invent back views. Screen-space labels can reproject anchors with Vector3.project on each seek. Stay inside the selected Motion Graphic's palette and medium. Do not add perspective orbit to flat posters, diagrams, strict isometric treatments or print typography. Anatomy's isometric kit is not used for this preset because the motion needs a free camera, not fixed isometric axes.",
+    "library_selection": "style_renderer: Three.js (PerspectiveCamera or OrthographicCamera, Group, Vector3, WebGLRenderer) for genuine 3D, or a prerendered sequence from an available offline 3D tool. Report any missing tool rather than substituting one. motion_engine: a pure time-to-θ function. GSAP may supply easing only (gsap.parseEase or a paused timeline with a proxy progress value that one owner writes to the camera). Never require live OrbitControls, ScrollTrigger, pointer input, timers or autonomous loops for video. Give each animated property one owner: the camera pose belongs only to this preset, and the hero transform is not animated by it. Composition and export follow the requested pipeline: HyperFrames first, Remotion as a conditional fallback, or Multiplane only if it can host a genuine 3D or prerendered layer. Multiplane's layered planes alone give only bounded parallax, which must be labelled as a partial arc adaptation, not a 360° orbit. The pipeline does not decide whether real 3D exists.",
+    "good_fit": [
+      "Complete 3D product, character, collectible, vehicle or sculpture heroes on a pedestal or ground plane",
+      "Clay-like, low-poly, voxel, cel-shaded, painterly or photoreal 3D treatments with finished geometry on every side",
+      "Physical miniatures, puppets or objects photographed on a motion-control circle or captured turntable with enough views",
+      "Rotationally rich objects whose story wraps around them, such as a painted vessel frieze, scientific structures or exploded assemblies",
+      "Fully authored 3D environments where a hero stands among world landmarks that show the camera is moving"
+    ],
+    "adapt_or_omit_when": [
+      "Only a flat illustration, photo, depth map or layered 2.5D artwork exists. Use a labelled partial-arc parallax adaptation or choose another motion.",
+      "The Motion Graphic requires strict isometric or axonometric projection, flat poster composition, print typography or a frontal symmetric frame.",
+      "Rear, underside or surrounding geometry is unfinished or unavailable, or the backdrop is a one-sided set or sweep that would show its edges.",
+      "The subject must deform, travel or rotate during the shot (that is subject animation or motion-035, not this preset).",
+      "Readable text or UI would be shown mirrored or edge-on. Keep copy in screen space and reveal it during holds.",
+      "Interactive orbit is wanted. Use motion-021 (cursor) or motion-010 (scroll with angle-linked annotations) instead."
+    ],
+    "audio_direction_prompt": "Based on the topic, mood, medium and any existing audio, decide whether the circuit should be silent, carried by a soft ambience or swell across the orbit, or given one restrained accent as the camera settles into the ending hold. Do not add whooshes for every quarter turn, and do not compete with narration. Previews stay silent. Do not claim music synchronization unless measured beat data exists.",
+    "executable_prompt_template": "Use 360° Camera Orbit (motion-043) to present {{subject}} in {{visual_style}} using {{render_pipeline}}. First confirm the asset capability: complete 3D geometry, a fully authored scene, or a clearly described captured turntable with enough views. If only flat, depth-image or 2.5D layered art exists, do not call it a full orbit. Either label a partial arc adaptation or choose another motion. Keep the hero stationary: its transform, scale and pose are not animated by this preset. Keep the look-at target, projection and FOV, world-space lights and shadows, occlusion and world landmarks coherent. Compute everything from absolute composition time: progress = ease(clamp((t − openingHold)/orbitDuration, 0, 1)), θ = θ0 + direction·2π·progress, camera.position = target + (r·cosθ, h, r·sinθ), camera.lookAt(target), then render synchronously on every seek. Include an opening hold at θ0 and an ending hold at the identical returned view. Put titles or labels in screen space and reveal them only during holds (data-reveal-after for container-owned labels, hidden arrowheads until shafts complete). Resolve {{motion_parameters}} (radius, height, θ0, direction, holds, duration, easing) explicitly. Preserve the selected Motion Graphic's palette and medium. Do not require OrbitControls, pointer, scroll, timers or autonomous loops. GSAP may supply paused, time-controlled easing only. Use {{render_pipeline}} only for composition, timing, audio and export. Check that rear surfaces are finished and that forward, backward and direct seeks, including from a fresh page, produce identical frames. This is an adaptable recipe based on the user conversation, not a reproduction of a reference video.",
+    "verification": [
+      "Sample t at the start, opening-hold end, 25%, 50%, 75% of the orbit, orbit end and clip end. Direct, backward and fresh-page seeks give pixel-identical frames to sequential playback.",
+      "The hero's world transform is constant across all samples. Only the camera pose changes, and the target projects to the same screen point.",
+      "The frame at orbit end matches the opening frame (θ0 + 2π ≡ θ0), and the ending hold stays perfectly still.",
+      "World landmarks and shadow directions stay fixed in world space and show parallax against the hero. Lights do not follow the camera unless that is disclosed.",
+      "Rear, side and underside views show finished geometry: no holes, backface artifacts, missing textures, clipped near or far planes or exposed set edges.",
+      "Projection, FOV and radius stay constant. The silhouette stays inside safe margins at every angle, with no pole flip or roll.",
+      "No OrbitControls, requestAnimationFrame loop, timers, pointer, scroll or wall-clock state drive the exported frames. Any partial arc is labelled as an adaptation.",
+      "Screen-space text is fully legible during holds. Labels never appear before their containers, and arrowheads never appear before their shafts finish."
+    ],
+    "palette_guidance": "This preset adds no colors. Resolve colors from the task's exact colors, then any approved or brand palette, then the selected Motion Graphic's palette, and choose the background from the subject, environment and mood (scene_dependent). Because the camera sees every side, make sure the backdrop or environment and the ground are coherent all the way around, and that hero-versus-background contrast holds at every θ, including backlit angles. Keep light colors and material values constant through the circuit and recheck composited text contrast during the holds. The preview uses an illustrative neutral scheme only: deep slate stage, mid-gray ground grid, warm off-white hero with one restrained accent face, and cool landmark markers. It is not a required palette."
+  },
+  "previewPlan": "This is a silent 6-second preview at 1920×1080 (or the card's aspect ratio), rendered as a deterministic projected 3D schematic with Three.js. A plain hand-written 3D projection to SVG would also work if WebGL isn't available on the card. Every frame is a pure function of t, with no rAF loop, controls or input. Scene: a fixed asymmetric hero at the world origin that the viewer can track. It is an L-shaped block whose front face carries one accent panel, with a short cylinder on its rear-left corner and a small wedge pointing world +X, so front, back, left and right all look different. It sits on a gray ground grid with a soft contact shadow from one world-fixed directional light. World landmarks: a tall thin pillar at north, a small cube at east, a low disc at south-west, and N/E/S/W tick marks on a ring at the grid edge. These show parallax against the hero and prove the camera is the thing moving. Camera: perspective with fixed FOV, radius and height (about 20° elevation), lookAt fixed at the hero's center, constant up vector. θ = θ0 + 2π·progress with θ0 at a front three-quarter view, counter-clockwise. Timing: 0–0.8 s opening hold at θ0 (hero, shadow and landmarks readable). 0.8–5.2 s full 360° orbit with sine ease-in-out (slow start, about 90° per second at mid-circuit, slow settle), passing the side, rear (cylinder in front, accent panel hidden), opposite side and back to front. 5.2–6.0 s ending hold, pixel-identical to the opening frame. A small screen-space readout 'θ 0°→360°' in a corner and an optional overhead mini-compass with a camera dot track progress. No arrows are used, so no arrowhead timing is needed. The hero's world transform and the light direction never change, and the shadow stays fixed on the ground while the view moves around it. Palette is illustrative and scene-dependent: deep slate background, mid-gray grid, warm off-white hero, one muted accent face, cool landmark markers, all checked for contrast at every angle. QA: direct seeks to 0, 0.8, 1.9, 3.0, 4.1, 5.2 and 6.0 s, both forward and backward and from a fresh page, must match sequential playback. Frame 0 and frame 6.0 s must be identical. The hero stays still and the landmarks move only through camera parallax.",
+  "integrationNotes": [
+    "Editor shortened the model description for the explorer card.",
+    "Renderer guidance reflects verified native Multiplane Three.js support; the project renderer setting takes precedence.",
+    "Preview uses fixed box geometry, fixed world lights and landmarks, and Three.js camera projection to Canvas."
+  ],
+  "styleReviews": [
+    {
+      "styleId": "style-001",
+      "decision": "omit",
+      "reason": "Swiss Style is grid-based flat typography and layout. A perspective camera orbit would break baseline alignment and reading order, and there is no 3D hero.",
+      "usageGuidance": "",
+      "name": "International Typographic Style (Swiss Style)",
+      "originalReferencesHash": "49620371409697b01e7d7be2106758a4695d3597830aa1e4f29ef6b1d480a96a",
+      "originalMetadataHash": "d6969851796dfef9687d4c50bced37fbfd7c9c9584958ae1712ccc7c26506a73"
+    },
+    {
+      "styleId": "style-002",
+      "decision": "omit",
+      "reason": "Bauhaus is a flat poster built from geometric shapes on a 2D grid. Orbiting would mean converting the poster to 3D, which is only a theoretical fit.",
+      "usageGuidance": "",
+      "name": "Bauhaus",
+      "originalReferencesHash": "b07b1f08aca4e5947d232d73c2f6d7ebb00a19ba7089cc5ebf88add1df3d2fc8",
+      "originalMetadataHash": "09b074b80e3a1d3bcdb5f6ef471671c66f025e6ab016ed19120151fcf74782ab"
+    },
+    {
+      "styleId": "style-003",
+      "decision": "omit",
+      "reason": "Constructivism relies on flat diagonals, photo cutouts and headlines. Photo cutouts have no back surfaces, and orbiting would destroy the directional composition.",
+      "usageGuidance": "",
+      "name": "Constructivism",
+      "originalReferencesHash": "9ed527e205d115cdc7d322bc57454c7341d504a4a9e16d4de38a5cc34865d0fe",
+      "originalMetadataHash": "7e6e71e14d33da89667c777323aee6dc686ddd3a4c90317354e2c200d036765f"
+    },
+    {
+      "styleId": "style-004",
+      "decision": "omit",
+      "reason": "Suprematism uses abstract flat shapes in an open field. There is no volumetric subject, and the style forbids illustrative textures and depth.",
+      "usageGuidance": "",
+      "name": "Suprematism",
+      "originalReferencesHash": "8e1a67047d6c0a7bf9bd14263af6435cb7deeaa2d2f91317c9155e334fddbc14",
+      "originalMetadataHash": "abdf3e4010bbc1b65e3d79ce7c03d493315c34d1b9ec22a5a0cdd1e0ed36c8cd"
+    },
+    {
+      "styleId": "style-005",
+      "decision": "omit",
+      "reason": "De Stijl requires orthogonal flat color fields and forbids arbitrary diagonals. A perspective orbit would break those orthogonal boundaries.",
+      "usageGuidance": "",
+      "name": "De Stijl",
+      "originalReferencesHash": "e12c567ccb9afe050d3f68b43effd4830eb335b72cde88146b9ae31304e25282",
+      "originalMetadataHash": "7d2d59e72982fb532ec190e4bf4a4d77daf6f3707be97cc3580bc6451efddb31"
+    },
+    {
+      "styleId": "style-006",
+      "decision": "omit",
+      "reason": "Art Deco is axially symmetric flat ornament and display type. A full circuit would break the symmetry and expose flat artwork edge-on.",
+      "usageGuidance": "",
+      "name": "Art Deco",
+      "originalReferencesHash": "5b304930bb64747869b04a135cf317ef4d4b9a01d624361f80368ff422934834",
+      "originalMetadataHash": "1acc70c993e83e0fdc274bdf36bc2528449f856dc536234cc3e2e169d46675c0"
+    },
+    {
+      "styleId": "style-007",
+      "decision": "omit",
+      "reason": "Art Nouveau is botanical line ornament drawn on a 2D page. There is no geometry to orbit.",
+      "usageGuidance": "",
+      "name": "Art Nouveau",
+      "originalReferencesHash": "87c4c072ee3b021fd2722970c02d2ad807ccbc8dbf0f139e54985f3951c4db2c",
+      "originalMetadataHash": "ee5dbaeca7c47d7cfef1e3c6a70c1ee8a9ec7dbcdbd7eb29994c28f5e8bc9f33"
+    },
+    {
+      "styleId": "style-008",
+      "decision": "omit",
+      "reason": "Modernist Graphic Design is layout and hierarchy driven. Movement must explain information, and a camera circuit around a flat layout adds nothing.",
+      "usageGuidance": "",
+      "name": "Modernist Graphic Design",
+      "originalReferencesHash": "2ffe0809ead116032c744723fb61c4af0864f8924020aaa42f597fdc251edea8",
+      "originalMetadataHash": "6224f1ca938f9f10fc46010327f5842778bee1048c8d93a3fa891fe773726adb"
+    },
+    {
+      "styleId": "style-009",
+      "decision": "omit",
+      "reason": "Mid-Century Modern is flat illustration with grain. Its characters and props are 2D paths with no back views.",
+      "usageGuidance": "",
+      "name": "Mid-Century Modern",
+      "originalReferencesHash": "810df3f34d226bb6f784d8f6d0b54f0d19c84ce7e6ae99bc29fc76d06af1a85a",
+      "originalMetadataHash": "4d36f5290c1dfbf4abf429ff62101967262705b739540140f2b15f68b35092e7"
+    },
+    {
+      "styleId": "style-010",
+      "decision": "omit",
+      "reason": "Memphis Design is built from flat SVG patterns and shapes with a readable headline. Converting to a 3D orbit is only theoretical.",
+      "usageGuidance": "",
+      "name": "Memphis Design",
+      "originalReferencesHash": "1be77562d85317619e01bbb333322c9beaa6d42568ba2a378c2929a9e92f1dec",
+      "originalMetadataHash": "1298cda093e55720c8195dd3a077b860e06ad4e3178fbabb23861e7c4af43aef"
+    },
+    {
+      "styleId": "style-011",
+      "decision": "omit",
+      "reason": "Pop Art uses flat comic panels, halftones and lettering. There is nothing volumetric to circle.",
+      "usageGuidance": "",
+      "name": "Pop Art",
+      "originalReferencesHash": "6924a717edcb9fc013a14210b4c64ddee0973ec1895b0647a7a9d0fa752e4170",
+      "originalMetadataHash": "5ff96736b5c7ebae62f579754057de1578d2d60ecafe5e031f705a32e721e6d7"
+    },
+    {
+      "styleId": "style-012",
+      "decision": "omit",
+      "reason": "Op Art illusions depend on a frontal 2D view of parametric patterns. Perspective orbit would ruin the effect and risk moiré.",
+      "usageGuidance": "",
+      "name": "Op Art",
+      "originalReferencesHash": "19cf14676f75cb19ac4832289f260fa794d70cf4fe5c0712e859d087923ef0b7",
+      "originalMetadataHash": "a66cb33810089ac62411bb9631edc92fe8044386e9dc1ee744ef99ffb650378d"
+    },
+    {
+      "styleId": "style-013",
+      "decision": "omit",
+      "reason": "Psychedelic Art is full-screen 2D shader fields and morphs. There is no stationary hero with geometry.",
+      "usageGuidance": "",
+      "name": "Psychedelic Art",
+      "originalReferencesHash": "381b652d4f24835dcb073dc2f02dc9c5d1d062e155584f69fe961e17419d14d5",
+      "originalMetadataHash": "545d12d06605dc02483f26b6da92fc855b863d1c78438fbddcc431c8f878bada"
+    },
+    {
+      "styleId": "style-014",
+      "decision": "omit",
+      "reason": "Surrealism can use 3D space, but its focus is calmly unfolding impossible transformations, not a turntable view. A full orbit tends to break the staged dream logic and composition. Choose this preset only through a genuine 3D style instead.",
+      "usageGuidance": "",
+      "name": "Surrealism",
+      "originalReferencesHash": "68e43821c65b359950a0b48fc2a2fb075c1397f6e2ce439a09f7315a0657e753",
+      "originalMetadataHash": "d3c65d084b697829a9be9cad2445ef341bf1c47a725ae1f9f17c4dd0fa461881"
+    },
+    {
+      "styleId": "style-015",
+      "decision": "omit",
+      "reason": "Brutalist Web Design is built from screenshots and raw interface fragments with hard cuts. Flat media cannot be orbited.",
+      "usageGuidance": "",
+      "name": "Brutalist Web Design",
+      "originalReferencesHash": "f25fd3b8bfd556e882c8b8663edb4e6c14e7bf26c74bc3a2a73c563b6c800da3",
+      "originalMetadataHash": "eb1e2e772938d0ac6749576a3b053ececbfb575d44950eba191c40e284597c57"
+    },
+    {
+      "styleId": "style-016",
+      "decision": "omit",
+      "reason": "Punk Graphics uses torn paper, photocopy and pasted collage in a flat layout. There are no back surfaces.",
+      "usageGuidance": "",
+      "name": "Punk Graphics",
+      "originalReferencesHash": "b460e6a492db110cfe9b3ece0835bf9d525577143a3da80d7461516a2d6f3b7f",
+      "originalMetadataHash": "e91d0f3f4631d9bbaa1991c63d77206915d3ee632b0bde682a793232847802a2"
+    },
+    {
+      "styleId": "style-017",
+      "decision": "omit",
+      "reason": "Grunge is a 2D distressed surface texture treatment with no volumetric subject.",
+      "usageGuidance": "",
+      "name": "Grunge",
+      "originalReferencesHash": "8b59719d47fb1f21c63bd721049be31887c39f2f01ad32b147a2ff5de6df34f3",
+      "originalMetadataHash": "2fd9ebdcc1860e98ea49ff0e2f8c5b3e3e538b7f9542eebeaac36db1f8e4f1ad"
+    },
+    {
+      "styleId": "style-018",
+      "decision": "omit",
+      "reason": "Minimalism animates a few flat elements with restraint. A full camera circuit is excessive, and the style has no 3D hero requirement.",
+      "usageGuidance": "",
+      "name": "Minimalism",
+      "originalReferencesHash": "3cd228380ab7d84cc458f24b6d22fc1774fbeaf105b6fd358f57a894fb705b64",
+      "originalMetadataHash": "884f40ea3822c990c4fb0373493eb6d4a23c3e0f0c75475756902353b18de645"
+    },
+    {
+      "styleId": "style-019",
+      "decision": "omit",
+      "reason": "Editorial Design is a magazine grid of type and images read in order. It is print typography that should not be orbited.",
+      "usageGuidance": "",
+      "name": "Editorial Design",
+      "originalReferencesHash": "9cc9159989e2054daec2064d7fe3ed9c3d0e53444151d08e87cc80ac8bdbe7ea",
+      "originalMetadataHash": "e79e39d5deb061b37ecc8b8e63b9e766a2cfed37a6454bd4692d8ee823dedeed"
+    },
+    {
+      "styleId": "style-020",
+      "decision": "omit",
+      "reason": "Luxury Editorial asks for slow camera moves and subtle parallax over cropped images and refined type. A full 360 is too much, and its imagery is usually flat. A 3D product route belongs to style-096.",
+      "usageGuidance": "",
+      "name": "Luxury Editorial",
+      "originalReferencesHash": "f5a57824abce0bce8f9ccc2ef203e3525d6dfc49b7a62357be42a2ac073c318a",
+      "originalMetadataHash": "02622eeefeafbec380f561c24dd5be251e45a59627fe44176500d881de5338a0"
+    },
+    {
+      "styleId": "style-021",
+      "decision": "omit",
+      "reason": "Hand-drawn Illustration is drawn 2D artwork. Back views would have to be invented.",
+      "usageGuidance": "",
+      "name": "Hand-drawn Illustration",
+      "originalReferencesHash": "810df3f34d226bb6f784d8f6d0b54f0d19c84ce7e6ae99bc29fc76d06af1a85a",
+      "originalMetadataHash": "2abd92767cba81d66449a17eeab85ebde5e428408c4b76555c030c54f2f735a4"
+    },
+    {
+      "styleId": "style-022",
+      "decision": "omit",
+      "reason": "Pencil Drawing is graphite marks on paper. Orbiting paper only shows a flat sheet.",
+      "usageGuidance": "",
+      "name": "Pencil Drawing",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "36d8f746962f7aeaebc63894de7a8f0e3f354515358288c59e43d439ec92901c"
+    },
+    {
+      "styleId": "style-023",
+      "decision": "omit",
+      "reason": "Ballpoint Pen Drawing is a flat sketchbook medium with no 3D subject.",
+      "usageGuidance": "",
+      "name": "Ballpoint Pen Drawing",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "0b5c487dec76dce7bc7a26359554a0b402e74edde4d0175f6c4417a92ff2f0c8"
+    },
+    {
+      "styleId": "style-024",
+      "decision": "omit",
+      "reason": "Handwritten Annotations are 2D explanatory marks that must stay readable. Orbiting would mirror or skew the writing.",
+      "usageGuidance": "",
+      "name": "Handwritten Annotations",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "db41dc8840e8ef5e9bf641b022f9ab29cea5009b0f8fc2251b92bfb4b9e2768b"
+    },
+    {
+      "styleId": "style-025",
+      "decision": "omit",
+      "reason": "Doodle Art uses simple 2D characters with expression swaps, so there are no back views.",
+      "usageGuidance": "",
+      "name": "Doodle Art",
+      "originalReferencesHash": "810df3f34d226bb6f784d8f6d0b54f0d19c84ce7e6ae99bc29fc76d06af1a85a",
+      "originalMetadataHash": "15a5c1ba379753da524f4068d75e945ae288ff576e6bc2f2c849eb75c92ee635"
+    },
+    {
+      "styleId": "style-026",
+      "decision": "omit",
+      "reason": "Whiteboard Animation is flat diagrams revealed in causal order. Orbiting a diagram goes against the explanatory intent.",
+      "usageGuidance": "",
+      "name": "Whiteboard Animation",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "34b0064e9fb0bddd09f86a3658465f447c3895027a35e33ca0e3ac81081db9eb"
+    },
+    {
+      "styleId": "style-027",
+      "decision": "omit",
+      "reason": "Line Art uses 2D contour paths with a line-weight hierarchy. There is no full geometry.",
+      "usageGuidance": "",
+      "name": "Line Art",
+      "originalReferencesHash": "3ec5239c9052b95f67c5625e1d37cb1db01dd61c04c67d1bcba852863cf96187",
+      "originalMetadataHash": "383d5a147181f6fd37341c2e2b86e02e5fbe0adedb2dc05b56b5ca811dd8a850"
+    },
+    {
+      "styleId": "style-028",
+      "decision": "omit",
+      "reason": "Flat Vector Illustration explicitly avoids 3D materials and shading. An orbit would contradict the medium.",
+      "usageGuidance": "",
+      "name": "Flat Vector Illustration",
+      "originalReferencesHash": "84578a36d873da9140564169862efbf9e659efdc2bd328fafb859f8c13b83f23",
+      "originalMetadataHash": "a753429900d01e3bff4f20e21a397588f8169ceacbca409cd44de6b1d089bf1a"
+    },
+    {
+      "styleId": "style-029",
+      "decision": "omit",
+      "reason": "Geometric Illustration uses flat geometric groups in shared 2D coordinates. Converting to 3D is only theoretical.",
+      "usageGuidance": "",
+      "name": "Geometric Illustration",
+      "originalReferencesHash": "4520e5f01810d88c1f9716bc5a1c168ecd479664d8722bd3202da7490217c1b5",
+      "originalMetadataHash": "d63cd9bb7905b2cbafeaea24c472e5a5c2e150023cc430134e3c39860af85618"
+    },
+    {
+      "styleId": "style-030",
+      "decision": "omit",
+      "reason": "Storybook Illustration is painted 2D narrative layers. Back views would be invented.",
+      "usageGuidance": "",
+      "name": "Storybook Illustration",
+      "originalReferencesHash": "5ec9140b23d1a45c6c7604a0e4e25c1d8e1b2566db30cebc4318e8ef8315466f",
+      "originalMetadataHash": "4c33cfcdd473d2bed58fb1ded7099f2462af7336b461e1ad438a83f7e1133392"
+    },
+    {
+      "styleId": "style-031",
+      "decision": "omit",
+      "reason": "Comic Book Art is panel-based 2D drawing and lettering read in a fixed order.",
+      "usageGuidance": "",
+      "name": "Comic Book Art",
+      "originalReferencesHash": "920342f65b5a3c1c766af3755cc29c9786b01f5a3c2af7fd63883ef2b903c437",
+      "originalMetadataHash": "0e090fe93d51f14d9672ea8a200f4b3dd5cbead62b1b45f1a9f8f0df237281db"
+    },
+    {
+      "styleId": "style-032",
+      "decision": "omit",
+      "reason": "Manga is panel-based, flat-printed drawing. A perspective orbit doesn't fit the print medium.",
+      "usageGuidance": "",
+      "name": "Manga",
+      "originalReferencesHash": "df06615313ec0e3aa8811ac7bb0e7634fc2be0c0350040bf708cdf0f7dea5f06",
+      "originalMetadataHash": "b39cde3b4d7013d18ca02bd8ae35e68104d1bcf48a8c9a43df5a8b2180897f51"
+    },
+    {
+      "styleId": "style-033",
+      "decision": "omit",
+      "reason": "Anime uses drawn character poses and frame sequences. A real camera orbit would need redrawn turnaround animation, which this camera preset cannot supply.",
+      "usageGuidance": "",
+      "name": "Anime",
+      "originalReferencesHash": "810df3f34d226bb6f784d8f6d0b54f0d19c84ce7e6ae99bc29fc76d06af1a85a",
+      "originalMetadataHash": "0c19c6fa1f7e3dcc8129e6d5a3c5d585cbf281e6bfbe150cae3e9378915c47ac"
+    },
+    {
+      "styleId": "style-034",
+      "decision": "omit",
+      "reason": "Rubber Hose Animation uses curved 2D path characters, so there is no back geometry.",
+      "usageGuidance": "",
+      "name": "Rubber Hose Animation",
+      "originalReferencesHash": "810df3f34d226bb6f784d8f6d0b54f0d19c84ce7e6ae99bc29fc76d06af1a85a",
+      "originalMetadataHash": "34259ea0eda97d53f908c735fd4089601769ee7558864978aedd949ac938b9e3"
+    },
+    {
+      "styleId": "style-035",
+      "decision": "attach",
+      "reason": "Painterly 3D is built from genuine 3D forms with stable brush textures, and the style asks for camera movement to reveal the painted treatment. A camera circuit fits that directly.",
+      "usageGuidance": "Orbit a fully modeled painterly hero (for example a sculpted character or still-life object) on a painted ground. Brush textures must be mapped to the surface or stable in object space, so marks don't crawl as θ changes, and the back must be painted as carefully as the front. Keep the stylized key light fixed in world space so the painted light-dark masses visibly travel across the form. Use moderate orbit speed and full holds.",
+      "name": "Painterly 3D",
+      "originalReferencesHash": "38abfaaff5055a15381765763ee689f44902a21efaf722b675aebde828324f2b",
+      "originalMetadataHash": "9039d8b5386f8adb78bd065db298d159b7212c7c005974952f388fac2f2fdc45"
+    },
+    {
+      "styleId": "style-036",
+      "decision": "omit",
+      "reason": "Post-Impressionist Painting is painted 2D layers and brush reveals. A canvas has no back views.",
+      "usageGuidance": "",
+      "name": "Post-Impressionist Painting",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "df618f69709ed2966cab71b35bf309541b4450236db439032992861a48e0325f"
+    },
+    {
+      "styleId": "style-037",
+      "decision": "omit",
+      "reason": "Watercolor is translucent washes on paper, a flat medium.",
+      "usageGuidance": "",
+      "name": "Watercolor",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "14a73d345ad87d7b8d9c80cbcb5faa21e312a4828cc85af7a0429d8b6e4c5fd9"
+    },
+    {
+      "styleId": "style-038",
+      "decision": "omit",
+      "reason": "Ink Wash Painting depends on empty space and the composition logic of a flat surface.",
+      "usageGuidance": "",
+      "name": "Ink Wash Painting",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "4734216fed3d6bae92e1bfe8dadf87936e3e4b351575e7fa98627b631d04971e"
+    },
+    {
+      "styleId": "style-039",
+      "decision": "omit",
+      "reason": "Oil Painting and Gouache are paint layers on a flat support with no volumetric subject.",
+      "usageGuidance": "",
+      "name": "Oil Painting / Gouache",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "c75ec52a8d94e21bf529d927332a21778518d0360464f0ca5512c493c18169b2"
+    },
+    {
+      "styleId": "style-040",
+      "decision": "omit",
+      "reason": "Charcoal and Pastel are marks on paper, a flat medium.",
+      "usageGuidance": "",
+      "name": "Charcoal Drawing / Pastel",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "da7c3483bfd6623b134d3a8ca05af9320a1f667a9b6e431b11b0cda60a295016"
+    },
+    {
+      "styleId": "style-041",
+      "decision": "omit",
+      "reason": "Chinese Calligraphy is writing that must be read from the front. Orbiting would mirror or hide the characters.",
+      "usageGuidance": "",
+      "name": "Chinese Calligraphy",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "3d587e21bc8ca265e89c31d8e209deea0204cfad9e37f8cb10bb3e9304b2ff45"
+    },
+    {
+      "styleId": "style-042",
+      "decision": "omit",
+      "reason": "Graffiti and Street Art is paint on a wall surface. The back is just the wall.",
+      "usageGuidance": "",
+      "name": "Graffiti / Street Art",
+      "originalReferencesHash": "e9f78fd9bf72871e1e2a1a3da345642dba0e7537b56f1f8623d2ac14208782c6",
+      "originalMetadataHash": "1762797b95f671bda75c4803d2e0a64e5b679a52eb5c2ce2deb982713f9f5faf"
+    },
+    {
+      "styleId": "style-043",
+      "decision": "omit",
+      "reason": "Silhouette Illustration depends on a 2D outline read from one direction.",
+      "usageGuidance": "",
+      "name": "Silhouette Illustration",
+      "originalReferencesHash": "e738e341c7971733f76b0a6e0b2469ceabf570109f15d724a227ab114595a267",
+      "originalMetadataHash": "83c724b3ca71964b284886c47fb298b5d38a1bf127726bd15f29e036d11f415c"
+    },
+    {
+      "styleId": "style-044",
+      "decision": "omit",
+      "reason": "Vintage Photo Collage uses flat photographic cutouts with limited parallax, so it cannot show unseen sides.",
+      "usageGuidance": "",
+      "name": "Vintage Photo Collage",
+      "originalReferencesHash": "ffe0005d7b897bcfd4f8c1fd0dc5a4875aa24fdd61209f85e041b8eef364161e",
+      "originalMetadataHash": "dbce9f4b75e201a9b27ff472cf7ffe87ad0c5463bb0de1682a17119ab1d6b34f"
+    },
+    {
+      "styleId": "style-045",
+      "decision": "omit",
+      "reason": "Hand-drawn Collage is layered flat paper pieces. Their backs are blank paper.",
+      "usageGuidance": "",
+      "name": "Hand-drawn Collage",
+      "originalReferencesHash": "0d87c98e222ab77aad97a746e24b5bac72fd2095040903eeef040e87c263e7bf",
+      "originalMetadataHash": "6734ab33a3a25f9cda4d9f5ccc98345cf41f771c259e8aa6f1c53427ded4f8e6"
+    },
+    {
+      "styleId": "style-046",
+      "decision": "omit",
+      "reason": "Paper Cutout Illustration is flat cut shapes with contact shadows in a fixed view. Orbiting would expose the thin edges and blank backs.",
+      "usageGuidance": "",
+      "name": "Paper Cutout Illustration",
+      "originalReferencesHash": "c180074b015f4ac84af9097b2d08e0ff15c58d184a6c3821a33d84d69f867dbf",
+      "originalMetadataHash": "7b74c091ee9856c79f362f55d15d5e5e440a15623ba483cb0d66f07ebb20875f"
+    },
+    {
+      "styleId": "style-047",
+      "decision": "attach",
+      "reason": "Paper Craft / Cardboard Craft builds real-thickness paperboard geometry with seams and folds, so a finished cardboard model is a complete object that can be circled.",
+      "usageGuidance": "Use when a finished 3D cardboard or paper-craft model exists, such as a cardboard house, robot or vehicle on a table. Orbit only after assembly settles. Show consistent board thickness, seams and tabs on every side, and finish the back and inner faces. Keep soft world-space lighting and contact shadows. Hold the front view before and after.",
+      "name": "Paper Craft / Cardboard Craft",
+      "originalReferencesHash": "7602634e316586ee1692fccaa858fd7db0cc3517d32ecef8e12e4b30dc435a36",
+      "originalMetadataHash": "cc8e0a8b73b8c747a433758cd4957e546c256fa8ae3b628ac6d7649c5ed9aa45"
+    },
+    {
+      "styleId": "style-048",
+      "decision": "attach",
+      "reason": "A completed origami model built as a hinged mesh is real geometry with readable facets and continuous paper, and circling it shows crease structure that one view hides.",
+      "usageGuidance": "Apply only to the completed, settled fold, such as a crane or other figure. Don't orbit during folding, because the subject must stay stationary. Show paper thickness and two-sided paper color correctly, check self-intersections from every angle, and keep clean fixed lighting so facets change value as the camera passes.",
+      "name": "Origami",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "58005ada0872aebd767796917e3469be2ed61c87117f5aa5e018aed84d4fd0ae"
+    },
+    {
+      "styleId": "style-049",
+      "decision": "omit",
+      "reason": "Risograph Printing has limited ink separations on paper, a flat print medium.",
+      "usageGuidance": "",
+      "name": "Risograph Printing",
+      "originalReferencesHash": "4447fb6b68e7a47eeb736665aab67155d30730acd75c3ba71cc0637d4be0f831",
+      "originalMetadataHash": "6064b01e4538a76e1962aadc50ad58af5c8615e03041057d91d0174ce94c4c80"
+    },
+    {
+      "styleId": "style-050",
+      "decision": "omit",
+      "reason": "Halftone Printing needs dots anchored to flat artwork. Perspective would cause moiré and distortion.",
+      "usageGuidance": "",
+      "name": "Halftone Printing",
+      "originalReferencesHash": "3df40b0fafb10db3b2476ef17b0a68801579bd2f7a6773c5f21f197fedd54c86",
+      "originalMetadataHash": "82ed452e48a333c769bb3c2d73cf6b141cfab5e129b7fd18faf2eb8abe2946eb"
+    },
+    {
+      "styleId": "style-051",
+      "decision": "omit",
+      "reason": "Screen Printing uses flat spot-color layers, so there is no 3D subject.",
+      "usageGuidance": "",
+      "name": "Screen Printing",
+      "originalReferencesHash": "0da0a5a1dd46c2259aa73ba872f8ba9384dfc9c164db023b786a244809e7ff4a",
+      "originalMetadataHash": "83be09f583ddb22c07a176b2105ede4efd6b52a36a592f216489373b189b267b"
+    },
+    {
+      "styleId": "style-052",
+      "decision": "omit",
+      "reason": "Letterpress Printing is print typography with shallow impressions that should be viewed from the front with side light.",
+      "usageGuidance": "",
+      "name": "Letterpress Printing",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "78bbb39d90e16797d784b3a0c9a6f518cf6bf6487e1f98fdef59ea297eefe9e0"
+    },
+    {
+      "styleId": "style-053",
+      "decision": "omit",
+      "reason": "Woodcut and Linocut are flat carved-print regions.",
+      "usageGuidance": "",
+      "name": "Woodcut / Linocut",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "acd47b05ba79b71d464674026dc10741644791a11c5716fa5d5c89da1932740e"
+    },
+    {
+      "styleId": "style-054",
+      "decision": "omit",
+      "reason": "Photocopy Art and Zine Design are flat page layouts with photocopy grain.",
+      "usageGuidance": "",
+      "name": "Photocopy Art / Zine Design",
+      "originalReferencesHash": "641e56fc07925a17aa61ff4acda86b2057a70264985261cb706ee29192f636e0",
+      "originalMetadataHash": "84b9ffb4eee111cf818c21afa180321d36cac4d9f596b9a0ebc8468f87e0e5e4"
+    },
+    {
+      "styleId": "style-055",
+      "decision": "omit",
+      "reason": "Sticker Collage is flat stickers stuck to a surface. Their backs are adhesive.",
+      "usageGuidance": "",
+      "name": "Sticker Collage",
+      "originalReferencesHash": "0fecd9eefee762e9654623fe60c1fa66aee6cf0e0949f171504fcf858acfb04f",
+      "originalMetadataHash": "bb9f062270f12d212815c73ab412f755c2de5098ec2ec783cb45f6f560e5d021"
+    },
+    {
+      "styleId": "style-056",
+      "decision": "omit",
+      "reason": "Mosaic tiles form a planar image read from the front. Orbiting would break the picture, which is the point of the style.",
+      "usageGuidance": "",
+      "name": "Mosaic",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "fb959aa36f7e9bb6b89a5553e75e82aa9a22dac1252ef69a2e42366055abfdcc"
+    },
+    {
+      "styleId": "style-057",
+      "decision": "omit",
+      "reason": "Pixel Art uses integer-pixel 2D sprites at low resolution. A perspective orbit would break the pixel grid.",
+      "usageGuidance": "",
+      "name": "Pixel Art",
+      "originalReferencesHash": "2f56c92b68336a635a3271eb7954a047f178cec39b4b67e3f7052b58bc7a1167",
+      "originalMetadataHash": "57a257db6c61b41ac2cfbf358a72d5fb89b8a7a712d0810116101e9170ab9d7f"
+    },
+    {
+      "styleId": "style-058",
+      "decision": "attach",
+      "reason": "Voxel Art is built from consistent cube instances, so the geometry is complete and the stepped contours read well from every angle.",
+      "usageGuidance": "Orbit a complete voxel hero or a small voxel island, with every face of every cube present. Keep voxel scale and the single directional light fixed so stepped shading changes as the camera moves. Avoid moiré by keeping the orbit speed moderate at output resolution. Interior cubes can be culled only if they are never seen.",
+      "name": "Voxel Art",
+      "originalReferencesHash": "e8c0965808b47ae94b0e29ace96f05c20925aa730979910d43b950cb63b26efb",
+      "originalMetadataHash": "ef80ab513399d9472128194e8ba2f7663c31db9470af1e77136c0278b6703c1f"
+    },
+    {
+      "styleId": "style-059",
+      "decision": "attach",
+      "reason": "Low-Poly 3D uses faceted meshes with readable silhouettes and favors stable 3D camera framing, which fits a full turntable well.",
+      "usageGuidance": "Orbit a complete faceted subject (animal, vehicle, tree or character) on a grounded base with flat shading under one fixed light, so facets flicker deliberately between values. Check the silhouette and ground contact at every quarter, and keep the polygon count high enough that the rear view stays recognizable.",
+      "name": "Low-Poly 3D",
+      "originalReferencesHash": "e8c0965808b47ae94b0e29ace96f05c20925aa730979910d43b950cb63b26efb",
+      "originalMetadataHash": "531ec7ce0e316438b35f1651a1ff932977c55c4a1382072998e87c586527b26e"
+    },
+    {
+      "styleId": "style-060",
+      "decision": "attach",
+      "reason": "Cel-Shaded 3D is a Three.js procedural hero with toon bands, one fixed directional light and depth/normal outlines. These hold up correctly from any camera angle, and the paused GSAP timeline already owns the camera.",
+      "usageGuidance": "Orbit the rounded procedural hero (for example a capsule chest or gem) with its pose fixed. Keep the 3-step gradientMap, the fixed directional light and the constant-pixel-width depth/normal outline pass, so the bands slide across the form while contour width stays stable. Use the style's palette (background #F4ECD9; #26394A, #547E8F, #BA7461 materials) unless an approved palette overrides it. Render on every seek, and run this as a separate shot from the reward recipe's squash and burst, because the hero must not deform during the orbit.",
+      "name": "Cel-Shaded 3D",
+      "originalReferencesHash": "2e4d97b181440241395f271c886ba0e0e8ebb014fe041c8d49c54cdf6daf1f8a",
+      "originalMetadataHash": "1d1f080a8b963f58cb11b7a9ba27bbd89616438125b5784e38528efe9cdf8697"
+    },
+    {
+      "styleId": "style-061",
+      "decision": "attach",
+      "reason": "Photorealism uses PBR objects, measured arc camera moves and coherent contact shadows. A full circuit is a natural product turntable if the environment is complete all the way around.",
+      "usageGuidance": "Use for a PBR hero such as a brushed-metal or glass object. The style's studio sweep only covers one side, so replace or extend it with a full cyclorama, a round table or a complete room so no set edge shows behind the subject. Keep the PMREM environment and shadow light in world space, keep depth of field restrained so the subject stays sharp, and orbit slowly with plausible ease. The style's 10° preview arc is a separate partial move. Report missing Blender/Cycles capability rather than claiming path tracing.",
+      "name": "Photorealism",
+      "originalReferencesHash": "5b0c9a87f1cad8a0bd142dd595ffd710ecae6335cceb1c2868ab4fa1ac09431c",
+      "originalMetadataHash": "a73e1c5821f0659f8affbf778da27a25e4a85ea6b523d8b20df98f5c46b965b3"
+    },
+    {
+      "styleId": "style-062",
+      "decision": "omit",
+      "reason": "Particle Art forms silhouettes from points sampled from 2D SDF shapes such as a bird or logo. From the side these collapse into a plane, so a full orbit would expose missing depth. The style's action is particle reformation, not camera travel.",
+      "usageGuidance": "",
+      "name": "Particle Art",
+      "originalReferencesHash": "f105b523551fef3f8037bbf097980bee9bceb4d6f9145b9f1a3dc4be2d446cb9",
+      "originalMetadataHash": "07eb4f07173346613ed8cc881d3d486392d392e8031c9e4b127b5835e5561750"
+    },
+    {
+      "styleId": "style-063",
+      "decision": "omit",
+      "reason": "Oscilloscope Graphics are 2D glowing vector traces driven by a signal. There is no subject to orbit.",
+      "usageGuidance": "",
+      "name": "Oscilloscope Graphics",
+      "originalReferencesHash": "a66b40058d85f5440645e256539e84f8fd0bb1def1e93fc4c5ced7e906cb7a48",
+      "originalMetadataHash": "9441ef80f29f6415fb81654bd0388005a864ed8ea1af090b5278aba6ba44d5d3"
+    },
+    {
+      "styleId": "style-064",
+      "decision": "omit",
+      "reason": "Demoscene Graphics is about procedural shader effects and spinning geometry, where the object itself rotates. A camera orbit around a stationary hero isn't its idiom.",
+      "usageGuidance": "",
+      "name": "Demoscene Graphics",
+      "originalReferencesHash": "b44409f828f1e2aa1982b40e57aae76a41ac2d8c9a6749771fae6add203cf550",
+      "originalMetadataHash": "e3034107a86317566596b72afba93d20e9042b999786962d000d78b4ffcd6371"
+    },
+    {
+      "styleId": "style-065",
+      "decision": "omit",
+      "reason": "Retrofuturism is mainly instruments, interfaces and composited era layers. A 3D hero isn't a defining prerequisite. If a complete period object model is required, combine with style-110 instead.",
+      "usageGuidance": "",
+      "name": "Retrofuturism",
+      "originalReferencesHash": "1ec7502a654b5bec32ddbf1cd36c136959badfed428f4c97c39ec3e847b4d099",
+      "originalMetadataHash": "7646cdd21ff3a7fbb212448261c14b39bc6acbb0caff62c2a751dcce14779ae5"
+    },
+    {
+      "styleId": "style-066",
+      "decision": "omit",
+      "reason": "CRT / Analog Video Effects is screen-space post-processing that adds no subject geometry.",
+      "usageGuidance": "",
+      "name": "CRT / Analog Video Effects",
+      "originalReferencesHash": "d1d821605b6c170b63cbf37c0f2cd84858a41b0cd86a0c3b9ed5179e99d6f517",
+      "originalMetadataHash": "1ab1e8ad92292fd6c2a6cc8652435bb6218f1d3cc29156ea87d0cd9a120269e5"
+    },
+    {
+      "styleId": "style-067",
+      "decision": "omit",
+      "reason": "Glitch Art is a fault-model image post-process, not a scene with an orbitable hero.",
+      "usageGuidance": "",
+      "name": "Glitch Art",
+      "originalReferencesHash": "e1c61f9ae74dddd4bf21a8091f789090d0c202e1dd6571dbc67bd6a4b0fd27c4",
+      "originalMetadataHash": "9396f8a43ac1cf29b6949e58e26b3ea5a63605563a73177dd23a592a4acfd31f"
+    },
+    {
+      "styleId": "style-068",
+      "decision": "omit",
+      "reason": "Glassmorphism is flat frosted UI panels with CSS backdrop-filter. They have no back surfaces.",
+      "usageGuidance": "",
+      "name": "Glassmorphism",
+      "originalReferencesHash": "65aa705bfaaebfc3cc26325495c014ff7f54a371d8d61a4c2c856789d48bf0af",
+      "originalMetadataHash": "b195d5f87c7b02406c701ba9603ad50bcd2626b9ae1ddfac4f7e32ad210244be"
+    },
+    {
+      "styleId": "style-069",
+      "decision": "attach",
+      "reason": "Liquid Glass in its 3D transmission and refraction route is a real glass object whose refraction changes meaningfully as the camera circles it.",
+      "usageGuidance": "Use only the 3D transmission and refraction route, never the 2D screen-space displacement approximation, for a stationary glass sculpture, lens or droplet form. Give it a recognizable, complete 360° background or environment so the refraction stays plausible from every side. Keep edge highlights tied to world-space lights, and check that refraction doesn't flicker or break at grazing angles. The form doesn't deform during the circuit.",
+      "name": "Liquid Glass",
+      "originalReferencesHash": "366b6a28efb1472860dd64c4b94353256145e9e5243148e5ca865c64c9f777e1",
+      "originalMetadataHash": "6615728e1b42759df90fc018bfa8e0afc9ae130a80f7fa0872b548e00fcc9ce5"
+    },
+    {
+      "styleId": "style-070",
+      "decision": "attach",
+      "reason": "Iridescent Materials show view-dependent color shifts, so a camera orbit around a pearlescent or molten-glass object reveals the material naturally, which matches the style's 'rotation' direction while keeping the subject still.",
+      "usageGuidance": "Orbit a single stationary object with one dominant iridescent finish (a pearl shell, glass vessel or folded silk sculpture) in a quiet complete environment. Let thin-film or sheen color shifts come only from the changing view angle under fixed lights. Cap highlight exposure to avoid blowouts at specular angles, and don't add flow deformation during the orbit.",
+      "name": "Iridescent Materials",
+      "originalReferencesHash": "cb87c69e7042c7fa4cd60e1d4fa0ff279869a3d0ec2a163b361fe721938106b3",
+      "originalMetadataHash": "39bb5507d57e01e35080ff12b9d609cfcd89afc738355898dad29bbd808a6970"
+    },
+    {
+      "styleId": "style-071",
+      "decision": "omit",
+      "reason": "Cyberpunk is defined by dense functional settings and light hierarchy. A 360 orbit would require a fully built street in every direction and doesn't serve the style's focus on working systems.",
+      "usageGuidance": "",
+      "name": "Cyberpunk",
+      "originalReferencesHash": "3fe160cf2940079a2781d188153ec3306e47d48d7e77fb26473ae0483807060e",
+      "originalMetadataHash": "b02105644c991d974cdf5eb3a8a26fa07b86ca04de630a3b1e17a2167bbb822a"
+    },
+    {
+      "styleId": "style-072",
+      "decision": "omit",
+      "reason": "Synthwave motion heads toward one sunset horizon. A full orbit would turn the camera away from the defining sky and grid composition.",
+      "usageGuidance": "",
+      "name": "Synthwave",
+      "originalReferencesHash": "e54154e44db4845bb5338d299940fe3382f3e2c2dba266b061491af93616668e",
+      "originalMetadataHash": "cb8a0dc16556bb0aacc9493f3b06596b35041ebcfa2f71c0d5ac328e7783ecd5"
+    },
+    {
+      "styleId": "style-073",
+      "decision": "omit",
+      "reason": "Vaporwave composites flat period interface and photo assets with slow drift. Its sculptures are usually photographic cutouts with no back views.",
+      "usageGuidance": "",
+      "name": "Vaporwave",
+      "originalReferencesHash": "d0884d0efae57607727f4200d526b2f13ca03254b1f124f06b820acc916be1f3",
+      "originalMetadataHash": "e465f88927a3737534cf98e09f7d336252db5d7cfe0df71649248c55848b60b5"
+    },
+    {
+      "styleId": "style-074",
+      "decision": "attach",
+      "reason": "Y2K Design uses 3D chrome and transparent plastic materials and calls for rotations. A camera orbit around a modeled translucent device shows those materials authentically.",
+      "usageGuidance": "Limit to a fully modeled Y2K object, such as a translucent rounded handheld, an iMac-like device or a chrome blob on a pedestal. Don't orbit chrome wordmarks, which read mirrored from behind, and keep interface elements in a screen-space DOM layer revealed during holds. Fixed environment reflections must not blow out the chrome at any angle.",
+      "name": "Y2K Design",
+      "originalReferencesHash": "820b48b35740bacdddb8e5223d79a0d09502fa81fdb15cec4b9fdc0012b50602",
+      "originalMetadataHash": "dd6d22dc3a00ff8c93fbda0d965596d3b89b9af908527d17a615da54aa8b8e7e"
+    },
+    {
+      "styleId": "style-075",
+      "decision": "omit",
+      "reason": "Skeuomorphism shows physical-looking interface controls whose labels and function face the user. Their backs serve no purpose, and the style's motion is press and rotate state feedback.",
+      "usageGuidance": "",
+      "name": "Skeuomorphism",
+      "originalReferencesHash": "e3ccebe3dc8f2cb56bb097ea51147bac5d3eeac93a0ee056004dcb2a63c6e59f",
+      "originalMetadataHash": "7946b7ad685357c4e72b6cfc1ac5834523402bebb6f3df8b9b11a46b3938ea06"
+    },
+    {
+      "styleId": "style-076",
+      "decision": "omit",
+      "reason": "Neumorphism is raised UI surfaces close to the background color with paired fixed-direction shadows, a frontal UI medium.",
+      "usageGuidance": "",
+      "name": "Neumorphism",
+      "originalReferencesHash": "df32647bc594ad7ceba812c683134a84af5039b0d767bb747b1b9032fda28475",
+      "originalMetadataHash": "c7fa737d8bcaa22ac5213a5f0ddbdc73e7878dda94c23d75b00e64cd370a3697"
+    },
+    {
+      "styleId": "style-077",
+      "decision": "omit",
+      "reason": "Isometric Illustration requires strict isometric axes with no perspective shrinkage. Orbiting would break the projection.",
+      "usageGuidance": "",
+      "name": "Isometric Illustration",
+      "originalReferencesHash": "d54c7d35feef63b4e796791710c00225457e9be34d4dc858369825b4f5b745a4",
+      "originalMetadataHash": "3e9c0aea63bf314f133706c4b6bdc9e2e588b39a36414b1a63ec0bd08f638921"
+    },
+    {
+      "styleId": "style-078",
+      "decision": "attach",
+      "reason": "Clay-Style 3D is rounded matte meshes with broad lights and contact shadows, which makes a classic turntable presentation of complete digital models.",
+      "usageGuidance": "Orbit a complete clay-like 3D character or prop that has handmade surface detail on every side and rests on the ground with credible contact shadows. Keep broad lights fixed in the world and keep the subject's pose and shape still (no elastic deformation during the circuit). Describe it as a clay-like 3D treatment, not filmed clay.",
+      "name": "Clay-Style 3D",
+      "originalReferencesHash": "8675ab5ef6bf4afb3f5c83c988a18bf806f1e00713104fe17c3ec9c34f49c685",
+      "originalMetadataHash": "97d683d7f07d3a0c4d4a2d3ae5a31e8b3f5630cca5e8f025d5aafe567f12e375"
+    },
+    {
+      "styleId": "style-079",
+      "decision": "attach",
+      "reason": "3D Diorama is a complete miniature stage with consistent scales and an elevated view. Circling a free-standing diorama base is a natural way to show its environmental detail.",
+      "usageGuidance": "Use a diorama built as a free-standing island or plinth that is finished on all four sides, not a front-only theatre box. Keep the elevated camera height, fixed target at the diorama center and restrained depth of field so models and paths stay sharp. Local actions may continue, but the base doesn't move. Check that no unfinished cut edges show at the rear.",
+      "name": "3D Diorama",
+      "originalReferencesHash": "8fca5a2f68fa4958f4a0377670e36338a64ec996e24354c75d93843b599bc15a",
+      "originalMetadataHash": "f6f1cfd0641e396c962ed321ce4b5635e4f078680a05b136a512a753523ed54c"
+    },
+    {
+      "styleId": "style-080",
+      "decision": "omit",
+      "reason": "Frame-by-Frame Animation is independently drawn 2D frames. A camera orbit needs redrawn turnarounds, not a camera preset.",
+      "usageGuidance": "",
+      "name": "Frame-by-Frame Animation",
+      "originalReferencesHash": "70e38e23eb14990f54ec5a1a271367aa815a2876dba77aafa53059499c448968",
+      "originalMetadataHash": "379e81dbcfa1e20ea1e84f1c915458c8094cfed789f95e005cc48c182ab43667"
+    },
+    {
+      "styleId": "style-081",
+      "decision": "omit",
+      "reason": "Traditional Cel Animation uses flat drawings over fixed backgrounds, so there is no orbitable geometry.",
+      "usageGuidance": "",
+      "name": "Traditional Cel Animation",
+      "originalReferencesHash": "b79d77bf4a9c9eba920fe45b9b43716ebe0f9711e0416b489725ef3392a0947c",
+      "originalMetadataHash": "c346ebdd31cb8600d94971538d77dc004c0f526fd3d633bfa554892c9f4cb824"
+    },
+    {
+      "styleId": "style-082",
+      "decision": "omit",
+      "reason": "Hand-Drawn Stop-Motion Style uses drawn paper assets with flat replacements.",
+      "usageGuidance": "",
+      "name": "Hand-Drawn Stop-Motion Style",
+      "originalReferencesHash": "465f558de1067f9be4a4980467d67917eb4334ddbfea850a85d45b105f9ee536",
+      "originalMetadataHash": "4a31df24cf1795514cd553acae834c415348329b8392918c1d58419bb84c1411"
+    },
+    {
+      "styleId": "style-083",
+      "decision": "attach",
+      "reason": "Stop-Motion Animation uses physical-looking objects on real sets. A stepped camera circuit, shot on a motion-control rig or as labelled discrete Blender keyframes, is an established and natural move.",
+      "usageGuidance": "Require a set dressed all the way around and either (a) photographs captured at enough evenly spaced camera positions around the stationary puppet or object, with the count stated, or (b) a digital stop-motion-style simulation labelled as such, with held discrete camera steps derived from time. If a physical turntable rotates the subject instead, state that the lighting and background behave differently. Keep stable materials and contact shadows.",
+      "name": "Stop-Motion Animation",
+      "originalReferencesHash": "970e356fbc818a4ffc5aba6f222f7ac51a5e7e479c39b871c0b9dd8cb64daa8e",
+      "originalMetadataHash": "cbcf9fd317996204d096122e3930bd59c99f5e0ee95aff7a0c96587ce2ee6ecf"
+    },
+    {
+      "styleId": "style-084",
+      "decision": "omit",
+      "reason": "Cutout Animation is flat paper and photo cutouts with limited parallax. Backs and edges would be exposed.",
+      "usageGuidance": "",
+      "name": "Cutout Animation",
+      "originalReferencesHash": "a8a25301a25aebe78bcb13bc5b6fc7ce7078eac6797bc3fed9e6ca340cb08777",
+      "originalMetadataHash": "0824fe86f24599cc8134de0c36da88b2646465f2f9d8b66d4f028c8f29ef0b22"
+    },
+    {
+      "styleId": "style-085",
+      "decision": "omit",
+      "reason": "Shadow Puppetry relies on silhouettes projected onto a screen and seen from one side.",
+      "usageGuidance": "",
+      "name": "Shadow Puppetry",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "b48363907a62f99a1fa603dbc234bd9eb179cc72f52a27f709d594a367bf710c"
+    },
+    {
+      "styleId": "style-086",
+      "decision": "attach",
+      "reason": "Claymation subjects are physical clay figures, and circling a finished, stationary clay figure on a set is a natural presentation if views are photographed or a labelled digital route is used.",
+      "usageGuidance": "Orbit a stationary clay character or prop sculpted on every side, with fingerprints and matte surfaces kept consistent. Use photographed views on a camera circle with the count stated, or a Blender clay-material simulation labelled as such, with discrete held camera steps if a stop-motion cadence is wanted. Don't reshape the clay during the circuit, and keep stable world lighting.",
+      "name": "Claymation",
+      "originalReferencesHash": "5979d23a3b542dd512439a43efac4f766d7d3e193ece4908ae0b78b3dbb40213",
+      "originalMetadataHash": "a9632807ce93581b265286142e5aedbea5b2b13cf92025ab23ca560532b00650"
+    },
+    {
+      "styleId": "style-087",
+      "decision": "attach",
+      "reason": "Puppet Animation uses articulated figures in miniature sets, so a camera circuit around a posed puppet shows its costume and build from every side.",
+      "usageGuidance": "Use a held puppet pose in a miniature set finished all the way around, photographed from enough camera positions (count stated) or built as a labelled Blender rig with held keyframes. Keep foot contact and costume stable with no flicker, check that no rig supports show at the rear, and keep the lights fixed.",
+      "name": "Puppet Animation",
+      "originalReferencesHash": "d689e30862ddf17d2780790e6bf5f8398828e9bc836ba5fcdd4de569d994f2ae",
+      "originalMetadataHash": "79dfee6e1c1b5a6a3895a0055f4f517d0e3f0d1736455eee6cc780ab2a568713"
+    },
+    {
+      "styleId": "style-088",
+      "decision": "attach",
+      "reason": "Object Animation features real everyday objects whose material and scale an orbit can show. A stepped camera circuit around a still object arrangement is a natural photographed move.",
+      "usageGuidance": "Choose a meaningful object or small arrangement on a surface with consistent contact shadows. Capture evenly spaced camera positions around it under fixed lighting (count stated), using Pillow only for crop normalization, or label a digital simulation. Don't interpolate unseen angles. Keep the arrangement still for the whole circuit.",
+      "name": "Object Animation",
+      "originalReferencesHash": "40d03a5513943c393a08cfcd4e9e949654581282cd1eed2f237051a7dd036ce4",
+      "originalMetadataHash": "f626175a2e7d5a7d2a3fb61e8314bc131840d9d9c4b11243cada28d05a7a2aaa"
+    },
+    {
+      "styleId": "style-089",
+      "decision": "omit",
+      "reason": "Pixilation animates live performers by moving them between exposures. Its subject moves by definition, and frozen-performer orbits would need a multi-camera capture that isn't part of the style.",
+      "usageGuidance": "",
+      "name": "Pixilation",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "b755d64726ceb536116229c4549b420dcfb27a039d6d7156c66c2a434847957d"
+    },
+    {
+      "styleId": "style-090",
+      "decision": "omit",
+      "reason": "Rotoscoping traces 2D drawings from filmed footage, so no new viewpoints are available.",
+      "usageGuidance": "",
+      "name": "Rotoscoping",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "5050e6e1f1235ef5fd0d24e831be3ede1d2947c978b049c9d2b788c18886c8f3"
+    },
+    {
+      "styleId": "style-091",
+      "decision": "omit",
+      "reason": "2D Rigged Animation uses flat parts with pivots. The back side would expose the layers.",
+      "usageGuidance": "",
+      "name": "2D Rigged Animation",
+      "originalReferencesHash": "810df3f34d226bb6f784d8f6d0b54f0d19c84ce7e6ae99bc29fc76d06af1a85a",
+      "originalMetadataHash": "838513eb4d3b6364f1b6a2ce27c7e90a1e0266336fe3597d23d19f351731cedd"
+    },
+    {
+      "styleId": "style-092",
+      "decision": "omit",
+      "reason": "Line Boil cycles 2D contour variants, a flat drawing effect.",
+      "usageGuidance": "",
+      "name": "Line Boil",
+      "originalReferencesHash": "810df3f34d226bb6f784d8f6d0b54f0d19c84ce7e6ae99bc29fc76d06af1a85a",
+      "originalMetadataHash": "0195c18eb575bf8471903da7298fd169d6bd0c37cbfdac758cd5ad2f6bacfd79"
+    },
+    {
+      "styleId": "style-093",
+      "decision": "omit",
+      "reason": "Kinetic Typography must keep text readable. Orbiting text mirrors and foreshortens it, so this is print and type motion that shouldn't use a perspective circuit.",
+      "usageGuidance": "",
+      "name": "Kinetic Typography",
+      "originalReferencesHash": "840d8ad7ec46a0b20680731aa24f66459403978318280712005789939644b96e",
+      "originalMetadataHash": "64cd4e1210f78a465065e99aa47d338fc2db6693cd627f0771d5117704d03119"
+    },
+    {
+      "styleId": "style-094",
+      "decision": "omit",
+      "reason": "Abstract Motion Graphics is a flat shape system with rotation and division of the shapes themselves. There is no stationary 3D hero.",
+      "usageGuidance": "",
+      "name": "Abstract Motion Graphics",
+      "originalReferencesHash": "d4f31aa77d2b4603d60a6f302a657e2585e2860ddbf8696b274cc4d5e56b9ddb",
+      "originalMetadataHash": "a8d2f05f5951db292058d151e4490b58ba520c91de1cc316ae421ac799a9784e"
+    },
+    {
+      "styleId": "style-095",
+      "decision": "omit",
+      "reason": "UI Animation / Product Motion Design rebuilds real 2D interfaces as DOM. A wrapper camera transform isn't a 3D orbit, and screens have no meaningful backs.",
+      "usageGuidance": "",
+      "name": "UI Animation / Product Motion Design",
+      "originalReferencesHash": "df6fbeef3be2b4a75a6c899e68739c8144713ebf69f3c3fe7422c6820ce34317",
+      "originalMetadataHash": "397b33bfb4cd88e504b39585123e83ecc179a6c92dfc7b1be5f74df7b3a46a12"
+    },
+    {
+      "styleId": "style-096",
+      "decision": "attach",
+      "reason": "Minimalist Product Motion Design frames one accurate product with smooth camera moves and genuine 3D, which suits a calm product turntable.",
+      "usageGuidance": "Use only an accurate, complete 3D product model or authorized CAD/glTF (no invented back panels). Use a clean full surround or infinite sweep, restrained materials and fixed key and rim lights. Take a slow eased circuit with generous opening and ending holds. Concise copy goes in screen space, revealed during the ending hold, and close-ups are separate shots.",
+      "name": "Minimalist Product Motion Design",
+      "originalReferencesHash": "08ece623bf2d49d7986481d291a5cc5572ba49b4f2c1e7eca01364a9233d0ca0",
+      "originalMetadataHash": "49b1911e75ade83aa6a470a2c910f58ffcb005a73f34143c8d1e8136db924984"
+    },
+    {
+      "styleId": "style-097",
+      "decision": "attach",
+      "reason": "Scientific Visualization often presents verified 3D structures, such as molecules, anatomy or crystal lattices, with a turntable orbit so spatial relationships are clear. Manim and Three.js both support fixed-target camera rotation.",
+      "usageGuidance": "Use only when verified 3D data exists (for example PDB atom coordinates or a measured mesh). Keep consistent scale and color semantics, use constant projection (orthographic is acceptable when it serves measurement), and keep labels in screen space reprojected from anchors and revealed during holds. Don't invent hidden structure, and pause on the meaningful view before and after the circuit.",
+      "name": "Scientific Visualization / Data Storytelling",
+      "originalReferencesHash": "c2337c2572f59abcacee7b599ed4b29f3c62b78a570e12df4b88dedd8be1c52c",
+      "originalMetadataHash": "1a09136603f6fcacad0f30366d5c19c60aab62f69a51a474643642cb25c1f49e"
+    },
+    {
+      "styleId": "style-098",
+      "decision": "omit",
+      "reason": "Infinite Zoom is a continuous push through nested portals. Its camera action is axial scale travel, not circling a hero.",
+      "usageGuidance": "",
+      "name": "Infinite Zoom",
+      "originalReferencesHash": "f22af505f267bc8c5aba144a685d4ecf70d6a13f07b5bcf53a71ac574422d151",
+      "originalMetadataHash": "66a8ecdec16b2bb096093bf6fd64a8619fd1152a55a0e39373213cc3bb99a699"
+    },
+    {
+      "styleId": "style-099",
+      "decision": "attach",
+      "reason": "Continuous Shot is one readable camera path through continuous 3D space computed directly from time. A full circuit around a hero is a natural segment of such a path when the space is built all the way around.",
+      "usageGuidance": "Embed the orbit as one segment of the continuous camera curve. Arrive at θ0 with matched velocity or a deliberate pause, complete the 360 around the stationary hero inside a fully built environment, then continue the path from the returned view with no hidden cut. Check wall and prop intersections along the whole circle and keep lighting and occlusion continuous.",
+      "name": "Continuous Shot",
+      "originalReferencesHash": "14628bcd510fdec7142b65ff16ecef7338bd874d37e1feb8c6043795f344d733",
+      "originalMetadataHash": "d77583d41b6e9e41bb72d9eeeb4ad7053229e6cfcce9a311c926f9876581dd3c"
+    },
+    {
+      "styleId": "style-100",
+      "decision": "omit",
+      "reason": "Shape Morphing is 2D contour interpolation. Its subject changes shape, which conflicts with a stationary hero.",
+      "usageGuidance": "",
+      "name": "Shape Morphing",
+      "originalReferencesHash": "58bdf7b358580682c8b00ecbf06df9aea3e3770e3ce6556a1af69a2e33062009",
+      "originalMetadataHash": "a3f7cc2f4b4a9145ba19bb480fe493a5d0a915bdca67c6c8e2c66b669f045a4a"
+    },
+    {
+      "styleId": "style-101",
+      "decision": "omit",
+      "reason": "2.5D Parallax Animation is layered flat artwork that explicitly isn't full 3D modeling. It can't show back surfaces, and this preset must not be presented as a true orbit for it. At most, a labelled partial-arc parallax adaptation.",
+      "usageGuidance": "",
+      "name": "2.5D Parallax Animation",
+      "originalReferencesHash": "a6053dbbc3247dd8c2e02cf0a426b23827c28f4506f7d2492fdd5f418d974278",
+      "originalMetadataHash": "80d5304f0eadc58c02f05da78aeba6892d637a7ebca6f3d6bf1c0924c4e68b75"
+    },
+    {
+      "styleId": "style-102",
+      "decision": "omit",
+      "reason": "Kaleidoscopic Animation is mirrored 2D sectors around a fixed screen center. Perspective would break the symmetry.",
+      "usageGuidance": "",
+      "name": "Kaleidoscopic Animation",
+      "originalReferencesHash": "9e7a3b0508c5115dd385d79234b3ef028caf16c1dad8a91ea2f177d0aac14305",
+      "originalMetadataHash": "6cc63942242f6c2f77ba7ac30f28e5ca4248c4fc454f139f44fef567abd9e429"
+    },
+    {
+      "styleId": "style-103",
+      "decision": "omit",
+      "reason": "Motion Poster needs a complete static poster with useful still frames. Orbiting a flat poster is ruled out.",
+      "usageGuidance": "",
+      "name": "Motion Poster",
+      "originalReferencesHash": "a2562d3f3b063b464be29d35b4962708eb41b6b1f6d91afee01a0a8e8b536eef",
+      "originalMetadataHash": "e94b2a7035d9698566dae3657bab32596816a6b0cebcee8084ec91d49d332e28"
+    },
+    {
+      "styleId": "style-104",
+      "decision": "omit",
+      "reason": "Symmetrical Cinematic Composition depends on frontal axial framing and lateral moves. A 360 orbit destroys the symmetry.",
+      "usageGuidance": "",
+      "name": "Symmetrical Cinematic Composition",
+      "originalReferencesHash": "eb7919f0c22b0430295297c7fc6d83d0a5c1b5350b296879a37b2be0e31cf32c",
+      "originalMetadataHash": "f0950608f0a5674bb4e7abdf9e58ceeeaf0a9439ed3eca71c274f6daecc10ad1"
+    },
+    {
+      "styleId": "style-105",
+      "decision": "omit",
+      "reason": "Music-Synchronized Animation is a timing approach built on measured cues, not a medium with a 3D hero. Its demo is a flat SVG collision instrument.",
+      "usageGuidance": "",
+      "name": "Music-Synchronized Animation",
+      "originalReferencesHash": "f51eddca15248327235f143517587fc95c18e34055d19026b8b7933952a3a726",
+      "originalMetadataHash": "7538d979b7ac4d33a4866609bf671f3e92bebdcac94b7e2db39f2159bb0d00ad"
+    },
+    {
+      "styleId": "style-106",
+      "decision": "omit",
+      "reason": "Squash and Stretch is about deforming subjects, which conflicts with a stationary hero. Its renders are flat SVG side views.",
+      "usageGuidance": "",
+      "name": "Squash and Stretch",
+      "originalReferencesHash": "146788d605e30f93bbdf85de4f38626e432a1220cd8dbcb187ca888352714006",
+      "originalMetadataHash": "5287dd8d97de7aea826a9000e4d87a6c6c5992411fe90793ea8bddda505b44d2"
+    },
+    {
+      "styleId": "style-107",
+      "decision": "omit",
+      "reason": "Mixed-Media Animation is mostly flat composited photos, drawings and paper. Prerendered 3D elements are secondary, so a full orbit isn't natural for the whole treatment.",
+      "usageGuidance": "",
+      "name": "Mixed-Media Animation",
+      "originalReferencesHash": "ee4221ffadd8e2fcfa1981e0a434bf6d5e8726e6d215cb852b671b47f3a97f8f",
+      "originalMetadataHash": "cbcc53ede8bcb76e6196fa98d21e4e29ab5b307ece8c8ce0853d0594d715cdec"
+    },
+    {
+      "styleId": "style-108",
+      "decision": "omit",
+      "reason": "Isometric Motion Graphics requires a precise orthographic isometric camera with no perspective. A free camera circuit breaks that strict projection.",
+      "usageGuidance": "",
+      "name": "Isometric Motion Graphics",
+      "originalReferencesHash": "d54c7d35feef63b4e796791710c00225457e9be34d4dc858369825b4f5b745a4",
+      "originalMetadataHash": "58e80b5f5909a452fadb7697aaa049fe1fdb3b907fff24ba2c42073c906e2fc5"
+    },
+    {
+      "styleId": "style-109",
+      "decision": "omit",
+      "reason": "Animated Line Art reveals 2D paths and connectors. There is no volumetric hero.",
+      "usageGuidance": "",
+      "name": "Animated Line Art",
+      "originalReferencesHash": "b0d5fe06b28626452a728e38c837200423c5b4d6a53c46dff50a8425ac155da9",
+      "originalMetadataHash": "a83f29309193b840b7d162cb306725d611b0c723cf2774f3e502e810a213f6ef"
+    },
+    {
+      "styleId": "style-110",
+      "decision": "attach",
+      "reason": "3D Motion Graphics builds genuine 3D geometry with a deliberate choice of projection and calls for camera movement, so it is the most direct home for a full camera circuit.",
+      "usageGuidance": "Orbit a complete modeled hero (logo object, product or abstract sculpture) on a ground with contact shadow under a fixed key light. Choose perspective or non-isometric orthographic deliberately and keep it constant. Check bevels, roughness and highlights at every angle so nothing blows out, and avoid floating geometry. Bake any simulations before the orbit.",
+      "name": "3D Motion Graphics",
+      "originalReferencesHash": "8f04f375e949a300d19458faabfae3ef24a5ff110066fdf284b9a1205cc0452f",
+      "originalMetadataHash": "0da56f94e98cb1b6cb408418e50822a191e1ce4242637d1c1df36e6ca7a515ba"
+    },
+    {
+      "styleId": "style-111",
+      "decision": "omit",
+      "reason": "Sticker-Style Explainer Animation is flat white-bordered stickers and labels on a 2D board.",
+      "usageGuidance": "",
+      "name": "Sticker-Style Explainer Animation",
+      "originalReferencesHash": "494fa31c883c9ff6f4deda092e9c1e0b5c34965115c125e9435cf2d5bc7be35f",
+      "originalMetadataHash": "0ec124e4f427551ca8f16590bbdda5af368e382d03ae3af19d826eddf5b3abcc"
+    },
+    {
+      "styleId": "style-112",
+      "decision": "attach",
+      "reason": "Futuristic UI / HUD design includes wireframe or point-line 3D forms, and a camera circuit around a central wireframe target reads naturally as a scan or acquisition sweep.",
+      "usageGuidance": "Orbit the camera around a stationary wireframe 3D model (for example a vehicle, drone or anatomical form) at the HUD's center. Reticles, scales and monospaced data stay in a separate screen-space SVG or HTML layer, label fictional data, and tie readout changes to orbit progress only if they describe real events. Limit bloom to selected lines, and avoid extra spinning rings that compete with the orbit.",
+      "name": "Futuristic UI (FUI) / HUD Design",
+      "originalReferencesHash": "18699cdb975562b4a195b12ec126517b5c76ff45ca9e7a3c79c52a402d9ea1af",
+      "originalMetadataHash": "b1b976034c840bd8ff3c213879e75d2840c05f9e4e8abf14d60502d207ef9742"
+    },
+    {
+      "styleId": "style-113",
+      "decision": "omit",
+      "reason": "Aurora Gradients / Glassmorphism is full-screen gradient shaders behind flat frosted panels, with no 3D hero.",
+      "usageGuidance": "",
+      "name": "Aurora Gradients / Glassmorphism",
+      "originalReferencesHash": "c4995553fff2a6d889af7945e2b1f548e2979da6b73c7576958c31e857975344",
+      "originalMetadataHash": "d6360a79e03044f9f5ad02dd63a829edb80875b8b2442f836521e48dfb6063e1"
+    },
+    {
+      "styleId": "style-114",
+      "decision": "omit",
+      "reason": "Liquid Motion is continuously deforming metaballs that stretch, merge and split. The subject isn't stationary, and the focus is fluid shape change.",
+      "usageGuidance": "",
+      "name": "Liquid Motion",
+      "originalReferencesHash": "7c2b7c8b740b2fe0be6fbbedcbef9e77126c2ae1023318808da1922cdc7d6fcf",
+      "originalMetadataHash": "365b65eb38cc92b408b0f2da57441b90a686a36cfcf06bf4c0cdc33bf24f2ed5"
+    },
+    {
+      "styleId": "style-115",
+      "decision": "omit",
+      "reason": "Animated Reaction Captions are screen-space emphasis text over footage. Orbiting would make it unreadable.",
+      "usageGuidance": "",
+      "name": "Animated Reaction Captions",
+      "originalReferencesHash": "45c29fc5be959d00b4f20449de139e593628ed561a77cd3231cab406b18db2f6",
+      "originalMetadataHash": "0b2ffe5f1b34f15d21a23c4663ad08f22a1b623797d25eeb6b2ce9f8bc4323fd"
+    },
+    {
+      "styleId": "style-116",
+      "decision": "omit",
+      "reason": "Blueprint Drafting Animation is a flat 2D orthographic drafting sheet with measured dimensions. Perspective orbit is ruled out.",
+      "usageGuidance": "",
+      "name": "Blueprint Drafting Animation",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "57e649cc42e7401c4f9405a1f0e45ed277d1c6471219e244ba101453f50ce239"
+    },
+    {
+      "styleId": "style-117",
+      "decision": "omit",
+      "reason": "Holographic Scanline Illustration is a Canvas 2D Path2D outline with horizontal scanline fills. There is no 3D geometry.",
+      "usageGuidance": "",
+      "name": "Holographic Scanline Illustration",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "27637acc9f31337e4f3d572a17dbcc4bdd98aaad46c03a15e7880f57af138edc"
+    },
+    {
+      "styleId": "style-118",
+      "decision": "omit",
+      "reason": "Thermal Silhouette Imaging uses a 2D rasterized profile mask in a fullscreen shader, so there are no other views.",
+      "usageGuidance": "",
+      "name": "Thermal Silhouette Imaging",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "83aa2add6371cd065b8788c0991f56542aaf5ac88295c4341debd948b025d78a"
+    },
+    {
+      "styleId": "style-119",
+      "decision": "omit",
+      "reason": "Engraved Mechanical Diagrams are flat SVG engraved mechanisms where linked motion explains operations, a diagram medium.",
+      "usageGuidance": "",
+      "name": "Engraved Mechanical Diagrams",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "8acec7b4b73c2871a35bb4d93ba5b12412b2c46ff502c8d84008608a63cf55ac"
+    },
+    {
+      "styleId": "style-120",
+      "decision": "attach",
+      "reason": "Raymarched Fractal Landscapes render a complete SDF fractal solid with an authored camera path, coherent reflections and depth. Circling the sculptural solid is natural, and every angle exists mathematically.",
+      "usageGuidance": "Orbit the camera around a fixed fractal solid by writing θ-derived camera position and target uniforms on each seek, while keeping uEmerge and uLandscape constant during the circuit so the solid stays stationary. Keep the fog color #080A0C and the bounded march budget, and check that reflections and fog stay coherent and free of banding at every angle. Run the orbit as a separate segment before or after the landscape morph.",
+      "name": "Raymarched Fractal Landscapes",
+      "originalReferencesHash": "af897549e0355752ac732488c213366927767bf70879b51d23526572e1801afe",
+      "originalMetadataHash": "b474854b18a2a83fbd5187def28a792f8e9b439c289789709f9f3d2892752af2"
+    },
+    {
+      "styleId": "style-121",
+      "decision": "omit",
+      "reason": "Chalk on Black Paper is a flat drawn medium with no 3D subject.",
+      "usageGuidance": "",
+      "name": "Chalk on Black Paper",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "83ca26df0fd343b55ae9dc08b05935d3d6f6b9078766f101b0ba06e2866f7e53"
+    },
+    {
+      "styleId": "style-122",
+      "decision": "omit",
+      "reason": "Sand-on-Light-Table Animation is backlit sand silhouettes on a flat table, a top-down 2D medium.",
+      "usageGuidance": "",
+      "name": "Sand-on-Light-Table Animation",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "89bd6e6bc9c28a7f9e1923268450c1fb2ff4636cce3f5e522266c1e824dede6d"
+    },
+    {
+      "styleId": "style-123",
+      "decision": "omit",
+      "reason": "The Pop-Up Book is 3D, but its pieces are designed to be seen from the front with unprinted backs, and page mechanics are the motion. A full 360 would show blank backs and the book's underside. Only a labelled partial-arc adaptation would fit.",
+      "usageGuidance": "",
+      "name": "Pop-Up Book Animation",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "d82301dfef0db7a98b9850842b04415273d3b8e98d7fcf4344dcb986d058c8ed"
+    },
+    {
+      "styleId": "style-124",
+      "decision": "omit",
+      "reason": "Translucent Tissue-Paper Collage is layered flat tissue relying on overlap seen from the front.",
+      "usageGuidance": "",
+      "name": "Translucent Tissue-Paper Collage",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "d4a6589447a50679b65e9f498dba8c1adeb0e824c3b2eab49b705aa00ec0906a"
+    },
+    {
+      "styleId": "style-125",
+      "decision": "attach",
+      "reason": "The Greek Vase is a complete LatheGeometry vessel with a seamless frieze that wraps around once. Circling it is the natural way to read the continuous narrative.",
+      "usageGuidance": "Keep the vessel stationary and replace its rotation with the camera orbit around its vertical axis. One circuit then reads the whole frieze in order, with fixed key and rim lights giving changing burnish across the curve. Keep the terracotta palette (#BA642F ground, #F3DFC0 details on #100D09) unless overridden. The texture-space reveal mask may keep progressing in register order, synced to θ. Make no claim to a specific historical technique.",
+      "name": "Ancient Greek Vase Painting",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "73a85aa611b7400cf10b93bb0955fa92bf3bc34a4004f4c5ee980ac7c47d010c"
+    },
+    {
+      "styleId": "style-126",
+      "decision": "omit",
+      "reason": "Stained-Glass Light Projection is set inside an interior. Turning 360° there is a pan from inside, not an orbit around a stationary hero, and the window and projection read best from staged angles.",
+      "usageGuidance": "",
+      "name": "Stained-Glass Light Projection",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "0e7a280e750f44b82935f2929d2b27351194ad43735bb0f914a49040db2385f0"
+    },
+    {
+      "styleId": "style-127",
+      "decision": "attach",
+      "reason": "Cutaway / Exploded 3D Illustration uses genuine 3D component geometry with a calm camera arc and labels reprojected on each seek. Circling the held exploded or cutaway assembly shows internal structure from every side.",
+      "usageGuidance": "Orbit only while the assembly is held, either fully assembled or fully exploded, never during separation. Keep part offsets along meaningful axes constant, cap cut faces so no hollow faces show from behind, and reproject label anchors on every seek. Hide labels whose anchors become occluded and reveal them again only after the camera settles. Leader-line arrowheads appear only when the strokes arrive.",
+      "name": "Cutaway / Exploded 3D Illustration",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "10a51b439a120074c94060df148bec315fd1c8137a8ebfb704caff050e0e69c9"
+    },
+    {
+      "styleId": "style-128",
+      "decision": "omit",
+      "reason": "Volumetric Fire & Smoke is a continuously evolving, nearly rotationally symmetric volume rendered at bounded resolution. A full circuit shows little new and competes with the ignition and cooling progression that defines the style.",
+      "usageGuidance": "",
+      "name": "Volumetric Fire & Smoke",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "04a66e67ee59cd8fc00a30e3b866762bce84d0428c45189c0a8a018b507c4ba7"
+    },
+    {
+      "styleId": "style-129",
+      "decision": "omit",
+      "reason": "Egyptian Register Painting is flat profile figures in horizontal registers on a plaster surface.",
+      "usageGuidance": "",
+      "name": "Egyptian Register Painting",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "f0ae475599f9035aaace449299aa70b671e6c18dde3ca68a2fac7e102d28a87a"
+    },
+    {
+      "styleId": "style-130",
+      "decision": "omit",
+      "reason": "Illuminated Manuscript is an organized parchment page of illustration and text. It is page and print typography.",
+      "usageGuidance": "",
+      "name": "Illuminated Manuscript",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "510650e364aa9e8a2502ad2574db82392ce4fc5c832afb54c2870eb747f97ba4"
+    },
+    {
+      "styleId": "style-131",
+      "decision": "omit",
+      "reason": "Ukiyo-e Woodblock Print is flat registered color planes and an asymmetric crop.",
+      "usageGuidance": "",
+      "name": "Ukiyo-e Woodblock Print",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "ea42129f2a7ede65c73af55a693aadef4a32a9b575c1fa09dd06f3264d68d454"
+    },
+    {
+      "styleId": "style-132",
+      "decision": "omit",
+      "reason": "Cubist Painted Collage shows several viewpoints compressed into flat planar facets. A real camera orbit contradicts that compression, and low-poly 3D isn't Cubism.",
+      "usageGuidance": "",
+      "name": "Cubist Painted Collage",
+      "originalReferencesHash": "ef39d0f81b239b663bc1f8919dc21472631e7ce817721bed6ce634fc813bba63",
+      "originalMetadataHash": "d97371b06f79317b614b19050c8a874473e68c111fb666973efee63c59aa6c13"
+    },
+    {
+      "styleId": "style-133",
+      "decision": "omit",
+      "reason": "Impressionist Painting is broken brushwork on a flat canvas.",
+      "usageGuidance": "",
+      "name": "Impressionist Painting",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "2a9861e4dee3027c5f64cf2180b24c1a08b927a6f23171a36fef6964c95275c6"
+    },
+    {
+      "styleId": "style-134",
+      "decision": "omit",
+      "reason": "Fine-Line Chinese Painted Scroll is a flat scroll composition with open space.",
+      "usageGuidance": "",
+      "name": "Fine-Line Chinese Painted Scroll",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "4c39c224058e625ac5a0476fd8cd147bb8b2c58dcdd3d30f1ad7c4e92b5e27cb"
+    },
+    {
+      "styleId": "style-135",
+      "decision": "omit",
+      "reason": "Cave Wall Painting is pigment on an uneven rock surface seen from the front, with no freestanding hero.",
+      "usageGuidance": "",
+      "name": "Cave Wall Painting",
+      "originalReferencesHash": "ab2395e519a472859df94b487614adb9389518b342c73683f7d7596dbad3ac91",
+      "originalMetadataHash": "2ade70149e0ccf92d02d5c47ce03a9a1764d2731855d307c11827455c682c367"
+    },
+    {
+      "styleId": "style-136",
+      "decision": "omit",
+      "reason": "Manga Production Theatre is a flat black-and-white manga stage driven by storyboard JSON, with faceless 2D characters and travelling boards. It has no 3D hero and is a HTML/CSS medium.",
+      "usageGuidance": "",
+      "name": "Manga Production Theatre",
+      "originalReferencesHash": "878fc14512caabb622792597bea5a09cd8490f81029bff8e850a21a0eff7498c",
+      "originalMetadataHash": "b49c1f7759ce535232ce674789cf1e0bf009e1070698b0f2bda760501c9de44e"
+    }
+  ],
+  "originalPatternCount": 40
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-007",
+    "name": "Art Nouveau. Supplemental design reference; not claimed as a directly named style in the source collection.",
+    "visualIdentity": "Flowing ornament built from plants, flowers and long organic curves, with figures and lettering integrated into borders. Line-weight variation stays coherent. The palette is natural or limited print.",
+    "suitableUses": "Explicit: ornamental posters and botanical reveals. Inferred: decorative titles and vine-bordered layouts. Hybrids suit long-form reading or narrative characters that need structure within the borders.",
+    "limitations": "Ornament must not enter body-text columns. Mechanical bounce transitions are excluded. Approved task or brand colors override the suggested tokens. Video output does not depend on live hover or scroll input.",
+    "palette": "Suggested tokens, not approved exact colors: background #F3ECD9, foreground #293E32, accent_1 #788659, accent_2 #B67B57; four base colors, gradients disabled. Background is scene-dependent. Foreground on background measures 9.736:1; accent text pairings (about 3.3:1) are decorative only.",
+    "motionAndInteraction": "Explicit: artwork reveals like growing vines, following each curve's direction, without mechanical bounce. Optional references: motion-001 hinged bloom (reversible, only if the topic supports emergence), motion-012 chapter handoff, motion-015 story steps. Hover, focus and tap apply only to interactive delivery.",
+    "audio": "Unspecified; no audio requirement or asset was supplied. The style imposes no mandatory layer or genre. Inferred suggestion: restrained music or ambience with silence during reading holds. Honor explicit user audio choices and avoid defaulting to instrumental music.",
+    "assetRequirements": "No uploads, documents or URLs are supplied; source list is empty. Needed: drawable botanical paths, reusable ornamental groups, SVG figures and locally loaded fonts. motion-001 also needs flower or emergence assets. Subject, exact copy, duration, aspect ratio, resolution and frame rate are unspecified.",
+    "combinations": "style-019 editorial: body text in #293E32 on #F3ECD9 only, with ornament limited to margins and drop caps. style-030 storybook: figures use Nouveau contour weights without storybook textures or warm yellow, and scene changes happen through growing vines rather than cuts.",
+    "productionApproach": "HyperFrames is the default pipeline for timing, validation and export; Remotion is a fallback only with a recorded, verified reason. SVG renders the artwork, GSAP DrawSVGPlugin reveals strokes, and optional Motion syncs DOM/SVG layers. chroma-js checks contrast. Verify direct, backward and forward seeks."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

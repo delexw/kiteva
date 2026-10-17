@@ -29,7 +29,7 @@ it("keeps reusable production principles specific to GPT-6.1 video calls", () =>
 });
 
 it.each(["preview", "full", "refinement"] as const)(
-  "includes the same principles in the %s prompt without replacing its scope or selected style",
+  "includes the same principles in the %s prompt without replacing its scope or selected Motion Graphic",
   async (kind) => {
     const styles = (await loadCatalog()).styles;
     const job: VideoGenerationJob = {

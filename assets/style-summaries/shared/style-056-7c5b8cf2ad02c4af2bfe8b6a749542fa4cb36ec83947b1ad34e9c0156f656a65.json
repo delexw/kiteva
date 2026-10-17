@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-056",
+    "name": "Mosaic (Printmaking and Craft Materials; explicit provenance).",
+    "visualIdentity": "Explicit: a recognizable image of glass, stone or gold-leaf tesserae with coherent shapes, grout gaps and reflections. Selected tiles flip or rotate and return precisely. Highlights stay controlled so sparkle never overwhelms the image.",
+    "suitableUses": "Explicit: tile-built imagery for any subject; audience and objective are unspecified. Inferred from examples: heritage storytelling, title cards, museum intros and ornamental borders. Interactive HTML suitability is inferred from a prerendered-loop example.",
+    "limitations": "Blender rendering cost grows quickly, so Mosaic alone is preferred for most work. Avoid simultaneous sparkle, smooth metallic gradients and hidden crossfades. Delaunator gives triangle connectivity only, not tessera physics. The source review covered only sampled seconds 1–8; motion and audio were not verified.",
+    "palette": "The background is scene_dependent: #E4D8BE is only an illustrative swatch, so choose the field from subject, lighting and mood. Unapproved suggestions: foreground #39494B; accents #47777B, #9B694C, #B19A61. Foreground/background contrast is 6.67:1; accents are decorative only. Tile colors stay limited and discrete, with value jitter, dark grout and sparing glints. Gradients are disabled. Exact task colors override all suggestions.",
+    "motionAndInteraction": "Explicit: staged flips, rotations and returns to exact target transforms, with highlights swept one region at a time. Optional motion-012 (chapter handoff) and motion-015 (narrative steps) apply only where scene elements support them. Both are scroll-driven, so video uses composition time.",
+    "audio": "Unspecified by the style; there is no mandatory genre, tempo, voice or layer. Weigh music, voiceover, effects, ambience or silence per task, honoring explicit user choices. Keep audio from competing with narration or essential text. Never claim audio exists unless it was actually created.",
+    "assetRequirements": "Subject, exact copy, duration, aspect ratio, resolution, frame rate, audio needs and output directory are unspecified. Tile meshes and glass or gold materials are generated in Blender. Local fonts and assets load before rendering. No uploads are required; the motion catalog is optional.",
+    "combinations": "Optional style-006 (Art Deco) adds axial symmetry and sunburst borders; gold stays accent_3, not Deco gold. Optional style-098 (portal) zooms into one tessera to reach the next scene, with continuous motion and matched material rules. Mosaic alone is preferred otherwise.",
+    "productionApproach": "Video: HyperFrames by default for timing, sync and export; Remotion only on a verified HyperFrames limit. Blender with Python bpy and Cycles or EEVEE owns tiles, materials, lighting and staged motion. Browser layers, chroma-js and optional Delaunator derive state from composition time. Interactive HTML: a prerendered loop with pause control and a reduced-motion static frame is inferred from an example."
+  },
+  "model": "claude-haiku-5-5",
+  "provider": "claude"
+}

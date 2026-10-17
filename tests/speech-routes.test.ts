@@ -82,6 +82,7 @@ it("routes Pocket readiness and samples to Pocket without using Kokoro voices", 
       expect.any(AbortSignal),
       "pocket-tts",
       undefined,
+      1,
     );
   } finally {
     await app.close();
@@ -117,6 +118,7 @@ it("uses the selected language for status and localized previews", async () => {
       expect.any(AbortSignal),
       "pocket-tts",
       undefined,
+      1,
     );
   } finally {
     await app.close();
@@ -152,7 +154,41 @@ it("keeps voice and language independent in previews and readiness", async () =>
       expect.any(AbortSignal),
       "pocket-tts",
       "fr",
+      1,
     );
+  } finally {
+    await app.close();
+  }
+});
+
+it("keys previews by volume and rejects out-of-range gain", async () => {
+  const app = Fastify();
+  app.setErrorHandler(apiErrorHandler);
+  registerSpeechRoutes(app);
+  try {
+    const urls = [];
+    for (const volume of [undefined, 1, 1.5, 0]) {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/speech/sample",
+        payload: { mode: "narration", volume },
+      });
+      expect(response.statusCode).toBe(200);
+      urls.push(response.json().url);
+      expect(vi.mocked(synthesizeSpeech).mock.lastCall?.[7]).toBe(volume ?? 1);
+    }
+    expect(urls[0]).toBe(urls[1]);
+    expect(new Set(urls).size).toBe(3);
+    for (const volume of [-0.1, 2.1])
+      expect(
+        (
+          await app.inject({
+            method: "POST",
+            url: "/api/speech/sample",
+            payload: { mode: "narration", volume },
+          })
+        ).statusCode,
+      ).toBe(400);
   } finally {
     await app.close();
   }

@@ -26,6 +26,7 @@ function speechReply(request: CreativeRequest, assets: RoomLibraryAsset[]) {
     `Speech engine: ${speechEngines.find((engine) => engine.id === (speech.engine || "kokoro"))!.label}`,
     `Speech language: ${pocketLanguages.find((language) => language.id === speechLanguage(speech.voice, speech.engine, speech.language))?.label || speechLanguage(speech.voice, speech.engine, speech.language)}`,
     `Voice: ${speechVoices.find((voice) => voice.id === speech.voice)?.label || speech.voice}`,
+    `Narration volume: ${Math.round((speech.volume ?? 1) * 100)}%`,
     `Speech speed: ${speech.speed}×`,
     `Script source: ${speech.source === "provided" ? "My script" : speech.source === "lyrics" ? "Use lyrics" : "Write a script"}`,
     speech.source === "provided" && speech.text ? `Narration script:\n${speech.text}` : "",

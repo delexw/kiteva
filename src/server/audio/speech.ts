@@ -16,6 +16,7 @@ import { command } from "../runtime/process";
 import { probeVideo } from "../rendering/video-probe";
 import { speechProvider } from "./providers";
 import type { SpeechProviderId } from "../../shared/speech";
+import { matchNarrationLevel, narrationAudioRevision } from "./narration-level";
 import { CodedError } from "../../shared/errors";
 
 export const speechReadiness = (
@@ -24,7 +25,7 @@ export const speechReadiness = (
   voice?: string,
   language?: string,
 ) => speechProvider(engine).readiness(signal, voice, language);
-export function synthesizeSpeech(
+export async function synthesizeSpeech(
   text: string,
   file: string,
   voice: string,
@@ -32,8 +33,15 @@ export function synthesizeSpeech(
   signal: AbortSignal,
   engine?: SpeechProviderId,
   language?: string,
+  volume = 1,
 ) {
-  return speechProvider(engine).synthesize(text, file, voice, speed, signal, language);
+  const raw = `${file}.${randomUUID()}.raw.wav`;
+  try {
+    await speechProvider(engine).synthesize(text, raw, voice, speed, signal, language);
+    return await matchNarrationLevel(raw, file, volume, signal);
+  } finally {
+    await rm(raw, { force: true });
+  }
 }
 
 const ScriptSchema = z.object({ text: z.string().trim().min(1).max(8000) });
@@ -53,17 +61,15 @@ export async function prepareSpeech(
   const settings = activeSpeech(request);
   if (!settings) return undefined;
   signal.throwIfAborted();
+  const context = {
+    settings,
+    lyrics: request.lyrics,
+    instructions: request.instructions,
+    brief,
+    duration,
+  };
   const hash = createHash("sha256")
-    .update(
-      JSON.stringify({
-        revision: 1,
-        settings,
-        lyrics: request.lyrics,
-        instructions: request.instructions,
-        brief,
-        duration,
-      }),
-    )
+    .update(JSON.stringify({ ...context, revision: narrationAudioRevision }))
     .digest("hex");
   const folder = path.join(workspace, "audio");
   const checkpoint = path.join(folder, `speech-${hash}.json`);
@@ -102,7 +108,11 @@ export async function prepareSpeech(
         : settings.source === "lyrics" && request.lyrics?.mode === "provided"
           ? request.lyrics.text
           : "";
-    const scriptFile = path.join(folder, `script-${hash}.json`);
+    // Adjusting playback volume must not ask the model to rewrite the script.
+    const scriptHash = createHash("sha256")
+      .update(JSON.stringify({ ...context, settings: { ...settings, volume: undefined } }))
+      .digest("hex");
+    const scriptFile = path.join(folder, `script-${scriptHash}.json`);
     if (settings.source === "write") {
       try {
         text = ScriptSchema.parse(JSON.parse(await readFile(scriptFile, "utf8"))).text;
@@ -151,6 +161,7 @@ export async function prepareSpeech(
         signal,
         settings.engine,
         settings.language,
+        settings.volume ?? 1,
       );
       if (!Number.isFinite(seconds) || seconds <= 0)
         throw Error("Speech returned an invalid duration.");
@@ -223,8 +234,8 @@ export async function mixSpeech(
       "Voice audio must be inside the current build workspace.",
     );
   const filter = background
-    ? `[1:a]apad,atrim=duration=${duration},asplit=2[voice][control];[0:a][control]sidechaincompress=threshold=0.03:ratio=6:attack=15:release=300[bed];[bed][voice]amix=inputs=2:duration=longest:normalize=0,alimiter=limit=0.95[audio]`
-    : `[1:a]apad,atrim=duration=${duration},alimiter=limit=0.95[audio]`;
+    ? `[1:a]apad,atrim=duration=${duration},asplit=2[voice][control];[0:a][control]sidechaincompress=threshold=0.03:ratio=6:attack=15:release=300[bed];[bed][voice]amix=inputs=2:duration=longest:normalize=0,alimiter=limit=0.95:level=false:latency=true[audio]`
+    : `[1:a]apad,atrim=duration=${duration},alimiter=limit=0.95:level=false:latency=true[audio]`;
   try {
     await command(
       "ffmpeg",

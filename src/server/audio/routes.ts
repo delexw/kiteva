@@ -13,6 +13,7 @@ import {
 } from "../../shared/speech";
 import { CodedError } from "../../shared/errors";
 import { dataRoot } from "../runtime/config";
+import { narrationAudioRevision } from "./narration-level";
 import { speechReadiness, synthesizeSpeech } from "./speech";
 
 export function registerSpeechRoutes(app: FastifyInstance) {
@@ -41,7 +42,8 @@ export function registerSpeechRoutes(app: FastifyInstance) {
           voice: settings.voice,
           language: settings.language,
           speed: settings.speed,
-          revision: 1,
+          volume: settings.volume ?? 1,
+          revision: narrationAudioRevision,
         }),
       )
       .digest("hex");
@@ -72,6 +74,7 @@ export function registerSpeechRoutes(app: FastifyInstance) {
         AbortSignal.timeout(330000),
         settings.engine,
         settings.language,
+        settings.volume ?? 1,
       );
     }
     return { url: `/api/speech/samples/${id}` };

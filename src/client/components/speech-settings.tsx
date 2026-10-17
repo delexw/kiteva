@@ -1,12 +1,13 @@
-import { Mic } from "lucide-react";
+import { CheckCircle2, Info, Mic } from "lucide-react";
 import { SettingsSectionHeading } from "./settings-section-heading";
 import { useEffect, useRef, useState } from "react";
-import { Alert, Button, Input, Select, Slider, Space, Typography } from "antd";
+import { Alert, Button, Input, Select, Slider, Space, Tooltip, Typography } from "antd";
 import {
   speechVoices,
   speechEngines,
   speechVoicesForEngine,
   pocketLanguages,
+  pocketVoiceGroups,
   type SpeechSettings as Settings,
   type SpeechReadiness,
 } from "../../shared/speech";
@@ -67,12 +68,13 @@ export function SpeechSettings({
     };
   }, [engine, selectedVoice, selectedLanguage]);
   const selectedSpeed = value?.mode === "narration" ? value.speed : 1;
+  const selectedVolume = value?.mode === "narration" ? (value.volume ?? 1) : 1;
   useEffect(() => {
     revision.current++;
     setSample("");
     setError("");
     setBusy(false);
-  }, [engine, selectedVoice, selectedSpeed, selectedLanguage]);
+  }, [engine, selectedVoice, selectedSpeed, selectedLanguage, selectedVolume]);
   const voice =
     value?.mode === "narration"
       ? speechVoices.find((voice) => voice.id === value.voice)!
@@ -82,6 +84,7 @@ export function SpeechSettings({
       mode: "narration",
       voice: "af_heart",
       speed: 1,
+      volume: 1,
       source: "lyrics",
       text: "",
       instructions: "",
@@ -111,6 +114,7 @@ export function SpeechSettings({
         icon={<Mic size={18} />}
       />
       <Select
+        className={value?.mode === "narration" ? "speech-control-half" : undefined}
         aria-label="Speech mode"
         style={{ width: "100%" }}
         value={value?.mode || "off"}
@@ -144,6 +148,7 @@ export function SpeechSettings({
       {value?.mode === "narration" && (
         <>
           <Select
+            className="speech-control-half"
             aria-label="Speech engine"
             style={{ width: "100%" }}
             value={engine}
@@ -157,12 +162,16 @@ export function SpeechSettings({
               })
             }
           />
-          <Alert
-            type={status?.available ? "success" : "info"}
-            showIcon
-            title={status?.detail || "Checking local speech…"}
-          />
+          {status?.available ? (
+            <Typography.Text type="secondary" className="speech-ready" role="status">
+              <CheckCircle2 size={14} aria-hidden="true" />
+              Local voice · no provider credits
+            </Typography.Text>
+          ) : (
+            <Alert type="info" showIcon title={status?.detail || "Checking local speech…"} />
+          )}
           <Select
+            className="speech-control-half"
             aria-label="Speech language"
             style={{ width: "100%" }}
             value={selectedLanguage || voice?.language}
@@ -185,14 +194,18 @@ export function SpeechSettings({
               )
             }
           />
-          <Space.Compact style={{ width: "100%" }}>
-            <Select
+          <Space.Compact className="speech-control-half" style={{ width: "100%" }}>
+            <Select<string>
               aria-label="Narrator voice"
               style={{ flex: 1 }}
               value={value.voice}
-              options={voices
-                .filter((item) => engine === "pocket-tts" || item.language === voice?.language)
-                .map((item) => ({ value: item.id, label: item.label }))}
+              options={
+                engine === "pocket-tts"
+                  ? pocketVoiceGroups
+                  : voices
+                      .filter((item) => item.language === voice?.language)
+                      .map((item) => ({ value: item.id, label: item.label }))
+              }
               onChange={(voice) => onChange({ ...value, voice })}
             />
             <Button onClick={() => void listen()} loading={busy} disabled={!status?.available}>
@@ -200,17 +213,39 @@ export function SpeechSettings({
             </Button>
           </Space.Compact>
           {sample && <audio aria-label="Narrator sample" controls autoPlay src={sample} />}
-          <label>
-            Speaking speed · {value.speed}×
+          <div className="speech-control-half speech-adjustment">
+            <span className="speech-control-label">
+              Volume <span>{Math.round((value.volume ?? 1) * 100)}%</span>
+              <Tooltip title="Voice levels are matched automatically, with clipping protection. Applies to Listen and the finished project.">
+                <button type="button" className="speech-help" aria-label="About narration volume">
+                  <Info size={14} />
+                </button>
+              </Tooltip>
+            </span>
             <Slider
-              aria-label="Speaking speed"
+              ariaLabelForHandle="Narration volume"
+              ariaValueTextFormatterForHandle={(volume) => `${volume}%`}
+              min={0}
+              max={200}
+              step={5}
+              value={(value.volume ?? 1) * 100}
+              onChange={(volume) => onChange({ ...value, volume: volume / 100 })}
+            />
+          </div>
+          <div className="speech-control-half speech-adjustment">
+            <span className="speech-control-label">
+              Speed <span>{value.speed}×</span>
+            </span>
+            <Slider
+              ariaLabelForHandle="Speaking speed"
               min={0.75}
               max={1.5}
               step={0.05}
               value={value.speed}
               onChange={(speed) => onChange({ ...value, speed })}
             />
-          </label>
+          </div>
+          <Typography.Text className="speech-script-label">Script</Typography.Text>
           <Select
             aria-label="Narration script source"
             style={{ width: "100%" }}
@@ -242,9 +277,8 @@ export function SpeechSettings({
               onChange={(event) => onChange({ ...value, instructions: event.target.value })}
             />
           )}
-          <Typography.Text type="secondary">
-            Faceless narration. Voice delivery depends on the selected voice; writing instructions
-            guide the script. Direction previews stay silent.
+          <Typography.Text type="secondary" className="speech-footnote">
+            Writing instructions guide the script. Direction previews stay silent.
           </Typography.Text>
         </>
       )}

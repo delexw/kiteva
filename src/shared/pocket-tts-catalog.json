@@ -48,137 +48,191 @@
     {
       "id": "alba",
       "label": "Alba",
-      "language": "en"
+      "language": "en",
+      "gender": "male",
+      "reference": "hf://kyutai/tts-voices/alba-mackenna/casual.wav"
     },
     {
       "id": "marius",
       "label": "Marius",
-      "language": "en"
+      "language": "en",
+      "gender": "male",
+      "reference": "hf://kyutai/tts-voices/voice-donations/Selfie.wav"
     },
     {
       "id": "javert",
       "label": "Javert",
-      "language": "en"
+      "language": "en",
+      "gender": "male",
+      "reference": "hf://kyutai/tts-voices/voice-donations/Butter.wav"
     },
     {
       "id": "jean",
       "label": "Jean",
-      "language": "en"
+      "language": "en",
+      "gender": "male",
+      "reference": "hf://kyutai/tts-voices/ears/p010/freeform_speech_01_enhanced.wav"
     },
     {
       "id": "fantine",
       "label": "Fantine",
-      "language": "en"
+      "language": "en",
+      "gender": "female",
+      "reference": "hf://kyutai/tts-voices/vctk/p244_023_enhanced.wav"
     },
     {
       "id": "cosette",
       "label": "Cosette",
-      "language": "en"
+      "language": "en",
+      "gender": "female",
+      "reference": "hf://kyutai/tts-voices/expresso/ex04-ex02_confused_001_channel1_499s.wav"
     },
     {
       "id": "eponine",
       "label": "Eponine",
-      "language": "en"
+      "language": "en",
+      "gender": "female",
+      "reference": "hf://kyutai/tts-voices/vctk/p262_023_enhanced.wav"
     },
     {
       "id": "azelma",
       "label": "Azelma",
-      "language": "en"
+      "language": "en",
+      "gender": "female",
+      "reference": "hf://kyutai/tts-voices/vctk/p303_023_enhanced.wav"
     },
     {
       "id": "anna",
       "label": "Anna",
-      "language": "en"
+      "language": "en",
+      "gender": "female",
+      "reference": "hf://kyutai/tts-voices/vctk/p228_023_enhanced.wav"
     },
     {
       "id": "vera",
       "label": "Vera",
-      "language": "en"
+      "language": "en",
+      "gender": "female",
+      "reference": "hf://kyutai/tts-voices/vctk/p229_023_enhanced.wav"
     },
     {
       "id": "charles",
       "label": "Charles",
-      "language": "en"
+      "language": "en",
+      "gender": "male",
+      "reference": "hf://kyutai/tts-voices/vctk/p254_023_enhanced.wav"
     },
     {
       "id": "paul",
       "label": "Paul",
-      "language": "en"
+      "language": "en",
+      "gender": "male",
+      "reference": "hf://kyutai/tts-voices/vctk/p259_023_enhanced.wav"
     },
     {
       "id": "george",
       "label": "George",
-      "language": "en"
+      "language": "en",
+      "gender": "male",
+      "reference": "hf://kyutai/tts-voices/vctk/p315_023_enhanced.wav"
     },
     {
       "id": "mary",
       "label": "Mary",
-      "language": "en"
+      "language": "en",
+      "gender": "female",
+      "reference": "hf://kyutai/tts-voices/vctk/p333_023_enhanced.wav"
     },
     {
       "id": "jane",
       "label": "Jane",
-      "language": "en"
+      "language": "en",
+      "gender": "female",
+      "reference": "hf://kyutai/tts-voices/vctk/p339_023_enhanced.wav"
     },
     {
       "id": "michael",
       "label": "Michael",
-      "language": "en"
+      "language": "en",
+      "gender": "male",
+      "reference": "hf://kyutai/tts-voices/vctk/p360_023_enhanced.wav"
     },
     {
       "id": "eve",
       "label": "Eve",
-      "language": "en"
+      "language": "en",
+      "gender": "female",
+      "reference": "hf://kyutai/tts-voices/vctk/p361_023_enhanced.wav"
     },
     {
       "id": "bill_boerst",
       "label": "Bill Boerst",
-      "language": "en"
+      "language": "en",
+      "gender": "male",
+      "reference": "hf://kyutai/tts-voices/voice-zero/bill_boerst.wav"
     },
     {
       "id": "peter_yearsley",
       "label": "Peter Yearsley",
-      "language": "en"
+      "language": "en",
+      "gender": "male",
+      "reference": "hf://kyutai/tts-voices/voice-zero/peter_yearsley.wav"
     },
     {
       "id": "stuart_bell",
       "label": "Stuart Bell",
-      "language": "en"
+      "language": "en",
+      "gender": "male",
+      "reference": "hf://kyutai/tts-voices/voice-zero/stuart_bell.wav"
     },
     {
       "id": "caro_davy",
       "label": "Caro Davy",
-      "language": "en"
+      "language": "en",
+      "gender": "female",
+      "reference": "hf://kyutai/tts-voices/voice-zero/caro_davy.wav"
     },
     {
       "id": "estelle",
       "label": "Estelle",
-      "language": "fr"
+      "language": "fr",
+      "gender": "female",
+      "reference": "hf://kyutai/tts-voices/unmute-prod-website/developpeuse-3.wav@1fc7395b7e012e2bbebfca14b942a4ef62ccc899"
     },
     {
       "id": "juergen",
       "label": "Juergen",
-      "language": "de"
+      "language": "de",
+      "gender": "male",
+      "reference": "hf://kyutai/pocket-tts/de-DE-juergen.mp3@64ab7d24c479d736a83b8cc666c4a776fca30fda"
     },
     {
       "id": "rafael",
       "label": "Rafael",
-      "language": "pt"
+      "language": "pt",
+      "gender": "male",
+      "reference": "hf://kyutai/pocket-tts/g-Vi8PgmSY0-enhanced-v2.wav@64ab7d24c479d736a83b8cc666c4a776fca30fda"
     },
     {
       "id": "giovanni",
       "label": "Giovanni",
-      "language": "it"
+      "language": "it",
+      "gender": "male",
+      "reference": "hf://kyutai/pocket-tts/common_voice_it_36520747-enhanced-v2.mp3@64ab7d24c479d736a83b8cc666c4a776fca30fda"
     },
     {
       "id": "lola",
       "label": "Lola",
-      "language": "es"
+      "language": "es",
+      "gender": "female",
+      "reference": "hf://kyutai/pocket-tts/common_voice_es_19762977-enhanced-v2.mp3@64ab7d24c479d736a83b8cc666c4a776fca30fda"
     },
     {
       "id": "daan",
       "label": "Daan",
-      "language": "nl"
+      "language": "nl",
+      "gender": "male",
+      "reference": "hf://kyutai/pocket-tts/cml_tts_nl_11290_9412_000030_0001.flac@2dd944b099d06bb9edbd221fef138685711d9bf0"
     }
   ]
 }

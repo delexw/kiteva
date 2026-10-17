@@ -11,6 +11,7 @@ import { appRoot } from "../src/server/runtime/config";
 it.skipIf(!browserExecutablePath())(
   "gates voice settings on lyrics and preserves choices between steps",
   async () => {
+    const previewRequests: Record<string, unknown>[] = [];
     const cacheDir = await mkdtemp(path.join(os.tmpdir(), "speech-ui-"));
     const server = await createServer({
       configFile: false,
@@ -30,6 +31,9 @@ it.skipIf(!browserExecutablePath())(
                 return;
               }
               if (req.url === "/api/speech/sample") {
+                let body = "";
+                for await (const chunk of req) body += chunk;
+                previewRequests.push(JSON.parse(body));
                 res.setHeader("Content-Type", "application/json");
                 res.end(JSON.stringify({ url: "/sample.wav" }));
                 return;
@@ -40,7 +44,8 @@ it.skipIf(!browserExecutablePath())(
                 `<div id="root"></div><script type="module">
 import React,{useState}from'react';import{createRoot}from'react-dom/client';import{ConfigProvider,theme}from'antd';
 import{RoomOnboarding}from'/src/client/room/room-onboarding.tsx';
-function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A concept introduction',lyrics:{mode:'off'}}});return React.createElement(ConfigProvider,{theme:{algorithm:theme.darkAlgorithm}},React.createElement(RoomOnboarding,{draft,onChange:setDraft,materials:[],styles:[],examples:[],onCreated(){},onUpload:async()=>[]}));}createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
+import '/src/client/framework.css';import '/src/client/style.css';import{roomTheme,roomCssVariables,roomColors}from'/src/client/theme.ts';
+function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A concept introduction',lyrics:{mode:'off'}}});return React.createElement(ConfigProvider,{theme:roomTheme},React.createElement('div',{style:{...roomCssVariables,padding:16,background:roomColors.inset,color:roomColors.text}},React.createElement(RoomOnboarding,{draft,onChange:setDraft,materials:[],styles:[],examples:[],onCreated(){},onUpload:async()=>[]})));}createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
               );
               res.setHeader("Content-Type", "text/html");
               res.end(html);
@@ -69,7 +74,7 @@ function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A c
       });
       await page.locator('.ant-select-item-option[title="Narration · local voice"]').click();
       await page.waitForSelector('[aria-label="Speech language"]');
-      await page.click('[aria-label="Speech language"]');
+      await page.locator('[aria-label="Speech language"]').click();
       await page.waitForSelector('.ant-select-item-option[title="English · UK"]', {
         visible: true,
       });
@@ -105,6 +110,40 @@ function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A c
       for (const button of listen)
         if (await button.evaluate((el) => el.textContent === "Listen")) await button.click();
       await page.waitForSelector('audio[aria-label="Narrator sample"]');
+      const layout = await page.evaluate(() => {
+        const bounds = (selector: string) =>
+          document.querySelector(selector)!.getBoundingClientRect().toJSON();
+        return {
+          mode: bounds('[aria-label="Speech mode"]'),
+          engine: bounds('[aria-label="Speech engine"]'),
+          language: bounds('[aria-label="Speech language"]'),
+          voice: bounds('[aria-label="Narrator voice"]'),
+          volume: bounds('[aria-label="Narration volume"]'),
+          speed: bounds('[aria-label="Speaking speed"]'),
+        };
+      });
+      expect(layout.mode.y).toBeCloseTo(layout.engine.y, 0);
+      expect(layout.language.y).toBeCloseTo(layout.voice.y, 0);
+      expect(layout.volume.y).toBeCloseTo(layout.speed.y, 0);
+      expect(layout.engine.x).toBeGreaterThan(layout.mode.x);
+      await page.locator('[aria-label="Speech and vocals"] h3').click();
+      await (await page.$('[aria-label="Speech and vocals"]'))!.screenshot({
+        path: "/private/tmp/kiteva-speech-layout-wide.png",
+      });
+      await page.focus('[role="slider"][aria-label="Narration volume"]');
+      await page.keyboard.press("Home");
+      for (let step = 0; step < 30; step++) await page.keyboard.press("ArrowRight");
+      await page.waitForFunction(
+        () =>
+          document
+            .querySelector('[role="slider"][aria-label="Narration volume"]')
+            ?.getAttribute("aria-valuenow") === "150",
+      );
+      expect(await page.$('audio[aria-label="Narrator sample"]')).toBeNull();
+      for (const button of await page.$$("button"))
+        if (await button.evaluate((el) => el.textContent === "Listen")) await button.click();
+      await page.waitForSelector('audio[aria-label="Narrator sample"]');
+      expect(previewRequests.at(-1)?.volume).toBe(1.5);
       const settings = await page.$$("button");
       for (const button of settings)
         if (await button.evaluate((el) => el.textContent === "Settings")) await button.click();
@@ -121,13 +160,43 @@ function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A c
           (el) => (el as HTMLTextAreaElement).value,
         ),
       ).toBe("Let your idea take flight.");
-      await page.click('[aria-label="Speech engine"]');
+      expect(
+        await page.$eval('[role="slider"][aria-label="Narration volume"]', (el) =>
+          el.getAttribute("aria-valuenow"),
+        ),
+      ).toBe("150");
+      await page.locator('[aria-label="Speech engine"]').click();
       await page.waitForSelector('.ant-select-item-option[title="Pocket TTS"]', { visible: true });
       await page.locator('.ant-select-item-option[title="Pocket TTS"]').click();
       await page.waitForFunction(() =>
         document.querySelector('[aria-label="Speech and vocals"]')?.textContent?.includes("Alba"),
       );
-      await page.click('[aria-label="Speech language"]');
+      await page.locator('[aria-label="Narrator voice"]').click();
+      await page.waitForSelector('.ant-select-item-option-selected[title="Alba"]', {
+        visible: true,
+      });
+      for (let position = 0; position < 12; position++) await page.keyboard.press("ArrowUp");
+      await page.waitForSelector('.ant-select-item-option-active[title="Fantine"]', {
+        visible: true,
+      });
+      await page.waitForFunction(() =>
+        Array.from(
+          document.querySelectorAll(
+            ".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-group",
+          ),
+        ).some((element) => element.textContent === "Female"),
+      );
+      expect(
+        await page.$$eval(
+          ".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-group",
+          (elements) => elements.map((element) => element.textContent),
+        ),
+      ).toContain("Female");
+      await page.keyboard.press("Enter");
+      expect(
+        await page.$eval('[aria-label="Speech and vocals"]', (el) => el.textContent),
+      ).toContain("Fantine");
+      await page.locator('[aria-label="Speech language"]').click();
       await page.waitForSelector('.ant-select-item-option[title="Italian"]', { visible: true });
       const languageLabels = await page.$$eval(
         ".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option",
@@ -152,7 +221,7 @@ function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A c
       );
       expect(
         await page.$eval('[aria-label="Speech and vocals"]', (el) => el.textContent),
-      ).toContain("Alba");
+      ).toContain("Fantine");
 
       expect(
         await page.$eval(
@@ -160,12 +229,35 @@ function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A c
           (el) => (el as HTMLTextAreaElement).value,
         ),
       ).toBe("Let your idea take flight.");
-      await page.click('[aria-label="Speech engine"]');
+      expect(
+        await page.$eval('[role="slider"][aria-label="Narration volume"]', (el) =>
+          el.getAttribute("aria-valuenow"),
+        ),
+      ).toBe("150");
+      await page.locator('[aria-label="Speech engine"]').click();
       await page.waitForSelector('.ant-select-item-option[title="Kokoro"]', { visible: true });
       await page.locator('.ant-select-item-option[title="Kokoro"]').click();
       await page.waitForFunction(() =>
         document.querySelector('[aria-label="Speech and vocals"]')?.textContent?.includes("Heart"),
       );
+      await page.setViewport({ width: 390, height: 844 });
+      await page.waitForFunction(() => {
+        const mode = document.querySelector('[aria-label="Speech mode"]')!.getBoundingClientRect();
+        const engine = document
+          .querySelector('[aria-label="Speech engine"]')!
+          .getBoundingClientRect();
+        return engine.y > mode.bottom;
+      });
+      expect(
+        await page.$eval(
+          '[aria-label="Speech and vocals"]',
+          (element) => element.scrollWidth <= element.clientWidth,
+        ),
+      ).toBe(true);
+      await page.locator('[aria-label="Speech and vocals"] h3').click();
+      await (await page.$('[aria-label="Speech and vocals"]'))!.screenshot({
+        path: "/private/tmp/kiteva-speech-layout-narrow.png",
+      });
     } finally {
       await browser.close();
       await server.close();

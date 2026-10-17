@@ -126,6 +126,12 @@ it("reuses a written script after cancellation and publishes voice only after co
   expect(generate).toHaveBeenCalledTimes(1);
   expect(resumed?.cues[0].text).toBe("An original introduction");
   expect(synthesize).toHaveBeenCalledTimes(1);
+  if (options.request.speech?.mode !== "narration") throw Error("Expected narration");
+  options.request.speech.volume = 1.5;
+  const adjusted = await prepareSpeech(options, { generate, synthesize });
+  expect(generate).toHaveBeenCalledTimes(1);
+  expect(adjusted?.file).not.toBe(resumed?.file);
+  expect(adjusted?.cues).toEqual(resumed?.cues);
 });
 it("uses only selected attached recordings and mixes speech onto silent and musical films", async () => {
   const options = await input();
@@ -201,7 +207,23 @@ it("passes the selected Pocket engine through narration preparation and reuses i
     options.signal,
     "pocket-tts",
     undefined,
+    1,
   );
   expect(await prepareSpeech(options, { synthesize })).toEqual(track);
   expect(synthesize).toHaveBeenCalledTimes(1);
+  if (options.request.speech?.mode !== "narration") throw Error("Expected narration");
+  options.request.speech.volume = 1.5;
+  const louder = await prepareSpeech(options, { synthesize });
+  expect(louder?.file).not.toBe(track?.file);
+  expect(synthesize).toHaveBeenLastCalledWith(
+    "An example narration.",
+    expect.any(String),
+    "pocket_alba",
+    1,
+    options.signal,
+    "pocket-tts",
+    undefined,
+    1.5,
+  );
+  expect(louder?.cues).toEqual(track?.cues);
 });

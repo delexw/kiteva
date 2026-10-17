@@ -26,6 +26,15 @@ export const pocketVoices = pocketCatalog.voices.map((voice) => ({
   ...voice,
   id: `pocket_${voice.id}`,
 }));
+export const pocketVoiceGroups = [
+  { label: "Female", gender: "female" },
+  { label: "Male", gender: "male" },
+].map(({ label, gender }) => ({
+  label,
+  options: pocketVoices
+    .filter((voice) => voice.gender === gender)
+    .map((voice) => ({ value: voice.id, label: voice.label })),
+}));
 export function pocketLanguageForVoice(voice: string, language?: string) {
   const preset = pocketVoices.find((item) => item.id === voice);
   return preset
@@ -54,6 +63,7 @@ export const SpeechSettingsSchema = z
       engine: SpeechProviderIdSchema.optional(),
       language: PocketLanguageSchema.optional(),
       voice: z.enum(speechVoices.map((voice) => voice.id)).default("af_heart"),
+      volume: z.number().min(0).max(2).optional(),
       speed: z.number().min(0.75).max(1.5).default(1),
       source: z.enum(["lyrics", "write", "provided"]).default("lyrics"),
       text: z.string().max(8000).default(""),

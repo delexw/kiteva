@@ -7,11 +7,11 @@ project keeps HyperFrames.
 
 ## Source and install
 
-- Package: [`multiplane@0.3.8`](https://www.npmjs.com/package/multiplane) on the npm registry.
+- Package: [`multiplane@0.3.10`](https://www.npmjs.com/package/multiplane) on the npm registry.
   It is published from [github.com/LBEILC/Multiplane](https://github.com/LBEILC/Multiplane),
   under the Apache-2.0 licence. The tarball's sha512 integrity is recorded in the lock file.
 - It is a normal dependency in the app's `package.json` and `package-lock.json`, pinned to
-  0.3.8. Multiplane 0.3.8 declares an exact, optional peer of `three` 0.180.0; the app's
+  0.3.10. Multiplane 0.3.10 declares an exact, optional peer of `three` 0.180.0; the app's
   `overrides` entry (`"multiplane": { "three": "$three" }`) points it at the app's own `three`, so
   the app and Multiplane share one copy (0.186.1). Multiplane keeps its own exact `playwright`
   1.63.0 inside `node_modules/multiplane`.

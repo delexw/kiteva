@@ -1,110 +1,225 @@
-# Kiteva
+<p align="center">
+  <img src="public/kiteva-mark.svg" width="88" alt="Kiteva logo: a faceted blue and violet kite">
+</p>
 
-A local creative desktop for guided video creation, style exploration, previews,
-and full-film generation. Conversations use Ant Design X, with a warm dark theme.
+<h1 align="center">kiteva</h1>
 
-## Run a fresh clone
+<p align="center">
+  <b>A personal creative room where an idea turns into a short motion-graphics film.</b><br>
+  Runs on your Mac with <a href="https://platform.claude.com/docs/en/about-claude/models/overview">Claude Opus 5.5</a> or <a href="https://developers.openai.com/api/docs/models/gpt-6.1-sol">GPT-6.1 Sol</a>.
+</p>
 
-Requirements: macOS, Node.js 24 or newer, Chrome/Chromium, and `ffmpeg` with
-`ffprobe` on your PATH. Local video generation uses the configured Claude or
-Codex account. JEV ranking requires a Typesafe API key.
+<p align="center">
+  <b>English</b> · <a href="README.zh-CN.md">简体中文</a>
+</p>
+
+<p align="center">
+  <a href="docs/assets/kiteva-intro.mp4">
+    <img src="docs/assets/kiteva-intro-excerpt.webp" width="820" alt="Silent excerpt of Kiteva's self-introduction film. Click to open the full MP4 with narration.">
+  </a>
+  <br>
+  <sub>This film was made in Kiteva, from one real run: 28 seconds with local Kokoro narration and a music bed the film agent wrote in code. Above is a silent 14-second loop from the middle; click it for the full MP4 with sound. <a href="docs/intro-video.md">How it was made</a>.</sub>
+</p>
+
+> [!IMPORTANT]
+> **Non-commercial license.** Kiteva's source is shared under the [Kiteva Non-Commercial License](LICENSE).
+> It's based on MIT but adds a no-commercial-use condition, so it's source-available and **not** an
+> OSI-approved open source license. Third-party parts keep their own licenses. See [License](#license).
+
+## Why this exists
+
+I'm not a professional designer. I'm a full-stack engineer working on content and creative tools,
+and along the way I picked up a few creative ideas. Then I noticed [Opus 5.5](https://platform.claude.com/docs/en/about-claude/models/overview) has a real feel for this
+kind of work. There's an internal hackathon coming up at my company, and I just find these motion
+effects fun, so I started collecting motion pieces that had that certain something, along with notes
+on what technology could make each one. The pile got big. So I built an agent to put that collection
+and Opus 5.5 to work, to see how far it could go. The results surprised me, so I'm sharing the agent's
+source here, under non-commercial terms.
+
+I collected a lot. Some of it is dazzling, and some of it is probably wrong. I kept it all anyway 😄
+
+Opus 5.5 is my favourite for the creative part. The [Codex](https://developers.openai.com/codex) provider with [GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol) is wired up too,
+and I'm trying it out for fun. You choose the provider per project.
+
+## What it does
+
+**Idea → brief → Motion Graphic combinations → previews → full film → review and delivery**
+
+<p align="center">
+  <img src="docs/assets/desktop-room.png" width="900" alt="Kiteva's dark desktop room. On the left, the Assistant window asks &quot;What's your idea?&quot; with tabs for Idea, Documents, Images, URLs, Music, Settings and Review. Beside it, the intro-film project widget shows a Ready badge, a frame from the film and a Play film button.">
+  <br><sub>The room right after the intro film finished. The Assistant starts a new idea; each project lives in its own widget.</sub>
+</p>
+
+- **A desktop-style room.** Everything happens in windows on a personal desktop: an assistant that
+  walks you through the idea, documents, images, websites, music and lyrics, and settings, plus a material
+  shelf and one widget per project. Nothing calls a model until you press **Create**.
+- **A brief from your references.** A small model reads your files and, if you add websites, opens
+  them in a fresh headless [Chromium](https://www.chromium.org) browser to take screenshots. It writes a structured brief and then checks it.
+- **Motion Graphic combinations.** The main model reads summaries of all 136 Motion Graphics and
+  proposes a dozen or more directions. Each pairs one primary Motion Graphic with supporting ones. A
+  separate evaluator, [Typesafe](https://docs.typesafe.ai)'s [JEV](https://docs.typesafe.ai/models), scores them and keeps the number of directions you asked for (1–5).
+- **Silent 3-second previews** of the same story beat, one per direction, so you can compare.
+- **The full film** continues the preview session you picked, at 1080p or 1440p, 30 or 60 fps, up to
+  5 minutes, with optional on-screen lyrics and local narration ([Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) or
+  [Pocket TTS](https://pypi.org/project/pocket-tts/)).
+- **Review and delivery.** Every render is probed with `ffprobe` and fully decoded. With
+  [HyperFrames](https://github.com/heygen-com/hyperframes), the default renderer, layout and contrast checks run
+  too, and findings are repaired in focused rounds. The [Multiplane](https://github.com/LBEILC/Multiplane) trial
+  skips those two checks and verifies frame consistency instead. A small model then reviews the result. You get
+  an MP4, a poster, a project ZIP, a playback copy and a Storyboard.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/assets/motion-graphics-gallery.png" alt="Motion Graphic explore window listing 136 Motion Graphics as playing 3-second demo cards with palette swatches"></td>
+    <td width="50%"><img src="docs/assets/preview-directions.png" alt="The Directions tab of the intro-film project. Two silent 3-second previews of the same line, &quot;Bring an idea. It writes a brief,&quot;: Paper Room, a lilac paper studio with stickers on a worktable, and Zine Press, grainy blue-violet stickers on pale grey. Paper Room is marked Full video built."></td>
+  </tr>
+  <tr>
+    <td><sub>Explore all 136 Motion Graphics. Each card plays a reviewed 3-second demo.</sub></td>
+    <td><sub>The two directions Kiteva previewed for the film above. I picked Paper Room.</sub></td>
+  </tr>
+</table>
+
+### The Storyboard
+
+<p align="center">
+  <img src="docs/assets/storyboard.png" width="900" alt="The Storyboard window for the Paper Room film: 9 scenes, 0:28. It is playing scene 02, &quot;Collecting motion&quot;, at 0:03.9. A stick-figure director's speech bubble reads &quot;Scraps land one at a time and scatter across the table&quot;, and a crew labelled stage crew, lighting, art dept, sound and camera stands along the floor.">
+  <br><sub>The intro film's own Storyboard, caught during scene 2 of 9.</sub>
+</p>
+
+Every preview and film saves a `STORYBOARD.json` with timed scenes, beats, captions and audio notes
+that match the actual composition. The Storyboard page plays it back as a little behind-the-scenes
+rehearsal. A stick-figure director and crew (stagehand, lighting, lettering, sound, camera) walk to their
+marks when a beat calls for their job, and you can play, replay or scrub through the film's timeline.
+
+To be honest about what it is: the crew is a playful reading of the recorded cues, not real production
+staff and not a live render monitor. Live progress is in each project's activity lines in the room.
+And it has nothing to do with the UI-component tool called [Storybook](https://storybook.js.org).
+
+## Numbers, counted from the source
+
+|                         |                                                                                                                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Motion Graphics         | **136** (`assets/catalog/video-style-catalog.json`)                                                                                                                                  |
+| Motions                 | **46** (`assets/catalog/motion-pattern-catalog.json`)                                                                                                                                |
+| Technology pool entries | **92** recommendations across visual construction, motion, rendering and supporting tools                                                                                            |
+| Bundled authoring skill | **1** ([Anatomy](https://github.com/wheresryan22/anatomy))                                                                                                                           |
+| Renderers               | [HyperFrames](https://github.com/heygen-com/hyperframes) (default), [Multiplane](https://github.com/LBEILC/Multiplane) (trial), [Remotion](https://www.remotion.dev) (fallback only) |
+
+Combinations are where it gets interesting. A direction can mix one primary Motion Graphic with
+supporting ones (1–3 in total for films under 30 seconds, up to 6 for films over three minutes), and the
+model picks motions and technologies to suit. That gives far more starting points than any single
+style. It doesn't promise that every combination works. Some won't, which is why there are previews,
+an evaluator and repairs.
+
+## Who does what
+
+| Job                                                                                      | Claude projects                                                                         | Codex projects                                                           |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Brief, reference checks, Motion Graphic summaries, lyrics, result review, simple repairs | [Claude Haiku 5.5](https://platform.claude.com/docs/en/about-claude/models/overview)    | [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna)   |
+| Combination proposals, previews, the full film, pacing/style repairs                     | **[Claude Opus 5.5](https://platform.claude.com/docs/en/about-claude/models/overview)** | [GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol) |
+| Scoring and choosing directions                                                          | [JEV](https://docs.typesafe.ai/models) via [Typesafe](https://docs.typesafe.ai)         | [JEV](https://docs.typesafe.ai/models)                                   |
+| Recording every call, token count and cost estimate                                      | Governance report                                                                       | Governance report                                                        |
+
+More detail, including the workflow diagrams, is in [docs/architecture.md](docs/architecture.md).
+
+## Quick start
+
+You need macOS, [Node.js](https://nodejs.org) 24+, [Chrome](https://www.google.com/chrome/) or
+[Chromium](https://www.chromium.org), and [FFmpeg](https://ffmpeg.org) with `ffprobe`. Then two kinds of access:
+
+- **A model provider, by API key or by an existing signed-in subscription.** For Claude, set
+  `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN`, or just be signed in to
+  [Claude Code](https://code.claude.com/docs/en/overview) on this Mac. For Codex, set `CODEX_API_KEY` or
+  `OPENAI_API_KEY`, or be signed in to the [Codex CLI](https://developers.openai.com/codex) (`~/.codex/auth.json`).
+  Subscriptions work, but I haven't tested how subscription usage or remaining percentage is reported.
+- **[JEV](https://docs.typesafe.ai/models), configured separately.** Put `TYPESAFE_API_KEY` in `.env.local`.
+  It's needed whenever Kiteva generates directions. Picking Motion Graphics yourself skips it.
 
 ```sh
 git clone https://github.com/delexw/kiteva.git
 cd kiteva
-# With asdf, install the Node version declared in .tool-versions:
-# asdf install
 npm ci
-cp .env.example .env.local
-# Configure your provider credentials and TYPESAFE_API_KEY in .env.local.
+cp .env.example .env.local      # add TYPESAFE_API_KEY (provider keys are optional if you're signed in)
 npm run build
-npm start
+npm start                       # open http://127.0.0.1:4317
 ```
 
-Open http://127.0.0.1:4317. For development, keep the backend running and run
-`npx vite` in a second terminal; open http://127.0.0.1:4319.
+Optional: `npm run speech:setup` ([Kokoro](https://github.com/thewh1teagle/kokoro-onnx)) or `npm run speech:setup:pocket`
+([Pocket TTS](https://pypi.org/project/pocket-tts/)) for local narration. They need [Python](https://www.python.org) 3.10–3.13. For UI development, keep the backend running and use `npx vite` ([Vite](https://vite.dev), `http://127.0.0.1:4319`).
 
-The app bundles its style and motion catalogs in `assets/catalog`,
-with reviewed style artwork,
-136 WebM style previews, their authoring sources, and the persistent style brief
-cache. Browsing the bundled gallery does not require regenerating these assets
-or making model calls. Multiplane is installed by the normal dependency install
-and shares the app's Three.js version.
+The catalogs, reviewed artwork and 136 preview clips ship with the repo, so browsing costs nothing.
+Your projects, uploads, room layout, databases and credentials stay in Git-ignored folders on your machine.
 
-Generated projects, user uploads, room layouts, local databases, credentials,
-logs, and temporary review/render workspaces are intentionally excluded. A new
-clone starts with an empty personal room. No workspace `outputs` directory is required. The app creates its local data folders
-when started; the bundled galleries remain available.
+## What ships, and what you install
 
-Local speech model weights live in visible, Git-ignored `models/<engine>/`
-directories. Kokoro uses `models/kokoro`; Pocket TTS uses
-`models/pocket-tts` (`npm run speech:setup:pocket`). Engine implementations share a TypeScript interface under
-`src/server/audio/providers`. See [speech setup](docs/speech.md).
+| Part                                                                                                                                                                                                                                                                          | What it is                                                                                           | Status                                                                                     |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [Anatomy](https://github.com/wheresryan22/anatomy)                                                                                                                                                                                                                            | Isometric technical-illustration skill and drawing kit (3D mode is beta)                             | **The one bundled skill.** 141 files pinned to `e9488296`, SHA-256 checked, MIT, unchanged |
+| [HyperFrames](https://github.com/heygen-com/hyperframes) 0.8.144                                                                                                                                                                                                              | HTML video composition and export                                                                    | npm dependency, pinned, default renderer                                                   |
+| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.10                                                                                                                                                                                                                     | `render(t)` shot renderer with motion blur                                                           | npm dependency, pinned, trial setting                                                      |
+| [Remotion](https://www.remotion.dev) 4.x                                                                                                                                                                                                                                      | React video renderer                                                                                 | npm dependency, fallback only (has its own license terms)                                  |
+| `reference_browser` / `capture_video`                                                                                                                                                                                                                                         | Headless website inspection, screenshots and walkthrough recording via [Puppeteer](https://pptr.dev) | Built into Kiteva, for both providers                                                      |
+| [Kokoro](https://github.com/thewh1teagle/kokoro-onnx), [Pocket TTS](https://pypi.org/project/pocket-tts/)                                                                                                                                                                     | Local narration                                                                                      | Python set up by `npm run speech:setup*`. Weights downloaded to Git-ignored `models/`      |
+| [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript), [Codex SDK](https://github.com/openai/codex/tree/main/sdk/typescript), [`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript)                                                           | Model providers and JEV                                                                              | npm dependencies                                                                           |
+| [Caveman](https://github.com/JuliusBrussee/caveman)                                                                                                                                                                                                                           | Local token-compression proxy for SDK calls                                                          | npm dependency, on by default                                                              |
+| [GSAP](https://gsap.com), [Three.js](https://threejs.org), [PixiJS](https://pixijs.com), [Paper.js](http://paperjs.org), [Rough.js](https://roughjs.com), [Motion](https://motion.dev), [chroma.js](https://gka.github.io/chroma.js/), [Pica](https://github.com/nodeca/pica) | Drawing and motion libraries offered to generated films                                              | npm dependencies                                                                           |
+| [React](https://react.dev), [Ant Design](https://ant.design) + [Ant Design X](https://x.ant.design), [Radix](https://radix-ui.com), [Tailwind CSS](https://tailwindcss.com), [Vite](https://vite.dev), [Fastify](https://fastify.dev), [Zod](https://zod.dev)                 | App UI, server and shared contracts                                                                  | npm dependencies                                                                           |
+| [FFmpeg](https://ffmpeg.org), [Chrome](https://www.google.com/chrome/)/[Chromium](https://www.chromium.org), [Python](https://www.python.org), [Blender](https://www.blender.org) (optional)                                                                                  | External tools                                                                                       | Not bundled. You install them                                                              |
 
-Website demo capture is a built-in agent tool for Claude and Codex. Add the
-application in Websites and request a walkthrough; the agent records a fresh,
-headless browser session and saves validated footage plus cursor metadata in the
-job assets. Capture is independent of style choices and needs no desktop recorder.
-See [website capture](docs/application-guide.md#built-in-website-capture) for limits
-and renderer compatibility.
+Being in the 92-entry technology pool doesn't mean a library is installed. Twelve pool entries are
+recommendations only, and generation can't install packages or use the network. The full list with a
+status for every entry, plus all 75 direct npm dependencies, is in [docs/technology-pool.md](docs/technology-pool.md).
 
-## Bundled authoring skills and renderers
+## What it costs
 
-| Skill                                                    | Use                                                                                                               |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| [Anatomy](https://github.com/wheresryan22/anatomy) (MIT) | Detailed isometric technical illustrations and mechanisms; optional rotating, sliding and hinged 3D parts (beta). |
+From Kiteva's own governance report (snapshot 2026-10-17, app pricing date 2026-10-13), my three
+earlier development projects (all Claude, 90–120 s films, five preview directions each) came to
+**$16.46, $18.73 and $37.42** in SDK-estimated, API-equivalent model usage. More than 90 % of input
+tokens were cache reads. Nearly all of the cost is Opus writing previews and the film. Haiku's
+preparation and review work cost cents, and JEV ranking under a cent. The expensive one regenerated
+its directions and needed nine repair calls.
 
-Anatomy's complete upstream skill, drawing kit, references, examples and checks
-are bundled in `assets/agent-skills/anatomy`, pinned to revision
-`e9488296a44211c42701ff71705b7901470ec78f`. The adjacent manifest records every
-bundled file's SHA-256 hash. The upstream files stay unchanged and retain their
-license; third-party files are excluded from Kiteva's formatter and linter.
-To update the bundle, review a new upstream revision, replace its tracked files
-(excluding dotfiles and repository automation), update the manifest and run the
-skill and provider tests. Runtime never downloads or updates skills.
+That's three projects, not a benchmark or a per-minute price. Local compute (render time, electricity)
+isn't priced, and there's no GPT-6.1 Sol example yet. These are token counts priced at API rates. If
+you're signed in with a subscription instead of an API key, they are **not** your bill and not a meter of
+your plan's allowance. I haven't tested subscription usage or remaining-percentage reporting. Method and caveats:
+[docs/costs.md](docs/costs.md).
 
-Each skill's registration and provider instructions have separate named files in
-[`src/server/agents/bundled-skills`](src/server/agents/bundled-skills/README.md).
-`registry.ts` lists the reviewed skills; `anatomy.ts` owns Anatomy metadata and
-`anatomy-prompt.ts` owns its prompt. Shared staging and provider wiring read that registry.
+## Known limits
 
-Before each file-enabled Claude or Codex turn, Kiteva checks and copies the bundle
-to `.agents/skills/anatomy` inside that turn's workspace. Both providers receive
-the same explicit reading instructions, including during read-only review;
-text-only extraction gets no skill files or instructions. User-global skills,
-plugins and SDK settings remain disabled. Claude explicitly loads an app-owned
-local plugin from the workspace's `.agents` directory, enables only
-`bundled-authoring:anatomy` through the SDK's `skills` option, and includes the
-native `Skill` tool. Its startup event must confirm the skill loaded or Kiteva
-stops the turn. Codex reads the same files through its coding tools. Anatomy is selected when suitable or explicitly requested,
-and is not required for every 3D scene or linked to individual styles.
+- macOS only for now (the render sandbox uses `sandbox-exec`). Single user, local only.
+- [Multiplane](https://github.com/LBEILC/Multiplane) is a trial: one sound file, no video clips inside scenes, and no automatic layout or contrast checks (frame consistency is still verified).
+- [Remotion](https://www.remotion.dev) is a fallback, not a setting, and its renders skip the HyperFrames layout/contrast checks too.
+- No generated singing, image generation or stock footage. Visuals are drawn in code, or come from your uploads and website captures.
+- The catalog is my personal collection. Some descriptions or technology suggestions may be off. Issues are welcome.
+- Generation takes a while, often many minutes per preview, and uses real API credit or subscription usage.
 
-| Renderer    | How Anatomy fits                                                                                                  |
-| ----------- | ----------------------------------------------------------------------------------------------------------------- |
-| HyperFrames | Local SVG/HTML, with part poses and shaders driven by composition time.                                           |
-| Remotion    | Local React/SVG components driven by frame time.                                                                  |
-| Multiplane  | Adapt generated art to its supported composition contract; validate compatibility before committing to the scene. |
+## Docs
 
-Anatomy does not replace the selected renderer or export pipeline. Its interactive
-examples must be adapted for film: disable idle tours and wall-clock loops, use
-absolute timeline poses, and check matching frames after direct, forward and
-backward seeks. The project's selected palette and visual styles take precedence
-over the examples' standalone card designs. Keep the MIT notice with any copied
-kit modules. Website recording continues to use Kiteva's built-in `capture_video`.
+- [Architecture](docs/architecture.md): components, workflow, renderers, capture, skills, storage (Mermaid diagrams)
+- [Technology inventory](docs/technology-pool.md): all 92 pool entries, the bundled skill, renderers, TTS and every dependency
+- [Costs](docs/costs.md): how the governance numbers are computed
+- [Intro film provenance](docs/intro-video.md): how the film above was made in Kiteva
+- [README references](docs/readme-references.md): open projects whose READMEs I learned from
+- [Application guide](docs/application-guide.md) · [Speech setup](docs/speech.md) · [Multiplane trial](docs/multiplane-trial.md)
 
-Full films retain the original-quality MP4 for downloads. Background copies
-provide 720p/30 FPS WebM playback and silent three-second desktop card clips.
+## Contributing
 
-## Verify
+Bug reports, catalog corrections and focused PRs are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for setup, the checks to run (`npm run lint`, `npm test`, `npm run build`), the creative quality bar
+(seekable compositions, real rendered frames) and third-party rules.
 
-Run these from the repository root:
+## License
 
-```sh
-npm run lint
-npm test
-npm run build
-```
+Kiteva's own code, catalogs and docs are © 2026 Yang Liu ([@delexw](https://github.com/delexw)),
+licensed under the [Kiteva Non-Commercial License](LICENSE). In short: you may use, copy, modify and
+share it for non-commercial purposes, such as personal projects, learning, research and evaluation,
+with the notice kept. Internal, non-production evaluation inside an organisation, like trying it at an
+internal hackathon, counts as non-commercial. Selling it, offering it as a paid service, using it for paid
+client work, or putting what you make with it into commercial production needs separate permission. Ask in an issue. This summary isn't legal advice, and the
+LICENSE text is what applies.
 
-Repository-wide formatting and lint configuration lives at the repository root.
-See [the app documentation](docs/application-guide.md) and
-[Multiplane integration](docs/multiplane-trial.md) for details.
+Bundled and dependent software keeps its own license: [Anatomy](https://github.com/wheresryan22/anatomy) (MIT), [HyperFrames](https://github.com/heygen-com/hyperframes) and [Multiplane](https://github.com/LBEILC/Multiplane)
+(Apache-2.0), [Remotion](https://www.remotion.dev/license) (Remotion License), [GSAP](https://gsap.com/standard-license)
+(GSAP Standard License) and the rest as listed in [docs/technology-pool.md](docs/technology-pool.md).
+Model providers, speech models and other services have their own terms.

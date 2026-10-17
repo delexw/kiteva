@@ -1,0 +1,261 @@
+# Architecture
+
+[English README](../README.md) · [中文 README](../README.zh-CN.md) · [Technology inventory](technology-pool.md) · [Costs](costs.md)
+
+Kiteva is a single-user app that runs on your own computer. A [Fastify](https://fastify.dev)
+server on `127.0.0.1:4317` serves a [React](https://react.dev) desktop-style UI, drives the
+[Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript) or the
+[Codex SDK](https://github.com/openai/codex/tree/main/sdk/typescript) inside job workspaces it
+controls, and renders films locally. There is no hosted service, no account system and no multi-user
+mode. The server refuses requests whose host or origin isn't local.
+
+This page is based on the source as of 2026-10-17. File paths are relative to the repository root.
+
+## Components
+
+```mermaid
+flowchart LR
+  subgraph Browser["Your browser"]
+    Room["Creative room<br/>src/client/room"]
+    Galleries["Explore: Motion Graphics,<br/>motions, technologies"]
+    Storyboard["Storyboard page<br/>src/client/storyboard-*"]
+    Gov["Governance page<br/>src/client/governance"]
+  end
+
+  subgraph Server["Local server (Fastify, src/server)"]
+    API["HTTP API + SSE events<br/>app.ts, room/routes.ts"]
+    WF["Workflow<br/>jobs/workflow.ts"]
+    Sub["Subworkflows<br/>jobs/subworkflows"]
+    Catalog["Catalog loader<br/>catalog/catalog.ts"]
+    Rank["JEV ranking<br/>catalog/ranking.ts"]
+    Providers["Provider adapters<br/>agents/claude-agent.ts<br/>agents/codex-agent.ts"]
+    Skills["Bundled skill staging<br/>agents/bundled-skills.ts"]
+    RefMCP["Job-scoped MCP server<br/>reference_browser + capture_video"]
+    Render["Render + QA<br/>domains/video/render.ts, qa.ts"]
+    Speech["Local TTS providers<br/>audio/providers"]
+    Store[("SQLite<br/>.data/jobs.sqlite")]
+    GovR["Governance report<br/>governance/report.ts"]
+  end
+
+  subgraph Local["On disk"]
+    Assets[("assets/catalog,<br/>style previews,<br/>agent-skills/anatomy")]
+    Work[("Job workspaces<br/>.data/runs/&lt;run&gt;/&lt;job&gt;")]
+    Models[("models/kokoro,<br/>models/pocket-tts")]
+  end
+
+  subgraph External["Outside the app"]
+    Claude["Claude models"]
+    Codex["OpenAI models"]
+    JEV["Typesafe JEV API"]
+    Chrome["Headless Chrome"]
+    FF["FFmpeg / ffprobe"]
+  end
+
+  Room --> API
+  Galleries --> API
+  Storyboard --> API
+  Gov --> API
+  API --> WF
+  API --> Store
+  API --> GovR
+  WF --> Catalog
+  WF --> Rank
+  WF --> Sub
+  WF --> Providers
+  WF --> Render
+  WF --> Store
+  Catalog --> Assets
+  Providers --> Skills
+  Skills --> Work
+  Providers --> RefMCP
+  Providers -- "via local Caveman proxy" --> Claude
+  Providers -- "via local Caveman proxy" --> Codex
+  Rank --> JEV
+  RefMCP --> Chrome
+  Sub --> Chrome
+  Render --> Chrome
+  Render --> FF
+  Render --> Speech
+  Speech --> Models
+  Render --> Work
+  GovR --> Store
+```
+
+| Part                                                 | What it owns                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Shared contracts** (`src/shared`)                  | [Zod](https://zod.dev) schemas used by both the server and the UI: requests (`domains/video.ts`, `domains/page.ts`), briefs, proposals, storyboards, speech settings, renderer settings, governance types. The model's structured output is validated against these.                                                                             |
+| **Workflow** (`src/server/jobs/workflow.ts`)         | Preparation checkpoints, the agent queue (5 slots) and render queue (1 worker), previews, full builds, refinements, retries, cancellation, input questions and playback copies.                                                                                                                                                                  |
+| **Subworkflows** (`src/server/jobs/subworkflows`)    | `brief-asset-review.ts` (checks references against scenes and repairs one issue at a time), `result-review.ts` (reviews finished output), `website-reference.ts` (isolated browser session), `website-capture.ts` (recording).                                                                                                                   |
+| **Provider adapters** (`src/server/agents`)          | One adapter per SDK with the same interface: structured output, session resume, sandboxed tools limited to the job workspace, and redacted progress events. Models are never swapped silently.                                                                                                                                                   |
+| **Catalog** (`assets/catalog`, `src/server/catalog`) | 136 Motion Graphics and 46 motions. Each Motion Graphic points at entries in the 92-entry technology pool. Cached Motion Graphic summaries are reused across projects.                                                                                                                                                                           |
+| **JEV ranking** (`src/server/catalog/ranking.ts`)    | Sends feasible proposals to Typesafe's `jev-latest` through [`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript), scores them on several dimensions and keeps the requested number of directions. Local preference history (looked up with [MiniSearch](https://lucaong.github.io/minisearch/)) can add a capped `preferenceFit` score. |
+| **Persistence** (`src/server/jobs/store.ts`)         | Node's built-in `node:sqlite`. Runs, assets, events, room layout and the material shelf live in `.data/jobs.sqlite`. Everything under `.data/` and `user-data/` is Git-ignored.                                                                                                                                                                  |
+| **Governance** (`src/server/governance/report.ts`)   | Rebuilds per-project model usage and cost from raw SDK usage events each time it's read. See [costs](costs.md).                                                                                                                                                                                                                                  |
+
+## From idea to film
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor You
+  participant Room as Creative room
+  participant WF as Workflow
+  participant Small as Small model<br/>(Haiku / Luna)
+  participant Main as Main model<br/>(Opus 5.5 / GPT-6.1 Sol)
+  participant JEV as JEV
+  participant R as Renderer + QA
+
+  You->>Room: Idea, files, websites, music/lyrics, settings
+  Room->>WF: POST /api/runs
+  WF->>Small: Prepare brief (read-only, may use reference_browser)
+  WF->>Small: Brief self-review, focused repairs
+  opt Website references
+    Small-->>WF: PNG captures saved to brief assets
+  end
+  WF->>Small: Motion Graphic summaries (cache hits are free)
+  WF->>Main: Propose 12+ Motion Graphic combinations
+  WF->>JEV: Score proposals, pick N directions
+  loop Each direction (up to 5)
+    WF->>Main: Build a 3-second silent preview
+    Main->>R: Composition + STORYBOARD.json
+    R-->>WF: Validated WebM preview
+  end
+  You->>Room: Pick a preview, add feedback
+  Room->>WF: POST /api/runs/:id/full
+  WF->>WF: Local narration (Kokoro / Pocket TTS) if enabled
+  WF->>Main: Extend the same session into the full film
+  Main->>R: Composition + full storyboard
+  R->>R: Check, render, mix audio, probe, decode
+  alt HyperFrames check findings (Multiplane runs lint and verify instead)
+    R->>Small: Eligible layout/contrast/technical fixes
+    R->>Main: Pacing, style or escalated fixes
+  end
+  R-->>WF: MP4, poster, contact sheet
+  WF->>Small: Result quality review
+  WF-->>Room: Film, Storyboard, playback copies
+```
+
+If you pick Motion Graphics yourself (`selectedStyleIds`), the proposal, JEV and preview steps are
+skipped and the build goes straight to a full film. Questions that come up during preparation or
+building are labelled with their scope. Optional ones never pause work. Blocking ones pause only the
+work they belong to, at a saved checkpoint.
+
+### Which model does what
+
+| Step                                                                               | Claude projects     | Codex projects      | Why                                                              |
+| ---------------------------------------------------------------------------------- | ------------------- | ------------------- | ---------------------------------------------------------------- |
+| Brief, attachment review, summaries, lyrics, result review, eligible small repairs | `claude-haiku-5-5`  | `gpt-6-luna`        | Simple preparation and checking. Cheap and fast enough           |
+| Combination proposals                                                              | `claude-opus-5-5`   | `gpt-6.1-sol`       | The main creative judgement                                      |
+| Preview planning                                                                   | not used            | `gpt-6.1-sol`       | GPT-6.1 previews get a read-only plan first, in the same session |
+| Previews, full film, pacing/style repairs                                          | selected main model | selected main model | Creative implementation                                          |
+| Choosing directions                                                                | JEV                 | JEV                 | A separate evaluator, not the model that proposed the options    |
+
+The default main models come from `src/shared/model-display-name.ts` and can be overridden with
+`VIDEO_CLAUDE_MODEL` / `VIDEO_CODEX_MODEL`.
+
+## Renderer, motion engine, visual construction, tools, skills
+
+These responsibilities are kept separate in the code and in the prompts:
+
+- **Visual construction** draws the picture ([SVG](https://developer.mozilla.org/en-US/docs/Web/SVG),
+  [Canvas](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D), [Three.js](https://threejs.org/docs/),
+  [PixiJS](https://pixijs.com), [Rough.js](https://github.com/rough-stuff/rough/wiki)…). It's chosen per Motion Graphic
+  from the technology pool.
+- **The motion engine** moves things over time ([GSAP](https://gsap.com/docs/v3/), [Motion](https://motion.dev/docs/animate),
+  hand-written physics…). Each animated property gets exactly one owner.
+- **The renderer** (render pipeline) supplies seekable time, assembles scenes, mixes audio, validates
+  and exports. The catalog's production policy says the pipeline must not decide or simplify the visual style.
+- **Built-in agent tools** are capabilities Kiteva grants for a turn: `reference_browser` and `capture_video`.
+- **The bundled skill** (Anatomy) is reference material and a drawing kit the model may read. It doesn't render anything.
+
+### Renderers and their limits
+
+| Renderer                                                         | Selectable            | Pipeline in the code                                                                                              | Current limits                                                                                                                                                         |
+| ---------------------------------------------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [HyperFrames](https://github.com/heygen-com/hyperframes) 0.8.144 | Yes, the default      | `npx hyperframes check --json --snapshots`, then render. Layout, contrast and technical findings go to correctors | Previews are 3 s, silent and 720p. Full films go up to 300 s                                                                                                           |
+| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.10        | Yes, labelled "trial" | `multiplane lint/inspect/verify/render` on a `shot.html` driven by `render(t)`                                    | One sound file only. No video clips inside scenes. No automatic layout or contrast checks (frame consistency is still verified). Previews use a faster quality setting |
+| [Remotion](https://www.remotion.dev) 4.0.534                     | No                    | Used only when the production records a verified `fallbackReason`                                                 | Separate license terms. Some companies need a company license                                                                                                          |
+
+Layout and contrast checks belong to HyperFrames (`hyperframes check`). Multiplane renders don't get
+them. Instead Multiplane's `lint` and `verify` check determinism and frame consistency. Remotion
+fallback renders get neither set of checks. After that, every render, whatever the pipeline, is probed
+with `ffprobe` for codec, size, frame rate and duration (within 0.15 s). Previews must have no audio track. The whole file has to decode with FFmpeg,
+and a poster and a contact sheet are extracted. Generated code renders inside a macOS sandbox with a
+separate home directory, no provider credentials and local-only network access.
+
+## Headless capture and references
+
+```mermaid
+flowchart TB
+  URL["Website you add<br/>(public, or localhost in local mode)"] --> Check["URL policy:<br/>DNS pinned, redirects checked,<br/>private ranges blocked"]
+  Check --> Session["Fresh headless Chrome<br/>via puppeteer-core"]
+  Session --> Inspect["inspect_page / click_control"]
+  Inspect --> Shot["capture_screenshot<br/>→ brief assets (PNG)"]
+  Session --> Rec["capture_video<br/>(implementation turns only)"]
+  Rec --> Probe["Stream probe + full decode"]
+  Probe --> Footage["Silent WebM + cursor JSON<br/>→ job assets"]
+```
+
+- Both Claude and Codex get these tools through a job-scoped stdio MCP server built on the
+  [Model Context Protocol SDK](https://modelcontextprotocol.io). The browser is driven by
+  [Puppeteer](https://pptr.dev) (`puppeteer-core`).
+- Preparation can only inspect and take screenshots. `capture_video` is offered in video
+  implementation turns whenever Websites inputs exist. It works the same with or without narration,
+  and with any Motion Graphic or renderer. One exception: Multiplane can't place video clips in a
+  scene yet, so the agent has to say so rather than fake the UI.
+- Limits: navigation stays on the supplied origins, no login session is inherited, state-changing
+  requests are blocked, there are per-resource and per-session byte budgets, and you get six takes per
+  job, each up to 120 s and 150 MB.
+- No visible window and no personal browser profile are used. It isn't a desktop screen recorder.
+
+## Bundled skill staging
+
+```mermaid
+flowchart LR
+  Bundle["assets/agent-skills/anatomy<br/>(pinned upstream, 141 files)"] --> Hash{"SHA-256 matches<br/>manifest?"}
+  Hash -- no --> Stop["Turn fails"]
+  Hash -- yes --> Copy["Copy to workspace<br/>.agents/skills/anatomy"]
+  Copy --> ClaudeP["Claude: local plugin 'bundled-authoring',<br/>skills: ['bundled-authoring:anatomy'],<br/>native Skill tool, settingSources: []"]
+  Copy --> CodexP["Codex: same instructions,<br/>reads the files with its coding tools"]
+  ClaudeP --> Verify{"Skill listed in<br/>SDK init event?"}
+  Verify -- no --> Stop
+```
+
+The registry (`src/server/agents/bundled-skills/registry.ts`) is the only list. Staging, the plugin
+manifest, Claude's allowed skill names, startup checks and both providers' instructions all come from it.
+Staging also rejects symlinks and any extra plugin components, so generated code can't slip hooks or
+MCP settings into the plugin folder. User-global skills, plugins and SDK settings stay disabled.
+
+## Storyboard
+
+Each preview and full film writes a `STORYBOARD.json`: scenes and beats with explicit start and end
+times that cover the whole film, captions, audio notes and a pacing audit. The server validates it
+against `StoryboardSchema` and checks it against the requested duration
+(`src/server/domains/video/storyboard.ts`). The Storyboard page (`/projects/:id/storyboard?job=…`)
+plays it back as a hand-drawn "behind the scenes" rehearsal. A stick-figure director and crew (stagehand,
+lighting, lettering, sound, camera) walk to their marks when a beat's text calls for their job.
+
+The crew is an interpretation of the recorded cues. The source says so: _"never a claim about real
+production crew"_. It shows the film's actual scene and beat timing, not live render progress. Live job
+progress is in the project's activity lines in the room. This feature is unrelated to the
+UI-component tool called [Storybook](https://storybook.js.org).
+
+## Output and delivery
+
+- The full film keeps the original-quality MP4 for download.
+- In the background Kiteva makes a 720p/30 fps WebM playback copy and silent three-second desktop card clips.
+- You can download the project source as a ZIP, without `node_modules`, renders or SDK state.
+- Refinement continues the finished film's saved session with your notes.
+
+## Data boundaries
+
+- The browser gets videos, metadata and redacted events. It never sees provider keys.
+- `.env.local` holds `TYPESAFE_API_KEY`, ports, model overrides and the Caveman switch.
+- Providers accept an API key **or** an existing signed-in subscription account. Claude uses
+  `ANTHROPIC_API_KEY`, `CLAUDE_CODE_OAUTH_TOKEN` or your local Claude Code sign-in (`~/.claude`). Codex
+  uses `CODEX_API_KEY`/`OPENAI_API_KEY` or the Codex CLI sign-in in `~/.codex/auth.json`, which Kiteva
+  links into its isolated Codex home under `.data/runtime/codex`. Subscription usage or
+  remaining-percentage reporting hasn't been tested. Governance prices tokens at API rates either way.
+- JEV has its own key (`TYPESAFE_API_KEY`, or `JEV_API_KEY`) and talks to Typesafe directly, outside Caveman.
+- Uploaded files and fetched pages are treated as data, never as instructions.
+- This is a local tool for one person. It isn't a hardened multi-tenant code execution service.

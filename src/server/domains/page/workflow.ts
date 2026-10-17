@@ -8,7 +8,7 @@ import type { ContentBrief, Style, StyleCandidate } from "../../../shared/contra
 import { buildPagePrompt } from "./prompts";
 import { validatePage } from "./validation";
 import { appRoot, safeMessage } from "../../runtime/config";
-import { reviewFinishedResult } from "../../jobs/result-review";
+import { reviewFinishedResult } from "../../jobs/subworkflows/result-review";
 export async function generatePage(input: {
   job: PageGenerationJob;
   request: PageRequest;

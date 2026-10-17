@@ -1,15 +1,15 @@
 import {
   ResultReviewSchema,
   VideoResultReviewSchema,
-} from "../../shared/agents/schemas/result-review";
+} from "../../../shared/agents/schemas/result-review";
 import path from "node:path";
-import { textModels } from "../agents/models";
-import { videoResultReviewGuidance, videoReviewTestCases } from "./result-review-guidance";
-import { safeMessage } from "../runtime/config";
+import { textModels } from "../../agents/models";
+import { videoResultReviewGuidance, videoReviewTestCases } from "../result-review-guidance";
+import { safeMessage } from "../../runtime/config";
 import { readFile, writeFile } from "node:fs/promises";
 
-import type { CreativeRequest, GenerationJob, StyleCandidate } from "../../shared/contracts";
-import { agentTurn, type ProviderEvent } from "../agents/providers";
+import type { CreativeRequest, GenerationJob, StyleCandidate } from "../../../shared/contracts";
+import { agentTurn, type ProviderEvent } from "../../agents/providers";
 
 export async function reviewFinishedResult(input: {
   job: GenerationJob;

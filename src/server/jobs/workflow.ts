@@ -21,7 +21,7 @@ import {
   reviewBriefAssets,
   briefAssetAlignmentPrinciple,
   briefAssetRepairScopeRule,
-} from "./brief-asset-review";
+} from "./subworkflows/brief-asset-review";
 import { z } from "zod";
 import {
   combinationProposalPolicyRevision,

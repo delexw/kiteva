@@ -1,15 +1,15 @@
 import {
   BriefAssetReviewSchema,
   type BriefAssetPlan,
-} from "../../shared/agents/schemas/brief-assets";
+} from "../../../shared/agents/schemas/brief-assets";
 import path from "node:path";
 import { readFile, writeFile } from "node:fs/promises";
 import { z } from "zod";
 
-import type { CreativeRequest } from "../../shared/contracts";
-import { agentTurn, type ProviderEvent } from "../agents/providers";
-import { textModels } from "../agents/models";
-import { readReferenceScreenshots } from "../requests/reference-browser-tools";
+import type { CreativeRequest } from "../../../shared/contracts";
+import { agentTurn, type ProviderEvent } from "../../agents/providers";
+import { textModels } from "../../agents/models";
+import { readReferenceScreenshots } from "../../requests/reference-browser-tools";
 
 export const briefAssetAlignmentPrinciple = `PURPOSE-FIRST ATTACHMENT ANALYSIS: The user's core idea and main scenes control extraction. Identify them before analyzing attachments. Inspect each original source, extract only supported relevant content, and explain which scene it supports, how it will be used, and why. Exclude irrelevant content with a reason; never force every asset into the story or invent missing product capabilities. Check actual images for the correct feature/state, readable framing and usable detail. Capture or recapture the required existing website views using the provided reference tools when necessary. Preserve originals. For audio, distinguish verified stream/duration facts and the user's declared role from unverified mood, vocals or speech; a supplied soundtrack needs no transcript merely to use it. Plan permitted trims, loops or fades when needed. Record conflicts, inspection limits and missing coverage explicitly, with grounded alternatives for unsupported optional scenes. Independently review extracted facts and intended scene usage before handoff; the review agent will check actual sources and request focused repairs.`;
 

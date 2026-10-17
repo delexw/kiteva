@@ -10,7 +10,10 @@ import { RequestSchema } from "../src/shared/contracts";
 
 vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
-import { reviewBriefAssets, validateBriefAssetPlan } from "../src/server/jobs/brief-asset-review";
+import {
+  reviewBriefAssets,
+  validateBriefAssetPlan,
+} from "../src/server/jobs/subworkflows/brief-asset-review";
 const plan: BriefAssetPlan = {
   coreIdea: "Explain the image import workflow",
   scenes: [

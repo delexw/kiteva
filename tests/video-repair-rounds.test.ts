@@ -9,7 +9,7 @@ import type { Brief } from "../src/shared/agents/schemas/video";
 import { VideoQaError, VideoQaReportSchema, videoQaFindings } from "../src/server/domains/video/qa";
 vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
 vi.mock("../src/server/rendering/render", () => ({ renderJob: vi.fn() }));
-vi.mock("../src/server/jobs/result-review", () => ({ reviewFinishedResult: vi.fn() }));
+vi.mock("../src/server/jobs/subworkflows/result-review", () => ({ reviewFinishedResult: vi.fn() }));
 vi.mock("../src/server/domains/video/storyboard", () => ({
   validateStoryboardJson: vi.fn(),
   writeStoryboardJson: vi.fn(),

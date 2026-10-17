@@ -8,7 +8,7 @@ import { ResultReviewSchema } from "../src/shared/result-review";
 import { RequestSchema, type GenerationJob, type StyleCandidate } from "../src/shared/contracts";
 vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
-import { reviewFinishedResult } from "../src/server/jobs/result-review";
+import { reviewFinishedResult } from "../src/server/jobs/subworkflows/result-review";
 const request = RequestSchema.parse({
   instructions: "A folded shape takes flight",
   provider: "claude",

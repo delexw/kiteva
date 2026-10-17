@@ -19,7 +19,7 @@ import { renderJob } from "../../rendering/render";
 import { safeMessage } from "../../runtime/config";
 import { VideoCorrectionCoordinator } from "./corrector";
 import { VideoQaError, VideoQaReportError, resultReviewFindings } from "./qa";
-import { reviewFinishedResult } from "../../jobs/result-review";
+import { reviewFinishedResult } from "../../jobs/subworkflows/result-review";
 import { validateStoryboardJson, writeStoryboardJson } from "./storyboard";
 import { rendererPipelineProblem, videoRendererOf } from "../../../shared/video-renderers";
 

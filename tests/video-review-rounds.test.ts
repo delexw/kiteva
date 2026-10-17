@@ -8,7 +8,7 @@ import { generateVideo } from "../src/server/domains/video/workflow";
 import { loadCatalog } from "../src/server/catalog/catalog";
 vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
 vi.mock("../src/server/rendering/render", () => ({ renderJob: vi.fn() }));
-vi.mock("../src/server/jobs/result-review", () => ({ reviewFinishedResult: vi.fn() }));
+vi.mock("../src/server/jobs/subworkflows/result-review", () => ({ reviewFinishedResult: vi.fn() }));
 vi.mock("../src/server/domains/video/storyboard", () => ({
   validateStoryboardJson: vi.fn(),
   writeStoryboardJson: vi.fn(),
@@ -16,7 +16,7 @@ vi.mock("../src/server/domains/video/storyboard", () => ({
 }));
 import { agentTurn } from "../src/server/agents/providers";
 import { renderJob } from "../src/server/rendering/render";
-import { reviewFinishedResult } from "../src/server/jobs/result-review";
+import { reviewFinishedResult } from "../src/server/jobs/subworkflows/result-review";
 
 it("rechecks after all issues, reaches a fifth review, and stops immediately when GPT-6.1's result passes", async () => {
   const workspace = await mkdtemp(path.join(os.tmpdir(), "video-review-rounds-"));

@@ -63,6 +63,11 @@ To update the bundle, review a new upstream revision, replace its tracked files
 (excluding dotfiles and repository automation), update the manifest and run the
 skill and provider tests. Runtime never downloads or updates skills.
 
+Each skill's registration and provider instructions have separate named files in
+[`src/server/agents/bundled-skills`](src/server/agents/bundled-skills/README.md).
+`registry.ts` lists the reviewed skills; `anatomy.ts` owns Anatomy metadata and
+`anatomy-prompt.ts` owns its prompt. Shared staging and provider wiring read that registry.
+
 Before each file-enabled Claude or Codex turn, Kiteva checks and copies the bundle
 to `.agents/skills/anatomy` inside that turn's workspace. Both providers receive
 the same explicit reading instructions, including during read-only review;

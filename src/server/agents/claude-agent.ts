@@ -10,7 +10,8 @@ import { briefExplorationAgents } from "./brief-exploration";
 import { requireForegroundSubagent } from "./claude-subagent-policy";
 import { childEnvironment, safeMessage } from "../runtime/config";
 import type { Agent, ProviderEvent } from "./agent";
-import { claudeAnatomySkillName, claudeBundledSkills } from "./bundled-skills";
+import { claudeBundledSkills } from "./bundled-skills";
+import { bundledSkills } from "./bundled-skills/registry";
 
 export function claudeEvent(event: SDKMessage): ProviderEvent | undefined {
   if (event.type === "system" && event.subtype === "init")
@@ -208,10 +209,12 @@ export const claudeAgent: Agent = {
         if (mapped) onEvent({ ...mapped, message: safeMessage(mapped.message) });
         if (e.type === "system" && e.subtype === "init") {
           sessionId = e.session_id;
-          if (!options.textOnly && !e.skills?.includes(claudeAnatomySkillName))
-            throw Error(
-              "Claude did not load the bundled Anatomy skill. No generation can proceed with this session.",
-            );
+          if (!options.textOnly)
+            for (const skill of bundledSkills)
+              if (!e.skills?.includes(skill.claudeName))
+                throw Error(
+                  `Claude did not load the bundled ${skill.name} skill. No generation can proceed with this session.`,
+                );
         }
         if (e.type === "system" && e.subtype === "api_retry") terminalAssistantError = undefined;
         if (e.type === "assistant" && e.parent_tool_use_id == null)

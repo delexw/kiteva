@@ -16,6 +16,8 @@ vi.mock("node:fs/promises", async (original) => ({
 import { command } from "../src/server/runtime/process";
 import { access } from "node:fs/promises";
 import { probeVideo } from "../src/server/rendering/video-probe";
+import { pocketTtsSpeechProvider } from "../src/server/audio/providers/pocket-tts";
+import { speechProvider } from "../src/server/audio/providers";
 import { kokoroSpeechProvider } from "../src/server/audio/providers/kokoro";
 import { speechModelDirectory } from "../src/server/audio/providers/paths";
 import { appRoot } from "../src/server/runtime/config";
@@ -105,4 +107,146 @@ it("does not start synthesis after cancellation or publish failed output", async
     ),
   ).rejects.toThrow("Voice synthesis failed");
   expect(await readdir(folder)).toEqual([]);
+});
+
+it("dispatches explicit engines without changing the legacy Kokoro default", () => {
+  expect(speechProvider()).toBe(kokoroSpeechProvider);
+  expect(speechProvider("pocket-tts")).toBe(pocketTtsSpeechProvider);
+});
+it("checks Pocket models independently and retries failed readiness", async () => {
+  vi.mocked(command).mockRejectedValue(Error("Missing Pocket models"));
+  expect((await pocketTtsSpeechProvider.readiness(new AbortController().signal)).available).toBe(
+    false,
+  );
+  expect(command).toHaveBeenCalledTimes(2);
+  expect(vi.mocked(command).mock.calls[0][1]).toEqual(
+    expect.arrayContaining(["--models", speechModelDirectory("pocket-tts"), "--check"]),
+  );
+});
+it("uses Pocket's own voice and local model path, with pitch-preserving tempo and cleanup", async () => {
+  const folder = await mkdtemp(path.join(os.tmpdir(), "speech-pocket-"));
+  folders.push(folder);
+  vi.mocked(command).mockImplementation(async (executable, args) => {
+    if (executable === "ffmpeg") await writeFile(args.at(-1)!, "adjusted audio");
+    const output = args.indexOf("--output");
+    if (output >= 0) await writeFile(args[output + 1], "natural audio");
+    return "ready";
+  });
+  expect(
+    await pocketTtsSpeechProvider.synthesize(
+      "A test",
+      path.join(folder, "voice.wav"),
+      "pocket_alba",
+      1.2,
+      new AbortController().signal,
+    ),
+  ).toBe(0.5);
+  expect(command).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.arrayContaining(["--voice", "alba", "--models", speechModelDirectory("pocket-tts")]),
+    expect.any(String),
+    expect.any(AbortSignal),
+    expect.any(Function),
+    300000,
+  );
+  expect(command).toHaveBeenCalledWith(
+    "ffmpeg",
+    expect.arrayContaining(["atempo=1.2"]),
+    folder,
+    expect.any(AbortSignal),
+  );
+  expect(await readdir(folder)).toEqual(["voice.wav"]);
+});
+it("rejects foreign Pocket voices before touching the runtime", async () => {
+  await expect(
+    pocketTtsSpeechProvider.synthesize(
+      "Hello",
+      "/tmp/unused.wav",
+      "af_heart",
+      1,
+      new AbortController().signal,
+    ),
+  ).rejects.toThrow("Pocket TTS voice");
+  expect(command).not.toHaveBeenCalled();
+});
+
+it.each(["missing stream", "invalid duration"])(
+  "never publishes speech with %s",
+  async (failure) => {
+    const folder = await mkdtemp(path.join(os.tmpdir(), "invalid-speech-"));
+    folders.push(folder);
+    vi.mocked(command).mockImplementation(async (_executable, args) => {
+      const output = args.indexOf("--output");
+      if (output >= 0) await writeFile(args[output + 1], "invalid audio");
+      return "ready";
+    });
+    vi.mocked(probeVideo).mockResolvedValueOnce({
+      streams:
+        failure === "missing stream"
+          ? []
+          : [
+              {
+                codec_type: "audio",
+                width: 0,
+                height: 0,
+                avg_frame_rate: "0/0",
+                codec_name: "pcm_s16le",
+              },
+            ],
+      format: { duration: failure === "invalid duration" ? "NaN" : "1" },
+    });
+    await expect(
+      kokoroSpeechProvider.synthesize(
+        "Hello",
+        path.join(folder, "voice.wav"),
+        "af_heart",
+        1,
+        new AbortController().signal,
+      ),
+    ).rejects.toThrow("no valid audio");
+    expect(await readdir(folder)).toEqual([]);
+  },
+);
+
+it("routes non-English speech to its own model and language readiness", async () => {
+  const folder = await mkdtemp(path.join(os.tmpdir(), "speech-italian-"));
+  folders.push(folder);
+  vi.mocked(command).mockImplementation(async (_executable, args) => {
+    const output = args.indexOf("--output");
+    if (output >= 0) await writeFile(args[output + 1], "Italian audio");
+    return "ready";
+  });
+  await pocketTtsSpeechProvider.synthesize(
+    "Una storia",
+    path.join(folder, "voice.wav"),
+    "pocket_giovanni",
+    1,
+    new AbortController().signal,
+  );
+  for (const [, args] of vi.mocked(command).mock.calls)
+    expect(args).toEqual(expect.arrayContaining(["--language", "italian"]));
+  expect(vi.mocked(command).mock.calls[1][1]).toEqual(
+    expect.arrayContaining(["--voice", "giovanni"]),
+  );
+});
+
+it("uses the explicit speaking language without restricting voices to their reference language", async () => {
+  const folder = await mkdtemp(path.join(os.tmpdir(), "speech-cross-language-"));
+  folders.push(folder);
+  vi.mocked(command).mockImplementation(async (_executable, args) => {
+    const output = args.indexOf("--output");
+    if (output >= 0) await writeFile(args[output + 1], "French Alba");
+    return "ready";
+  });
+  await pocketTtsSpeechProvider.synthesize(
+    "Une idée",
+    path.join(folder, "voice.wav"),
+    "pocket_alba",
+    1,
+    new AbortController().signal,
+    "fr",
+  );
+  for (const [, args] of vi.mocked(command).mock.calls)
+    expect(args).toEqual(expect.arrayContaining(["--language", "french"]));
+  expect(vi.mocked(command).mock.calls[1][1]).toEqual(expect.arrayContaining(["--voice", "alba"]));
 });

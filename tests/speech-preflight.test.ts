@@ -39,3 +39,14 @@ it("accepts ready narration and lets uploaded vocals work without local TTS", as
   });
   expect(api).toHaveBeenCalledTimes(3);
 });
+
+it("checks only the chosen speech engine", async () => {
+  vi.mocked(api)
+    .mockResolvedValueOnce({ speechSupported: true })
+    .mockResolvedValueOnce({ available: true });
+  await ensureSpeechGenerationReady({
+    ...request,
+    speech: { ...request.speech, engine: "pocket-tts", voice: "pocket_alba" },
+  });
+  expect(api).toHaveBeenLastCalledWith("/api/speech/status?engine=pocket-tts&voice=pocket_alba");
+});

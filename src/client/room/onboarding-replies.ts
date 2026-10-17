@@ -1,7 +1,13 @@
 import type { CreativeRequest } from "../../shared/contracts";
 import type { RoomLibraryAsset } from "../../shared/room";
 import { modelDisplayName, providerDisplayName } from "../../shared/model-display-name";
-import { activeSpeech, speechVoices } from "../../shared/speech";
+import {
+  activeSpeech,
+  speechVoices,
+  speechEngines,
+  speechLanguage,
+  pocketLanguages,
+} from "../../shared/speech";
 import { videoRendererOf, videoRenderers } from "../../shared/video-renderers";
 import { roomMaterialSection, roomMaterialSteps, roomQuestions } from "./onboarding";
 
@@ -17,6 +23,8 @@ function speechReply(request: CreativeRequest, assets: RoomLibraryAsset[]) {
   }
   return [
     "Speech: Narration",
+    `Speech engine: ${speechEngines.find((engine) => engine.id === (speech.engine || "kokoro"))!.label}`,
+    `Speech language: ${pocketLanguages.find((language) => language.id === speechLanguage(speech.voice, speech.engine, speech.language))?.label || speechLanguage(speech.voice, speech.engine, speech.language)}`,
     `Voice: ${speechVoices.find((voice) => voice.id === speech.voice)?.label || speech.voice}`,
     `Speech speed: ${speech.speed}×`,
     `Script source: ${speech.source === "provided" ? "My script" : speech.source === "lyrics" ? "Use lyrics" : "Write a script"}`,
@@ -25,11 +33,7 @@ function speechReply(request: CreativeRequest, assets: RoomLibraryAsset[]) {
   ].filter(Boolean);
 }
 
-export function roomSettingsReply(
-  request: CreativeRequest,
-  styles: ReplyStyle[],
-  assets: RoomLibraryAsset[],
-) {
+export function roomSettingsReply(request: CreativeRequest, styles: ReplyStyle[]) {
   const selectedStyles = request.selectedStyleIds || [];
   const styleNames = selectedStyles.map(
     (id) => styles.find((style) => style.id === id)?.name_en || id,
@@ -50,7 +54,6 @@ export function roomSettingsReply(
     styleNames.length
       ? `Selected styles: ${styleNames.join(", ")}\nPreview directions: Skipped — build selected styles directly`
       : `Preview directions: ${request.candidateCount || 5}\nStyles: Select from preview directions`,
-    ...speechReply(request, assets),
   ].join("\n");
 }
 
@@ -63,7 +66,7 @@ export function roomOnboardingReplies(
   const selected = assets.filter((asset) => request.assetIds.includes(asset.id));
   return roomQuestions.map((_, index) => {
     if (index === 0) return { text: request.instructions, skipped: false };
-    if (index === 5) return { text: roomSettingsReply(request, styles, selected), skipped: false };
+    if (index === 5) return { text: roomSettingsReply(request, styles), skipped: false };
     if (index === 3) {
       const parts = [
         request.urls.filter((url) => url.trim()).join("\n"),

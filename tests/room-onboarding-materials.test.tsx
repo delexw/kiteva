@@ -235,3 +235,25 @@ it("keeps each step's attachments in its own section of the submitted brief", ()
     text: "Keep the light on",
   });
 });
+
+it("shows editable narration only in Music while preserving its saved reply in later steps", () => {
+  const request = {
+    instructions: "A short film about a lighthouse",
+    lyrics: { mode: "write" as const },
+    speech: {
+      mode: "narration" as const,
+      voice: "am_michael",
+      speed: 1,
+      source: "provided" as const,
+      text: "Our narration stays in Music.",
+      instructions: "Speak warmly",
+    },
+  };
+  const music = render(draftAt(4, { request }));
+  expect(music).toContain('aria-label="Narration script"');
+  const settings = render(draftAt(5, { request }));
+  expect(settings).toContain("Generation settings");
+  expect(settings).not.toContain('aria-label="Speech and vocals"');
+  expect(settings).not.toContain('aria-label="Narration script"');
+  expect(settings).toContain("Our narration stays in Music.");
+});

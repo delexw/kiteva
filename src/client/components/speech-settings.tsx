@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { Alert, Button, Input, Select, Slider, Space, Typography } from "antd";
 import {
   speechVoices,
+  speechEngines,
+  speechVoicesForEngine,
+  pocketLanguages,
   type SpeechSettings as Settings,
   type SpeechReadiness,
 } from "../../shared/speech";
@@ -11,6 +14,12 @@ import { api } from "../lib/api";
 import "./speech-settings.css";
 
 const languages: Record<string, string> = {
+  en: "English",
+  fr: "French",
+  de: "German",
+  pt: "Portuguese",
+  it: "Italian",
+  nl: "Dutch",
   "en-us": "English · US",
   "en-gb": "English · UK",
   es: "Spanish",
@@ -32,9 +41,17 @@ export function SpeechSettings({
   const [sample, setSample] = useState("");
   const [busy, setBusy] = useState(false);
   const revision = useRef(0);
+  const engine = value?.mode === "narration" ? value.engine || "kokoro" : "kokoro";
+  const voices = speechVoicesForEngine(engine);
+  const selectedLanguage = value?.mode === "narration" ? value.language : undefined;
+  const selectedVoice = value?.mode === "narration" ? value.voice : "";
   useEffect(() => {
     const controller = new AbortController();
-    void api<SpeechReadiness>("/api/speech/status", { signal: controller.signal })
+    setStatus(undefined);
+    void api<SpeechReadiness>(
+      `/api/speech/status?engine=${engine}${selectedVoice ? `&voice=${selectedVoice}` : ""}${selectedLanguage ? `&language=${selectedLanguage}` : ""}`,
+      { signal: controller.signal },
+    )
       .then(setStatus)
       .catch(() => {
         if (!controller.signal.aborted)
@@ -48,14 +65,14 @@ export function SpeechSettings({
       controller.abort();
       revision.current++;
     };
-  }, []);
-  const selectedVoice = value?.mode === "narration" ? value.voice : "";
+  }, [engine, selectedVoice, selectedLanguage]);
   const selectedSpeed = value?.mode === "narration" ? value.speed : 1;
   useEffect(() => {
     revision.current++;
     setSample("");
     setError("");
-  }, [selectedVoice, selectedSpeed]);
+    setBusy(false);
+  }, [engine, selectedVoice, selectedSpeed, selectedLanguage]);
   const voice =
     value?.mode === "narration"
       ? speechVoices.find((voice) => voice.id === value.voice)!
@@ -126,6 +143,20 @@ export function SpeechSettings({
       )}
       {value?.mode === "narration" && (
         <>
+          <Select
+            aria-label="Speech engine"
+            style={{ width: "100%" }}
+            value={engine}
+            options={speechEngines.map((item) => ({ value: item.id, label: item.label }))}
+            onChange={(engine) =>
+              onChange({
+                ...value,
+                engine,
+                voice: speechVoicesForEngine(engine)[0].id,
+                language: engine === "pocket-tts" ? "en" : undefined,
+              })
+            }
+          />
           <Alert
             type={status?.available ? "success" : "info"}
             showIcon
@@ -134,13 +165,24 @@ export function SpeechSettings({
           <Select
             aria-label="Speech language"
             style={{ width: "100%" }}
-            value={voice?.language}
-            options={Object.entries(languages).map(([value, label]) => ({ value, label }))}
+            value={selectedLanguage || voice?.language}
+            options={
+              engine === "pocket-tts"
+                ? pocketLanguages.map((language) => ({ value: language.id, label: language.label }))
+                : Object.entries(languages)
+                    .filter(([language]) => voices.some((voice) => voice.language === language))
+                    .map(([value, label]) => ({ value, label }))
+            }
             onChange={(language) =>
-              onChange({
-                ...value,
-                voice: speechVoices.find((voice) => voice.language === language)!.id,
-              })
+              onChange(
+                engine === "pocket-tts"
+                  ? { ...value, language }
+                  : {
+                      ...value,
+                      language: undefined,
+                      voice: voices.find((voice) => voice.language === language)!.id,
+                    },
+              )
             }
           />
           <Space.Compact style={{ width: "100%" }}>
@@ -148,8 +190,8 @@ export function SpeechSettings({
               aria-label="Narrator voice"
               style={{ flex: 1 }}
               value={value.voice}
-              options={speechVoices
-                .filter((item) => item.language === voice?.language)
+              options={voices
+                .filter((item) => engine === "pocket-tts" || item.language === voice?.language)
                 .map((item) => ({ value: item.id, label: item.label }))}
               onChange={(voice) => onChange({ ...value, voice })}
             />

@@ -53,7 +53,7 @@ it("includes full prompts, file names, URL instructions, lyrics and speech in pr
     expect(replies[4].text).toContain(value);
 });
 it("lists actual generation settings and selected style names rather than counts", () => {
-  const reply = roomSettingsReply(request(), styles, assets);
+  const reply = roomSettingsReply(request(), styles);
   for (const value of [
     "Claude Opus 5.5",
     "90 seconds",
@@ -63,7 +63,6 @@ it("lists actual generation settings and selected style names rather than counts
     "Multiplane",
     "Selected styles: Mosaic",
     "build selected styles directly",
-    "Michael",
   ])
     expect(reply).toContain(value);
 });
@@ -88,6 +87,20 @@ it("handles optional steps and page settings without video or inactive voice set
   const video = request();
   if (video.outputType !== "video") throw Error("Expected video fixture");
   video.lyrics = { mode: "off" };
-  expect(roomSettingsReply(video, styles, assets)).toContain("Speech: Off");
-  expect(roomSettingsReply(video, styles, assets)).not.toContain("Michael");
+  expect(roomOnboardingReplies(video, assets, styles)[4].text).toContain("Speech: Off");
+  expect(roomSettingsReply(video, styles)).not.toContain("Michael");
+});
+
+it("keeps speech and narration in the music reply without repeating them in generation settings", () => {
+  const replies = roomOnboardingReplies(request(), assets, styles);
+  expect(replies[4].text).toContain("Here is the actual narration");
+  expect(replies[4].text).toContain("Voice: Michael");
+  for (const value of [
+    "Speech:",
+    "Voice:",
+    "Script source:",
+    "Here is the actual narration",
+    "Speak warmly",
+  ])
+    expect(replies[5].text).not.toContain(value);
 });

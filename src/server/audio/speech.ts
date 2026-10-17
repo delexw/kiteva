@@ -5,7 +5,7 @@ import { z } from "zod";
 import {
   activeSpeech,
   SpeechTrackSchema,
-  speechVoices,
+  speechLanguage,
   type SpeechTrack,
 } from "../../shared/speech";
 import type { VideoRequest } from "../../shared/domains/video";
@@ -14,11 +14,27 @@ import { agentTurn, type ProviderEvent } from "../agents/providers";
 import { textModels } from "../agents/models";
 import { command } from "../runtime/process";
 import { probeVideo } from "../rendering/video-probe";
-import { kokoroSpeechProvider } from "./providers/kokoro";
+import { speechProvider } from "./providers";
+import type { SpeechProviderId } from "../../shared/speech";
 import { CodedError } from "../../shared/errors";
 
-export const speechReadiness = kokoroSpeechProvider.readiness;
-export const synthesizeSpeech = kokoroSpeechProvider.synthesize;
+export const speechReadiness = (
+  signal: AbortSignal,
+  engine?: SpeechProviderId,
+  voice?: string,
+  language?: string,
+) => speechProvider(engine).readiness(signal, voice, language);
+export function synthesizeSpeech(
+  text: string,
+  file: string,
+  voice: string,
+  speed: number,
+  signal: AbortSignal,
+  engine?: SpeechProviderId,
+  language?: string,
+) {
+  return speechProvider(engine).synthesize(text, file, voice, speed, signal, language);
+}
 
 const ScriptSchema = z.object({ text: z.string().trim().min(1).max(8000) });
 export async function prepareSpeech(
@@ -106,7 +122,7 @@ export async function prepareSpeech(
             brief,
             delivery: settings.instructions,
             duration,
-            language: speechVoices.find((voice) => voice.id === settings.voice)!.language,
+            language: speechLanguage(settings.voice, settings.engine, settings.language),
           },
           prompt: `Write original faceless narration for this concept. Read the supplied context. Preserve facts and exact required copy; no invented claims. Return spoken text only in the schema, with one short sentence per line. Aim to leave breathing space and musical pauses inside ${duration} seconds at ${settings.speed}x speaking speed; use at most ${Math.floor(duration * 1.8 * settings.speed)} words for English. Do not write scene instructions or synthesize audio.`,
         });
@@ -133,6 +149,8 @@ export async function prepareSpeech(
         settings.voice,
         settings.speed,
         signal,
+        settings.engine,
+        settings.language,
       );
       if (!Number.isFinite(seconds) || seconds <= 0)
         throw Error("Speech returned an invalid duration.");

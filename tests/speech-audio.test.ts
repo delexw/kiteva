@@ -176,3 +176,32 @@ it("uses only selected attached recordings and mixes speech onto silent and musi
   options.request.speech = { mode: "uploaded", assetId: "missing" };
   await expect(prepareSpeech(options)).rejects.toThrow(/not attached/);
 }, 60000);
+
+it("passes the selected Pocket engine through narration preparation and reuses its completed track", async () => {
+  const options = await input();
+  options.request.speech = {
+    mode: "narration",
+    engine: "pocket-tts",
+    voice: "pocket_alba",
+    speed: 1,
+    source: "provided",
+    text: "An example narration.",
+    instructions: "",
+  };
+  const synthesize = vi.fn(async (_text: string, file: string) => {
+    await tone(file);
+    return 0.25;
+  });
+  const track = await prepareSpeech(options, { synthesize });
+  expect(synthesize).toHaveBeenCalledWith(
+    "An example narration.",
+    expect.any(String),
+    "pocket_alba",
+    1,
+    options.signal,
+    "pocket-tts",
+    undefined,
+  );
+  expect(await prepareSpeech(options, { synthesize })).toEqual(track);
+  expect(synthesize).toHaveBeenCalledTimes(1);
+});

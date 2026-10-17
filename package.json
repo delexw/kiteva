@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "speech:setup:pocket": "node --import tsx scripts/setup-pocket-tts.ts",
     "speech:setup": "node --import tsx scripts/setup-speech.ts",
     "dev": "node --import tsx src/server/index.ts",
     "build": "tsc --noEmit && vite build",

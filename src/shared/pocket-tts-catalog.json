@@ -1,0 +1,184 @@
+{
+  "version": "3.3.0",
+  "languages": [
+    {
+      "id": "en",
+      "model": "english",
+      "label": "English",
+      "defaultVoice": "alba"
+    },
+    {
+      "id": "fr",
+      "model": "french",
+      "label": "French",
+      "defaultVoice": "estelle"
+    },
+    {
+      "id": "de",
+      "model": "german",
+      "label": "German",
+      "defaultVoice": "juergen"
+    },
+    {
+      "id": "pt",
+      "model": "portuguese",
+      "label": "Portuguese",
+      "defaultVoice": "rafael"
+    },
+    {
+      "id": "it",
+      "model": "italian",
+      "label": "Italian",
+      "defaultVoice": "giovanni"
+    },
+    {
+      "id": "es",
+      "model": "spanish",
+      "label": "Spanish",
+      "defaultVoice": "lola"
+    },
+    {
+      "id": "nl",
+      "model": "dutch",
+      "label": "Dutch",
+      "defaultVoice": "daan"
+    }
+  ],
+  "voices": [
+    {
+      "id": "alba",
+      "label": "Alba",
+      "language": "en"
+    },
+    {
+      "id": "marius",
+      "label": "Marius",
+      "language": "en"
+    },
+    {
+      "id": "javert",
+      "label": "Javert",
+      "language": "en"
+    },
+    {
+      "id": "jean",
+      "label": "Jean",
+      "language": "en"
+    },
+    {
+      "id": "fantine",
+      "label": "Fantine",
+      "language": "en"
+    },
+    {
+      "id": "cosette",
+      "label": "Cosette",
+      "language": "en"
+    },
+    {
+      "id": "eponine",
+      "label": "Eponine",
+      "language": "en"
+    },
+    {
+      "id": "azelma",
+      "label": "Azelma",
+      "language": "en"
+    },
+    {
+      "id": "anna",
+      "label": "Anna",
+      "language": "en"
+    },
+    {
+      "id": "vera",
+      "label": "Vera",
+      "language": "en"
+    },
+    {
+      "id": "charles",
+      "label": "Charles",
+      "language": "en"
+    },
+    {
+      "id": "paul",
+      "label": "Paul",
+      "language": "en"
+    },
+    {
+      "id": "george",
+      "label": "George",
+      "language": "en"
+    },
+    {
+      "id": "mary",
+      "label": "Mary",
+      "language": "en"
+    },
+    {
+      "id": "jane",
+      "label": "Jane",
+      "language": "en"
+    },
+    {
+      "id": "michael",
+      "label": "Michael",
+      "language": "en"
+    },
+    {
+      "id": "eve",
+      "label": "Eve",
+      "language": "en"
+    },
+    {
+      "id": "bill_boerst",
+      "label": "Bill Boerst",
+      "language": "en"
+    },
+    {
+      "id": "peter_yearsley",
+      "label": "Peter Yearsley",
+      "language": "en"
+    },
+    {
+      "id": "stuart_bell",
+      "label": "Stuart Bell",
+      "language": "en"
+    },
+    {
+      "id": "caro_davy",
+      "label": "Caro Davy",
+      "language": "en"
+    },
+    {
+      "id": "estelle",
+      "label": "Estelle",
+      "language": "fr"
+    },
+    {
+      "id": "juergen",
+      "label": "Juergen",
+      "language": "de"
+    },
+    {
+      "id": "rafael",
+      "label": "Rafael",
+      "language": "pt"
+    },
+    {
+      "id": "giovanni",
+      "label": "Giovanni",
+      "language": "it"
+    },
+    {
+      "id": "lola",
+      "label": "Lola",
+      "language": "es"
+    },
+    {
+      "id": "daan",
+      "label": "Daan",
+      "language": "nl"
+    }
+  ]
+}

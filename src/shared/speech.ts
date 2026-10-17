@@ -1,6 +1,13 @@
 import { z } from "zod";
+import pocketCatalog from "./pocket-tts-catalog.json";
 
-export const speechVoices = [
+export const SpeechProviderIdSchema = z.enum(["kokoro", "pocket-tts"]);
+export type SpeechProviderId = z.infer<typeof SpeechProviderIdSchema>;
+export const speechEngines = [
+  { id: "kokoro", label: "Kokoro" },
+  { id: "pocket-tts", label: "Pocket TTS" },
+] as const;
+export const kokoroVoices = [
   { id: "af_heart", label: "Heart", language: "en-us" },
   { id: "af_nova", label: "Nova", language: "en-us" },
   { id: "af_sky", label: "Sky", language: "en-us" },
@@ -14,18 +21,57 @@ export const speechVoices = [
   { id: "jf_alpha", label: "Alpha", language: "ja" },
   { id: "zf_xiaobei", label: "Xiaobei", language: "zh" },
 ] as const;
-export const SpeechSettingsSchema = z.discriminatedUnion("mode", [
-  z.object({ mode: z.literal("off") }),
-  z.object({
-    mode: z.literal("narration"),
-    voice: z.enum(speechVoices.map((voice) => voice.id)).default("af_heart"),
-    speed: z.number().min(0.75).max(1.5).default(1),
-    source: z.enum(["lyrics", "write", "provided"]).default("lyrics"),
-    text: z.string().max(8000).default(""),
-    instructions: z.string().max(2000).default(""),
-  }),
-  z.object({ mode: z.literal("uploaded"), assetId: z.string().min(1) }),
-]);
+export const pocketLanguages = pocketCatalog.languages;
+export const pocketVoices = pocketCatalog.voices.map((voice) => ({
+  ...voice,
+  id: `pocket_${voice.id}`,
+}));
+export function pocketLanguageForVoice(voice: string, language?: string) {
+  const preset = pocketVoices.find((item) => item.id === voice);
+  return preset
+    ? pocketLanguages.find((item) => item.id === (language || preset.language))
+    : undefined;
+}
+export const PocketLanguageSchema = z.enum(pocketLanguages.map((language) => language.id));
+export function speechLanguage(
+  voice: string,
+  engine: SpeechProviderId = "kokoro",
+  language?: string,
+) {
+  return engine === "pocket-tts"
+    ? pocketLanguageForVoice(voice, language)?.id
+    : kokoroVoices.find((item) => item.id === voice)?.language;
+}
+export const speechVoices = [...kokoroVoices, ...pocketVoices] as const;
+export function speechVoicesForEngine(engine: SpeechProviderId = "kokoro") {
+  return engine === "pocket-tts" ? pocketVoices : kokoroVoices;
+}
+export const SpeechSettingsSchema = z
+  .discriminatedUnion("mode", [
+    z.object({ mode: z.literal("off") }),
+    z.object({
+      mode: z.literal("narration"),
+      engine: SpeechProviderIdSchema.optional(),
+      language: PocketLanguageSchema.optional(),
+      voice: z.enum(speechVoices.map((voice) => voice.id)).default("af_heart"),
+      speed: z.number().min(0.75).max(1.5).default(1),
+      source: z.enum(["lyrics", "write", "provided"]).default("lyrics"),
+      text: z.string().max(8000).default(""),
+      instructions: z.string().max(2000).default(""),
+    }),
+    z.object({ mode: z.literal("uploaded"), assetId: z.string().min(1) }),
+  ])
+  .superRefine((settings, context) => {
+    if (
+      settings.mode === "narration" &&
+      !speechVoicesForEngine(settings.engine).some((voice) => voice.id === settings.voice)
+    )
+      context.addIssue({
+        code: "custom",
+        path: ["voice"],
+        message: "Choose a voice belonging to the selected speech engine.",
+      });
+  });
 export type SpeechSettings = z.infer<typeof SpeechSettingsSchema>;
 export const SpeechTrackSchema = z.object({
   file: z.string(),

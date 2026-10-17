@@ -11,8 +11,7 @@ export function roomDevelopmentApi(): Plugin {
       };
       const { app, close } = await room.createRoomDevelopmentApp();
       server.middlewares.use((request, response, next) => {
-        if (!request.url?.startsWith("/api/room") && !request.url?.startsWith("/api/speech"))
-          return next();
+        if (!request.url?.startsWith("/api/room")) return next();
         app.routing(request, response);
       });
       server.httpServer?.once("close", () => {

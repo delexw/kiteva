@@ -430,17 +430,6 @@ export function RoomOnboarding({
                 title="Generation settings"
                 description="Choose how your project is made."
               />
-              {request.outputType === "video" &&
-                request.lyrics &&
-                request.lyrics.mode !== "off" && (
-                  <SpeechSettings
-                    value={request.speech}
-                    onChange={(speech) => patch({ speech })}
-                    audioAssets={selected
-                      .filter((asset) => requirements.music.assetIds.includes(asset.id))
-                      .map((asset) => ({ id: asset.id, name: asset.originalName }))}
-                  />
-                )}
               <label>
                 Make a
                 <Select

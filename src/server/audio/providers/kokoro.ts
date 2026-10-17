@@ -1,11 +1,10 @@
-import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
-import { access, mkdir, rename, rm, writeFile } from "node:fs/promises";
+import { access } from "node:fs/promises";
 import path from "node:path";
 import { speechVoices, type SpeechReadiness } from "../../../shared/speech";
 import { appRoot, dataRoot } from "../../runtime/config";
 import { command } from "../../runtime/process";
-import { probeVideo } from "../../rendering/video-probe";
+import { publishSpeechWave } from "./local-wave";
 import { WorkQueue } from "../../jobs/queue";
 import { CodedError } from "../../../shared/errors";
 import type { SpeechProvider } from "./types";
@@ -65,48 +64,37 @@ async function synthesizeSpeech(
     signal.throwIfAborted();
     const ready = await speechReadiness(signal);
     if (!ready.available) throw new CodedError("SPEECH_NOT_READY", ready.detail);
-    await mkdir(path.dirname(file), { recursive: true });
-    const temporary = `${file}.${randomUUID()}.wav`;
-    const script = `${temporary}.txt`;
-    await writeFile(script, text);
-    try {
-      await command(
-        python(),
-        [
-          path.join(appRoot, "scripts/speech/kokoro.py"),
-          "--model",
-          path.join(modelDirectory, "kokoro-v1.0.onnx"),
-          "--voices",
-          path.join(modelDirectory, "voices-v1.0.bin"),
-          "--text-file",
-          script,
-          "--voice",
-          voice,
-          "--language",
-          speechVoices.find((item) => item.id === voice)?.language || "en-us",
-          "--speed",
-          String(speed),
-          "--output",
-          temporary,
-        ],
-        path.dirname(file),
-        signal,
-        () => {},
-        300000,
-      );
-      const probe = await probeVideo(temporary, signal);
-      if (!probe.streams.some((stream) => stream.codec_type === "audio"))
-        throw Error("Speech synthesis returned no audio.");
-      signal.throwIfAborted();
-      await rename(temporary, file);
-      return Number(probe.format.duration);
-    } catch (error) {
-      signal.throwIfAborted();
-      throw new CodedError("SPEECH_FAILED", `Voice synthesis failed: ${(error as Error).message}`);
-    } finally {
-      await rm(script, { force: true });
-      await rm(temporary, { force: true });
-    }
+    return publishSpeechWave({
+      text,
+      file,
+      signal,
+      generate: async (script, temporary) => {
+        await command(
+          python(),
+          [
+            path.join(appRoot, "scripts/speech/kokoro.py"),
+            "--model",
+            path.join(modelDirectory, "kokoro-v1.0.onnx"),
+            "--voices",
+            path.join(modelDirectory, "voices-v1.0.bin"),
+            "--text-file",
+            script,
+            "--voice",
+            voice,
+            "--language",
+            speechVoices.find((item) => item.id === voice)?.language || "en-us",
+            "--speed",
+            String(speed),
+            "--output",
+            temporary,
+          ],
+          path.dirname(file),
+          signal,
+          () => {},
+          300000,
+        );
+      },
+    });
   });
 }
 

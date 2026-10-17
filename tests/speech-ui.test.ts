@@ -24,7 +24,7 @@ it.skipIf(!browserExecutablePath())(
           name: "speech-ui-fixture",
           configureServer(server) {
             server.middlewares.use(async (req, res, next) => {
-              if (req.url === "/api/speech/status") {
+              if (req.url?.startsWith("/api/speech/status")) {
                 res.setHeader("Content-Type", "application/json");
                 res.end(JSON.stringify({ available: true, detail: "Local narration ready" }));
                 return;
@@ -108,6 +108,12 @@ function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A c
       const settings = await page.$$("button");
       for (const button of settings)
         if (await button.evaluate((el) => el.textContent === "Settings")) await button.click();
+      await page.waitForSelector('[aria-label="Model"]');
+      expect(await page.$('[aria-label="Speech and vocals"]')).toBeNull();
+      expect(await page.$('[aria-label="Narration script"]')).toBeNull();
+      const back = await page.$$("button");
+      for (const button of back)
+        if (await button.evaluate((el) => el.textContent === "Back")) await button.click();
       await page.waitForSelector('[aria-label="Narration script"]');
       expect(
         await page.$eval(
@@ -115,6 +121,51 @@ function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A c
           (el) => (el as HTMLTextAreaElement).value,
         ),
       ).toBe("Let your idea take flight.");
+      await page.click('[aria-label="Speech engine"]');
+      await page.waitForSelector('.ant-select-item-option[title="Pocket TTS"]', { visible: true });
+      await page.locator('.ant-select-item-option[title="Pocket TTS"]').click();
+      await page.waitForFunction(() =>
+        document.querySelector('[aria-label="Speech and vocals"]')?.textContent?.includes("Alba"),
+      );
+      await page.click('[aria-label="Speech language"]');
+      await page.waitForSelector('.ant-select-item-option[title="Italian"]', { visible: true });
+      const languageLabels = await page.$$eval(
+        ".ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option",
+        (elements) => elements.map((element) => element.textContent),
+      );
+      expect(languageLabels).toEqual(
+        expect.arrayContaining([
+          "English",
+          "French",
+          "German",
+          "Portuguese",
+          "Italian",
+          "Spanish",
+          "Dutch",
+        ]),
+      );
+      await page.locator('.ant-select-item-option[title="Italian"]').click();
+      await page.waitForFunction(() =>
+        document
+          .querySelector('[aria-label="Speech and vocals"]')
+          ?.textContent?.includes("Italian"),
+      );
+      expect(
+        await page.$eval('[aria-label="Speech and vocals"]', (el) => el.textContent),
+      ).toContain("Alba");
+
+      expect(
+        await page.$eval(
+          '[aria-label="Narration script"]',
+          (el) => (el as HTMLTextAreaElement).value,
+        ),
+      ).toBe("Let your idea take flight.");
+      await page.click('[aria-label="Speech engine"]');
+      await page.waitForSelector('.ant-select-item-option[title="Kokoro"]', { visible: true });
+      await page.locator('.ant-select-item-option[title="Kokoro"]').click();
+      await page.waitForFunction(() =>
+        document.querySelector('[aria-label="Speech and vocals"]')?.textContent?.includes("Heart"),
+      );
     } finally {
       await browser.close();
       await server.close();

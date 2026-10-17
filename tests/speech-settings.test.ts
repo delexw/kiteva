@@ -1,6 +1,9 @@
 import { expect, it } from "vitest";
 import {
   activeSpeech,
+  pocketLanguages,
+  pocketVoices,
+  pocketLanguageForVoice,
   SpeechSettingsSchema,
   speechConfigurationProblem,
 } from "../src/shared/speech";
@@ -82,4 +85,64 @@ it("keeps unrequested vocals prohibited but recognizes prepared requested speech
   expect(lyricsDirection(lyrics, false)).toContain("Do not claim singing or narration");
   expect(lyricsDirection(lyrics, false, true)).toContain("measured cues");
   expect(lyricsDirection(lyrics, false, true)).not.toContain("Do not claim singing or narration");
+});
+
+it("validates engine-specific voices and preserves Pocket settings through saved drafts", () => {
+  const pocket = SpeechSettingsSchema.parse({
+    mode: "narration",
+    engine: "pocket-tts",
+    voice: "pocket_alba",
+  });
+  expect(
+    SpeechSettingsSchema.safeParse({ mode: "narration", engine: "pocket-tts", voice: "af_heart" })
+      .success,
+  ).toBe(false);
+  expect(SpeechSettingsSchema.safeParse({ mode: "narration", voice: "pocket_alba" }).success).toBe(
+    false,
+  );
+  expect(SpeechSettingsSchema.safeParse({ mode: "narration", engine: "external" }).success).toBe(
+    false,
+  );
+  const request = RequestSchema.parse({
+    instructions: "An example film",
+    lyrics: { mode: "write" },
+    speech: pocket,
+  });
+  expect(roomSubmission(roomDraftRequest(roomDraftFromProject(request, []))).speech).toEqual(
+    pocket,
+  );
+});
+
+it("exposes every official Pocket language and all 27 presets without an English-only subset", () => {
+  expect(pocketLanguages.map((language) => language.model)).toEqual([
+    "english",
+    "french",
+    "german",
+    "portuguese",
+    "italian",
+    "spanish",
+    "dutch",
+  ]);
+  expect(pocketVoices).toHaveLength(27);
+  expect(new Set(pocketVoices.map((voice) => voice.id)).size).toBe(27);
+  expect(pocketVoices.filter((voice) => voice.language === "en")).toHaveLength(21);
+  for (const voice of pocketVoices) {
+    expect(
+      SpeechSettingsSchema.safeParse({ mode: "narration", engine: "pocket-tts", voice: voice.id })
+        .success,
+    ).toBe(true);
+    expect(pocketLanguageForVoice(voice.id)?.id).toBe(voice.language);
+    for (const language of pocketLanguages) {
+      expect(
+        SpeechSettingsSchema.safeParse({
+          mode: "narration",
+          engine: "pocket-tts",
+          voice: voice.id,
+          language: language.id,
+        }).success,
+      ).toBe(true);
+      expect(pocketLanguageForVoice(voice.id, language.id)?.model).toBe(language.model);
+    }
+  }
+  expect(pocketLanguageForVoice("unknown")).toBeUndefined();
 });

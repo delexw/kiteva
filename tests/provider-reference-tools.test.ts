@@ -102,7 +102,7 @@ it.each(["claude", "codex"] as const)(
       ]);
       expect(options.strictMcpConfig).toBe(true);
       expect(options.settingSources).toEqual([]);
-      expect(options.tools).toEqual(["Read", "Glob", "Grep"]);
+      expect(options.tools).toEqual(["Read", "Glob", "Grep", "Skill"]);
       expect(await options.canUseTool("Bash", {})).toMatchObject({ behavior: "deny" });
       expect(
         await options.canUseTool("mcp__reference_browser__capture_screenshot", {}),

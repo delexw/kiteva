@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import os from "node:os";
@@ -8,6 +8,7 @@ import {
   anatomySkillPath,
   bundledSkillsGuidance,
   prepareBundledSkills,
+  claudeBundledSkills,
 } from "../src/server/agents/bundled-skills";
 
 const folders: string[] = [];
@@ -35,9 +36,37 @@ it("stages the complete pinned skill, kit, examples and license and restores edi
     ).toBe(hash);
   }
   expect(await readFile(path.join(root, "LICENSE"), "utf8")).toContain("MIT License");
+  expect(
+    JSON.parse(await readFile(path.join(workspace, ".agents/.claude-plugin/plugin.json"), "utf8")),
+  ).toEqual({ name: "bundled-authoring", version: "1.0.0", skills: ["./skills/anatomy"] });
   await writeFile(path.join(root, "SKILL.md"), "changed");
   await prepareBundledSkills(workspace, signal);
   expect(await readFile(path.join(root, "SKILL.md"), "utf8")).toContain("name: anatomy");
+});
+it("configures only the app-owned Claude plugin and disables skills for text-only tasks", () => {
+  expect(claudeBundledSkills("/job", true)).toEqual({
+    plugins: [{ type: "local", path: "/job/.agents" }],
+    skills: ["bundled-authoring:anatomy"],
+  });
+  expect(claudeBundledSkills("/job", false)).toEqual({ plugins: [], skills: [] });
+});
+it("rejects unreviewed plugin components and linked plugin metadata", async () => {
+  const workspace = await temporaryWorkspace();
+  const signal = new AbortController().signal;
+  await prepareBundledSkills(workspace, signal);
+  const hooks = path.join(workspace, ".agents/hooks");
+  await mkdir(hooks);
+  await expect(prepareBundledSkills(workspace, signal)).rejects.toThrow(
+    "Unexpected bundled plugin component: hooks",
+  );
+  await rm(hooks, { recursive: true });
+  const metadata = path.join(workspace, ".agents/.claude-plugin");
+  await rm(metadata, { recursive: true });
+  const outside = await temporaryWorkspace();
+  await symlink(outside, metadata);
+  await expect(prepareBundledSkills(workspace, signal)).rejects.toThrow(
+    "Plugin metadata must not be a link",
+  );
 });
 it("rejects links out of the workspace without writing to their targets", async () => {
   const workspace = await temporaryWorkspace();

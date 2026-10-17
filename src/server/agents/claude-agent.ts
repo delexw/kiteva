@@ -10,6 +10,7 @@ import { briefExplorationAgents } from "./brief-exploration";
 import { requireForegroundSubagent } from "./claude-subagent-policy";
 import { childEnvironment, safeMessage } from "../runtime/config";
 import type { Agent, ProviderEvent } from "./agent";
+import { claudeAnatomySkillName, claudeBundledSkills } from "./bundled-skills";
 
 export function claudeEvent(event: SDKMessage): ProviderEvent | undefined {
   if (event.type === "system" && event.subtype === "init")
@@ -147,6 +148,7 @@ export const claudeAgent: Agent = {
           abortController,
           ...(sessionId ? { resume: sessionId } : {}),
           settingSources: [],
+          ...claudeBundledSkills(workspace, !options.textOnly),
           mcpServers: {
             ...(caveman ? { caveman: { ...caveman.mcp, alwaysLoad: true } } : {}),
             ...(referenceServer
@@ -160,8 +162,14 @@ export const claudeAgent: Agent = {
           tools: options.textOnly
             ? []
             : options.readOnly
-              ? ["Read", "Glob", "Grep", ...(options.exploreBriefSections ? ["Agent"] : [])]
-              : ["Read", "Write", "Edit", "Glob", "Grep", "Bash"],
+              ? [
+                  "Read",
+                  "Glob",
+                  "Grep",
+                  "Skill",
+                  ...(options.exploreBriefSections ? ["Agent"] : []),
+                ]
+              : ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "Skill"],
           permissionMode: "acceptEdits",
           hooks: {
             PreToolUse: [{ matcher: "^(Agent|Task)$", hooks: [requireForegroundSubagent] }],
@@ -198,7 +206,13 @@ export const claudeAgent: Agent = {
       for await (const e of stream) {
         const mapped = claudeEvent(e);
         if (mapped) onEvent({ ...mapped, message: safeMessage(mapped.message) });
-        if (e.type === "system" && e.subtype === "init") sessionId = e.session_id;
+        if (e.type === "system" && e.subtype === "init") {
+          sessionId = e.session_id;
+          if (!options.textOnly && !e.skills?.includes(claudeAnatomySkillName))
+            throw Error(
+              "Claude did not load the bundled Anatomy skill. No generation can proceed with this session.",
+            );
+        }
         if (e.type === "system" && e.subtype === "api_retry") terminalAssistantError = undefined;
         if (e.type === "assistant" && e.parent_tool_use_id == null)
           terminalAssistantError = e.error;

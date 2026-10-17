@@ -38,6 +38,29 @@ vi.mock("@openai/codex-sdk", () => ({
 import { agentTurn } from "../src/server/agents/providers";
 import { anatomySkillPath } from "../src/server/agents/bundled-skills";
 
+it("stops a Claude turn if the native skill was not discovered at startup", async () => {
+  sdk.query.mockImplementation(async function* () {
+    yield { type: "system", subtype: "init", session_id: "missing-skill", skills: [] };
+    throw Error("The turn must stop before this point");
+  });
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "missing-native-skill-"));
+  try {
+    await expect(
+      agentTurn({
+        provider: "claude",
+        workspace,
+        readOnly: true,
+        schema: z.object({ ok: z.boolean() }),
+        prompt: "Review a scene",
+        signal: new AbortController().signal,
+        onEvent: vi.fn(),
+      }),
+    ).rejects.toThrow("Claude did not load the bundled Anatomy skill");
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
+  }
+});
+
 it.each(["claude", "codex"] as const)(
   "makes the local skill readable to %s without global settings or extra tools",
   async (provider) => {
@@ -74,7 +97,18 @@ it.each(["claude", "codex"] as const)(
       expect(prompt).toContain(`${anatomySkillPath}/SKILL.md`);
       if (provider === "claude") {
         expect(sdk.query.mock.calls.at(-1)![0].options.settingSources).toEqual([]);
-        expect(sdk.query.mock.calls.at(-1)![0].options.tools).toEqual(["Read", "Glob", "Grep"]);
+        expect(sdk.query.mock.calls.at(-1)![0].options.tools).toEqual([
+          "Read",
+          "Glob",
+          "Grep",
+          "Skill",
+        ]);
+        expect(sdk.query.mock.calls.at(-1)![0].options.plugins).toEqual([
+          { type: "local", path: path.join(workspace, ".agents") },
+        ]);
+        expect(sdk.query.mock.calls.at(-1)![0].options.skills).toEqual([
+          "bundled-authoring:anatomy",
+        ]);
       } else expect(sdk.construct.mock.calls.at(-1)![0].config.project_doc_max_bytes).toBe(0);
       const textWorkspace = path.join(workspace, "text-only");
       await agentTurn({ ...options, workspace: textWorkspace, textOnly: true });
@@ -86,6 +120,10 @@ it.each(["claude", "codex"] as const)(
           ? sdk.query.mock.calls.at(-1)![0].options.systemPrompt
           : sdk.stream.mock.calls.at(-1)![0];
       expect(textPrompt).not.toContain("BUNDLED AUTHORING SKILL");
+      if (provider === "claude") {
+        expect(sdk.query.mock.calls.at(-1)![0].options.skills).toEqual([]);
+        expect(sdk.query.mock.calls.at(-1)![0].options.plugins).toEqual([]);
+      }
     } finally {
       await rm(workspace, { recursive: true, force: true });
     }

@@ -57,7 +57,12 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
   "uses the shared agent contract for $provider and retains resumed session metadata",
   async (agent) => {
     sdk.query.mockImplementation(async function* () {
-      yield { type: "system", subtype: "init", session_id: "resumed-session" };
+      yield {
+        type: "system",
+        subtype: "init",
+        skills: ["bundled-authoring:anatomy"],
+        session_id: "resumed-session",
+      };
       yield {
         type: "result",
         subtype: "success",
@@ -410,12 +415,22 @@ function claudeFailedResult(subtype = "error_during_execution") {
   };
 }
 async function* claudeOverloadFailure() {
-  yield { type: "system", subtype: "init", session_id: "claude-direction" };
+  yield {
+    type: "system",
+    subtype: "init",
+    skills: ["bundled-authoring:anatomy"],
+    session_id: "claude-direction",
+  };
   yield claudeAssistantError("overloaded");
   yield claudeFailedResult();
 }
 async function* claudeRecoveredTurn() {
-  yield { type: "system", subtype: "init", session_id: "claude-direction" };
+  yield {
+    type: "system",
+    subtype: "init",
+    skills: ["bundled-authoring:anatomy"],
+    session_id: "claude-direction",
+  };
   yield {
     type: "result",
     subtype: "success",
@@ -536,7 +551,12 @@ it("captures a structured Claude overload even if the SDK subsequently exits wit
   sdk.query
     .mockReset()
     .mockImplementationOnce(async function* () {
-      yield { type: "system", subtype: "init", session_id: "claude-direction" };
+      yield {
+        type: "system",
+        subtype: "init",
+        skills: ["bundled-authoring:anatomy"],
+        session_id: "claude-direction",
+      };
       yield claudeAssistantError("overloaded");
       throw Error("Subprocess exited");
     })

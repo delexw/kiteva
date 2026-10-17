@@ -59,9 +59,12 @@ Native SDK processes run outside the browser, use restricted job workspaces and 
 The isolated Codex runtime reuses authentication and model/cloud cache metadata, but not user plugins, hooks, skills, or MCP settings. Its sessions remain under `.data/runtime`. Source ZIPs exclude dependencies, renders, and SDK state. Generated-code exports run inside a macOS sandbox with a separate render home, no provider environment credentials, denied credential/configuration paths, restricted filesystem writes, and local-only network access. Existing browser binaries are reused; set `VIDEO_BROWSER_PATH` when needed. Cancellation aborts the native session and renderer process group. Restart marks unfinished jobs interrupted, except builds waiting for an answer, and retains completed artifacts for explicit retry.
 
 Kiteva separately supplies its reviewed, pinned Anatomy bundle to each file-enabled
-provider workspace at `.agents/skills/anatomy`. Claude and Codex receive explicit
-instructions to read it when appropriate; this does not enable global skill or
-plugin discovery. It is an optional illustration/3D authoring kit, independent of
+provider workspace at `.agents/skills/anatomy`. Claude loads that directory as
+an explicit local plugin, enables only `bundled-authoring:anatomy` with the SDK's
+`skills` option, and invokes it through the native `Skill` tool. Kiteva checks
+Claude's startup skill list and fails the turn if it was not discovered. Codex
+receives explicit instructions to read the same local files when appropriate.
+Neither path enables global skill or plugin discovery. It is an optional illustration/3D authoring kit, independent of
 styles and renderers. Video implementations must replace its interactive example
 loops with absolute timeline poses and verify repeatable seeks. See the
 [bundled skills and renderer list](../README.md#bundled-authoring-skills-and-renderers)

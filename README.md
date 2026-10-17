@@ -67,8 +67,11 @@ Before each file-enabled Claude or Codex turn, Kiteva checks and copies the bund
 to `.agents/skills/anatomy` inside that turn's workspace. Both providers receive
 the same explicit reading instructions, including during read-only review;
 text-only extraction gets no skill files or instructions. User-global skills,
-plugins and SDK settings remain disabled. No provider-specific `Skill(...)`
-call is required. Anatomy is selected when suitable or explicitly requested,
+plugins and SDK settings remain disabled. Claude explicitly loads an app-owned
+local plugin from the workspace's `.agents` directory, enables only
+`bundled-authoring:anatomy` through the SDK's `skills` option, and includes the
+native `Skill` tool. Its startup event must confirm the skill loaded or Kiteva
+stops the turn. Codex reads the same files through its coding tools. Anatomy is selected when suitable or explicitly requested,
 and is not required for every 3D scene or linked to individual styles.
 
 | Renderer    | How Anatomy fits                                                                                                  |

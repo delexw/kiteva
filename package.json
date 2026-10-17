@@ -62,7 +62,7 @@
     "micromark-extension-gfm": "^3.0.0",
     "minisearch": "7.2.0",
     "motion": "latest",
-    "multiplane": "0.3.6",
+    "multiplane": "0.3.8",
     "nanoid": "^6.0.2",
     "paper": "latest",
     "pdf-parse": "latest",

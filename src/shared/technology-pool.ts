@@ -66,7 +66,7 @@ export const technologyPool = {
     style_application:
       "Draw the selected style's visual and motion layers inside #stage from time t alone; the renderer adds sampling and encoding only.",
     selection_guidance:
-      "Use only when the project's renderer setting is the Multiplane trial. Pinned to multiplane 0.3.6 in the app package, sharing the app's Three.js. Do not mix with HyperFrames or Remotion APIs, CSS animations, timers or media playback. One local audio file at most, passed by the app.",
+      "Use only when the project's renderer setting is the Multiplane trial. Pinned to multiplane 0.3.8 in the app package, sharing the app's Three.js. Do not mix with HyperFrames or Remotion APIs, CSS animations, timers or media playback. One local audio file at most, passed by the app.",
     priority: "trial",
     production_roles: ["render_pipeline"],
     role: "composition_and_export_pipeline",

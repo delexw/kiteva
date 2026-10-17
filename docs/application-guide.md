@@ -58,6 +58,15 @@ Native SDK processes run outside the browser, use restricted job workspaces and 
 
 The isolated Codex runtime reuses authentication and model/cloud cache metadata, but not user plugins, hooks, skills, or MCP settings. Its sessions remain under `.data/runtime`. Source ZIPs exclude dependencies, renders, and SDK state. Generated-code exports run inside a macOS sandbox with a separate render home, no provider environment credentials, denied credential/configuration paths, restricted filesystem writes, and local-only network access. Existing browser binaries are reused; set `VIDEO_BROWSER_PATH` when needed. Cancellation aborts the native session and renderer process group. Restart marks unfinished jobs interrupted, except builds waiting for an answer, and retains completed artifacts for explicit retry.
 
+Kiteva separately supplies its reviewed, pinned Anatomy bundle to each file-enabled
+provider workspace at `.agents/skills/anatomy`. Claude and Codex receive explicit
+instructions to read it when appropriate; this does not enable global skill or
+plugin discovery. It is an optional illustration/3D authoring kit, independent of
+styles and renderers. Video implementations must replace its interactive example
+loops with absolute timeline poses and verify repeatable seeks. See the
+[bundled skills and renderer list](../README.md#bundled-authoring-skills-and-renderers)
+for the revision, license, compatibility and update procedure.
+
 ## Checks
 
 ```sh
@@ -185,3 +194,20 @@ Claude uses the same bounded app-level capacity backoff only after a top-level a
 Governance retains raw SDK usage events and computes costs when reading them. The installed Codex exec runtime reports cumulative thread token counters on resumed `turn.completed` events, despite the SDK's per-turn type description. Codex usage is therefore differenced by session before attribution to planning, generation or repair; shared sessions spanning jobs or model changes retain their baseline. New events explicitly carry `usageScope: "session"`; historical Codex events with a known session use the same verified semantics, and explicitly marked `usageScope: "turn"` events are summed directly. Counter decreases are treated as resets; missing fields preserve their prior baseline. Missing session identities are marked as incomplete history and are not combined into a guessed session. Costs price only the incremental uncached input, cache reads/writes and output. Caveman estimates are not deducted again. This recomputes historical reports without rewriting raw events.
 
 JEV preference history is derived locally from retained structured project records, without a summary-model call or separate preference database. A completed preview followed by a full-build job records positive selection intent even if the full build fails; retries and fine-tunes do not create extra votes. The source includes bounded subject/audience/objective, selected style IDs/rationale/preview description, verbatim saved fine-tuning requests, duration/format and creation date. Raw prompts, URLs, files and activity logs are excluded. MiniSearch retrieves related subject/objective records within the same output type, excluding the current project and audience-only overlap. At most four records (two per project, 8,000 serialized characters total) enter the existing JEV evaluation request and its recorded Governance prompt. JEV scores a separate `preferenceFit` dimension under explicit non-instructional guidance; unchosen directions and regeneration are never treated as dislike. Preference fit is capped at 20% in Follow my brief (context mode) or 5% in Explore creative ideas (creative mode), scaled down below three distinct related projects. With no matching history, evaluation and weights are unchanged. Existing hard constraints and feasibility still exclude invalid candidates. User-selected styles continue to skip JEV entirely. Existing completed selection checkpoints are reused; history applies to fresh evaluations.
+
+## Server subworkflows
+
+`src/server/jobs/workflow.ts` coordinates jobs. Reusable subworkflows live in `src/server/jobs/subworkflows`, with one TypeScript entry point per workflow:
+
+- `website-capture.ts`: records a validated headless page using the bundled Puppeteer screencast API, with 120-second/150-MB take limits and cancellation cleanup. Successful silent WebM files pass stream probing and full decode checks before publishing; timed viewport cursor coordinates accompany each take.
+- `website-reference.ts`: owns an isolated headless browser session, rendered-content readiness, inspection, navigation and screenshot capture. The external application remains URL-only and outside the project workspace. Blank pages fail before screenshots enter the asset inventory; recent JavaScript/resource failures accompany the error. Inspection and screenshots share the session. Recording shares this same session through `website-capture.ts`.
+- `brief-asset-review.ts`: reviews reference coverage and scene usage, with focused brief repairs.
+- `result-review.ts`: reviews finished page/video output using the application's validation artifacts.
+
+Low-level validated HTTP fetching remains in `requests/reference-resource.ts`. All resources, local or public, share a 32 MB per-resource ceiling and an 80 MB total session budget, counted incrementally as bytes arrive rather than after requests finish. These limits apply to concurrent downloads and do not depend on MIME labels. DNS validation, allowed navigation origins and read-only request policy remain enforced. Font and visible-content readiness waits are bounded and report failures. No personal browser or visible window is used.
+
+### Built-in website capture
+
+Website recording is an agent capability, independent of the style technology pool. Both Claude and Codex receive `capture_video` during video implementation when Websites inputs exist. Preparation stays read-only and uses inspection/screenshots; it does not record or generate a film. The implementation agent inspects a supplied URL, starts capture, uses `click_control`, `fill_control`, `scroll_page` and `wait_for_view` in the same fresh headless session, then stops with its recording ID. There is no visible browser or external desktop recorder to install. Six takes are allowed per job workspace, each up to 120 seconds and 150 MB. Stop remains available after the interaction budget is exhausted.
+
+Validated footage and cursor JSON live under the job's `assets/`; `reference-videos.json` records source URL, duration, dimensions and asset paths. These are ordinary local production inputs. Captures are silent; project music/speech remains separate. HyperFrames/Remotion can use local video. Multiplane requires a verified deterministic frame adapter; the agent must surface an unsupported renderer decision rather than silently substitute animated UI. Read-only HTTP, DNS pinning and resource budgets apply to local and public sites alike. Only non-sensitive mock text may be entered; authenticated or real server mutations remain unavailable.

@@ -1,3 +1,7 @@
+vi.mock("../src/server/agents/bundled-skills", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/server/agents/bundled-skills")>()),
+  prepareBundledSkills: vi.fn(),
+}));
 import { expect, it, vi } from "vitest";
 vi.mock("../src/server/agents/caveman", () => ({
   cavemanSettings: () => ({ enabled: false }),

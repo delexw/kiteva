@@ -19,6 +19,7 @@ import type { Agent, AgentTurnOptions, ProviderEvent } from "./agent";
 import { cavemanSettings } from "./caveman";
 import { claudeAgent } from "./claude-agent";
 import { codexAgent } from "./codex-agent";
+import { bundledSkillsGuidance, prepareBundledSkills } from "./bundled-skills";
 export type { ProviderEvent, AgentTurnOptions, Agent } from "./agent";
 export { claudeEvent } from "./claude-agent";
 export { codexEvent } from "./codex-agent";
@@ -76,6 +77,7 @@ async function agentTurnAttempt<T>(
   options: AgentTurnOptions<T>,
 ): Promise<{ value: T; sessionId?: string }> {
   const { provider, workspace, schema, signal } = options;
+  if (!options.textOnly) await prepareBundledSkills(workspace, signal);
   let prompt = options.prompt;
   const invocationId = randomUUID();
   if (options.promptContext !== undefined) {
@@ -146,6 +148,8 @@ async function agentTurnAttempt<T>(
       contentRevealRule +
       " " +
       videoPacingSystemGuidance +
+      " " +
+      bundledSkillsGuidance +
       referenceInstruction;
   const systemPrompt =
     baseSystemPrompt +

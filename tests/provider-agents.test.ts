@@ -1,3 +1,7 @@
+vi.mock("../src/server/agents/bundled-skills", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/server/agents/bundled-skills")>()),
+  prepareBundledSkills: vi.fn(),
+}));
 import { afterEach, expect, it, vi } from "vitest";
 vi.mock("../src/server/agents/caveman", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../src/server/agents/caveman")>()),

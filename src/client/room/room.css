@@ -50,6 +50,8 @@
 .room-brand img {
   width: 26px;
   height: 26px;
+  /* Center the kite body with the text while its tail hangs below. */
+  transform: translateY(4px);
 }
 .room-brand span {
   font-size: 12px;

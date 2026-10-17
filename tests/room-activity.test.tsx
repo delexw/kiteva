@@ -44,7 +44,7 @@ it("shows an explicit neutral icon for updates without inventing a successful ou
     id: 1,
     scope: "project",
     kind: "notice" as const,
-    text: "Creating your video…",
+    text: "Rendering your video…",
     time: "2026-01-01T10:00:00Z",
   };
   const update = roomActivityStep(base);
@@ -69,7 +69,7 @@ it("keeps live work to one line above the tabs, with the crew on set", () => {
   expect(html).toContain('role="status"');
   expect(html).toContain("manga-crew-director");
   expect(html).toContain("Preview · Paper city");
-  expect(html).toContain("Creating your video…");
+  expect(html).toContain("Rendering your video…");
   expect(html).toMatch(/<button[^>]*>.*See activity/);
   expect(
     renderToStaticMarkup(

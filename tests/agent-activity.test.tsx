@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ActivityRow, AgentActivity, ProgressDisclosure } from "../src/client/agent-activity";
-import { activityItems, mergeProgressItems } from "../src/client/agent-activity-model";
+import {
+  activityItems,
+  customerToolActivity,
+  mergeProgressItems,
+} from "../src/client/agent-activity-model";
 import type { AgentProgressEvent } from "../src/shared/contracts";
 function event(
   id: number,
@@ -187,7 +191,7 @@ it("shows customer actions without commands, tool results, paths or export promo
   );
   expect(html).toContain("Reading project content…");
   expect(html).toContain("Updating the design…");
-  expect(html).toContain("Creating your video…");
+  expect(html).toContain("Rendering your video…");
   expect(html).toContain("Refining the scene.");
   for (const hidden of [
     "/Users/",
@@ -374,4 +378,194 @@ it("does not apply one invocation's tool completion or usage to another invocati
     event(4, "usage", "done", "a", { invocationId: "one" }),
   ]);
   expect(items.map((item) => item.status)).toEqual(["failed", "running"]);
+});
+
+it.each([
+  [
+    "Motion Graphic information extraction",
+    "Understanding Motion Graphics…",
+    "Recording Motion Graphic details…",
+  ],
+  [
+    "Motion Graphic combination proposals",
+    "Exploring Motion Graphic combinations…",
+    "Saving proposed combinations…",
+  ],
+  ["Combination evaluation", "Comparing creative directions…", "Recording direction choices…"],
+  ["Lyrics generation", "Writing your on-screen text…", "Saving your on-screen text…"],
+  ["Preview video planning", "Planning your preview…", "Saving the preview plan…"],
+  ["preview video generation", "Building your video preview…", "Recording preview details…"],
+  ["full video generation", "Building your full video…", "Recording video details…"],
+  ["preview HTML generation", "Building your page preview…", "Recording page preview details…"],
+  ["full HTML generation", "Building your full page…", "Recording page details…"],
+  ["Result quality review", "Reviewing your finished result…", "Recording result review findings…"],
+  ["layout correction", "Adjusting the layout…", "Recording layout changes…"],
+  ["contrast correction", "Improving readability…", "Recording readability changes…"],
+  ["technical correction", "Fixing playback issues…", "Recording playback fixes…"],
+  ["pacing correction", "Refining the story timing…", "Recording timing changes…"],
+  ["style correction", "Refining the Motion Graphics…", "Recording Motion Graphic changes…"],
+])("labels %s by task instead of raw tool actions", (purpose, working, saving) => {
+  for (const toolName of ["Read", "Bash", "Write", "mcp__internal__private_tool"])
+    expect(customerToolActivity(toolName, "tool", purpose)).toBe(working);
+  expect(customerToolActivity("StructuredOutput", "tool", purpose)).toBe(saving);
+  const metadata = { purpose, invocationId: "invocation-a", audience: "internal" };
+  const events = [
+    event(1, "tool", "Read private-file.txt", "a", {
+      ...metadata,
+      toolName: "Read",
+      itemId: "read",
+    }),
+    event(2, "tool_result", "private tool output", "a", {
+      ...metadata,
+      results: [{ itemId: "read", failed: false, output: "private findings" }],
+    }),
+    event(3, "tool", "StructuredOutput", "a", {
+      ...metadata,
+      toolName: "StructuredOutput",
+      itemId: "save",
+    }),
+    event(4, "reasoning", "private reasoning", "a", metadata),
+    event(5, "agent_message", "private prompt and progress", "a", metadata),
+  ];
+  expect(activityItems(events).map((item) => [item.text, item.status])).toEqual([
+    [working, "complete"],
+    [saving, "running"],
+  ]);
+  const html = renderToStaticMarkup(<AgentActivity events={events} />);
+  expect(html).toContain(working);
+  expect(html).toContain(saving);
+  expect(html).not.toMatch(/private|StructuredOutput|Finalizing|Reading project content/);
+});
+
+it("keeps Motion Graphic extraction, proposals and separate model calls distinct", () => {
+  const tasks = [
+    ["Motion Graphic information extraction", "one"],
+    ["Motion Graphic information extraction", "one"],
+    ["Motion Graphic information extraction", "two"],
+    ["Motion Graphic combination proposals", "three"],
+    ["Combination evaluation", "four"],
+  ];
+  const items = activityItems(
+    tasks.map(([purpose, invocationId], index) =>
+      event(index + 1, "tool", "private", "a", {
+        purpose,
+        invocationId,
+        toolName: "Read",
+        itemId: String(index),
+      }),
+    ),
+  );
+  expect(items.map((item) => [item.text, item.repetitions])).toEqual([
+    ["Understanding Motion Graphics…", 2],
+    ["Understanding Motion Graphics…", undefined],
+    ["Exploring Motion Graphic combinations…", undefined],
+    ["Comparing creative directions…", undefined],
+  ]);
+  expect(customerToolActivity("mcp__reference_browser__inspect_page", "tool", tasks[0][0])).toBe(
+    "Exploring your website reference…",
+  );
+  expect(
+    customerToolActivity("mcp__reference_browser__capture_screenshot", "tool", tasks[0][0]),
+  ).toBe("Capturing your website reference…");
+  expect(customerToolActivity("Read", "tool", "private unknown task")).toBe(
+    "Reading project content…",
+  );
+});
+
+it.each([
+  ["capture_video", "Recording your website reference…"],
+  ["wait_for_view", "Waiting for the website view…"],
+  ["fill_control", "Exploring your website reference…"],
+  ["scroll_page", "Exploring your website reference…"],
+])("labels website %s separately from generation", (toolName, label) => {
+  const events = [
+    event(1, "tool", "private parameters and output", "a", {
+      purpose: "full video generation",
+      invocationId: "video",
+      audience: "internal",
+      toolName: `mcp__reference_browser__${toolName}`,
+      itemId: "website",
+    }),
+  ];
+  expect(activityItems(events)[0]).toMatchObject({ text: label, status: "running" });
+  const html = renderToStaticMarkup(<AgentActivity events={events} />);
+  expect(html).toContain(label);
+  expect(html).not.toMatch(/private|mcp__|parameters|output/);
+});
+
+it("shows rendering, audio, final review and viewing copies as distinct stages without frame counts", () => {
+  const events = [
+    event(1, "phase", "Rendering validated composition"),
+    ...Array.from({ length: 154 }, (_, index) =>
+      event(index + 2, "render_progress", `private renderer output ${index}`),
+    ),
+    event(156, "phase", "Mixing voice and music…"),
+    event(157, "result_review", "Checking your finished result…"),
+    event(158, "tool", "private", "a", {
+      toolName: "Read",
+      purpose: "Result quality review",
+      invocationId: "review",
+      itemId: "read",
+    }),
+    event(159, "tool", "private", "a", {
+      toolName: "StructuredOutput",
+      purpose: "Result quality review",
+      invocationId: "review",
+      itemId: "save",
+    }),
+    event(160, "preview_ready", "Full video ready"),
+    event(161, "phase", "Making the 720p viewing copy and card clip; the MP4 download is ready"),
+    ...Array.from({ length: 9 }, (_, index) =>
+      event(index + 162, "render_progress", `720p viewing copy ${index * 10}%`),
+    ),
+    event(
+      171,
+      "validation",
+      "720p viewing copy and card clip checked against the MP4 (private diagnostics)",
+    ),
+  ];
+  const items = activityItems(events);
+  expect(items.map((item) => item.text)).toEqual([
+    "Rendering your video…",
+    "Mixing your audio…",
+    "Starting the final review…",
+    "Reviewing your finished result…",
+    "Recording result review findings…",
+    "Full video ready",
+    "Preparing viewing copies…",
+    "Viewing copies checked",
+  ]);
+  expect(items.every((item) => item.repetitions === undefined)).toBe(true);
+  expect(items.map((item) => item.text).join(" ")).not.toMatch(/\d+%/);
+  const html = renderToStaticMarkup(<AgentActivity events={events} />);
+  expect(html).not.toMatch(
+    /private|renderer output|154|720p|Preview ready|Preparing your finished project/,
+  );
+});
+
+it("keeps rendering passes, jobs and validation outcomes distinct", () => {
+  const items = activityItems([
+    event(1, "validation", "Checking composition, seekable motion, layout, and contrast"),
+    event(2, "validation", "Composition, layout, motion, and contrast checks passed"),
+    event(3, "phase", "Rendering the Multiplane shot"),
+    event(4, "render_progress", "private first frame"),
+    event(5, "render_progress", "private other job", "b"),
+    event(6, "validation", "private findings"),
+    event(7, "render_progress", "private retry frame"),
+    event(8, "preview_ready", "Preview ready"),
+    event(9, "preview_ready", "Interactive preview ready"),
+  ]);
+  expect(items.map((item) => item.text)).toEqual([
+    "Checking the design and playback…",
+    "Design checks complete",
+    "Rendering your video…",
+    "Rendering your video…",
+    "Checking the design and playback…",
+    "Rendering your video…",
+    "Preview ready",
+    "Interactive preview ready",
+  ]);
+  expect(items[2].jobId).toBe("a");
+  expect(items[3].jobId).toBe("b");
+  expect(items.every((item) => item.status === undefined)).toBe(true);
 });

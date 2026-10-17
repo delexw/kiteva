@@ -14,10 +14,10 @@ it("hides internal selection narration and keeps useful creative progress", () =
       runId: "project",
       type: "ranking",
       time: "2026-10-11T00:00:00Z",
-      message: "Shortlisted 12 styles with jev-latest",
+      message: "Shortlisted 12 Motion Graphics with jev-latest",
     },
   ]);
-  expect(items[0]?.text).toBe("Finding visual styles for your idea…");
+  expect(items[0]?.text).toBe("Finding visual Motion Graphics for your idea…");
 });
 it("never exposes unknown SDK diagnostics or error codes", () => {
   for (const diagnostic of [

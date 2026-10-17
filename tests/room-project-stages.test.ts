@@ -185,7 +185,7 @@ it("keeps finished rounds finished while the new round prepares or waits for a p
     "success",
     "loading",
   ]);
-  expect(contexts[3].summary).toBe("Finding visual styles for your idea…");
+  expect(contexts[3].summary).toBe("Finding visual Motion Graphics for your idea…");
   const waiting = roomActivityContexts(
     { ...preparing, phase: "ready", inputWaits: [{ checkpoint: "generate" }] },
     events,

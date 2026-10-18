@@ -28,6 +28,9 @@
 
 ## 最近更新
 
+<details>
+<summary>展开更新记录</summary>
+
 以下日期采用新西兰时间，更新通过 `main` 分支发布。
 
 ### 2026-10-18
@@ -46,6 +49,8 @@
 - 扩充至 **136 种 Motion Graphic、46 种 motion**，更新动画预览和 Motion Graphic 摘要缓存，并将 [Multiplane](https://github.com/LBEILC/Multiplane) 升级至 **0.3.10**。
 - Activity 日志按任务显示具体动作，区分准备、审阅和修复，任务内的更新增加缩进；继续隐藏原始内部内容。
 - 新增旁白自动响度匹配和音量控制，简化 Speech / vocals 设置，并通过 Claude SDK 注册随仓库提供的技能。
+
+</details>
 
 ## 为什么会有它
 

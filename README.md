@@ -28,6 +28,9 @@
 
 ## Recent updates
 
+<details>
+<summary>Show update history</summary>
+
 Dates below use New Zealand time. Updates are released through the `main` branch.
 
 ### 2026-10-18
@@ -46,6 +49,8 @@ Dates below use New Zealand time. Updates are released through the `main` branch
 - Made Activity labels specific to each task, separated preparation, review and repair, and indented updates under their task. Raw internal content stays hidden.
 - Anatomy is now installed or updated at launch, with verified offline fallback; upstream skill files are no longer bundled.
 - Added automatic narration loudness matching and a volume control, simplified Speech / vocals settings, and registered bundled skills through the Claude SDK.
+
+</details>
 
 ## Why this exists
 

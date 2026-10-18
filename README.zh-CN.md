@@ -28,12 +28,10 @@
 
 ## 最近更新
 
-<details>
-<summary>展开更新记录</summary>
-
 以下日期采用新西兰时间，更新通过 `main` 分支发布。
 
-### 2026-10-18
+<details>
+<summary>2026-10-18</summary>
 
 - 新增 **English / 简体中文视频语言**，支持翻译旁白和歌词并保留原文，接入独立的中文 Pocket TTS 后端；助手中的 Music 与 Narration / lyrics 分开设置。
 - Anatomy 改为启动时安装或更新，离线时保留已校验版本，不再在源码中打包上游文件。
@@ -44,7 +42,10 @@
 - 发布中英文 README、由 Kiteva 自己制作的介绍短片、桌面与 Storyboard 截图、架构图，以及技术清单和费用说明。
 - 补充贡献指南和[非商业许可](LICENSE)。
 
-### 2026-10-17
+</details>
+
+<details>
+<summary>2026-10-17</summary>
 
 - 扩充至 **136 种 Motion Graphic、46 种 motion**，更新动画预览和 Motion Graphic 摘要缓存，并将 [Multiplane](https://github.com/LBEILC/Multiplane) 升级至 **0.3.10**。
 - Activity 日志按任务显示具体动作，区分准备、审阅和修复，任务内的更新增加缩进；继续隐藏原始内部内容。

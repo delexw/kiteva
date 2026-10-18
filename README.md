@@ -28,12 +28,10 @@
 
 ## Recent updates
 
-<details>
-<summary>Show update history</summary>
-
 Dates below use New Zealand time. Updates are released through the `main` branch.
 
-### 2026-10-18
+<details>
+<summary>2026-10-18</summary>
 
 - Added **English / 简体中文 video language**, translated narration and lyrics with preserved originals, and a separate Chinese Pocket TTS provider. Music and Narration / lyrics now have separate Assistant steps.
 - Added **Cassette Futurism**: hardware panels, phosphor screens, tape reels and stepped animation, with a rendered preview. The collection now has **137 Motion Graphics**.
@@ -43,7 +41,10 @@ Dates below use New Zealand time. Updates are released through the `main` branch
 - Published English and Chinese READMEs, a Kiteva-made introduction film, desktop and Storyboard screenshots, architecture diagrams, and technology and cost documentation.
 - Added contribution guidance and the [non-commercial license](LICENSE).
 
-### 2026-10-17
+</details>
+
+<details>
+<summary>2026-10-17</summary>
 
 - Expanded the collection to **136 Motion Graphics and 46 motions**, refreshed animated previews and cached Motion Graphic summaries, and upgraded [Multiplane](https://github.com/LBEILC/Multiplane) to **0.3.10**.
 - Made Activity labels specific to each task, separated preparation, review and repair, and indented updates under their task. Raw internal content stays hidden.

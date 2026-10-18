@@ -46,9 +46,7 @@
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
             "selection_guidance": "Use HyperFrames by default. Fall back to Remotion only when the documented fallback condition is met, and record the reason. Do not mix framework APIs.",
             "priority": "primary",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           },
           {
@@ -67,9 +65,7 @@
             "optional": false,
             "docs_url": "https://threejs.org/docs/",
             "style_application": "Sharp silhouettes with a black-to-red-to-orange-to-cream heat ramp, cool narrow extremities and authored hotspots. Distinguish thermal illustration from measured temperature data.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "GLSL",
@@ -77,20 +73,11 @@
             "package": null,
             "runtime": "GPU shader, hosted by browser renderer",
             "purpose": "Write vertex and fragment shaders with uniforms for time, resolution, color, and textures.",
-            "suggested_apis": [
-              "smoothstep",
-              "mix",
-              "texture",
-              "vertex shader",
-              "fragment shader"
-            ],
+            "suggested_apis": ["smoothstep", "mix", "texture", "vertex shader", "fragment shader"],
             "optional": false,
             "docs_url": "https://threejs.org/docs/pages/ShaderMaterial.html",
             "style_application": "Sharp silhouettes with a black-to-red-to-orange-to-cream heat ramp, cool narrow extremities and authored hotspots. Distinguish thermal illustration from measured temperature data.",
-            "production_roles": [
-              "style_renderer",
-              "motion_engine"
-            ]
+            "production_roles": ["style_renderer", "motion_engine"]
           },
           {
             "name": "GSAP",
@@ -98,18 +85,11 @@
             "package": "gsap",
             "runtime": "browser",
             "purpose": "Coordinate tweens, staggered actions, and a paused, seekable timeline driven by deterministic video time.",
-            "suggested_apis": [
-              "gsap.timeline",
-              "gsap.to",
-              "stagger",
-              "timeline.seek"
-            ],
+            "suggested_apis": ["gsap.timeline", "gsap.to", "stagger", "timeline.seek"],
             "optional": false,
             "docs_url": "https://gsap.com/docs/v3/",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "motion_engine"
-            ]
+            "production_roles": ["motion_engine"]
           },
           {
             "name": "chroma.js",
@@ -132,9 +112,7 @@
             "optional": true,
             "docs_url": "https://gka.github.io/chroma.js/",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "supporting_tool"
-            ]
+            "production_roles": ["supporting_tool"]
           },
           {
             "name": "Canvas 2D",
@@ -152,9 +130,7 @@
             "optional": false,
             "docs_url": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "Remotion",
@@ -175,17 +151,12 @@
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
             "priority": "fallback",
             "selection_guidance": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           }
         ],
         "implementation": "Three.js WebGLRenderer with an orthographic fullscreen quad and a ShaderMaterial, cleared to opaque #080808.\n\nCanvas 2D rasterizes the authored sharp silhouette (head profile) once into a mask CanvasTexture, plus a blurred distance-like copy for interior falloff. The fragment shader computes heat as:\n- the interior falloff (core warmer than edges),\n- plus authored Gaussian hotspots (uniform arrays: position, radius, intensity),\n- minus cooling at narrow extremities (nose, ears) from a thinness term,\n- plus slow seeded value-noise shimmer evaluated from uTime.\n\nHeat is mapped through a 4-stop ramp texture (1D DataTexture) precomputed with chroma.scale(['#080808','#C82E20','#F07C30','#FFF1D5']).mode('lab'). The ramp applies only inside the silhouette mask, and edges stay sharp via the hard mask alpha.\n\nGSAP tweens a uniform-state object (hotspot intensities, warm-up progress, uTime) on the paused registered timeline. onUpdate writes the uniforms and calls renderer.render, so seeks are exact.\n\nNo temperature scale, degrees or legend is shown: this is illustrative heat, not measured data.\n\nPreview (3 s): the silhouette warms from black through red to cream hotspots.\nFull video: alternating paper/red scenes are separate clips; the thermal clip keeps black.",
-        "alternatives": [
-          "Canvas 2D",
-          "Remotion"
-        ],
+        "alternatives": ["Canvas 2D", "Remotion"],
         "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
         "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
         "framework_selection": {
@@ -204,16 +175,11 @@
         },
         "style_renderer": {
           "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-          "recommended_stack_refs": [
-            "Three.js",
-            "GLSL"
-          ]
+          "recommended_stack_refs": ["Three.js", "GLSL"]
         },
         "motion_engine": {
           "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-          "recommended_stack_refs": [
-            "GSAP"
-          ]
+          "recommended_stack_refs": ["GSAP"]
         },
         "production_policy_ref": "production_policy",
         "technology_review": {
@@ -239,11 +205,7 @@
         "generator": {
           "library": "chroma-js",
           "version": "3.2.0",
-          "operations": [
-            "chroma.valid",
-            "chroma(color).hex()",
-            "chroma.contrast"
-          ]
+          "operations": ["chroma.valid", "chroma(color).hex()", "chroma.contrast"]
         },
         "tokens": {
           "background": "#080808",
@@ -251,12 +213,7 @@
           "accent_1": "#C82E20",
           "accent_2": "#F07C30"
         },
-        "base_colors": [
-          "#080808",
-          "#FFF1D5",
-          "#C82E20",
-          "#F07C30"
-        ],
+        "base_colors": ["#080808", "#FFF1D5", "#C82E20", "#F07C30"],
         "base_color_count": 4,
         "constraints": [
           "These hex values are authored suggestions, not previously supplied exact colors or canonical style definitions.",

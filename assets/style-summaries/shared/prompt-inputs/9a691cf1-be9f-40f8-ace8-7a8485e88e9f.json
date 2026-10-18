@@ -46,9 +46,7 @@
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
             "selection_guidance": "Use HyperFrames by default. Fall back to Remotion only when the documented fallback condition is met, and record the reason. Do not mix framework APIs.",
             "priority": "primary",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           },
           {
@@ -67,9 +65,7 @@
             "optional": false,
             "docs_url": "https://threejs.org/docs/",
             "style_application": "Use genuine 3D component geometry, section views and exploded assemblies to explain internal structure. Separate parts along meaningful axes, keep labels attached through camera motion and preserve assembly orientation. Reveal internal flow paths with semantic colors; reassemble precisely. Neutral readable staging is distinct from black barrels, red tissue, blue vessels and gold object materials.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "PBR Materials",
@@ -77,17 +73,11 @@
             "package": "three",
             "runtime": "browser via Three.js",
             "purpose": "Use physical materials and environment maps for metal, plastic, or glass.",
-            "suggested_apis": [
-              "MeshStandardMaterial",
-              "MeshPhysicalMaterial",
-              "PMREMGenerator"
-            ],
+            "suggested_apis": ["MeshStandardMaterial", "MeshPhysicalMaterial", "PMREMGenerator"],
             "optional": false,
             "docs_url": "https://threejs.org/docs/pages/MeshStandardMaterial.html",
             "style_application": "Use genuine 3D component geometry, section views and exploded assemblies to explain internal structure. Separate parts along meaningful axes, keep labels attached through camera motion and preserve assembly orientation. Reveal internal flow paths with semantic colors; reassemble precisely. Neutral readable staging is distinct from black barrels, red tissue, blue vessels and gold object materials.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "SVG",
@@ -106,9 +96,7 @@
             "optional": false,
             "docs_url": "https://developer.mozilla.org/en-US/docs/Web/SVG",
             "style_application": "Use genuine 3D component geometry, section views and exploded assemblies to explain internal structure. Separate parts along meaningful axes, keep labels attached through camera motion and preserve assembly orientation. Reveal internal flow paths with semantic colors; reassemble precisely. Neutral readable staging is distinct from black barrels, red tissue, blue vessels and gold object materials.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "GSAP",
@@ -116,18 +104,11 @@
             "package": "gsap",
             "runtime": "browser",
             "purpose": "Coordinate tweens, staggered actions, and a paused, seekable timeline driven by deterministic video time.",
-            "suggested_apis": [
-              "gsap.timeline",
-              "gsap.to",
-              "stagger",
-              "timeline.seek"
-            ],
+            "suggested_apis": ["gsap.timeline", "gsap.to", "stagger", "timeline.seek"],
             "optional": false,
             "docs_url": "https://gsap.com/docs/v3/",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "motion_engine"
-            ]
+            "production_roles": ["motion_engine"]
           },
           {
             "name": "GSAP DrawSVGPlugin",
@@ -143,9 +124,7 @@
             "optional": false,
             "docs_url": "https://gsap.com/docs/v3/Plugins/DrawSVGPlugin/",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "motion_engine"
-            ]
+            "production_roles": ["motion_engine"]
           },
           {
             "name": "chroma.js",
@@ -168,9 +147,7 @@
             "optional": true,
             "docs_url": "https://gka.github.io/chroma.js/",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "supporting_tool"
-            ]
+            "production_roles": ["supporting_tool"]
           },
           {
             "name": "Remotion",
@@ -191,17 +168,12 @@
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
             "priority": "fallback",
             "selection_guidance": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           }
         ],
         "implementation": "Stage #101820. A procedural lens mechanism in a deterministic hierarchy: housing (steel #8196A5 PBR metal), lens elements (MeshPhysicalMaterial tinted #61D4DC, transmission approximated), retaining rings and an aperture. A cutaway uses a clipping plane with localClippingEnabled plus stencil caps or explicit cut-face geometry so there are no hollow faces. An internal light path is a TubeGeometry with #628BF4 → focus #EF9F5C as discrete segments. GSAP owns part offsets along the optical axis and a calm camera arc. SVG overlay labels are reprojected each seek with Vector3.project from part anchors. Leader lines draw with DrawSVGPlugin, and anchor dots or arrowheads (data-arrowhead-for) appear only when the stroke arrives. Label text uses data-reveal-after its caption backing (#EFF4F7 on a dark local card). 3s preview: assembled 0–0.5s → axial separation and cutaway 0.5–1.5s → held labeled path 1.5–2.4s → precise reassembly by 3s. glTF parts only if authorized assets are supplied.",
-        "alternatives": [
-          "Three.js + MeshPhysicalMaterial",
-          "Remotion"
-        ],
+        "alternatives": ["Three.js + MeshPhysicalMaterial", "Remotion"],
         "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
         "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
         "framework_selection": {
@@ -219,18 +191,11 @@
         },
         "style_renderer": {
           "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-          "recommended_stack_refs": [
-            "Three.js",
-            "PBR Materials",
-            "SVG"
-          ]
+          "recommended_stack_refs": ["Three.js", "PBR Materials", "SVG"]
         },
         "motion_engine": {
           "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-          "recommended_stack_refs": [
-            "GSAP",
-            "GSAP DrawSVGPlugin"
-          ]
+          "recommended_stack_refs": ["GSAP", "GSAP DrawSVGPlugin"]
         },
         "production_policy_ref": "production_policy",
         "technology_review": {
@@ -257,11 +222,7 @@
         "generator": {
           "library": "chroma-js",
           "version": "3.2.0",
-          "operations": [
-            "chroma.valid",
-            "chroma(color).hex()",
-            "chroma.contrast"
-          ]
+          "operations": ["chroma.valid", "chroma(color).hex()", "chroma.contrast"]
         },
         "tokens": {
           "background": "#101820",
@@ -271,14 +232,7 @@
           "flow_blue": "#628BF4",
           "flow_warm": "#EF9F5C"
         },
-        "base_colors": [
-          "#101820",
-          "#EFF4F7",
-          "#8196A5",
-          "#61D4DC",
-          "#628BF4",
-          "#EF9F5C"
-        ],
+        "base_colors": ["#101820", "#EFF4F7", "#8196A5", "#61D4DC", "#628BF4", "#EF9F5C"],
         "base_color_count": 6,
         "constraints": [
           "These hex values are authored suggestions, not previously supplied exact colors or canonical style definitions.",

@@ -46,9 +46,7 @@
             "style_application": "Compose the output of the selected visual and motion layers. Supply seekable time or integrate baked assets; do not replace the style-specific rendering or motion method with framework defaults.",
             "selection_guidance": "Use HyperFrames by default. Fall back to Remotion only when the documented fallback condition is met, and record the reason. Do not mix framework APIs.",
             "priority": "primary",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           },
           {
@@ -68,9 +66,7 @@
             "optional": false,
             "docs_url": "https://developer.mozilla.org/en-US/docs/Web/SVG",
             "style_application": "Apply this tool to International Typographic Style (Swiss Style) according to visual_cues and tech.implementation.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "Canvas 2D",
@@ -88,9 +84,7 @@
             "optional": false,
             "docs_url": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
             "style_application": "Apply this tool to Mid-Century Modern according to visual_cues and tech.implementation.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "GSAP",
@@ -98,18 +92,11 @@
             "package": "gsap",
             "runtime": "browser",
             "purpose": "Coordinate tweens, staggered actions, and a paused, seekable timeline driven by deterministic video time.",
-            "suggested_apis": [
-              "gsap.timeline",
-              "gsap.to",
-              "stagger",
-              "timeline.seek"
-            ],
+            "suggested_apis": ["gsap.timeline", "gsap.to", "stagger", "timeline.seek"],
             "optional": false,
             "docs_url": "https://gsap.com/docs/v3/",
             "style_application": "Apply this tool to International Typographic Style (Swiss Style) according to visual_cues and tech.implementation.",
-            "production_roles": [
-              "motion_engine"
-            ]
+            "production_roles": ["motion_engine"]
           },
           {
             "name": "Paper.js",
@@ -164,9 +151,7 @@
             "verification": "Check contour fidelity, winding, holes, intersections, morph intermediate states, SVG round-trip appearance and output scale. Compare repeated, backward and out-of-order frame requests with sequential playback and inspect decoded video for palette fidelity, flicker and line quality.",
             "docs_url": "https://paperjs.org/reference/",
             "style_application": "Construct editable curved strokes and custom brush outlines from authored or cached points; preserve drawing character rather than automatically smoothing every stroke.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "chroma.js",
@@ -189,9 +174,7 @@
             "optional": true,
             "docs_url": "https://gka.github.io/chroma.js/",
             "style_application": "Read palette.tokens, palette.constraints and palette.agent_instruction for International Typographic Style (Swiss Style). Validate approved colors and assess readable existing token pairs with chroma-js. Use palette.gradient only when enabled and appropriate. Preserve task/reference colors exactly; optional suggested tokens are fallback inputs, not permission to recolor assets.",
-            "production_roles": [
-              "supporting_tool"
-            ]
+            "production_roles": ["supporting_tool"]
           },
           {
             "name": "Remotion",
@@ -212,17 +195,12 @@
             "style_application": "Compose the output of the selected visual and motion layers. Supply seekable time or integrate baked assets; do not replace the style-specific rendering or motion method with framework defaults.",
             "priority": "fallback",
             "selection_guidance": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           }
         ],
         "implementation": "Preview: a still life (guitar, bottle, glass, table edge) authored as named parts, each from 2–3 viewpoints. Paper.js (isolated PaperScope, run once) intersects and subtracts the view outlines into facets, cached as SVG path data with part and view IDs. SVG facets use ochre #AD9369, gray #85867D, umber #705F4B and paper #ECE4D0 on #DED5BB with #332E29 outlines. Each facet carries a seeded Canvas 2D scumble pattern oriented to its plane. Clipped printed-paper fragments carry approved words only (a plain ruled pattern otherwise). Motion: 0–1.2s, facets slide into registration from per-view offsets. 1.2–2.0s, a deliberate view swap on the bottle (profile facet versus top-view facet). 2.0–3.0s, a readable hold. Full video: approved printed-paper scans or hand-drawn cutouts (layered image or transparent hand-drawn assets, prepared with Cropper/Sharp) replace procedural fragments. Krita-painted plane textures (runtime unverified) can replace scumble bitmaps. Or a physically made collage photographed as object or stop-motion frames is stepped by composition time. In every route, keep facets tied to subject anchors.",
-        "alternatives": [
-          "Krita Drawn Frame Sequences",
-          "Remotion"
-        ],
+        "alternatives": ["Krita Drawn Frame Sequences", "Remotion"],
         "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
         "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
         "framework_selection": {
@@ -241,16 +219,11 @@
         },
         "style_renderer": {
           "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-          "recommended_stack_refs": [
-            "SVG",
-            "Canvas 2D"
-          ]
+          "recommended_stack_refs": ["SVG", "Canvas 2D"]
         },
         "motion_engine": {
           "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-          "recommended_stack_refs": [
-            "GSAP"
-          ]
+          "recommended_stack_refs": ["GSAP"]
         },
         "production_policy_ref": "production_policy",
         "technology_review": {
@@ -279,10 +252,7 @@
       "palette": {
         "source_frame_review": {
           "reviewed_at": "2026-10-15T04:08:42.184Z",
-          "sample_window_seconds": [
-            1,
-            8
-          ],
+          "sample_window_seconds": [1, 8],
           "source_review_complete": true,
           "sampling_limitation": "One frame at each available second 01–08. No continuous motion, sub-second timing, audio or later scenes verified. Color families are visual observations; whole-frame measured dominant colors are not semantic background tokens.",
           "guidance": "Choose scene-dependent backgrounds and readable coordinated colors. Separate material colors, source demonstration choices and surrounding UI/letterboxing. Existing swatches are examples, not permanent canvas restrictions. Keep explicit user-approved colors and medium-defining constraints. No sufficiently strong match has been observed in the reviewed 1–8 second samples. Preserve the original style definition; do not invent source evidence.",
@@ -295,11 +265,7 @@
         "generator": {
           "library": "chroma-js",
           "version": "3.2.0",
-          "operations": [
-            "chroma.valid",
-            "chroma(color).hex()",
-            "chroma.contrast"
-          ]
+          "operations": ["chroma.valid", "chroma(color).hex()", "chroma.contrast"]
         },
         "tokens": {
           "background": "#DED5BB",
@@ -309,14 +275,7 @@
           "umber": "#705F4B",
           "paper": "#ECE4D0"
         },
-        "base_colors": [
-          "#DED5BB",
-          "#332E29",
-          "#AD9369",
-          "#85867D",
-          "#705F4B",
-          "#ECE4D0"
-        ],
+        "base_colors": ["#DED5BB", "#332E29", "#AD9369", "#85867D", "#705F4B", "#ECE4D0"],
         "base_color_count": 6,
         "constraints": [
           "These are authored fallback hex values; approved task and reference colors take precedence.",
@@ -335,9 +294,7 @@
         "agent_instruction": "Use approved task/reference colors first. Otherwise use the suggested tokens with their named roles. Inspect the actual textured field and foreground contrast; do not infer background from an accent pigment or gallery outer margin.",
         "background_evidence": {
           "method": "decoded_video_frame_color_family",
-          "source_urls": [
-            "https://skillry.dev/ai-videos/fable-5-5/cherry-mx-reds-144331"
-          ],
+          "source_urls": ["https://skillry.dev/ai-videos/fable-5-5/cherry-mx-reds-144331"],
           "poster_inspected": false,
           "video_frames_inspected": true,
           "exact_hex_from_source": false,
@@ -416,34 +373,23 @@
               "name": "GSAP",
               "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             }
           ],
           "implementation": "Preserve a readable starting phrase, then release outgoing glyphs with bounded rotation/downward displacement. Reveal the incoming phrase in deliberate word-sized steps; differentiate the emphasis word and hold the conclusion. Choose pauses from meaning; use verified audio timing only when available. Use the selected style renderer and one seekable timeline. Inspect glyph assets or approved mark geometry first. Preview is a schematic Canvas study, not the source video or a prescribed production renderer.",
           "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
-          "available_library_ids": [
-            "gsap"
-          ],
+          "available_library_ids": ["gsap"],
           "style_renderer": {
             "selection_basis": "Preserve the chosen visual medium and inspect actual geometry/assets before selecting a renderer.",
             "recommended_stack_refs": []
           },
           "motion_engine": {
             "selection_basis": "Use one owner per animated property and a paused seekable composition timeline.",
-            "recommended_stack_refs": [
-              "GSAP"
-            ]
+            "recommended_stack_refs": ["GSAP"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -528,13 +474,8 @@
         ],
         "adaptation_guidance": "Select only approved style references from the complete 135-style, three-motion compatibility review. References describe optional compatible actions, not a requirement to use the source aesthetic.",
         "source_evidence": {
-          "review_window_seconds": [
-            6,
-            10
-          ],
-          "source_urls": [
-            "https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"
-          ],
+          "review_window_seconds": [6, 10],
+          "source_urls": ["https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"],
           "sampling": "64 chronologically inspected frames at 16 fps; approximate timing, no verified source easing or music synchronization."
         }
       }

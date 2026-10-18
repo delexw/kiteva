@@ -46,9 +46,7 @@
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
             "selection_guidance": "Use HyperFrames by default. Fall back to Remotion only when the documented fallback condition is met, and record the reason. Do not mix framework APIs.",
             "priority": "primary",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           },
           {
@@ -67,9 +65,7 @@
             "optional": false,
             "docs_url": "https://threejs.org/docs/",
             "style_application": "Folded paper structures rise from hinged pages with visible tabs, paper thickness, contact shadows and consistent creases. Page mechanics drive the reveal.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "Soft Surface Lighting and Material Detail",
@@ -90,9 +86,7 @@
             "constraints": "Normal and roughness maps are non-color data. Tone mapping changes displayed values, so compare rendered appearance with approved palette targets; do not rewrite palette tokens. Soft shadows alone do not establish photorealism.",
             "docs_url": "https://threejs.org/docs/pages/MeshStandardMaterial.html",
             "technique_id": "soft_surface_lighting",
-            "production_roles": [
-              "style_renderer"
-            ],
+            "production_roles": ["style_renderer"],
             "style_application": "Folded paper structures rise from hinged pages with visible tabs, paper thickness, contact shadows and consistent creases. Page mechanics drive the reveal."
           },
           {
@@ -101,18 +95,11 @@
             "package": "gsap",
             "runtime": "browser",
             "purpose": "Coordinate tweens, staggered actions, and a paused, seekable timeline driven by deterministic video time.",
-            "suggested_apis": [
-              "gsap.timeline",
-              "gsap.to",
-              "stagger",
-              "timeline.seek"
-            ],
+            "suggested_apis": ["gsap.timeline", "gsap.to", "stagger", "timeline.seek"],
             "optional": false,
             "docs_url": "https://gsap.com/docs/v3/",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "motion_engine"
-            ]
+            "production_roles": ["motion_engine"]
           },
           {
             "name": "Procedural Paper Curl and Fold Deformation",
@@ -132,9 +119,7 @@
             "constraints": "A procedural bend is an artistic deformation, not a physical paper solver or XPBD. Use a 3D renderer only if depth or curling is required; keep flat SVG/Canvas cutouts for flat scenes. Preserve deliberate stepped timing and paper colors.",
             "docs_url": "https://threejs.org/docs/pages/BufferGeometry.html",
             "technique_id": "procedural_paper_curl",
-            "production_roles": [
-              "motion_engine"
-            ],
+            "production_roles": ["motion_engine"],
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints."
           },
           {
@@ -153,9 +138,7 @@
             "optional": false,
             "docs_url": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "chroma.js",
@@ -178,9 +161,7 @@
             "optional": true,
             "docs_url": "https://gka.github.io/chroma.js/",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "supporting_tool"
-            ]
+            "production_roles": ["supporting_tool"]
           },
           {
             "name": "Remotion",
@@ -201,17 +182,12 @@
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
             "priority": "fallback",
             "selection_guidance": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           }
         ],
         "implementation": "A perspective Three.js scene with a separately colored environment. The book is two page boards: thin BoxGeometry with visible paper thickness, carrying a #F1E5CE paper CanvasTexture with seeded subtle grain and #342B25 printed linework drawn in Canvas 2D.\n\nPop-up pieces are thin boxes parented to hinge pivots placed on crease lines, with visible tabs glued to the pages. Each piece angle is derived analytically from the single page-opening angle θ:\n- V-fold: piece angles solve the closed-loop hinge constraint, precomputed as a function table of θ;\n- parallel fold: the panel stays parallel to the spine.\n\nCreases therefore stay consistent and page mechanics drive the reveal.\n\nThe procedural curl technique adds slight bend to large flaps from immutable rest vertices × bend(θ), followed by computeVertexNormals.\n\nLighting: soft key plus fill, PCFSoftShadowMap contact shadows on the pages, and an explicit ACES tone map with output sRGB checked against the paper tokens.\n\nGSAP owns θ and the camera dolly on the paused registered timeline. onUpdate evaluates all transforms from θ and renders, so seeks are exact. Labels printed on pop-up panels live in the panel textures, so they appear with their container.\n\nPreview (3 s): the book opens from 20° to 180° as one V-fold structure rises with shadows.\nFull video: adds pages, each with its own θ track.",
-        "alternatives": [
-          "Three.js",
-          "Remotion"
-        ],
+        "alternatives": ["Three.js", "Remotion"],
         "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
         "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
         "framework_selection": {
@@ -228,22 +204,14 @@
           "cadence_guidance": "Use smooth, coherent authored movement where the action benefits from it. Preserve deliberate sharp cuts, impacts, constant-speed sections and reading holds; not every transition needs easing.",
           "implementation": "Prefer existing timeline and renderer dependencies. Evaluate key states at requested composition time, maintain a single property owner, and cache or deterministically replay stateful motion. Do not introduce a library solely to add generic smoothing."
         },
-        "rendering_technique_refs": [
-          "procedural_paper_curl"
-        ],
+        "rendering_technique_refs": ["procedural_paper_curl"],
         "style_renderer": {
           "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-          "recommended_stack_refs": [
-            "Three.js",
-            "Soft Surface Lighting and Material Detail"
-          ]
+          "recommended_stack_refs": ["Three.js", "Soft Surface Lighting and Material Detail"]
         },
         "motion_engine": {
           "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-          "recommended_stack_refs": [
-            "GSAP",
-            "Procedural Paper Curl and Fold Deformation"
-          ]
+          "recommended_stack_refs": ["GSAP", "Procedural Paper Curl and Fold Deformation"]
         },
         "production_policy_ref": "production_policy",
         "technology_review": {
@@ -264,10 +232,7 @@
       "palette": {
         "source_frame_review": {
           "reviewed_at": "2026-10-15T04:08:42.184Z",
-          "sample_window_seconds": [
-            1,
-            8
-          ],
+          "sample_window_seconds": [1, 8],
           "source_review_complete": true,
           "sampling_limitation": "One frame at each available second 01–08. No continuous motion, sub-second timing, audio or later scenes verified. Color families are visual observations; whole-frame measured dominant colors are not semantic background tokens.",
           "guidance": "Choose scene-dependent backgrounds and readable coordinated colors. Separate material colors, source demonstration choices and surrounding UI/letterboxing. Existing swatches are examples, not permanent canvas restrictions. Keep explicit user-approved colors and medium-defining constraints. No sufficiently strong match has been observed in the reviewed 1–8 second samples. Preserve the original style definition; do not invent source evidence.",
@@ -280,20 +245,13 @@
         "generator": {
           "library": "chroma-js",
           "version": "3.2.0",
-          "operations": [
-            "chroma.valid",
-            "chroma(color).hex()",
-            "chroma.contrast"
-          ]
+          "operations": ["chroma.valid", "chroma(color).hex()", "chroma.contrast"]
         },
         "tokens": {
           "background": "#F1E5CE",
           "foreground": "#342B25"
         },
-        "base_colors": [
-          "#F1E5CE",
-          "#342B25"
-        ],
+        "base_colors": ["#F1E5CE", "#342B25"],
         "base_color_count": 2,
         "constraints": [
           "These hex values are authored suggestions, not previously supplied exact colors or canonical style definitions.",

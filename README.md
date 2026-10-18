@@ -33,6 +33,8 @@ Dates below use New Zealand time. Updates are released through the `main` branch
 <details>
 <summary>2026-10-18</summary>
 
+- **v0.1.0 — first source release.** See the [release notes](CHANGELOG.md#010--2026-10-18). Includes 138 Motion Graphics, 48 motions, both agent providers, headless website capture and English / Chinese delivery. Native Windows sandbox and render verification passed in CI; Windows support remains experimental.
+
 - Added **English / 简体中文 video language**, translated narration and lyrics with preserved originals, and a separate Chinese Pocket TTS provider. Music and Narration / lyrics now have separate Assistant steps.
 - Added **Cassette Futurism**: hardware panels, phosphor screens, tape reels and stepped animation, with a rendered preview. The collection now has **137 Motion Graphics**.
 - Added **Terminal Lyric Duotone Anime**: flat blue, cream and black anime art in a CRT terminal frame, with bilingual decoding captions and ringed keyword titles, plus a code-drawn illustrative preview. Also added two motions, **Rotating Sonar-Sweep Reveal** and **Pixel-Tile Materialize & Targeted Delete**. The collection now has **138 Motion Graphics and 48 motions**.

@@ -18,6 +18,11 @@ user-data/
 !.env.example
 .DS_Store
 .claude/
+!/.claude/
+/.claude/*
+!/.claude/skills/
+/.claude/skills/*
+!/.claude/skills/cut-release/
 .codex/
 .cache/
 .vite/

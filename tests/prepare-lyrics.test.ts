@@ -63,9 +63,9 @@ it.each([
       expect.objectContaining({
         provider,
         model,
-        promptContext: expect.objectContaining({ brief }),
+        textOnly: true,
+        prompt: expect.stringContaining(JSON.stringify(brief)),
         readOnly: true,
-        prompt: expect.stringContaining("Read the full instructions, duration and brief"),
       }),
     );
     expect(first).toEqual({ text: "One idea takes flight", model });

@@ -42,6 +42,12 @@
       "model": "dutch",
       "label": "Dutch",
       "defaultVoice": "daan"
+    },
+    {
+      "id": "zh",
+      "model": "chinese",
+      "label": "Chinese · 中文",
+      "defaultVoice": "zh_xiaobei"
     }
   ],
   "voices": [
@@ -233,6 +239,63 @@
       "language": "nl",
       "gender": "male",
       "reference": "hf://kyutai/pocket-tts/cml_tts_nl_11290_9412_000030_0001.flac@2dd944b099d06bb9edbd221fef138685711d9bf0"
+    },
+    {
+      "id": "zh_xiaobei",
+      "label": "Xiaobei",
+      "language": "zh",
+      "gender": "female",
+      "reference": "synthetic:kokoro/zf_xiaobei"
+    },
+    {
+      "id": "zh_xiaoni",
+      "label": "Xiaoni",
+      "language": "zh",
+      "gender": "female",
+      "reference": "synthetic:kokoro/zf_xiaoni"
+    },
+    {
+      "id": "zh_xiaoxiao",
+      "label": "Xiaoxiao",
+      "language": "zh",
+      "gender": "female",
+      "reference": "synthetic:kokoro/zf_xiaoxiao"
+    },
+    {
+      "id": "zh_xiaoyi",
+      "label": "Xiaoyi",
+      "language": "zh",
+      "gender": "female",
+      "reference": "synthetic:kokoro/zf_xiaoyi"
+    },
+    {
+      "id": "zh_yunjian",
+      "label": "Yunjian",
+      "language": "zh",
+      "gender": "male",
+      "reference": "synthetic:kokoro/zm_yunjian"
+    },
+    {
+      "id": "zh_yunxi",
+      "label": "Yunxi",
+      "language": "zh",
+      "gender": "male",
+      "reference": "synthetic:kokoro/zm_yunxi"
+    },
+    {
+      "id": "zh_yunxia",
+      "label": "Yunxia",
+      "language": "zh",
+      "gender": "female",
+      "reference": "synthetic:kokoro/zm_yunxia",
+      "groupEvidence": "Two local acoustic checks classify the PocketTTS-ZH output as female-sounding; Kokoro source zm_yunxia is catalogued male."
+    },
+    {
+      "id": "zh_yunyang",
+      "label": "Yunyang",
+      "language": "zh",
+      "gender": "male",
+      "reference": "synthetic:kokoro/zm_yunyang"
     }
   ]
 }

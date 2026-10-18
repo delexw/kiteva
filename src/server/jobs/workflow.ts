@@ -1,3 +1,4 @@
+import { linkWorkspaceDirectory } from "../runtime/workspace-links";
 import { relevantPreferenceHistory } from "../catalog/preference-history";
 import { directionCandidateId, directionRoundSteps } from "../../shared/direction-rounds";
 import { scopedAssetQuestions } from "../../shared/asset-question-scopes";
@@ -49,7 +50,7 @@ import { pageStyleContext } from "../domains/page/prompts";
 import { generatePage } from "../domains/page/workflow";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { mkdir, writeFile, readFile, copyFile, cp, symlink } from "node:fs/promises";
+import { mkdir, writeFile, readFile, copyFile, cp } from "node:fs/promises";
 import {
   ReferenceScreenshotSchema,
   type ReferenceScreenshot,
@@ -250,6 +251,7 @@ export class Workflow {
         | {
             resultReview?: boolean;
             videoBuildPlanning?: boolean;
+            videoLocalization?: boolean;
             correctionTier?: string;
             correctionFocus?: string;
             sessionId?: string;
@@ -259,6 +261,7 @@ export class Workflow {
         e.type === "session" &&
         job &&
         !eventData?.resultReview &&
+        !eventData?.videoLocalization &&
         eventData?.correctionTier !== "cheap"
       ) {
         job.sessionId = (e.data as { sessionId: string }).sessionId;
@@ -266,13 +269,15 @@ export class Workflow {
       }
       this.emit(run, e.type, e.message, job, {
         ...(e.data as object),
-        purpose: eventData?.videoBuildPlanning
-          ? "Preview video planning"
-          : eventData?.resultReview
-            ? "Result quality review"
-            : eventData?.correctionFocus
-              ? `${eventData.correctionFocus} correction`
-              : purpose,
+        purpose: eventData?.videoLocalization
+          ? "Video copy translation"
+          : eventData?.videoBuildPlanning
+            ? "Preview video planning"
+            : eventData?.resultReview
+              ? "Result quality review"
+              : eventData?.correctionFocus
+                ? `${eventData.correctionFocus} correction`
+                : purpose,
         audience: "internal",
       });
     };
@@ -724,13 +729,10 @@ export class Workflow {
   private async setup(run: Run, job: GenerationJob) {
     await mkdir(path.join(job.workspace, "assets"), { recursive: true });
     await mkdir(path.join(job.workspace, "vendor"), { recursive: true });
-    await symlink(
+    await linkWorkspaceDirectory(
       path.join(appRoot, "node_modules"),
       path.join(job.workspace, "node_modules"),
-      "dir",
-    ).catch((e) => {
-      if (e.code !== "EEXIST") throw e;
-    });
+    );
     const scopedAssetIds = assetIdsForQuestionScope(
       run.request.assetIds,
       scopedAssetQuestions(run),

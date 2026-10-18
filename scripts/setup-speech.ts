@@ -1,3 +1,4 @@
+import { defaultPython } from "../src/server/runtime/platform";
 import path from "node:path";
 import { access, copyFile, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -15,7 +16,7 @@ const python = path.join(
 );
 await mkdir(dataRoot, { recursive: true });
 await command(
-  process.env.SPEECH_SETUP_PYTHON || "python3",
+  process.env.SPEECH_SETUP_PYTHON || defaultPython(),
   ["-m", "venv", environment],
   appRoot,
   signal,

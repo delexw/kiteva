@@ -217,11 +217,11 @@ describe("catalog integration", () => {
     const raw = JSON.parse(
       await readFile(path.join(catalogRoot, "motion-pattern-catalog.json"), "utf8"),
     );
-    expect(raw.metadata.pattern_count).toBe(46);
+    expect(raw.metadata.pattern_count).toBe(48);
     expect(catalog.motions.map((motion) => motion.id)).toEqual(
-      Array.from({ length: 46 }, (_, i) => `motion-${String(i + 1).padStart(3, "0")}`),
+      Array.from({ length: 48 }, (_, i) => `motion-${String(i + 1).padStart(3, "0")}`),
     );
-    expect(catalog.styles).toHaveLength(136);
+    expect(catalog.styles).toHaveLength(138);
     const template = Object.keys(raw.patterns.find((p: { id: string }) => p.id === "motion-041"));
     for (const id of ["motion-044", "motion-045", "motion-046"]) {
       const entry = raw.patterns.find((p: { id: string }) => p.id === id);

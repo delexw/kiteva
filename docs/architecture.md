@@ -29,7 +29,7 @@ flowchart LR
     Catalog["Catalog loader<br/>catalog/catalog.ts"]
     Rank["JEV ranking<br/>catalog/ranking.ts"]
     Providers["Provider adapters<br/>agents/claude-agent.ts<br/>agents/codex-agent.ts"]
-    Skills["Bundled skill staging<br/>agents/bundled-skills.ts"]
+    Skills["Installed skill staging<br/>agents/bundled-skills.ts"]
     RefMCP["Job-scoped MCP server<br/>reference_browser + capture_video"]
     Render["Render + QA<br/>domains/video/render.ts, qa.ts"]
     Speech["Local TTS providers<br/>audio/providers"]
@@ -38,7 +38,7 @@ flowchart LR
   end
 
   subgraph Local["On disk"]
-    Assets[("assets/catalog,<br/>style previews,<br/>agent-skills/anatomy")]
+    Assets[("assets/catalog,<br/>style previews,<br/>skills/anatomy (ignored)")]
     Work[("Job workspaces<br/>.data/runs/&lt;run&gt;/&lt;job&gt;")]
     Models[("models/kokoro,<br/>models/pocket-tts")]
   end
@@ -87,7 +87,7 @@ flowchart LR
 | **Workflow** (`src/server/jobs/workflow.ts`)         | Preparation checkpoints, the agent queue (5 slots) and render queue (1 worker), previews, full builds, refinements, retries, cancellation, input questions and playback copies.                                                                                                                                                                  |
 | **Subworkflows** (`src/server/jobs/subworkflows`)    | `brief-asset-review.ts` (checks references against scenes and repairs one issue at a time), `result-review.ts` (reviews finished output), `website-reference.ts` (isolated browser session), `website-capture.ts` (recording).                                                                                                                   |
 | **Provider adapters** (`src/server/agents`)          | One adapter per SDK with the same interface: structured output, session resume, sandboxed tools limited to the job workspace, and redacted progress events. Models are never swapped silently.                                                                                                                                                   |
-| **Catalog** (`assets/catalog`, `src/server/catalog`) | 136 Motion Graphics and 46 motions. Each Motion Graphic points at entries in the 92-entry technology pool. Cached Motion Graphic summaries are reused across projects.                                                                                                                                                                           |
+| **Catalog** (`assets/catalog`, `src/server/catalog`) | 138 Motion Graphics and 48 motions. Each Motion Graphic points at entries in the 92-entry technology pool. Cached Motion Graphic summaries are reused across projects.                                                                                                                                                                           |
 | **JEV ranking** (`src/server/catalog/ranking.ts`)    | Sends feasible proposals to Typesafe's `jev-latest` through [`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript), scores them on several dimensions and keeps the requested number of directions. Local preference history (looked up with [MiniSearch](https://lucaong.github.io/minisearch/)) can add a capped `preferenceFit` score. |
 | **Persistence** (`src/server/jobs/store.ts`)         | Node's built-in `node:sqlite`. Runs, assets, events, room layout and the material shelf live in `.data/jobs.sqlite`. Everything under `.data/` and `user-data/` is Git-ignored.                                                                                                                                                                  |
 | **Governance** (`src/server/governance/report.ts`)   | Rebuilds per-project model usage and cost from raw SDK usage events each time it's read. See [costs](costs.md).                                                                                                                                                                                                                                  |
@@ -166,7 +166,7 @@ These responsibilities are kept separate in the code and in the prompts:
 - **The renderer** (render pipeline) supplies seekable time, assembles scenes, mixes audio, validates
   and exports. The catalog's production policy says the pipeline must not decide or simplify the visual style.
 - **Built-in agent tools** are capabilities Kiteva grants for a turn: `reference_browser` and `capture_video`.
-- **The bundled skill** (Anatomy) is reference material and a drawing kit the model may read. It doesn't render anything.
+- **The startup-installed skill** (Anatomy) is reference material and a drawing kit the model may read. It doesn't render anything.
 
 ### Renderers and their limits
 
@@ -180,7 +180,7 @@ Layout and contrast checks belong to HyperFrames (`hyperframes check`). Multipla
 them. Instead Multiplane's `lint` and `verify` check determinism and frame consistency. Remotion
 fallback renders get neither set of checks. After that, every render, whatever the pipeline, is probed
 with `ffprobe` for codec, size, frame rate and duration (within 0.15 s). Previews must have no audio track. The whole file has to decode with FFmpeg,
-and a poster and a contact sheet are extracted. Generated code renders inside a macOS sandbox with a
+and a poster and a contact sheet are extracted. Generated code renders inside an OS-specific sandbox (macOS Seatbelt or the experimental native Windows executor) with a
 separate home directory, no provider credentials and local-only network access.
 
 ## Headless capture and references
@@ -208,11 +208,13 @@ flowchart TB
   job, each up to 120 s and 150 MB.
 - No visible window and no personal browser profile are used. It isn't a desktop screen recorder.
 
-## Bundled skill staging
+## Installed skill staging
 
 ```mermaid
 flowchart LR
-  Bundle["assets/agent-skills/anatomy<br/>(pinned upstream, 141 files)"] --> Hash{"SHA-256 matches<br/>manifest?"}
+  Upstream["Anatomy upstream default branch"] --> Startup["Startup install/update; verified offline fallback"]
+  Startup --> Bundle["skills/anatomy/revision<br/>Git-ignored immutable installation"]
+  Bundle --> Hash{"SHA-256 matches<br/>manifest?"}
   Hash -- no --> Stop["Turn fails"]
   Hash -- yes --> Copy["Copy to workspace<br/>.agents/skills/anatomy"]
   Copy --> ClaudeP["Claude: local plugin 'bundled-authoring',<br/>skills: ['bundled-authoring:anatomy'],<br/>native Skill tool, settingSources: []"]
@@ -259,3 +261,14 @@ UI-component tool called [Storybook](https://storybook.js.org).
 - JEV has its own key (`TYPESAFE_API_KEY`, or `JEV_API_KEY`) and talks to Typesafe directly, outside Caveman.
 - Uploaded files and fetched pages are treated as data, never as instructions.
 - This is a local tool for one person. It isn't a hardened multi-tenant code execution service.
+
+## Native Windows execution
+
+The render launcher in `src/server/rendering/render-sandbox.ts` selects an OS backend.
+The macOS adapter retains Seatbelt; the experimental Windows adapter invokes the bundled
+Codex native sandbox CLI through its model-free command/exec API, with separate permissions for each invocation. This
+local process launch makes no model requests and applies equally to Claude and Codex
+projects. Process cancellation, system environment, browser lookup and workspace links
+are handled in shared runtime modules. [Windows setup and verification](windows.md)
+describes the required boundary canary and real render check; Windows runtime behavior
+has not been verified on this development host.

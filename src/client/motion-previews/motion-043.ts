@@ -1,7 +1,7 @@
 import { drawOrbitPreview } from "../motion-orbit-preview";
 
 /**
- * 360° Camera Orbit (360度环绕运镜).
+ * 360° Camera Orbit.
  * The implementation lives in motion-orbit-preview.ts: a fixed asymmetric hero,
  * fixed world light, world-space shadows and landmarks, and a PerspectiveCamera whose
  * pose is a pure function of absolute time — 0.9 s opening hold, one eased 360°

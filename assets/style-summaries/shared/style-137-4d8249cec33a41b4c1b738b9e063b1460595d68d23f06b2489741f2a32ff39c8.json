@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-137",
+    "name": "Cassette Futurism. An authored Motion Graphic in Digital and 3D Aesthetics: a 1970s–80s spaceship console branch of Retrofuturism (style-065) that uses CRT effects (style-066) only inside screens.",
+    "visualIdentity": "Explicit: modular dashboards of chunky charcoal and olive panels in beige plastic cases with screws, vents and embossed black or white labels, thin amber/orange/rust stripes, black CRTs in one green or amber phosphor, tape reels, toggles, knobs, square keys and lamps.",
+    "suitableUses": "Explicit: mission, telemetry, system-status and boot or log sequences told through console hardware. Inferred: retro tech explainers and product stories about machines. Not suited to cyberpunk, vaporwave, Y2K or neon briefs. Audience is unspecified.",
+    "limitations": "Avoid continuous strobing, smooth generic easing, pink or purple neon, glassmorphism, gradient blobs and round flat cards. Red is only for warnings. Keep scanlines, glow, noise and vignette inside the bezel. No external images or downloaded fonts; real footage is not implied.",
+    "palette": "Suggested scene-dependent tokens: console bay #1A1C18, beige label #ECE3CC, charcoal #2E302B, olive #4B5038, case #CFC2A2, label black #121311, CRT #060907, green #74FF9A or amber #FFB23E per screen, stripes #E2762B/#9A4526, warning red #D7322B. Gradients disabled except a screen vignette.",
+    "motionAndInteraction": "Explicit: state quantized to 12 steps per second from absolute time; typed text with a block cursor, snapping toggles and keys, detented knobs, stepping reels and counters, a brief boot flicker and about three steps of channel static, then readable holds. Optional references: typing, data build and a bezel-bound glitch cut.",
+    "audio": "Optional restrained hum, relay and key clicks, tape whir and one warning chime tied to visible actions, a sparse analog-synth bed, or silence. Do not tick for every character or sound alarms without a visible warning. The catalog preview is silent.",
+    "assetRequirements": "Duration, aspect ratio, resolution, frame rate, exact copy and readouts are unspecified unless supplied. Everything can be code-drawn; use system monospace fonts and verify fallback metrics. Export settings stay in delivery settings, not the 12fps cadence.",
+    "combinations": "Usually used alone. Skeuomorphism (style-075) can make controls operable; Pixel Art (style-057) can supply low-resolution maps or sprites on a CRT in its single phosphor. Keep the console hardware dominant and red warning-only.",
+    "productionApproach": "HTML/CSS and SVG draw hardware and readouts, Canvas 2D optionally adds seeded noise, GSAP drives one paused timeline through a pure time-state function, chroma-js checks contrast. Composition and export follow the project renderer, HyperFrames by default with Remotion only for a verified limitation."
+  },
+  "model": "claude-opus-5-5",
+  "provider": "claude"
+}

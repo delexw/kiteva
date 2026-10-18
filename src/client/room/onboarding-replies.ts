@@ -1,3 +1,4 @@
+import { deliverySpeech, videoLanguageLabel } from "../../shared/video-language";
 import type { CreativeRequest } from "../../shared/contracts";
 import type { RoomLibraryAsset } from "../../shared/room";
 import { modelDisplayName, providerDisplayName } from "../../shared/model-display-name";
@@ -14,7 +15,7 @@ import { roomMaterialSection, roomMaterialSteps, roomQuestions } from "./onboard
 type ReplyStyle = { id: string; name_en: string };
 function speechReply(request: CreativeRequest, assets: RoomLibraryAsset[]) {
   if (request.outputType !== "video") return [];
-  const speech = activeSpeech(request);
+  const speech = activeSpeech({ ...request, speech: deliverySpeech(request) });
   if (!speech) return ["Speech: Off"];
   if (speech.mode === "uploaded") {
     return [
@@ -40,6 +41,9 @@ export function roomSettingsReply(request: CreativeRequest, styles: ReplyStyle[]
     (id) => styles.find((style) => style.id === id)?.name_en || id,
   );
   return [
+    ...(request.outputType === "video" && request.outputLanguage
+      ? [`Video language: ${videoLanguageLabel(request.outputLanguage)}`]
+      : []),
     `Model: ${request.mainModel ? modelDisplayName(request.mainModel) : providerDisplayName(request.provider)}`,
     `Output: ${request.outputType === "page" ? "Interactive page" : "Video"}`,
     ...(request.outputType === "video"
@@ -67,7 +71,20 @@ export function roomOnboardingReplies(
   const selected = assets.filter((asset) => request.assetIds.includes(asset.id));
   return roomQuestions.map((_, index) => {
     if (index === 0) return { text: request.instructions, skipped: false };
-    if (index === 5) return { text: roomSettingsReply(request, styles), skipped: false };
+    if (index === 6) return { text: roomSettingsReply(request, styles), skipped: false };
+    if (index === 5) {
+      if (request.outputType !== "video")
+        return { text: "Not used for interactive pages", skipped: true };
+      const text = [
+        request.lyrics?.mode === "provided"
+          ? `Lyrics on screen:\n${request.lyrics.text}`
+          : request.lyrics?.mode === "write"
+            ? "Lyrics on screen: Write lyrics for me"
+            : "Lyrics on screen: Off",
+        ...speechReply(request, selected),
+      ].join("\n\n");
+      return { text, skipped: false };
+    }
     if (index === 3) {
       const parts = [
         request.urls.filter((url) => url.trim()).join("\n"),
@@ -83,16 +100,6 @@ export function roomOnboardingReplies(
       request.requirements?.[section].instructions,
       files.length ? `Files:\n${files.map((asset) => asset.originalName).join("\n")}` : "",
     ];
-    if (index === 4 && request.outputType === "video") {
-      parts.push(
-        request.lyrics?.mode === "provided"
-          ? `Lyrics on screen:\n${request.lyrics.text}`
-          : request.lyrics?.mode === "write"
-            ? "Lyrics on screen: Write lyrics for me"
-            : "Lyrics on screen: Off",
-      );
-      parts.push(...speechReply(request, selected));
-    }
     const text = parts.filter(Boolean).join("\n\n");
     return { text: text || "Skipped", skipped: !text };
   });

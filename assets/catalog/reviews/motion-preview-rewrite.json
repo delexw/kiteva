@@ -1038,7 +1038,7 @@
     },
     {
       "id": "motion-043",
-      "name": "360° Camera Orbit (360度环绕运镜)",
+      "name": "360° Camera Orbit",
       "source": "src/client/motion-previews/motion-043.ts",
       "sourceHash": "c09666b9226ad7f9f8fe834769b0582ccc2c7e00ef6f438759baf444aee31c9b",
       "changes": "Rewrote the orbit module with closed box and prism faces, a camera factory, a projector, flat shading under a fixed world light, near-plane culling, a ground grid, and world-space cast shadows (light projection plus convex hull). The hero is fixed and asymmetric (front window, rear hatch, side annex, vent) with three landmarks. Timing is a 0.9 s hold, a sine-eased 360° circuit to 5.1 s, and an exact return pose. The 'FRONT' label is reprojected and shown only when the front faces the camera, and the closing line appears after the camera stops.",

@@ -1,3 +1,4 @@
+import { linkWorkspaceDirectory } from "../src/server/runtime/workspace-links";
 import { existsSync } from "node:fs";
 import {
   publishStylePreviewSource,
@@ -6,7 +7,7 @@ import {
 import { IllustrationMotionSchema } from "../src/shared/agents/schemas/illustration-motion";
 import { ProductionSchema } from "../src/shared/agents/schemas/video";
 import { reviewedStyleProductionSchema } from "../src/shared/agents/schemas/style-production";
-import { cp, copyFile, mkdir, readFile, rename, rm, writeFile, symlink } from "node:fs/promises";
+import { cp, copyFile, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import sharp from "sharp";
@@ -87,13 +88,10 @@ async function main() {
         const reviewedStack = Boolean(style.tech.technology_review);
         const nativeAuthoring = reviewedStack || refreshRequested;
         if (nativeAuthoring) {
-          await symlink(
+          await linkWorkspaceDirectory(
             path.join(appRoot, "node_modules"),
             path.join(folder, "node_modules"),
-            "dir",
-          ).catch((error: NodeJS.ErrnoException) => {
-            if (error.code !== "EEXIST") throw error;
-          });
+          );
         }
         await copyFile(
           path.join(appRoot, "node_modules/gsap/dist/gsap.min.js"),

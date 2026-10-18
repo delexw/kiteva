@@ -1,5 +1,8 @@
 import { spawn } from "node:child_process";
-import { renderSandbox } from "../rendering/render-sandbox";
+import { StringDecoder } from "node:string_decoder";
+import { renderCommand } from "../rendering/render-sandbox";
+import { systemEnvironment } from "./platform";
+import { stopProcessTree } from "./process-tree";
 import { safeMessage } from "./config.js";
 export async function command(
   executable: string,
@@ -13,54 +16,51 @@ export async function command(
   env: Record<string, string | undefined> = {},
 ): Promise<string> {
   signal.throwIfAborted();
-  return new Promise((resolve, reject) => {
-    const sandbox = isolate ? renderSandbox(cwd) : undefined;
-    const child = spawn(
-      sandbox ? "/usr/bin/sandbox-exec" : executable,
-      sandbox ? ["-p", sandbox.profile, executable, ...args] : args,
-      {
-        cwd,
-        detached: true,
-        env: {
-          PATH: process.env.PATH,
-          HOME: sandbox?.home || process.env.HOME,
-          TMPDIR: process.env.TMPDIR,
-          LANG: "en_US.UTF-8",
-          HYPERFRAMES_BROWSER_PATH: sandbox?.browserPath,
-          DO_NOT_TRACK: "1",
-          ...env,
-        },
-        stdio: ["ignore", "pipe", "pipe"],
+  const sandbox = isolate ? await renderCommand(executable, args, cwd) : undefined;
+  signal.throwIfAborted();
+  return new Promise<string>((resolve, reject) => {
+    const child = spawn(sandbox?.executable || executable, sandbox?.args || args, {
+      cwd,
+      detached: process.platform !== "win32",
+      windowsHide: true,
+      env: {
+        ...systemEnvironment(),
+        LANG: "en_US.UTF-8",
+        ...sandbox?.env,
+        DO_NOT_TRACK: "1",
+        ...env,
       },
-    );
+      stdio: ["ignore", "pipe", "pipe"],
+    });
     let output = "";
     let timedOut = false;
     const stop = () => {
-      try {
-        process.kill(-child.pid!, "SIGTERM");
-      } catch {
-        /* Process may already have exited. */
-      }
+      stopProcessTree(child.pid);
     };
     const timer = setTimeout(() => {
       timedOut = true;
       stop();
     }, timeout);
     signal.addEventListener("abort", stop, { once: true });
-    for (const stream of [child.stdout, child.stderr])
-      stream.on("data", (chunk) => {
-        const text = safeMessage(chunk.toString());
-        // Machine-readable stdout must retain its original bytes for parsing.
-        // Only the human-readable output channel is redacted and truncated.
-        if (stream === child.stdout) onStdout(chunk.toString());
+    for (const stream of [child.stdout, child.stderr]) {
+      const decoder = new StringDecoder("utf8");
+      const emit = (decoded: string) => {
+        if (!decoded) return;
+        const text = safeMessage(decoded);
+        // Machine-readable stdout stays intact; only the display channel is redacted.
+        if (stream === child.stdout) onStdout(decoded);
         output = (output + text).slice(-60000);
         onOutput(text);
-      });
+      };
+      stream.on("data", (chunk) => emit(decoder.write(chunk)));
+      stream.on("end", () => emit(decoder.end()));
+    }
     child.on("error", (error) => {
       clearTimeout(timer);
       signal.removeEventListener("abort", stop);
       reject(error);
     });
+    if (signal.aborted) stop();
     child.on("close", (code) => {
       clearTimeout(timer);
       signal.removeEventListener("abort", stop);

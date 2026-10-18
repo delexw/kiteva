@@ -10,6 +10,8 @@ export const ease = (value: number) => {
 export function motionProgress(time: number, start: number, end: number) {
   return ease((time - start) / (end - start));
 }
+export const TAU = Math.PI * 2;
+export { seeded } from "../../shared/seeded-random";
 
 export function motionDrawing(c: CanvasRenderingContext2D) {
   const circle = (x: number, y: number, r: number, color = accent) => {

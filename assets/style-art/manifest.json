@@ -1494,5 +1494,27 @@
     "source": "style-032.svg",
     "generatedAt": "2026-10-14T21:39:42.484Z",
     "designNotes": "A four-panel Manga idea sequence with repaired perspective-aware eye openings, coordinated gaze, matching lid masks and simplified iris details. This character example illustrates conditional eye-construction guidance; Manga subjects remain driven by the brief."
+  },
+  {
+    "styleId": "style-137",
+    "catalogHash": "a7b97130209e93540ba3e945ff61ad521b2840777d3705b53b1ca17ea85e4fc0",
+    "thumbnail": "style-137.webp",
+    "status": "ready",
+    "provider": "claude",
+    "model": "claude-opus-5-5",
+    "source": "style-137.svg",
+    "generatedAt": "2026-10-17T11:29:38.366Z",
+    "designNotes": "Claude Opus 5.5 code-drawn Cassette Futurism console: beige cases with screws and embossed labels around charcoal/olive panels, a green-phosphor CRT with scanlines, glow, vignette and seeded noise, a tape transport with stepping reels and amber counter, toggles, a detented knob, square keys and a warning-only red master-caution lamp. The composition types a boot log, cuts through channel static to a NAV page and steps every action at 12fps from absolute time."
+  },
+  {
+    "styleId": "style-138",
+    "catalogHash": "1eed63ca0116163406f324877d663c01c7aa10de045357f265e7c9c91dfc2de4",
+    "thumbnail": "style-138.webp",
+    "status": "ready",
+    "provider": "claude",
+    "model": "claude-opus-5-5",
+    "source": "style-138.svg",
+    "generatedAt": "2026-10-18T03:17:48.466Z",
+    "designNotes": "Claude Opus 5.5 code-drawn Terminal Lyric Duotone Anime study: an original, clearly illustrative headphone bust in flat ultramarine, cream and near-black inside a CRT terminal frame with scanlines, seeded grain, vignette and corner brackets; a decoding §07 header, a bilingual monospace/CJK caption with a growing progress underline and signal-blue keyword, a HUD detection box and specimen card that build from authored data, a keyword title that settles from an RGB offset into a thin ellipse ring, and one warning-only red label. Not reference artwork, footage or lyrics."
   }
 ]

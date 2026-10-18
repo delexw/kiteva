@@ -17,6 +17,10 @@ import { dataRoot } from "../src/server/runtime/config";
 import { makePlaybackCopies } from "../src/server/rendering/render";
 import { generateVideo } from "../src/server/domains/video/workflow";
 import { playbackCopyProfile } from "../src/server/rendering/playback-copies";
+import { localizeVideoRequest } from "../src/server/jobs/subworkflows/video-localization";
+import { VideoRequestSchema } from "../src/shared/domains/video";
+import { projectGovernance } from "../src/server/governance/report";
+import type { agentTurn } from "../src/server/agents/providers";
 
 const cleanup: string[] = [];
 afterEach(async () => {
@@ -77,6 +81,77 @@ const ready = {
   cardClip: "renders/card-3s.webm",
   playbackCopies: { profile: playbackCopyProfile, status: "ready" as const, updatedAt: "now" },
 };
+
+it("attributes build-time translation usage to the project without replacing its build session", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "translation-governance-"));
+  cleanup.push(workspace);
+  const store = new Store(":memory:");
+  const workflow = new Workflow(store, await loadCatalog());
+  const run = project(workspace, "queued");
+  run.request = VideoRequestSchema.parse({
+    instructions: "Tell a visual story",
+    provider: "codex",
+    outputLanguage: "zh",
+    lyrics: { mode: "provided", text: "Hello, world" },
+  });
+  run.jobs[0].sessionId = "build-session";
+  run.jobs[0].kind = "preview";
+  const generate = (async (input) => {
+    const data = {
+      provider: "codex",
+      model: input.model,
+      invocationId: "translation-turn",
+      sessionId: "translation-session",
+    };
+    input.onEvent({ type: "session", message: "Session started", data });
+    input.onEvent({ type: "invocation", message: "Translating", data });
+    input.onEvent({
+      type: "usage",
+      message: "Usage",
+      data: { ...data, usageScope: "turn", input_tokens: 100, output_tokens: 20 },
+    });
+    return { value: { text: "你好，世界" } };
+  }) as typeof agentTurn;
+  vi.mocked(generateVideo).mockImplementation(async (input) => {
+    const translated = await localizeVideoRequest(
+      input.request,
+      path.join(workspace, "localization"),
+      input.signal,
+      input.onEvent,
+      generate,
+    );
+    expect(translated.lyrics).toEqual({ mode: "provided", text: "你好，世界" });
+    input.job.phase = "ready";
+  });
+  try {
+    await workflow.generate(run, run.jobs[0]);
+    expect(run.jobs[0].phase).toBe("ready");
+    expect(run.jobs[0].sessionId).toBe("build-session");
+    const events = store.events(run.id);
+    expect(events.filter((event) => event.type === "usage")).toEqual([
+      expect.objectContaining({
+        jobId: run.jobs[0].id,
+        data: expect.objectContaining({
+          purpose: "Video copy translation",
+          audience: "internal",
+          input_tokens: 100,
+        }),
+      }),
+    ]);
+    expect(projectGovernance(run, events).activity).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          purpose: "Video copy translation",
+          calls: 1,
+          inputTokens: 100,
+          outputTokens: 20,
+        }),
+      ]),
+    );
+  } finally {
+    store.close();
+  }
+});
 
 it("makes copies in the background, marks progress and refuses duplicates or unfinished work", async () => {
   const store = new Store(":memory:");

@@ -1,7 +1,7 @@
 {
   "metadata": {
     "schema_version": "1.0",
-    "pattern_count": 46,
+    "pattern_count": 48,
     "language": "en",
     "description": "Reusable motion and interaction patterns that can supplement the separate visual-style catalog.",
     "interpretation_note": "The supplied reference images show titles rather than complete motion sequences. These entries propose adaptable interpretations; they do not claim to reproduce an observed original animation or its toolchain.",
@@ -2075,7 +2075,7 @@
       "audio_direction_prompt": "Based on the topic and audience, suggest instrumental pacing, short impact accents, page or ink sounds, and whether narration or vocals help. Keep gallery demos silent; avoid prescribing a fixed genre.",
       "executable_prompt_template": "Build a Cinematic Manga Opening Sequence for {{subject}} in {{visual_style}}. Inspect the approved illustration and separate meaningful subject, speed-line, panel and expressive-text layers. Resolve {{motion_parameters}} into distinct entrances, optional stroke drawing, bounded impact pops and text punch-ins; preserve exact palette anchors and authored geometry. Do not animate every primitive independently. Make the action readable at thumbnail size and end with readable copy. Select SVG/Canvas/PixiJS for illustration and GSAP or Anime.js for seekable layer motion as appropriate. Use {{render_pipeline}} only for composition, synchronization, validation and export; HyperFrames is first choice and Remotion is the conditional fallback. Suggest audio based on the topic, with silent gallery output. Validate direct seeks and visible frame changes. Optional variant: Add optional compact illustrated-intro variants: title scale punch and settle; radial/face accents; lineup/caption handoff; overview-to-panel zoom. Preserve illustrated staging and reading holds; do not impose manga marks on unrelated media.",
       "verification": [
-        "Check significant frame changes at 320\u00d7180, not only a running timeline.",
+        "Check significant frame changes at 320×180, not only a running timeline.",
         "Check subjects, action accents and text each contribute to the staged narrative.",
         "Inspect panel boundaries, connections, palette, and reading holds.",
         "Verify start, intermediate and final seeks match sequential playback."
@@ -3846,7 +3846,7 @@
         "progress_driver": "Drive each state from deterministic composition time. Adapt pointer or other interaction only when the delivery requires it.",
         "exit_behavior": "Settle into a readable final state; reduced motion shows the completed composition."
       },
-      "video_adaptation": "Preserve the action defined by the inspected 6\u201310 second reference, adapting material and cadence to the approved style. Drive all layers from deterministic composition time; do not assume beat synchronization without actual audio analysis.",
+      "video_adaptation": "Preserve the action defined by the inspected 6–10 second reference, adapting material and cadence to the approved style. Drive all layers from deterministic composition time; do not assume beat synchronization without actual audio analysis.",
       "suggested_controls": [
         "entrance_duration",
         "action_duration",
@@ -3969,7 +3969,7 @@
         "progress_driver": "Drive each state from deterministic composition time. Adapt pointer or other interaction only when the delivery requires it.",
         "exit_behavior": "Settle into a readable final state; reduced motion shows the completed composition."
       },
-      "video_adaptation": "Preserve the action defined by the inspected 6\u201310 second reference, adapting material and cadence to the approved style. Drive all layers from deterministic composition time; do not assume beat synchronization without actual audio analysis.",
+      "video_adaptation": "Preserve the action defined by the inspected 6–10 second reference, adapting material and cadence to the approved style. Drive all layers from deterministic composition time; do not assume beat synchronization without actual audio analysis.",
       "suggested_controls": [
         "entrance_duration",
         "action_duration",
@@ -4127,7 +4127,7 @@
         "progress_driver": "Drive each state from deterministic composition time. Adapt pointer or other interaction only when the delivery requires it.",
         "exit_behavior": "Settle into a readable final state; reduced motion shows the completed composition."
       },
-      "video_adaptation": "Preserve the action defined by the inspected 6\u201310 second reference, adapting material and cadence to the approved style. Drive all layers from deterministic composition time; do not assume beat synchronization without actual audio analysis.",
+      "video_adaptation": "Preserve the action defined by the inspected 6–10 second reference, adapting material and cadence to the approved style. Drive all layers from deterministic composition time; do not assume beat synchronization without actual audio analysis.",
       "suggested_controls": [
         "entrance_duration",
         "action_duration",
@@ -4563,7 +4563,7 @@
     },
     {
       "id": "motion-043",
-      "name": "360° Camera Orbit (360度环绕运镜)",
+      "name": "360° Camera Orbit",
       "category": "camera_motion",
       "description": "The camera makes one full 360-degree circuit around a stationary hero, timed by absolute composition time, with a held opening view and a held ending view. The camera is the only thing that moves.",
       "motion_sequence": [
@@ -4662,7 +4662,7 @@
         "Screen-space text is fully legible during holds. Labels never appear before their containers, and arrowheads never appear before their shafts finish."
       ],
       "palette_guidance": "This preset adds no colors. Resolve colors from the task's exact colors, then any approved or brand palette, then the selected Motion Graphic's palette, and choose the background from the subject, environment and mood (scene_dependent). Because the camera sees every side, make sure the backdrop or environment and the ground are coherent all the way around, and that hero-versus-background contrast holds at every θ, including backlit angles. Keep light colors and material values constant through the circuit and recheck composited text contrast during the holds. The preview uses an illustrative neutral scheme only: deep slate stage, mid-gray ground grid, warm off-white hero with one restrained accent face, and cool landmark markers. It is not a required palette.",
-      "reference_label": "360度环绕运镜方案",
+      "reference_label": "360° Camera Orbit reference",
       "source_evidence": {
         "source_kind": "conversation_inspired",
         "source_conversation": "chatgpt-conversation://6ad2c85c-6620-8321-af12-57e2b595fcfc",
@@ -4976,6 +4976,241 @@
         "review_session_id": "db119551-bfab-4049-ae2a-1d3deaad6b42"
       },
       "variants": []
+    },
+    {
+      "id": "motion-047",
+      "name": "Rotating Sonar-Sweep Reveal",
+      "category": "reveal",
+      "description": "One sector-shaped beam rotates clockwise at a constant rate around one fixed pivot over a held illustration. Inside the beam the image is clear and slightly brightened with a sharp leading edge; outside it the same image dims and resolves into a dark LED-style dot matrix, so the viewer reads the picture only where the sweep currently points. The mask is rebuilt from the current angle alone: there is no persistence trail and no accumulated reveal history.",
+      "motion_sequence": [
+        "Establish the full illustration briefly, then dim it slightly while the beam fades in with its point on a fixed pivot near the frame centre.",
+        "Rotate the beam clockwise at a constant period (about 4 s per revolution in the reference: top, right, bottom and left about one second apart). Keep the inside clear and brightened, with a sharp bright leading edge and a softer trailing edge.",
+        "Outside the beam, cross over from dimmed image to a dark dot-matrix rendering of the same image (the picture visible only through a fixed grid of small LED-cell apertures) while overall outside brightness keeps falling slowly but stays legible.",
+        "Keep rotating at the same rate until the hand-off; cut or transition to the next scene. Never leave lit wedges behind the beam."
+      ],
+      "video_adaptation": "Compute angle(t) = θ0 + 2π·(t − t0)/T from absolute composition time (canvas y-down coordinates make increasing angle clockwise). Draw the beam as a sector path from the fixed pivot with an authored width (about 45–60°, estimated). Paint the illustration once, then clip to the outside of the sector (even-odd rect + sector) to apply a time-driven dim and a dot-matrix mask (dark gap bars, or a dark rectangle with round holes filled even-odd, on a fixed screen grid, or a shader that samples the same image on a grid); clip to the sector to add a modest brightness boost; stroke the leading edge. Dot-matrix mix and outside brightness are closed-form curves of time. Because nothing depends on the previous frame, forward, backward and direct seeks give identical frames. Supply the illustration (or code-draw an original one) and label fictional readouts illustrative.",
+      "suggested_controls": [
+        "pivot",
+        "period_seconds",
+        "start_angle",
+        "beam_width_degrees",
+        "dot_pitch_and_radius",
+        "dot_matrix_onset",
+        "outside_brightness_curve",
+        "inside_boost",
+        "leading_edge_highlight",
+        "reduced_motion"
+      ],
+      "tech": {
+        "suggested_libraries": [
+          {
+            "name": "GSAP",
+            "package": "gsap",
+            "runtime": "browser",
+            "purpose": "Create a paused, seekable timeline that advances one composition clock.",
+            "suggested_apis": ["gsap.timeline({ paused: true })", "to", "seek"],
+            "optional": false,
+            "docs_url": "https://gsap.com/docs/v3/",
+            "production_roles": ["motion_engine"]
+          },
+          {
+            "name": "Canvas 2D",
+            "package": null,
+            "runtime": "browser",
+            "purpose": "Paint the held illustration, sector clips, even-odd dot-matrix mask and edge highlight at the requested time.",
+            "suggested_apis": [
+              "CanvasRenderingContext2D",
+              "Path2D",
+              "clip",
+              "arc",
+              "fill('evenodd')"
+            ],
+            "optional": true,
+            "docs_url": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
+            "production_roles": ["style_renderer"]
+          }
+        ],
+        "implementation": "Keep the pivot, period, start angle and beam width as constants. For each requested time compute the beam angle, build the sector path, and composite in a fixed order: image, outside clip (dim + dot-matrix mask), inside clip (brightness boost), leading edge, then HUD text above all masks. The dot grid is fixed in screen space so it never crawls; only the beam moves. Use no persistence buffer or previous-frame feedback. SVG mask/clipPath or a WebGL fragment shader are equivalent renderers when the selected Motion Graphic needs them. The explorer preview is a Canvas 2D study with an original code-drawn underwater scene, not the source footage.",
+        "style_renderer": {
+          "recommended_stack_refs": ["Canvas 2D"]
+        },
+        "motion_engine": {
+          "recommended_stack_refs": ["GSAP"]
+        }
+      },
+      "compatibility": {
+        "good_fit": ["Terminal Lyric Duotone Anime", "Futuristic UI (FUI) / HUD Design"],
+        "adapt_or_omit_when": [
+          "Use for searching, scanning or 'locating the target' beats over one held image, or a closing shot that fades a scene into a display.",
+          "Omit when the whole image must stay readable for the shot, when several subjects need simultaneous attention, or when the beam would sweep across essential text.",
+          "A linear wipe front, alternating static wedges, a fading opacity cone or a persistence trail does not demonstrate this pattern; keep a single fixed pivot and constant clockwise rotation.",
+          "Keep the dot-matrix outside region legible (dimmed, not black) and avoid strobing: one smooth rotation, no flashing on each pass."
+        ]
+      },
+      "audio_direction_prompt": "No audio was analysed in the source review. Optional: a soft sonar ping or low hum tied to the beam passing a meaningful subject, never a ping on every frame or every pass by default. Previews stay silent.",
+      "executable_prompt_template": "Build Rotating Sonar-Sweep Reveal (motion-047) for {{subject}} in {{visual_style}}. Hold one illustration from original or authorised assets. Fade in one sector beam from a fixed pivot, rotate it clockwise at a constant period computed from absolute composition time, keep the inside clear and brightened with a sharp leading edge, and turn the outside into a dimmed dot-matrix rendering of the same image without any persistence trail. Resolve {{motion_parameters}} (pivot, period, start angle, width, dot pitch, onset and brightness curves). Keep essential text outside the masks and readable. Verify forward, backward and direct seeks give identical frames. Use {{render_pipeline}} for composition timing, synchronization, validation and export; preserve the selected style renderer and motion ownership.",
+      "verification": [
+        "The beam angle increases linearly with time (clockwise on screen) with the authored period; quarter positions occur at evenly spaced times.",
+        "Exactly one beam sector exists in every frame and its pivot never moves; no previously swept area stays lit.",
+        "Inside the beam the image is clear; outside it is dimmed and, after the onset, rendered as a fixed-grid dot matrix of the same image that remains legible.",
+        "Seeking to any time, including backward and from a fresh page, reproduces the identical frame.",
+        "No clocks, unseeded randomness or previous-frame buffers drive the reveal."
+      ],
+      "palette_guidance": "This pattern adds no required colours. Keep the inside boost a light tint of the scene's own key colour and the dot-matrix ground near the darkest scene ink. The preview uses an illustrative underwater blue scene with a cream leading edge; these are not binding.",
+      "reference_label": "Rotating sonar-sweep reveal (196–202 s)",
+      "source_evidence": {
+        "source_kind": "frame_analysis",
+        "source_file": "User-supplied 211.6 s anime-style music video (720p, 30 fps); title, artwork and lyrics withheld and not reused",
+        "source_sha256": "ed4da7fb65341609b35b0a3ae1bb5198a82521ee513b2803993380c300271cb0",
+        "time_window_seconds": [196, 202],
+        "evidence_seconds": [196.33, 197.83, 198.83, 199.33, 199.83, 200.83, 201.83],
+        "sampling": "Claude Opus 5.5 reviewed a 1 fps overview of the whole video and 6 fps contact sheets of six dense windows; the implementation pass re-read the dense sheets for this window. No continuous playback or audio analysis.",
+        "observations": [
+          {
+            "seconds": [196.33, 196.5],
+            "observation": "The beam appears at the lower left with its point near the frame centre while the full image dims slightly."
+          },
+          {
+            "seconds": [197.83, 198.83, 199.83, 200.83, 201.83],
+            "observation": "The beam is at top, right, bottom, left and top again: one clockwise revolution in about four seconds at constant speed."
+          },
+          {
+            "seconds": [199.33, 201.83],
+            "observation": "Outside the beam the image has become a dark dot matrix; inside it stays bright and clear with a sharp leading edge. Nothing stays lit behind the beam."
+          }
+        ],
+        "limitations": [
+          "Beam width and pivot are visual estimates from 6 fps samples; easing is not resolvable, and constant speed is inferred from evenly spaced quarter positions.",
+          "The source illustration and creature are not reused; the preview is an original code-drawn underwater scene.",
+          "The 203–207 s darkening is judged from 1 fps overview samples only."
+        ],
+        "exact_hex_from_source": false,
+        "review_model": "claude-opus-5-5",
+        "review_session_id": "1a123899-b189-4855-a8af-24cc095da54b"
+      }
+    },
+    {
+      "id": "motion-048",
+      "name": "Pixel-Tile Materialize & Targeted Delete",
+      "category": "content_sequence",
+      "description": "One illustration is sliced into a fixed grid of square tiles that are real crops of that image. The tiles appear scattered with seeded depth scale and rotation, converge (centre first) into a silhouette cluster and lock into the complete, readable image. Later a red selection box hops between fixed cells; each selected cell either breaks into small red/pink square fragments that drift down and to one side or fills with binary digits and goes dark. Deleted cells stay empty and the grid never reflows.",
+      "motion_sequence": [
+        "Materialize: start from an empty grid stage; square crops of the target illustration fade in at seeded scattered positions with varied scale (depth) and rotation.",
+        "Converge: tiles travel to their home cells with an eased closed-form interpolation, centre tiles first, so a dense silhouette cluster forms before the edges arrive.",
+        "Lock: every tile reaches its home with scale 1 and rotation 0; a few straggler specks beside the image fade out before the hold. Hold the complete image long enough to recognise it.",
+        "Select: cell gutters appear without moving anything; a red selection box hops between authored target cells, dwelling about 0.2–0.5 s on each.",
+        "Delete: the selected cell breaks into opaque red/pink squares that fall at least one cell height on constant-velocity-plus-gravity paths, drifting mostly to one side, and fade only near the end of an about 0.7–0.8 s life (which may overlap the next selector hop); or it fills with binary digits clipped to the cell and fades dark. The cell then stays empty. A terminal progress bar tracks deleted cells.",
+        "Hold the grid with its fixed holes; never shift remaining tiles to fill the gaps."
+      ],
+      "video_adaptation": "Model the image as one drawing or bitmap and the grid as fixed cells. For tile i, draw the crop by clipping to the tile square and offsetting the same image so its home region appears; pose(t) = lerp(scatter_i, home_i, ease(clamp((t − move_i)/duration))) with seeded scatter, scale, rotation, appear and move times (move_i ranked by distance from centre). Align home cells to whole pixels so locked tiles join without seams; otherwise crossfade to the whole image after the last arrival. Author deletion targets as (cell, hop time, mode); the box position is a step function of time; fragment poses are closed-form (x = x0 + vx·τ, y = y0 + vy·τ + ½gτ²) with seeded velocities, full opacity for most of the life and a late smoothstep fade; the binary variant reveals seeded digit rows on a fixed column grid clipped to the cell, then fades. A deleted cell is simply not drawn afterwards. Tie the progress bar to the number of started deletions. No live simulation, so any seek reproduces the frame.",
+      "suggested_controls": [
+        "grid_columns_rows",
+        "tile_size",
+        "scatter_seed_and_radius",
+        "depth_scale_range",
+        "converge_order_and_duration",
+        "assembled_reading_hold",
+        "delete_targets_and_hop_times",
+        "delete_mode",
+        "fragment_velocity_and_gravity",
+        "progress_bar",
+        "reduced_motion"
+      ],
+      "tech": {
+        "suggested_libraries": [
+          {
+            "name": "GSAP",
+            "package": "gsap",
+            "runtime": "browser",
+            "purpose": "Create a paused, seekable timeline that advances one composition clock.",
+            "suggested_apis": ["gsap.timeline({ paused: true })", "to", "seek"],
+            "optional": false,
+            "docs_url": "https://gsap.com/docs/v3/",
+            "production_roles": ["motion_engine"]
+          },
+          {
+            "name": "Canvas 2D",
+            "package": null,
+            "runtime": "browser",
+            "purpose": "Clip and offset crops of one image per tile, and draw fragments, digit fills, gutters and the selection box at the requested time.",
+            "suggested_apis": [
+              "CanvasRenderingContext2D",
+              "clip",
+              "drawImage",
+              "translate",
+              "rotate",
+              "scale"
+            ],
+            "optional": true,
+            "docs_url": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
+            "production_roles": ["style_renderer"]
+          }
+        ],
+        "implementation": "Precompute seeded scatter, depth, rotation, appear and move times once; evaluate every tile pose, cell state (assembling, present, selected, fragmenting or binary, empty), selection cell and fragment pose as pure functions of absolute time. Paint scattered tiles in a fixed depth order so overlap never flickers. A bitmap source can use drawImage with source rectangles; a vector source uses a clip plus translated redraw. The explorer preview is a Canvas 2D study whose 48 tiles are real crops of one original code-drawn astronaut illustration, not the source artwork.",
+        "style_renderer": {
+          "recommended_stack_refs": ["Canvas 2D"]
+        },
+        "motion_engine": {
+          "recommended_stack_refs": ["GSAP"]
+        }
+      },
+      "compatibility": {
+        "good_fit": ["Terminal Lyric Duotone Anime", "Glitch Art", "Mosaic"],
+        "adapt_or_omit_when": [
+          "Use when a single image should be built from (or erased into) its own pieces: a character 'loading', a memory being deleted, data loss or reconstruction.",
+          "Either half may be used alone; omit the deletion for a pure reveal or the materialize for a pure erase.",
+          "Omit when tiles would cut through essential text or a face that must stay identifiable throughout, or when the content is a set of distinct images whose order matters (use a gallery motion instead).",
+          "Do not substitute flat coloured rectangles for image crops, reflow the grid after deletion, or use a physics engine whose state depends on playback history."
+        ]
+      },
+      "audio_direction_prompt": "No audio was analysed in the source review. Optional: a soft data chirp as the image locks and one restrained click per deletion; do not sound every tile. Previews stay silent.",
+      "executable_prompt_template": "Build Pixel-Tile Materialize & Targeted Delete (motion-048) for {{subject}} in {{visual_style}}. Slice one original or authorised illustration into a fixed grid of real image crops; fade them in at seeded scattered positions with depth scale and rotation, converge centre-first into the complete image and hold it readably. Then hop a selection box between authored fixed cells and delete each selected cell by fragmenting it into drifting squares or filling it with binary digits, leaving the cell empty without any reflow, with a progress bar tied to deletions. Compute every pose from absolute composition time with closed-form, seeded paths. Resolve {{motion_parameters}} (grid, seeds, timings, targets, modes). Verify forward, backward and direct seeks. Use {{render_pipeline}} for composition timing, synchronization, validation and export; preserve the selected style renderer and motion ownership.",
+      "verification": [
+        "Every tile shows the crop of the same single image that belongs to its home cell; the locked tiles form the complete image with no gaps or seams.",
+        "Tiles start scattered and visibly converge; the complete image holds long enough to recognise before deletion starts.",
+        "The selection box only occupies authored fixed cells and moves as a step function between them.",
+        "Deleted cells are empty afterwards, remaining tiles keep their exact home positions, and nothing reflows.",
+        "Fragments read as opaque squares that fall at least one cell height before fading; digits stay inside their cell; scattered tiles and specks stay in frame and off the assembled image.",
+        "Fragment and digit-fill states are closed-form functions of time; seeking forward, backward or directly reproduces identical frames."
+      ],
+      "palette_guidance": "This pattern adds no required colours. Reserve one alert colour for the selection box, deletion fragments and progress fill, and keep the image's own colours on the tiles. The preview uses an illustrative navy space scene, a cream astronaut and a red #FF3B4E selection; these are not binding.",
+      "reference_label": "Pixel-tile materialize (5.83–6.83 s) and targeted delete (118.67–121.83 s)",
+      "source_evidence": {
+        "source_kind": "frame_analysis",
+        "source_file": "User-supplied 211.6 s anime-style music video (720p, 30 fps); title, artwork and lyrics withheld and not reused",
+        "source_sha256": "ed4da7fb65341609b35b0a3ae1bb5198a82521ee513b2803993380c300271cb0",
+        "time_window_seconds": [5.83, 121.83],
+        "evidence_seconds": [
+          5.83, 6.17, 6.5, 6.83, 118.67, 119.5, 120, 120.33, 120.5, 121.33, 121.83
+        ],
+        "sampling": "Claude Opus 5.5 reviewed a 1 fps overview of the whole video and 6 fps contact sheets of six dense windows; the implementation pass re-read the dense sheets for this window. No continuous playback or audio analysis.",
+        "observations": [
+          {
+            "seconds": [5.83, 6.17, 6.5, 6.83],
+            "observation": "Sparse scattered squares cut from the illustration converge into a silhouette cluster and lock into the complete character."
+          },
+          {
+            "seconds": [118.67, 119.17, 119.5, 120, 120.5, 121],
+            "observation": "A red selection box hops between fixed grid cells, dwelling about 0.17–0.5 s on each."
+          },
+          {
+            "seconds": [119.5, 120, 120.33, 120.5],
+            "observation": "A selected cell breaks into red/pink squares drifting down and to one side, or fills with digits and goes dark."
+          },
+          {
+            "seconds": [121.33, 121.83],
+            "observation": "Deleted cells stay empty while the grid darkens; remaining cells do not move."
+          }
+        ],
+        "limitations": [
+          "Fragment trajectories, exact easing and the number of tiles are not resolvable from 6 fps samples; seeded paths are authored, not measured.",
+          "In the reference the deletion grid holds many different illustrations; the preview deletes cells of the single assembled image so both halves stay in one study.",
+          "The source character art is not reused; the preview is an original code-drawn astronaut illustration."
+        ],
+        "exact_hex_from_source": false,
+        "review_model": "claude-opus-5-5",
+        "review_session_id": "1a123899-b189-4855-a8af-24cc095da54b"
+      }
     }
   ],
   "library_options": [

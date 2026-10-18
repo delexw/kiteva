@@ -79,7 +79,12 @@ it("reads partial and older drafts without losing what was typed", () => {
     drafts: { new: { step: 1, request: { instructions: "Paper kite" } }, broken: { step: 99 } },
   });
   expect(state.drafts.new.assets).toEqual([]);
-  expect(state.drafts.broken).toEqual({ step: 0, request: {}, assets: [] });
+  expect(state.drafts.broken).toEqual({
+    step: 0,
+    stepLayout: "separate-speech",
+    request: {},
+    assets: [],
+  });
   const request = roomDraftRequest(state.drafts.new);
   expect(request).toMatchObject({
     instructions: "Paper kite",

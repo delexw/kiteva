@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "styleId": "style-138",
+    "name": "Terminal Lyric Duotone Anime. An authored Motion Graphic in Drawing and Illustration: a strict three-ink anime music-video grammar inside a CRT terminal frame, narrower than Anime (style-033) and using CRT (style-066) and Glitch Art (style-067) only as finishing and transition layers.",
+    "visualIdentity": "Explicit: flat hard-edged ultramarine, cream and near-black art with no gradients (a tritone despite the Duotone name), red reserved for warnings and peaks, a mild CRT vignette, scanlines, grain and corner brackets, a §NN header, an audio meter, bilingual monospace captions that decode from scrambled glyphs with a progress underline, ringed keyword titles and HUD overlays that read the subject as data.",
+    "suitableUses": "Explicit: lyric videos, music videos and character-driven stories framed as terminals, programs or memories. Inferred: tech-themed narrative shorts and bilingual title sequences. Not suited to photoreal, pastel, rainbow-neon or corporate-dashboard briefs. Audience is unspecified.",
+    "limitations": "Character and scene art must be supplied or purpose-drawn; code may only draw labelled placeholders, and no output may imply AI-generated or reference footage. Do not reproduce any source character, song or lyrics. Avoid gradients, continuous glitching, strobing (keep flashes under about three per second) and illegible microtext.",
+    "palette": "Suggested scene-dependent tokens: screen #06070B, near-black ink #0D0F16, ultramarine #2747C8, cream #F1E8D2, signal blue #7A93FF for on-screen keyword text and HUD only, warning red #F0473A reserved. Gradients disabled except the CRT vignette.",
+    "motionAndInteraction": "Explicit: held cutout poses, character-by-character caption decode with a growing underline, a keyword title entering with an RGB offset and settling inside an ellipse ring, HUD data builds, plain or brief glitch cuts and readable holds. Optional references: Glitch Type Build, Data Build, Glitch Cut, Terminal Typing, Rotating Sonar-Sweep Reveal and Pixel-Tile Materialize & Targeted Delete.",
+    "audio": "Optional song, instrumental bed, sparse UI blips or silence; captions follow measured vocal timing only. Do not claim beat sync, invent lyrics or imitate a specific song. The catalog preview is silent.",
+    "assetRequirements": "Requires supplied or purpose-drawn three-ink illustrations for real productions; exact bilingual copy, duration, aspect ratio and frame rate are unspecified unless supplied. Use local system monospace and CJK fonts and verify glyph coverage.",
+    "combinations": "Usually used alone. CRT / Analog Video Effects (style-066) for power-on or squeeze transitions, Infinite Zoom (style-098) for an iris push into a title, Glitch Art (style-067) for brief red slice frames at warning peaks.",
+    "productionApproach": "Supplied illustration layers plus HTML/CSS and SVG for frame, HUD and captions, Canvas 2D for seeded grain or pixel effects, GSAP with Scrambled Text Reveal or a seeded glyph table on one paused timeline, chroma-js for contrast checks. Composition and export follow the project renderer, HyperFrames by default."
+  },
+  "model": "claude-opus-5-5",
+  "provider": "claude"
+}

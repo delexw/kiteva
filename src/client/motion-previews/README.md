@@ -52,10 +52,12 @@ Claude Opus 5.5 rewrote the 43 studies and reviewed their rendered six-timestamp
 | motion-040 | Word Smash Cuts                                | [motion-040.ts](./motion-040.ts) |
 | motion-041 | Ranked Bar Race                                | [motion-041.ts](./motion-041.ts) |
 | motion-042 | Lighting State Progression                     | [motion-042.ts](./motion-042.ts) |
-| motion-043 | 360° Camera Orbit (360度环绕运镜)              | [motion-043.ts](./motion-043.ts) |
+| motion-043 | 360° Camera Orbit                              | [motion-043.ts](./motion-043.ts) |
 | motion-044 | Glyph Ink-Flood Container Handoff              | [motion-044.ts](./motion-044.ts) |
 | motion-045 | Annotation-Mark Portal Transition              | [motion-045.ts](./motion-045.ts) |
 | motion-046 | Cumulative Device-Feed Pipeline                | [motion-046.ts](./motion-046.ts) |
+| motion-047 | Rotating Sonar-Sweep Reveal                    | [motion-047.ts](./motion-047.ts) |
+| motion-048 | Pixel-Tile Materialize & Targeted Delete       | [motion-048.ts](./motion-048.ts) |
 
 `motion-043.ts` uses `../motion-orbit-preview.ts` for its projected 3D geometry.
 
@@ -69,11 +71,14 @@ Claude Opus 5.5 authored motion-044 to motion-046 from a frame analysis of a use
 - motion-038: keyword-glyph portal.
 - motion-040: burst-masked swap and squash-to-band flip.
 
+Claude Opus 5.5 authored motion-047 and motion-048 on 2026-10-18 from a frame analysis of a user-supplied anime-style music video. motion-047 rotates one sector beam clockwise around a fixed pivot over an original underwater scene: clear inside, dark dot matrix outside, with no accumulated history. motion-048 slices one original astronaut illustration into 48 real crops that assemble from seeded scatter, then a red selection box deletes fixed cells, which stay empty. Both modules export pure timing and state helpers. The [review record](../../../assets/catalog/reviews/terminal-lyric-anime.json) lists the evidence, links and limitations.
+
 All drawings are original code; no source imagery is reused. The [frame-findings record](../../../assets/catalog/reviews/mg-frame-findings.json) maps each recommendation to its implementation and evidence frames. Its visual review stays pending until the rendered previews have been inspected.
 
 Verification:
 
 - `tests/motion-drawing.test.ts`: catalog coverage, motion semantics, finite drawing coordinates and repeatable seeks.
 - `tests/motion-orbit-preview.test.ts`: camera path and front/back occlusion.
+- `tests/terminal-lyric-anime.test.ts`: motion-047 rotation and mask semantics, motion-048 crops, assembly, fixed-cell deletion and seek stability, plus real canvas frames when the optional native canvas package is installed.
 - `tests/mg-frame-findings.test.tsx`: the three frame-finding motions, the seven improved studies, variant contracts, catalog links and seek stability.
 - `scripts/verify-motion-explorer.ts`: every catalog card and detail preview in the running app, pause/resume, pixel changes, repeatable seeking, offscreen pause and reduced motion. Run with `node --import tsx scripts/verify-motion-explorer.ts`.

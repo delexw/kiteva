@@ -227,3 +227,21 @@ it("passes the selected Pocket engine through narration preparation and reuses i
   );
   expect(louder?.cues).toEqual(track?.cues);
 });
+
+it("prepares a provided narration track while on-screen lyrics are off", async () => {
+  const options = await input();
+  options.request = VideoRequestSchema.parse({
+    ...options.request,
+    lyrics: { mode: "off" },
+    speech: { mode: "narration", source: "provided", text: "An independent spoken story" },
+  });
+  const synthesize = vi.fn(async (_text: string, file: string) => {
+    await tone(file);
+    return 0.25;
+  });
+  const track = await prepareSpeech(options, { synthesize });
+  expect(track?.cues).toEqual([
+    { text: "An independent spoken story", startSeconds: 0, endSeconds: 0.25 },
+  ]);
+  expect(synthesize).toHaveBeenCalledTimes(1);
+});

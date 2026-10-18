@@ -1,3 +1,4 @@
+import { nativeExecutable } from "../runtime/platform";
 import { once } from "node:events";
 import { spawn, type ChildProcess } from "node:child_process";
 import { access, mkdir, open, readFile } from "node:fs/promises";
@@ -43,12 +44,12 @@ async function startProxy(signal: AbortSignal) {
   const { home, port } = cavemanSettings();
   signal.throwIfAborted();
   if (await proxyHealthy()) return;
-  await access(path.join(home, "bin", "caveman-proxy"));
-  await access(path.join(home, "bin", "caveman-mcp"));
+  await access(path.join(home, "bin", nativeExecutable("caveman-proxy")));
+  await access(path.join(home, "bin", nativeExecutable("caveman-mcp")));
   await mkdir(home, { recursive: true, mode: 0o700 });
   const log = await open(path.join(home, "sdk-proxy.log"), "a", 0o600);
   try {
-    ownedProxy = spawn(path.join(home, "bin", "caveman-proxy"), [], {
+    ownedProxy = spawn(path.join(home, "bin", nativeExecutable("caveman-proxy")), [], {
       cwd: appRoot,
       env: {
         ...childEnvironment(),
@@ -60,6 +61,7 @@ async function startProxy(signal: AbortSignal) {
         CAVEMAN_TELEMETRY: "off",
       },
       stdio: ["ignore", log.fd, log.fd],
+      windowsHide: true,
     });
     let launchError: Error | undefined;
     ownedProxy.on("error", (error) => {
@@ -100,7 +102,7 @@ export async function cavemanRuntime(signal: AbortSignal) {
     url: settings.url,
     env: { CAVEMAN_HOME: settings.home },
     mcp: {
-      command: path.join(settings.home, "bin", "caveman-mcp"),
+      command: path.join(settings.home, "bin", nativeExecutable("caveman-mcp")),
       args: [] as string[],
       env: { CAVEMAN_HOME: settings.home },
     },

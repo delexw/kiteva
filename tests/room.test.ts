@@ -327,6 +327,7 @@ it("keeps materials that are not on the shelf visible and counted when editing a
 it("restores drafts saved before materials were tracked", () => {
   expect(RoomStateSchema.parse({ drafts: { new: { step: 1, request: {} } } }).drafts.new).toEqual({
     step: 1,
+    stepLayout: "separate-speech",
     request: {},
     assets: [],
   });
@@ -342,6 +343,89 @@ it("answers a malformed room save with the same 400 error shape as the backend",
     const response = await app.inject({ method: "PATCH", url: "/api/room", payload: {} });
     expect(response.statusCode).toBe(400);
     expect(response.json().code).toBe("INVALID_REQUEST");
+    const localization = await app.inject({
+      method: "POST",
+      url: "/api/room/localize",
+      payload: {},
+    });
+    expect(localization.statusCode).toBe(404);
+  } finally {
+    await app.close();
+    store.close();
+  }
+});
+
+it("migrates legacy draft steps once and persists their layout through room saves", () => {
+  const store = new Store(":memory:");
+  const legacy = {
+    drafts: Object.fromEntries(
+      [0, 4, 5, 6].map((step) => [
+        `edit:${step}`,
+        {
+          step,
+          request: { instructions: "Preserve my idea", speech: { mode: "off" } },
+          assets: [],
+        },
+      ]),
+    ),
+  };
+  const migrated = RoomStateSchema.parse(legacy);
+  expect(Object.values(migrated.drafts).map((draft) => draft.step)).toEqual([0, 4, 6, 7]);
+  for (const draft of Object.values(migrated.drafts)) {
+    expect(draft.stepLayout).toBe("separate-speech");
+    expect(draft.request).toEqual({ instructions: "Preserve my idea", speech: { mode: "off" } });
+  }
+  store.saveRoom(migrated);
+  expect(store.room()).toEqual(migrated);
+  const saved = store.patchRoom({
+    client: "migration-test",
+    baseRevision: migrated.revision,
+    drafts: { "edit:5": { ...migrated.drafts["edit:5"], step: 5 } },
+    windows: {},
+    questionDrafts: {},
+    views: {},
+    dismissedQuestions: [],
+    force: [],
+  });
+  expect(saved.conflicts).toEqual([]);
+  expect(saved.state.drafts["edit:5"].step).toBe(5);
+  expect(store.room().drafts["edit:5"].step).toBe(5);
+  expect(RoomStateSchema.parse(store.room())).toEqual(store.room());
+});
+
+it("round-trips the new narration step through the room API after a legacy draft is loaded", async () => {
+  const store = new Store(":memory:");
+  store.saveRoom({
+    ...RoomStateSchema.parse({}),
+    drafts: { "edit:legacy": { step: 5, request: { instructions: "My saved story" }, assets: [] } },
+  });
+  const folder = await mkdtemp(path.join(os.tmpdir(), "room-migration-"));
+  folders.push(folder);
+  const app = Fastify();
+  await registerRoomRoutes(app, store, folder);
+  try {
+    const loaded = (await app.inject({ method: "GET", url: "/api/room" })).json();
+    expect(loaded.drafts["edit:legacy"]).toMatchObject({ step: 6, stepLayout: "separate-speech" });
+    const saved = await app.inject({
+      method: "PATCH",
+      url: "/api/room",
+      payload: {
+        client: "editing-tab",
+        baseRevision: loaded.revision,
+        drafts: { "edit:legacy": { ...loaded.drafts["edit:legacy"], step: 5 } },
+      },
+    });
+    expect(saved.statusCode).toBe(200);
+    expect(saved.json().state.drafts["edit:legacy"]).toMatchObject({
+      step: 5,
+      stepLayout: "separate-speech",
+    });
+    const reloaded = (await app.inject({ method: "GET", url: "/api/room" })).json();
+    expect(reloaded.drafts["edit:legacy"]).toMatchObject({
+      step: 5,
+      stepLayout: "separate-speech",
+      request: { instructions: "My saved story" },
+    });
   } finally {
     await app.close();
     store.close();

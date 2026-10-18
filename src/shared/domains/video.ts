@@ -1,6 +1,7 @@
 import type { VideoBuildPlan } from "../agents/schemas/video-build-plan";
 import { validateStyleSelection } from "../style-selection";
 import { z } from "zod";
+import { VideoLanguageSchema, VideoTranslationsSchema } from "../video-language";
 import { SharedRequestSchema } from "./common";
 import { videoRendererIds } from "../video-renderers";
 import { SpeechSettingsSchema, type SpeechTrack } from "../speech";
@@ -10,7 +11,10 @@ import { MAX_VIDEO_DURATION } from "../agents/schemas/video";
 export const LyricsSchema = z.discriminatedUnion("mode", [
   z.object({ mode: z.literal("off") }),
   z.object({ mode: z.literal("write") }),
-  z.object({ mode: z.literal("provided"), text: z.string().trim().min(1).max(8000) }),
+  z.object({
+    mode: z.literal("provided"),
+    text: z.string().trim().min(1).max(8000),
+  }),
 ]);
 export type Lyrics = z.infer<typeof LyricsSchema>;
 export function lyricsFromInput(enabled: boolean, text: string): Lyrics {
@@ -34,6 +38,8 @@ export const VideoRequestSchema = SharedRequestSchema.extend({
   renderer: z.enum(videoRendererIds).optional(),
   lyrics: LyricsSchema.optional(),
   speech: SpeechSettingsSchema.optional(),
+  outputLanguage: VideoLanguageSchema.optional(),
+  translations: VideoTranslationsSchema.optional(),
 }).superRefine(validateStyleSelection);
 export type VideoRequest = z.infer<typeof VideoRequestSchema>;
 export const MIN_AUTO_VIDEO_DURATION = 15;

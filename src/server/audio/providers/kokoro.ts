@@ -1,7 +1,8 @@
+import { defaultPython } from "../../runtime/platform";
 import { existsSync } from "node:fs";
 import { access } from "node:fs/promises";
 import path from "node:path";
-import { speechVoices, type SpeechReadiness } from "../../../shared/speech";
+import { pocketVoices, speechVoices, type SpeechReadiness } from "../../../shared/speech";
 import { appRoot, dataRoot } from "../../runtime/config";
 import { command } from "../../runtime/process";
 import { publishSpeechWave } from "./local-wave";
@@ -18,7 +19,7 @@ const managedPython = path.join(
   process.platform === "win32" ? "Scripts/python.exe" : "bin/python",
 );
 const python = () =>
-  process.env.HYPERFRAMES_PYTHON || (existsSync(managedPython) ? managedPython : "python3");
+  process.env.HYPERFRAMES_PYTHON || (existsSync(managedPython) ? managedPython : defaultPython());
 
 async function speechReadiness(signal: AbortSignal): Promise<SpeechReadiness> {
   const checks = async () => {
@@ -82,7 +83,10 @@ async function synthesizeSpeech(
             "--voice",
             voice,
             "--language",
-            speechVoices.find((item) => item.id === voice)?.language || "en-us",
+            speechVoices.find((item) => item.id === voice)?.language ||
+              pocketVoices.find((item) => item.reference === `synthetic:kokoro/${voice}`)
+                ?.language ||
+              "en-us",
             "--speed",
             String(speed),
             "--output",

@@ -4,7 +4,7 @@ import path from "node:path";
 import { bundledSkills } from "./bundled-skills/registry";
 export { bundledSkillsGuidance } from "./bundled-skills/registry";
 export { anatomySkillPath, claudeAnatomySkillName } from "./bundled-skills/anatomy";
-import { appRoot } from "../runtime/config";
+import { installedSkill, authoringSkillRoot } from "./bundled-skills/installation";
 
 export function claudeBundledSkills(workspace: string, enabled: boolean) {
   return {
@@ -13,12 +13,21 @@ export function claudeBundledSkills(workspace: string, enabled: boolean) {
   };
 }
 
-/** Stage only the pinned, checked-in files; never import user-global SDK settings. */
-export async function prepareBundledSkills(workspace: string, signal: AbortSignal) {
+/** Stage only the installed, integrity-checked files; never import user-global SDK settings. */
+export async function prepareBundledSkills(
+  workspace: string,
+  signal: AbortSignal,
+  skillRoot = authoringSkillRoot,
+) {
   signal.throwIfAborted();
   const root = path.resolve(workspace);
   await mkdir(root, { recursive: true });
   for (const skill of bundledSkills) {
+    const installation = await installedSkill(skill, skillRoot).catch(() => {
+      throw Error(
+        `${skill.name} is not installed or failed verification. Connect to the internet and relaunch Kiteva.`,
+      );
+    });
     // mkdir alone would follow a link left by generated code outside the workspace.
     let folder = root;
     for (const segment of skill.workspacePath.split("/")) {
@@ -27,9 +36,9 @@ export async function prepareBundledSkills(workspace: string, signal: AbortSigna
       if (!(await lstat(folder)).isDirectory())
         throw Error("Bundled skill directory must not be a link");
     }
-    for (const [relative, expectedHash] of Object.entries(skill.manifest.files)) {
+    for (const [relative, expectedHash] of Object.entries(installation.manifest.files)) {
       signal.throwIfAborted();
-      const source = path.join(appRoot, "assets/agent-skills", skill.id, relative);
+      const source = path.join(installation.directory, relative);
       if (!(await lstat(source)).isFile())
         throw Error(`Invalid bundled ${skill.name} file: ${relative}`);
       const bytes = await readFile(source);

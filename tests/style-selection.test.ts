@@ -1,8 +1,33 @@
 import { expect, it } from "vitest";
 import { RequestSchema } from "../src/shared/contracts";
-import { manualStyleLimit } from "../src/shared/style-selection";
+import { manualStyleLimit, normalizeStyleSelection } from "../src/shared/style-selection";
 import { manualDirection } from "../src/server/jobs/manual-direction";
 import { loadCatalog } from "../src/server/catalog/catalog";
+it.each([
+  { candidateCount: 2, selectedStyleIds: ["style-056"] },
+  { candidateCount: 0, selectedStyleIds: ["style-056"] },
+  { candidateCount: 0, selectedStyleIds: [] },
+  { candidateCount: 3 },
+])("normalizes editing choices for strict API requests: %j", (selection) => {
+  const draft = {
+    ...selection,
+    instructions: "A visual story",
+    outputLanguage: "zh",
+    lyrics: { mode: "provided", text: "A story begins." },
+  };
+  const before = structuredClone(draft);
+  const request = RequestSchema.parse(normalizeStyleSelection(draft));
+  expect(request).toMatchObject({
+    instructions: draft.instructions,
+    outputLanguage: "zh",
+    lyrics: draft.lyrics,
+    candidateCount: selection.selectedStyleIds?.length ? 0 : selection.candidateCount || 5,
+  });
+  expect(request.selectedStyleIds).toEqual(
+    selection.selectedStyleIds?.length ? selection.selectedStyleIds : undefined,
+  );
+  expect(draft).toEqual(before);
+});
 it.each([
   [15, 3],
   [29, 3],

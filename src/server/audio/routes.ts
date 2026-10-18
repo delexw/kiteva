@@ -63,7 +63,7 @@ export function registerSpeechRoutes(app: FastifyInstance) {
         es: "Demos vida a tus ideas.",
         nl: "Laten we je idee tot leven brengen.",
         ja: "あなたのアイデアを形にしましょう。",
-        zh: "让你的创意成为现实。",
+        zh: "让你的创意成为现实，用自然清晰的中文，讲述属于你的故事。",
       };
       const sample = samples[speechLanguage(settings.voice, settings.engine, settings.language)!];
       await synthesizeSpeech(

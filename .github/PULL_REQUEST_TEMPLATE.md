@@ -24,7 +24,7 @@
 ## Licensing
 
 - [ ] I can contribute this, and I agree it is licensed under the Kiteva Non-Commercial License
-- [ ] Third-party files (for example `assets/agent-skills/anatomy`) are unchanged, or the update follows the documented procedure
+- [ ] Third-party files (for example the downloaded `skills/anatomy` installation) are unchanged, or the update follows the documented procedure
 - [ ] New dependencies and their licenses are listed below
 
 ## Docs

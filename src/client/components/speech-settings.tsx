@@ -8,9 +8,11 @@ import {
   speechVoicesForEngine,
   pocketLanguages,
   pocketVoiceGroups,
+  pocketLanguageForVoice,
   type SpeechSettings as Settings,
   type SpeechReadiness,
 } from "../../shared/speech";
+import type { VideoLanguage } from "../../shared/video-language";
 import { api } from "../lib/api";
 import "./speech-settings.css";
 
@@ -32,10 +34,12 @@ export function SpeechSettings({
   value,
   onChange,
   audioAssets,
+  videoLanguage,
 }: {
   value?: Settings;
   onChange: (settings: Settings) => void;
   audioAssets: Array<{ id: string; name: string }>;
+  videoLanguage?: VideoLanguage;
 }) {
   const [status, setStatus] = useState<SpeechReadiness>();
   const [error, setError] = useState("");
@@ -85,7 +89,7 @@ export function SpeechSettings({
       voice: "af_heart",
       speed: 1,
       volume: 1,
-      source: "lyrics",
+      source: "write",
       text: "",
       instructions: "",
     });
@@ -174,25 +178,52 @@ export function SpeechSettings({
             className="speech-control-half"
             aria-label="Speech language"
             style={{ width: "100%" }}
-            value={selectedLanguage || voice?.language}
-            options={
-              engine === "pocket-tts"
+            value={
+              videoLanguage && value.followVideoLanguage !== false
+                ? "follow"
+                : selectedLanguage || voice?.language
+            }
+            options={[
+              ...(videoLanguage
+                ? [
+                    {
+                      value: "follow",
+                      label: `Follow video · ${videoLanguage === "zh" ? "简体中文" : "English"}`,
+                    },
+                  ]
+                : []),
+              ...(engine === "pocket-tts"
                 ? pocketLanguages.map((language) => ({ value: language.id, label: language.label }))
                 : Object.entries(languages)
                     .filter(([language]) => voices.some((voice) => voice.language === language))
-                    .map(([value, label]) => ({ value, label }))
-            }
-            onChange={(language) =>
+                    .map(([value, label]) => ({ value, label }))),
+            ]}
+            onChange={(language) => {
+              if (language === "follow") {
+                onChange({ ...value, followVideoLanguage: true });
+                return;
+              }
               onChange(
                 engine === "pocket-tts"
-                  ? { ...value, language }
+                  ? {
+                      ...value,
+                      followVideoLanguage: false,
+                      language,
+                      voice:
+                        language === "zh"
+                          ? "pocket_zh_xiaobei"
+                          : pocketLanguageForVoice(value.voice)?.id === "zh"
+                            ? "pocket_alba"
+                            : value.voice,
+                    }
                   : {
                       ...value,
+                      followVideoLanguage: false,
                       language: undefined,
                       voice: voices.find((voice) => voice.language === language)!.id,
                     },
-              )
-            }
+              );
+            }}
           />
           <Space.Compact className="speech-control-half" style={{ width: "100%" }}>
             <Select<string>
@@ -202,6 +233,18 @@ export function SpeechSettings({
               options={
                 engine === "pocket-tts"
                   ? pocketVoiceGroups
+                      .map((group) => ({
+                        ...group,
+                        options: group.options.filter((option) =>
+                          Boolean(
+                            pocketLanguageForVoice(
+                              option.value,
+                              selectedLanguage || voice?.language,
+                            ),
+                          ),
+                        ),
+                      }))
+                      .filter((group) => group.options.length)
                   : voices
                       .filter((item) => item.language === voice?.language)
                       .map((item) => ({ value: item.id, label: item.label }))

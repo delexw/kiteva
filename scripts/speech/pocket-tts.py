@@ -7,7 +7,7 @@ from pathlib import Path
 
 catalog = json.loads((Path(__file__).resolve().parents[2] / "src/shared/pocket-tts-catalog.json").read_text())
 VERSION = catalog["version"]
-languages = {language["model"]: language for language in catalog["languages"]}
+languages = {language["model"]: language for language in catalog["languages"] if language["id"] != "zh"}
 parser = argparse.ArgumentParser()
 parser.add_argument("--models", required=True)
 parser.add_argument("--language", choices=languages, default="english")
@@ -18,7 +18,7 @@ parser.add_argument("--text-file")
 parser.add_argument("--output")
 args = parser.parse_args()
 language = languages[args.language]
-voices = [voice["id"] for voice in catalog["voices"]]
+voices = [voice["id"] for voice in catalog["voices"] if voice["language"] != "zh"]
 selected_voice = args.voice or language["defaultVoice"]
 if selected_voice not in voices:
     parser.error("Choose an official Pocket TTS voice")

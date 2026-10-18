@@ -33,3 +33,7 @@ coverage/
 # Downloaded speech model weights and voice states (setup recreates these)
 /models/kokoro/
 /models/pocket-tts/
+/models/pocket-tts-zh/
+
+# Upstream authoring skills are installed and refreshed at launch.
+/skills/

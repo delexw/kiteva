@@ -16,18 +16,18 @@ Three different things are easy to mix up, so they are kept apart here:
 3. **What you install yourself.** Node, a Chromium browser, `ffmpeg`/`ffprobe`, Python
    for local speech, optional desktop tools, and model weights. Model weights are never committed to Git.
 
-Counts were taken from the source on 2026-10-17.
+Counts reflect the current source; native Windows dependencies were added on 2026-10-18.
 
-| What                           |                             Count | Source                                                                                      |
-| ------------------------------ | --------------------------------: | ------------------------------------------------------------------------------------------- |
-| Motion Graphics in the catalog |                               136 | `assets/catalog/video-style-catalog.json`                                                   |
-| Motions in the catalog         |                                46 | `assets/catalog/motion-pattern-catalog.json`                                                |
-| Technology pool entries        |                                92 | `technologyPoolSize` in `src/shared/technology-pool.ts`                                     |
-| Bundled authoring skills       |     1 (Anatomy, 141 pinned files) | `src/server/agents/bundled-skills/registry.ts`, `assets/agent-skills/anatomy.manifest.json` |
-| Selectable renderers           | 2 (HyperFrames, Multiplane trial) | `src/shared/video-renderers.ts`                                                             |
-| Fallback renderer              |      1 (Remotion, not selectable) | `src/server/domains/video/render.ts`                                                        |
-| Local speech engines           |            2 (Kokoro, Pocket TTS) | `src/server/audio/providers`                                                                |
-| Direct npm dependencies        |               58 runtime + 17 dev | `package.json`                                                                              |
+| What                               |                             Count | Source                                                                        |
+| ---------------------------------- | --------------------------------: | ----------------------------------------------------------------------------- |
+| Motion Graphics in the catalog     |                               138 | `assets/catalog/video-style-catalog.json`                                     |
+| Motions in the catalog             |                                48 | `assets/catalog/motion-pattern-catalog.json`                                  |
+| Technology pool entries            |                                92 | `technologyPoolSize` in `src/shared/technology-pool.ts`                       |
+| Startup-installed authoring skills |  1 (Anatomy, installed at launch) | `src/server/agents/bundled-skills/registry.ts`, `skills/anatomy/current.json` |
+| Selectable renderers               | 2 (HyperFrames, Multiplane trial) | `src/shared/video-renderers.ts`                                               |
+| Fallback renderer                  |      1 (Remotion, not selectable) | `src/server/domains/video/render.ts`                                          |
+| Local speech engines               |            2 (Kokoro, Pocket TTS) | `src/server/audio/providers`                                                  |
+| Direct npm dependencies            |               60 runtime + 17 dev | `package.json`                                                                |
 
 ## Who does what
 
@@ -39,21 +39,21 @@ These are separate jobs. A single library can do more than one, but Kiteva recor
 | **Motion engine** (`motion_engine`)                  | Moves things over time: easing, transitions, simulation                    | [GSAP](https://gsap.com/docs/v3/), [Motion](https://motion.dev/docs/animate), [Matter.js](https://brm.io/matter-js/docs/) (recommended, not installed)                                                             |
 | **Render pipeline** (`render_pipeline`)              | Assembles scenes against seekable time, mixes audio, validates and exports | [HyperFrames](https://hyperframes.heygen.com/developers), [Multiplane](https://github.com/LBEILC/Multiplane), [Remotion](https://www.remotion.dev/docs/) fallback, [FFmpeg](https://ffmpeg.org/documentation.html) |
 | **Built-in agent tool**                              | A capability Kiteva hands to the model during a turn                       | `reference_browser` (inspect, click, screenshot) and `capture_video`, both using [Puppeteer](https://pptr.dev)                                                                                                     |
-| **Bundled authoring skill**                          | Reference instructions plus a drawing kit the model may read               | [Anatomy](https://github.com/wheresryan22/anatomy)                                                                                                                                                                 |
+| **Startup-installed authoring skill**                | Reference instructions plus a drawing kit the model may read               | [Anatomy](https://github.com/wheresryan22/anatomy)                                                                                                                                                                 |
 
 The catalog's production policy puts it this way: the pipeline must not decide or simplify the visual
 style. HyperFrames is the first choice for composition and export, and Remotion is the conditional fallback.
 
-## The bundled skill: Anatomy
+## The startup-installed skill: Anatomy
 
-Kiteva bundles exactly one skill.
+Kiteva registers one upstream skill and installs or updates it at server launch. Its upstream files are not tracked in this repository.
 
 |                    |                                                                                                  |
 | ------------------ | ------------------------------------------------------------------------------------------------ |
 | Upstream           | [wheresryan22/anatomy](https://github.com/wheresryan22/anatomy)                                  |
-| Pinned revision    | `e9488296a44211c42701ff71705b7901470ec78f`                                                       |
-| Files              | 141, each with a SHA-256 hash in `assets/agent-skills/anatomy.manifest.json`                     |
-| License            | MIT, © 2026 Ryan. The upstream `LICENSE` is kept unchanged in `assets/agent-skills/anatomy/`     |
+| Installed revision | Current upstream default-branch commit, recorded in `skills/anatomy/current.json`                |
+| Files              | Downloaded files, each with a SHA-256 hash in `skills/anatomy/current.json`                      |
+| License            | MIT, © 2026 Ryan. The upstream `LICENSE` is kept unchanged in `skills/anatomy/<revision>/`       |
 | Kiteva's own files | `src/server/agents/bundled-skills/anatomy.ts` (registration), `anatomy-prompt.ts` (instructions) |
 | Used for           | Detailed isometric technical illustrations and mechanisms. Its 3D mode is beta                   |
 
@@ -70,7 +70,7 @@ Before every file-enabled Claude or Codex turn, Kiteva checks each hash and copi
 
 Anatomy is optional. The model uses it when a scene suits it or when you ask for it, and it isn't tied
 to any Motion Graphic. It doesn't replace the renderer. For video, its interactive examples have to be
-driven from composition time and checked with forward, backward and direct seeks. Nothing is downloaded at runtime.
+driven from composition time and checked with forward, backward and direct seeks. Downloads run once at launch, never inside provider turns. Internet access is required for the first installation. Node.js downloads the upstream ZIP directly over HTTPS; no Git CLI, skills CLI, GitHub API or access token is required. Failed updates retain the last verified revision; if none exists, the app opens but creative tasks stop with a setup message. No upstream installation scripts are executed.
 
 ## Renderers
 
@@ -97,10 +97,11 @@ or any other desktop recorder.
 
 ## Local speech
 
-| Engine                                                                                                             | Runs through                      | Setup                         | Where weights live                 |
-| ------------------------------------------------------------------------------------------------------------------ | --------------------------------- | ----------------------------- | ---------------------------------- |
-| [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) via [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) | Python in `.data/speech-venv`     | `npm run speech:setup`        | `models/kokoro/` (Git-ignored)     |
-| [Pocket TTS](https://pypi.org/project/pocket-tts/) (Kyutai) 3.3.0                                                  | Python in `.data/pocket-tts-venv` | `npm run speech:setup:pocket` | `models/pocket-tts/` (Git-ignored) |
+| Engine                                                                                                             | Runs through                         | Setup                            | Where weights live                    |
+| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------ | -------------------------------- | ------------------------------------- |
+| [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) via [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) | Python in `.data/speech-venv`        | `npm run speech:setup`           | `models/kokoro/` (Git-ignored)        |
+| [Pocket TTS](https://pypi.org/project/pocket-tts/) (Kyutai) 3.3.0                                                  | Python in `.data/pocket-tts-venv`    | `npm run speech:setup:pocket`    | `models/pocket-tts/` (Git-ignored)    |
+| [PocketTTS-ZH-6L](https://huggingface.co/hustfyb/PocketTTS-ZH-6L) (Mandarin, Apache-2.0)                           | Python in `.data/pocket-tts-zh-venv` | `npm run speech:setup:pocket:zh` | `models/pocket-tts-zh/` (Git-ignored) |
 
 Both use one TypeScript interface in `src/server/audio/providers`. Narration is synthesised locally
 before the full film is implemented, then mixed into the MP4. Previews are always silent. Kiteva has no
@@ -268,87 +269,97 @@ These are pool entries for material a person provides, such as photographed stop
 | Layered High-Resolution Assets       | Supply prepared layers or numbered frames. | —                         |
 | Layered PNG/SVG Assets               | Supply prepared layers or numbered frames. | —                         |
 
-## Direct npm dependencies (75)
+## Direct npm dependencies (83)
 
 Versions are what `npm ci` installed when this page was written. Licenses come from each package's own metadata.
 
-| Package                                                                                       | Version | Type    | Used for                                                   | License (as declared)             |
-| --------------------------------------------------------------------------------------------- | ------- | ------- | ---------------------------------------------------------- | --------------------------------- |
-| [`@ant-design/x`](https://x.ant.design)                                                       | 2.9.0   | runtime | Conversation UI                                            | MIT                               |
-| [`@anthropic-ai/claude-agent-sdk`](https://github.com/anthropics/claude-agent-sdk-typescript) | 0.3.296 | runtime | Claude provider adapter                                    | SEE LICENSE IN README.md          |
-| [`@caveman-ai/cli`](https://github.com/JuliusBrussee/caveman)                                 | 4.0.1   | runtime | App-local token-compression proxy for SDK calls            | Apache-2.0                        |
-| [`@fastify/multipart`](https://github.com/fastify/fastify-multipart)                          | 9.4.0   | runtime | Asset uploads                                              | MIT                               |
-| [`@fastify/static`](https://github.com/fastify/fastify-static)                                | 8.3.0   | runtime | Serves the built UI                                        | MIT                               |
-| [`@json-render/core`](https://json-render.dev)                                                | 0.21.0  | runtime | Structured UI rendering                                    | Apache-2.0                        |
-| [`@json-render/react`](https://json-render.dev)                                               | 0.21.0  | runtime | Structured UI rendering                                    | Apache-2.0                        |
-| [`@modelcontextprotocol/sdk`](https://modelcontextprotocol.io)                                | 1.32.1  | runtime | Job-scoped reference browser and capture MCP server        | MIT                               |
-| [`@openai/codex-sdk`](https://github.com/openai/codex/tree/main/sdk/typescript)               | 0.162.1 | runtime | Codex provider adapter                                     | Apache-2.0                        |
-| [`@radix-ui/react-use-controllable-state`](https://radix-ui.com/primitives)                   | 1.3.0   | runtime | UI state helper                                            | MIT                               |
-| [`@remotion/cli`](https://www.remotion.dev/docs/cli)                                          | 4.0.534 | runtime | Remotion fallback render CLI                               | SEE LICENSE IN LICENSE.md         |
-| [`@streamdown/cjk`](https://streamdown.ai)                                                    | 1.0.4   | runtime | Streamed Markdown (CJK)                                    | Apache-2.0                        |
-| [`@streamdown/code`](https://streamdown.ai)                                                   | 2.0.0   | runtime | Streamed Markdown (code)                                   | Apache-2.0                        |
-| [`@streamdown/math`](https://streamdown.ai)                                                   | 1.0.3   | runtime | Streamed Markdown (math)                                   | Apache-2.0                        |
-| [`@streamdown/mermaid`](https://streamdown.ai)                                                | 1.0.3   | runtime | Streamed Markdown (Mermaid)                                | Apache-2.0                        |
-| [`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript)                                 | 0.6.0   | runtime | JEV evaluation and ranking client                          | MIT                               |
-| [`ai`](https://ai-sdk.dev/docs)                                                               | 7.0.137 | runtime | AI SDK UI helpers                                          | Apache-2.0                        |
-| [`antd`](https://ant.design)                                                                  | 6.6.6   | runtime | UI components                                              | MIT                               |
-| [`chroma-js`](https://gka.github.io/chroma.js/)                                               | 3.2.0   | runtime | Palette maths; also offered to compositions                | (BSD-3-Clause AND Apache-2.0)     |
-| [`class-variance-authority`](https://cva.style)                                               | 0.7.1   | runtime | UI styling helper                                          | Apache-2.0                        |
-| [`clsx`](https://github.com/lukeed/clsx)                                                      | 2.1.1   | runtime | UI styling helper                                          | MIT                               |
-| [`cmdk`](https://github.com/pacocoursey/cmdk)                                                 | 1.1.1   | runtime | Command menu                                               | MIT                               |
-| [`cn`](https://www.npmjs.com/package/cn)                                                      | 0.4.0   | runtime | UI styling helper                                          | MIT                               |
-| [`d3-polygon`](https://d3js.org/d3-polygon)                                                   | 3.0.1   | runtime | Hero geometry                                              | ISC                               |
-| [`dotenv`](https://github.com/motdotla/dotenv)                                                | 18.0.7  | runtime | Reads `.env.local`                                         | BSD-2-Clause                      |
-| [`fast-xml-parser`](https://github.com/NaturalIntelligence/fast-xml-parser)                   | 5.11.2  | runtime | Document/SVG parsing                                       | MIT                               |
-| [`fastify`](https://fastify.dev)                                                              | 5.12.5  | runtime | Local HTTP API                                             | MIT                               |
-| [`fflate`](https://github.com/101arrowz/fflate)                                               | 0.8.3   | runtime | Project ZIP export                                         | MIT                               |
-| [`gsap`](https://gsap.com)                                                                    | 3.15.0  | runtime | Motion engine offered to compositions                      | GSAP Standard "no charge" license |
-| [`hyperframes`](https://github.com/heygen-com/hyperframes)                                    | 0.8.144 | runtime | Primary render pipeline (pinned)                           | Apache-2.0                        |
-| [`ipaddr.js`](https://github.com/whitequark/ipaddr.js)                                        | 2.5.0   | runtime | Reference URL address checks                               | MIT                               |
-| [`lucide-react`](https://lucide.dev)                                                          | 1.55.0  | runtime | Icons                                                      | ISC                               |
-| [`mammoth`](https://github.com/mwilliamson/mammoth.js)                                        | 1.13.0  | runtime | DOCX text extraction                                       | BSD-2-Clause                      |
-| [`mdast-util-from-markdown`](https://github.com/syntax-tree/mdast-util-from-markdown)         | 2.1.0   | runtime | Storyboard Markdown migration                              | MIT                               |
-| [`mdast-util-gfm`](https://github.com/syntax-tree/mdast-util-gfm)                             | 3.1.0   | runtime | Storyboard Markdown migration                              | MIT                               |
-| [`mdast-util-to-string`](https://github.com/syntax-tree/mdast-util-to-string)                 | 4.0.0   | runtime | Storyboard Markdown migration                              | MIT                               |
-| [`micromark-extension-gfm`](https://github.com/micromark/micromark-extension-gfm)             | 3.0.0   | runtime | Storyboard Markdown migration                              | MIT                               |
-| [`minisearch`](https://lucaong.github.io/minisearch/)                                         | 7.2.0   | runtime | JEV preference-history lookup                              | MIT                               |
-| [`motion`](https://motion.dev)                                                                | 14.1.0  | runtime | Motion engine offered to compositions                      | MIT                               |
-| [`multiplane`](https://github.com/LBEILC/Multiplane)                                          | 0.3.10  | runtime | Trial render pipeline (pinned)                             | Apache-2.0                        |
-| [`nanoid`](https://github.com/ai/nanoid)                                                      | 6.0.2   | runtime | IDs                                                        | MIT                               |
-| [`paper`](http://paperjs.org)                                                                 | 0.12.18 | runtime | Vector drawing offered to compositions                     | MIT                               |
-| [`pdf-parse`](https://mehmet-kozan.github.io/pdf-parse/)                                      | 2.4.5   | runtime | PDF text extraction                                        | Apache-2.0                        |
-| [`pica`](https://github.com/nodeca/pica)                                                      | 10.0.3  | runtime | Image resizing for inspection copies and compositions      | MIT                               |
-| [`pixi.js`](https://pixijs.com)                                                               | 8.22.0  | runtime | 2D WebGL drawing offered to compositions                   | MIT                               |
-| [`puppeteer-core`](https://pptr.dev)                                                          | 25.13.0 | runtime | Headless reference browser and website capture             | Apache-2.0                        |
-| [`radix-ui`](https://radix-ui.com/primitives)                                                 | 1.7.0   | runtime | UI primitives                                              | MIT                               |
-| [`react`](https://react.dev)                                                                  | 19.3.0  | runtime | UI; also offered to compositions                           | MIT                               |
-| [`react-dom`](https://react.dev)                                                              | 19.3.0  | runtime | UI                                                         | MIT                               |
-| [`react-router-dom`](https://reactrouter.com)                                                 | 7.18.4  | runtime | Client routes                                              | MIT                               |
-| [`remotion`](https://www.remotion.dev)                                                        | 4.0.534 | runtime | Remotion fallback runtime                                  | SEE LICENSE IN LICENSE.md         |
-| [`roughjs`](https://roughjs.com)                                                              | 4.6.6   | runtime | Sketchy drawing offered to compositions                    | MIT                               |
-| [`sharp`](https://sharp.pixelplumbing.com)                                                    | 0.35.5  | runtime | Image previews and processing                              | Apache-2.0                        |
-| [`streamdown`](https://streamdown.ai)                                                         | 2.7.0   | runtime | Streamed Markdown                                          | Apache-2.0                        |
-| [`tailwind-merge`](https://github.com/dcastil/tailwind-merge)                                 | 3.7.0   | runtime | UI styling helper                                          | MIT                               |
-| [`three`](https://threejs.org)                                                                | 0.186.1 | runtime | 3D drawing offered to compositions; shared with Multiplane | MIT                               |
-| [`use-stick-to-bottom`](https://github.com/samdenty/use-stick-to-bottom)                      | 1.1.6   | runtime | Conversation scrolling                                     | MIT                               |
-| [`zod`](https://zod.dev)                                                                      | 4.6.5   | runtime | Shared contracts and validation                            | MIT                               |
-| [`@tailwindcss/vite`](https://tailwindcss.com)                                                | 4.3.3   | dev     | Build                                                      | MIT                               |
-| [`@types/chroma-js`](https://github.com/DefinitelyTyped/DefinitelyTyped)                      | 3.1.2   | dev     | Types                                                      | MIT                               |
-| [`@types/d3-polygon`](https://github.com/DefinitelyTyped/DefinitelyTyped)                     | 3.0.2   | dev     | Types                                                      | MIT                               |
-| [`@types/mdast`](https://github.com/DefinitelyTyped/DefinitelyTyped)                          | 4.0.4   | dev     | Types                                                      | MIT                               |
-| [`@types/node`](https://github.com/DefinitelyTyped/DefinitelyTyped)                           | 22.20.5 | dev     | Types                                                      | MIT                               |
-| [`@types/react`](https://github.com/DefinitelyTyped/DefinitelyTyped)                          | 19.3.0  | dev     | Types                                                      | MIT                               |
-| [`@types/react-dom`](https://github.com/DefinitelyTyped/DefinitelyTyped)                      | 19.3.0  | dev     | Types                                                      | MIT                               |
-| [`@types/three`](https://github.com/DefinitelyTyped/DefinitelyTyped)                          | 0.186.0 | dev     | Types                                                      | MIT                               |
-| [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react)                         | 6.1.2   | dev     | Build                                                      | MIT                               |
-| [`oxfmt`](https://oxc.rs/docs/guide/usage/formatter)                                          | 0.72.0  | dev     | Formatter                                                  | MIT                               |
-| [`oxlint`](https://oxc.rs/docs/guide/usage/linter)                                            | 1.87.0  | dev     | Linter                                                     | MIT                               |
-| [`playwright`](https://playwright.dev)                                                        | 1.64.0  | dev     | Browser verification scripts                               | Apache-2.0                        |
-| [`tailwindcss`](https://tailwindcss.com)                                                      | 4.3.3   | dev     | Styling                                                    | MIT                               |
-| [`tsx`](https://tsx.hirok.io)                                                                 | 4.23.15 | dev     | Runs TypeScript server and scripts                         | MIT                               |
-| [`typescript`](https://www.typescriptlang.org)                                                | 7.0.2   | dev     | Type checking                                              | Apache-2.0                        |
-| [`vite`](https://vite.dev)                                                                    | 8.3.4   | dev     | Client dev server and build                                | MIT                               |
-| [`vitest`](https://vitest.dev)                                                                | 5.0.3   | dev     | Tests                                                      | MIT                               |
+| Package                                                                                       | Version | Type    | Used for                                                     | License (as declared)             |
+| --------------------------------------------------------------------------------------------- | ------- | ------- | ------------------------------------------------------------ | --------------------------------- |
+| [`@ant-design/x`](https://x.ant.design)                                                       | 2.9.0   | runtime | Conversation UI                                              | MIT                               |
+| [`@anthropic-ai/claude-agent-sdk`](https://github.com/anthropics/claude-agent-sdk-typescript) | 0.3.296 | runtime | Claude provider adapter                                      | SEE LICENSE IN README.md          |
+| [`@caveman-ai/cli`](https://github.com/JuliusBrussee/caveman)                                 | 4.0.1   | runtime | App-local token-compression proxy for SDK calls              | Apache-2.0                        |
+| [`@fastify/multipart`](https://github.com/fastify/fastify-multipart)                          | 9.4.0   | runtime | Asset uploads                                                | MIT                               |
+| [`@fastify/static`](https://github.com/fastify/fastify-static)                                | 8.3.0   | runtime | Serves the built UI                                          | MIT                               |
+| [`@json-render/core`](https://json-render.dev)                                                | 0.21.0  | runtime | Structured UI rendering                                      | Apache-2.0                        |
+| [`@json-render/react`](https://json-render.dev)                                               | 0.21.0  | runtime | Structured UI rendering                                      | Apache-2.0                        |
+| [`@modelcontextprotocol/sdk`](https://modelcontextprotocol.io)                                | 1.32.1  | runtime | Job-scoped reference browser and capture MCP server          | MIT                               |
+| [`@openai/codex`](https://github.com/openai/codex)                                            | 0.162.1 | runtime | Model-free native Windows sandbox executor                   | Apache-2.0                        |
+| [`@iarna/toml`](https://github.com/iarna/iarna-toml)                                          | 2.2.5   | runtime | Literal per-invocation sandbox policy serialization          | ISC                               |
+| [`@openai/codex-sdk`](https://github.com/openai/codex/tree/main/sdk/typescript)               | 0.162.1 | runtime | Codex provider adapter                                       | Apache-2.0                        |
+| [`@radix-ui/react-use-controllable-state`](https://radix-ui.com/primitives)                   | 1.3.0   | runtime | UI state helper                                              | MIT                               |
+| [`@remotion/cli`](https://www.remotion.dev/docs/cli)                                          | 4.0.534 | runtime | Remotion fallback render CLI                                 | SEE LICENSE IN LICENSE.md         |
+| [`@streamdown/cjk`](https://streamdown.ai)                                                    | 1.0.4   | runtime | Streamed Markdown (CJK)                                      | Apache-2.0                        |
+| [`@streamdown/code`](https://streamdown.ai)                                                   | 2.0.0   | runtime | Streamed Markdown (code)                                     | Apache-2.0                        |
+| [`@streamdown/math`](https://streamdown.ai)                                                   | 1.0.3   | runtime | Streamed Markdown (math)                                     | Apache-2.0                        |
+| [`@streamdown/mermaid`](https://streamdown.ai)                                                | 1.0.3   | runtime | Streamed Markdown (Mermaid)                                  | Apache-2.0                        |
+| [`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript)                                 | 0.6.0   | runtime | JEV evaluation and ranking client                            | MIT                               |
+| [`ai`](https://ai-sdk.dev/docs)                                                               | 7.0.137 | runtime | AI SDK UI helpers                                            | Apache-2.0                        |
+| [`antd`](https://ant.design)                                                                  | 6.6.6   | runtime | UI components                                                | MIT                               |
+| [`chroma-js`](https://gka.github.io/chroma.js/)                                               | 3.2.0   | runtime | Palette maths; also offered to compositions                  | (BSD-3-Clause AND Apache-2.0)     |
+| [`class-variance-authority`](https://cva.style)                                               | 0.7.1   | runtime | UI styling helper                                            | Apache-2.0                        |
+| [`clsx`](https://github.com/lukeed/clsx)                                                      | 2.1.1   | runtime | UI styling helper                                            | MIT                               |
+| [`cmdk`](https://github.com/pacocoursey/cmdk)                                                 | 1.1.1   | runtime | Command menu                                                 | MIT                               |
+| [`cn`](https://www.npmjs.com/package/cn)                                                      | 0.4.0   | runtime | UI styling helper                                            | MIT                               |
+| [`d3-polygon`](https://d3js.org/d3-polygon)                                                   | 3.0.1   | runtime | Hero geometry                                                | ISC                               |
+| [`dotenv`](https://github.com/motdotla/dotenv)                                                | 18.0.7  | runtime | Reads `.env.local`                                           | BSD-2-Clause                      |
+| [`fast-xml-parser`](https://github.com/NaturalIntelligence/fast-xml-parser)                   | 5.11.2  | runtime | Document/SVG parsing                                         | MIT                               |
+| [`fastify`](https://fastify.dev)                                                              | 5.12.5  | runtime | Local HTTP API                                               | MIT                               |
+| [`fflate`](https://github.com/101arrowz/fflate)                                               | 0.8.3   | runtime | Project ZIP export                                           | MIT                               |
+| [`gsap`](https://gsap.com)                                                                    | 3.15.0  | runtime | Motion engine offered to compositions                        | GSAP Standard "no charge" license |
+| [`hyperframes`](https://github.com/heygen-com/hyperframes)                                    | 0.8.144 | runtime | Primary render pipeline (pinned)                             | Apache-2.0                        |
+| [`ipaddr.js`](https://github.com/whitequark/ipaddr.js)                                        | 2.5.0   | runtime | Reference URL address checks                                 | MIT                               |
+| [`lucide-react`](https://lucide.dev)                                                          | 1.55.0  | runtime | Icons                                                        | ISC                               |
+| [`mammoth`](https://github.com/mwilliamson/mammoth.js)                                        | 1.13.0  | runtime | DOCX text extraction                                         | BSD-2-Clause                      |
+| [`mdast-util-from-markdown`](https://github.com/syntax-tree/mdast-util-from-markdown)         | 2.1.0   | runtime | Storyboard Markdown migration                                | MIT                               |
+| [`mdast-util-gfm`](https://github.com/syntax-tree/mdast-util-gfm)                             | 3.1.0   | runtime | Storyboard Markdown migration                                | MIT                               |
+| [`mdast-util-to-string`](https://github.com/syntax-tree/mdast-util-to-string)                 | 4.0.0   | runtime | Storyboard Markdown migration                                | MIT                               |
+| [`micromark-extension-gfm`](https://github.com/micromark/micromark-extension-gfm)             | 3.0.0   | runtime | Storyboard Markdown migration                                | MIT                               |
+| [`minisearch`](https://lucaong.github.io/minisearch/)                                         | 7.2.0   | runtime | JEV preference-history lookup                                | MIT                               |
+| [`motion`](https://motion.dev)                                                                | 14.1.0  | runtime | Motion engine offered to compositions                        | MIT                               |
+| [`multiplane`](https://github.com/LBEILC/Multiplane)                                          | 0.3.10  | runtime | Trial render pipeline (pinned)                               | Apache-2.0                        |
+| [`nanoid`](https://github.com/ai/nanoid)                                                      | 6.0.2   | runtime | IDs                                                          | MIT                               |
+| [`paper`](http://paperjs.org)                                                                 | 0.12.18 | runtime | Vector drawing offered to compositions                       | MIT                               |
+| [`pdf-parse`](https://mehmet-kozan.github.io/pdf-parse/)                                      | 2.4.5   | runtime | PDF text extraction                                          | Apache-2.0                        |
+| [`pica`](https://github.com/nodeca/pica)                                                      | 10.0.3  | runtime | Image resizing for inspection copies and compositions        | MIT                               |
+| [`pixi.js`](https://pixijs.com)                                                               | 8.22.0  | runtime | 2D WebGL drawing offered to compositions                     | MIT                               |
+| [`puppeteer-core`](https://pptr.dev)                                                          | 25.13.0 | runtime | Headless reference browser and website capture               | Apache-2.0                        |
+| [`radix-ui`](https://radix-ui.com/primitives)                                                 | 1.7.0   | runtime | UI primitives                                                | MIT                               |
+| [`react`](https://react.dev)                                                                  | 19.3.0  | runtime | UI; also offered to compositions                             | MIT                               |
+| [`react-dom`](https://react.dev)                                                              | 19.3.0  | runtime | UI                                                           | MIT                               |
+| [`react-router-dom`](https://reactrouter.com)                                                 | 7.18.4  | runtime | Client routes                                                | MIT                               |
+| [`remotion`](https://www.remotion.dev)                                                        | 4.0.534 | runtime | Remotion fallback runtime                                    | SEE LICENSE IN LICENSE.md         |
+| [`roughjs`](https://roughjs.com)                                                              | 4.6.6   | runtime | Sketchy drawing offered to compositions                      | MIT                               |
+| [`sharp`](https://sharp.pixelplumbing.com)                                                    | 0.35.5  | runtime | Image previews and processing                                | Apache-2.0                        |
+| [`streamdown`](https://streamdown.ai)                                                         | 2.7.0   | runtime | Streamed Markdown                                            | Apache-2.0                        |
+| [`tailwind-merge`](https://github.com/dcastil/tailwind-merge)                                 | 3.7.0   | runtime | UI styling helper                                            | MIT                               |
+| [`three`](https://threejs.org)                                                                | 0.186.1 | runtime | 3D drawing offered to compositions; shared with Multiplane   | MIT                               |
+| [`use-stick-to-bottom`](https://github.com/samdenty/use-stick-to-bottom)                      | 1.1.6   | runtime | Conversation scrolling                                       | MIT                               |
+| [`yauzl`](https://github.com/thejoshwolfe/yauzl)                                              | 3.4.0   | runtime | Safe ZIP extraction and upstream skill revision metadata     | MIT                               |
+| [`yazl`](https://github.com/thejoshwolfe/yazl)                                                | 3.3.1   | dev     | ZIP fixtures for skill installation and unsafe archive tests | MIT                               |
+| [`@types/yauzl`](https://github.com/DefinitelyTyped/DefinitelyTyped)                          | 3.4.0   | dev     | ZIP reader types                                             | MIT                               |
+| [`@types/yazl`](https://github.com/DefinitelyTyped/DefinitelyTyped)                           | 3.3.1   | dev     | ZIP fixture writer types                                     | MIT                               |
+| [`zod`](https://zod.dev)                                                                      | 4.6.5   | runtime | Shared contracts and validation                              | MIT                               |
+| [`@tailwindcss/vite`](https://tailwindcss.com)                                                | 4.3.3   | dev     | Build                                                        | MIT                               |
+| [`@types/chroma-js`](https://github.com/DefinitelyTyped/DefinitelyTyped)                      | 3.1.2   | dev     | Types                                                        | MIT                               |
+| [`@types/d3-polygon`](https://github.com/DefinitelyTyped/DefinitelyTyped)                     | 3.0.2   | dev     | Types                                                        | MIT                               |
+| [`@types/mdast`](https://github.com/DefinitelyTyped/DefinitelyTyped)                          | 4.0.4   | dev     | Types                                                        | MIT                               |
+| [`@types/node`](https://github.com/DefinitelyTyped/DefinitelyTyped)                           | 22.20.5 | dev     | Types                                                        | MIT                               |
+| [`@types/react`](https://github.com/DefinitelyTyped/DefinitelyTyped)                          | 19.3.0  | dev     | Types                                                        | MIT                               |
+| [`@types/react-dom`](https://github.com/DefinitelyTyped/DefinitelyTyped)                      | 19.3.0  | dev     | Types                                                        | MIT                               |
+| [`@types/three`](https://github.com/DefinitelyTyped/DefinitelyTyped)                          | 0.186.0 | dev     | Types                                                        | MIT                               |
+| [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react)                         | 6.1.2   | dev     | Build                                                        | MIT                               |
+| [`@xmldom/xmldom`](https://github.com/xmldom/xmldom)                                          | 0.8.15  | dev     | Real SVG DOM regression tests                                | MIT                               |
+| [`@napi-rs/canvas`](https://github.com/Brooooooklyn/canvas)                                   | 0.1.80  | dev     | Rendered canvas pixel regression tests                       | MIT                               |
+| [`oxfmt`](https://oxc.rs/docs/guide/usage/formatter)                                          | 0.72.0  | dev     | Formatter                                                    | MIT                               |
+| [`oxlint`](https://oxc.rs/docs/guide/usage/linter)                                            | 1.87.0  | dev     | Linter                                                       | MIT                               |
+| [`playwright`](https://playwright.dev)                                                        | 1.64.0  | dev     | Browser verification scripts                                 | Apache-2.0                        |
+| [`tailwindcss`](https://tailwindcss.com)                                                      | 4.3.3   | dev     | Styling                                                      | MIT                               |
+| [`tsx`](https://tsx.hirok.io)                                                                 | 4.23.15 | dev     | Runs TypeScript server and scripts                           | MIT                               |
+| [`typescript`](https://www.typescriptlang.org)                                                | 7.0.2   | dev     | Type checking                                                | Apache-2.0                        |
+| [`vite`](https://vite.dev)                                                                    | 8.3.4   | dev     | Client dev server and build                                  | MIT                               |
+| [`vitest`](https://vitest.dev)                                                                | 5.0.3   | dev     | Tests                                                        | MIT                               |
+
+Native Windows additions: [`@openai/codex`](https://github.com/openai/codex) (Apache-2.0) supplies the model-free native sandbox launcher; [`@iarna/toml`](https://github.com/iarna/iarna-toml) (ISC) serializes its permissions policies. Neither adds a Motion Graphic or technology-pool entry. See [Windows setup](windows.md).
 
 ## Licenses
 

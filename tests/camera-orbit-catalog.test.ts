@@ -9,16 +9,30 @@ const hash = (value: unknown) => createHash("sha256").update(JSON.stringify(valu
 // Later, separately reviewed additions (mg-frame-findings): new motions, their style links,
 // optional motion variants and optional Motion Graphic variants. Stripping only these keeps
 // the orbit review's original hashes meaningful for all prior content.
-const laterMotionIds = ["motion-044", "motion-045", "motion-046"];
+const laterMotionIds = ["motion-044", "motion-045", "motion-046", "motion-047", "motion-048"];
+// Motion Graphics authored after the orbit review were not part of it and must not claim motion-043.
+const laterStyleIds = ["style-137", "style-138"];
 const withoutLaterMotionAdditions = (pattern: Record<string, unknown>) => {
   const { variants: _variants, ...rest } = pattern;
   return rest;
 };
 it("records the Opus orbit assessment and attaches only approved Motion Graphics without changing prior content", async () => {
   const catalog = await loadCatalog();
-  const raw = JSON.parse(
+  const catalogSource = JSON.parse(
     await readFile(path.join(catalogRoot, "video-style-catalog.json"), "utf8"),
   );
+  const raw = {
+    ...catalogSource,
+    styles: catalogSource.styles.filter(
+      (style: { id: string }) => !laterStyleIds.includes(style.id),
+    ),
+  };
+  for (const style of catalogSource.styles.filter((entry: { id: string }) =>
+    laterStyleIds.includes(entry.id),
+  ))
+    expect(
+      style.motion_references.candidates.map((entry: { motion_id: string }) => entry.motion_id),
+    ).not.toContain("motion-043");
   const motionCatalog = JSON.parse(
     await readFile(path.join(catalogRoot, "motion-pattern-catalog.json"), "utf8"),
   );

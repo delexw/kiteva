@@ -1,4 +1,3 @@
-import manifest from "../../../../assets/agent-skills/anatomy.manifest.json";
 import { anatomyPrompt } from "./anatomy-prompt";
 import type { BundledSkill } from "./types";
 
@@ -9,6 +8,6 @@ export const anatomySkill: BundledSkill = {
   name: "Anatomy",
   workspacePath: anatomySkillPath,
   claudeName: claudeAnatomySkillName,
-  manifest,
-  guidance: anatomyPrompt(anatomySkillPath, manifest.revision),
+  repository: "https://github.com/wheresryan22/anatomy.git",
+  guidance: anatomyPrompt(anatomySkillPath),
 };

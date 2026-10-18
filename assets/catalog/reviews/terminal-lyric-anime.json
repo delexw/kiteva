@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "kind": "frame_analysis_additions",
+  "source": {
+    "description": "User-supplied 211.6 s anime-style music video, 720p, 30 fps, 6348 frames. The title, characters, creature, lyrics, artwork and channel marks are content and are not reproduced or named here.",
+    "sha256": "ed4da7fb65341609b35b0a3ae1bb5198a82521ee513b2803993380c300271cb0",
+    "reuse_policy": "Only reusable visual, caption and motion rules are recorded. All previews are original code drawings; colours are authored defaults, not measured source hex."
+  },
+  "analysis_provenance": {
+    "model": "claude-opus-5-5",
+    "session_id": "1a123899-b189-4855-a8af-24cc095da54b",
+    "verdict": "add_both",
+    "sampling": "1 fps overview of the whole video plus six dense windows at 6 fps (0–4 s, 5–9 s, 48–54 s, 117–122 s, 147–153 s, 196–202 s). No continuous playback, no audio, no lyric transcription.",
+    "limitations": [
+      "Edits shorter than about 0.17 s, exact easing and fragment paths are not resolvable.",
+      "No beat sync is claimed; caption timing is known only from on-screen appearance.",
+      "Sonar beam width and pivot are visual estimates.",
+      "The production method (hand-drawn, AI-generated, 3D or composited) cannot be determined from stills."
+    ]
+  },
+  "implementation_provenance": {
+    "author": "Claude Opus 5.5 (claude-opus-5-5) via the Claude Agent SDK",
+    "authored_on": "2026-10-18",
+    "method": "Read the analysis and final result, inspected the dense contact sheets for 0–9 s, 48–54 s, 117–122 s and 196–202 s, then implemented the catalog entries, Canvas 2D previews, the style-138 preview generator and tests. Rendered preview frames were inspected before publishing."
+  },
+  "additions": [
+    {
+      "id": "style-138",
+      "kind": "motion_graphic",
+      "name": "Terminal Lyric Duotone Anime",
+      "evidence_seconds": [0.17, 0.83, 3.5, 3.67, 7.33, 7.5, 40, 49.83, 121.17, 121.33, 140, 160]
+    },
+    {
+      "id": "motion-047",
+      "kind": "motion",
+      "name": "Rotating Sonar-Sweep Reveal",
+      "evidence_seconds": [196.33, 197.83, 198.83, 199.83, 200.83, 201.83]
+    },
+    {
+      "id": "motion-048",
+      "kind": "motion",
+      "name": "Pixel-Tile Materialize & Targeted Delete",
+      "evidence_seconds": [5.83, 6.17, 6.5, 6.83, 118.67, 119.5, 120, 120.5, 121.83]
+    }
+  ],
+  "reused_existing": [
+    "motion-036",
+    "motion-022",
+    "motion-020",
+    "motion-030",
+    "motion-002",
+    "style-066",
+    "style-067",
+    "style-098"
+  ],
+  "motion_graphic_links": [
+    {
+      "style_id": "style-138",
+      "motion_id": "motion-036",
+      "reason": "Keyword hero titles enter with RGB split and settle; the ring is a style rule."
+    },
+    {
+      "style_id": "style-138",
+      "motion_id": "motion-030",
+      "reason": "Scan percentages, counters and callouts build from authored data."
+    },
+    {
+      "style_id": "style-138",
+      "motion_id": "motion-020",
+      "reason": "Single-frame glitch cuts at scene changes."
+    },
+    {
+      "style_id": "style-138",
+      "motion_id": "motion-022",
+      "reason": "Closing terminal typing; lyric captions decode instead."
+    },
+    {
+      "style_id": "style-138",
+      "motion_id": "motion-047",
+      "reason": "Observed source of the sonar sweep over a held three-ink illustration."
+    },
+    {
+      "style_id": "style-138",
+      "motion_id": "motion-048",
+      "reason": "Observed source of tile materialize and memory-grid deletion."
+    },
+    {
+      "style_id": "style-112",
+      "motion_id": "motion-047",
+      "reason": "FUI scanning and acquisition beats need a defined function; a fixed-pivot sweep is one."
+    },
+    {
+      "style_id": "style-067",
+      "motion_id": "motion-048",
+      "reason": "Targeted deletion is a legible data-loss fault model that restores to a stable frame."
+    },
+    {
+      "style_id": "style-056",
+      "motion_id": "motion-048",
+      "reason": "Mosaic assembles a recognisable image from pieces returning to precise positions (materialize half)."
+    }
+  ],
+  "considered_not_linked": [
+    {
+      "style_id": "style-066",
+      "motion_id": "motion-047",
+      "reason": "CRT radar scopes imply a phosphor persistence trail, which this motion deliberately omits."
+    },
+    {
+      "style_id": "style-050",
+      "motion_id": "motion-047",
+      "reason": "The outside region is an LED dot matrix, not a print halftone."
+    },
+    {
+      "style_id": "style-057",
+      "motion_id": "motion-048",
+      "reason": "Scatter rotation and fractional scale break whole-pixel placement."
+    },
+    {
+      "style_id": "style-033",
+      "motion_id": "motion-047",
+      "reason": "Generic anime has no scanning or data framing; style-138 covers the anime use."
+    }
+  ],
+  "visual_review": {
+    "status": "passed_after_repairs_and_native_rerender",
+    "first_review": {
+      "reviewer": "Separate Claude Opus 5.5 (claude-opus-5-5) reviews requested by the host from host-captured rendered contact sheets",
+      "motion_preview_review": {
+        "passes": false,
+        "motion_047": "passed: fixed pivot, constant clockwise rotation, clear inside, dot matrix outside, no history",
+        "required": [
+          "motion-048 fragments faded linearly from first appearance and never read as falling red squares"
+        ],
+        "optional": [
+          "motion-048 binary digits overflowed the cell",
+          "motion-048 static specks over the assembled hold",
+          "motion-048 scatter partly off-canvas",
+          "motion-047 outside region very dark by 6 s",
+          "seeded/TAU helpers duplicated in motion-047 and motion-048"
+        ]
+      },
+      "motion_graphic_review": {
+        "session_id": "d6fd34b4-2831-48e4-9bb4-d56f1d054836",
+        "passes": false,
+        "required": [
+          "duplicate id tl-scan on the scanline pattern and the HUD SCAN text: the runtime patched the pattern, removing scanlines, and the SCAN counter stayed at 000% in the published clip"
+        ],
+        "optional": [
+          "corner microtext and AUDIO label crowded by brackets and vignette",
+          "red RGB-offset copy during the title entrance"
+        ]
+      }
+    },
+    "repairs": [
+      "motion-048: fragments stay fully opaque until 70% of a 0.62 s life (phase up to 0.74 s with seeded delays), fall at least one cell height while at least half opaque, drift left or right, and may overlap the next hop; red overlays are opaque",
+      "motion-048: binary digits on a fixed 8 px column grid clipped to the cell; straggler specks beside the image, drifting inward and gone before the 1.85 s hold; scatter centres clamped inside the frame",
+      "motion-047: outside brightness floor 0.5 and dot-layer opacity 0.8 for readability; seeded generator and TAU moved to drawing.ts (new exports used only by motion-047/048)",
+      "style-138 preview: scanline pattern renamed tl-scanlines, one window hf-seek listener with page-exit cleanup, corner microtext moved inward and enlarged",
+      "The red RGB-offset copy is kept: palette.constraints already list RGB-offset accents among the reserved uses of warning red",
+      "Final dependency reuse: the new motion studies and preview generator share src/shared/seeded-random.ts, backed by the already installed remotion/no-react random API. This is a utility only; rendering remains HyperFrames."
+    ],
+    "published_clip_note": "The corrected source was rerendered through the unchanged native renderJob pipeline. Final published WebM: VP9, 1280×720, 30 fps, exactly 3 seconds. Native QA passed with browser checks enabled; actual published DOM preserves scanline rectangles and reaches SCAN 100%.",
+    "final_reviews": {
+      "motions": {
+        "model": "claude-opus-5-5",
+        "session_id": "7ebc8ee0-591f-4192-ad7a-1a447a98143a",
+        "passes": true,
+        "summary": "The one required fix (motion-048's fragment deletion) is done. Pieces turn fully red or pink within 0.08s and stay fully opaque until 70% of their 0.62s life. They fall about one cell before fading and about two by the end (gravity 460), and some drift left as well as right. The 0.74s fragment phase matches the cell-state logic, so cells go empty exactly when the last piece is gone. The contact sheet shows solid red and pink squares falling at 3.8s, 4.4s and 5.0s, matching the source at 120.0–120.67s. My optional items are also addressed: binary digits are clipped to the cell, the loose specks sit beside the image and are gone by 1.8s, scattered tiles stay in frame, motion-047's outside is lighter, and seeded/TAU now come from the shared drawing module. I found no new functional regressions: the selector hops, readable hold, permanent holes, no reflow, motion-047's fixed-pivot clockwise sweep, and computing every frame from the time alone are all intact.",
+        "issues": [
+          {
+            "target": "motion-048.ts: easeInOutCubic, smoothstep",
+            "severity": "optional",
+            "evidence": "These helpers are still defined locally in motion-048 even though seeded and TAU now come from ./drawing. I can't see whether ./drawing already has equivalents.",
+            "fix": "If ./drawing already has equivalent easing helpers, import them instead. Otherwise this is fine."
+          },
+          {
+            "target": "motion-048 SCATTER keepInFrame clamp",
+            "severity": "optional",
+            "evidence": "Clamping scatter centres to the frame can stack several tiles along the same edge. Cosmetic only; the 0.4s and 0.8s frames read fine.",
+            "fix": "Optional: shrink the scatter radius instead of clamping so tiles spread more evenly."
+          }
+        ],
+        "limitations": [
+          "I only reviewed the 12-frame contact sheets at reduced scale; fragment fall distances and fade timing were checked against the code formulas, not watched in playback.",
+          "I can't see ./drawing; that the imports resolve is inferred from the host test reporting no page errors.",
+          "I couldn't confirm that the other existing previews and the registry are untouched; only the two changed files were provided."
+        ]
+      },
+      "motion_graphic": {
+        "model": "claude-opus-5-5",
+        "session_id": "d6fd34b4-2831-48e4-9bb4-d56f1d054836",
+        "passes": true,
+        "summary": "The required duplicate-ID bug is fixed. The scanline pattern is now id=\"tl-scanlines\", referenced by url(#tl-scanlines), and tl-scan is used only by the HUD SCAN text. The frames bear this out: the counter appears to read SCAN 083% at 1.5s and SCAN 100% at 2.0s and 2.9s, matching expected values, and a faint scanline texture is now visible. No new functional regressions: power-on line and opening, header and caption decoding, RGB-split title settling into the ring, data-line build and the 2.25s warning all appear at the right sampled times. Chinese glyphs render with no missing-glyph boxes, and red stays limited to the warning label and the brief title RGB split. The microtext polish was also done: labels moved to x=88 at larger size and opacity, and AUDIO L/R now clears the corner bracket.",
+        "issues": [
+          {
+            "target": "title RGB offset colour",
+            "severity": "optional",
+            "evidence": "tl-title-red still uses warning_red #F0473A during the 0.95–1.4s entrance (visible as a red/blue split at 1.0s), while the palette describes red as reserved for warnings and peaks.",
+            "fix": "Optionally use a non-red offset pair, or document the brief RGB split as an allowed exception."
+          }
+        ],
+        "limitations": [
+          "Only six thumbnail frames were inspected; the SCAN digits and faint scanlines were read at small size.",
+          "Frames between samples were not inspected; seek and frame selection are inferred from the sampled frames matching the expected cue state.",
+          "The hf-seek listener is now attached only to window (the document listener was removed); the correct per-time frames suggest the pipeline reaches it, but how the event is dispatched was not verified.",
+          "Source effects outside this 3-second sample and audio were not evaluated."
+        ]
+      }
+    }
+  },
+  "verification": {
+    "date": "2026-10-18",
+    "tests": 1043,
+    "test_files": 168,
+    "build": "passed",
+    "lint": "passed",
+    "changed_file_format": "passed",
+    "native_render": {
+      "qa": true,
+      "browser_skipped": false,
+      "layout": true,
+      "contrast": true,
+      "codec": "vp9",
+      "width": 1280,
+      "height": 720,
+      "fps": 30,
+      "duration_seconds": 3,
+      "visible_change_ratio": 0.15722222222222224,
+      "sha256": "dfe2f4217368c807392b895ba79e0ca779d6e05a5aa91d537dbd21e3429b5490"
+    },
+    "motion_pixels": {
+      "results": [
+        {
+          "id": "motion-047",
+          "distinct": 11,
+          "deterministic": true
+        },
+        {
+          "id": "motion-048",
+          "distinct": 11,
+          "deterministic": true
+        }
+      ],
+      "errors": []
+    },
+    "published_dom": {
+      "uniqueIds": true,
+      "counter": "SCAN 100%",
+      "scanlineRect": true,
+      "deterministic": true,
+      "errors": []
+    }
+  }
+}

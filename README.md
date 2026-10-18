@@ -26,6 +26,27 @@
 > It's based on MIT but adds a no-commercial-use condition, so it's source-available and **not** an
 > OSI-approved open source license. Third-party parts keep their own licenses. See [License](#license).
 
+## Recent updates
+
+Dates below use New Zealand time. Updates are released through the `main` branch.
+
+### 2026-10-18
+
+- Added **English / 简体中文 video language**, translated narration and lyrics with preserved originals, and a separate Chinese Pocket TTS provider. Music and Narration / lyrics now have separate Assistant steps.
+- Added **Cassette Futurism**: hardware panels, phosphor screens, tape reels and stepped animation, with a rendered preview. The collection now has **137 Motion Graphics**.
+- Added **Terminal Lyric Duotone Anime**: flat blue, cream and black anime art in a CRT terminal frame, with bilingual decoding captions and ringed keyword titles, plus a code-drawn illustrative preview. Also added two motions, **Rotating Sonar-Sweep Reveal** and **Pixel-Tile Materialize & Targeted Delete**. The collection now has **138 Motion Graphics and 48 motions**.
+- Added an **experimental native Windows backend**, platform-aware setup and a render verification command. Actual Windows 10/11 testing is still pending; project creation on Windows requires a successful verification first. See the [Windows setup guide](docs/windows.md).
+
+- Published English and Chinese READMEs, a Kiteva-made introduction film, desktop and Storyboard screenshots, architecture diagrams, and technology and cost documentation.
+- Added contribution guidance and the [non-commercial license](LICENSE).
+
+### 2026-10-17
+
+- Expanded the collection to **136 Motion Graphics and 46 motions**, refreshed animated previews and cached Motion Graphic summaries, and upgraded [Multiplane](https://github.com/LBEILC/Multiplane) to **0.3.10**.
+- Made Activity labels specific to each task, separated preparation, review and repair, and indented updates under their task. Raw internal content stays hidden.
+- Anatomy is now installed or updated at launch, with verified offline fallback; upstream skill files are no longer bundled.
+- Added automatic narration loudness matching and a volume control, simplified Speech / vocals settings, and registered bundled skills through the Claude SDK.
+
 ## Why this exists
 
 I'm not a professional designer. I'm a full-stack engineer working on content and creative tools,
@@ -55,7 +76,7 @@ and I'm trying it out for fun. You choose the provider per project.
   shelf and one widget per project. Nothing calls a model until you press **Create**.
 - **A brief from your references.** A small model reads your files and, if you add websites, opens
   them in a fresh headless [Chromium](https://www.chromium.org) browser to take screenshots. It writes a structured brief and then checks it.
-- **Motion Graphic combinations.** The main model reads summaries of all 136 Motion Graphics and
+- **Motion Graphic combinations.** The main model reads summaries of all 138 Motion Graphics and
   proposes a dozen or more directions. Each pairs one primary Motion Graphic with supporting ones. A
   separate evaluator, [Typesafe](https://docs.typesafe.ai)'s [JEV](https://docs.typesafe.ai/models), scores them and keeps the number of directions you asked for (1–5).
 - **Silent 3-second previews** of the same story beat, one per direction, so you can compare.
@@ -97,13 +118,13 @@ And it has nothing to do with the UI-component tool called [Storybook](https://s
 
 ## Numbers, counted from the source
 
-|                         |                                                                                                                                                                                      |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Motion Graphics         | **136** (`assets/catalog/video-style-catalog.json`)                                                                                                                                  |
-| Motions                 | **46** (`assets/catalog/motion-pattern-catalog.json`)                                                                                                                                |
-| Technology pool entries | **92** recommendations across visual construction, motion, rendering and supporting tools                                                                                            |
-| Bundled authoring skill | **1** ([Anatomy](https://github.com/wheresryan22/anatomy))                                                                                                                           |
-| Renderers               | [HyperFrames](https://github.com/heygen-com/hyperframes) (default), [Multiplane](https://github.com/LBEILC/Multiplane) (trial), [Remotion](https://www.remotion.dev) (fallback only) |
+|                                   |                                                                                                                                                                                      |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Motion Graphics                   | **136** (`assets/catalog/video-style-catalog.json`)                                                                                                                                  |
+| Motions                           | **46** (`assets/catalog/motion-pattern-catalog.json`)                                                                                                                                |
+| Technology pool entries           | **92** recommendations across visual construction, motion, rendering and supporting tools                                                                                            |
+| Startup-installed authoring skill | **1** ([Anatomy](https://github.com/wheresryan22/anatomy))                                                                                                                           |
+| Renderers                         | [HyperFrames](https://github.com/heygen-com/hyperframes) (default), [Multiplane](https://github.com/LBEILC/Multiplane) (trial), [Remotion](https://www.remotion.dev) (fallback only) |
 
 Combinations are where it gets interesting. A direction can mix one primary Motion Graphic with
 supporting ones (1–3 in total for films under 30 seconds, up to 6 for films over three minutes), and the
@@ -124,7 +145,9 @@ More detail, including the workflow diagrams, is in [docs/architecture.md](docs/
 
 ## Quick start
 
-You need macOS, [Node.js](https://nodejs.org) 24+, [Chrome](https://www.google.com/chrome/) or
+Native Windows 10/11 setup is experimental and has its own [installation and verification guide](docs/windows.md); WSL is not required.
+
+For the tested macOS setup, you need [Node.js](https://nodejs.org) 24+, [Chrome](https://www.google.com/chrome/) or
 [Chromium](https://www.chromium.org), and [FFmpeg](https://ffmpeg.org) with `ffprobe`. Then two kinds of access:
 
 - **A model provider, by API key or by an existing signed-in subscription.** For Claude, set
@@ -145,30 +168,32 @@ npm start                       # open http://127.0.0.1:4317
 ```
 
 Optional: `npm run speech:setup` ([Kokoro](https://github.com/thewh1teagle/kokoro-onnx)) or `npm run speech:setup:pocket`
-([Pocket TTS](https://pypi.org/project/pocket-tts/)) for local narration. They need [Python](https://www.python.org) 3.10–3.13. For UI development, keep the backend running and use `npx vite` ([Vite](https://vite.dev), `http://127.0.0.1:4319`).
+([Pocket TTS](https://pypi.org/project/pocket-tts/)) for local narration; add `npm run speech:setup:pocket:zh` for [Mandarin Pocket TTS](https://huggingface.co/hustfyb/PocketTTS-ZH-6L). See [language controls](docs/video-languages.md). They need [Python](https://www.python.org) 3.10–3.13. For UI development, keep the backend running and use `npx vite` ([Vite](https://vite.dev), `http://127.0.0.1:4319`).
 
-The catalogs, reviewed artwork and 136 preview clips ship with the repo, so browsing costs nothing.
+Anatomy installs or updates automatically on server launch. Connect to the internet for the first launch; skill installation uses direct HTTPS ZIP downloads and needs no Git or extra CLI; later launches can use the last verified installation offline. Upstream files stay in Git-ignored `skills/anatomy/`, while provider registration and Kiteva guidance remain in source.
+
+The catalogs, reviewed artwork and 138 preview clips ship with the repo, so browsing costs nothing.
 Your projects, uploads, room layout, databases and credentials stay in Git-ignored folders on your machine.
 
 ## What ships, and what you install
 
-| Part                                                                                                                                                                                                                                                                          | What it is                                                                                           | Status                                                                                     |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| [Anatomy](https://github.com/wheresryan22/anatomy)                                                                                                                                                                                                                            | Isometric technical-illustration skill and drawing kit (3D mode is beta)                             | **The one bundled skill.** 141 files pinned to `e9488296`, SHA-256 checked, MIT, unchanged |
-| [HyperFrames](https://github.com/heygen-com/hyperframes) 0.8.144                                                                                                                                                                                                              | HTML video composition and export                                                                    | npm dependency, pinned, default renderer                                                   |
-| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.10                                                                                                                                                                                                                     | `render(t)` shot renderer with motion blur                                                           | npm dependency, pinned, trial setting                                                      |
-| [Remotion](https://www.remotion.dev) 4.x                                                                                                                                                                                                                                      | React video renderer                                                                                 | npm dependency, fallback only (has its own license terms)                                  |
-| `reference_browser` / `capture_video`                                                                                                                                                                                                                                         | Headless website inspection, screenshots and walkthrough recording via [Puppeteer](https://pptr.dev) | Built into Kiteva, for both providers                                                      |
-| [Kokoro](https://github.com/thewh1teagle/kokoro-onnx), [Pocket TTS](https://pypi.org/project/pocket-tts/)                                                                                                                                                                     | Local narration                                                                                      | Python set up by `npm run speech:setup*`. Weights downloaded to Git-ignored `models/`      |
-| [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript), [Codex SDK](https://github.com/openai/codex/tree/main/sdk/typescript), [`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript)                                                           | Model providers and JEV                                                                              | npm dependencies                                                                           |
-| [Caveman](https://github.com/JuliusBrussee/caveman)                                                                                                                                                                                                                           | Local token-compression proxy for SDK calls                                                          | npm dependency, on by default                                                              |
-| [GSAP](https://gsap.com), [Three.js](https://threejs.org), [PixiJS](https://pixijs.com), [Paper.js](http://paperjs.org), [Rough.js](https://roughjs.com), [Motion](https://motion.dev), [chroma.js](https://gka.github.io/chroma.js/), [Pica](https://github.com/nodeca/pica) | Drawing and motion libraries offered to generated films                                              | npm dependencies                                                                           |
-| [React](https://react.dev), [Ant Design](https://ant.design) + [Ant Design X](https://x.ant.design), [Radix](https://radix-ui.com), [Tailwind CSS](https://tailwindcss.com), [Vite](https://vite.dev), [Fastify](https://fastify.dev), [Zod](https://zod.dev)                 | App UI, server and shared contracts                                                                  | npm dependencies                                                                           |
-| [FFmpeg](https://ffmpeg.org), [Chrome](https://www.google.com/chrome/)/[Chromium](https://www.chromium.org), [Python](https://www.python.org), [Blender](https://www.blender.org) (optional)                                                                                  | External tools                                                                                       | Not bundled. You install them                                                              |
+| Part                                                                                                                                                                                                                                                                          | What it is                                                                                           | Status                                                                                                                  |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| [Anatomy](https://github.com/wheresryan22/anatomy)                                                                                                                                                                                                                            | Isometric technical-illustration skill and drawing kit (3D mode is beta)                             | Installed/updated from upstream at launch into Git-ignored `skills/anatomy/`; verified local fallback when offline; MIT |
+| [HyperFrames](https://github.com/heygen-com/hyperframes) 0.8.144                                                                                                                                                                                                              | HTML video composition and export                                                                    | npm dependency, pinned, default renderer                                                                                |
+| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.10                                                                                                                                                                                                                     | `render(t)` shot renderer with motion blur                                                           | npm dependency, pinned, trial setting                                                                                   |
+| [Remotion](https://www.remotion.dev) 4.x                                                                                                                                                                                                                                      | React video renderer                                                                                 | npm dependency, fallback only (has its own license terms)                                                               |
+| `reference_browser` / `capture_video`                                                                                                                                                                                                                                         | Headless website inspection, screenshots and walkthrough recording via [Puppeteer](https://pptr.dev) | Built into Kiteva, for both providers                                                                                   |
+| [Kokoro](https://github.com/thewh1teagle/kokoro-onnx), [Pocket TTS](https://pypi.org/project/pocket-tts/)                                                                                                                                                                     | Local narration                                                                                      | Python set up by `npm run speech:setup*`. Weights downloaded to Git-ignored `models/`                                   |
+| [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript), [Codex SDK](https://github.com/openai/codex/tree/main/sdk/typescript), [`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript)                                                           | Model providers and JEV                                                                              | npm dependencies                                                                                                        |
+| [Caveman](https://github.com/JuliusBrussee/caveman)                                                                                                                                                                                                                           | Local token-compression proxy for SDK calls                                                          | npm dependency, on by default                                                                                           |
+| [GSAP](https://gsap.com), [Three.js](https://threejs.org), [PixiJS](https://pixijs.com), [Paper.js](http://paperjs.org), [Rough.js](https://roughjs.com), [Motion](https://motion.dev), [chroma.js](https://gka.github.io/chroma.js/), [Pica](https://github.com/nodeca/pica) | Drawing and motion libraries offered to generated films                                              | npm dependencies                                                                                                        |
+| [React](https://react.dev), [Ant Design](https://ant.design) + [Ant Design X](https://x.ant.design), [Radix](https://radix-ui.com), [Tailwind CSS](https://tailwindcss.com), [Vite](https://vite.dev), [Fastify](https://fastify.dev), [Zod](https://zod.dev)                 | App UI, server and shared contracts                                                                  | npm dependencies                                                                                                        |
+| [FFmpeg](https://ffmpeg.org), [Chrome](https://www.google.com/chrome/)/[Chromium](https://www.chromium.org), [Python](https://www.python.org), [Blender](https://www.blender.org) (optional)                                                                                  | External tools                                                                                       | Not bundled. You install them                                                                                           |
 
 Being in the 92-entry technology pool doesn't mean a library is installed. Twelve pool entries are
 recommendations only, and generation can't install packages or use the network. The full list with a
-status for every entry, plus all 75 direct npm dependencies, is in [docs/technology-pool.md](docs/technology-pool.md).
+status for every entry, plus all 77 direct npm dependencies, is in [docs/technology-pool.md](docs/technology-pool.md).
 
 ## What it costs
 
@@ -187,7 +212,7 @@ your plan's allowance. I haven't tested subscription usage or remaining-percenta
 
 ## Known limits
 
-- macOS only for now (the render sandbox uses `sandbox-exec`). Single user, local only.
+- macOS is the tested platform. Native Windows 10/11 support is experimental; see [Windows setup and required checks](docs/windows.md). Single user, local only.
 - [Multiplane](https://github.com/LBEILC/Multiplane) is a trial: one sound file, no video clips inside scenes, and no automatic layout or contrast checks (frame consistency is still verified).
 - [Remotion](https://www.remotion.dev) is a fallback, not a setting, and its renders skip the HyperFrames layout/contrast checks too.
 - No generated singing, image generation or stock footage. Visuals are drawn in code, or come from your uploads and website captures.
@@ -197,7 +222,7 @@ your plan's allowance. I haven't tested subscription usage or remaining-percenta
 ## Docs
 
 - [Architecture](docs/architecture.md): components, workflow, renderers, capture, skills, storage (Mermaid diagrams)
-- [Technology inventory](docs/technology-pool.md): all 92 pool entries, the bundled skill, renderers, TTS and every dependency
+- [Technology inventory](docs/technology-pool.md): all 92 pool entries, the startup-installed skill, renderers, TTS and every dependency
 - [Costs](docs/costs.md): how the governance numbers are computed
 - [Intro film provenance](docs/intro-video.md): how the film above was made in Kiteva
 - [README references](docs/readme-references.md): open projects whose READMEs I learned from

@@ -13,6 +13,10 @@ export function apiErrorHandler(err: unknown, _req: FastifyRequest, reply: Fasti
         : err instanceof Error && "code" in err && err.code === "FST_REQ_FILE_TOO_LARGE"
           ? "FILE_TOO_LARGE"
           : errorCode(err),
-    error: safeMessage(err),
+    error: safeMessage(
+      err instanceof z.ZodError
+        ? [...new Set(err.issues.map((issue) => issue.message))].join(" ")
+        : err,
+    ),
   });
 }

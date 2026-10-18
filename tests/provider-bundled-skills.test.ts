@@ -1,8 +1,15 @@
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import { expect, it, vi } from "vitest";
+import { afterAll, expect, it, vi } from "vitest";
 import { z } from "zod";
+import { skillInstallationFixture } from "./fixtures/installed-skill";
+const fixture = await skillInstallationFixture();
+afterAll(() => rm(fixture.root, { recursive: true, force: true }));
+vi.mock("../src/server/agents/bundled-skills/installation", async (original) => ({
+  ...(await original<typeof import("../src/server/agents/bundled-skills/installation")>()),
+  installedSkill: async () => fixture,
+}));
 const sdk = vi.hoisted(() => ({ query: vi.fn(), construct: vi.fn(), stream: vi.fn() }));
 vi.mock("../src/server/agents/caveman", () => ({
   cavemanSettings: () => ({ enabled: false }),
@@ -119,7 +126,7 @@ it.each(["claude", "codex"] as const)(
         provider === "claude"
           ? sdk.query.mock.calls.at(-1)![0].options.systemPrompt
           : sdk.stream.mock.calls.at(-1)![0];
-      expect(textPrompt).not.toContain("BUNDLED AUTHORING SKILL");
+      expect(textPrompt).not.toContain("INSTALLED AUTHORING SKILL");
       if (provider === "claude") {
         expect(sdk.query.mock.calls.at(-1)![0].options.skills).toEqual([]);
         expect(sdk.query.mock.calls.at(-1)![0].options.plugins).toEqual([]);

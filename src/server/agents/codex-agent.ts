@@ -65,6 +65,7 @@ export const codexAgent: Agent = {
     const client = new Codex({
       env: { ...childEnvironment(), ...caveman?.env, CODEX_HOME: home },
       config: {
+        ...(process.platform === "win32" ? { windows: { sandbox: "elevated" } } : {}),
         ...(caveman
           ? {
               model_provider: "caveman",

@@ -26,6 +26,27 @@
 > 它以 MIT 为基础，但增加了禁止商业使用的条件，因此属于“源码可见（source-available）”，**不是**
 > OSI 认可的开源许可。第三方组件保留各自的许可，见文末 [许可](#许可)。
 
+## 最近更新
+
+以下日期采用新西兰时间，更新通过 `main` 分支发布。
+
+### 2026-10-18
+
+- 新增 **English / 简体中文视频语言**，支持翻译旁白和歌词并保留原文，接入独立的中文 Pocket TTS 后端；助手中的 Music 与 Narration / lyrics 分开设置。
+- Anatomy 改为启动时安装或更新，离线时保留已校验版本，不再在源码中打包上游文件。
+- 新增 **Cassette Futurism（卡带未来主义）**：硬件面板、荧光屏幕、磁带和步进动效，附已渲染的演示预览。现在共 **137 种 Motion Graphic**。
+- 新增 **Terminal Lyric Duotone Anime（终端歌词三色墨动画）**：蓝、奶油、黑三色平涂动漫画面配 CRT 终端画框，带双语解码字幕和环形关键词标题，附代码绘制的示意预览。同时新增两种 motion：**旋转声呐扫描显影**和**像素瓦片显形与定点删除**。现在共 **138 种 Motion Graphic、48 种 motion**。
+- 新增**实验性的原生 Windows 后端**、适配平台的安装流程和渲染验证命令。实际 Windows 10/11 测试仍待完成；Windows 上须先通过验证，才能创建项目。见 [Windows 安装指南](docs/windows.md)。
+
+- 发布中英文 README、由 Kiteva 自己制作的介绍短片、桌面与 Storyboard 截图、架构图，以及技术清单和费用说明。
+- 补充贡献指南和[非商业许可](LICENSE)。
+
+### 2026-10-17
+
+- 扩充至 **136 种 Motion Graphic、46 种 motion**，更新动画预览和 Motion Graphic 摘要缓存，并将 [Multiplane](https://github.com/LBEILC/Multiplane) 升级至 **0.3.10**。
+- Activity 日志按任务显示具体动作，区分准备、审阅和修复，任务内的更新增加缩进；继续隐藏原始内部内容。
+- 新增旁白自动响度匹配和音量控制，简化 Speech / vocals 设置，并通过 Claude SDK 注册随仓库提供的技能。
+
 ## 为什么会有它
 
 本人并不是专业设计师，在内容和创作领域做全栈工程师，接触了一些些 creative 的 idea。正好发现
@@ -50,7 +71,7 @@
   音乐与歌词、设置，旁边还有素材架和每个项目的小组件。按下 **Create** 之前不会调用任何模型。
 - **从参考资料生成简报。** 小模型读取你的文件。如果你提供了网站，它会在全新的无头 [Chromium](https://www.chromium.org) 浏览器里打开并截图，
   然后写出结构化简报，再自查一遍。
-- **Motion Graphic 组合。** 主模型阅读全部 136 种 Motion Graphic 的摘要，提出十几个甚至更多方向，
+- **Motion Graphic 组合。** 主模型阅读全部 138 种 Motion Graphic 的摘要，提出十几个甚至更多方向，
   每个方向由一个主 Motion Graphic 搭配若干辅助 Motion Graphic 组成。随后由独立的评估器（[Typesafe](https://docs.typesafe.ai) 的 [JEV](https://docs.typesafe.ai/models)）
   打分，保留你要求的方向数（1–5 个）。
 - **3 秒无声预览。** 每个方向都演绎同一个故事节拍，方便对比。
@@ -88,13 +109,13 @@ Storyboard 页面把它回放成一段小小的“幕后排练”：一位火柴
 
 ## 数字（从源码统计）
 
-|                 |                                                                                                                                                                                |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Motion Graphic  | **136** 种（`assets/catalog/video-style-catalog.json`）                                                                                                                        |
-| 动作（motions） | **46** 种（`assets/catalog/motion-pattern-catalog.json`）                                                                                                                      |
-| 技术池条目      | **92** 条推荐，涵盖视觉构建、运动、渲染和辅助工具                                                                                                                              |
-| 内置创作技能    | **1** 个（[Anatomy](https://github.com/wheresryan22/anatomy)）                                                                                                                 |
-| 渲染器          | [HyperFrames](https://github.com/heygen-com/hyperframes)（默认）、[Multiplane](https://github.com/LBEILC/Multiplane)（试用）、[Remotion](https://www.remotion.dev)（仅作后备） |
+|                      |                                                                                                                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Motion Graphic       | **138** 种（`assets/catalog/video-style-catalog.json`）                                                                                                                        |
+| 动作（motions）      | **46** 种（`assets/catalog/motion-pattern-catalog.json`）                                                                                                                      |
+| 技术池条目           | **92** 条推荐，涵盖视觉构建、运动、渲染和辅助工具                                                                                                                              |
+| 启动时安装的创作技能 | **1** 个（[Anatomy](https://github.com/wheresryan22/anatomy)）                                                                                                                 |
+| 渲染器               | [HyperFrames](https://github.com/heygen-com/hyperframes)（默认）、[Multiplane](https://github.com/LBEILC/Multiplane)（试用）、[Remotion](https://www.remotion.dev)（仅作后备） |
 
 有意思的是组合。一个方向可以把一个主 Motion Graphic 和若干辅助 Motion Graphic 混在一起（30 秒以内的片子共 1–3 种，
 3 分钟以上最多 6 种），再由模型挑选合适的动作和技术。这样能得到的起点远比单一风格多。但这不保证每种组合都好用，
@@ -111,9 +132,11 @@ Storyboard 页面把它回放成一段小小的“幕后排练”：一位火柴
 
 更多细节和流程图见 [docs/architecture.md](docs/architecture.md)（英文）。
 
+视频语言可选 English / 简体中文，旁白默认跟随视频语言。详见[语言设置](docs/video-languages.md)和[中文 Pocket TTS 安装](docs/speech.md#chinese-pocket-tts)。
+
 ## 快速开始
 
-需要 macOS、[Node.js](https://nodejs.org) 24+、[Chrome](https://www.google.com/chrome/) 或 [Chromium](https://www.chromium.org)，
+macOS 安装需要 [Node.js](https://nodejs.org) 24+、[Chrome](https://www.google.com/chrome/) 或 [Chromium](https://www.chromium.org)，
 以及带 `ffprobe` 的 [FFmpeg](https://ffmpeg.org)。另外还需要两类访问权限：
 
 - **模型提供方：用 API key，或者用已经登录的订阅账号都可以。** Claude：设置 `ANTHROPIC_API_KEY` 或
@@ -135,27 +158,29 @@ npm start                       # 打开 http://127.0.0.1:4317
 可选：`npm run speech:setup`（[Kokoro](https://github.com/thewh1teagle/kokoro-onnx)）或 `npm run speech:setup:pocket`（[Pocket TTS](https://pypi.org/project/pocket-tts/)），
 用于本地旁白，需要 [Python](https://www.python.org) 3.10–3.13。做界面开发时，保持后端运行，再用 `npx vite`（[Vite](https://vite.dev)，`http://127.0.0.1:4319`）。
 
-目录、审阅过的插画和 136 段预览短片都随仓库提供，浏览不花钱。你的项目、上传文件、房间布局、数据库和凭据
+Anatomy 在服务启动时自动安装或更新。首次启动需要网络，通过 HTTPS 下载 ZIP 安装，不需要 Git 或额外 CLI；以后离线启动可使用已校验的本地版本。上游文件保存在 Git 忽略的 `skills/anatomy/`，提供商注册和 Kiteva 指引仍在源码中。
+
+目录、审阅过的插画和 138 段预览短片都随仓库提供，浏览不花钱。你的项目、上传文件、房间布局、数据库和凭据
 都保存在本机被 Git 忽略的目录里。
 
 ## 随仓库提供的，和需要自己安装的
 
-| 组成部分                                                                                                                                                                                                                                                                      | 是什么                                                            | 状态                                                                                 |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| [Anatomy](https://github.com/wheresryan22/anatomy)                                                                                                                                                                                                                            | 等轴测技术插画技能和绘图工具包（3D 模式为 beta）                  | **唯一的内置技能。** 141 个文件，固定在 `e9488296`，校验 SHA-256，MIT 许可，未作修改 |
-| [HyperFrames](https://github.com/heygen-com/hyperframes) 0.8.144                                                                                                                                                                                                              | HTML 视频合成与导出                                               | npm 依赖，固定版本，默认渲染器                                                       |
-| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.10                                                                                                                                                                                                                     | 基于 `render(t)` 的镜头渲染器，带运动模糊                         | npm 依赖，固定版本，试用选项                                                         |
-| [Remotion](https://www.remotion.dev) 4.x                                                                                                                                                                                                                                      | React 视频渲染器                                                  | npm 依赖，仅作后备（有自己的许可条款）                                               |
-| `reference_browser` / `capture_video`                                                                                                                                                                                                                                         | 通过 [Puppeteer](https://pptr.dev) 做无头网页查看、截图和操作录屏 | Kiteva 内置，两家模型都可用                                                          |
-| [Kokoro](https://github.com/thewh1teagle/kokoro-onnx)、[Pocket TTS](https://pypi.org/project/pocket-tts/)                                                                                                                                                                     | 本地旁白                                                          | Python 环境由 `npm run speech:setup*` 搭建，模型权重下载到被 Git 忽略的 `models/`    |
-| [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript)、[Codex SDK](https://github.com/openai/codex/tree/main/sdk/typescript)、[`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript)                                                           | 模型提供方和 JEV                                                  | npm 依赖                                                                             |
-| [Caveman](https://github.com/JuliusBrussee/caveman)                                                                                                                                                                                                                           | SDK 调用的本地 token 压缩代理                                     | npm 依赖，默认开启                                                                   |
-| [GSAP](https://gsap.com)、[Three.js](https://threejs.org)、[PixiJS](https://pixijs.com)、[Paper.js](http://paperjs.org)、[Rough.js](https://roughjs.com)、[Motion](https://motion.dev)、[chroma.js](https://gka.github.io/chroma.js/)、[Pica](https://github.com/nodeca/pica) | 供生成的影片使用的绘图和动画库                                    | npm 依赖                                                                             |
-| [React](https://react.dev)、[Ant Design](https://ant.design) + [Ant Design X](https://x.ant.design)、[Radix](https://radix-ui.com)、[Tailwind CSS](https://tailwindcss.com)、[Vite](https://vite.dev)、[Fastify](https://fastify.dev)、[Zod](https://zod.dev)                 | 应用界面、服务器和共享契约                                        | npm 依赖                                                                             |
-| [FFmpeg](https://ffmpeg.org)、[Chrome](https://www.google.com/chrome/)/[Chromium](https://www.chromium.org)、[Python](https://www.python.org)、[Blender](https://www.blender.org)（可选）                                                                                     | 外部工具                                                          | 不随仓库提供，需要自己安装                                                           |
+| 组成部分                                                                                                                                                                                                                                                                      | 是什么                                                            | 状态                                                                                        |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [Anatomy](https://github.com/wheresryan22/anatomy)                                                                                                                                                                                                                            | 等轴测技术插画技能和绘图工具包（3D 模式为 beta）                  | 启动时从上游安装或更新到 Git 忽略的 `skills/anatomy/`；离线时使用已校验的本地版本；MIT 许可 |
+| [HyperFrames](https://github.com/heygen-com/hyperframes) 0.8.144                                                                                                                                                                                                              | HTML 视频合成与导出                                               | npm 依赖，固定版本，默认渲染器                                                              |
+| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.10                                                                                                                                                                                                                     | 基于 `render(t)` 的镜头渲染器，带运动模糊                         | npm 依赖，固定版本，试用选项                                                                |
+| [Remotion](https://www.remotion.dev) 4.x                                                                                                                                                                                                                                      | React 视频渲染器                                                  | npm 依赖，仅作后备（有自己的许可条款）                                                      |
+| `reference_browser` / `capture_video`                                                                                                                                                                                                                                         | 通过 [Puppeteer](https://pptr.dev) 做无头网页查看、截图和操作录屏 | Kiteva 内置，两家模型都可用                                                                 |
+| [Kokoro](https://github.com/thewh1teagle/kokoro-onnx)、[Pocket TTS](https://pypi.org/project/pocket-tts/)                                                                                                                                                                     | 本地旁白                                                          | Python 环境由 `npm run speech:setup*` 搭建，模型权重下载到被 Git 忽略的 `models/`           |
+| [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript)、[Codex SDK](https://github.com/openai/codex/tree/main/sdk/typescript)、[`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript)                                                           | 模型提供方和 JEV                                                  | npm 依赖                                                                                    |
+| [Caveman](https://github.com/JuliusBrussee/caveman)                                                                                                                                                                                                                           | SDK 调用的本地 token 压缩代理                                     | npm 依赖，默认开启                                                                          |
+| [GSAP](https://gsap.com)、[Three.js](https://threejs.org)、[PixiJS](https://pixijs.com)、[Paper.js](http://paperjs.org)、[Rough.js](https://roughjs.com)、[Motion](https://motion.dev)、[chroma.js](https://gka.github.io/chroma.js/)、[Pica](https://github.com/nodeca/pica) | 供生成的影片使用的绘图和动画库                                    | npm 依赖                                                                                    |
+| [React](https://react.dev)、[Ant Design](https://ant.design) + [Ant Design X](https://x.ant.design)、[Radix](https://radix-ui.com)、[Tailwind CSS](https://tailwindcss.com)、[Vite](https://vite.dev)、[Fastify](https://fastify.dev)、[Zod](https://zod.dev)                 | 应用界面、服务器和共享契约                                        | npm 依赖                                                                                    |
+| [FFmpeg](https://ffmpeg.org)、[Chrome](https://www.google.com/chrome/)/[Chromium](https://www.chromium.org)、[Python](https://www.python.org)、[Blender](https://www.blender.org)（可选）                                                                                     | 外部工具                                                          | 不随仓库提供，需要自己安装                                                                  |
 
 出现在 92 条技术池里并不代表已经安装。其中 12 条只是推荐，而生成过程不能安装软件包，也不能联网。
-每一条的状态，以及全部 75 个直接 npm 依赖，见 [docs/technology-pool.md](docs/technology-pool.md)（英文）。
+每一条的状态，以及全部 77 个直接 npm 依赖，见 [docs/technology-pool.md](docs/technology-pool.md)（英文）。
 
 ## 花费
 
@@ -169,9 +194,11 @@ Haiku 的准备和审阅只花了几美分，JEV 排序不到一美分。最贵�
 订阅用量和剩余百分比的显示我还没有测试过。
 计算方法和注意事项见 [docs/costs.md](docs/costs.md)（英文）。
 
+原生 Windows 10/11 安装请参阅 [Windows 指南](docs/windows.md)，不需要 WSL。
+
 ## 已知限制
 
-- 目前只支持 macOS（渲染沙箱使用 `sandbox-exec`）。单用户，仅本地运行。
+- macOS 已经过本地验证；原生 Windows 10/11 支持为实验性实现，使用前请完成 [Windows 安装和检查](docs/windows.md)。单用户，仅本地运行。
 - [Multiplane](https://github.com/LBEILC/Multiplane) 是试用：只支持一个音频文件，场景里不能放视频片段，也没有自动的布局和对比度检查（仍会校验帧的一致性）。
 - [Remotion](https://www.remotion.dev) 只是后备，不是可选设置，它的渲染同样不做 HyperFrames 的布局/对比度检查。
 - 不生成歌声，不生成图片，也没有素材库视频。画面由代码绘制，或来自你上传的文件和网站截图。

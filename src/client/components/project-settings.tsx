@@ -1,3 +1,4 @@
+import { videoLanguageLabel } from "../../shared/video-language";
 import { Popover } from "antd";
 import { videoRendererOf, videoRenderers } from "../../shared/video-renderers";
 import { Fragment } from "react";
@@ -25,6 +26,7 @@ export function ProjectSettings({
     ...(request.outputType === "video"
       ? [
           request.duration === "auto" ? "Auto duration" : `${request.duration}s`,
+          ...(request.outputLanguage ? [videoLanguageLabel(request.outputLanguage)] : []),
           request.aspectRatio,
           request.resolution === "1440p" ? "2K · 1440p" : "1080p",
           `${request.frameRate || 30} fps`,

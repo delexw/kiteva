@@ -82,9 +82,7 @@ Films are judged by watching them, so text-only reasoning isn't enough:
 
 ## Third-party code and licenses
 
-- `assets/agent-skills/anatomy` is a pinned, unchanged copy of [Anatomy](https://github.com/wheresryan22/anatomy)
-  (MIT). Don't edit it. To update it, review a new upstream revision, replace the tracked files, update
-  `anatomy.manifest.json` hashes and run the skill and provider tests.
+- [Anatomy](https://github.com/wheresryan22/anatomy) is installed or updated at launch into the Git-ignored `skills/anatomy/` cache. Keep upstream files and its MIT license unchanged. Registration and provider guidance live in `src/server/agents/bundled-skills/`. Test installation, offline fallback, integrity and provider staging when changing that integration.
 - Dependencies keep their own licenses. Check the license before adding one. Some existing ones have
   special terms (for example [Remotion](https://www.remotion.dev/license) and
   [GSAP](https://gsap.com/standard-license)).

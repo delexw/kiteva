@@ -9,8 +9,9 @@ import { browserExecutablePath } from "../src/server/runtime/browser";
 import { appRoot } from "../src/server/runtime/config";
 
 it.skipIf(!browserExecutablePath())(
-  "gates voice settings on lyrics and preserves choices between steps",
+  "separates Music from Narration / lyrics and preserves voice choices",
   async () => {
+    const languageRequests: string[] = [];
     const previewRequests: Record<string, unknown>[] = [];
     const cacheDir = await mkdtemp(path.join(os.tmpdir(), "speech-ui-"));
     const server = await createServer({
@@ -30,6 +31,12 @@ it.skipIf(!browserExecutablePath())(
                 res.end(JSON.stringify({ available: true, detail: "Local narration ready" }));
                 return;
               }
+              if (req.url === "/api/room/localize") {
+                languageRequests.push(req.url);
+                res.statusCode = 500;
+                res.end("Language changes must not start model calls");
+                return;
+              }
               if (req.url === "/api/speech/sample") {
                 let body = "";
                 for await (const chunk of req) body += chunk;
@@ -45,7 +52,7 @@ it.skipIf(!browserExecutablePath())(
 import React,{useState}from'react';import{createRoot}from'react-dom/client';import{ConfigProvider,theme}from'antd';
 import{RoomOnboarding}from'/src/client/room/room-onboarding.tsx';
 import '/src/client/framework.css';import '/src/client/style.css';import{roomTheme,roomCssVariables,roomColors}from'/src/client/theme.ts';
-function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A concept introduction',lyrics:{mode:'off'}}});return React.createElement(ConfigProvider,{theme:roomTheme},React.createElement('div',{style:{...roomCssVariables,padding:16,background:roomColors.inset,color:roomColors.text}},React.createElement(RoomOnboarding,{draft,onChange:setDraft,materials:[],styles:[],examples:[],onCreated(){},onUpload:async()=>[]})));}createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
+function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speech',request:{instructions:'A concept introduction',candidateCount:2,selectedStyleIds:['style-056'],outputLanguage:'en',lyrics:{mode:'off'}}});return React.createElement(ConfigProvider,{theme:roomTheme},React.createElement('div',{style:{...roomCssVariables,padding:16,background:roomColors.inset,color:roomColors.text}},React.createElement('output',{id:'draft-state',hidden:true},JSON.stringify(draft)),React.createElement(RoomOnboarding,{draft,onChange:setDraft,materials:[],styles:[],examples:[],onCreated(){},onUpload:async()=>[]})));}createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
               );
               res.setHeader("Content-Type", "text/html");
               res.end(html);
@@ -64,8 +71,16 @@ function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A c
       const page = await browser.newPage();
       await page.setViewport({ width: 900, height: 1100 });
       await page.goto(`${server.resolvedUrls!.local[0]}speech-test`);
-      await page.waitForSelector('[role="switch"]');
+      await page.waitForSelector('textarea[aria-label="Answer the assistant"]');
       expect(await page.$('[aria-label="Speech and vocals"]')).toBeNull();
+      await page.evaluate(() => {
+        const button = Array.from(document.querySelectorAll(".room-step-tabs button")).find(
+          (item) => item.textContent === "Narration / lyrics",
+        );
+        (button as HTMLButtonElement).click();
+      });
+      await page.waitForSelector('[role="switch"]');
+      expect(await page.$('[aria-label="Speech and vocals"]')).not.toBeNull();
       await page.click('[role="switch"]');
       await page.waitForSelector('[aria-label="Speech mode"]');
       await page.click('[aria-label="Speech mode"]');
@@ -86,7 +101,7 @@ function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A c
       await page.locator('.ant-select-item-option[title="Use my narration script"]').click();
       await page.type('[aria-label="Narration script"]', "Let your idea take flight.");
       await page.click('[role="switch"]');
-      await page.waitForFunction(() => !document.querySelector('[aria-label="Speech and vocals"]'));
+      await page.waitForSelector('[aria-label="Speech and vocals"]');
       await page.click('[role="switch"]');
       await page.waitForSelector('[aria-label="Narration script"]');
       expect(
@@ -257,6 +272,119 @@ function App(){const[draft,setDraft]=useState({step:4,request:{instructions:'A c
       await page.locator('[aria-label="Speech and vocals"] h3').click();
       await (await page.$('[aria-label="Speech and vocals"]'))!.screenshot({
         path: "/private/tmp/kiteva-speech-layout-narrow.png",
+      });
+      await page.setViewport({ width: 900, height: 1100 });
+      await page.locator('[aria-label="Speech language"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="Follow video · English"]', {
+        visible: true,
+      });
+      await page.locator('.ant-select-item-option[title="Follow video · English"]').click();
+      await page.waitForFunction(
+        () =>
+          !Array.from(document.querySelectorAll('[role="status"]')).some((el) =>
+            el.textContent?.includes("Preparing your language"),
+          ),
+      );
+      await page.locator('[aria-label="Your lyrics"]').fill("Let your idea take flight.");
+      const clickStep = async (label: string) => {
+        await page.evaluate((name) => {
+          const button = Array.from(document.querySelectorAll(".room-step-tabs button")).find(
+            (el) => el.textContent === name,
+          );
+          (button as HTMLButtonElement).click();
+        }, label);
+      };
+      await clickStep("Settings");
+      await page.locator('[aria-label="Video language"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="简体中文"]', { visible: true });
+      await page.locator('.ant-select-item-option[title="简体中文"]').click();
+      await clickStep("Music");
+      await clickStep("Settings");
+      expect(
+        await page.$eval(
+          '[aria-label="Video language"]',
+          (el) => el.closest(".ant-select")?.textContent,
+        ),
+      ).toContain("简体中文");
+      expect(
+        await page.$eval(
+          "#draft-state",
+          (el) => JSON.parse(el.textContent!).request.outputLanguage,
+        ),
+      ).toBe("zh");
+      await clickStep("Narration / lyrics");
+      await page.waitForFunction(
+        () =>
+          (document.querySelector('[aria-label="Narration script"]') as HTMLTextAreaElement)
+            ?.value === "Let your idea take flight.",
+      );
+      expect(
+        await page.$eval('[aria-label="Your lyrics"]', (el) => (el as HTMLTextAreaElement).value),
+      ).toBe("Let your idea take flight.");
+      expect(
+        await page.$eval('[aria-label="Speech and vocals"]', (el) => el.textContent),
+      ).toContain("Xiaobei");
+      await page.locator('[aria-label="Speech engine"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="Pocket TTS"]', { visible: true });
+      await page.locator('.ant-select-item-option[title="Pocket TTS"]').click();
+      await page.locator('[aria-label="Narrator voice"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="Yunjian"]', { visible: true });
+      const chineseLabels = await page.$$eval(".ant-select-item-option", (elements) =>
+        elements.map((el) => el.getAttribute("title")),
+      );
+      expect(chineseLabels).toEqual(
+        expect.arrayContaining([
+          "Xiaobei",
+          "Xiaoni",
+          "Xiaoxiao",
+          "Xiaoyi",
+          "Yunjian",
+          "Yunxi",
+          "Yunxia",
+          "Yunyang",
+        ]),
+      );
+      expect(
+        await page.$$eval(".ant-select-item-group", (elements) =>
+          elements.map((el) => el.textContent),
+        ),
+      ).toEqual(["Female", "Male"]);
+      await page.locator('.ant-select-item-option[title="Yunjian"]').click();
+      for (const button of await page.$$("button"))
+        if (await button.evaluate((el) => el.textContent === "Listen")) await button.click();
+      await page.waitForSelector('audio[aria-label="Narrator sample"]');
+      expect(previewRequests.at(-1)).toMatchObject({
+        engine: "pocket-tts",
+        voice: "pocket_zh_yunjian",
+        language: "zh",
+      });
+      await page.screenshot({ path: "/private/tmp/kiteva-language-desktop.png", fullPage: true });
+      await clickStep("Settings");
+      await page.locator('[aria-label="Video language"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="English"]', { visible: true });
+      await page.locator('.ant-select-item-option[title="English"]').click();
+      await page.waitForFunction(() =>
+        document
+          .querySelector('[aria-label="Video language"]')
+          ?.closest(".ant-select")
+          ?.textContent?.includes("English"),
+      );
+      await clickStep("Narration / lyrics");
+      await page.waitForFunction(
+        () =>
+          (document.querySelector('[aria-label="Narration script"]') as HTMLTextAreaElement)
+            ?.value === "Let your idea take flight.",
+      );
+      expect(
+        await page.$eval('[aria-label="Your lyrics"]', (el) => (el as HTMLTextAreaElement).value),
+      ).toBe("Let your idea take flight.");
+      expect(languageRequests).toEqual([]);
+      const savedDraft = await page.$eval("#draft-state", (el) => JSON.parse(el.textContent!));
+      expect(savedDraft.request).toMatchObject({
+        candidateCount: 2,
+        selectedStyleIds: ["style-056"],
+        instructions: "A concept introduction",
+        outputLanguage: "en",
       });
     } finally {
       await browser.close();

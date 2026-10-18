@@ -1,3 +1,5 @@
+import { localizeVideoRequest } from "../../jobs/subworkflows/video-localization";
+import { deliverySpeech, narrationLanguage } from "../../../shared/video-language";
 import { InputRequired } from "../../../shared/input-checkpoint";
 import { CodedError } from "../../../shared/errors";
 import { prepareSpeech } from "../../audio/speech";
@@ -39,7 +41,7 @@ export async function generateVideo(input: {
 }) {
   const {
     job,
-    request,
+    request: sourceRequest,
     brief,
     candidate,
     styles,
@@ -51,6 +53,32 @@ export async function generateVideo(input: {
     emit,
     render,
   } = input;
+  let request = await localizeVideoRequest(
+    sourceRequest,
+    path.join(job.workspace, "localization"),
+    signal,
+    onEvent,
+  );
+  request = { ...request, speech: deliverySpeech(request) };
+  if (
+    request.speech?.mode === "narration" &&
+    request.speech.source === "lyrics" &&
+    request.lyrics?.mode === "provided" &&
+    request.outputLanguage &&
+    narrationLanguage(request)?.split("-")[0] !== request.outputLanguage
+  ) {
+    const localized = await localizeVideoRequest(
+      {
+        ...request,
+        speech: { ...request.speech, source: "provided", text: request.lyrics.text },
+        translations: { original: { narration: request.lyrics.text }, versions: {} },
+      },
+      path.join(job.workspace, "localization"),
+      signal,
+      onEvent,
+    );
+    request = { ...request, speech: localized.speech };
+  }
   const fps = request.frameRate ?? 30;
   const size = dimensions(
     request.aspectRatio,

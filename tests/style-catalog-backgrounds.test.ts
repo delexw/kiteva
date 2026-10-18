@@ -40,7 +40,7 @@ describe("synced style backgrounds", () => {
 
 it("treats catalog backgrounds as scene-dependent examples while preserving source swatches", async () => {
   const styles = (await loadCatalog()).styles;
-  expect(styles).toHaveLength(136);
+  expect(styles).toHaveLength(138);
   for (const style of styles) expect(style.palette.background_policy).toBe("scene_dependent");
   const warmStyle = styles.find((style) => style.id === "style-028")!;
   const svg =

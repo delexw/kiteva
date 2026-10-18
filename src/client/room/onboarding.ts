@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import { deliverySpeech } from "../../shared/video-language";
 import { speechConfigurationProblem } from "../../shared/speech";
 import { RequestSchema, type CreativeRequest } from "../../shared/contracts";
 import { SharedRequestSchema } from "../../shared/domains/common";
@@ -11,8 +12,8 @@ import {
   briefSectionFileAccept,
   type BriefRequirements,
 } from "../../shared/brief-sections";
-import { trimStylesForDuration } from "../../shared/style-selection";
-import type { RoomDraft, RoomLibraryAsset } from "../../shared/room";
+import { normalizeStyleSelection, trimStylesForDuration } from "../../shared/style-selection";
+import { RoomDraftSchema, type RoomDraft, type RoomLibraryAsset } from "../../shared/room";
 
 export const roomQuestions = [
   {
@@ -35,7 +36,11 @@ export const roomQuestions = [
   },
   {
     label: "Music",
-    question: "What should it sound like? Describe the music, pick audio, and choose lyrics.",
+    question: "What should the music sound like? Describe the score or choose reference audio.",
+  },
+  {
+    label: "Narration / lyrics",
+    question: "Would you like a narrator, a vocal recording, or words on screen?",
   },
   {
     label: "Settings",
@@ -84,10 +89,21 @@ export function initialRoomRequest(): CreativeRequest {
     resolution: "1080p",
     frameRate: 30,
     lyrics: { mode: "off" },
+    outputLanguage: "en",
   });
 }
 export function emptyRoomDraft(): RoomDraft {
-  return { step: 0, request: { instructions: "" }, assets: [] };
+  return {
+    step: 0,
+    stepLayout: "separate-speech",
+    request: { instructions: "", outputLanguage: "en" },
+    assets: [],
+  };
+}
+
+/** Keep older drafts on Settings or Review after inserting the speech step. */
+export function roomDraftStep(draft: RoomDraft): number {
+  return RoomDraftSchema.parse(draft).step;
 }
 
 export function removeRoomEditDraft(drafts: Record<string, RoomDraft>, key: string) {
@@ -116,15 +132,30 @@ export function roomDraftRequest(draft: Partial<RoomDraft>): CreativeRequest {
   const requirements = BriefRequirementsSchema.safeParse(saved.requirements);
   const parsed = RequestSchema.safeParse({
     ...merged,
+    outputLanguage: saved.outputLanguage,
     instructions: initialRoomRequest().instructions,
     urls: [],
     assetIds: [],
     requirements: undefined,
     candidateCount: styles.length ? 0 : count,
   });
+  const savedLyrics = saved.lyrics;
+  const draftLyricsText =
+    savedLyrics &&
+    typeof savedLyrics === "object" &&
+    "text" in savedLyrics &&
+    typeof savedLyrics.text === "string"
+      ? savedLyrics.text
+      : undefined;
   const base = parsed.success
     ? parsed.data
     : switchRoomOutputType(initialRoomRequest(), saved.outputType === "page" ? "page" : "video");
+  if (
+    base.outputType === "video" &&
+    base.lyrics?.mode === "provided" &&
+    draftLyricsText !== undefined
+  )
+    base.lyrics = { mode: "provided", text: draftLyricsText };
   return {
     ...base,
     instructions: typeof saved.instructions === "string" ? saved.instructions : "",
@@ -278,21 +309,19 @@ export function roomDraftFromProject(
   assets: RoomLibraryAsset[],
 ): RoomDraft {
   return {
-    step: 5,
+    step: 6,
+    stepLayout: "separate-speech",
     request: { ...request, candidateCount: request.candidateCount || 5 },
     assets: assets.filter((asset) => request.assetIds.includes(asset.id)),
   };
 }
 export function roomSubmission(request: CreativeRequest): CreativeRequest {
   if (request.outputType === "video") {
-    const problem = speechConfigurationProblem(request);
+    const problem = speechConfigurationProblem({ ...request, speech: deliverySpeech(request) });
     if (problem) throw Error(problem);
   }
-  const manual = Boolean(request.selectedStyleIds?.length);
   return RequestSchema.parse({
-    ...request,
+    ...normalizeStyleSelection(request),
     urls: request.urls.map((url) => url.trim()).filter(Boolean),
-    candidateCount: manual ? 0 : request.candidateCount || 5,
-    selectedStyleIds: manual ? request.selectedStyleIds : undefined,
   });
 }

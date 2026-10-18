@@ -4,7 +4,7 @@ A standalone browser workspace for style-led video generation. React/Vite + Fast
 
 ## Start
 
-macOS, Node 24+, an installed Chrome/Chromium browser, and `ffmpeg`/`ffprobe` are required. Run these commands in the repository root:
+The tested macOS setup requires Node 24+, an installed Chrome/Chromium browser, and `ffmpeg`/`ffprobe`. Experimental native Windows 10/11 setup is described in the [Windows guide](windows.md). Run these commands in the repository root:
 
 ```sh
 npm install
@@ -56,9 +56,9 @@ The bundled `assets/catalog/video-style-catalog.json` and `assets/catalog/motion
 
 Native SDK processes run outside the browser, use restricted job workspaces and runtime settings, and receive only selected context. The SDK runtime connects to its provider; generated compositions use local assets. Uploaded/fetched content is treated as data. Reference URL fetching validates DNS and redirects, allows loopback addresses only in local agent mode, and blocks other private addresses. The browser receives videos, metadata, and redacted events, never provider keys. SDK-native sandboxing and Claude tool permission checks constrain execution; this single-user local application is not a hardened multi-tenant code-execution service.
 
-The isolated Codex runtime reuses authentication and model/cloud cache metadata, but not user plugins, hooks, skills, or MCP settings. Its sessions remain under `.data/runtime`. Source ZIPs exclude dependencies, renders, and SDK state. Generated-code exports run inside a macOS sandbox with a separate render home, no provider environment credentials, denied credential/configuration paths, restricted filesystem writes, and local-only network access. Existing browser binaries are reused; set `VIDEO_BROWSER_PATH` when needed. Cancellation aborts the native session and renderer process group. Restart marks unfinished jobs interrupted, except builds waiting for an answer, and retains completed artifacts for explicit retry.
+The isolated Codex runtime reuses authentication and model/cloud cache metadata, but not user plugins, hooks, skills, or MCP settings. Its sessions remain under `.data/runtime`. Source ZIPs exclude dependencies, renders, and SDK state. Generated-code exports use an OS-specific sandbox (macOS Seatbelt, experimental native Windows executor) with a separate render home, no provider environment credentials, denied credential/configuration paths, restricted filesystem writes, and local-only network access. Existing browser binaries are reused; set `VIDEO_BROWSER_PATH` when needed. Cancellation aborts the native session and owned renderer process tree. Restart marks unfinished jobs interrupted, except builds waiting for an answer, and retains completed artifacts for explicit retry.
 
-Kiteva separately supplies its reviewed, pinned Anatomy bundle to each file-enabled
+Kiteva installs or updates Anatomy from upstream at server launch, stores immutable revisions in the Git-ignored `skills/anatomy/` folder, and supplies the verified installation to each file-enabled
 provider workspace at `.agents/skills/anatomy`. Claude loads that directory as
 an explicit local plugin, enables only `bundled-authoring:anatomy` with the SDK's
 `skills` option, and invokes it through the native `Skill` tool. Kiteva checks
@@ -67,7 +67,7 @@ receives explicit instructions to read the same local files when appropriate.
 Neither path enables global skill or plugin discovery. It is an optional illustration/3D authoring kit, independent of
 styles and renderers. Video implementations must replace its interactive example
 loops with absolute timeline poses and verify repeatable seeks. See the
-[bundled skills and renderer list](../README.md#bundled-authoring-skills-and-renderers)
+[authoring skills and renderer list](../README.md#what-ships-and-what-you-install)
 for the revision, license, compatibility and update procedure.
 
 ## Checks

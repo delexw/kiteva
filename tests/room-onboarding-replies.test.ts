@@ -43,14 +43,13 @@ it("includes full prompts, file names, URL instructions, lyrics and speech in pr
   expect(replies[3].text).toContain("https://example.com");
   expect(replies[3].text).toContain("Capture the working app");
   for (const value of [
-    "An upbeat groove",
     "Here are the actual lyrics",
     "Michael",
     "1.1×",
     "Here is the actual narration",
     "Speak warmly",
   ])
-    expect(replies[4].text).toContain(value);
+    expect(replies[5].text).toContain(value);
 });
 it("lists actual generation settings and selected style names rather than counts", () => {
   const reply = roomSettingsReply(request(), styles);
@@ -82,19 +81,21 @@ it("handles optional steps and page settings without video or inactive voice set
   expect(replies[1]).toEqual({ text: "Skipped", skipped: true });
   expect(replies[3]).toEqual({ text: "No websites", skipped: true });
   expect(replies[4]).toEqual({ text: "Skipped", skipped: true });
-  expect(replies[5].text).toContain("Preview viewport: Mobile");
-  expect(replies[5].text).not.toContain("Frame rate");
+  expect(replies[6].text).toContain("Preview viewport: Mobile");
+  expect(replies[6].text).not.toContain("Frame rate");
   const video = request();
   if (video.outputType !== "video") throw Error("Expected video fixture");
   video.lyrics = { mode: "off" };
-  expect(roomOnboardingReplies(video, assets, styles)[4].text).toContain("Speech: Off");
+  expect(roomOnboardingReplies(video, assets, styles)[5].text).toContain("Voice: Michael");
   expect(roomSettingsReply(video, styles)).not.toContain("Michael");
 });
 
-it("keeps speech and narration in the music reply without repeating them in generation settings", () => {
+it("keeps speech and narration in their own reply without repeating them in generation settings", () => {
   const replies = roomOnboardingReplies(request(), assets, styles);
-  expect(replies[4].text).toContain("Here is the actual narration");
-  expect(replies[4].text).toContain("Voice: Michael");
+  expect(replies[4].text).toContain("An upbeat groove");
+  expect(replies[4].text).not.toContain("Here is the actual narration");
+  expect(replies[5].text).toContain("Here is the actual narration");
+  expect(replies[5].text).toContain("Voice: Michael");
   for (const value of [
     "Speech:",
     "Voice:",
@@ -102,5 +103,5 @@ it("keeps speech and narration in the music reply without repeating them in gene
     "Here is the actual narration",
     "Speak warmly",
   ])
-    expect(replies[5].text).not.toContain(value);
+    expect(replies[6].text).not.toContain(value);
 });

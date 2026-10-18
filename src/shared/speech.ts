@@ -37,9 +37,11 @@ export const pocketVoiceGroups = [
 }));
 export function pocketLanguageForVoice(voice: string, language?: string) {
   const preset = pocketVoices.find((item) => item.id === voice);
-  return preset
+  const selected = preset
     ? pocketLanguages.find((item) => item.id === (language || preset.language))
     : undefined;
+  if ((preset?.language === "zh") !== (selected?.id === "zh")) return undefined;
+  return selected;
 }
 export const PocketLanguageSchema = z.enum(pocketLanguages.map((language) => language.id));
 export function speechLanguage(
@@ -62,6 +64,7 @@ export const SpeechSettingsSchema = z
       mode: z.literal("narration"),
       engine: SpeechProviderIdSchema.optional(),
       language: PocketLanguageSchema.optional(),
+      followVideoLanguage: z.boolean().optional(),
       voice: z.enum(speechVoices.map((voice) => voice.id)).default("af_heart"),
       volume: z.number().min(0).max(2).optional(),
       speed: z.number().min(0.75).max(1.5).default(1),
@@ -72,6 +75,16 @@ export const SpeechSettingsSchema = z
     z.object({ mode: z.literal("uploaded"), assetId: z.string().min(1) }),
   ])
   .superRefine((settings, context) => {
+    if (
+      settings.mode === "narration" &&
+      settings.engine === "pocket-tts" &&
+      !pocketLanguageForVoice(settings.voice, settings.language)
+    )
+      context.addIssue({
+        code: "custom",
+        path: ["voice"],
+        message: "Choose a voice compatible with the selected Pocket TTS language.",
+      });
     if (
       settings.mode === "narration" &&
       !speechVoicesForEngine(settings.engine).some((voice) => voice.id === settings.voice)
@@ -92,14 +105,20 @@ export const SpeechTrackSchema = z.object({
 export type SpeechTrack = z.infer<typeof SpeechTrackSchema>;
 export type SpeechReadiness = { available: boolean; detail: string };
 
-/** Retain saved choices when lyrics are off, but never synthesize or mix them. */
+/** Only narration sourced from lyrics depends on the on-screen lyrics setting. */
 export function activeSpeech(request: {
   lyrics?: { mode: string };
   speech?: SpeechSettings;
 }): Exclude<SpeechSettings, { mode: "off" }> | undefined {
-  return request.lyrics && request.lyrics.mode !== "off" && request.speech?.mode !== "off"
-    ? request.speech
-    : undefined;
+  const speech = request.speech;
+  if (!speech || speech.mode === "off") return undefined;
+  if (
+    speech.mode === "narration" &&
+    speech.source === "lyrics" &&
+    (!request.lyrics || request.lyrics.mode === "off")
+  )
+    return undefined;
+  return speech;
 }
 
 export function speechConfigurationProblem(request: {

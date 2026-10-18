@@ -5,12 +5,16 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import puppeteer from "puppeteer-core";
+import { existsSync } from "node:fs";
+import { authoringSkillRoot } from "../src/server/agents/bundled-skills/installation";
 import { expect, it } from "vitest";
 import { anatomySkillPath, prepareBundledSkills } from "../src/server/agents/bundled-skills";
 import { browserExecutablePath } from "../src/server/runtime/browser";
 
-it.skipIf(!browserExecutablePath())(
-  "builds bundled SVG and 3D art offline and renders repeatable frames after seeking",
+it.skipIf(
+  !browserExecutablePath() || !existsSync(path.join(authoringSkillRoot, "anatomy/current.json")),
+)(
+  "builds installed SVG and 3D art offline and renders repeatable frames after seeking",
   async () => {
     const workspace = await mkdtemp(path.join(os.tmpdir(), "anatomy-render-"));
     const execute = promisify(execFile);
@@ -22,7 +26,7 @@ it.skipIf(!browserExecutablePath())(
       expect(
         await readFile(path.join(root, "examples/dial-indicator/dial-indicator.html"), "utf8"),
       ).toContain("<svg");
-      // Build with the real bundled API, then use its synchronous controller without an idle loop.
+      // Build with the real installed API, then use its synchronous controller without an idle loop.
       await execute(process.execPath, [
         "--input-type=module",
         "-e",

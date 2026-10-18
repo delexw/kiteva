@@ -13990,6 +13990,11 @@
           {
             "motion_id": "motion-015",
             "usage_guidance": "Consider meaningful narrative steps with synchronized copy and visual states, plus optional within-step progress or sticky graphics. Use only scene-level motions that serve the story, and schedule the same states by time for video."
+          },
+          {
+            "motion_id": "motion-048",
+            "usage_guidance": "Use the materialize half: scattered tesserae-like crops of one image rotate and converge to precise home positions, centre first, then hold the complete mosaic. Omit the red deletion unless the brief is about loss.",
+            "review_evidence": "assets/catalog/reviews/terminal-lyric-anime.json"
           }
         ],
         "agent_instruction": "Read the actual illustration and complete pattern description, motion_sequence and video_adaptation. Identify which scene elements implement that action. Reject unsupported geometry, absent subjects, unintended depth, broken contact points or unrelated interactions. Select none when no candidate fits; use restrained style-native motion instead. Preserve authored transforms, fixed backgrounds and reading layers."
@@ -16917,6 +16922,11 @@
             "usage_guidance": "An actual punctuation handoff can carry a brief bounded signal displacement before clarity returns. Optional only when actual scene assets support the defining action; preserve the style palette and medium and choose no reference when unsuitable.",
             "review_evidence": "outputs/fable-review/motion-reference-review/review.json",
             "reviewed_style_cues_sha256": "bc9215a6584b7cf1ec39bb5c4b785375845c62c3c7e70c4266a9d97f9cd32ad9"
+          },
+          {
+            "motion_id": "motion-048",
+            "usage_guidance": "A data-loss fault model: a selection box deletes fixed tiles of one image, which fragment or fill with digits and leave empty cells, then hold; or the reverse reconstruction as tiles converge. Keep it to a narrative beat, not continuous corruption.",
+            "review_evidence": "assets/catalog/reviews/terminal-lyric-anime.json"
           }
         ],
         "agent_instruction": "Read the actual illustration and complete pattern description, motion_sequence and video_adaptation. Identify which scene elements implement that action. Reject unsupported geometry, absent subjects, unintended depth, broken contact points or unrelated interactions. Select none when no candidate fits; use restrained style-native motion instead. Preserve authored transforms, fixed backgrounds and reading layers."
@@ -29031,6 +29041,11 @@
           {
             "motion_id": "motion-043",
             "usage_guidance": "Orbit the camera around a stationary wireframe 3D model (for example a vehicle, drone or anatomical form) at the HUD's center. Reticles, scales and monospaced data stay in a separate screen-space SVG or HTML layer, label fictional data, and tie readout changes to orbit progress only if they describe real events. Limit bloom to selected lines, and avoid extra spinning rings that compete with the orbit."
+          },
+          {
+            "motion_id": "motion-047",
+            "usage_guidance": "A scanning or target-acquisition beat: one clockwise sector beam around a fixed reticle pivot reveals the clear image while the rest becomes a dim dot matrix; tie readouts such as bearing to the beam angle and label fictional data.",
+            "review_evidence": "assets/catalog/reviews/terminal-lyric-anime.json"
           }
         ],
         "agent_instruction": "Read the actual illustration and complete pattern description, motion_sequence and video_adaptation. Identify which scene elements implement that action. Reject unsupported geometry, absent subjects, unintended depth, broken contact points or unrelated interactions. Select none when no candidate fits; use restrained style-native motion instead. Preserve authored transforms, fixed backgrounds and reading layers."
@@ -34163,6 +34178,598 @@
         ]
       },
       "combination_guidance_provenance": "application_authored"
+    },
+    {
+      "id": "style-137",
+      "category": "Digital and 3D Aesthetics",
+      "name_en": "Cassette Futurism",
+      "provenance": "authored",
+      "visual_cues": "Cassette Futurism: the 1970s–80s imagined spaceship and mission-control console, a hardware-first branch of Retrofuturism rather than cyberpunk, vaporwave or Y2K. Compose a modular dashboard of chunky charcoal and olive panels set into beige plastic cases with visible screws, seams, vents and black or white embossed labels, banded by restrained amber, orange and rust livery stripes. Recessed black CRT screens glow in ONE phosphor per screen — green #74FF9A or amber #FFB23E — with modest scanlines, soft glow, a screen-bounded vignette and seeded deterministic noise. Use monospace or pixel-like type from locally available system mono fonts: condensed uppercase panel labels such as NAV, PWR and SYS, numbers, timecodes and segmented readouts. Physical hardware carries the scene: cassette tape reels and transport, toggles, knobs, square keys and indicator lamps. Red appears only for warnings. Motion is typed text, 12fps stepped hardware actions, a brief boot flicker and short channel-static transitions that resolve into readable holds. Avoid continuous strobing, smooth generic easing, pink or purple neon, glassmorphism, gradient blobs and round flat cards.",
+      "note": "Authored by Claude Opus 5.5 (claude-opus-5-5) on 2026-10-18 from a user-specified creative brief; not extracted from external reference footage. A distinct, period-specific branch of Retrofuturism (style-065) fixed to 1970s–80s spaceship console hardware, which applies CRT / Analog Video Effects (style-066) only as a screen-bounded display treatment. Not Cyberpunk, Vaporwave or Y2K Design.",
+      "tech": {
+        "recommended_stack_keys": [
+          "hyperframes",
+          "html_css",
+          "svg",
+          "canvas_2d",
+          "gsap",
+          "scrambled_text_reveal",
+          "chroma_js",
+          "remotion"
+        ],
+        "implementation": "Build each console as real hardware modules, not a flat UI: HTML/CSS grid or absolute layout for module placement and real text; SVG for beige cases, charcoal/olive panels, screws, seams, vents, embossed label plates, livery stripes, cassette window, reels, tape path, heads, toggles, knobs, square keys, lamps and seven-segment readouts; Canvas 2D only for seeded screen noise when SVG specks are insufficient. Use code-drawn geometry only; no external images, photographs or downloaded fonts. Set type with generic monospace or locally installed system mono fonts and verify fallback metrics; give CRT text a fixed character advance (for example textLength per typed substring) so typing never reflows. Panel labels are condensed uppercase (horizontal scale or narrow mono) with letter spacing; embossing is a 1px offset highlight or shadow copy, not a glow. CRT treatment (the style-066 CRT / Analog Video Effects vocabulary, confined to screen glass): one phosphor per screen, green #74FF9A or amber #FFB23E on a near-black screen; scanlines about 3–4px apart at 720p at modest opacity; a short blur glow merged under sharp glyphs; a radial vignette clipped to the rounded screen; static noise from a seeded generator evaluated by 12fps step index, never Math.random or wall clock. Keep scanlines, glow, noise and vignette inside the bezel and keep phosphor text at or above 4.5:1 on the composited screen. Red is warning-only: master caution lamps, fault legends and alarm readouts, paired with a text label; never stripes, titles, idle lamps or decoration. Motion: derive every visual state from absolute composition time quantized to 12 steps per second (step = floor(time × 12)); hold each pose for the whole step instead of tweening with smooth generic easing. Toggles and keys snap within one step; knobs turn in detents; tape reels rotate by fixed angles per step at different rates as the supply pack shrinks and the take-up pack grows; counters, timecodes and segmented gauges step to new values. Typewriter text reveals characters in order beside a block cursor, then holds the completed line. A boot flicker lasts at most a few steps (about 0.3s) and never repeats as a strobe. A channel-static transition between screen pages lasts about three steps (≈0.25s): a bounded band of seeded static and a small horizontal line offset inside the bezel, then a stable readable page. Allow full reading holds after typing and after each page change; vary quick snaps with deliberate holds; do not animate everything at once. Build a single time-state function that returns every module's pose and readout for an arbitrary time, apply it to the scene from one paused seekable timeline, and verify identical frames for forward, backward and direct seeks, including a fresh page. Provide reduced-motion access by replacing flicker and static with plain cuts. Keep export resolution, frame rate and file size in delivery settings; the 12fps cadence is animation quantization, not the delivery frame rate. Relationship: this is a period-specific branch of Retrofuturism (style-065) that fixes the era to 1970s–80s console hardware, and it uses CRT / Analog Video Effects (style-066) only as the screen-bounded display treatment. Do not drift into cyberpunk, vaporwave or Y2K vocabulary. HyperFrames owns composition/export, with Remotion only for a verified limitation.",
+        "alternatives": [
+          "Canvas 2D for seeded per-step screen noise",
+          "Scrambled Text Reveal for a brief seeded resolve after channel static",
+          "Remotion for a verified export limitation"
+        ],
+        "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
+        "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
+        "framework_selection": {
+          "default": "HyperFrames",
+          "fallback": "Remotion",
+          "fallback_condition": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
+          "scope": "Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method."
+        },
+        "available_library_ids": ["gsap", "chroma_js"],
+        "library_selection": "Prefer HTML/CSS and SVG for the console hardware and readouts, with Canvas 2D only for seeded screen noise. GSAP owns one paused timeline that drives a time-state function quantized to 12fps; HyperFrames owns export. Do not bundle extra tools, 3D engines or shader stacks to imitate the look.",
+        "motion_guidance": {
+          "shared_reference": "shared_motion_guidance",
+          "application": "Preserve deliberate 12fps stepped hardware motion: toggles snap, knobs detent, reels advance by fixed angles, counters step, text types with a block cursor. Keep boot flicker and channel static brief and resolve into readable holds.",
+          "cadence_guidance": "This style intentionally replaces smooth generic easing with stepped holds. Quantize visual state to 12 steps per second while rendering at the delivery frame rate; vary quick snaps with sustained reading holds and never strobe continuously.",
+          "implementation": "Evaluate every module from absolute composition time through one pure time-state function; maintain a single owner per property and verify forward, backward and direct seeks produce identical frames."
+        },
+        "style_renderer": {
+          "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
+          "recommended_stack_refs": ["HTML/CSS", "SVG", "Canvas 2D"]
+        },
+        "motion_engine": {
+          "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
+          "recommended_stack_refs": ["GSAP", "Scrambled Text Reveal"]
+        },
+        "production_policy_ref": "production_policy",
+        "stack_overrides": {
+          "hyperframes": {
+            "values": {
+              "style_application": "Assemble and export the console modules, CRT screens and any approved audio; keep the stepped time-state renderer and do not replace the hardware artwork with framework defaults."
+            },
+            "remove": []
+          },
+          "html_css": {
+            "values": {
+              "style_application": "Module placement and real text: condensed uppercase panel labels (NAV, PWR, SYS), monospace CRT copy with a fixed character grid, timecodes and accessible reading order. No glassmorphism, backdrop blur or rounded flat cards."
+            },
+            "remove": []
+          },
+          "svg": {
+            "values": {
+              "style_application": "Primary hardware drawing: beige cases, charcoal/olive panels, screws, seams, vents, embossed label plates, amber/orange/rust livery stripes, cassette window with reels and tape path, toggles, detented knobs, square keys, lamps, seven-segment digits and screen-clipped scanlines, glow, vignette and seeded noise specks."
+            },
+            "remove": []
+          },
+          "canvas_2d": {
+            "values": {
+              "style_application": "Optional seeded screen noise or static bands drawn per 12fps step inside the CRT bezel only. Seed from step index; never Math.random, requestAnimationFrame loops or wall-clock time."
+            },
+            "remove": []
+          },
+          "gsap": {
+            "values": {
+              "style_application": "One paused, seekable timeline advances a composition clock; a pure time-state function quantized to 12fps sets every pose, readout, typed substring, flicker and static state. No smooth generic easing on hardware or text."
+            },
+            "remove": []
+          },
+          "scrambled_text_reveal": {
+            "values": {
+              "style_application": "Optional brief seeded character resolve after a channel-static cut, stepped at 12fps and ending on the exact copy with a readable hold. Omit when plain typing suffices."
+            },
+            "remove": []
+          },
+          "chroma_js": {
+            "values": {
+              "style_application": "Verify phosphor text on composited CRT black, label black on beige, beige on charcoal/olive and the large lamp legend on warning red. Keep red warning-only and do not introduce pink, purple or neon hues."
+            },
+            "remove": []
+          },
+          "remotion": {
+            "values": {
+              "style_application": "Conditional composition/export fallback only when a verified HyperFrames limitation requires it; keep the same stepped console artwork and time-state function."
+            },
+            "remove": []
+          }
+        },
+        "stack_property_order": {}
+      },
+      "executable_prompt_template": "Create an original Cassette Futurism video about {{subject}} for {{audience_and_objective}}, using {{assets_and_exact_copy}}. Duration {{duration_seconds}}, aspect ratio {{aspect_ratio}}, resolution {{resolution}}, frame rate {{frame_rate}}. Honor {{audio_or_rhythm_requirements}}. Save to {{output_directory}}. Use {{render_pipeline}} for composition/export; default HyperFrames, Remotion only for a verified limitation. Write structured STORYBOARD.json with timed scenes, exact copy, console readouts, hardware actions and local assets.\nVisual rules: Cassette Futurism: the 1970s–80s imagined spaceship and mission-control console, a hardware-first branch of Retrofuturism rather than cyberpunk, vaporwave or Y2K. Compose a modular dashboard of chunky charcoal and olive panels set into beige plastic cases with visible screws, seams, vents and black or white embossed labels, banded by restrained amber, orange and rust livery stripes. Recessed black CRT screens glow in ONE phosphor per screen — green #74FF9A or amber #FFB23E — with modest scanlines, soft glow, a screen-bounded vignette and seeded deterministic noise. Use monospace or pixel-like type from locally available system mono fonts: condensed uppercase panel labels such as NAV, PWR and SYS, numbers, timecodes and segmented readouts. Physical hardware carries the scene: cassette tape reels and transport, toggles, knobs, square keys and indicator lamps. Red appears only for warnings. Motion is typed text, 12fps stepped hardware actions, a brief boot flicker and short channel-static transitions that resolve into readable holds. Avoid continuous strobing, smooth generic easing, pink or purple neon, glassmorphism, gradient blobs and round flat cards.\nImplementation: Build each console as real hardware modules, not a flat UI: HTML/CSS grid or absolute layout for module placement and real text; SVG for beige cases, charcoal/olive panels, screws, seams, vents, embossed label plates, livery stripes, cassette window, reels, tape path, heads, toggles, knobs, square keys, lamps and seven-segment readouts; Canvas 2D only for seeded screen noise when SVG specks are insufficient. Use code-drawn geometry only; no external images, photographs or downloaded fonts. Set type with generic monospace or locally installed system mono fonts and verify fallback metrics; give CRT text a fixed character advance (for example textLength per typed substring) so typing never reflows. Panel labels are condensed uppercase (horizontal scale or narrow mono) with letter spacing; embossing is a 1px offset highlight or shadow copy, not a glow. CRT treatment (the style-066 CRT / Analog Video Effects vocabulary, confined to screen glass): one phosphor per screen, green #74FF9A or amber #FFB23E on a near-black screen; scanlines about 3–4px apart at 720p at modest opacity; a short blur glow merged under sharp glyphs; a radial vignette clipped to the rounded screen; static noise from a seeded generator evaluated by 12fps step index, never Math.random or wall clock. Keep scanlines, glow, noise and vignette inside the bezel and keep phosphor text at or above 4.5:1 on the composited screen. Red is warning-only: master caution lamps, fault legends and alarm readouts, paired with a text label; never stripes, titles, idle lamps or decoration. Motion: derive every visual state from absolute composition time quantized to 12 steps per second (step = floor(time × 12)); hold each pose for the whole step instead of tweening with smooth generic easing. Toggles and keys snap within one step; knobs turn in detents; tape reels rotate by fixed angles per step at different rates as the supply pack shrinks and the take-up pack grows; counters, timecodes and segmented gauges step to new values. Typewriter text reveals characters in order beside a block cursor, then holds the completed line. A boot flicker lasts at most a few steps (about 0.3s) and never repeats as a strobe. A channel-static transition between screen pages lasts about three steps (≈0.25s): a bounded band of seeded static and a small horizontal line offset inside the bezel, then a stable readable page. Allow full reading holds after typing and after each page change; vary quick snaps with deliberate holds; do not animate everything at once. Build a single time-state function that returns every module's pose and readout for an arbitrary time, apply it to the scene from one paused seekable timeline, and verify identical frames for forward, backward and direct seeks, including a fresh page. Provide reduced-motion access by replacing flicker and static with plain cuts. Keep export resolution, frame rate and file size in delivery settings; the 12fps cadence is animation quantization, not the delivery frame rate. Relationship: this is a period-specific branch of Retrofuturism (style-065) that fixes the era to 1970s–80s console hardware, and it uses CRT / Analog Video Effects (style-066) only as the screen-bounded display treatment. Do not drift into cyberpunk, vaporwave or Y2K vocabulary. HyperFrames owns composition/export, with Remotion only for a verified limitation.\nRead the selected palette and tool guidance. Validate the storyboard schema, direct/backward seeks, readable holds, warning-only red and rendered frames; preserve exact copy and word spacing.",
+      "motion_references": {
+        "catalog_file": "motion-pattern-catalog.json",
+        "required": false,
+        "selection_policy": "Optional candidates are screened for natural style compatibility. Before selection, inspect the actual scene illustration, assets, geometry and narrative beat. Keep only references whose defining action is supported by that scene. Choosing no reference is valid. Do not infer motion from a similar label; do not replace the existing style motion direction.",
+        "candidates": [
+          {
+            "motion_id": "motion-022",
+            "usage_guidance": "Typewriter CRT readouts: a block cursor advances character by character at the 12fps stepped cadence on a fixed monospace grid, then the completed line holds long enough to read. Fits boot logs, mission status and telemetry lines on the console screen."
+          },
+          {
+            "motion_id": "motion-030",
+            "usage_guidance": "Instrument readouts build from one authored data state: screen grid and labels first, then segmented gauges, seven-segment numbers and timecodes step to their values together, then hold. No decorative drift between steps."
+          },
+          {
+            "motion_id": "motion-020",
+            "usage_guidance": "Adapt only as a brief channel-static cut between CRT screen pages: about three 12fps steps of seeded static band and small horizontal line offset clipped inside the bezel, then a stable readable page. Never apply it to the console hardware or repeat it as a strobe; use a plain cut for reduced motion."
+          }
+        ],
+        "agent_instruction": "Read the actual illustration and complete pattern description, motion_sequence and video_adaptation. Identify which scene elements implement that action. Reject unsupported geometry, absent subjects, unintended depth, broken contact points or unrelated interactions. Select none when no candidate fits; use restrained style-native motion instead. Preserve authored transforms, fixed backgrounds and reading layers. For an opening or gallery demo, prefer motion-016 when separable illustration and text layers exist; animate both focal objects and meaningful lettering."
+      },
+      "palette": {
+        "background_policy": "scene_dependent",
+        "status": "style_compatible_suggestion",
+        "scope": "new_artwork_when_no_approved_palette_is_supplied",
+        "direction": "Dim console bay; chunky charcoal and olive panels in beige plastic cases; near-black CRT glass in one phosphor (green #74FF9A or amber #FFB23E); restrained amber, orange and rust stripes; red only for warnings.",
+        "generator": {
+          "library": "chroma-js",
+          "version": "3.2.0",
+          "operations": ["chroma.valid", "chroma(color).hex()", "chroma.contrast"]
+        },
+        "tokens": {
+          "background": "#1A1C18",
+          "foreground": "#ECE3CC",
+          "panel_charcoal": "#2E302B",
+          "panel_olive": "#4B5038",
+          "case_beige": "#CFC2A2",
+          "label_black": "#121311",
+          "crt_black": "#060907",
+          "phosphor_green": "#74FF9A",
+          "phosphor_amber": "#FFB23E",
+          "stripe_orange": "#E2762B",
+          "stripe_rust": "#9A4526",
+          "warning_red": "#D7322B"
+        },
+        "base_colors": [
+          "#1A1C18",
+          "#ECE3CC",
+          "#2E302B",
+          "#4B5038",
+          "#CFC2A2",
+          "#121311",
+          "#060907",
+          "#74FF9A",
+          "#FFB23E",
+          "#E2762B",
+          "#9A4526",
+          "#D7322B"
+        ],
+        "base_color_count": 12,
+        "constraints": [
+          "Choose the scene background from the brief; #1A1C18 is an illustrative console-bay swatch. Keep the hardware material roles: charcoal/olive panels, beige plastic cases, black or white embossed labels and near-black CRT glass.",
+          "Each CRT uses one phosphor: green #74FF9A or amber #FFB23E. Do not mix phosphors within one screen. Never introduce pink, purple or cyan neon, glassmorphism or gradient blobs.",
+          "Reserve #D7322B for warning lamps, fault legends and alarm readouts only, paired with a text label so meaning does not rely on color. It never colors stripes, titles, idle lamps or decoration.",
+          "Amber, orange and rust are restrained livery stripes and small indicators, not large washes or small body-text colors.",
+          "Scanlines, glow, vignette and noise stay inside the screen bezel and must keep phosphor text at or above 4.5:1 on the composited screen.",
+          "Keep export size, frame rate and file-size limits in delivery settings; the 12fps stepped cadence is animation quantization, not an export frame rate."
+        ],
+        "gradient": {
+          "enabled": false,
+          "instruction": "No decorative gradients. The only permitted gradient is a radial CRT vignette or phosphor glow clipped inside a screen bezel."
+        },
+        "contrast_checks": {
+          "background": "opaque_sRGB",
+          "normal_text_target": 4.5,
+          "foreground_on_background": 13.429,
+          "suggested_text_pairs": [
+            {
+              "background_token": "background",
+              "foreground_token": "foreground",
+              "contrast_ratio": 13.429,
+              "meets_normal_text_target": true,
+              "use": "Candidate opaque text pairing; verify final size and compositing."
+            },
+            {
+              "background_token": "crt_black",
+              "foreground_token": "phosphor_green",
+              "contrast_ratio": 15.729,
+              "meets_normal_text_target": true,
+              "use": "Green phosphor CRT text; recheck after scanlines, glow and vignette."
+            },
+            {
+              "background_token": "crt_black",
+              "foreground_token": "phosphor_amber",
+              "contrast_ratio": 11.134,
+              "meets_normal_text_target": true,
+              "use": "Amber phosphor CRT text; recheck after scanlines, glow and vignette."
+            },
+            {
+              "background_token": "case_beige",
+              "foreground_token": "label_black",
+              "contrast_ratio": 10.552,
+              "meets_normal_text_target": true,
+              "use": "Embossed black labels on beige cases."
+            },
+            {
+              "background_token": "panel_charcoal",
+              "foreground_token": "foreground",
+              "contrast_ratio": 10.437,
+              "meets_normal_text_target": true,
+              "use": "White/beige labels on charcoal panels."
+            },
+            {
+              "background_token": "panel_olive",
+              "foreground_token": "foreground",
+              "contrast_ratio": 6.561,
+              "meets_normal_text_target": true,
+              "use": "White/beige labels on olive panels."
+            },
+            {
+              "background_token": "warning_red",
+              "foreground_token": "label_black",
+              "contrast_ratio": 3.887,
+              "meets_normal_text_target": false,
+              "use": "Bold warning-lamp legend of at least 19px on lit red. Large-text 3:1 target only."
+            }
+          ],
+          "limitation": "Two-color checks only. Not a guarantee of complete accessibility or readability over images, textures, glass, video, outlines or animated lighting. Recheck every actual foreground/background pairing in representative frames."
+        },
+        "composition_guidance": "Compose a modular dashboard: one dominant CRT module as the primary focus, a tape-transport module and a controls module as secondary areas, and a keypad or status strip. Align modules on a shared grid with consistent case margins, screws at corners and a clear reading path from screen to readouts. Keep stripes as thin bands and warnings near their related readout.",
+        "agent_instruction": "Resolve colors in this order: task-provided exact palette, established brand or approved source palette, existing semantic color mappings, then this optional example. Read visual_cues and palette.constraints. Preserve approved anchor values, color families, ink counts and asset colors. Use chroma-js for validation, equivalent normalization and contrast assessment; evaluate gradients only when enabled and appropriate. Select readable token pairs from contrast_checks, otherwise move text onto an existing contrasting backing. Record the resolved tokens and inspect actual composited frames before rendering."
+      },
+      "audio_direction": {
+        "prompt": "Optional restrained console sound: low equipment hum, relay and key clicks, tape-transport whir and a single warning chime aligned to actual on-screen actions, a sparse analog-synth bed, or silence according to the brief. Do not tick for every typed character, and sound an alarm only with a visible warning. Silent catalog preview.",
+        "suggestion_dimensions": [
+          "Whether background music is useful, and its suggested mood, texture, energy, tempo range, and progression.",
+          "Whether voiceover helps explain the topic, and its suggested language, tone, pace, and placement.",
+          "Whether sung vocals support the topic or distract from narration and essential text.",
+          "Whether sound effects, ambience, or silence clarify key actions, transitions, and reading holds.",
+          "How audio changes across scenes, supports motion cadence, and leaves space for speech and comprehension."
+        ],
+        "selection_guidance": "Treat these as task-specific suggestions, not requirements to include every audio layer. Honor explicit user audio choices and supplied assets. When inputs are absent, propose a coherent direction and state assumptions; do not silently default to instrumental music or invent available audio assets.",
+        "integration_guidance": "Select or create authorized audio assets separately from visual construction and motion design. Use render_pipeline to assemble, synchronize, mix, and export audio with picture. Keep speech intelligible, avoid clipping and competing vocals, and inspect the delivered audio and picture together."
+      },
+      "suggested_combinations": {
+        "selection_guidance": "Cassette Futurism usually suffices alone; it already includes a screen-bounded CRT. Add a supporting style only to deepen the physical controls or to supply content on a screen, keeping the console hardware, stepped motion and warning-only red dominant.",
+        "suggestions": [
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-075",
+                "role": "Operable physical controls with press, detent and switch states"
+              }
+            ],
+            "rationale": "Skeuomorphic control behavior makes toggles, keys and knobs read as working hardware that causes the screen changes.",
+            "best_for": "Product or mission explainers where a control action triggers a readout.",
+            "video_application": "Snap a toggle or press a square key on one 12fps step, then change the related CRT page or lamp on the next step and hold.",
+            "html_application": "Expose the same controls as accessible buttons and switches whose states update the screen text; keep keyboard focus visible.",
+            "consistency_rules": [
+              "Keep beige, charcoal and olive materials and condensed uppercase labels.",
+              "Use one clock and one owner per animated property."
+            ],
+            "avoid": [
+              "Glossy modern app chrome or rounded flat cards.",
+              "Smooth eased control travel."
+            ]
+          },
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-057",
+                "role": "Low-resolution sprite or map content on a CRT screen"
+              }
+            ],
+            "rationale": "Whole-pixel graphics suit the raster screen and add diagrams or maps without changing the console vocabulary.",
+            "best_for": "Navigation maps, trajectories and simple telemetry diagrams.",
+            "video_application": "Draw the pixel content in the single screen phosphor at an integer scale, under the same scanlines and vignette, stepping at 12fps.",
+            "html_application": "Render pixel content to a crisp canvas inside the screen with accessible text equivalents for readings.",
+            "consistency_rules": [
+              "Keep one phosphor per screen.",
+              "Keep pixel content inside the bezel."
+            ],
+            "avoid": [
+              "Full-color game palettes on the CRT.",
+              "Pixel art replacing the physical console."
+            ]
+          }
+        ]
+      },
+      "combination_guidance_provenance": "authored_compatibility_guidance_2026-10-18"
+    },
+    {
+      "id": "style-138",
+      "category": "Drawing and Illustration",
+      "name_en": "Terminal Lyric Duotone Anime",
+      "provenance": "authored",
+      "visual_cues": "Terminal Lyric Duotone Anime: a flat anime music-video grammar in which every composition sits on a CRT-style terminal screen and the subject is read as data. Despite the traditional 'Duotone' name it is a strict three-ink tritone: ultramarine, cream and near-black as hard-edged posterized flat shapes with no gradients, rendered shading or soft airbrush; supplied anime character and scene illustrations appear mostly as held poses staged like cutouts (slow push, rotation, scale, translucent hologram states). Red is a reserved accent for warnings and dark emotional peaks only, used briefly; a whole-frame negative inversion or a short red palette swap may mark one peak. Frame every shot with a mild CRT finish: an oval dark vignette, fine scanlines, seeded grain and thin corner brackets, a §NN section header at top centre and a small audio meter at bottom left. Captions are bilingual monospace lines at the bottom (English above, Chinese below) whose characters resolve from seeded scrambled glyphs into the exact copy with a fine underline that grows like a progress bar; keywords are tinted signal blue (or red at warning beats). One keyword per section may be promoted to a large hero title that enters with a brief RGB-offset split and settles inside a thin elliptical ring. HUD overlays — detection boxes, specimen cards, feature maps, scan percentages, counters — annotate the subject with authored, labelled-illustrative data. Cut to a new composition every few seconds with plain cuts or brief glitch cuts, then hold long enough to read. Avoid gradients, glossy cel shading, neon rainbow palettes, continuous glitching, strobing flashes and illegible microtext.",
+      "note": "Authored by Claude Opus 5.5 (claude-opus-5-5) on 2026-10-18 from Claude Opus 5.5's frame analysis of a user-supplied anime-style music video (1 fps overview plus six 6 fps dense windows; no audio, no transcription). The entry records reusable visual and caption rules only: the source character, creature, song, lyrics, artwork and title are content, are not reproduced and must not be imitated. Colour values are authored defaults, not measured source hex. The traditional 'Duotone' label is kept, but the ink system is a blue/cream/black tritone with a reserved red accent. Related to Anime (style-033), CRT / Analog Video Effects (style-066), Glitch Art (style-067), Kinetic Typography (style-093) and Futuristic UI (FUI) / HUD Design (style-112), none of which fixes the three inks, red reservation, terminal frame layout and bilingual decode-caption grammar together. Review record: assets/catalog/reviews/terminal-lyric-anime.json.",
+      "tech": {
+        "recommended_stack_keys": [
+          "hyperframes",
+          "html_css",
+          "svg",
+          "canvas_2d",
+          "gsap",
+          "scrambled_text_reveal",
+          "layered_illustration_png_assets",
+          "chroma_js",
+          "remotion"
+        ],
+        "implementation": "Separate three layers. (1) Artwork: use supplied, rights-cleared anime character and scene illustrations, or purpose-drawn original art, already in the three inks; posterize existing art to ultramarine/cream/near-black only when the user is authorised to alter it. Do not generate character animation in code: stage held poses as cutouts with slow push, rotation, scale and opacity, and pre-render any drawn in-betweens. A code-drawn bust or silhouette is acceptable only as a clearly labelled illustrative placeholder. Never claim AI-generated or reference footage. (2) Frame and HUD (HTML/CSS and SVG, Canvas 2D for grain): a CRT finish of an elliptical radial vignette, scanlines about 3px apart at modest opacity and seeded grain evaluated from a frame or step index, never Math.random or wall clock; thin cream corner brackets; a §NN section header at top centre; a small audio meter at bottom left whose bars come from authored or seeded per-step levels (do not claim beat sync without measured audio). Detection boxes, specimen cards and counters use cream hairlines on near-black with monospace labels; mark invented data illustrative. (3) Typography and motion (GSAP paused timeline, Scrambled Text Reveal or a cached seeded glyph table): bilingual captions in a monospace English line over a CJK line from locally available system fonts (verify glyph coverage; use @font-face local() names, never downloaded fonts). Each character shows a seeded scrambled glyph until reveal_i = t0 + i·dt, then the exact character; the underline length equals caption progress; keyword spans take signal blue. Hold the resolved caption long enough to read. A keyword hero title reuses Glitch Type Build (motion-036): enter with a decaying RGB offset (red and blue copies offset by a few pixels, scale settling to 1), then draw a thin cream ellipse ring around the settled title. HUD readouts build with Data Build (motion-030), scene changes use plain cuts or a brief seeded Glitch Cut (motion-020), closing code can use Terminal Typing (motion-022), and searching or erasing beats may use Rotating Sonar-Sweep Reveal (motion-047) or Pixel-Tile Materialize & Targeted Delete (motion-048). Red stays reserved for warnings and peaks; limit negative inversions and flash montages to brief, photosensitivity-safe events (no more than about three flashes per second). Derive every state from absolute composition time through one pure time-state function with one owner per property, and verify identical frames for forward, backward and direct seeks, including a fresh page. Twirl distortion or radial motion blur, if requested, needs a WebGL/GLSL shader or pre-rendered frames. Relationship: narrower than Anime (style-033) by fixing three inks and the terminal caption grammar; borrows CRT / Analog Video Effects (style-066) only as a mild finishing layer and Glitch Art (style-067) only at transitions; its HUD is narrative, unlike functional Futuristic UI (style-112). Export settings stay in the project's renderer and delivery settings.",
+        "alternatives": [
+          "Canvas 2D for seeded grain and dot-matrix or tile effects",
+          "Cached seeded glyph tables instead of ScrambleTextPlugin when plugin seeking is unstable",
+          "WebGL/GLSL shader or pre-rendered frames for twirl or radial-blur transitions",
+          "Remotion for a verified export limitation"
+        ],
+        "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
+        "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
+        "framework_selection": {
+          "default": "HyperFrames",
+          "fallback": "Remotion",
+          "fallback_condition": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
+          "scope": "Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method."
+        },
+        "available_library_ids": ["gsap", "chroma_js"],
+        "library_selection": "Prefer supplied three-ink illustrations for characters and scenes, HTML/CSS and SVG for the screen frame, HUD and captions, and Canvas 2D for seeded grain and pixel effects. GSAP owns one paused timeline driving a pure time-state function; captions resolve through Scrambled Text Reveal or an equivalent cached seeded glyph table. Do not add 3D engines or shader stacks unless a twirl or blur transition is explicitly required.",
+        "motion_guidance": {
+          "shared_reference": "shared_motion_guidance",
+          "application": "Held illustration poses staged as cutouts; captions decode character by character with a growing underline; one keyword per section becomes a ringed hero title; HUD readouts build from authored data; scene changes are plain or brief glitch cuts followed by readable holds.",
+          "cadence_guidance": "Change composition every few seconds as the content requires, not on every beat. Scramble glyphs can step at about 12 changes per second while transforms stay smooth; give resolved captions and titles a settled reading hold. Keep glitch, inversion and red swaps brief and never strobe.",
+          "implementation": "Evaluate every layer from absolute composition time through one pure time-state function; seed all scramble, grain and glitch choices; maintain a single owner per property and verify forward, backward and direct seeks."
+        },
+        "style_renderer": {
+          "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
+          "recommended_stack_refs": ["HTML/CSS", "SVG", "Canvas 2D"]
+        },
+        "motion_engine": {
+          "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
+          "recommended_stack_refs": ["GSAP", "Scrambled Text Reveal"]
+        },
+        "production_policy_ref": "production_policy",
+        "stack_overrides": {
+          "hyperframes": {
+            "values": {
+              "style_application": "Assemble the supplied illustrations, CRT frame, HUD and captions and export them; keep the time-state renderer and do not replace the three-ink artwork with framework defaults."
+            },
+            "remove": []
+          },
+          "html_css": {
+            "values": {
+              "style_application": "Caption and header layout with real text: monospace English over a CJK line from local system fonts, keyword spans, the progress underline, §NN header and readable reading order."
+            },
+            "remove": []
+          },
+          "svg": {
+            "values": {
+              "style_application": "Screen frame and HUD: corner brackets, detection boxes, specimen cards, audio meter, the elliptical hero-title ring, scanline pattern and vignette; flat three-ink placeholder shapes when no artwork is supplied."
+            },
+            "remove": []
+          },
+          "canvas_2d": {
+            "values": {
+              "style_application": "Seeded CRT grain, dot-matrix or tile effects evaluated from frame or step index inside the screen; never Math.random, requestAnimationFrame loops or wall-clock time."
+            },
+            "remove": []
+          },
+          "gsap": {
+            "values": {
+              "style_application": "One paused, seekable timeline advances a composition clock; a pure time-state function sets caption decode, underline progress, title RGB offset and ring, HUD values and cutout transforms."
+            },
+            "remove": []
+          },
+          "scrambled_text_reveal": {
+            "values": {
+              "style_application": "Bilingual caption decode: seeded scrambled glyphs resolve left to right into the exact copy, then hold. Preserve word spacing and final text; cache the glyph sequence if plugin seeking is unstable."
+            },
+            "remove": []
+          },
+          "layered_illustration_png_assets": {
+            "values": {
+              "style_application": "Supplied or purpose-drawn three-ink character and scene illustrations with transparency, staged as held cutout poses. Inspect rights and ink count before use; never imply generated or reference footage."
+            },
+            "remove": []
+          },
+          "chroma_js": {
+            "values": {
+              "style_application": "Verify cream and signal-blue caption text on composited near-black, cream on ultramarine, and warning red on near-black after scanlines, grain and vignette. Keep the three inks plus reserved red."
+            },
+            "remove": []
+          },
+          "remotion": {
+            "values": {
+              "style_application": "Conditional composition/export fallback only for a verified HyperFrames limitation; keep the same artwork, captions and time-state function."
+            },
+            "remove": []
+          }
+        },
+        "stack_property_order": {}
+      },
+      "executable_prompt_template": "Create an original Terminal Lyric Duotone Anime video about {{subject}} for {{audience_and_objective}}, using {{assets_and_exact_copy}}. Duration {{duration_seconds}}, aspect ratio {{aspect_ratio}}, resolution {{resolution}}, frame rate {{frame_rate}}. Honor {{audio_or_rhythm_requirements}}. Save to {{output_directory}}. Use {{render_pipeline}} for composition/export; default HyperFrames, Remotion only for a verified limitation. Write structured STORYBOARD.json with timed compositions, section headers, exact bilingual captions, keyword titles, HUD data and the supplied or purpose-drawn illustrations used for each shot.\nVisual rules: Terminal Lyric Duotone Anime: a flat anime music-video grammar in which every composition sits on a CRT-style terminal screen and the subject is read as data. Despite the traditional 'Duotone' name it is a strict three-ink tritone: ultramarine, cream and near-black as hard-edged posterized flat shapes with no gradients, rendered shading or soft airbrush; supplied anime character and scene illustrations appear mostly as held poses staged like cutouts (slow push, rotation, scale, translucent hologram states). Red is a reserved accent for warnings and dark emotional peaks only, used briefly; a whole-frame negative inversion or a short red palette swap may mark one peak. Frame every shot with a mild CRT finish: an oval dark vignette, fine scanlines, seeded grain and thin corner brackets, a §NN section header at top centre and a small audio meter at bottom left. Captions are bilingual monospace lines at the bottom (English above, Chinese below) whose characters resolve from seeded scrambled glyphs into the exact copy with a fine underline that grows like a progress bar; keywords are tinted signal blue (or red at warning beats). One keyword per section may be promoted to a large hero title that enters with a brief RGB-offset split and settles inside a thin elliptical ring. HUD overlays — detection boxes, specimen cards, feature maps, scan percentages, counters — annotate the subject with authored, labelled-illustrative data. Cut to a new composition every few seconds with plain cuts or brief glitch cuts, then hold long enough to read. Avoid gradients, glossy cel shading, neon rainbow palettes, continuous glitching, strobing flashes and illegible microtext.\nImplementation: Separate three layers. (1) Artwork: use supplied, rights-cleared anime character and scene illustrations, or purpose-drawn original art, already in the three inks; posterize existing art to ultramarine/cream/near-black only when the user is authorised to alter it. Do not generate character animation in code: stage held poses as cutouts with slow push, rotation, scale and opacity, and pre-render any drawn in-betweens. A code-drawn bust or silhouette is acceptable only as a clearly labelled illustrative placeholder. Never claim AI-generated or reference footage. (2) Frame and HUD (HTML/CSS and SVG, Canvas 2D for grain): a CRT finish of an elliptical radial vignette, scanlines about 3px apart at modest opacity and seeded grain evaluated from a frame or step index, never Math.random or wall clock; thin cream corner brackets; a §NN section header at top centre; a small audio meter at bottom left whose bars come from authored or seeded per-step levels (do not claim beat sync without measured audio). Detection boxes, specimen cards and counters use cream hairlines on near-black with monospace labels; mark invented data illustrative. (3) Typography and motion (GSAP paused timeline, Scrambled Text Reveal or a cached seeded glyph table): bilingual captions in a monospace English line over a CJK line from locally available system fonts (verify glyph coverage; use @font-face local() names, never downloaded fonts). Each character shows a seeded scrambled glyph until reveal_i = t0 + i·dt, then the exact character; the underline length equals caption progress; keyword spans take signal blue. Hold the resolved caption long enough to read. A keyword hero title reuses Glitch Type Build (motion-036): enter with a decaying RGB offset (red and blue copies offset by a few pixels, scale settling to 1), then draw a thin cream ellipse ring around the settled title. HUD readouts build with Data Build (motion-030), scene changes use plain cuts or a brief seeded Glitch Cut (motion-020), closing code can use Terminal Typing (motion-022), and searching or erasing beats may use Rotating Sonar-Sweep Reveal (motion-047) or Pixel-Tile Materialize & Targeted Delete (motion-048). Red stays reserved for warnings and peaks; limit negative inversions and flash montages to brief, photosensitivity-safe events (no more than about three flashes per second). Derive every state from absolute composition time through one pure time-state function with one owner per property, and verify identical frames for forward, backward and direct seeks, including a fresh page. Twirl distortion or radial motion blur, if requested, needs a WebGL/GLSL shader or pre-rendered frames. Relationship: narrower than Anime (style-033) by fixing three inks and the terminal caption grammar; borrows CRT / Analog Video Effects (style-066) only as a mild finishing layer and Glitch Art (style-067) only at transitions; its HUD is narrative, unlike functional Futuristic UI (style-112). Export settings stay in the project's renderer and delivery settings.\nRead the selected palette and tool guidance. Validate the storyboard schema, direct/backward seeks, caption reading holds, CJK glyph coverage, reserved red, photosensitivity-safe flashes and rendered frames; preserve exact copy and word spacing.",
+      "motion_references": {
+        "catalog_file": "motion-pattern-catalog.json",
+        "required": false,
+        "selection_policy": "Optional candidates are screened for natural style compatibility. Before selection, inspect the actual scene illustration, assets, geometry and narrative beat. Keep only references whose defining action is supported by that scene. Choosing no reference is valid. Do not infer motion from a similar label; do not replace the existing style motion direction.",
+        "candidates": [
+          {
+            "motion_id": "motion-036",
+            "usage_guidance": "Keyword hero titles: the promoted lyric keyword enters with a decaying RGB-offset split and scale settle, then a thin cream ellipse ring draws around the settled title and holds. Repeated word stamps at scattered positions are a layout parameter of the same motion.",
+            "review_evidence": "assets/catalog/reviews/terminal-lyric-anime.json"
+          },
+          {
+            "motion_id": "motion-030",
+            "usage_guidance": "HUD readouts that read the subject as data: detection box and callout lines first, then scan percentage or counter values step to authored targets and hold; label invented data illustrative.",
+            "review_evidence": "assets/catalog/reviews/terminal-lyric-anime.json"
+          },
+          {
+            "motion_id": "motion-020",
+            "usage_guidance": "Adapt as a brief timeline-driven glitch cut between compositions: one or two seeded slice frames, optionally red-tinted at a warning beat, then a clean readable frame. Never continuous or strobing.",
+            "review_evidence": "assets/catalog/reviews/terminal-lyric-anime.json"
+          },
+          {
+            "motion_id": "motion-022",
+            "usage_guidance": "Closing or opening code lines on the terminal screen: cursor typing on a fixed monospace grid in cream, then a reading hold. Lyric captions use the scramble decode instead, not a cursor.",
+            "review_evidence": "assets/catalog/reviews/terminal-lyric-anime.json"
+          },
+          {
+            "motion_id": "motion-047",
+            "usage_guidance": "Searching or closing beats: one clockwise sector beam around a fixed pivot over a held three-ink illustration, clear inside and dark dot matrix outside, with the caption and header kept readable above the mask.",
+            "review_evidence": "assets/catalog/reviews/terminal-lyric-anime.json"
+          },
+          {
+            "motion_id": "motion-048",
+            "usage_guidance": "Loading or erasing a character: tiles of one supplied illustration converge into the full image, or a red selection box deletes fixed cells of a memory grid while a terminal progress bar in the caption advances; cells stay empty.",
+            "review_evidence": "assets/catalog/reviews/terminal-lyric-anime.json"
+          }
+        ],
+        "agent_instruction": "Read the actual illustration and complete pattern description, motion_sequence and video_adaptation. Identify which scene elements implement that action. Reject unsupported geometry, absent subjects, unintended depth, broken contact points or unrelated interactions. Select none when no candidate fits; use restrained style-native motion instead. Preserve authored transforms, fixed backgrounds and reading layers. For an opening or gallery demo, prefer motion-016 when separable illustration and text layers exist; animate both focal objects and meaningful lettering."
+      },
+      "palette": {
+        "background_policy": "scene_dependent",
+        "status": "style_compatible_suggestion",
+        "scope": "new_artwork_when_no_approved_palette_is_supplied",
+        "direction": "A dark CRT screen around flat three-ink art: ultramarine, cream and near-black, with signal blue for on-screen keyword text and red reserved for warnings and peaks.",
+        "generator": {
+          "library": "chroma-js",
+          "version": "3.2.0",
+          "operations": ["chroma.valid", "chroma(color).hex()", "chroma.contrast"]
+        },
+        "tokens": {
+          "background": "#06070B",
+          "near_black": "#0D0F16",
+          "ultramarine": "#2747C8",
+          "cream": "#F1E8D2",
+          "signal_blue": "#7A93FF",
+          "warning_red": "#F0473A"
+        },
+        "base_colors": ["#06070B", "#0D0F16", "#2747C8", "#F1E8D2", "#7A93FF", "#F0473A"],
+        "base_color_count": 6,
+        "constraints": [
+          "Choose the screen surround from the scene; #06070B is an illustrative swatch. The artwork itself stays three inks: ultramarine #2747C8, cream #F1E8D2 and near-black #0D0F16, as flat hard-edged shapes with no gradients.",
+          "Signal blue #7A93FF is the lit on-screen form of ultramarine for keyword text, HUD lines and rings on near-black; it is not an additional fill ink for artwork.",
+          "Reserve warning red #F0473A for warnings, deletions, RGB-offset accents and dark emotional peaks, used briefly and paired with text or shape so meaning does not rely on colour.",
+          "A negative inversion or red palette swap may mark one peak; keep it brief and photosensitivity-safe.",
+          "Scanlines, grain and vignette stay mild and must keep caption text at or above 4.5:1 on the composited frame.",
+          "Approved artwork and brand colours take precedence; posterize supplied art only when authorised."
+        ],
+        "gradient": {
+          "enabled": false,
+          "instruction": "No gradients in artwork or HUD. The only permitted gradient is the elliptical CRT vignette over the whole screen."
+        },
+        "contrast_checks": {
+          "background": "opaque_sRGB",
+          "normal_text_target": 4.5,
+          "foreground_on_background": 16.504,
+          "suggested_text_pairs": [
+            {
+              "background_token": "near_black",
+              "foreground_token": "cream",
+              "contrast_ratio": 15.691,
+              "meets_normal_text_target": true,
+              "use": "Caption, header and HUD text on the screen."
+            },
+            {
+              "background_token": "near_black",
+              "foreground_token": "signal_blue",
+              "contrast_ratio": 6.787,
+              "meets_normal_text_target": true,
+              "use": "Keyword spans and HUD accents on near-black."
+            },
+            {
+              "background_token": "near_black",
+              "foreground_token": "warning_red",
+              "contrast_ratio": 5.166,
+              "meets_normal_text_target": true,
+              "use": "Warning labels on near-black; recheck after grain."
+            },
+            {
+              "background_token": "ultramarine",
+              "foreground_token": "cream",
+              "contrast_ratio": 6.101,
+              "meets_normal_text_target": true,
+              "use": "Cream text or highlights on ultramarine fills."
+            },
+            {
+              "background_token": "cream",
+              "foreground_token": "near_black",
+              "contrast_ratio": 15.691,
+              "meets_normal_text_target": true,
+              "use": "Ink text on cream panels or specimen cards."
+            },
+            {
+              "background_token": "background",
+              "foreground_token": "cream",
+              "contrast_ratio": 16.504,
+              "meets_normal_text_target": true,
+              "use": "Text near the vignette edge."
+            }
+          ],
+          "limitation": "Two-color checks only. Not a guarantee of complete accessibility or readability over images, textures, glass, video, outlines or animated lighting. Recheck every actual foreground/background pairing in representative frames."
+        },
+        "composition_guidance": "One held illustration as the primary focus, usually centred or offset with negative space for the hero title. Caption block centred in the bottom safe area, §NN header top centre, audio meter bottom left, corner brackets at the frame corners and at most one HUD panel or detection box competing with the subject.",
+        "agent_instruction": "Resolve colors in this order: task-provided exact palette, established brand or approved source palette, existing semantic color mappings, then this optional example. Read visual_cues and palette.constraints. Preserve approved anchor values, color families, ink counts and asset colors. Use chroma-js for validation, equivalent normalization and contrast assessment; evaluate gradients only when enabled and appropriate. Select readable token pairs from contrast_checks, otherwise move text onto an existing contrasting backing. Record the resolved tokens and inspect actual composited frames before rendering."
+      },
+      "audio_direction": {
+        "prompt": "Optional electronic or synth-pop song, instrumental bed, sparse UI blips and glitch accents tied to visible cuts, or silence, according to the brief. Captions follow delivered vocals only when timing is measured; do not claim beat sync, invent lyrics or imitate a specific song or singer. The catalog preview is silent.",
+        "suggestion_dimensions": [
+          "Whether background music is useful, and its suggested mood, texture, energy, tempo range, and progression.",
+          "Whether voiceover helps explain the topic, and its suggested language, tone, pace, and placement.",
+          "Whether sung vocals support the topic or distract from narration and essential text.",
+          "Whether sound effects, ambience, or silence clarify key actions, transitions, and reading holds.",
+          "How audio changes across scenes, supports motion cadence, and leaves space for speech and comprehension."
+        ],
+        "selection_guidance": "Treat these as task-specific suggestions, not requirements to include every audio layer. Honor explicit user audio choices and supplied assets. When inputs are absent, propose a coherent direction and state assumptions; do not silently default to instrumental music or invent available audio assets.",
+        "integration_guidance": "Select or create authorized audio assets separately from visual construction and motion design. Use render_pipeline to assemble, synchronize, mix, and export audio with picture. Keep speech intelligible, avoid clipping and competing vocals, and inspect the delivered audio and picture together."
+      },
+      "suggested_combinations": {
+        "selection_guidance": "Terminal Lyric Duotone Anime already includes a mild CRT frame and brief glitch accents. Add a supporting Motion Graphic only for a specific transition or scene, keeping the three inks, reserved red and caption grammar dominant.",
+        "suggestions": [
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-066",
+                "role": "CRT power-on, line-to-aperture opening and vertical squeeze transitions"
+              }
+            ],
+            "rationale": "A bright line widening into an eye-shaped aperture and a squeeze-to-line exit extend the existing screen frame into transitions.",
+            "best_for": "Openings, endings and section breaks.",
+            "video_application": "Open on one cream line that widens into an elliptical clip over the first held illustration; exit by scaling the frame vertically to a line, then cut.",
+            "html_application": "Use the same clip animation on scroll into a section, with a reduced-motion plain fade.",
+            "consistency_rules": [
+              "Keep CRT texture mild and inside the three inks.",
+              "One clock for clip and captions."
+            ],
+            "avoid": ["Heavy noise or colour bleeding.", "Repeating the power-on for every scene."]
+          },
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-098",
+                "role": "Continuous push into the iris that becomes the title field"
+              }
+            ],
+            "rationale": "A push through the eye into a dark pupil gives the keyword hero title a motivated field without a cut.",
+            "best_for": "Promoting a keyword title out of a close-up.",
+            "video_application": "Scale a supplied eye close-up continuously until the near-black pupil fills the frame, then resolve the ringed title there.",
+            "html_application": "Scroll-linked scale with a static fallback frame.",
+            "consistency_rules": [
+              "Use supplied layered art for depth.",
+              "Keep the caption readable throughout."
+            ],
+            "avoid": ["Inventing new artwork detail at high zoom."]
+          },
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-067",
+                "role": "Brief red slice frames and RGB shake at warning peaks"
+              }
+            ],
+            "rationale": "Glitch Art gives a fault model for the reserved red beats without turning the whole piece into glitch.",
+            "best_for": "Warning or breakdown moments and hard scene changes.",
+            "video_application": "Insert one or two seeded red slice frames at the cut, then return to clean three-ink frames and readable captions.",
+            "html_application": "Trigger once per section entry; disable under reduced motion.",
+            "consistency_rules": ["Keep glitch to transitions.", "Red only at warning beats."],
+            "avoid": ["Continuous corruption.", "Strobing faster than three flashes per second."]
+          }
+        ]
+      },
+      "combination_guidance_provenance": "authored_compatibility_guidance_2026-10-18"
     }
   ],
   "library_options": [

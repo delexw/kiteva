@@ -38,3 +38,35 @@ it("returns no browser when neither overrides nor a cached installation exist", 
   vi.mocked(existsSync).mockReturnValue(false);
   expect(browserExecutablePath()).toBeUndefined();
 });
+it("finds a native Windows headless shell using USERPROFILE without HOME", () => {
+  vi.stubEnv("HYPERFRAMES_BROWSER_PATH", "");
+  vi.stubEnv("VIDEO_BROWSER_PATH", "");
+  vi.stubEnv("PUPPETEER_CACHE_DIR", "");
+  vi.stubEnv("HOME", "");
+  vi.stubEnv("USERPROFILE", "C:\\Users\\Creator");
+  vi.mocked(existsSync).mockReturnValue(true);
+  vi.mocked(readdirSync).mockReturnValue([
+    "win64-151\\chrome-headless-shell-win64\\chrome-headless-shell.exe",
+  ] as never);
+  expect(browserExecutablePath()).toBe(
+    path.join(
+      "C:\\Users\\Creator",
+      ".cache",
+      "puppeteer",
+      "chrome-headless-shell",
+      "win64-151\\chrome-headless-shell-win64\\chrome-headless-shell.exe",
+    ),
+  );
+});
+it("honors a shared Puppeteer cache directory", () => {
+  vi.stubEnv("HYPERFRAMES_BROWSER_PATH", "");
+  vi.stubEnv("VIDEO_BROWSER_PATH", "");
+  vi.stubEnv("PUPPETEER_CACHE_DIR", "/managed/browsers");
+  vi.mocked(existsSync).mockImplementation(
+    (folder) => !String(folder).endsWith("chrome-headless-shell"),
+  );
+  vi.mocked(readdirSync).mockReturnValue(["win64-151/chrome-win64/chrome.exe"] as never);
+  expect(browserExecutablePath()).toBe(
+    path.join("/managed/browsers", "chrome", "win64-151/chrome-win64/chrome.exe"),
+  );
+});

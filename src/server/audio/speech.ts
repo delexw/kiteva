@@ -119,7 +119,15 @@ export async function prepareSpeech(
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
         emit("state", "Writing narration…");
+        const scriptContext = {
+          instructions: request.instructions,
+          brief,
+          delivery: settings.instructions,
+          duration,
+          language: speechLanguage(settings.voice, settings.engine, settings.language),
+        };
         const result = await (dependencies.generate || agentTurn)({
+          textOnly: true,
           provider: request.provider,
           model: textModels[request.provider],
           workspace,
@@ -127,14 +135,7 @@ export async function prepareSpeech(
           onEvent,
           readOnly: true,
           schema: ScriptSchema,
-          promptContext: {
-            instructions: request.instructions,
-            brief,
-            delivery: settings.instructions,
-            duration,
-            language: speechLanguage(settings.voice, settings.engine, settings.language),
-          },
-          prompt: `Write original faceless narration for this concept. Read the supplied context. Preserve facts and exact required copy; no invented claims. Return spoken text only in the schema, with one short sentence per line. Aim to leave breathing space and musical pauses inside ${duration} seconds at ${settings.speed}x speaking speed; use at most ${Math.floor(duration * 1.8 * settings.speed)} words for English. Do not write scene instructions or synthesize audio.`,
+          prompt: `Write original faceless narration for this concept. Read the supplied context. Preserve facts and exact required copy; no invented claims. Return spoken text only in the schema, with one short sentence per line. The language field is authoritative even when the idea or brief uses another language. Write natural native wording. Aim to leave breathing space and musical pauses inside ${duration} seconds at ${settings.speed}x speaking speed; for Chinese use at most ${Math.floor(duration * 3.5 * settings.speed)} Chinese characters, and for English at most ${Math.floor(duration * 1.8 * settings.speed)} words. Do not write scene instructions or synthesize audio.\nSOURCE DATA:\n${JSON.stringify(scriptContext)}`,
         });
         text = ScriptSchema.parse(result.value).text;
         await writeFile(scriptFile, JSON.stringify({ text }));

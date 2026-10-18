@@ -1,0 +1,43 @@
+name: Native Windows
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/server/**"
+      - "scripts/**"
+      - "tests/**"
+      - "package*.json"
+      - ".github/workflows/native-windows.yml"
+  pull_request:
+    paths:
+      - "src/server/**"
+      - "scripts/**"
+      - "tests/**"
+      - "package*.json"
+      - ".github/workflows/native-windows.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-windows:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install local render prerequisites
+        shell: pwsh
+        run: |
+          choco install ffmpeg --no-progress -y
+          $cache = Join-Path $env:USERPROFILE '.cache\puppeteer'
+          npx --no-install browsers install chrome-headless-shell@stable --path $cache
+      - name: Check types and build
+        run: npm run build
+      - name: Check native platform contracts
+        run: npx vitest run tests/native-platform.test.ts tests/process-tree.test.ts tests/workspace-links.test.ts tests/windows-render-policy.test.ts tests/windows-readiness.test.ts tests/browser-executable.test.ts tests/runtime-command.test.ts tests/file-output.test.ts tests/codex-command.test.ts tests/website-capture.integration.test.ts --maxWorkers=4
+      - name: Verify native Windows security boundary and real render
+        run: npm run windows:check

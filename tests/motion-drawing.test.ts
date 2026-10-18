@@ -117,11 +117,13 @@ it("keeps cloth attachment points fixed while its mesh moves", () => {
 it("keeps new preview geometry finite throughout the timeline", () => {
   for (const id of supportedMotionIds.slice(21)) {
     for (let frame = 0; frame <= 48; frame++) {
+      // One assertion per sampled frame; per-number expect() calls dominated the runtime.
+      const invalid: unknown[] = [];
       for (const command of drawCommands(id, frame / 8) as unknown[][]) {
         for (const value of command)
-          if (typeof value === "number")
-            expect(Number.isFinite(value), `${id} frame ${frame}`).toBe(true);
+          if (typeof value === "number" && !Number.isFinite(value)) invalid.push(value);
       }
+      expect(invalid, `${id} frame ${frame}`).toEqual([]);
     }
   }
 });

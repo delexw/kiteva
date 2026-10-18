@@ -36,6 +36,10 @@ const taskActivityLabels: Record<string, { working: string; saving: string }> = 
     working: "Comparing creative directions…",
     saving: "Recording direction choices…",
   },
+  "Video copy translation": {
+    working: "Translating your video text…",
+    saving: "Saving translated video text…",
+  },
   "Lyrics generation": {
     working: "Writing your on-screen text…",
     saving: "Saving your on-screen text…",

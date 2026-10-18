@@ -1,5 +1,17 @@
 import type { z } from "zod";
 
+/** Convert editing choices into the mutually exclusive API selection modes. */
+export function normalizeStyleSelection<
+  T extends { candidateCount: number; selectedStyleIds?: string[] },
+>(request: T): T {
+  const manual = Boolean(request.selectedStyleIds?.length);
+  return {
+    ...request,
+    candidateCount: manual ? 0 : request.candidateCount || 5,
+    selectedStyleIds: manual ? request.selectedStyleIds : undefined,
+  };
+}
+
 export function videoStyleCountRange(duration: number) {
   if (duration < 30) return { min: 1, max: 3 };
   if (duration < 60) return { min: 1, max: 4 };

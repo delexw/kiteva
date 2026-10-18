@@ -44,8 +44,8 @@ Purposes only, subject to the following conditions:
 
 3. Third-party material. This license covers only material whose copyright
    is held by the copyright holder above. Third-party components distributed
-   with or used by the Software, including the bundled skill in
-   assets/agent-skills/anatomy and all npm, Python and other dependencies,
+   with or used by the Software, including the separately installed Anatomy skill in
+   skills/anatomy and all npm, Python and other dependencies,
    remain under their own licenses, which are not changed by this license and
    which govern those components. Use of model providers, speech models and
    other services is subject to their own terms.

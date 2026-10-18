@@ -22,11 +22,20 @@ export const RoomLibraryAssetSchema = z.object({
   documentPages: z.number().finite().optional(),
 });
 // Each field falls back on its own, so one damaged field never discards the rest of a draft.
-export const RoomDraftSchema = z.object({
-  step: z.number().int().min(0).max(6).catch(0).default(0),
-  request: z.record(z.string(), z.unknown()).catch({}).default({}),
-  assets: z.array(RoomLibraryAssetSchema).max(20).catch([]).default([]),
-});
+export const RoomDraftSchema = z
+  .object({
+    step: z.number().int().min(0).max(7).catch(0).default(0),
+    stepLayout: z.literal("separate-speech").optional().catch(undefined),
+    request: z.record(z.string(), z.unknown()).catch({}).default({}),
+    assets: z.array(RoomLibraryAssetSchema).max(20).catch([]).default([]),
+  })
+  .transform((draft) => {
+    if (!draft.stepLayout) {
+      if (draft.step === 5 || draft.step === 6) draft.step += 1;
+      draft.stepLayout = "separate-speech";
+    }
+    return draft;
+  });
 export const roomProjectTabs = [
   "conversation",
   "previews",

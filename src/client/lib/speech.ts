@@ -1,3 +1,4 @@
+import { deliverySpeech, type VideoLanguage } from "../../shared/video-language";
 import { activeSpeech, type SpeechReadiness, type SpeechSettings } from "../../shared/speech";
 import { CodedError } from "../../shared/errors";
 import { api } from "./api";
@@ -6,10 +7,19 @@ import { api } from "./api";
 export async function ensureSpeechGenerationReady(request: {
   lyrics?: { mode: string };
   speech?: SpeechSettings;
+  outputLanguage?: VideoLanguage;
 }) {
-  const speech = activeSpeech(request);
+  const speech = activeSpeech({ ...request, speech: deliverySpeech(request) });
+  if (!speech && !request.outputLanguage) return;
+  const setup = await api<{ speechSupported?: boolean; videoLanguageSupported?: boolean }>(
+    "/api/setup",
+  );
+  if (request.outputLanguage && !setup.videoLanguageSupported)
+    throw new CodedError(
+      "INVALID_REQUEST",
+      "The generation worker needs to reload language support after active jobs finish. Your draft is saved; no generation was started.",
+    );
   if (!speech) return;
-  const setup = await api<{ speechSupported?: boolean }>("/api/setup");
   if (!setup.speechSupported)
     throw new CodedError(
       "SPEECH_NOT_READY",

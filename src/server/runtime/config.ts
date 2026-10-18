@@ -1,4 +1,5 @@
 import path from "node:path";
+import { systemEnvironment } from "./platform";
 import { fileURLToPath } from "node:url";
 import { mkdirSync } from "node:fs";
 import dotenv from "dotenv";
@@ -42,6 +43,10 @@ export function childEnvironment() {
     "CODEX_API_KEY",
     "ANTHROPIC_API_KEY",
     "CLAUDE_CODE_OAUTH_TOKEN",
+    "CLAUDE_CODE_GIT_BASH_PATH",
   ];
-  return Object.fromEntries(names.flatMap((k) => (process.env[k] ? [[k, process.env[k]!]] : [])));
+  return {
+    ...systemEnvironment(),
+    ...Object.fromEntries(names.flatMap((k) => (process.env[k] ? [[k, process.env[k]!]] : []))),
+  };
 }

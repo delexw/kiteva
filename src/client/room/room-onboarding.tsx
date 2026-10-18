@@ -1,3 +1,5 @@
+import { deliverySpeech, editVideoCopy, type VideoLanguage } from "../../shared/video-language";
+import { VideoLanguageControl } from "../components/video-language-control";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Bubble, Sender } from "@ant-design/x";
 import { roomOnboardingReplies } from "./onboarding-replies";
@@ -18,6 +20,7 @@ import type { RoomDraft, RoomLibraryAsset } from "../../shared/room";
 import {
   attachRoomStepUploads,
   roomDraftRequest,
+  roomDraftStep,
   removeRoomDraftAsset,
   roomMaterialIntake,
   roomMaterialSection,
@@ -102,7 +105,7 @@ export function RoomOnboarding({
   latestDraft.current = draft;
   const log = useRef<HTMLDivElement>(null);
   const currentStep = useRef<HTMLDivElement>(null);
-  const step = draft.step;
+  const step = roomDraftStep(draft);
   const section = roomMaterialSteps[step as keyof typeof roomMaterialSteps];
   const selected = (draft.assets || []).filter((asset) => request.assetIds.includes(asset.id));
   const ideaReady = request.instructions.trim().length >= 8;
@@ -117,8 +120,13 @@ export function RoomOnboarding({
         container.getBoundingClientRect().top,
     });
   }, [step]);
-  const patch = (change: Partial<CreativeRequest>) =>
+  const patch = (change: Partial<CreativeRequest>) => {
     onChange({ ...draft, request: { ...request, ...change } as CreativeRequest });
+  };
+  const changeLanguage = (outputLanguage: VideoLanguage) => patch({ outputLanguage });
+  const changeSpeech = (
+    speech: NonNullable<Extract<CreativeRequest, { outputType: "video" }>["speech"]>,
+  ) => patch({ speech });
   const requirements = request.requirements || {
     main: { instructions: "", assetIds: [] },
     images: { instructions: "", assetIds: [] },
@@ -146,7 +154,7 @@ export function RoomOnboarding({
   };
   const go = (next: number) => {
     setError("");
-    onChange({ ...draft, step: next });
+    onChange({ ...draft, step: next, stepLayout: "separate-speech" });
   };
   const advance = () => {
     if (step === 0 && !ideaReady) {
@@ -219,7 +227,7 @@ export function RoomOnboarding({
           Back
         </Button>
       )}
-      {step === 6 && (
+      {step === 7 && (
         <Button
           type="primary"
           loading={busy}
@@ -243,9 +251,11 @@ export function RoomOnboarding({
           {request.selectedStyleIds?.length ? "Create my project" : "Create previews"}
         </Button>
       )}
-      {step < 6 && (
-        <Button type={step === 5 ? "primary" : "default"} onClick={advance}>
-          {step === 0 || step === 5 || text.trim() || sectionSelected.length ? "Continue" : "Skip"}
+      {step < 7 && (
+        <Button type={step === 6 ? "primary" : "default"} onClick={advance}>
+          {step === 0 || step === 6 || text.trim() || sectionSelected.length || step === 5
+            ? "Continue"
+            : "Skip"}
         </Button>
       )}
     </div>
@@ -382,7 +392,7 @@ export function RoomOnboarding({
               />
             </section>
           )}
-          {step === 4 && request.outputType === "video" && (
+          {step === 5 && request.outputType === "video" && (
             <div className="room-inline-field room-materials">
               <SettingsSectionHeading
                 title="On-screen lyrics"
@@ -411,25 +421,48 @@ export function RoomOnboarding({
                     autoSize={{ minRows: 2, maxRows: 6 }}
                     placeholder="Paste your lyrics, or leave empty and I’ll write them"
                     value={request.lyrics.mode === "provided" ? request.lyrics.text : ""}
-                    onChange={(e) => patch({ lyrics: lyricsFromInput(true, e.target.value) })}
-                  />
-                  <SpeechSettings
-                    value={request.speech}
-                    onChange={(speech) => patch({ speech })}
-                    audioAssets={selected
-                      .filter((asset) => requirements.music.assetIds.includes(asset.id))
-                      .map((asset) => ({ id: asset.id, name: asset.originalName }))}
+                    onChange={(e) => {
+                      onChange({
+                        ...draft,
+                        request: editVideoCopy(request, "lyrics", e.target.value),
+                      });
+                    }}
                   />
                 </>
               )}
+              <SpeechSettings
+                value={deliverySpeech(request)}
+                videoLanguage={request.outputLanguage}
+                onChange={(speech) => {
+                  if (
+                    speech.mode === "narration" &&
+                    request.speech?.mode === "narration" &&
+                    speech.text !== request.speech.text
+                  ) {
+                    onChange({
+                      ...draft,
+                      request: editVideoCopy({ ...request, speech }, "narration", speech.text),
+                    });
+                  } else changeSpeech(speech);
+                }}
+                audioAssets={selected
+                  .filter((asset) => requirements.music.assetIds.includes(asset.id))
+                  .map((asset) => ({ id: asset.id, name: asset.originalName }))}
+              />
             </div>
           )}
-          {step === 5 && (
+          {step === 5 && request.outputType === "page" && (
+            <p className="room-hint">Narration and lyrics are available for video projects.</p>
+          )}
+          {step === 6 && (
             <div className="room-settings">
               <SettingsSectionHeading
                 title="Generation settings"
                 description="Choose how your project is made."
               />
+              {request.outputType === "video" && (
+                <VideoLanguageControl value={request.outputLanguage} onChange={changeLanguage} />
+              )}
               <label>
                 Make a
                 <Select
@@ -593,7 +626,7 @@ export function RoomOnboarding({
               </div>
             </div>
           )}
-          {step === 6 && (
+          {step === 7 && (
             <div className="room-review">
               <SettingsSectionHeading
                 title="Review your brief"

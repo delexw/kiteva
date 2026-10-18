@@ -1,3 +1,5 @@
+import { assertWindowsRenderReady } from "./rendering/sandbox/readiness";
+import { userHome } from "./runtime/platform";
 import { registerRoomRoutes } from "./room/routes";
 import { registerSpeechRoutes } from "./audio/routes";
 import { speechConfigurationProblem, activeSpeech } from "../shared/speech";
@@ -101,18 +103,19 @@ export async function createApp(options: { store?: Store } = {}) {
   await registerRoomRoutes(app, store);
   app.get("/api/setup", async () => ({
     speechSupported: true,
+    videoLanguageSupported: true,
     agentMode,
     models,
     jevConfigured: Boolean(process.env.TYPESAFE_API_KEY || process.env.JEV_API_KEY),
     codexCredentialPresent: Boolean(
       process.env.CODEX_API_KEY ||
       process.env.OPENAI_API_KEY ||
-      existsSync(path.join(process.env.HOME || "", " .codex/auth.json".trim())),
+      existsSync(path.join(userHome(), " .codex/auth.json".trim())),
     ),
     claudeCredentialPresent: Boolean(
       process.env.ANTHROPIC_API_KEY ||
       process.env.CLAUDE_CODE_OAUTH_TOKEN ||
-      existsSync(path.join(process.env.HOME || "", ".claude")),
+      existsSync(path.join(userHome(), ".claude")),
     ),
     modelValidation:
       "Provider access is verified by the first brief turn. No silent model substitution.",
@@ -305,6 +308,7 @@ export async function createApp(options: { store?: Store } = {}) {
   }));
   app.post("/api/runs", async (req, reply) => {
     const request = RequestSchema.parse(req.body);
+    await assertWindowsRenderReady();
     if (request.outputType === "video") {
       const problem = speechConfigurationProblem(request);
       if (problem) throw new CodedError("INVALID_REQUEST", problem);

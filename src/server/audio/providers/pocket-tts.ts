@@ -1,3 +1,5 @@
+import { pocketZhSpeechProvider } from "./pocket-tts-zh";
+import { defaultPython } from "../../runtime/platform";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { pocketLanguageForVoice } from "../../../shared/speech";
@@ -17,10 +19,12 @@ const managedPython = path.join(
   process.platform === "win32" ? "Scripts/python.exe" : "bin/python",
 );
 const python = () =>
-  process.env.POCKET_TTS_PYTHON || (existsSync(managedPython) ? managedPython : "python3");
+  process.env.POCKET_TTS_PYTHON || (existsSync(managedPython) ? managedPython : defaultPython());
 export const pocketTtsSpeechProvider: SpeechProvider = {
   id: "pocket-tts",
   async readiness(signal, voice = "pocket_alba", selectedLanguage) {
+    if (pocketLanguageForVoice(voice, selectedLanguage)?.id === "zh")
+      return pocketZhSpeechProvider.readiness(signal, voice, "zh");
     const language = pocketLanguageForVoice(voice, selectedLanguage);
     if (!language) throw new CodedError("INVALID_REQUEST", "Choose a Pocket TTS voice.");
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -44,6 +48,8 @@ export const pocketTtsSpeechProvider: SpeechProvider = {
     };
   },
   async synthesize(text, file, voice, speed, signal, selectedLanguage) {
+    if (pocketLanguageForVoice(voice, selectedLanguage)?.id === "zh")
+      return pocketZhSpeechProvider.synthesize(text, file, voice, speed, signal, "zh");
     return queue.run(async () => {
       signal.throwIfAborted();
       const language = pocketLanguageForVoice(voice, selectedLanguage);

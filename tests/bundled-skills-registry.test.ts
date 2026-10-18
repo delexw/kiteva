@@ -15,16 +15,14 @@ it("uses each skill registration for both prompt assembly and native Claude disc
   for (const skill of bundledSkills) {
     expect(skill.workspacePath).toBe(`.agents/skills/${skill.id}`);
     expect(skill.claudeName).toBe(`bundled-authoring:${skill.id}`);
-    expect(skill.manifest.files["SKILL.md"]).toMatch(/^[a-f0-9]{64}$/);
+    expect(skill.repository).toMatch(/^https:\/\/github.com\//);
     expect(skill.guidance).toContain(`${skill.workspacePath}/SKILL.md`);
-    expect(skill.guidance).toContain(skill.manifest.revision);
+    expect(skill.guidance).toContain("installed and verified by Kiteva at startup");
   }
 });
-it("keeps Anatomy prompt metadata bound to its checked-in registration", () => {
-  expect(anatomySkill.guidance).toBe(
-    anatomyPrompt(anatomySkill.workspacePath, anatomySkill.manifest.revision),
-  );
-  const prompt = anatomyPrompt(".agents/skills/example", "example-revision");
-  expect(prompt).toContain(".agents/skills/example/SKILL.md (revision example-revision)");
-  expect(prompt).not.toContain(anatomySkill.manifest.revision);
+it("keeps Anatomy prompt metadata bound to its source registration", () => {
+  expect(anatomySkill.guidance).toBe(anatomyPrompt(anatomySkill.workspacePath));
+  const prompt = anatomyPrompt(".agents/skills/example");
+  expect(prompt).toContain(".agents/skills/example/SKILL.md");
+  expect(prompt).not.toContain("e9488296");
 });

@@ -1,13 +1,16 @@
-# Bundled skill registrations
+# Authoring skill registrations
 
-Each skill has its own named registration and prompt. The upstream files stay separate in `assets/agent-skills/<id>`.
+Each skill has a named registration and prompt. The upstream files are downloaded at Kiteva startup into the Git-ignored `skills/<id>/<revision>/` folder. They are not bundled in source.
 
-| File                   | Responsibility                                                             |
-| ---------------------- | -------------------------------------------------------------------------- |
-| `anatomy.ts`           | Anatomy identity, workspace path, native Claude name and pinned manifest   |
-| `anatomy-prompt.ts`    | Anatomy instructions introduced to both providers                          |
-| `registry.ts`          | Explicit list of reviewed skills and combined guidance                     |
-| `types.ts`             | Shared registration contract                                               |
-| `../bundled-skills.ts` | Shared integrity checks, workspace staging and Claude plugin configuration |
+| File                   | Responsibility                                                                            |
+| ---------------------- | ----------------------------------------------------------------------------------------- |
+| `anatomy.ts`           | Anatomy upstream repository, identity, workspace path and native Claude name              |
+| `anatomy-prompt.ts`    | Anatomy instructions introduced to both providers                                         |
+| `registry.ts`          | Explicit list of skills and combined guidance                                             |
+| `types.ts`             | Shared registration contract                                                              |
+| `installation.ts`      | Startup download/update, immutable revisions, integrity verification and offline fallback |
+| `../bundled-skills.ts` | Workspace staging and Claude plugin configuration (legacy module name)                    |
 
-To add a skill, bundle its reviewed upstream files and hash manifest, create `<id>.ts` and `<id>-prompt.ts`, and register it in `registry.ts`. Staging, the plugin manifest, Claude's allowed skill names and startup checks, and both providers' guidance all derive from that registry. Add skill-specific tests and run the shared skill/provider tests. No runtime download or user-global discovery is used.
+To add a skill, create `<id>.ts` and `<id>-prompt.ts` and register it in `registry.ts`. Use an explicit upstream repository; never discover user-global skills. Startup downloads the upstream default-branch ZIP directly over HTTPS using Node.js and reads the exact commit from its ZIP comment, downloads without executing upstream code, hashes regular files, requires `SKILL.md` and `LICENSE`, and atomically replaces `current.json` after validation. Updates retain previous revisions. A failed update uses the last verified installation. Without one, the app opens but file-enabled agent turns fail with a setup message. Internet access is needed for the first installation; no Git CLI, skills CLI, GitHub API or access token is required; subsequent launches can work offline.
+
+Both providers receive copies from the same verified installation. Claude keeps its explicit local plugin and native Skill tool; Codex reads the same workspace files. The historical plugin namespace `bundled-authoring` remains stable for existing sessions. Text-only tasks stage no skills. Updates do not touch running project workspaces or user-global SDK settings. Unit/provider tests use local fixtures; the optional real Anatomy render test runs when a local installation and browser are available.

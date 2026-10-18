@@ -1,3 +1,4 @@
+import { defaultPython } from "../src/server/runtime/platform";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { pocketLanguages } from "../src/shared/speech";
@@ -8,7 +9,9 @@ import { command } from "../src/server/runtime/process";
 const { values } = parseArgs({ options: { language: { type: "string" } } });
 const languages = values.language
   ? pocketLanguages.filter((language) => language.model === values.language)
-  : pocketLanguages;
+  : pocketLanguages.filter((language) => language.id !== "zh");
+if (languages.some((language) => language.id === "zh"))
+  throw Error("For Chinese run npm run speech:setup:pocket:zh.");
 if (!languages.length)
   throw Error(`Choose a language: ${pocketLanguages.map((language) => language.model).join(", ")}`);
 const signal = AbortSignal.timeout(3600000);
@@ -18,7 +21,7 @@ const python = path.join(
   process.platform === "win32" ? "Scripts/python.exe" : "bin/python",
 );
 await command(
-  process.env.SPEECH_SETUP_PYTHON || "python3",
+  process.env.SPEECH_SETUP_PYTHON || defaultPython(),
   ["-m", "venv", environment],
   appRoot,
   signal,

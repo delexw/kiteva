@@ -1,8 +1,10 @@
 # Speech and vocals
 
-Turn on **Show lyrics on screen** in the Assistant's Music step. **Speech / vocals** lives in that Music step; Generation settings does not repeat it. Choose on-screen text only, local narration, or an attached spoken/sung recording. Choices are saved with the draft and project. Turning lyrics off retains the choices but disables voice generation and mixing. Existing projects remain voice-off.
+The Assistant has separate **Music** and **Narration / lyrics** steps. Choose local narration, an attached spoken/sung recording, and optional on-screen lyrics. Narration with a separate script works with lyrics off; “Speak the displayed lyrics” specifically depends on lyrics. Existing voice-off projects stay voice-off.
 
-Local narration offers Kokoro or Pocket TTS through separate app-owned provider adapters. Pocket TTS exposes all 27 official presets for each of English, French, German, Portuguese, Italian, Spanish and Dutch. Voice cloning is not exposed. Existing projects keep Kokoro unless you select another engine. Pocket language and voice are independent selections; speed is 0.75–1.5×. Listen generates a short sample only when clicked. Choose to speak the displayed words, write a separate script, or supply a script. Writing instructions guide script content, not unsupported emotional controls on the voice model. Generated singing is unavailable; TTS is not singing. Upload a voice-only recording under Music for recorded vocals.
+Choose **Video language → English / 简体中文** in Settings. Narration follows it by default; the Speech language selector allows an explicit override. Changing language saves the setting without a model call. Supplied scripts and lyrics are translated during project building through the selected AI provider, with usage recorded against the project in Governance. Generated scripts use the chosen language even if the idea is written in another language. See [Video languages](video-languages.md).
+
+Local narration offers Kokoro or Pocket TTS through app-owned provider adapters. Pocket TTS keeps all 27 official presets across seven languages and adds eight Mandarin reference voices through [PocketTTS-ZH-6L](https://huggingface.co/hustfyb/PocketTTS-ZH-6L). The Chinese voices are explicitly synthetic Kokoro references, not official Pocket presets or clones of supplied human recordings. English uses the existing Pocket checkpoint; Chinese uses the separate Mandarin checkpoint. No fallback to another engine is silent. TTS does not generate singing. Upload a voice-only recording under Music for recorded vocals. Changing a language does not translate an uploaded audio recording.
 
 ## Local setup
 
@@ -29,7 +31,28 @@ npm run speech:setup:pocket
 
 Setup downloads all seven official language models, exports all 27 voice states for every language and writes a local-only config plus a readiness manifest per language under `models/pocket-tts/languages/<language>/`. The shared catalog in `src/shared/pocket-tts-catalog.json` supplies both the UI and Python adapter; there is no separate preset subset. To install one language explicitly, use `npm run speech:setup:pocket -- --language italian`. It then synthesizes `.data/pocket-tts-setup.wav`. `POCKET_TTS_PYTHON` can select another environment containing the pinned package. Synthesis loads only local model paths with Hugging Face offline mode enabled; model downloads happen only during explicit setup. A fresh clone needs setup once per engine. Python environments, model weights and voice data remain Git-ignored runtime files.
 
-The Music step keeps script, speed and writing direction when you switch engines, and selects a valid default voice for the new engine. Changing Pocket language keeps your voice selection and exposes all 27 voices. `/api/speech/status?engine=pocket-tts&voice=pocket_giovanni` checks the selected language model and retries before reporting unavailable. Listen and generation use the selected engine; neither silently falls back to another model. Pocket speed changes use FFmpeg's pitch-preserving `atempo`, and both providers validate audio before publishing and remove partial files on failure or cancellation. Speech is separate from website capture and from the selected renderer.
+The Narration / lyrics step keeps script, speed and writing direction when you switch engines, and selects a valid default voice for the new engine. The seven official Pocket languages retain all 27 official voice choices; Mandarin shows all eight compatible synthetic reference voices. `/api/speech/status?engine=pocket-tts&voice=pocket_giovanni` checks the selected language model and retries before reporting unavailable. Listen and generation use the selected engine; neither silently falls back to another model. Pocket speed changes use FFmpeg's pitch-preserving `atempo`, and both providers validate audio before publishing and remove partial files on failure or cancellation. Speech is separate from website capture and from the selected renderer.
+
+## Chinese Pocket TTS
+
+```sh
+npm run speech:setup
+npm run speech:setup:pocket:zh
+```
+
+The second command installs an isolated `.data/pocket-tts-zh-venv` (Pocket TTS 3.0.2 and PyTorch below 2.10, matching the published int8 format), downloads the pinned community checkpoint and inference files to Git-ignored `models/pocket-tts-zh/`, and generates eight explicitly synthetic Mandarin references using Kokoro. Kokoro uses its native Misaki Chinese frontend, not the English phonemizer. The Chinese model adapter is `src/server/audio/providers/pocket-tts-zh.ts`; the existing Pocket adapter routes Mandarin requests to it. Runtime inference is offline. `POCKET_TTS_ZH_PYTHON` overrides only this isolated runtime.
+
+| Female   | Male    |
+| -------- | ------- |
+| Xiaobei  | Yunjian |
+| Xiaoni   | Yunxi   |
+| Xiaoxiao | Yunyang |
+| Xiaoyi   |         |
+| Yunxia   |         |
+
+Grouping starts from the gender metadata in the [Kokoro voice list](https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md). Yunxia is grouped Female because both local classifiers rated its actual PocketTTS-ZH output female-sounding despite the source being listed Male; the other seven agreed with their source groups. These automated acoustic estimates are not identity claims. The community checkpoint is reference-based and ships no named preset voice pack. Listen and finished narration both synthesize through PocketTTS-ZH with the selected reference. Existing Xiaobei selections stay valid. Each reference is stored separately under `models/pocket-tts-zh/voices/`; weights and references remain Git-ignored. Setup adds missing references without replacing existing recordings.
+
+The pinned revision is `dbd96b917b7f85443abf249d456db0ffce0d638d`. Upstream provides normalization, punctuation handling, token-length splitting and silent-output retries. Mandarin supports common English terms, not pure English sentences, dialects or singing. Do not reuse English Pocket voice embeddings with this checkpoint. Source and weights retain the [upstream Apache-2.0 license](https://huggingface.co/hustfyb/PocketTTS-ZH-6L). Windows installation and synthesis still require native Windows verification.
 
 ## Pipeline
 

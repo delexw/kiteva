@@ -1,0 +1,4 @@
+pocket-tts==3.0.2
+torch==2.9.1
+soundfile==0.13.1
+wetext==0.1.2

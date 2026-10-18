@@ -5,6 +5,7 @@ import {
   attachRoomStepUploads,
   emptyRoomDraft,
   roomDraftRequest,
+  roomDraftStep,
   removeRoomDraftAsset,
   toggleRoomDraftAsset,
   roomMaterialIntake,
@@ -55,7 +56,7 @@ it("labels assistant questions, saved replies and the editable composer separate
 });
 
 it("gives generation controls a clear settings heading within the existing step", () => {
-  const html = render(draftAt(5));
+  const html = render(draftAt(6));
   expect(html).toContain("Generation settings");
   expect(html).toContain("Choose how your project is made.");
   expect(html).toContain('aria-label="Model"');
@@ -64,7 +65,7 @@ it("gives generation controls a clear settings heading within the existing step"
 });
 
 it("places the review create action in the same footer as Back and Continue", () => {
-  const html = render(draftAt(6));
+  const html = render(draftAt(7));
   const footer = html.slice(html.lastIndexOf('class="room-onboarding-actions"'));
   expect(footer).toContain("Back");
   expect(footer).toContain("Create previews");
@@ -84,14 +85,14 @@ it("uses matching titled sections for materials, websites, lyrics and review", (
     [2, "Reference images"],
     [3, "Website references"],
     [4, "Music and audio"],
-    [6, "Review your brief"],
+    [7, "Review your brief"],
   ] as const) {
     const html = render(draftAt(step));
     expect(html).toContain(`<h3>${title}</h3>`);
     expect(html).toContain("settings-section-heading-icon");
   }
   const music = render(
-    draftAt(4, {
+    draftAt(5, {
       request: { instructions: "A short film about a lighthouse", lyrics: { mode: "write" } },
     }),
   );
@@ -165,8 +166,8 @@ it("renders only the current step's upload, file filter, shelf items and counts"
   expect(music).toContain("theme.mp3");
   expect(music).not.toContain("cover.png");
   expect(music).toContain("Music 0/2");
-  expect(music).toContain("Show lyrics on screen");
-  expect(music).toContain("Keep the light on");
+  expect(music).not.toContain("Show lyrics on screen");
+  expect(music).not.toContain("Keep the light on");
   expect(render(draftAt(3), shelf)).not.toContain("Upload");
 });
 
@@ -236,7 +237,7 @@ it("keeps each step's attachments in its own section of the submitted brief", ()
   });
 });
 
-it("shows editable narration only in Music while preserving its saved reply in later steps", () => {
+it("shows editable narration only in Narration / lyrics while preserving its saved reply in later steps", () => {
   const request = {
     instructions: "A short film about a lighthouse",
     lyrics: { mode: "write" as const },
@@ -245,15 +246,57 @@ it("shows editable narration only in Music while preserving its saved reply in l
       voice: "am_michael",
       speed: 1,
       source: "provided" as const,
-      text: "Our narration stays in Music.",
+      text: "Our narration stays in Narration / lyrics.",
       instructions: "Speak warmly",
     },
   };
-  const music = render(draftAt(4, { request }));
+  const music = render(draftAt(5, { request }));
   expect(music).toContain('aria-label="Narration script"');
-  const settings = render(draftAt(5, { request }));
+  const settings = render(draftAt(6, { request }));
   expect(settings).toContain("Generation settings");
   expect(settings).not.toContain('aria-label="Speech and vocals"');
   expect(settings).not.toContain('aria-label="Narration script"');
-  expect(settings).toContain("Our narration stays in Music.");
+  expect(settings).toContain("Our narration stays in Narration / lyrics.");
+});
+
+it("keeps saved Settings and Review drafts on their original step", () => {
+  for (const [oldStep, title] of [
+    [5, "Generation settings"],
+    [6, "Review your brief"],
+  ] as const) {
+    const draft = draftAt(oldStep, { stepLayout: undefined });
+    expect(roomDraftStep(draft)).toBe(oldStep + 1);
+    expect(render(draft)).toContain(`<h3>${title}</h3>`);
+    expect(roomDraftRequest(draft).instructions).toBe("A short film about a lighthouse");
+  }
+  expect(roomDraftStep(draftAt(5))).toBe(5);
+  expect(roomDraftStep(draftAt(7))).toBe(7);
+  expect(roomDraftStep(draftAt(7, { stepLayout: undefined }))).toBe(7);
+});
+
+it("offers narration with lyrics off in a separate Assistant step", () => {
+  const draft = draftAt(5, {
+    request: {
+      instructions: "A short film about a lighthouse",
+      lyrics: { mode: "off" },
+      speech: {
+        mode: "narration",
+        source: "provided",
+        text: "A spoken story",
+        voice: "am_michael",
+        speed: 1,
+      },
+    },
+  });
+  const speech = render(draft);
+  expect(speech).toContain("Assistant · Narration / lyrics");
+  expect(speech).toContain('aria-label="Narration script"');
+  expect(speech).not.toContain('aria-label="Your lyrics"');
+  const music = render({ ...draft, step: 4 });
+  expect(music).not.toContain('aria-label="Speech and vocals"');
+  expect(music).not.toContain('aria-label="Narration script"');
+  expect(roomSubmission(roomDraftRequest(draft))).toMatchObject({
+    lyrics: { mode: "off" },
+    speech: { text: "A spoken story", source: "provided" },
+  });
 });

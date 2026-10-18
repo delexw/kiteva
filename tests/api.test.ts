@@ -1,3 +1,5 @@
+import * as nativeReadiness from "../src/server/rendering/sandbox/readiness";
+import { CodedError } from "../src/shared/errors";
 import { mkdtemp, writeFile, rm, mkdir, access } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import type { Run } from "../src/shared/contracts";
@@ -415,7 +417,7 @@ describe("local application API", () => {
   it("serves all styles and full metadata without leaking credentials", async () => {
     const response = await server.app.inject({ url: "/api/styles", headers });
     expect(response.statusCode).toBe(200);
-    expect(response.json().styles).toHaveLength(136);
+    expect(response.json().styles).toHaveLength(138);
     const details = await server.app.inject({ url: "/api/styles/style-108", headers });
     expect(details.json().tech.style_renderer.recommended_stack_refs).toContain("Three.js");
     const setup = await server.app.inject({ url: "/api/setup", headers });
@@ -663,5 +665,30 @@ it("validates manual styles before preparation and routes regeneration and refin
     regenerate.mockRestore();
     refine.mockRestore();
     server.store.delete(id);
+  }
+});
+
+it("rejects an unverified Windows setup before saving or starting generation", async () => {
+  const count = server.store.list().length;
+  const readiness = vi
+    .spyOn(nativeReadiness, "assertWindowsRenderReady")
+    .mockRejectedValueOnce(
+      new CodedError("INVALID_REQUEST", "Native Windows setup needs its local check."),
+    );
+  const prepare = vi.spyOn(server.workflow, "prepare").mockResolvedValue(undefined);
+  try {
+    const response = await server.app.inject({
+      method: "POST",
+      url: "/api/runs",
+      headers,
+      payload: { instructions: "Explain a simple idea", assetIds: [] },
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe("INVALID_REQUEST");
+    expect(server.store.list()).toHaveLength(count);
+    expect(prepare).not.toHaveBeenCalled();
+  } finally {
+    readiness.mockRestore();
+    prepare.mockRestore();
   }
 });

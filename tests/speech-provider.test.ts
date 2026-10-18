@@ -20,6 +20,8 @@ import { pocketTtsSpeechProvider } from "../src/server/audio/providers/pocket-tt
 import { speechProvider } from "../src/server/audio/providers";
 import { kokoroSpeechProvider } from "../src/server/audio/providers/kokoro";
 import { speechModelDirectory } from "../src/server/audio/providers/paths";
+import { pocketVoices } from "../src/shared/speech";
+import { pocketZhVoiceReference } from "../src/server/audio/providers/pocket-tts-zh";
 import { appRoot } from "../src/server/runtime/config";
 const folders: string[] = [];
 afterEach(async () => {
@@ -249,4 +251,52 @@ it("uses the explicit speaking language without restricting voices to their refe
   for (const [, args] of vi.mocked(command).mock.calls)
     expect(args).toEqual(expect.arrayContaining(["--language", "french"]));
   expect(vi.mocked(command).mock.calls[1][1]).toEqual(expect.arrayContaining(["--voice", "alba"]));
+});
+
+it.each(pocketVoices.filter((voice) => voice.language === "zh"))(
+  "routes Mandarin $label through its own reference and Chinese checkpoint",
+  async (voice) => {
+    const signal = new AbortController().signal;
+    expect((await pocketTtsSpeechProvider.readiness(signal, voice.id)).available).toBe(true);
+    expect(vi.mocked(command).mock.calls[0][1]).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("pocket-tts-zh.py"),
+        expect.stringContaining("models/pocket-tts-zh"),
+        "--check",
+        "--reference",
+        pocketZhVoiceReference(voice.id),
+      ]),
+    );
+    const folder = await mkdtemp(path.join(os.tmpdir(), "mandarin-provider-"));
+    folders.push(folder);
+    vi.mocked(command).mockImplementation(async (_executable, args) => {
+      const output = args.indexOf("--output");
+      if (output >= 0) await writeFile(args[output + 1], "test audio");
+      return "ready";
+    });
+    expect(
+      await pocketTtsSpeechProvider.synthesize(
+        "你好，世界。",
+        path.join(folder, "voice.wav"),
+        voice.id,
+        1,
+        signal,
+      ),
+    ).toBe(0.5);
+    expect(
+      vi.mocked(command).mock.calls.find(([, args]) => args.includes("--output"))?.[1],
+    ).toEqual(expect.arrayContaining(["--reference", pocketZhVoiceReference(voice.id)]));
+    expect(
+      vi
+        .mocked(command)
+        .mock.calls.some(([, args]) => args.includes("--voice") && args.includes("zh_xiaobei")),
+    ).toBe(false);
+  },
+);
+
+it("rejects unknown or non-Mandarin references before using paths", () => {
+  for (const voice of ["pocket_alba", "pocket_zh_../../outside", "pocket_zh_unknown"])
+    expect(() => pocketZhVoiceReference(voice)).toThrow(
+      "Choose a Chinese Pocket TTS reference voice",
+    );
 });

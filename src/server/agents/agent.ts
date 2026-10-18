@@ -1,3 +1,4 @@
+import type { AgentMcpCapability } from "./capabilities/types";
 import type { z } from "zod";
 import type { Provider } from "../../shared/contracts";
 
@@ -17,6 +18,7 @@ export interface AgentTurnOptions<T> {
   sessionId?: string;
   onEvent: (event: ProviderEvent) => void;
   readOnly?: boolean;
+  allowInstrumentRendering?: boolean;
   model?: string;
   textOnly?: boolean;
   reasoningEffort?: "low" | "medium";
@@ -31,6 +33,7 @@ export interface AgentExecutionOptions extends Omit<
   model: string;
   systemPrompt: string;
   jsonSchema: z.core.JSONSchema.BaseSchema;
+  capabilityServers?: Record<string, AgentMcpCapability>;
   referenceServer?: {
     command: string;
     args: string[];

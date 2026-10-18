@@ -11,7 +11,7 @@ Three different things are easy to mix up, so they are kept apart here:
    attached to Motion Graphics in the catalog. An entry being in the pool doesn't mean
    it's installed, vendored or even an npm package.
 2. **What ships in this repository.** That covers Kiteva's original code, the catalogs and
-   reviewed previews, one vendored authoring skill (Anatomy), and npm dependencies
+   reviewed previews, one startup-installed authoring skill (Anatomy), and npm dependencies
    declared in `package.json`.
 3. **What you install yourself.** Node, a Chromium browser, `ffmpeg`/`ffprobe`, Python
    for local speech, optional desktop tools, and model weights. Model weights are never committed to Git.
@@ -71,6 +71,14 @@ Before every file-enabled Claude or Codex turn, Kiteva checks each hash and copi
 Anatomy is optional. The model uses it when a scene suits it or when you ask for it, and it isn't tied
 to any Motion Graphic. It doesn't replace the renderer. For video, its interactive examples have to be
 driven from composition time and checked with forward, backward and direct seeks. Downloads run once at launch, never inside provider turns. Internet access is required for the first installation. Node.js downloads the upstream ZIP directly over HTTPS; no Git CLI, skills CLI, GitHub API or access token is required. Failed updates retain the last verified revision; if none exists, the app opens but creative tasks stop with a setup message. No upstream installation scripts are executed.
+
+## React Bits component capability
+
+[React Bits](https://reactbits.dev/get-started/mcp) is available through Kiteva’s job-scoped MCP adapter for both providers, independently of authoring skills and Motion Graphics. Planning can search and inspect the official shadcn-compatible registry; builds can save selected source, dependencies, provenance and the upstream MIT + Commons Clause license. Components are fetched on demand, not bundled. Installation does not run npm or upstream scripts. See [registration, stage permissions and renderer guidance](../src/server/agents/capabilities/README.md).
+
+## Local instrument rendering
+
+[FluidSynth](https://www.fluidsynth.org/) is an optional native engine behind Kiteva’s built-in instrument MCP tool for both providers. [@tonejs/midi](https://github.com/Tonejs/Midi) (MIT) writes MIDI from a validated score composed in the current governed model turn. `npm run music:setup` downloads [GeneralUser GS](https://www.schristiancollins.com/generaluser.php) and its original license into a Git-ignored model folder; no instrument samples are bundled. Voice settings remain separate. See [setup, score format and audio handoff](instrumental-music.md).
 
 ## Renderers
 

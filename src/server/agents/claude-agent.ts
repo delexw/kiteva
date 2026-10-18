@@ -151,6 +151,14 @@ export const claudeAgent: Agent = {
           settingSources: [],
           ...claudeBundledSkills(workspace, !options.textOnly),
           mcpServers: {
+            ...Object.fromEntries(
+              Object.entries(options.textOnly ? {} : options.capabilityServers || {}).map(
+                ([name, { enabledTools: _tools, toolTimeoutSeconds: _timeout, ...server }]) => [
+                  name,
+                  { ...server, alwaysLoad: true },
+                ],
+              ),
+            ),
             ...(caveman ? { caveman: { ...caveman.mcp, alwaysLoad: true } } : {}),
             ...(referenceServer
               ? { reference_browser: { ...referenceServer, alwaysLoad: true } }
@@ -176,6 +184,14 @@ export const claudeAgent: Agent = {
             PreToolUse: [{ matcher: "^(Agent|Task)$", hooks: [requireForegroundSubagent] }],
           },
           canUseTool: async (name, input) => {
+            for (const [server, capability] of Object.entries(options.capabilityServers || {})) {
+              const prefix = `mcp__${server}__`;
+              if (
+                name.startsWith(prefix) &&
+                !capability.enabledTools.includes(name.slice(prefix.length))
+              )
+                return { behavior: "deny", message: "Capability tool unavailable in this stage" };
+            }
             if (options.readOnly && ["Write", "Edit", "Bash"].includes(name))
               return { behavior: "deny", message: "Read-only brief phase" };
             const file =

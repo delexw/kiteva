@@ -570,3 +570,38 @@ it("keeps rendering passes, jobs and validation outcomes distinct", () => {
   expect(items[3].jobId).toBe("b");
   expect(items.every((item) => item.status === undefined)).toBe(true);
 });
+
+it("shows distinct component actions without exposing registry payloads or source", () => {
+  for (const [tool, label] of [
+    ["search_components", "Exploring visual components…"],
+    ["read_component", "Checking a visual component…"],
+    ["install_component", "Adding a visual component…"],
+  ]) {
+    for (const toolName of [`mcp__react_bits__${tool}`, `react_bits: ${tool}`]) {
+      expect(customerToolActivity(toolName, "tool", "Preview video planning")).toBe(label);
+      const items = activityItems([
+        event(1, "tool", "raw source and internal command", "a", { toolName, itemId: "component" }),
+      ]);
+      expect(items.map((item) => item.text)).toEqual([label]);
+    }
+  }
+});
+
+it("shows curated instrument labels without raw score, tool output or setup paths", () => {
+  for (const [name, label] of [
+    ["instrument_status", "Checking local instruments…"],
+    ["render_instrumental", "Rendering your instrumental music…"],
+  ]) {
+    for (const toolName of [`mcp__instruments__${name}`, `instruments: ${name}`]) {
+      expect(customerToolActivity(toolName, "tool", "full video generation")).toBe(label);
+      expect(
+        activityItems([
+          event(1, "tool", "private filename and raw score", "a", {
+            itemId: "instrument",
+            toolName,
+          }),
+        ]).map((item) => item.text),
+      ).toEqual([label]);
+    }
+  }
+});

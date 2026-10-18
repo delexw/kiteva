@@ -180,6 +180,10 @@ Optional: `npm run speech:setup` ([Kokoro](https://github.com/thewh1teagle/kokor
 
 Anatomy installs or updates automatically on server launch. Connect to the internet for the first launch; skill installation uses direct HTTPS ZIP downloads and needs no Git or extra CLI; later launches can use the last verified installation offline. Upstream files stay in Git-ignored `skills/anatomy/`, while provider registration and Kiteva guidance remain in source.
 
+[React Bits](https://github.com/DavidHDev/react-bits) gives Claude and Codex component discovery during planning and source installation during building. See [integration and licensing](src/server/agents/capabilities/README.md).
+
+[FluidSynth](https://www.fluidsynth.org/) renders agent-composed scores into local instrumental music for the existing narration mix, without another AI model. Install FluidSynth, then run `npm run music:setup`. See [setup and audio workflow](docs/instrumental-music.md).
+
 The catalogs, reviewed artwork and 138 preview clips ship with the repo, so browsing costs nothing.
 Your projects, uploads, room layout, databases and credentials stay in Git-ignored folders on your machine.
 

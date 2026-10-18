@@ -1,5 +1,5 @@
 import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { tmpdir } from "node:os";
@@ -62,7 +62,7 @@ export async function windowsRenderCommand(
     executable: process.execPath,
     args: [
       "--import",
-      require.resolve("tsx"),
+      pathToFileURL(require.resolve("tsx")).href,
       fileURLToPath(new URL("./windows-exec.ts", import.meta.url)),
       Buffer.from(
         JSON.stringify({

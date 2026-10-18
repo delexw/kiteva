@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 import { systemEnvironment } from "../../runtime/platform";
 import { watchCommandOutput } from "../../runtime/file-output";
@@ -41,7 +41,7 @@ export async function runCodexSandboxCommand(
   const command = [
     process.execPath,
     "--import",
-    require.resolve("tsx"),
+    pathToFileURL(require.resolve("tsx")).href,
     fileURLToPath(new URL("./command-child.ts", import.meta.url)),
     Buffer.from(
       JSON.stringify({

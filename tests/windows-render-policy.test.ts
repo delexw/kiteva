@@ -1,3 +1,6 @@
+import { command } from "../src/server/runtime/process";
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 import { withWindowsSandboxVerification } from "../src/server/rendering/sandbox/readiness";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -51,6 +54,8 @@ it("uses separate policy files and literal argv, with no provider login or shell
     const firstPayload = payload(first.args);
     expect(first.executable).toBe(process.execPath);
     expect(first.args[0]).toBe("--import");
+    expect(new URL(first.args[1]).protocol).toBe("file:");
+    expect(fileURLToPath(first.args[1])).toBe(createRequire(import.meta.url).resolve("tsx"));
     expect(firstPayload.command).toEqual([process.execPath, "-e", 'console.log("a & b")']);
     expect(firstPayload.configOverrides).toEqual(payload(second.args).configOverrides);
     expect(first.env.CODEX_HOME).toBe(windowsRenderSandboxHome);
@@ -79,5 +84,21 @@ it("protects custom provider homes on both render backends", async () => {
   } finally {
     if (previous === undefined) delete process.env.CODEX_HOME;
     else process.env.CODEX_HOME = previous;
+  }
+});
+
+it("loads the sandbox preload through Node's real ESM loader", async () => {
+  const workspace = await mkdtemp(path.join(tmpdir(), "native-loader-"));
+  try {
+    const executable = await diagnosticCommand(process.execPath, [], workspace);
+    const output = await command(
+      process.execPath,
+      ["--import", executable.args[1], "--eval", "console.log('loader-ready')"],
+      workspace,
+      new AbortController().signal,
+    );
+    expect(output.trim()).toBe("loader-ready");
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
   }
 });

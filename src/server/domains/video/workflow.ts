@@ -123,6 +123,7 @@ export async function generateVideo(input: {
       model: job.model,
       workspace: job.workspace,
       referenceUrls: request.urls,
+      allowInstrumentRendering: job.kind === "full",
       signal,
       sessionId: job.sessionId,
       schema:

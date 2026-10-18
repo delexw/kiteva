@@ -78,6 +78,21 @@ export const codexAgent: Agent = {
             }
           : {}),
         mcp_servers: {
+          ...Object.fromEntries(
+            Object.entries(options.textOnly ? {} : options.capabilityServers || {}).map(
+              ([name, { enabledTools, toolTimeoutSeconds = 60, ...server }]) => [
+                name,
+                {
+                  ...server,
+                  enabled_tools: enabledTools,
+                  tools: Object.fromEntries(
+                    enabledTools.map((tool) => [tool, { approval_mode: "approve" }]),
+                  ),
+                  tool_timeout_sec: toolTimeoutSeconds,
+                },
+              ],
+            ),
+          ),
           ...(caveman
             ? {
                 caveman: {

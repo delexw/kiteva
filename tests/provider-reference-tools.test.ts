@@ -287,3 +287,152 @@ it.each(["claude", "codex"] as const)(
     if (provider === "codex") expect(server.enabled_tools).toEqual(enabledReferenceTools());
   },
 );
+
+it.each(["claude", "codex"] as const)(
+  "registers stage-scoped React Bits tools for %s through the existing governed invocation",
+  async (provider) => {
+    for (const readOnly of [true, false]) {
+      calls.query.mockClear();
+      calls.codex.mockClear();
+      calls.query.mockImplementation(async function* () {
+        yield {
+          type: "stream_event",
+          event: {
+            type: "content_block_start",
+            content_block: {
+              type: "tool_use",
+              id: "component",
+              name: "mcp__react_bits__search_components",
+            },
+          },
+        };
+        yield {
+          type: "result",
+          subtype: "success",
+          is_error: false,
+          structured_output: { message: "done" },
+          session_id: "components",
+          usage: { input_tokens: 17, output_tokens: 4 },
+          total_cost_usd: 0.001,
+          modelUsage: {},
+        };
+      });
+      const onEvent = vi.fn();
+      await agentTurn({
+        provider,
+        workspace: "/job",
+        readOnly,
+        schema: z.object({ message: z.string() }),
+        signal: new AbortController().signal,
+        onEvent,
+        prompt: "Find a useful component",
+      });
+      const options =
+        provider === "claude"
+          ? calls.query.mock.calls[0][0].options
+          : calls.codex.mock.calls[0][0].config;
+      const server =
+        provider === "claude" ? options.mcpServers.react_bits : options.mcp_servers.react_bits;
+      expect(JSON.parse(server.args.at(-1))).toEqual({ workspace: "/job", readOnly });
+      const names = [
+        "search_components",
+        "read_component",
+        ...(!readOnly ? ["install_component"] : []),
+      ];
+      if (provider === "codex") {
+        expect(server.enabled_tools).toEqual(names);
+        expect(Object.keys(server.tools)).toEqual(names);
+      } else {
+        expect(await options.canUseTool("mcp__react_bits__install_component", {})).toMatchObject({
+          behavior: readOnly ? "deny" : "allow",
+        });
+        expect(server.alwaysLoad).toBe(true);
+      }
+      const invocation = onEvent.mock.calls
+        .map(([event]) => event)
+        .find((event) => event.type === "invocation");
+      const usage = onEvent.mock.calls
+        .map(([event]) => event)
+        .find((event) => event.type === "usage");
+      expect(invocation.data.prompt.system).toContain("REACT BITS COMPONENT CAPABILITY");
+      expect(usage.data).toMatchObject({
+        provider,
+        invocationId: invocation.data.invocationId,
+        model: expect.any(String),
+      });
+      if (provider === "claude") expect(usage.data.cost).toBe(0.001);
+    }
+  },
+);
+
+it.each(["claude", "codex"] as const)(
+  "gives %s instrument discovery and full-build rendering through the same invocation and usage stream",
+  async (provider) => {
+    for (const allowInstrumentRendering of [false, true]) {
+      calls.query.mockClear();
+      calls.codex.mockClear();
+      calls.query.mockImplementation(async function* () {
+        yield {
+          type: "stream_event",
+          event: {
+            type: "content_block_start",
+            content_block: {
+              type: "tool_use",
+              id: "instrument",
+              name: "mcp__instruments__instrument_status",
+            },
+          },
+        };
+        yield {
+          type: "result",
+          subtype: "success",
+          is_error: false,
+          structured_output: { message: "done" },
+          session_id: "music",
+          usage: {},
+          total_cost_usd: 0.001,
+          modelUsage: {},
+        };
+      });
+      const onEvent = vi.fn();
+      await agentTurn({
+        provider,
+        workspace: "/job",
+        allowInstrumentRendering,
+        schema: z.object({ message: z.string() }),
+        signal: new AbortController().signal,
+        onEvent,
+        prompt: "Build the requested music",
+      });
+      const options =
+        provider === "claude"
+          ? calls.query.mock.calls[0][0].options
+          : calls.codex.mock.calls[0][0].config;
+      const server =
+        provider === "claude" ? options.mcpServers.instruments : options.mcp_servers.instruments;
+      expect(JSON.parse(server.args.at(-1))).toEqual({
+        workspace: "/job",
+        readOnly: !allowInstrumentRendering,
+      });
+      if (provider === "claude")
+        expect(await options.canUseTool("mcp__instruments__render_instrumental", {})).toMatchObject(
+          { behavior: allowInstrumentRendering ? "allow" : "deny" },
+        );
+      else {
+        expect(server.enabled_tools).toEqual([
+          "instrument_status",
+          ...(allowInstrumentRendering ? ["render_instrumental"] : []),
+        ]);
+        expect(server.tool_timeout_sec).toBe(600);
+      }
+      const events = onEvent.mock.calls.map(([event]) => event);
+      const invocation = events.find((event) => event.type === "invocation");
+      expect(invocation.data.prompt.system).toContain("BUILT-IN INSTRUMENT RENDERING");
+      expect(events.find((event) => event.type === "usage").data).toMatchObject({
+        provider,
+        model: invocation.data.model,
+        invocationId: invocation.data.invocationId,
+      });
+    }
+  },
+);

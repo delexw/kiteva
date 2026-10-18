@@ -168,6 +168,10 @@ npm start                       # 打开 http://127.0.0.1:4317
 
 Anatomy 在服务启动时自动安装或更新。首次启动需要网络，通过 HTTPS 下载 ZIP 安装，不需要 Git 或额外 CLI；以后离线启动可使用已校验的本地版本。上游文件保存在 Git 忽略的 `skills/anatomy/`，提供商注册和 Kiteva 指引仍在源码中。
 
+[React Bits](https://github.com/DavidHDev/react-bits) 让 Claude 和 Codex 在规划时检索组件、构建时安装源码。参见[集成与许可说明](src/server/agents/capabilities/README.md)。
+
+[FluidSynth](https://www.fluidsynth.org/) 将模型编写的乐谱渲染为本地器乐配乐，接入现有旁白混音，无需额外 AI 模型。安装 FluidSynth 后运行 `npm run music:setup`；参见[安装与音频流程](docs/instrumental-music.md)。
+
 目录、审阅过的插画和 138 段预览短片都随仓库提供，浏览不花钱。你的项目、上传文件、房间布局、数据库和凭据
 都保存在本机被 Git 忽略的目录里。
 

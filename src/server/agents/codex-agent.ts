@@ -58,9 +58,12 @@ export const codexAgent: Agent = {
   async run(options) {
     const { workspace, signal, prompt, systemPrompt, jsonSchema, referenceServer, onEvent, model } =
       options;
+    signal.throwIfAborted();
     const caveman = await cavemanRuntime(signal);
+    signal.throwIfAborted();
     let sessionId = options.sessionId;
     const home = await isolatedCodexHome(sessionId);
+    signal.throwIfAborted();
     let result: unknown;
     const client = new Codex({
       env: { ...childEnvironment(), ...caveman?.env, CODEX_HOME: home },
@@ -132,8 +135,9 @@ export const codexAgent: Agent = {
       approvalPolicy: "never" as const,
       networkAccessEnabled: false,
       webSearchMode: "disabled" as const,
-      modelReasoningEffort: options.reasoningEffort || ("medium" as const),
+      ...(options.reasoningEffort ? { modelReasoningEffort: options.reasoningEffort } : {}),
     };
+    signal.throwIfAborted();
     const thread = sessionId ? client.resumeThread(sessionId, opts) : client.startThread(opts);
     const { events } = await thread.runStreamed(`${systemPrompt}\n\n${prompt}`, {
       signal,
@@ -142,6 +146,7 @@ export const codexAgent: Agent = {
     let completed = false;
     let answer = "";
     for await (const e of events) {
+      signal.throwIfAborted();
       if (
         options.textOnly &&
         "item" in e &&
@@ -154,6 +159,7 @@ export const codexAgent: Agent = {
         );
       const mapped = codexEvent(e);
       if (mapped) onEvent({ ...mapped, message: safeMessage(mapped.message) });
+      signal.throwIfAborted();
       if (e.type === "thread.started") sessionId = e.thread_id;
       if (e.type === "item.completed" && e.item.type === "agent_message") answer = e.item.text;
       if (e.type === "turn.failed") {
@@ -163,6 +169,7 @@ export const codexAgent: Agent = {
       }
       if (e.type === "turn.completed") completed = true;
     }
+    signal.throwIfAborted();
     if (!completed) throw Error("Codex stream ended without a completed turn");
     result = JSON.parse(answer);
 

@@ -128,6 +128,9 @@ async function agentTurnAttempt<T>(
           ],
           env: {
             VIDEO_BROWSER_PATH: process.env.VIDEO_BROWSER_PATH || "",
+            OPENSCREEN_EXECUTABLE: process.env.OPENSCREEN_EXECUTABLE || "",
+            KITEVA_CAPTURE_WORKER_URL: process.env.KITEVA_CAPTURE_WORKER_URL || "",
+            KITEVA_CAPTURE_WORKER_TOKEN: process.env.KITEVA_CAPTURE_WORKER_TOKEN || "",
             HYPERFRAMES_BROWSER_PATH: process.env.HYPERFRAMES_BROWSER_PATH || "",
           },
         }
@@ -136,7 +139,7 @@ async function agentTurnAttempt<T>(
     ? referenceExplorationInstructions +
       (!options.readOnly
         ? websiteCaptureInstructions
-        : "\nWebsite video recording is available during the later implementation stage; this preparation stage captures read-only reference screenshots only.")
+        : "\nWebsite video recording is available during the later implementation stage; this preparation stage inspects references and captures read-only screenshots only when needed as evidence. Missing production captures are expected; leave the production plan to the main model during building.")
     : "";
   const capabilities = agentCapabilities(
     workspace,
@@ -193,11 +196,12 @@ async function agentTurnAttempt<T>(
             typeof value === "string" ? redactSecrets(value) : value,
           ),
         ),
-        reasoningEffort: options.reasoningEffort || "medium",
+        reasoningEffort: options.reasoningEffort ?? null,
       },
     },
   });
   const agent = agents[provider];
+  signal.throwIfAborted();
   const execution = await agent.run({
     ...options,
     prompt,
@@ -208,5 +212,6 @@ async function agentTurnAttempt<T>(
     capabilityServers: capabilities.servers,
     onEvent,
   });
+  signal.throwIfAborted();
   return { value: schema.parse(execution.result), sessionId: execution.sessionId };
 }

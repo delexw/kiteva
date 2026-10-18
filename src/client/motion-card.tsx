@@ -20,7 +20,7 @@ export function MotionCard({
       style={{
         id: motion.id,
         name_en: motion.name,
-        category: motion.category.replaceAll("_", " "),
+        category: motion.category,
         visual_cues: description ?? motion.description,
         palette: { tokens: {}, constraints: [] },
       }}

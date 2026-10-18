@@ -1,3 +1,4 @@
+import { uiLanguage, translateUi, useUiLanguage } from "../i18n";
 import { useEffect, useState } from "react";
 import { Modal, Tree, Collapse, Alert, type TreeDataNode } from "antd";
 import {
@@ -12,11 +13,14 @@ export function modelPromptTreeData(prompts: ModelPromptSummary[]): TreeDataNode
     return {
       key: `model:${model}`,
       selectable: false,
-      title: `${model} · ${calls.length} prompts`,
+      title: translateUi("{{value0}} · {{value1}} prompts", {
+        value0: model,
+        value1: calls.length,
+      }),
       children: [...new Set(calls.map((call) => call.purpose))].map((purpose) => ({
         key: `purpose:${JSON.stringify([model, purpose])}`,
         selectable: false,
-        title: purpose,
+        title: translateUi(purpose),
         children: calls
           .filter((call) => call.purpose === purpose)
           .map((call, index) => ({
@@ -24,9 +28,12 @@ export function modelPromptTreeData(prompts: ModelPromptSummary[]): TreeDataNode
             isLeaf: true,
             title: (
               <span>
-                Prompt {index + 1} · {new Date(call.time).toLocaleString()}{" "}
+                {translateUi("Prompt") + " "}
+                {index + 1} · {uiLanguage.date(call.time)}{" "}
                 <span className="governance-prompt-source">
-                  {call.source === "historical" ? "Historical" : "Recorded"}
+                  {call.source === "historical"
+                    ? translateUi("Historical")
+                    : translateUi("Recorded")}
                 </span>
               </span>
             ),
@@ -42,15 +49,16 @@ export function ModelPromptTree({
   prompts: ModelPromptSummary[];
   onSelect: (prompt: ModelPromptSummary) => void;
 }) {
+  useUiLanguage();
   return (
     <div className="governance-ant-prompt-tree">
       {!prompts.length ? (
-        <p>No invocation prompts were recorded for this project.</p>
+        <p>{translateUi("No invocation prompts were recorded for this project.")}</p>
       ) : (
         <Tree
           virtual={false}
           motion={{ motionAppear: false, motionEnter: false, motionLeave: false }}
-          aria-label="Invocation prompts"
+          aria-label={translateUi("Invocation prompts")}
           treeData={modelPromptTreeData(prompts)}
           showLine
           blockNode
@@ -71,6 +79,7 @@ export function ModelPromptBrowser({
   projectId: string;
   prompts: ModelPromptSummary[];
 }) {
+  useUiLanguage();
   const [selected, setSelected] = useState<ModelPromptSummary>();
   const [record, setRecord] = useState<ModelPromptRecord>();
   const [error, setError] = useState("");
@@ -84,7 +93,7 @@ export function ModelPromptBrowser({
       { signal: controller.signal },
     )
       .then(async (response) => {
-        if (!response.ok) throw Error("Unable to load this prompt.");
+        if (!response.ok) throw Error(translateUi("Unable to load this prompt."));
         const prompt = (await response.json()) as ModelPromptRecord;
         if (!controller.signal.aborted) setRecord(prompt);
       })
@@ -94,7 +103,7 @@ export function ModelPromptBrowser({
     return () => controller.abort();
   }, [projectId, selected]);
   return (
-    <section className="governance-model-prompts" aria-label="Model prompts">
+    <section className="governance-model-prompts" aria-label={translateUi("Model prompts")}>
       <ModelPromptTree
         prompts={prompts}
         onSelect={(prompt) => {
@@ -106,7 +115,7 @@ export function ModelPromptBrowser({
       <Modal
         open={Boolean(selected)}
         onCancel={() => setSelected(undefined)}
-        title={`${selected?.model || ""} · ${selected?.purpose || ""}`}
+        title={`${selected?.model || ""} · ${translateUi(selected?.purpose || "")}`}
         footer={null}
         width="min(1100px, calc(100vw - 32px))"
         className="governance-ant-prompt-modal"
@@ -114,28 +123,37 @@ export function ModelPromptBrowser({
         focusable={{ trap: true, focusTriggerAfterClose: true }}
       >
         <p className="governance-modal-description">
-          Full invocation prompt. Secrets are redacted; historical gaps are identified explicitly.
+          {translateUi(
+            "Full invocation prompt. Secrets are redacted; historical gaps are identified explicitly.",
+          )}
         </p>
         <div className="governance-prompt-body">
-          {!record && <p role="status">{error || "Loading full prompt…"}</p>}
+          {!record && <p role="status">{error || translateUi("Loading full prompt…")}</p>}
           {record && (
             <>
-              {record.note && <Alert title={record.note} type="info" />}
-              {record.reasoningEffort && <p>Reasoning effort: {record.reasoningEffort}</p>}
-              <h3>System instructions</h3>
-              <pre>{record.system || "Not recorded for this historical invocation."}</pre>
-              <h3>User prompt</h3>
+              {record.note && <Alert title={translateUi(record.note)} type="info" />}
+              {record.reasoningEffort && (
+                <p>
+                  {translateUi("Reasoning effort:") + " "}
+                  {translateUi(record.reasoningEffort)}
+                </p>
+              )}
+              <h3>{translateUi("System instructions")}</h3>
+              <pre>
+                {record.system || translateUi("Not recorded for this historical invocation.")}
+              </pre>
+              <h3>{translateUi("User prompt")}</h3>
               <pre>
                 {record.user
                   ? formatModelPrompt(record.user)
-                  : "The original prompt is unavailable."}
+                  : translateUi("The original prompt is unavailable.")}
               </pre>
               {record.outputSchema != null && (
                 <Collapse
                   items={[
                     {
                       key: "schema",
-                      label: "Structured output schema",
+                      label: translateUi("Structured output schema"),
                       children: <pre>{JSON.stringify(record.outputSchema, null, 2)}</pre>,
                     },
                   ]}

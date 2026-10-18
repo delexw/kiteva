@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { Bubble, ThoughtChain, type ThoughtChainItemType } from "@ant-design/x";
 import { useMemo, type ReactNode } from "react";
 import { Button, Collapse } from "antd";
@@ -10,6 +11,7 @@ import {
   LoaderCircle,
 } from "lucide-react";
 import type { AgentProgressEvent, Run } from "../../shared/contracts";
+import { displayActivityItems, type DisplayActivityItem } from "../activity-display";
 import type { ActivityItem } from "../agent-activity-model";
 import { MessageResponse } from "../components/ai-elements/message";
 import { StoryboardCrew } from "../storyboard-crew";
@@ -28,18 +30,24 @@ const stepStatus: Record<NonNullable<ActivityItem["status"]>, ThoughtChainItemTy
 function clock(time: string) {
   return new Date(time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
-export function roomActivityStep(item: ActivityItem): ThoughtChainItemType {
+export function roomActivityStep(item: DisplayActivityItem): ThoughtChainItemType {
   return {
     key: String(item.id),
-    title:
-      item.repetitions && item.repetitions > 1 ? `${item.text} · ${item.repetitions}×` : item.text,
+    title: translateUi(item.text),
+    content: item.children?.length ? (
+      <ThoughtChain
+        line="dashed"
+        className="room-activity-steps"
+        items={item.children.map(roomActivityStep)}
+      />
+    ) : undefined,
     description: <time dateTime={item.time}>{clock(item.time)}</time>,
     status: item.status ? stepStatus[item.status] : undefined,
     icon: item.status ? undefined : (
       <span
         role="img"
-        aria-label="Progress update"
-        title="Progress update — no separate outcome recorded"
+        aria-label={translateUi("Progress update")}
+        title={translateUi("Progress update — no separate outcome recorded")}
       >
         <CircleDot size={14} />
       </span>
@@ -47,8 +55,9 @@ export function roomActivityStep(item: ActivityItem): ThoughtChainItemType {
   };
 }
 function ContextDetail({ context }: { context: RoomActivityContext }) {
-  const runs: Array<ActivityItem | ActivityItem[]> = [];
-  for (const item of context.items) {
+  useUiLanguage();
+  const runs: Array<DisplayActivityItem | DisplayActivityItem[]> = [];
+  for (const item of displayActivityItems(context.items)) {
     const last = runs.at(-1);
     if (item.kind !== "message" && Array.isArray(last)) last.push(item);
     else runs.push(item.kind === "message" ? item : [item]);
@@ -56,7 +65,14 @@ function ContextDetail({ context }: { context: RoomActivityContext }) {
   return (
     <div className="room-activity-detail">
       {context.checkpoints.length > 0 && (
-        <ThoughtChain line="dashed" className="room-activity-steps" items={context.checkpoints} />
+        <ThoughtChain
+          line="dashed"
+          className="room-activity-steps"
+          items={context.checkpoints.map((item) => ({
+            ...item,
+            title: typeof item.title === "string" ? translateUi(item.title) : item.title,
+          }))}
+        />
       )}
       {runs.map((entry) =>
         Array.isArray(entry) ? (
@@ -94,15 +110,22 @@ const contextStatus: Record<string, { label: string; icon: ReactNode }> = {
   waiting: { label: "Waiting for you", icon: <Hourglass size={14} /> },
 };
 function ContextStatus({ context }: { context: RoomActivityContext }) {
+  useUiLanguage();
   const tone = context.status || "waiting";
   const { label, icon } = contextStatus[tone];
   return (
-    <span className={`room-activity-status is-${tone}`} role="img" aria-label={label} title={label}>
+    <span
+      className={`room-activity-status is-${tone}`}
+      role="img"
+      aria-label={translateUi(label)}
+      title={translateUi(label)}
+    >
       {icon}
     </span>
   );
 }
 function CrewOnSet() {
+  useUiLanguage();
   return (
     <span className="room-activity-crew" aria-hidden="true">
       <span>
@@ -116,15 +139,16 @@ function CrewOnSet() {
 }
 
 export function RoomActivityTab({ run }: { run: Run }) {
+  useUiLanguage();
   const working = isRoomActivityLive(run);
   return (
     <span className="room-activity-tab">
-      Activity
+      {translateUi("Activity")}
       {working && (
         <span
           className="room-activity-crew room-activity-tab-crew"
           role="status"
-          aria-label="Working"
+          aria-label={translateUi("Working")}
         >
           <span aria-hidden="true">
             <StoryboardCrew role="director" reaction />
@@ -144,7 +168,8 @@ export function RoomActivityNow({
   events: AgentProgressEvent[];
   onOpen: () => void;
 }) {
-  const contexts = useMemo(() => roomActivityContexts(run, events), [run, events]);
+  const { language } = useUiLanguage();
+  const contexts = useMemo(() => roomActivityContexts(run, events), [run, events, language]);
   const working = contexts.filter((context) => context.status === "loading");
   if (!isRoomActivityLive(run) || !working.length) return null;
   return (
@@ -154,20 +179,28 @@ export function RoomActivityNow({
         <strong>{working[0].label}</strong>
         <span>{working[0].summary}</span>
       </span>
-      {working.length > 1 && <span className="room-hint">+{working.length - 1} more working</span>}
+      {working.length > 1 && (
+        <span className="room-hint">
+          +{working.length - 1}
+          {" " + translateUi("more working")}
+        </span>
+      )}
       <Button size="small" type="link" onClick={onOpen}>
-        See activity
+        {translateUi("See activity")}
       </Button>
     </div>
   );
 }
 
 export function RoomActivity({ run, events }: { run: Run; events: AgentProgressEvent[] }) {
-  const contexts = useMemo(() => roomActivityContexts(run, events), [run, events]);
+  const { language } = useUiLanguage();
+  const contexts = useMemo(() => roomActivityContexts(run, events), [run, events, language]);
   if (!contexts.length)
-    return <p className="room-hint">Activity appears here as soon as work starts.</p>;
+    return (
+      <p className="room-hint">{translateUi("Activity appears here as soon as work starts.")}</p>
+    );
   return (
-    <section className="room-activity" aria-label="Project activity">
+    <section className="room-activity" aria-label={translateUi("Project activity")}>
       <Collapse
         size="small"
         ghost

@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import {
   useEffect,
   useImperativeHandle,
@@ -16,6 +17,7 @@ type VideoPlayerProps = Omit<VideoHTMLAttributes<HTMLVideoElement>, "controls"> 
 };
 
 export function VideoPlayer({ ref, src, ...props }: VideoPlayerProps) {
+  useUiLanguage();
   const player = useRef<HTMLVideoElement>(null);
   const frame = useRef<HTMLDivElement>(null);
   useImperativeHandle(ref, () => player.current!, []);
@@ -58,7 +60,7 @@ export function VideoPlayer({ ref, src, ...props }: VideoPlayerProps) {
       try {
         await video.play();
       } catch {
-        setError("This video could not play. Please try again.");
+        setError(translateUi("This video could not play. Please try again."));
       }
     }
   }
@@ -67,11 +69,16 @@ export function VideoPlayer({ ref, src, ...props }: VideoPlayerProps) {
       if (document.fullscreenElement === frame.current) await document.exitFullscreen();
       else await frame.current?.requestFullscreen();
     } catch {
-      setError("Fullscreen is unavailable. You can keep watching here.");
+      setError(translateUi("Fullscreen is unavailable. You can keep watching here."));
     }
   }
   return (
-    <div className="kiteva-video-player" ref={frame} role="group" aria-label={`${label} player`}>
+    <div
+      className="kiteva-video-player"
+      ref={frame}
+      role="group"
+      aria-label={translateUi("{{value0}} player", { value0: label })}
+    >
       <video
         {...props}
         src={src}
@@ -106,24 +113,28 @@ export function VideoPlayer({ ref, src, ...props }: VideoPlayerProps) {
           props.onVolumeChange?.(event);
         }}
         onError={(event) => {
-          setError("This video could not load. Please try again.");
+          setError(translateUi("This video could not load. Please try again."));
           props.onError?.(event);
         }}
       />
-      <div className="kiteva-playback-bar" role="toolbar" aria-label="Video playback controls">
+      <div
+        className="kiteva-playback-bar"
+        role="toolbar"
+        aria-label={translateUi("Video playback controls")}
+      >
         <Button
           type="text"
-          aria-label={playing ? "Pause video" : "Play video"}
-          title={playing ? "Pause" : "Play"}
+          aria-label={playing ? translateUi("Pause video") : translateUi("Play video")}
+          title={playing ? translateUi("Pause") : translateUi("Play")}
           icon={playing ? <Pause size={18} /> : <Play size={18} />}
           onClick={() => void togglePlayback()}
         />
-        <span className="kiteva-playback-time" aria-label="Playback time">
+        <span className="kiteva-playback-time" aria-label={translateUi("Playback time")}>
           {playbackTime(time)} / {playbackTime(duration)}
         </span>
         <Slider
           className="kiteva-playback-seek"
-          aria-label="Seek video"
+          aria-label={translateUi("Seek video")}
           ariaLabelForHandle="Seek video"
           min={0}
           max={duration || 1}
@@ -143,7 +154,7 @@ export function VideoPlayer({ ref, src, ...props }: VideoPlayerProps) {
           placement="top"
           content={
             <Slider
-              aria-label="Video volume"
+              aria-label={translateUi("Video volume")}
               ariaLabelForHandle="Video volume"
               style={{ width: 110 }}
               min={0}
@@ -162,8 +173,10 @@ export function VideoPlayer({ ref, src, ...props }: VideoPlayerProps) {
         >
           <Button
             type="text"
-            aria-label={muted || volume === 0 ? "Unmute video" : "Mute video"}
-            title="Volume"
+            aria-label={
+              muted || volume === 0 ? translateUi("Unmute video") : translateUi("Mute video")
+            }
+            title={translateUi("Volume")}
             icon={muted || volume === 0 ? <VolumeX size={17} /> : <Volume2 size={17} />}
             onClick={() => {
               if (player.current) {
@@ -177,8 +190,8 @@ export function VideoPlayer({ ref, src, ...props }: VideoPlayerProps) {
         <Button
           type="text"
           disabled={!canFullscreen}
-          aria-label={fullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-          title="Fullscreen"
+          aria-label={fullscreen ? translateUi("Exit fullscreen") : translateUi("Enter fullscreen")}
+          title={translateUi("Fullscreen")}
           icon={fullscreen ? <Minimize size={17} /> : <Maximize size={17} />}
           onClick={() => void toggleFullscreen()}
         />

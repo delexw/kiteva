@@ -15,9 +15,13 @@ Reviewed 2026-10-15. This research informs the shared provider, planning, genera
 The following are our synthesis, not quoted industry rules:
 
 1. Replace the former universal 2–4-second development, 0.25–0.8-second action and 0.3–0.9-second transition guidance. None of the references establishes those as defaults for every video.
-2. Favor economical momentum while preserving comprehension and purposeful stillness. A reaction, tension or sustained demonstration can justify a long shot without extra facts. Rapid cuts can fail when the viewer cannot follow the action.
+2. Default to brisk, energetic pacing: tighter pauses, snappier entrances and transitions, and purposeful cuts adapted to the story and selected Motion Graphics. This is an editorial preference, not a numerical speed multiplier, percentage reduction or fixed cut interval. Explicit user direction, including calm or contemplative pacing, takes precedence. Preserve comprehension and purposeful stillness. A reaction, tension or sustained demonstration can justify a long shot without extra facts. Rapid cuts can fail when the viewer cannot follow the action.
 3. Budget fully legible text exposure separately from hidden or moving reveals. Preserve exact copy and selected duration by rebalancing the sequence, not silently shortening the message.
 4. Coordinate audio and visual meaning without mechanically cutting on every musical beat or attaching a sound to every entrance. Silence remains valid.
 5. Audit both dragging and rushing. A correction requires a documented interval and specific communication problem; a long interval alone is not a defect. A declared pacing plan, matching export duration, pixel-change metric or passing technical QA does not prove the delivered video has good pacing.
 
 Final-review calibration includes justified suspense, varied beat lengths, dense copy exposed too briefly, a text reveal without reading time, and music-driven cuts that interrupt a demonstration. Tests check prompt propagation and evidence handling; human viewing or a completed semantic assessment is still needed to judge the delivered edit.
+
+## Shared default
+
+Each film maintains coherent typography, palette roles, motion character and transition logic across its selected Motion Graphics. The default favors fast bursts with purposeful breathing room, not constant rapid cuts or a single aesthetic imposed on every film. Natural narration, readable text, essential demo actions and their visible results remain protected. Tighten discretionary timing instead of accelerating the finished film, changing export FPS or filling the requested duration with repeated motion. Provider instructions, planning, generation, repair and review consume this same policy; it does not retroactively change existing renders.

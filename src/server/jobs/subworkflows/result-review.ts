@@ -3,7 +3,6 @@ import {
   VideoResultReviewSchema,
 } from "../../../shared/agents/schemas/result-review";
 import path from "node:path";
-import { textModels } from "../../agents/models";
 import { videoResultReviewGuidance, videoReviewTestCases } from "../result-review-guidance";
 import { safeMessage } from "../../runtime/config";
 import { readFile, writeFile } from "node:fs/promises";
@@ -89,11 +88,10 @@ export async function reviewFinishedResult(input: {
         };
     const turn = await agentTurn({
       provider: input.request.provider,
-      model: isVideo ? textModels[input.request.provider] : job.model,
+      model: job.model,
       workspace: job.workspace,
       signal,
       promptContext,
-      reasoningEffort: isVideo ? "low" : "medium",
       readOnly: true,
       schema: job.outputType === "page" ? ResultReviewSchema : VideoResultReviewSchema,
       onEvent: (event) =>
@@ -117,7 +115,7 @@ Read the complete current page evidence from the required input JSON.`,
   } catch (error) {
     signal.throwIfAborted();
     const diagnostic = {
-      model: job.outputType === "page" ? job.model : textModels[input.request.provider],
+      model: job.model,
       issue: safeMessage(error),
     };
     await writeFile(

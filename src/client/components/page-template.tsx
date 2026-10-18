@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import type { ReactNode } from "react";
 
 export function PageTemplate({
@@ -17,12 +18,13 @@ export function PageTemplate({
   className?: string;
   children: ReactNode;
 }) {
+  useUiLanguage();
   return (
     <section className={`page-template ${className}`.trim()}>
       <header className="page-template-header">
         <div className="page-heading">
           <div className="page-template-title">
-            <div className="eyebrow">{eyebrow}</div>
+            <div className="eyebrow">{translateUi(eyebrow)}</div>
             <h1>{title}</h1>
             {description && <div className="page-template-description">{description}</div>}
           </div>

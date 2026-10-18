@@ -32,7 +32,7 @@ const review = {
   music: "added",
 } as const;
 afterEach(() => vi.resetAllMocks());
-it("reviews full videos with the cheap provider model and explicit evidence, keeping telemetry", async () => {
+it("reviews full videos with their selected main model and explicit evidence, keeping telemetry", async () => {
   const workspace = await mkdtemp(path.join(os.tmpdir(), "result-review-"));
   try {
     await mkdir(path.join(workspace, "renders"));
@@ -66,7 +66,7 @@ it("reviews full videos with the cheap provider model and explicit evidence, kee
       }),
     ).toEqual({ ...review, pacingPlan: "not_verified", corrections: [] });
     expect(vi.mocked(agentTurn).mock.calls[0][0]).toMatchObject({
-      model: "claude-haiku-5-5",
+      model: "claude-opus-5-5",
       readOnly: true,
     });
     expect(JSON.stringify(vi.mocked(agentTurn).mock.calls[0][0].promptContext)).toContain(
@@ -135,12 +135,13 @@ it("shows customer facts instead of technical details and avoids unverified clai
 });
 
 it.each([
-  ["claude", "claude-haiku-5-5"],
-  ["codex", "gpt-6-luna"],
+  ["claude", "claude-opus-5-5"],
+  ["codex", "gpt-6.1-sol"],
+  ["codex", "gpt-6-sol"],
 ] as const)(
-  "uses %s's cheap reviewer and forwards concrete pacing findings to the corrector",
+  "uses %s's selected job model for review and forwards concrete pacing findings to the corrector",
   async (provider, model) => {
-    const workspace = await mkdtemp(path.join(os.tmpdir(), "cheap-review-"));
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "main-model-review-"));
     try {
       await mkdir(path.join(workspace, "renders"));
       await writeFile(
@@ -171,8 +172,8 @@ it.each([
         value: { ...review, pacingPlan: "needs_review", corrections: [correction] },
       });
       const result = await reviewFinishedResult({
-        job: { ...job, workspace },
-        request: { ...request, provider },
+        job: { ...job, workspace, model },
+        request: { ...request, provider, mainModel: "different-request-model" },
         candidate,
         signal: new AbortController().signal,
         onEvent: vi.fn(),
@@ -267,7 +268,7 @@ it("includes pacing calibration cases and explicit evidence boundaries in review
   expect(videoResultReviewGuidance).toContain("Missing evidence is not a correction");
 });
 
-it("uses a strict nested schema accepted by Luna structured output", async () => {
+it("keeps the strict nested structured-output schema", async () => {
   const { z } = await import("zod");
   const { VideoResultReviewSchema } = await import("../src/shared/result-review");
   const schema = z.toJSONSchema(VideoResultReviewSchema, { target: "draft-7" });
@@ -327,7 +328,7 @@ it.each(["unavailable source", "outside duration"])(
       expect(onEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "review_diagnostic",
-          data: expect.objectContaining({ audience: "internal", model: "claude-haiku-5-5" }),
+          data: expect.objectContaining({ audience: "internal", model: "claude-opus-5-5" }),
         }),
       );
     } finally {
@@ -336,7 +337,7 @@ it.each(["unavailable source", "outside duration"])(
   },
 );
 
-it("uses low review effort and removes duplicate production metadata while preserving actionable QA evidence", async () => {
+it("leaves review effort at the provider default and removes duplicate production metadata while preserving actionable QA evidence", async () => {
   const workspace = await mkdtemp(path.join(os.tmpdir(), "review-compact-"));
   try {
     await mkdir(path.join(workspace, "renders"));
@@ -381,7 +382,7 @@ it("uses low review effort and removes duplicate production metadata while prese
       emit: vi.fn(),
     });
     const call = vi.mocked(agentTurn).mock.calls[0][0];
-    expect(call.reasoningEffort).toBe("low");
+    expect(call).not.toHaveProperty("reasoningEffort");
     expect(JSON.stringify(call.promptContext)).toContain("Clipped text");
     expect(JSON.stringify(call.promptContext)).toContain('"selector":"#label"');
     expect(JSON.stringify(call.promptContext)).toContain("verified-date");

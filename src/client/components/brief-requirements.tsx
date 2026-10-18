@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { assetLimitHelp, hasReachedAssetCountLimit } from "../../shared/asset-limits";
 import { useRef, type ReactNode } from "react";
 import { Paperclip, Link, X } from "lucide-react";
@@ -40,6 +41,7 @@ export function BriefRequirements({
   urls: string;
   onUrlsChange: (value: string) => void;
 }) {
+  useUiLanguage();
   const fileInputs = useRef<Partial<Record<"main" | "music" | "images", HTMLInputElement | null>>>(
     {},
   );
@@ -78,7 +80,7 @@ export function BriefRequirements({
                 onClick={() => links.current?.focus()}
               >
                 <Link size={16} />
-                Add links
+                {translateUi("Add links")}
               </Button>
             ) : (
               <div>
@@ -96,7 +98,7 @@ export function BriefRequirements({
                 >
                   <Paperclip size={16} />
                   {uploading
-                    ? "Uploading…"
+                    ? translateUi("Uploading…")
                     : { main: "Attach documents", music: "Attach audio", images: "Attach images" }[
                         section
                       ]}
@@ -137,7 +139,14 @@ export function BriefRequirements({
             children
           ) : (
             <Textarea
-              aria-label={`${section === "music" ? "Music / instrumental" : section === "images" ? "Image" : "URL"} requirements`}
+              aria-label={translateUi("{{value0}} requirements", {
+                value0:
+                  section === "music"
+                    ? "Music / instrumental"
+                    : section === "images"
+                      ? "Image"
+                      : "URL",
+              })}
               value={instructions[section]}
               maxLength={8000}
               onChange={(event) => onChange(section, event.target.value)}
@@ -152,12 +161,14 @@ export function BriefRequirements({
             />
           )}
           {section === "main" && (
-            <span className="brief-section-help">Markdown, text, or PDF documents only.</span>
+            <span className="brief-section-help">
+              {translateUi("Markdown, text, or PDF documents only.")}
+            </span>
           )}
           {section === "urls" ? (
             <Textarea
               ref={links}
-              aria-label="Website URLs"
+              aria-label={translateUi("Website URLs")}
               value={urls}
               onChange={(event) => onUrlsChange(event.target.value)}
               placeholder="https://example.com — one URL per line"
@@ -166,7 +177,7 @@ export function BriefRequirements({
             <Attachments
               variant="grid"
               className="brief-image-attachments"
-              aria-label="Attached images"
+              aria-label={translateUi("Attached images")}
             >
               {assets
                 .filter((asset) => asset.section === "images")
@@ -187,7 +198,7 @@ export function BriefRequirements({
                     <AttachmentPreview className="brief-image-preview" />
                     <span className="brief-image-name">{asset.originalName}</span>
                     <AttachmentRemove
-                      label={`Remove ${asset.originalName}`}
+                      label={translateUi("Remove {{value0}}", { value0: asset.originalName })}
                       className="brief-image-remove"
                     />
                   </Attachment>
@@ -202,7 +213,7 @@ export function BriefRequirements({
                     {asset.originalName}
                     <Button
                       htmlType="button"
-                      aria-label={`Remove ${asset.originalName}`}
+                      aria-label={translateUi("Remove {{value0}}", { value0: asset.originalName })}
                       onClick={() => onRemove(asset.id)}
                     >
                       <X size={12} />

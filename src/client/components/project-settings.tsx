@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { videoLanguageLabel } from "../../shared/video-language";
 import { Popover } from "antd";
 import { videoRendererOf, videoRenderers } from "../../shared/video-renderers";
@@ -15,6 +16,7 @@ export function ProjectSettings({
   styles?: Pick<Style, "id" | "name_en">[];
   examples?: StyleExample[];
 }) {
+  useUiLanguage();
   const request = run.request;
   const styleIds = request.selectedStyleIds || [];
   const selectedStyles = styleIds.flatMap((id) => styles.filter((style) => style.id === id));
@@ -29,28 +31,31 @@ export function ProjectSettings({
           ...(request.outputLanguage ? [videoLanguageLabel(request.outputLanguage)] : []),
           request.aspectRatio,
           request.resolution === "1440p" ? "2K · 1440p" : "1080p",
-          `${request.frameRate || 30} fps`,
+          translateUi("{{value0}} fps", { value0: request.frameRate || 30 }),
           videoRenderers[videoRendererOf(request)].label,
           request.lyrics && request.lyrics.mode !== "off" ? "Lyrics on" : "No lyrics",
         ]
       : [request.viewport === "mobile" ? "Mobile layout" : "Desktop layout"]),
     request.candidateCount === 0
       ? "Manual Motion Graphics"
-      : `${request.candidateCount} directions`,
+      : translateUi("{{count}} directions", { count: request.candidateCount }),
     ...(request.candidateCount > 0
       ? [request.preference === "creative" ? "Explore creative ideas" : "Follow my brief"]
       : []),
   ];
   return (
-    <div className="project-selected-settings" aria-label="Selected project settings">
+    <div
+      className="project-selected-settings"
+      aria-label={translateUi("Selected project settings")}
+    >
       <div className="project-setting-values">
         {settings.map((setting) => (
-          <span key={setting}>{setting}</span>
+          <span key={setting}>{translateUi(setting)}</span>
         ))}
       </div>
       {selectedStyles.length > 0 && (
         <p>
-          Motion Graphics:{" "}
+          {translateUi("Motion Graphics:")}{" "}
           {selectedStyles.map((style, index) => {
             const example = examples.find((entry) => entry.styleId === style.id);
             return (
@@ -62,7 +67,7 @@ export function ProjectSettings({
                   mouseEnterDelay={0.1}
                   mouseLeaveDelay={0}
                   destroyOnHidden
-                  title={style.name_en}
+                  title={translateUi(style.name_en)}
                   content={
                     <div className="project-style-hover-preview">
                       <StyleExampleMedia
@@ -79,9 +84,11 @@ export function ProjectSettings({
                   <button
                     type="button"
                     className="project-style-preview-trigger"
-                    aria-label={`Preview ${style.name_en}`}
+                    aria-label={translateUi("Preview {{value0}}", {
+                      value0: translateUi(style.name_en),
+                    })}
                   >
-                    {style.name_en}
+                    {translateUi(style.name_en)}
                   </button>
                 </Popover>
               </Fragment>

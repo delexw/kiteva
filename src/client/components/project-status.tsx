@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { CircleCheck, CircleAlert, CirclePause, CircleX, LoaderCircle } from "lucide-react";
 import type { Phase } from "../../shared/contracts";
 const statuses: Record<Phase, { label: string; tone: "ready" | "active" | "error" | "stopped" }> = {
@@ -13,7 +14,9 @@ const statuses: Record<Phase, { label: string; tone: "ready" | "active" | "error
   interrupted: { label: "Interrupted", tone: "stopped" },
 };
 export function ProjectStatus({ phase }: { phase: Phase }) {
-  const { label, tone } = statuses[phase];
+  useUiLanguage();
+  const { label: labelKey, tone } = statuses[phase];
+  const label = translateUi(labelKey);
   const Icon =
     tone === "ready"
       ? CircleCheck
@@ -29,7 +32,7 @@ export function ProjectStatus({ phase }: { phase: Phase }) {
       className="project-status-badge"
       data-tone={tone}
       role="status"
-      aria-label={`Project status: ${label}`}
+      aria-label={translateUi("Project status: {{value0}}", { value0: label })}
     >
       <Icon size={14} aria-hidden="true" className={tone === "active" ? "spin" : undefined} />
       {label}

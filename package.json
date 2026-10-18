@@ -26,7 +26,8 @@
     "caveman:stats": "npm run caveman -- stats --plain",
     "windows:check": "node --import tsx scripts/verify-native-render.ts --windows",
     "native:check": "node --import tsx scripts/verify-native-render.ts",
-    "speech:setup:pocket:zh": "node --import tsx scripts/setup-pocket-tts-zh.ts"
+    "speech:setup:pocket:zh": "node --import tsx scripts/setup-pocket-tts-zh.ts",
+    "capture:worker": "node --import tsx scripts/capture-worker.ts"
   },
   "dependencies": {
     "@ant-design/x": "^2.9.0",
@@ -62,6 +63,7 @@
     "fflate": "latest",
     "gsap": "^3.14.0",
     "hyperframes": "0.8.144",
+    "i18next": "^26.5.2",
     "ipaddr.js": "latest",
     "lucide-react": "latest",
     "mammoth": "latest",
@@ -81,6 +83,7 @@
     "radix-ui": "^1.7.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-i18next": "^17.1.0",
     "react-router-dom": "^7.18.4",
     "remotion": "latest",
     "roughjs": "latest",

@@ -178,7 +178,7 @@ it("expands a winning page using its approved source and provider session", asyn
     );
     expect(workflow.generate).toHaveBeenCalledWith(run, full, "Keep the approved diagram");
   } finally {
-    workflow.shutdown();
+    await workflow.shutdown();
     store.close();
     await rm(workspace, { recursive: true, force: true });
     if (fullWorkspace) await rm(path.dirname(fullWorkspace), { recursive: true, force: true });

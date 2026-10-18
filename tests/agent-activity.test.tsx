@@ -254,7 +254,7 @@ it("groups consecutive identical progress within a job without mixing candidates
       ]}
     />,
   );
-  expect(html).toContain("2 updates");
+  expect(html).not.toContain("2 updates");
   expect(html).toMatch(/class="[^"]*activity-content/);
   expect(html).not.toContain("<header>");
 });
@@ -433,8 +433,14 @@ it.each([
     [saving, "running"],
   ]);
   const html = renderToStaticMarkup(<AgentActivity events={events} />);
-  expect(html).toContain(working);
-  expect(html).toContain(saving);
+  if (purpose === "full video generation") {
+    expect(html).toContain("Creating your video…");
+    expect(html).not.toContain(working);
+    expect(html).toContain(saving);
+  } else {
+    expect(html).toContain(working);
+    expect(html).toContain(saving);
+  }
   expect(html).not.toMatch(/private|StructuredOutput|Finalizing|Reading project content/);
 });
 

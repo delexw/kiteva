@@ -82,7 +82,7 @@ it("keeps project preparation, each preview and each full film as separate recor
     false,
   );
 });
-it("shows the latest real step while working and a recorded total once done", () => {
+it("shows the latest real step while working and recorded duration once done", () => {
   const working = run({ phase: "preparing" });
   const events = [
     event(1, { type: "input", message: "Reading your brief" }),
@@ -96,7 +96,7 @@ it("shows the latest real step while working and a recorded total once done", ()
     events,
   );
   expect(done.status).toBe("success");
-  expect(done.summary).toMatch(/^2 updates · worked for 2m 0s$/);
+  expect(done.summary).toMatch(/^worked for 2m 0s$/);
   expect(roomActivityContexts(run({ phase: "preparing" }), [])[0]).toMatchObject({
     status: "loading",
     summary: "Preparing your project",

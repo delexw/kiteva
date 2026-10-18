@@ -1,3 +1,5 @@
+import { videoLanguageLabel } from "../../shared/video-language";
+import { translateUi, useUiLanguage } from "../i18n";
 import { CheckCircle2, Info, Mic } from "lucide-react";
 import { SettingsSectionHeading } from "./settings-section-heading";
 import { useEffect, useRef, useState } from "react";
@@ -41,6 +43,7 @@ export function SpeechSettings({
   audioAssets: Array<{ id: string; name: string }>;
   videoLanguage?: VideoLanguage;
 }) {
+  useUiLanguage();
   const [status, setStatus] = useState<SpeechReadiness>();
   const [error, setError] = useState("");
   const [sample, setSample] = useState("");
@@ -111,22 +114,30 @@ export function SpeechSettings({
     }
   };
   return (
-    <section aria-label="Speech and vocals" className="speech-settings">
+    <section aria-label={translateUi("Speech and vocals")} className="speech-settings">
       <SettingsSectionHeading
-        title="Speech / vocals"
-        description="Choose a narrator or use your own vocal recording."
+        title={translateUi("Speech / vocals")}
+        description={translateUi("Choose a narrator or use your own vocal recording.")}
         icon={<Mic size={18} />}
       />
       <Select
         className={value?.mode === "narration" ? "speech-control-half" : undefined}
-        aria-label="Speech mode"
+        aria-label={translateUi("Speech mode")}
         style={{ width: "100%" }}
         value={value?.mode || "off"}
         options={[
-          { value: "off", label: "Off · on-screen words only" },
-          { value: "narration", label: "Narration · local voice" },
-          { value: "uploaded", label: "Uploaded speech or singing", disabled: !audioAssets.length },
-          { value: "singing", label: "Generated singing · not available", disabled: true },
+          { value: "off", label: translateUi("Off · on-screen words only") },
+          { value: "narration", label: translateUi("Narration · local voice") },
+          {
+            value: "uploaded",
+            label: translateUi("Uploaded speech or singing"),
+            disabled: !audioAssets.length,
+          },
+          {
+            value: "singing",
+            label: translateUi("Generated singing · not available"),
+            disabled: true,
+          },
         ]}
         onChange={(mode) =>
           mode === "narration"
@@ -137,15 +148,16 @@ export function SpeechSettings({
       {value?.mode === "uploaded" && (
         <>
           <Select
-            aria-label="Vocal recording"
+            aria-label={translateUi("Vocal recording")}
             style={{ width: "100%" }}
             value={value.assetId}
             options={audioAssets.map((asset) => ({ value: asset.id, label: asset.name }))}
             onChange={(assetId) => onChange({ ...value, assetId })}
           />
           <Typography.Text type="secondary">
-            Use a voice-only recording for the cleanest mix. Caption timing is not inferred from
-            uploaded audio.
+            {translateUi(
+              "Use a voice-only recording for the cleanest mix. Caption timing is not inferred from uploaded audio.",
+            )}
           </Typography.Text>
         </>
       )}
@@ -153,7 +165,7 @@ export function SpeechSettings({
         <>
           <Select
             className="speech-control-half"
-            aria-label="Speech engine"
+            aria-label={translateUi("Speech engine")}
             style={{ width: "100%" }}
             value={engine}
             options={speechEngines.map((item) => ({ value: item.id, label: item.label }))}
@@ -169,14 +181,18 @@ export function SpeechSettings({
           {status?.available ? (
             <Typography.Text type="secondary" className="speech-ready" role="status">
               <CheckCircle2 size={14} aria-hidden="true" />
-              Local voice · no provider credits
+              {translateUi("Local voice · no provider credits")}
             </Typography.Text>
           ) : (
-            <Alert type="info" showIcon title={status?.detail || "Checking local speech…"} />
+            <Alert
+              type="info"
+              showIcon
+              title={status?.detail || translateUi("Checking local speech…")}
+            />
           )}
           <Select
             className="speech-control-half"
-            aria-label="Speech language"
+            aria-label={translateUi("Speech language")}
             style={{ width: "100%" }}
             value={
               videoLanguage && value.followVideoLanguage !== false
@@ -188,15 +204,20 @@ export function SpeechSettings({
                 ? [
                     {
                       value: "follow",
-                      label: `Follow video · ${videoLanguage === "zh" ? "简体中文" : "English"}`,
+                      label: translateUi("Follow video · {{value0}}", {
+                        value0: translateUi(videoLanguageLabel(videoLanguage)),
+                      }),
                     },
                   ]
                 : []),
               ...(engine === "pocket-tts"
-                ? pocketLanguages.map((language) => ({ value: language.id, label: language.label }))
+                ? pocketLanguages.map((language) => ({
+                    value: language.id,
+                    label: translateUi(language.label),
+                  }))
                 : Object.entries(languages)
                     .filter(([language]) => voices.some((voice) => voice.language === language))
-                    .map(([value, label]) => ({ value, label }))),
+                    .map(([value, label]) => ({ value, label: translateUi(label) }))),
             ]}
             onChange={(language) => {
               if (language === "follow") {
@@ -227,7 +248,7 @@ export function SpeechSettings({
           />
           <Space.Compact className="speech-control-half" style={{ width: "100%" }}>
             <Select<string>
-              aria-label="Narrator voice"
+              aria-label={translateUi("Narrator voice")}
               style={{ flex: 1 }}
               value={value.voice}
               options={
@@ -235,6 +256,7 @@ export function SpeechSettings({
                   ? pocketVoiceGroups
                       .map((group) => ({
                         ...group,
+                        label: translateUi(group.label),
                         options: group.options.filter((option) =>
                           Boolean(
                             pocketLanguageForVoice(
@@ -252,21 +274,32 @@ export function SpeechSettings({
               onChange={(voice) => onChange({ ...value, voice })}
             />
             <Button onClick={() => void listen()} loading={busy} disabled={!status?.available}>
-              Listen
+              {translateUi("Listen")}
             </Button>
           </Space.Compact>
-          {sample && <audio aria-label="Narrator sample" controls autoPlay src={sample} />}
+          {sample && (
+            <audio aria-label={translateUi("Narrator sample")} controls autoPlay src={sample} />
+          )}
           <div className="speech-control-half speech-adjustment">
             <span className="speech-control-label">
-              Volume <span>{Math.round((value.volume ?? 1) * 100)}%</span>
-              <Tooltip title="Voice levels are matched automatically, with clipping protection. Applies to Listen and the finished project.">
-                <button type="button" className="speech-help" aria-label="About narration volume">
+              {translateUi("Volume") + " "}
+              <span>{Math.round((value.volume ?? 1) * 100)}%</span>
+              <Tooltip
+                title={translateUi(
+                  "Voice levels are matched automatically, with clipping protection. Applies to Listen and the finished project.",
+                )}
+              >
+                <button
+                  type="button"
+                  className="speech-help"
+                  aria-label={translateUi("About narration volume")}
+                >
                   <Info size={14} />
                 </button>
               </Tooltip>
             </span>
             <Slider
-              ariaLabelForHandle="Narration volume"
+              ariaLabelForHandle={translateUi("Narration volume")}
               ariaValueTextFormatterForHandle={(volume) => `${volume}%`}
               min={0}
               max={200}
@@ -277,10 +310,11 @@ export function SpeechSettings({
           </div>
           <div className="speech-control-half speech-adjustment">
             <span className="speech-control-label">
-              Speed <span>{value.speed}×</span>
+              {translateUi("Speed") + " "}
+              <span>{value.speed}×</span>
             </span>
             <Slider
-              ariaLabelForHandle="Speaking speed"
+              ariaLabelForHandle={translateUi("Speaking speed")}
               min={0.75}
               max={1.5}
               step={0.05}
@@ -288,40 +322,40 @@ export function SpeechSettings({
               onChange={(speed) => onChange({ ...value, speed })}
             />
           </div>
-          <Typography.Text className="speech-script-label">Script</Typography.Text>
+          <Typography.Text className="speech-script-label">{translateUi("Script")}</Typography.Text>
           <Select
-            aria-label="Narration script source"
+            aria-label={translateUi("Narration script source")}
             style={{ width: "100%" }}
             value={value.source}
             options={[
-              { value: "lyrics", label: "Speak the displayed lyrics" },
-              { value: "write", label: "Write a separate narration script" },
-              { value: "provided", label: "Use my narration script" },
+              { value: "lyrics", label: translateUi("Speak the displayed lyrics") },
+              { value: "write", label: translateUi("Write a separate narration script") },
+              { value: "provided", label: translateUi("Use my narration script") },
             ]}
             onChange={(source) => onChange({ ...value, source })}
           />
           {value.source === "provided" && (
             <Input.TextArea
-              aria-label="Narration script"
+              aria-label={translateUi("Narration script")}
               autoSize={{ minRows: 3, maxRows: 8 }}
               maxLength={8000}
               value={value.text}
-              placeholder="Write the words to speak…"
+              placeholder={translateUi("Write the words to speak…")}
               onChange={(event) => onChange({ ...value, text: event.target.value })}
             />
           )}
           {value.source === "write" && (
             <Input.TextArea
-              aria-label="Narration writing direction"
+              aria-label={translateUi("Narration writing direction")}
               autoSize={{ minRows: 2, maxRows: 4 }}
               maxLength={2000}
               value={value.instructions}
-              placeholder="Language, tone and script direction…"
+              placeholder={translateUi("Language, tone and script direction…")}
               onChange={(event) => onChange({ ...value, instructions: event.target.value })}
             />
           )}
           <Typography.Text type="secondary" className="speech-footnote">
-            Writing instructions guide the script. Direction previews stay silent.
+            {translateUi("Writing instructions guide the script. Direction previews stay silent.")}
           </Typography.Text>
         </>
       )}

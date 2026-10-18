@@ -38,7 +38,7 @@ These are separate jobs. A single library can do more than one, but Kiteva recor
 | **Visual construction** (pool role `style_renderer`) | Draws the picture: geometry, materials, type, textures                     | [SVG](https://developer.mozilla.org/en-US/docs/Web/SVG), [Three.js](https://threejs.org/docs/), [PixiJS](https://pixijs.com), [Rough.js](https://github.com/rough-stuff/rough/wiki)                                |
 | **Motion engine** (`motion_engine`)                  | Moves things over time: easing, transitions, simulation                    | [GSAP](https://gsap.com/docs/v3/), [Motion](https://motion.dev/docs/animate), [Matter.js](https://brm.io/matter-js/docs/) (recommended, not installed)                                                             |
 | **Render pipeline** (`render_pipeline`)              | Assembles scenes against seekable time, mixes audio, validates and exports | [HyperFrames](https://hyperframes.heygen.com/developers), [Multiplane](https://github.com/LBEILC/Multiplane), [Remotion](https://www.remotion.dev/docs/) fallback, [FFmpeg](https://ffmpeg.org/documentation.html) |
-| **Built-in agent tool**                              | A capability Kiteva hands to the model during a turn                       | `reference_browser` (inspect, click, screenshot) and `capture_video`, both using [Puppeteer](https://pptr.dev)                                                                                                     |
+| **Built-in agent tool**                              | A capability Kiteva hands to the model during a turn                       | `reference_browser` (inspect, click, screenshot) and `capture_video`, browser control with [Puppeteer](https://pptr.dev), recording with [OpenScreen](https://github.com/getopenscreen/openscreen)                 |
 | **Startup-installed authoring skill**                | Reference instructions plus a drawing kit the model may read               | [Anatomy](https://github.com/wheresryan22/anatomy)                                                                                                                                                                 |
 
 The catalog's production policy puts it this way: the pipeline must not decide or simplify the visual
@@ -90,7 +90,7 @@ driven from composition time and checked with forward, backward and direct seeks
 
 ## Built-in browser tools
 
-Kiteva drives a fresh headless [Chrome](https://developer.chrome.com/blog/chrome-headless-shell) (Chrome Headless Shell or another [Chromium](https://www.chromium.org) you point it at)
+Kiteva inspects references locally or controls an isolated worker browser with [Chrome](https://developer.chrome.com/blog/chrome-headless-shell) (Chrome Headless Shell or another [Chromium](https://www.chromium.org) you point it at)
 through [`puppeteer-core`](https://pptr.dev). It never uses your personal browser profile.
 
 | Tool                                                                    | When                                                                        | What it does                                                                                                 |
@@ -100,8 +100,7 @@ through [`puppeteer-core`](https://pptr.dev). It never uses your personal browse
 
 Capture doesn't depend on the renderer, Motion Graphic or narration setting. Footage works directly in
 HyperFrames and Remotion. Multiplane can't play video clips inside a scene yet, so the agent has to
-report that rather than swap in fake UI. Capture isn't [OpenScreen](https://github.com/getopenscreen/openscreen)
-or any other desktop recorder.
+report that rather than swap in fake UI. Capture uses [OpenScreen](https://github.com/getopenscreen/openscreen) on the configured desktop worker, or the current machine when no worker URL is set; there is no alternative recorder fallback. See [worker setup and verification status](openscreen-worker.md).
 
 ## Local speech
 
@@ -117,13 +116,15 @@ generated singing. Weights and voice files are downloaded only by the setup comm
 
 ## Models and services
 
-| Job                                                                                                           | Claude projects                                                                      | Codex projects                              |
-| ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------- |
-| Brief preparation, Motion Graphic summaries, lyrics, brief self-review, result review, eligible small repairs | `claude-haiku-5-5`                                                                   | `gpt-6-luna`                                |
-| Motion Graphic combination proposals                                                                          | `claude-opus-5-5`                                                                    | `gpt-6.1-sol`                               |
-| Preview planning                                                                                              | not used                                                                             | `gpt-6.1-sol`                               |
-| Previews, full films, pacing/style repairs                                                                    | selected main model (default `claude-opus-5-5`)                                      | selected main model (default `gpt-6.1-sol`) |
-| Combination evaluation and direction selection                                                                | JEV via [`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript) (`jev-latest`) | same                                        |
+| Job                                                                                            | Claude projects                                                                      | Codex projects                              |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------- |
+| Brief preparation, Motion Graphic summaries, lyrics, brief self-review, eligible small repairs | `claude-haiku-5-5`                                                                   | `gpt-6-luna`                                |
+| Motion Graphic combination proposals                                                           | `claude-opus-5-5`                                                                    | `gpt-6.1-sol`                               |
+| Preview planning                                                                               | not used                                                                             | `gpt-6.1-sol`                               |
+| Previews, full films, pacing/style repairs                                                     | selected main model (default `claude-opus-5-5`)                                      | selected main model (default `gpt-6.1-sol`) |
+| Combination evaluation and direction selection                                                 | JEV via [`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript) (`jev-latest`) | same                                        |
+
+Finished-result review uses the same selected main model that built the job, using the provider’s default reasoning effort. It runs as a separate read-only invocation with the existing QA evidence and Governance tracking.
 
 Agent SDK calls go through the bundled [Caveman](https://github.com/JuliusBrussee/caveman) compression proxy
 on a loopback port by default (`VIDEO_CAVEMAN_ENABLED=false` turns it off). JEV calls go directly to Typesafe.

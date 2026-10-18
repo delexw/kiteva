@@ -1,9 +1,13 @@
-import viteConfig from "./vite.config.ts";
+import { browserAliases } from "./vite.resolve.ts";
 import { defineConfig } from "vitest/config";
-export default defineConfig(async (environment) => {
-  const resolvedViteConfig = await viteConfig(environment);
-  return {
-    resolve: resolvedViteConfig.resolve,
-    test: { include: ["tests/**/*.test.{ts,tsx}"], testTimeout: 15000 },
-  };
+
+export default defineConfig({
+  resolve: { alias: browserAliases },
+  test: {
+    include: ["tests/**/*.test.{ts,tsx}"],
+    testTimeout: 15000,
+    pool: "threads",
+    // Workflow mocks and environment changes must stay scoped to each test file.
+    isolate: true,
+  },
 });

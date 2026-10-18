@@ -1,3 +1,5 @@
+import { UiLanguageProvider } from "./i18n";
+import { uiLanguage, translateUi, useUiLanguage } from "./i18n";
 import { VideoPlayer } from "./components/video-player";
 import { CreativeRoom } from "./room/creative-room";
 import {
@@ -15,10 +17,9 @@ import { StylePicker } from "./components/style-picker";
 import { manualStyleLimit, trimStylesForDuration } from "../shared/style-selection";
 import { validateAssetLimits } from "../shared/asset-limits";
 import { PageTemplate } from "./components/page-template";
-import { studioTheme } from "./theme";
 import { technologyPoolSize } from "../shared/technology-pool";
 import { ProjectList } from "./components/project-list";
-import { ConfigProvider, Button, Input, Alert, Card, Collapse } from "antd";
+import { Button, Input, Alert, Card, Collapse } from "antd";
 import { CodedError, errorCode } from "../shared/errors";
 import { ProjectConversation } from "./components/project-conversation";
 import { GenerationTime } from "./components/generation-time";
@@ -119,6 +120,7 @@ function artifactUrl(run: Run, job: GenerationJob, file: string) {
   return `/api/artifacts/${run.id}/${job.id}/${file}`;
 }
 function App() {
+  useUiLanguage();
   const conversationContextRef = useRef<StickToBottomContext>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -374,7 +376,7 @@ function App() {
   const filtered = styles.filter(
     (s) =>
       (category === "All Motion Graphics" || s.category === category) &&
-      `${s.name_en} ${s.category} ${s.visual_cues}`.toLowerCase().includes(search.toLowerCase()),
+      uiLanguage.matches(search, s.name_en, s.category, s.visual_cues),
   );
   async function deleteProject() {
     if (!deleteTarget || deleting) return;
@@ -619,13 +621,16 @@ function App() {
               }
               onClick={() => void action("directions")}
             >
-              <RotateCcw size={15} /> Regenerate {run.request.candidateCount} directions
+              <RotateCcw size={15} />
+              {" " + translateUi("Regenerate") + " "}
+              {run.request.candidateCount}
+              {" " + translateUi("directions")}
             </Button>
           )}
           <p>
             {run.request.outputType === "page"
-              ? "Same content. Try each page interaction."
-              : "Same story beat. Three seconds. Silent."}
+              ? translateUi("Same content. Try each page interaction.")
+              : translateUi("Same story beat. Three seconds. Silent.")}
           </p>
           {run.request.outputType !== "page" && (
             <Button
@@ -634,15 +639,16 @@ function App() {
                 replayPreviewVideos(run.jobs, jobVideoRefs.current);
               }}
             >
-              <RotateCcw size={15} /> Replay all previews
+              <RotateCcw size={15} />
+              {" " + translateUi("Replay all previews")}
             </Button>
           )}
         </div>
         <div className="comparison-controls">
           <label className="field-label">
-            Feedback for the selected direction
+            {translateUi("Feedback for the selected direction")}
             <Input
-              placeholder="Optional: slower motion, emphasize the main result…"
+              placeholder={translateUi("Optional: slower motion, emphasize the main result…")}
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
             />
@@ -668,7 +674,9 @@ function App() {
               download
             >
               <Download size={16} />{" "}
-              {job.outputType === "page" ? "Download HTML bundle" : "Download MP4"}
+              {job.outputType === "page"
+                ? translateUi("Download HTML bundle")
+                : translateUi("Download MP4")}
             </a>
             <a
               className="secondary"
@@ -680,7 +688,7 @@ function App() {
               target="_blank"
               rel="noreferrer"
             >
-              {job.outputType === "page" ? "Page plan" : "Storyboard"}
+              {job.outputType === "page" ? translateUi("Page plan") : translateUi("Storyboard")}
             </a>
           </div>
         )}
@@ -692,12 +700,15 @@ function App() {
     activity?: React.ReactNode,
     onFullStarted?: () => void,
   ) {
-    const candidate = run!.candidates.find((c) => c.id === job.candidateId)!;
-    const title = candidateDisplayTitle(candidate, run!.candidates.indexOf(candidate) + 1);
+    const candidate = run!.candidates.find((c) => c.id === job.candidateId);
+    const title = candidateDisplayTitle(
+      candidate,
+      candidate ? run!.candidates.indexOf(candidate) + 1 : undefined,
+    );
     const fullVersionBuilt = run!.jobs.some(
       (existingJob) =>
         existingJob.kind === "full" &&
-        existingJob.candidateId === candidate.id &&
+        existingJob.candidateId === job.candidateId &&
         existingJob.phase === "ready",
     );
     const active = !["ready", "failed", "cancelled", "interrupted"].includes(job.phase);
@@ -743,13 +754,16 @@ function App() {
             <h3>{title}</h3>
             {active && (
               <Button className="secondary compact" onClick={() => action("cancel", job.id)}>
-                Cancel
+                {translateUi("Cancel")}
               </Button>
             )}
           </div>
-          <p>{job.outputType === "page" ? "Interactive page" : `${job.duration}s`}</p>
-          {job.kind === "preview" && candidate.displayDescription && (
-            <p className="rationale candidate-description" aria-label="Direction description">
+          <p>{job.outputType === "page" ? translateUi("Interactive page") : `${job.duration}s`}</p>
+          {job.kind === "preview" && candidate?.displayDescription && (
+            <p
+              className="rationale candidate-description"
+              aria-label={translateUi("Direction description")}
+            >
               {candidate.displayDescription}
             </p>
           )}
@@ -772,31 +786,33 @@ function App() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Open interactive page <ArrowUpRight size={14} />
+                  {translateUi("Open interactive page") + " "}
+                  <ArrowUpRight size={14} />
                 </a>
               )}
               {job.phase === "ready" && job.kind === "preview" && (
                 <Button
                   type="primary"
                   className="primary compact"
-                  disabled={busy || Boolean(fullBuildActive) || fullVersionBuilt}
+                  disabled={busy || Boolean(fullBuildActive) || fullVersionBuilt || !candidate}
                   onClick={() => {
-                    void full(candidate.id, onFullStarted);
+                    void full(job.candidateId, onFullStarted);
                   }}
                 >
                   {fullVersionBuilt
                     ? run?.request.outputType === "page"
-                      ? "Full page built"
-                      : "Full video built"
+                      ? translateUi("Full page built")
+                      : translateUi("Full video built")
                     : run?.request.outputType === "page"
-                      ? "Choose & build full page"
-                      : "Choose & build full video"}{" "}
+                      ? translateUi("Choose & build full page")
+                      : translateUi("Choose & build full video")}{" "}
                   <ArrowUpRight size={16} />
                 </Button>
               )}
               {["failed", "cancelled", "interrupted"].includes(job.phase) && (
                 <Button className="secondary compact" onClick={() => action("retry", job.id)}>
-                  <RotateCcw size={14} /> Retry
+                  <RotateCcw size={14} />
+                  {" " + translateUi("Retry")}
                 </Button>
               )}
             </div>
@@ -809,10 +825,12 @@ function App() {
     return (
       <PageTemplate
         eyebrow="Library / Motion Graphic explore"
-        title="A Motion Graphic for every story."
+        title={translateUi("A Motion Graphic for every story.")}
         description={
           <p>
-            Explore {styles.length} visual directions. Choose the medium, movement, and palette.
+            {translateUi("Explore") + " "}
+            {styles.length}
+            {" " + translateUi("visual directions. Choose the medium, movement, and palette.")}
           </p>
         }
         controls={
@@ -820,8 +838,8 @@ function App() {
             <div className="search-field">
               <Search size={18} />
               <Input
-                aria-label="Search Motion Graphics"
-                placeholder="Search Motion Graphics, materials, or visual cues…"
+                aria-label={translateUi("Search Motion Graphics")}
+                placeholder={translateUi("Search Motion Graphics, materials, or visual cues…")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -829,12 +847,14 @@ function App() {
             <label className="category-select">
               <SlidersHorizontal size={16} />
               <StudioSelect
-                aria-label="Motion Graphic category"
+                aria-label={translateUi("Motion Graphic category")}
                 value={category}
                 onValueChange={(value) => setCategory(value)}
               >
                 {categories.map((c) => (
-                  <StudioSelectOption key={c}>{c}</StudioSelectOption>
+                  <StudioSelectOption key={c} value={c}>
+                    {translateUi(c)}
+                  </StudioSelectOption>
                 ))}
               </StudioSelect>
             </label>
@@ -843,9 +863,12 @@ function App() {
               aria-pressed={playDemos}
               onClick={() => setPlayDemos((playing) => !playing)}
             >
-              {playDemos ? "Pause demos" : "Play demos"}
+              {playDemos ? translateUi("Pause demos") : translateUi("Play demos")}
             </Button>
-            <span>{filtered.length} results</span>
+            <span>
+              {filtered.length}
+              {" " + translateUi("results")}
+            </span>
           </div>
         }
       >
@@ -862,7 +885,9 @@ function App() {
             />
           ))}
         </div>
-        {!filtered.length && <p className="empty">No Motion Graphics match this search.</p>}
+        {!filtered.length && (
+          <p className="empty">{translateUi("No Motion Graphics match this search.")}</p>
+        )}
       </PageTemplate>
     );
   }
@@ -870,7 +895,7 @@ function App() {
     const technology = styleTechnologyRecommendations(detail.tech);
     return (
       <Dialog
-        title={detail.name_en}
+        title={translateUi(detail.name_en)}
         onClose={() => {
           setDetail(undefined);
           navigate("/styles");
@@ -878,7 +903,8 @@ function App() {
         wide
         footer={
           <Button type="primary" className="primary" onClick={() => onUse(detail)}>
-            Use this Motion Graphic <ArrowRight size={16} />
+            {translateUi("Use this Motion Graphic") + " "}
+            <ArrowRight size={16} />
           </Button>
         }
       >
@@ -894,10 +920,12 @@ function App() {
             />
             <p className="example-disclaimer">
               {examples.find((e) => e.styleId === detail.id)?.authorship === "application"
-                ? "Application-authored Motion Graphic study; not reference footage."
+                ? translateUi("Application-authored Motion Graphic study; not reference footage.")
                 : examples.find((e) => e.styleId === detail.id)?.source
-                  ? "Model-authored single-page Motion Graphic study; not reference footage."
-                  : "Illustrative sketch; a model-authored page is being prepared."}
+                  ? translateUi(
+                      "Model-authored single-page Motion Graphic study; not reference footage.",
+                    )
+                  : translateUi("Illustrative sketch; a model-authored page is being prepared.")}
             </p>
             {examples.find((e) => e.styleId === detail.id)?.source && (
               <>
@@ -907,28 +935,35 @@ function App() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Open Motion Graphic study <ArrowUpRight size={16} />
+                  {translateUi("Open Motion Graphic study") + " "}
+                  <ArrowUpRight size={16} />
                 </a>
                 <p className="example-disclaimer">
                   {examples.find((e) => e.styleId === detail.id)?.model}
                 </p>
-                <p>{examples.find((e) => e.styleId === detail.id)?.designNotes}</p>
+                <p>
+                  {translateUi(examples.find((e) => e.styleId === detail.id)?.designNotes || "")}
+                </p>
                 {examples.find((e) => e.styleId === detail.id)?.motionDescription && (
                   <>
-                    <h3>Why this motion fits the illustration</h3>
-                    <p>{examples.find((e) => e.styleId === detail.id)?.motionDescription}</p>
+                    <h3>{translateUi("Why this motion fits the illustration")}</h3>
+                    <p>
+                      {translateUi(
+                        examples.find((e) => e.styleId === detail.id)?.motionDescription || "",
+                      )}
+                    </p>
                     <p className="example-disclaimer">
-                      Selected references:{" "}
+                      {translateUi("Selected references:")}{" "}
                       {examples
                         .find((e) => e.styleId === detail.id)
                         ?.selectedMotionReferenceIds?.join(", ") ||
-                        "None — illustration-specific motion"}
+                        translateUi("None — illustration-specific motion")}
                     </p>
                   </>
                 )}
               </>
             )}
-            <h3>Color palette</h3>
+            <h3>{translateUi("Color palette")}</h3>
             <PaletteSwatches
               tokens={detail.palette.tokens}
               backgroundPolicy={detail.palette.background_policy}
@@ -937,10 +972,10 @@ function App() {
             {/isometric|3d/i.test(detail.name_en) && (
               <>
                 <Button className="secondary" onClick={() => setDemo(true)}>
-                  Open interactive geometry study
+                  {translateUi("Open interactive geometry study")}
                 </Button>
                 {demo && (
-                  <Suspense fallback={<p>Loading demonstration…</p>}>
+                  <Suspense fallback={<p>{translateUi("Loading demonstration…")}</p>}>
                     <SceneDemo tokens={detail.palette.tokens} />
                   </Suspense>
                 )}
@@ -948,31 +983,34 @@ function App() {
             )}
           </div>
           <div>
-            <p className="eyebrow">{detail.category}</p>
-            <h3>Visual direction</h3>
-            <p>{detail.visual_cues}</p>
-            <h3>Production responsibilities</h3>
+            <p className="eyebrow">{translateUi(detail.category)}</p>
+            <h3>{translateUi("Visual direction")}</h3>
+            <p>{translateUi(detail.visual_cues)}</p>
+            <h3>{translateUi("Production responsibilities")}</h3>
             <p>
-              <strong>Visuals:</strong>{" "}
-              {technology.style_renderer.recommended_stack_refs.join(", ") ||
-                "Select an appropriate Motion Graphic renderer"}
+              <strong>{translateUi("Visuals:")}</strong>{" "}
+              {technology.style_renderer.recommended_stack_refs
+                .map((name) => translateUi(name))
+                .join(", ") || translateUi("Select an appropriate Motion Graphic renderer")}
             </p>
             <p>
-              <strong>Motion:</strong>{" "}
-              {technology.motion_engine.recommended_stack_refs.join(", ") ||
-                "Select an appropriate motion engine"}
+              <strong>{translateUi("Motion:")}</strong>{" "}
+              {technology.motion_engine.recommended_stack_refs
+                .map((name) => translateUi(name))
+                .join(", ") || translateUi("Select an appropriate motion engine")}
             </p>
             <p>
-              <strong>Export:</strong> Uses the project’s renderer setting
+              <strong>{translateUi("Export:")}</strong>
+              {" " + translateUi("Uses the project’s renderer setting")}
             </p>
-            <h3>Palette constraints</h3>
+            <h3>{translateUi("Palette constraints")}</h3>
             <ul>
               {detail.palette.constraints.map((c) => (
-                <li key={c}>{c}</li>
+                <li key={c}>{translateUi(c)}</li>
               ))}
             </ul>
-            <h3>Audio direction</h3>
-            <p>{detail.audio_direction.prompt}</p>
+            <h3>{translateUi("Audio direction")}</h3>
+            <p>{translateUi(detail.audio_direction.prompt)}</p>
             <MotionGraphicVariants variants={detail.motion_graphic_variants} />
             <SuggestedCombinations
               style={detail}
@@ -986,7 +1024,7 @@ function App() {
               items={[
                 {
                   key: "Recommended stack",
-                  label: "Recommended stack",
+                  label: translateUi("Recommended stack"),
                   children: (
                     <>
                       <RecommendedStack
@@ -1005,7 +1043,7 @@ function App() {
               items={[
                 {
                   key: "Motion references",
-                  label: "Motion references",
+                  label: translateUi("Motion references"),
                   children: (
                     <>
                       <MotionReferences references={detail.motion_references} />
@@ -1020,7 +1058,7 @@ function App() {
               items={[
                 {
                   key: "Executable prompt",
-                  label: "Executable prompt",
+                  label: translateUi("Original executable prompt"),
                   children: (
                     <>
                       <pre>{detail.executable_prompt_template}</pre>
@@ -1050,7 +1088,7 @@ function App() {
         )}
         {utilityPage === "storyboard" ? (
           projectId && (
-            <Suspense fallback={<p role="status">Opening storyboard…</p>}>
+            <Suspense fallback={<p role="status">{translateUi("Opening storyboard…")}</p>}>
               <StoryboardPage
                 key={location.pathname + location.search}
                 projectId={projectId}
@@ -1060,11 +1098,11 @@ function App() {
             </Suspense>
           )
         ) : utilityPage === "governance" ? (
-          <Suspense fallback={<div role="status">Loading governance…</div>}>
+          <Suspense fallback={<div role="status">{translateUi("Loading governance…")}</div>}>
             <GovernancePage />
           </Suspense>
         ) : utilityPage === "technologies" ? (
-          <Suspense fallback={<div role="status">Loading technologies…</div>}>
+          <Suspense fallback={<div role="status">{translateUi("Loading technologies…")}</div>}>
             <TechnologyPoolPage />
           </Suspense>
         ) : utilityPage === "motions" ? (
@@ -1166,21 +1204,24 @@ function App() {
               <img src="/kiteva-mark.svg" alt="" width={41} height={41} />
             </span>
             <span>
-              kiteva<span className="brand-caption">IDEAS TAKE FLIGHT</span>
+              {translateUi("kiteva")}
+              <span className="brand-caption">{translateUi("IDEAS TAKE FLIGHT")}</span>
             </span>
           </a>
           <Button className="new-button" onClick={() => newRequest()}>
-            <Plus size={16} /> New project
+            <Plus size={16} />
+            {" " + translateUi("New project")}
           </Button>
-          <nav aria-label="Main navigation">
+          <nav aria-label={translateUi("Main navigation")}>
             <section className="navigation-group" aria-labelledby="workspace-navigation-heading">
-              <h2 id="workspace-navigation-heading">Workspace</h2>
+              <h2 id="workspace-navigation-heading">{translateUi("Workspace")}</h2>
               <Button
                 type="text"
                 className={page === "create" ? "selected" : ""}
                 onClick={() => setPage("create")}
               >
-                <Film size={17} /> Create workspace
+                <Film size={17} />
+                {" " + translateUi("Create workspace")}
               </Button>
               <Button
                 type="text"
@@ -1190,53 +1231,62 @@ function App() {
                   void api<Run[]>("/api/runs").then(setHistory);
                 }}
               >
-                <Layers size={17} /> Recent projects
+                <Layers size={17} />
+                {" " + translateUi("Recent projects")}
               </Button>
             </section>
             <section className="navigation-group" aria-labelledby="library-navigation-heading">
-              <h2 id="library-navigation-heading">Library</h2>
+              <h2 id="library-navigation-heading">{translateUi("Library")}</h2>
               <Button
                 type="text"
                 className={page === "styles" ? "selected" : ""}
                 onClick={() => setPage("styles")}
               >
-                <Grid2X2 size={17} /> Motion Graphic explore <span>{styles.length}</span>
+                <Grid2X2 size={17} />
+                {" " + translateUi("Motion Graphic explore") + " "}
+                <span>{styles.length}</span>
               </Button>
               <Button
                 type="text"
                 className={page === "motions" ? "selected" : ""}
                 onClick={() => setPage("motions")}
               >
-                <Play size={17} /> Motion explorer <span>{motionCount}</span>
+                <Play size={17} />
+                {" " + translateUi("Motion explorer") + " "}
+                <span>{motionCount}</span>
               </Button>
               <Button
                 type="text"
                 className={page === "technologies" ? "selected" : ""}
-                aria-label="Technology pool"
+                aria-label={translateUi("Technology pool")}
                 onClick={() => setPage("technologies")}
               >
-                <Wrench size={17} /> Technology pool <span>{technologyPoolSize}</span>
+                <Wrench size={17} />
+                {" " + translateUi("Technology pool") + " "}
+                <span>{technologyPoolSize}</span>
               </Button>
             </section>
             <section className="navigation-group" aria-labelledby="admin-navigation-heading">
-              <h2 id="admin-navigation-heading">Admin</h2>
+              <h2 id="admin-navigation-heading">{translateUi("Admin")}</h2>
               <Button
                 type="text"
                 className={page === "governance" ? "selected" : ""}
                 onClick={() => setPage("governance")}
               >
-                <ShieldCheck size={17} /> Governance
+                <ShieldCheck size={17} />
+                {" " + translateUi("Governance")}
               </Button>
             </section>
           </nav>
           <div className="sidebar-bottom">
-            <span className="local-dot" /> Local workspace
+            <span className="local-dot" />
+            {" " + translateUi("Local workspace")}
             <p>
-              Your projects stay on this computer.
+              {translateUi("Your projects stay on this computer.")}
               <br />
-              Selected context goes to AI providers.
+              {translateUi("Selected context goes to AI providers.")}
             </p>
-            <div className="stack-note">VISUALS → MOTION → EXPORT</div>
+            <div className="stack-note">{translateUi("VISUALS → MOTION → EXPORT")}</div>
           </div>
         </aside>
         <main className={page === "create" && run ? "project-workspace" : undefined}>
@@ -1252,7 +1302,7 @@ function App() {
             />
           )}
           {page === "storyboard" && projectId ? (
-            <Suspense fallback={<p>Opening storyboard…</p>}>
+            <Suspense fallback={<p>{translateUi("Opening storyboard…")}</p>}>
               <StoryboardPage
                 key={location.pathname + location.search}
                 projectId={projectId}
@@ -1261,11 +1311,11 @@ function App() {
               />
             </Suspense>
           ) : page === "governance" ? (
-            <Suspense fallback={<div role="status">Loading governance…</div>}>
+            <Suspense fallback={<div role="status">{translateUi("Loading governance…")}</div>}>
               <GovernancePage />
             </Suspense>
           ) : page === "technologies" ? (
-            <Suspense fallback={<div role="status">Loading technologies…</div>}>
+            <Suspense fallback={<div role="status">{translateUi("Loading technologies…")}</div>}>
               <TechnologyPoolPage />
             </Suspense>
           ) : page === "motions" ? (
@@ -1275,8 +1325,8 @@ function App() {
           ) : page === "history" ? (
             <PageTemplate
               eyebrow="Workspace / Recent projects"
-              title="Recent projects."
-              description={<p>Resume a project with its previews and history.</p>}
+              title={translateUi("Recent projects.")}
+              description={<p>{translateUi("Resume a project with its previews and history.")}</p>}
               controls={
                 <RunningProjects
                   projects={history}
@@ -1297,14 +1347,14 @@ function App() {
               />
             </PageTemplate>
           ) : settingsSourceId && restoredSettingsId !== settingsSourceId ? (
-            <p role="status">Loading your settings…</p>
+            <p role="status">{translateUi("Loading your settings…")}</p>
           ) : projectId && run?.id !== projectId ? (
-            <p role="status">Loading project…</p>
+            <p role="status">{translateUi("Loading project…")}</p>
           ) : run ? (
             <PageTemplate
               className="project-page-template"
               eyebrow="Workspace / Project"
-              title={run.brief?.subject || "Developing your idea…"}
+              title={run.brief?.subject || translateUi("Developing your idea…")}
               description={<ProjectStatus phase={run.phase} />}
               actions={
                 <>
@@ -1312,7 +1362,8 @@ function App() {
                     className="secondary project-action-button"
                     onClick={() => navigate(`/?settingsFrom=${run.id}`)}
                   >
-                    <SlidersHorizontal size={16} /> Back to settings
+                    <SlidersHorizontal size={16} />
+                    {" " + translateUi("Back to settings")}
                   </Button>
                   {!isRunSettled(run) && (
                     <Button
@@ -1321,7 +1372,7 @@ function App() {
                       className="danger stop-run-button"
                       onClick={() => action("cancel")}
                     >
-                      Stop run
+                      {translateUi("Stop run")}
                     </Button>
                   )}
                 </>
@@ -1339,7 +1390,7 @@ function App() {
                     {customerErrorMessage(run.errorCode, "PREPARATION_FAILED")}
                   </div>
                   <Button className="preparation-retry-button" onClick={() => action("retry")}>
-                    Retry preparation
+                    {translateUi("Retry preparation")}
                   </Button>
                 </div>
               )}
@@ -1377,19 +1428,22 @@ function App() {
               <div className="page-heading hero">
                 <div className="hero-copy">
                   <div className="eyebrow">
-                    <Sparkles size={13} /> A SMALL IDEA. MANY POSSIBILITIES.
+                    <Sparkles size={13} />
+                    {" " + translateUi("A SMALL IDEA. MANY POSSIBILITIES.")}
                   </div>
                   <h1>
-                    Give your idea
-                    <br />a moving form<span>.</span>
+                    {translateUi("Give your idea")}
+                    <br />
+                    {translateUi("a moving form")}
+                    <span>.</span>
                   </h1>
                   <p>
-                    Find a visual direction.{" "}
+                    {translateUi("Find a visual direction.")}{" "}
                     {outputType === "page"
-                      ? "Try a working interaction."
-                      : "Compare a few seconds."}
+                      ? translateUi("Try a working interaction.")
+                      : translateUi("Compare a few seconds.")}
                     <br />
-                    Then make the whole story.
+                    {translateUi("Then make the whole story.")}
                   </p>
                 </div>
                 <Suspense fallback={<div className="hero-art" />}>
@@ -1399,13 +1453,13 @@ function App() {
               <div className="create-layout">
                 <Card className="composer studio-composer-card">
                   <div className="section-heading">
-                    <h2>What are we making?</h2>
-                    <span className="small-label">YOUR BRIEF</span>
+                    <h2>{translateUi("What are we making?")}</h2>
+                    <span className="small-label">{translateUi("YOUR BRIEF")}</span>
                   </div>
                   <PromptInput
                     key={composerRevision}
                     className="idea-composer"
-                    aria-label="Create a project"
+                    aria-label={translateUi("Create a project")}
                     onSubmit={start}
                     multiple
                     accept="text/markdown,text/plain,application/pdf"
@@ -1427,9 +1481,11 @@ function App() {
                         onUrlsChange={setUrls}
                       >
                         <PromptInputTextarea
-                          aria-label="Project instructions"
+                          aria-label={translateUi("Project instructions")}
                           className="brief-input"
-                          placeholder="Describe your idea, your audience, and what you want to make…"
+                          placeholder={translateUi(
+                            "Describe your idea, your audience, and what you want to make…",
+                          )}
                           value={instructions}
                           onChange={(event) => setInstructions(event.target.value)}
                         />
@@ -1438,7 +1494,8 @@ function App() {
                     </PromptInputBody>
                     <div className="composer-context">
                       <label className="field-label manual-style-picker">
-                        Choose your own Motion Graphics · up to {styleLimit}
+                        {translateUi("Choose your own Motion Graphics · up to") + " "}
+                        {styleLimit}
                         <StylePicker
                           styles={styles}
                           examples={examples}
@@ -1451,25 +1508,34 @@ function App() {
                         />
                         <span>
                           {manual
-                            ? "First Motion Graphic is primary. Builds the full video directly; no direction proposals or ranking."
+                            ? translateUi(
+                                "First Motion Graphic is primary. Builds the full video directly; no direction proposals or ranking.",
+                              )
                             : duration === "auto"
-                              ? `Auto duration allows ${styleLimit} Motion Graphics. Set a duration to select more.`
-                              : "Leave empty to generate directions."}
+                              ? translateUi(
+                                  "Auto duration allows {{value0}} Motion Graphics. Set a duration to select more.",
+                                  { value0: styleLimit },
+                                )
+                              : translateUi("Leave empty to generate directions.")}
                         </span>
                       </label>
                       {outputType === "video" && lyricsEnabled && (
                         <label className="field-label composer-lyrics-input">
-                          Your lyrics
+                          {translateUi("Your lyrics")}
                           <Textarea
-                            aria-label="Your lyrics"
+                            aria-label={translateUi("Your lyrics")}
                             className="url-input"
-                            placeholder="Paste your lyrics, or leave blank to generate them…"
+                            placeholder={translateUi(
+                              "Paste your lyrics, or leave blank to generate them…",
+                            )}
                             maxLength={8000}
                             value={lyricsText}
                             onChange={(event) => setLyricsText(event.target.value)}
                           />
                           <span>
-                            Leave blank to generate lyrics. Choose speech below to add a voice.
+                            {translateUi(
+                              "Leave blank to generate lyrics. Choose speech below to add a voice.",
+                            )}
                           </span>
                         </label>
                       )}
@@ -1487,34 +1553,42 @@ function App() {
                       <PromptInputTools className="composer-tools">
                         <div className="composer-control">
                           <StudioSelect
-                            aria-label="Output type"
+                            aria-label={translateUi("Output type")}
                             value={outputType}
                             onValueChange={(value) => setOutputType(value as "video" | "page")}
                           >
-                            <StudioSelectOption value="video">Video</StudioSelectOption>
-                            <StudioSelectOption value="page">Interactive page</StudioSelectOption>
+                            <StudioSelectOption value="video">
+                              {translateUi("Video")}
+                            </StudioSelectOption>
+                            <StudioSelectOption value="page">
+                              {translateUi("Interactive page")}
+                            </StudioSelectOption>
                           </StudioSelect>
                         </div>
                         <div className="composer-control">
                           <StudioSelect
-                            aria-label="Model"
+                            aria-label={translateUi("Model")}
                             value={provider}
                             onValueChange={(value) => setProvider(value as Provider)}
                           >
-                            <StudioSelectOption value="codex">GPT-6.1 Sol</StudioSelectOption>
-                            <StudioSelectOption value="claude">Opus 5.5</StudioSelectOption>
+                            <StudioSelectOption value="codex">
+                              {translateUi("GPT-6.1 Sol")}
+                            </StudioSelectOption>
+                            <StudioSelectOption value="claude">
+                              {translateUi("Opus 5.5")}
+                            </StudioSelectOption>
                           </StudioSelect>
                         </div>
                         <div className="composer-control">
                           <StudioSelect
-                            aria-label="Preview options"
+                            aria-label={translateUi("Preview options")}
                             value={manual ? 0 : count}
                             disabled={manual}
                             onValueChange={(value) => setCount(Number(value))}
                           >
                             {(manual ? [0] : [1, 2, 3, 4, 5]).map((n) => (
                               <StudioSelectOption key={n} value={n}>
-                                {n} {n === 1 ? "direction" : "directions"}
+                                {n} {n === 1 ? translateUi("direction") : translateUi("directions")}
                               </StudioSelectOption>
                             ))}
                           </StudioSelect>
@@ -1524,7 +1598,7 @@ function App() {
                             {" "}
                             <div className="composer-control">
                               <StudioSelect
-                                aria-label="Full video duration"
+                                aria-label={translateUi("Full video duration")}
                                 value={
                                   duration === "auto"
                                     ? "auto"
@@ -1543,15 +1617,16 @@ function App() {
                                 }
                               >
                                 <StudioSelectOption value="auto">
-                                  Auto · 15s minimum
+                                  {translateUi("Auto · 15s minimum")}
                                 </StudioSelectOption>
                                 {[15, 30, 60, 90].map((n) => (
                                   <StudioSelectOption key={n} value={n}>
-                                    {n} seconds
+                                    {n}
+                                    {" " + translateUi("seconds")}
                                   </StudioSelectOption>
                                 ))}
                                 <StudioSelectOption value="custom">
-                                  Custom duration
+                                  {translateUi("Custom duration")}
                                 </StudioSelectOption>
                               </StudioSelect>
                               {duration !== "auto" && (
@@ -1559,8 +1634,8 @@ function App() {
                                   type="number"
                                   min={3}
                                   max={MAX_VIDEO_DURATION}
-                                  aria-label="Custom duration seconds"
-                                  title="Maximum 5 minutes (300 seconds)"
+                                  aria-label={translateUi("Custom duration seconds")}
+                                  title={translateUi("Maximum 5 minutes (300 seconds)")}
                                   value={duration}
                                   onChange={(e) =>
                                     changeDuration(
@@ -1572,7 +1647,7 @@ function App() {
                             </div>
                             <div className="composer-control">
                               <StudioSelect
-                                aria-label="Aspect ratio"
+                                aria-label={translateUi("Aspect ratio")}
                                 value={aspect}
                                 onValueChange={(value) => setAspect(value as typeof aspect)}
                               >
@@ -1585,12 +1660,16 @@ function App() {
                         ) : (
                           <div className="composer-control">
                             <StudioSelect
-                              aria-label="Preview viewport"
+                              aria-label={translateUi("Preview viewport")}
                               value={viewport}
                               onValueChange={(value) => setViewport(value as "desktop" | "mobile")}
                             >
-                              <StudioSelectOption value="desktop">Desktop</StudioSelectOption>
-                              <StudioSelectOption value="mobile">Mobile</StudioSelectOption>
+                              <StudioSelectOption value="desktop">
+                                {translateUi("Desktop")}
+                              </StudioSelectOption>
+                              <StudioSelectOption value="mobile">
+                                {translateUi("Mobile")}
+                              </StudioSelectOption>
                             </StudioSelect>
                           </div>
                         )}
@@ -1599,26 +1678,30 @@ function App() {
                           <>
                             <div className="composer-control">
                               <StudioSelect
-                                aria-label="Video resolution"
+                                aria-label={translateUi("Video resolution")}
                                 value={resolution}
                                 onValueChange={(value) => setResolution(value as "1080p" | "1440p")}
                               >
                                 <StudioSelectOption value="1080p">
-                                  1080p · Full HD
+                                  {translateUi("1080p · Full HD")}
                                 </StudioSelectOption>
                                 <StudioSelectOption value="1440p">
-                                  2K · 1440p QHD
+                                  {translateUi("2K · 1440p QHD")}
                                 </StudioSelectOption>
                               </StudioSelect>
                             </div>
                             <div className="composer-control">
                               <StudioSelect
-                                aria-label="Frame rate"
+                                aria-label={translateUi("Frame rate")}
                                 value={String(frameRate)}
                                 onValueChange={(value) => setFrameRate(Number(value) as 30 | 60)}
                               >
-                                <StudioSelectOption value="30">30 fps</StudioSelectOption>
-                                <StudioSelectOption value="60">60 fps</StudioSelectOption>
+                                <StudioSelectOption value="30">
+                                  {translateUi("30 fps")}
+                                </StudioSelectOption>
+                                <StudioSelectOption value="60">
+                                  {translateUi("60 fps")}
+                                </StudioSelectOption>
                               </StudioSelect>
                             </div>
                           </>
@@ -1626,18 +1709,22 @@ function App() {
                         {outputType === "video" && (
                           <div className="composer-control">
                             <StudioSelect
-                              aria-label="Lyrics"
+                              aria-label={translateUi("Lyrics")}
                               value={lyricsEnabled ? "auto" : "off"}
                               onValueChange={(value) => setLyricsEnabled(value === "auto")}
                             >
-                              <StudioSelectOption value="off">Lyrics · Off</StudioSelectOption>
-                              <StudioSelectOption value="auto">Lyrics · On</StudioSelectOption>
+                              <StudioSelectOption value="off">
+                                {translateUi("Lyrics · Off")}
+                              </StudioSelectOption>
+                              <StudioSelectOption value="auto">
+                                {translateUi("Lyrics · On")}
+                              </StudioSelectOption>
                             </StudioSelect>
                           </div>
                         )}
                         <div className="composer-control">
                           <StudioSelect
-                            aria-label="Creative approach"
+                            aria-label={translateUi("Creative approach")}
                             aria-describedby="creative-approach-help"
                             disabled={manual}
                             value={preference}
@@ -1646,12 +1733,14 @@ function App() {
                             }
                           >
                             <StudioSelectOption value="context">
-                              {manual ? "Using your selected Motion Graphic" : "Follow my brief"}
+                              {manual
+                                ? translateUi("Using your selected Motion Graphic")
+                                : translateUi("Follow my brief")}
                             </StudioSelectOption>
                             <StudioSelectOption value="creative">
                               {manual
-                                ? "Using your selected Motion Graphic"
-                                : "Explore creative ideas"}
+                                ? translateUi("Using your selected Motion Graphic")
+                                : translateUi("Explore creative ideas")}
                             </StudioSelectOption>
                           </StudioSelect>
                         </div>
@@ -1659,7 +1748,11 @@ function App() {
                       <div className="composer-actions">
                         <PromptInputSubmit
                           className="primary composer-generate"
-                          aria-label={manual ? "Build full video" : "Explore directions"}
+                          aria-label={
+                            manual
+                              ? translateUi("Build full video")
+                              : translateUi("Explore directions")
+                          }
                           disabled={
                             busy ||
                             uploading ||
@@ -1673,7 +1766,8 @@ function App() {
                           ) : (
                             <Sparkles size={16} />
                           )}{" "}
-                          Generate <ArrowRight size={16} />
+                          {translateUi("Generate") + " "}
+                          <ArrowRight size={16} />
                         </PromptInputSubmit>
                       </div>
                     </PromptInputFooter>
@@ -1682,32 +1776,43 @@ function App() {
                     <span>
                       <Play size={14} />
                       {outputType === "page"
-                        ? `Up to ${count} interactive page previews`
+                        ? translateUi("Up to {{value0}} interactive page previews", {
+                            value0: count,
+                          })
                         : manual
-                          ? "Full video using your selected Motion Graphics"
-                          : `Up to ${count} silent, 3-second previews`}
+                          ? translateUi("Full video using your selected Motion Graphics")
+                          : translateUi("Up to {{value0}} silent, 3-second previews", {
+                              value0: count,
+                            })}
                     </span>
-                    <span>Enter to generate · Shift + Enter for a new line</span>
+                    <span>{translateUi("Enter to generate · Shift + Enter for a new line")}</span>
                   </div>
                   <p id="creative-approach-help" className="creative-approach-help">
                     {manual
-                      ? "Build directly with your chosen Motion Graphics. No direction proposals or ranking calls."
+                      ? translateUi(
+                          "Build directly with your chosen Motion Graphics. No direction proposals or ranking calls.",
+                        )
                       : preference === "context"
-                        ? "Follow my brief: choose visuals that stay close to your message."
-                        : "Explore creative ideas: try unexpected visuals while keeping your message."}
+                        ? translateUi(
+                            "Follow my brief: choose visuals that stay close to your message.",
+                          )
+                        : translateUi(
+                            "Explore creative ideas: try unexpected visuals while keeping your message.",
+                          )}
                   </p>
                   {!manual && !setup?.jevConfigured && (
                     <div className="setup-note needs-setup">
-                      <strong>Creation is currently unavailable</strong>
-                      <p>Please check the app setup and try again.</p>
+                      <strong>{translateUi("Creation is currently unavailable")}</strong>
+                      <p>{translateUi("Please check the app setup and try again.")}</p>
                     </div>
                   )}
                 </Card>
               </div>
               <div className="inspiration-heading">
-                <h2>Start with a visual direction</h2>
+                <h2>{translateUi("Start with a visual direction")}</h2>
                 <Button className="text-button" onClick={() => setPage("styles")}>
-                  Explore all Motion Graphics <ArrowRight size={15} />
+                  {translateUi("Explore all Motion Graphics") + " "}
+                  <ArrowRight size={15} />
                 </Button>
               </div>
               <div className="inspiration-grid">
@@ -1727,13 +1832,15 @@ function App() {
             </>
           )}
           <footer>
-            CODE-CREATED VISUALS · MOTION GRAPHIC-LED MOTION · LOCAL COMPOSITION & EXPORT
+            {translateUi(
+              "CODE-CREATED VISUALS · MOTION GRAPHIC-LED MOTION · LOCAL COMPOSITION & EXPORT",
+            )}
           </footer>
         </main>
       </div>
       {deleteTarget && (
         <Dialog
-          title="Delete project?"
+          title={translateUi("Delete project?")}
           onClose={() => {
             if (!deleting) setDeleteTarget(undefined);
           }}
@@ -1744,7 +1851,7 @@ function App() {
                 disabled={deleting}
                 onClick={() => setDeleteTarget(undefined)}
               >
-                Cancel
+                {translateUi("Cancel")}
               </Button>
               <Button
                 type="primary"
@@ -1753,7 +1860,7 @@ function App() {
                 disabled={deleting}
                 onClick={() => void deleteProject()}
               >
-                {deleting ? "Deleting…" : "Delete project"}
+                {deleting ? translateUi("Deleting…") : translateUi("Delete project")}
               </Button>
             </div>
           }
@@ -1762,8 +1869,9 @@ function App() {
             <strong>{projectName(deleteTarget)}</strong>
           </p>
           <p>
-            This permanently deletes the project, its previews, source files, and activity history.
-            Shared uploads are kept.
+            {translateUi(
+              "This permanently deletes the project, its previews, source files, and activity history. Shared uploads are kept.",
+            )}
           </p>
           {deleteError && <p role="alert">{customerErrorMessage(deleteError)}</p>}
         </Dialog>
@@ -1781,9 +1889,9 @@ function App() {
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <ConfigProvider theme={studioTheme}>
+      <UiLanguageProvider>
         <App />
-      </ConfigProvider>
+      </UiLanguageProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );

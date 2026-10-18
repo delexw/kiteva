@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { Bubble, Sender } from "@ant-design/x";
 import { RoomFilePick } from "./room-file-card";
 import { Button, Alert, Tag } from "antd";
@@ -26,6 +27,7 @@ export function RoomQuestion({
   materials: RoomLibraryAsset[];
   onUpdated: (run: Run) => void;
 }) {
+  useUiLanguage();
   const [ids, setIds] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -78,14 +80,14 @@ export function RoomQuestion({
             bordered={false}
             className={question.mode === "blocking" ? "is-blocking" : "is-optional"}
           >
-            {question.mode === "blocking" ? "Paused for you" : "Optional"}
+            {question.mode === "blocking" ? translateUi("Paused for you") : translateUi("Optional")}
           </Tag>
           <span className="room-scope">{scope}</span>
         </div>
         {job?.poster && (
           <img
             className="room-question-thumbnail"
-            alt={`${scope} still`}
+            alt={translateUi("{{value0}} still", { value0: scope })}
             src={`/api/artifacts/${run.id}/${job.id}/${job.poster}`}
           />
         )}
@@ -97,12 +99,12 @@ export function RoomQuestion({
         />
         <p className="room-hint">
           {question.mode === "blocking"
-            ? "This part is paused until you answer. Everything else keeps going."
-            : "Work keeps going. Your answer is used in the next build."}
+            ? translateUi("This part is paused until you answer. Everything else keeps going.")
+            : translateUi("Work keeps going. Your answer is used in the next build.")}
         </p>
         {choices.length > 0 && (
-          <div className="room-shelf-picks" aria-label="Add from your shelf">
-            <span>Add from your shelf</span>
+          <div className="room-shelf-picks" aria-label={translateUi("Add from your shelf")}>
+            <span>{translateUi("Add from your shelf")}</span>
             <div>
               {choices.map((asset) => (
                 <RoomFilePick
@@ -123,19 +125,19 @@ export function RoomQuestion({
         )}
         <div className="room-question-alternative">
           <Button disabled={busy} onClick={() => void answer(question.fallback, [])}>
-            Use the alternative
+            {translateUi("Use the alternative")}
           </Button>
           <small>{question.fallback}</small>
         </div>
         {error && <Alert type="error" showIcon title={error} />}
       </div>
       <Sender
-        aria-label={`Reply about ${scope}`}
+        aria-label={translateUi("Reply about {{value0}}", { value0: scope })}
         value={draft}
         onChange={onDraft}
         onSubmit={(text) => void answer(text, ids)}
         loading={busy}
-        placeholder="Type your answer…"
+        placeholder={translateUi("Type your answer…")}
       />
     </div>
   );

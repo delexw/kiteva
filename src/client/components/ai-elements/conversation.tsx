@@ -1,5 +1,7 @@
 "use client";
 
+import { translateUi, useUiLanguage } from "../../i18n";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { UIMessage } from "ai";
@@ -65,6 +67,7 @@ export const ConversationScrollButton = ({
   className,
   ...props
 }: ConversationScrollButtonProps) => {
+  useUiLanguage();
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
 
   const handleScrollToBottom = useCallback(() => {
@@ -78,6 +81,7 @@ export const ConversationScrollButton = ({
           "absolute bottom-4 left-[50%] translate-x-[-50%] rounded-full dark:bg-background dark:hover:bg-muted",
           className,
         )}
+        aria-label={translateUi("Scroll to bottom")}
         onClick={handleScrollToBottom}
         size="icon"
         type="button"

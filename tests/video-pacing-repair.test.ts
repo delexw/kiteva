@@ -125,14 +125,19 @@ it("repairs a stretched pacing plan before marking a full video ready", async ()
     expect(vi.mocked(agentTurn).mock.calls[1][0].sessionId).toBe("original-main-session");
     expect(agentTurn).toHaveBeenCalledTimes(3);
     expect(vi.mocked(agentTurn).mock.calls.map(([call]) => call.model)).toEqual([
-      "gpt-6-luna",
       "example-model",
-      "gpt-6-luna",
+      "example-model",
+      "example-model",
     ]);
     expect(JSON.stringify(vi.mocked(agentTurn).mock.calls[1][0].promptContext)).toContain(
       "0–120s storyboard contains six stretched scenes",
     );
     expect(vi.mocked(agentTurn).mock.calls[1][0].prompt).toContain("DURATION AND PACING RULES:");
+    for (const call of vi.mocked(agentTurn).mock.calls.slice(1)) {
+      expect(call[0].prompt).toContain("By default, favor brisk, energetic pacing");
+      expect(call[0].prompt).toContain("Maintain a coherent visual and motion language");
+      expect(call[0].prompt).toContain("Explicit user direction takes precedence");
+    }
     expect(JSON.stringify(vi.mocked(agentTurn).mock.calls[1][0].promptContext)).toContain(
       "richer content and more balanced pacing",
     );

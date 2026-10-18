@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { deliverySpeech, editVideoCopy, type VideoLanguage } from "../../shared/video-language";
 import { VideoLanguageControl } from "../components/video-language-control";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
@@ -49,6 +50,7 @@ function errorMessage(error: unknown) {
     : (error as Error).message;
 }
 function AssistantSays({ children, step }: { children: ReactNode; step?: string }) {
+  useUiLanguage();
   return (
     <Bubble
       placement="start"
@@ -68,6 +70,7 @@ function UserSays({
   muted?: boolean;
   step: string;
 }) {
+  useUiLanguage();
   return (
     <Bubble
       placement="end"
@@ -96,6 +99,7 @@ export function RoomOnboarding({
   onUpload: (files: File[]) => Promise<RoomLibraryAsset[]>;
   onDeleteMaterial?: (asset: RoomLibraryAsset) => Promise<void>;
 }) {
+  useUiLanguage();
   const request = roomDraftRequest(draft);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -158,13 +162,13 @@ export function RoomOnboarding({
   };
   const advance = () => {
     if (step === 0 && !ideaReady) {
-      setError("Tell me a little more — at least a short sentence.");
+      setError(translateUi("Tell me a little more — at least a short sentence."));
       return;
     }
     if (step === 3) {
       const urls = request.urls.map((url) => url.trim()).filter(Boolean);
       if (urls.length > 5 || urls.some((url) => !URL.canParse(url))) {
-        setError("Use up to five full links (starting with https://), one per line.");
+        setError(translateUi("Use up to five full links (starting with https://), one per line."));
         return;
       }
       setError("");
@@ -224,7 +228,7 @@ export function RoomOnboarding({
     <div className="room-onboarding-actions">
       {step > 0 && (
         <Button type="text" onClick={() => go(step - 1)}>
-          Back
+          {translateUi("Back")}
         </Button>
       )}
       {step === 7 && (
@@ -248,21 +252,23 @@ export function RoomOnboarding({
             }
           }}
         >
-          {request.selectedStyleIds?.length ? "Create my project" : "Create previews"}
+          {request.selectedStyleIds?.length
+            ? translateUi("Create my project")
+            : translateUi("Create previews")}
         </Button>
       )}
       {step < 7 && (
         <Button type={step === 6 ? "primary" : "default"} onClick={advance}>
           {step === 0 || step === 6 || text.trim() || sectionSelected.length || step === 5
-            ? "Continue"
-            : "Skip"}
+            ? translateUi("Continue")
+            : translateUi("Skip")}
         </Button>
       )}
     </div>
   );
   return (
     <div className="room-onboarding">
-      <nav className="room-step-tabs" aria-label="Brief steps">
+      <nav className="room-step-tabs" aria-label={translateUi("Brief steps")}>
         {roomQuestions.map((question, index) => (
           <button
             type="button"
@@ -270,47 +276,49 @@ export function RoomOnboarding({
             className={index === step ? "is-current" : index < step ? "is-done" : ""}
             aria-current={index === step ? "step" : undefined}
             disabled={index !== 0 && !ideaReady}
-            title={index !== 0 && !ideaReady ? "Describe your idea first" : undefined}
+            title={index !== 0 && !ideaReady ? translateUi("Describe your idea first") : undefined}
             onClick={() => go(index)}
           >
-            {question.label}
+            {translateUi(question.label)}
           </button>
         ))}
       </nav>
       <div className="room-chat-log" ref={log} aria-live="polite">
         {step === 0 && (
           <AssistantSays>
-            Welcome to your room. Let’s turn an idea into something moving.
+            {translateUi("Welcome to your room. Let’s turn an idea into something moving.")}
           </AssistantSays>
         )}
         {roomQuestions.slice(0, step).map((question, index) => (
           <div className="room-chat-turn" key={question.label}>
-            <AssistantSays step={question.label}>{question.question}</AssistantSays>
-            <UserSays step={question.label} muted={answers[index].skipped}>
+            <AssistantSays step={translateUi(question.label)}>
+              {translateUi(question.question)}
+            </AssistantSays>
+            <UserSays step={translateUi(question.label)} muted={answers[index].skipped}>
               {answers[index].text}
             </UserSays>
           </div>
         ))}
         <div ref={currentStep} className="room-current-step">
-          <AssistantSays step={roomQuestions[step].label}>
-            {roomQuestions[step].question}
+          <AssistantSays step={translateUi(roomQuestions[step].label)}>
+            {translateUi(roomQuestions[step].question)}
           </AssistantSays>
           {section && (
-            <section className="room-materials" aria-label="Materials for this step">
+            <section className="room-materials" aria-label={translateUi("Materials for this step")}>
               <SettingsSectionHeading
                 title={
                   section === "main"
-                    ? "Documents"
+                    ? translateUi("Documents")
                     : section === "images"
-                      ? "Reference images"
-                      : "Music and audio"
+                      ? translateUi("Reference images")
+                      : translateUi("Music and audio")
                 }
                 description={
                   section === "main"
-                    ? "Add notes and source documents for your project."
+                    ? translateUi("Add notes and source documents for your project.")
                     : section === "images"
-                      ? "Choose images to guide the look and story."
-                      : "Describe the sound and choose reference audio."
+                      ? translateUi("Choose images to guide the look and story.")
+                      : translateUi("Describe the sound and choose reference audio.")
                 }
                 icon={
                   section === "main" ? (
@@ -323,7 +331,7 @@ export function RoomOnboarding({
                 }
               />
               {sectionSelected.length > 0 && (
-                <div className="room-chosen-files" aria-label="Chosen for this step">
+                <div className="room-chosen-files" aria-label={translateUi("Chosen for this step")}>
                   {sectionSelected.map((asset) => (
                     <RoomChosenFile
                       key={asset.id}
@@ -338,7 +346,7 @@ export function RoomOnboarding({
               )}
               {shelf.length > 0 ? (
                 <div className="room-shelf-picks">
-                  <span>On your shelf — choose to add</span>
+                  <span>{translateUi("On your shelf — choose to add")}</span>
                   <div>
                     {shelf.map((asset) => (
                       <RoomFilePick
@@ -354,7 +362,9 @@ export function RoomOnboarding({
                 </div>
               ) : (
                 !sectionSelected.length && (
-                  <p className="room-hint">Nothing for this step on your shelf yet.</p>
+                  <p className="room-hint">
+                    {translateUi("Nothing for this step on your shelf yet.")}
+                  </p>
                 )
               )}
               <div className="room-material-footer">
@@ -367,9 +377,12 @@ export function RoomOnboarding({
                     return false;
                   }}
                 >
-                  <Button size="small">{roomMaterialIntake[section].upload}</Button>
+                  <Button size="small">{translateUi(roomMaterialIntake[section].upload)}</Button>
                 </Upload>
-                <span className="room-limit-counts" aria-label="Selected material counts">
+                <span
+                  className="room-limit-counts"
+                  aria-label={translateUi("Selected material counts")}
+                >
                   {counts.map((count) => (
                     <Tag
                       key={count.key}
@@ -386,8 +399,8 @@ export function RoomOnboarding({
           {step === 3 && (
             <section className="room-materials">
               <SettingsSectionHeading
-                title="Website references"
-                description="Add links and instructions in your reply below."
+                title={translateUi("Website references")}
+                description={translateUi("Add links and instructions in your reply below.")}
                 icon={<Link size={18} />}
               />
             </section>
@@ -395,8 +408,8 @@ export function RoomOnboarding({
           {step === 5 && request.outputType === "video" && (
             <div className="room-inline-field room-materials">
               <SettingsSectionHeading
-                title="On-screen lyrics"
-                description="Show your own words or let the agent write them."
+                title={translateUi("On-screen lyrics")}
+                description={translateUi("Show your own words or let the agent write them.")}
                 icon={<Captions size={18} />}
               />
               <label>
@@ -412,14 +425,16 @@ export function RoomOnboarding({
                     })
                   }
                 />{" "}
-                Show lyrics on screen
+                {translateUi("Show lyrics on screen")}
               </label>
               {request.lyrics && request.lyrics.mode !== "off" && (
                 <>
                   <Input.TextArea
-                    aria-label="Your lyrics"
+                    aria-label={translateUi("Your lyrics")}
                     autoSize={{ minRows: 2, maxRows: 6 }}
-                    placeholder="Paste your lyrics, or leave empty and I’ll write them"
+                    placeholder={translateUi(
+                      "Paste your lyrics, or leave empty and I’ll write them",
+                    )}
                     value={request.lyrics.mode === "provided" ? request.lyrics.text : ""}
                     onChange={(e) => {
                       onChange({
@@ -452,25 +467,27 @@ export function RoomOnboarding({
             </div>
           )}
           {step === 5 && request.outputType === "page" && (
-            <p className="room-hint">Narration and lyrics are available for video projects.</p>
+            <p className="room-hint">
+              {translateUi("Narration and lyrics are available for video projects.")}
+            </p>
           )}
           {step === 6 && (
             <div className="room-settings">
               <SettingsSectionHeading
-                title="Generation settings"
-                description="Choose how your project is made."
+                title={translateUi("Generation settings")}
+                description={translateUi("Choose how your project is made.")}
               />
               {request.outputType === "video" && (
                 <VideoLanguageControl value={request.outputLanguage} onChange={changeLanguage} />
               )}
               <label>
-                Make a
+                {translateUi("Make a")}
                 <Select
-                  aria-label="Output type"
+                  aria-label={translateUi("Output type")}
                   value={request.outputType}
                   options={[
-                    { value: "video", label: "Video" },
-                    { value: "page", label: "Interactive page" },
+                    { value: "video", label: translateUi("Video") },
+                    { value: "page", label: translateUi("Interactive page") },
                   ]}
                   onChange={(outputType) =>
                     onChange({ ...draft, request: switchRoomOutputType(request, outputType) })
@@ -478,9 +495,9 @@ export function RoomOnboarding({
                 />
               </label>
               <label>
-                Model
+                {translateUi("Model")}
                 <Select
-                  aria-label="Model"
+                  aria-label={translateUi("Model")}
                   value={request.provider}
                   options={(["codex", "claude"] as const).map((value) => ({
                     value,
@@ -490,9 +507,9 @@ export function RoomOnboarding({
                 />
               </label>
               <label>
-                Preview directions
+                {translateUi("Preview directions")}
                 <Select
-                  aria-label="Preview directions"
+                  aria-label={translateUi("Preview directions")}
                   value={request.candidateCount || 5}
                   disabled={Boolean(request.selectedStyleIds?.length)}
                   options={[1, 2, 3, 4, 5].map((value) => ({ value, label: String(value) }))}
@@ -500,13 +517,13 @@ export function RoomOnboarding({
                 />
               </label>
               <label>
-                Creative approach
+                {translateUi("Creative approach")}
                 <Select
-                  aria-label="Creative approach"
+                  aria-label={translateUi("Creative approach")}
                   value={request.preference}
                   options={[
-                    { value: "context", label: "Follow my brief" },
-                    { value: "creative", label: "Explore creative ideas" },
+                    { value: "context", label: translateUi("Follow my brief") },
+                    { value: "creative", label: translateUi("Explore creative ideas") },
                   ]}
                   onChange={(preference) => patch({ preference })}
                 />
@@ -514,14 +531,14 @@ export function RoomOnboarding({
               {request.outputType === "video" ? (
                 <>
                   <label>
-                    Length
+                    {translateUi("Length")}
                     <span className="room-duration">
                       <Select
-                        aria-label="Full video duration"
+                        aria-label={translateUi("Full video duration")}
                         value={request.duration === "auto" ? "auto" : "custom"}
                         options={[
-                          { value: "auto", label: "Auto" },
-                          { value: "custom", label: "Seconds" },
+                          { value: "auto", label: translateUi("Auto") },
+                          { value: "custom", label: translateUi("Seconds") },
                         ]}
                         onChange={(value) => {
                           const duration = value === "auto" ? ("auto" as const) : 60;
@@ -537,7 +554,7 @@ export function RoomOnboarding({
                       />
                       {request.duration !== "auto" && (
                         <InputNumber
-                          aria-label="Custom duration seconds"
+                          aria-label={translateUi("Custom duration seconds")}
                           min={3}
                           max={300}
                           value={request.duration}
@@ -557,9 +574,9 @@ export function RoomOnboarding({
                     </span>
                   </label>
                   <label>
-                    Aspect ratio
+                    {translateUi("Aspect ratio")}
                     <Select
-                      aria-label="Aspect ratio"
+                      aria-label={translateUi("Aspect ratio")}
                       value={request.aspectRatio}
                       options={(["16:9", "9:16", "1:1"] as const).map((value) => ({
                         value,
@@ -569,9 +586,9 @@ export function RoomOnboarding({
                     />
                   </label>
                   <label>
-                    Resolution
+                    {translateUi("Resolution")}
                     <Select
-                      aria-label="Video resolution"
+                      aria-label={translateUi("Video resolution")}
                       value={request.resolution || "1080p"}
                       options={[
                         { value: "1080p", label: "1080p" },
@@ -581,13 +598,13 @@ export function RoomOnboarding({
                     />
                   </label>
                   <label>
-                    Frame rate
+                    {translateUi("Frame rate")}
                     <Select
-                      aria-label="Frame rate"
+                      aria-label={translateUi("Frame rate")}
                       value={request.frameRate || 30}
                       options={([30, 60] as const).map((value) => ({
                         value,
-                        label: `${value} fps`,
+                        label: translateUi("{{value0}} fps", { value0: value }),
                       }))}
                       onChange={(frameRate) => patch({ frameRate })}
                     />
@@ -599,20 +616,24 @@ export function RoomOnboarding({
                 </>
               ) : (
                 <label>
-                  Preview on
+                  {translateUi("Preview on")}
                   <Select
-                    aria-label="Preview viewport"
+                    aria-label={translateUi("Preview viewport")}
                     value={request.viewport}
                     options={[
-                      { value: "desktop", label: "Desktop" },
-                      { value: "mobile", label: "Mobile" },
+                      { value: "desktop", label: translateUi("Desktop") },
+                      { value: "mobile", label: translateUi("Mobile") },
                     ]}
                     onChange={(viewport) => patch({ viewport })}
                   />
                 </label>
               )}
               <div className="room-settings-styles">
-                <span>Pick Motion Graphics yourself (optional — skips preview directions)</span>
+                <span>
+                  {translateUi(
+                    "Pick Motion Graphics yourself (optional — skips preview directions)",
+                  )}
+                </span>
                 <StylePicker
                   styles={styles}
                   examples={examples}
@@ -629,12 +650,12 @@ export function RoomOnboarding({
           {step === 7 && (
             <div className="room-review">
               <SettingsSectionHeading
-                title="Review your brief"
-                description="Check your replies above before creating the project."
+                title={translateUi("Review your brief")}
+                description={translateUi("Check your replies above before creating the project.")}
                 icon={<ClipboardCheck size={18} />}
               />
               {selected.length > 0 && (
-                <div className="room-chosen-files" aria-label="Chosen materials">
+                <div className="room-chosen-files" aria-label={translateUi("Chosen materials")}>
                   {selected.map((asset) => (
                     <RoomChosenFile key={asset.id} asset={asset} />
                   ))}
@@ -649,12 +670,15 @@ export function RoomOnboarding({
       </div>
       {step < 5 ? (
         <Sender
-          aria-label="Answer the assistant"
+          aria-label={translateUi("Answer the assistant")}
           header={
             <div className="room-reply-label">
               <PencilLine size={14} aria-hidden="true" />
-              <strong>Your reply · {roomQuestions[step].label}</strong>
-              <span>Editable</span>
+              <strong>
+                {translateUi("Your reply ·") + " "}
+                {translateUi(roomQuestions[step].label)}
+              </strong>
+              <span>{translateUi("Editable")}</span>
             </div>
           }
           value={text}
@@ -663,10 +687,10 @@ export function RoomOnboarding({
           autoSize={{ minRows: 1, maxRows: 6 }}
           placeholder={
             step === 0
-              ? "Tell me your idea…"
+              ? translateUi("Tell me your idea…")
               : step === 3
                 ? "https://… (Shift+Enter for a new line)"
-                : "Add a note, or skip…"
+                : translateUi("Add a note, or skip…")
           }
           footer={actions}
         />

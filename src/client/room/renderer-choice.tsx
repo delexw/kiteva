@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { useEffect, useState } from "react";
 import { Alert, Collapse, Select, Table, Tag } from "antd";
 import { api } from "../lib/api";
@@ -25,6 +26,7 @@ export function RendererChoice({
   value: VideoRenderer;
   onChange: (renderer: VideoRenderer) => void;
 }) {
+  useUiLanguage();
   const [status, setStatus] = useState<MultiplaneStatus>();
   useEffect(() => {
     if (value !== "multiplane") return;
@@ -43,15 +45,15 @@ export function RendererChoice({
   return (
     <>
       <label>
-        Renderer
+        {translateUi("Renderer")}
         <Select
-          aria-label="Video renderer"
+          aria-label={translateUi("Video renderer")}
           value={value}
           options={videoRendererIds.map((id) => ({
             value: id,
             label: videoRenderers[id].trial
               ? videoRenderers[id].label
-              : `${videoRenderers[id].label} · default`,
+              : translateUi("{{value0}} · default", { value0: videoRenderers[id].label }),
           }))}
           onChange={onChange}
         />
@@ -63,13 +65,16 @@ export function RendererChoice({
             showIcon
             title={
               status && !status.available
-                ? "Multiplane isn’t ready on this computer"
-                : `Trying Multiplane ${multiplaneVersion}`
+                ? translateUi("Multiplane isn’t ready on this computer")
+                : translateUi("Trying Multiplane {{value0}}", { value0: multiplaneVersion })
             }
             description={
               status && !status.available
                 ? status.problem
-                : `This project’s previews and full film use Multiplane; other projects keep HyperFrames. Limits: ${multiplaneLimits.join(", ")}.`
+                : translateUi(
+                    "This project’s previews and full film use Multiplane; other projects keep HyperFrames. Limits: {{value0}}.",
+                    { value0: multiplaneLimits.join(", ") },
+                  )
             }
           />
           <Collapse
@@ -77,25 +82,25 @@ export function RendererChoice({
             items={[
               {
                 key: "coverage",
-                label: "Supported settings and limits",
+                label: translateUi("Supported settings and limits"),
                 children: (
                   <Table
                     size="small"
                     pagination={false}
                     rowKey="setting"
-                    aria-label="Multiplane setting support"
+                    aria-label={translateUi("Multiplane setting support")}
                     dataSource={multiplaneSettingCoverage}
                     columns={[
-                      { title: "Setting", dataIndex: "setting", width: 140 },
+                      { title: translateUi("Setting"), dataIndex: "setting", width: 140 },
                       {
-                        title: "Support",
+                        title: translateUi("Support"),
                         dataIndex: "support",
                         width: 120,
                         render: (value: RendererSettingSupport) => (
                           <Tag color={support[value].color}>{support[value].label}</Tag>
                         ),
                       },
-                      { title: "Details", dataIndex: "detail" },
+                      { title: translateUi("Details"), dataIndex: "detail" },
                     ]}
                     scroll={{ x: 480 }}
                   />

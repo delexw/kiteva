@@ -659,7 +659,7 @@ export async function createApp(options: { store?: Store } = {}) {
       : reply.sendFile("index.html"),
   );
   app.addHook("onClose", async () => {
-    workflow.shutdown();
+    await workflow.shutdown();
     store.close();
   });
   return { app, store, workflow, catalog };

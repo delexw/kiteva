@@ -1,11 +1,10 @@
-import { createWriteStream } from "node:fs";
 import { mkdir, rm, rename, writeFile, stat, readFile } from "node:fs/promises";
-import { pipeline } from "node:stream/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { z } from "zod";
 import type { Page } from "puppeteer-core";
 import { command } from "../../runtime/process";
+import { startOpenScreen } from "../../capture/openscreen";
 import { probeVideo } from "../../rendering/video-probe";
 
 export const websiteCaptureLimits = { seconds: 120, bytes: 150_000_000, recordings: 6 };
@@ -35,7 +34,12 @@ export async function readWebsiteRecordings(workspace: string) {
 export type CursorEvent = { time: number; x: number; y: number; kind: "move" | "click" };
 
 /** Owns one bounded recording of an already validated, isolated browser page. */
-export async function startWebsiteCapture(page: Page, workspace: string, signal: AbortSignal) {
+export async function startWebsiteCapture(
+  page: Page,
+  workspace: string,
+  signal: AbortSignal,
+  desktop = false,
+) {
   signal.throwIfAborted();
   const id = randomUUID();
   const assets = path.join(workspace, "assets");
@@ -46,25 +50,46 @@ export async function startWebsiteCapture(page: Page, workspace: string, signal:
   const cursorName = `website-video-${id}.cursor.json`;
   const url = page.url();
   const events: CursorEvent[] = [];
-  // The installed Chromium supports the SDK's screencast API. The newer record()
-  // API requires a newer Chrome protocol and is not supported by all bundled browsers.
-  const recorder = await page.screencast({ fps: 30, format: "webm" });
-  let bytes = 0;
+  if (!desktop)
+    throw Error(
+      "OpenScreen needs a dedicated desktop browser; headless browser recording is not supported",
+    );
+  const originalTitle = await page.title();
+  const frame = z
+    .object({
+      width: z.number().positive(),
+      height: z.number().positive(),
+      left: z.number().nonnegative(),
+      top: z.number().nonnegative(),
+    })
+    .parse(
+      await page.evaluate(() => {
+        const left = Math.max(0, (window.outerWidth - window.innerWidth) / 2);
+        return {
+          width: window.outerWidth,
+          height: window.outerHeight,
+          left,
+          top: Math.max(0, window.outerHeight - window.innerHeight - left),
+        };
+      }),
+    );
+  const title = `Kiteva capture ${id}`;
+  await page.evaluate((value) => {
+    document.title = value;
+  }, title);
+  let recorder: Awaited<ReturnType<typeof startOpenScreen>>;
+  try {
+    recorder = await startOpenScreen(title, signal);
+  } finally {
+    await page
+      .evaluate((value) => {
+        document.title = value;
+      }, originalTitle)
+      .catch(() => {});
+  }
   let failure: Error | undefined;
-  let stopping: Promise<void> | undefined;
+  let stopping: ReturnType<typeof recorder.stop> | undefined;
   const stop = () => (stopping ??= recorder.stop());
-  const output = pipeline(recorder, createWriteStream(temporary));
-  void output.catch((error: Error) => {
-    failure = error;
-    void stop().catch(() => {});
-  });
-  recorder.on("data", (chunk: Buffer) => {
-    bytes += chunk.length;
-    if (bytes > websiteCaptureLimits.bytes) {
-      failure = Error("Website recording exceeded 150 MB; capture shorter takes");
-      void stop().catch(() => {});
-    }
-  });
   const started = performance.now();
   const abort = () => {
     failure = Error("Website recording cancelled");
@@ -80,8 +105,27 @@ export async function startWebsiteCapture(page: Page, workspace: string, signal:
   async function finish() {
     clearTimeout(timer);
     signal.removeEventListener("abort", abort);
-    await stop();
-    await output;
+    const result = await stop();
+    await command(
+      "ffmpeg",
+      [
+        "-v",
+        "error",
+        "-y",
+        "-i",
+        result.screenVideoPath,
+        "-an",
+        "-r",
+        "30",
+        "-c:v",
+        "libvpx-vp9",
+        "-deadline",
+        "realtime",
+        temporary,
+      ],
+      assets,
+      signal,
+    );
   }
   return {
     id,
@@ -123,7 +167,16 @@ export async function startWebsiteCapture(page: Page, workspace: string, signal:
         await writeFile(
           path.join(assets, cursorName),
           JSON.stringify(
-            { version: 1, width: stream.width, height: stream.height, events },
+            {
+              version: 1,
+              width: stream.width,
+              height: stream.height,
+              events: events.map((event) => ({
+                ...event,
+                x: ((event.x + frame.left) * stream.width) / frame.width,
+                y: ((event.y + frame.top) * stream.height) / frame.height,
+              })),
+            },
             null,
             2,
           ),

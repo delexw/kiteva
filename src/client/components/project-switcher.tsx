@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { RunningProjects } from "./running-projects";
 import { Button } from "antd";
 import { FileCode2, Film, Plus } from "lucide-react";
@@ -15,10 +16,11 @@ export function ProjectSwitcher({
   onSelect: (project: Run) => void;
   onNew: () => void;
 }) {
+  useUiLanguage();
   if (!projects.length) return null;
   return (
-    <nav className="project-switcher" aria-label="Projects">
-      <span className="project-switcher-label">Projects</span>
+    <nav className="project-switcher" aria-label={translateUi("Projects")}>
+      <span className="project-switcher-label">{translateUi("Projects")}</span>
       <div className="project-badges">
         {projects.map((project) => (
           <Button
@@ -38,7 +40,8 @@ export function ProjectSwitcher({
           </Button>
         ))}
         <Button htmlType="button" className="project-badge project-badge-new" onClick={onNew}>
-          <Plus size={15} aria-hidden="true" /> New project
+          <Plus size={15} aria-hidden="true" />
+          {" " + translateUi("New project")}
         </Button>
       </div>
       <RunningProjects projects={projects} onOpen={onSelect} />

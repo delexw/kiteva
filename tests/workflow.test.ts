@@ -245,9 +245,9 @@ it("retries interrupted rendering without repeating a completed provider turn", 
     };
     const workflow = new Workflow(store, await loadCatalog());
     await writeFile(path.join(workspace, "STORYBOARD.json"), JSON.stringify(validStoryboard()));
-    const task = workflow.generate(run, run.jobs[0]);
+    workflow.retry(run);
     expect(workflow.hasActiveTasks(run)).toBe(true);
-    await task;
+    await vi.waitFor(() => expect(workflow.hasActiveTasks(run)).toBe(false));
     expect(workflow.hasActiveTasks(run)).toBe(false);
     expect(agentTurn).not.toHaveBeenCalled();
     expect(renderJob).toHaveBeenCalledOnce();
@@ -291,6 +291,88 @@ it("retries interrupted rendering without repeating a completed provider turn", 
     await rm(workspace, { recursive: true, force: true });
   }
 });
+
+it.each(["failed", "interrupted", "cancelled"] as const)(
+  "project retry resumes existing %s jobs without creating new versions",
+  async (phase) => {
+    const store = new Store(":memory:");
+    try {
+      const workflow = new Workflow(store, await loadCatalog());
+      const run: Run = {
+        id: randomUUID(),
+        createdAt: new Date().toISOString(),
+        phase,
+        request: RequestSchema.parse({
+          instructions: "Show a shape unfolding",
+          selectedStyleIds: ["style-018"],
+          candidateCount: 0,
+        }),
+        candidates: [
+          {
+            id: "direction",
+            primaryStyleId: "style-018",
+            supportingStyleIds: [],
+            sceneRoles: [],
+            rationale: "A shape unfolds",
+            feasible: true,
+            missingAssets: [],
+            score: 80,
+            confidence: 0.8,
+            dimensions: {},
+          },
+        ],
+        jobs: [],
+      };
+      const candidate = run.candidates[0];
+      for (const kind of ["preview", "full"] as const) {
+        const job = workflow["newJob"](run, candidate, kind, 30);
+        Object.assign(job, { phase, sessionId: `${kind}-session`, error: "Stopped" });
+        run.jobs.push(job);
+      }
+      // Older attempts must not resume alongside the current version.
+      run.jobs.unshift({ ...run.jobs[1], id: "superseded" });
+      const before = structuredClone(run);
+      const prepare = vi.spyOn(workflow, "prepare").mockResolvedValue();
+      const generate = vi.spyOn(workflow, "generate").mockImplementation(async (_run, job) => {
+        job.phase = "ready";
+      });
+      workflow.retry(run);
+      await vi.waitFor(() => expect(run.phase).toBe("ready"));
+      expect(prepare).not.toHaveBeenCalled();
+      expect(generate).toHaveBeenCalledTimes(2);
+      expect(run.candidates).toEqual(before.candidates);
+      expect(
+        run.jobs.map(({ id, candidateId, workspace, sessionId }) => ({
+          id,
+          candidateId,
+          workspace,
+          sessionId,
+        })),
+      ).toEqual(
+        before.jobs.map(({ id, candidateId, workspace, sessionId }) => ({
+          id,
+          candidateId,
+          workspace,
+          sessionId,
+        })),
+      );
+      expect(run.jobs[0].phase).toBe(phase);
+      expect(run.jobs.slice(1).every((job) => !job.error)).toBe(true);
+      expect(store.get(run.id)?.jobs).toHaveLength(3);
+      run.phase = "failed";
+      run.error = "Brief preparation failed";
+      workflow.retry(run);
+      expect(prepare).toHaveBeenCalledOnce();
+      expect(generate).toHaveBeenCalledTimes(2);
+      run.error = undefined;
+      run.jobs = [];
+      workflow.retry(run);
+      expect(prepare).toHaveBeenCalledTimes(2);
+    } finally {
+      store.close();
+    }
+  },
+);
 
 it("records correction governance without replacing the main generation session", async () => {
   const store = new Store(":memory:");

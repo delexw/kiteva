@@ -126,7 +126,7 @@ it("repairs concrete defects in the original preparation session then independen
     }));
     const result = await reviewBriefAssets({ ...input, revise });
     expect(revise).toHaveBeenCalledWith(
-      input.brief,
+      { ...input.brief, assetPlan: plan },
       input.sessionId,
       expect.stringContaining(issue.expectedFix),
     );
@@ -244,7 +244,7 @@ it("corrects malformed review mappings in the cheap review session before sendin
     expect(correction.prompt).toContain("Acceptance criteria:");
     expect(correction.prompt).toContain("must not change needs_repair to passed without evidence");
     expect(revise).toHaveBeenCalledWith(
-      input.brief,
+      { ...input.brief, assetPlan: plan },
       input.sessionId,
       expect.stringContaining(issue.expectedFix),
     );
@@ -330,7 +330,8 @@ it("sends one issue per repair and supplies the before-state for independent reg
     const evidence = JSON.parse(
       await readFile(path.join(input.workspace, "brief-asset-review-input.json"), "utf8"),
     );
-    expect(evidence.previousRepair.briefBeforeRepair).toEqual(input.brief);
+    expect(evidence.previousRepair.briefBeforeRepair).toEqual({ ...input.brief, assetPlan: plan });
+    expect(evidence.brief.assetPlan).toEqual(plan);
     expect(evidence.previousRepair.issue).toEqual(first);
     expect(vi.mocked(agentTurn).mock.calls[1][0].prompt).toContain(
       "Prioritize regressions to unrelated scenes",
@@ -339,3 +340,138 @@ it("sends one issue per repair and supplies the before-state for independent reg
     await rm(input.workspace, { recursive: true, force: true });
   }
 });
+
+it("keeps rejected captures available while carrying repaired unused classifications into recheck", async () => {
+  const input = await fixture();
+  try {
+    const name = "website-reference-00000000-0000-4000-8000-000000000002.png";
+    const source = `assets/${name}`;
+    const original = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jM1sAAAAASUVORK5CYII=",
+      "base64",
+    );
+    await writeFile(path.join(input.workspace, source), original);
+    await writeFile(
+      path.join(input.workspace, "reference-screenshots.json"),
+      JSON.stringify([
+        { name, url: "https://example.com/demo", title: "Demo logo", text: "A small logo crop" },
+      ]),
+    );
+    const draftPlan = structuredClone(plan);
+    draftPlan.scenes[0].assetPaths.push(source);
+    draftPlan.assets.push({
+      ...draftPlan.assets[0],
+      path: source,
+      observedContent: "Small logo with an unwanted demo badge",
+      plannedUse: "Opening logo",
+    });
+    const repairedPlan = structuredClone(draftPlan);
+    repairedPlan.scenes[0].assetPaths = ["assets/reference.txt"];
+    Object.assign(repairedPlan.assets[1], {
+      suitability: "unused",
+      sceneIds: [],
+      plannedUse: "Exclude from production",
+      limitation: "Insufficient detail and unwanted demo badge",
+    });
+    const issue = {
+      sceneId: "import",
+      assetPath: source,
+      issue: "The logo crop includes an unwanted demo badge",
+      expectedFix: "Exclude the unsuitable crop from scene usage",
+      acceptanceCriteria: "Mark it unused and remove scene links while preserving the original",
+    };
+    vi.mocked(agentTurn)
+      .mockResolvedValueOnce({
+        value: { status: "needs_repair", plan: draftPlan, issues: [issue] },
+      })
+      .mockImplementationOnce(async (options) => {
+        const evidence = JSON.parse(
+          await readFile(path.join(input.workspace, "brief-asset-review-input.json"), "utf8"),
+        );
+        expect(evidence.availableAssetPaths).toEqual(["assets/reference.txt", source]);
+        expect(evidence).not.toHaveProperty("productionAssetPaths");
+        expect(evidence.brief.assetPlan).toEqual(repairedPlan);
+        expect(options.prompt).toContain("not an approval list");
+        expect(options.prompt).toContain("do not edit the generated inventory JSON");
+        return { value: { status: "passed", plan: evidence.brief.assetPlan, issues: [] } };
+      });
+    const revise = vi.fn(
+      async (
+        draft: typeof input.brief & { assetPlan?: BriefAssetPlan },
+        _session: string | undefined,
+        feedback: string,
+      ) => {
+        expect(draft.assetPlan).toEqual(draftPlan);
+        const context = JSON.parse(feedback);
+        expect(context.availableAssetPaths).toEqual(["assets/reference.txt", source]);
+        expect(context.inventoryPolicy).toContain("suitability=unused");
+        return { value: { ...draft, assetPlan: repairedPlan }, sessionId: input.sessionId };
+      },
+    );
+    const result = await reviewBriefAssets({ ...input, revise });
+    expect(result.value.assetPlan).toEqual(repairedPlan);
+    expect(revise).toHaveBeenCalledOnce();
+    expect(agentTurn).toHaveBeenCalledTimes(2);
+    expect(await readFile(path.join(input.workspace, source))).toEqual(original);
+    expect(result.value.facts).toEqual(input.brief.facts);
+    expect(() =>
+      validateBriefAssetPlan(repairedPlan, ["assets/reference.txt", source]),
+    ).not.toThrow();
+    const invalid = structuredClone(repairedPlan);
+    invalid.assets[1].sceneIds = ["import"];
+    expect(() => validateBriefAssetPlan(invalid, ["assets/reference.txt", source])).toThrow(
+      "unused asset",
+    );
+  } finally {
+    await rm(input.workspace, { recursive: true, force: true });
+  }
+});
+
+it.each([
+  ["recorded demo", "Record typing, submitting sample data and viewing the result"],
+  ["captured stills", "Capture the settings and result screens as still images"],
+  ["mixed video", "Record form usage, show a captured result still and generated titles"],
+])(
+  "hands pending %s production to the main model without requiring capture in preparation",
+  async (_mode, instructions) => {
+    const input = await fixture();
+    try {
+      const evidencePlan = structuredClone(plan);
+      evidencePlan.scenes[0] = {
+        ...evidencePlan.scenes[0],
+        assetPaths: [],
+        use: instructions,
+        coverage: "limited",
+        limitation: "Pending production capture; only the supplied document has been verified",
+      };
+      evidencePlan.assets[0] = {
+        ...evidencePlan.assets[0],
+        sceneIds: [],
+        suitability: "unused",
+        plannedUse: "Source facts only, not a production image",
+      };
+      vi.mocked(agentTurn).mockResolvedValue({
+        value: { status: "passed", plan: evidencePlan, issues: [] },
+      });
+      const revise = vi.fn();
+      const result = await reviewBriefAssets({
+        ...input,
+        request: { ...input.request, instructions, urls: ["https://example.com"] },
+        revise,
+      });
+      expect(result.value.assetPlan).toEqual(evidencePlan);
+      expect(revise).not.toHaveBeenCalled();
+      const review = vi.mocked(agentTurn).mock.calls[0][0];
+      expect(review.readOnly).toBe(true);
+      expect(review.prompt).toContain("The main model owns the production plan during building");
+      expect(review.prompt).toContain("missing footage is expected before building");
+      expect(review.prompt).toContain(
+        "does not approve uncaptured footage or waive final-result review",
+      );
+      expect(review.prompt).toContain("Keep observedContent strictly factual");
+      expect(review.prompt).toContain("screenshot-only scenes");
+    } finally {
+      await rm(input.workspace, { recursive: true, force: true });
+    }
+  },
+);

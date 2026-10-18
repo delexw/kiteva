@@ -4,6 +4,7 @@ import {
   query,
   type SDKMessage,
   type SDKAssistantMessageError,
+  type Query,
 } from "@anthropic-ai/claude-agent-sdk";
 import path from "node:path";
 import { briefExplorationAgents } from "./brief-exploration";
@@ -120,22 +121,34 @@ export const claudeAgent: Agent = {
   async run(options) {
     const { workspace, signal, prompt, systemPrompt, jsonSchema, referenceServer, onEvent, model } =
       options;
+    signal.throwIfAborted();
     const caveman = await cavemanRuntime(signal);
+    signal.throwIfAborted();
     let sessionId = options.sessionId;
     let result: unknown;
+    let stream: Query | undefined;
+    const closeQuery = () => {
+      const current = stream;
+      stream = undefined;
+      current?.close();
+    };
     const abortController = new AbortController();
-    const abort = () => abortController.abort();
+    const abort = () => {
+      abortController.abort(signal.reason);
+      closeQuery();
+    };
     signal.addEventListener("abort", abort, { once: true });
     if (signal.aborted) abort();
     let completed = false;
     let terminalAssistantError: SDKAssistantMessageError | undefined;
     try {
-      const stream = query({
+      signal.throwIfAborted();
+      stream = query({
         prompt,
         options: {
           cwd: workspace,
           model: model,
-          effort: options.reasoningEffort || "medium",
+          ...(options.reasoningEffort ? { effort: options.reasoningEffort } : {}),
           systemPrompt,
           env: {
             ...childEnvironment(),
@@ -221,8 +234,10 @@ export const claudeAgent: Agent = {
         },
       });
       for await (const e of stream) {
+        signal.throwIfAborted();
         const mapped = claudeEvent(e);
         if (mapped) onEvent({ ...mapped, message: safeMessage(mapped.message) });
+        signal.throwIfAborted();
         if (e.type === "system" && e.subtype === "init") {
           sessionId = e.session_id;
           if (!options.textOnly)
@@ -249,6 +264,7 @@ export const claudeAgent: Agent = {
           result = e.structured_output ?? JSON.parse(e.result);
         }
       }
+      signal.throwIfAborted();
       if (!completed) throw Error("Claude stream ended without a completed turn");
     } catch (error) {
       if (!signal.aborted && !completed && terminalAssistantError === "overloaded")
@@ -256,6 +272,7 @@ export const claudeAgent: Agent = {
       throw error;
     } finally {
       signal.removeEventListener("abort", abort);
+      closeQuery();
     }
 
     return { result, sessionId };

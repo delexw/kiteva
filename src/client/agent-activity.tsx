@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "./i18n";
 import {
   ChainOfThought,
   ChainOfThoughtHeader,
@@ -14,9 +15,11 @@ import { Message, MessageContent, MessageResponse } from "./components/ai-elemen
 import { Check, LoaderCircle } from "lucide-react";
 import type { AgentProgressEvent } from "../shared/contracts";
 import { type ActivityItem, activityItems } from "./agent-activity-model";
+import { displayActivityItems, type DisplayActivityItem } from "./activity-display";
 import { useStickToBottomContext } from "use-stick-to-bottom";
 
 function ActivityTargetLink({ label, targetId }: { label: string; targetId: string }) {
+  useUiLanguage();
   const { scrollRef, stopScroll } = useStickToBottomContext();
   return (
     <a
@@ -48,30 +51,33 @@ export function AgentActivity({
   events: AgentProgressEvent[];
   variant?: "panel" | "progress";
 }) {
-  const items = useMemo(() => activityItems(events), [events]);
+  useUiLanguage();
+  const items = useMemo(() => displayActivityItems(activityItems(events)), [events]);
   return (
     <aside
       className={variant === "progress" ? "activity-panel activity-progress" : "activity-panel"}
     >
       <div className="section-heading">
-        <h2>{variant === "progress" ? "Live progress" : "Agent activity"}</h2>
+        <h2>
+          {variant === "progress" ? translateUi("Live progress") : translateUi("Agent activity")}
+        </h2>
         <span className="local-dot" />
       </div>
-      <p className="activity-caption">Follow the work as it happens</p>
+      <p className="activity-caption">{translateUi("Follow the work as it happens")}</p>
       <Conversation
         className="activity-conversation"
         role="log"
-        aria-label="Agent activity"
+        aria-label={translateUi("Agent activity")}
         aria-live="polite"
         aria-relevant="additions text"
       >
         <ConversationContent className="activity-feed">
-          {!items.length && <p>Preparing your project…</p>}
+          {!items.length && <p>{translateUi("Preparing your project…")}</p>}
           {items.map((item) => (
             <ActivityRow item={item} key={item.id} />
           ))}
         </ConversationContent>
-        <ConversationScrollButton aria-label="Jump to latest activity" />
+        <ConversationScrollButton aria-label={translateUi("Jump to latest activity")} />
       </Conversation>
     </aside>
   );
@@ -90,6 +96,7 @@ export function ProgressDisclosure({
   now?: number;
   startedAt?: string;
 }) {
+  useUiLanguage();
   if (!items.length) return null;
   const elapsed = Math.max(
     0,
@@ -100,9 +107,11 @@ export function ProgressDisclosure({
     ),
   );
   const duration = elapsed >= 60 ? `${Math.floor(elapsed / 60)}m ${elapsed % 60}s` : `${elapsed}s`;
-  const updates = items.reduce((total, item) => total + (item.repetitions || 1), 0);
   return (
-    <ChainOfThought className="progress-disclosure" aria-label={`${title} progress`}>
+    <ChainOfThought
+      className="progress-disclosure"
+      aria-label={translateUi("{{value0}} progress", { value0: title })}
+    >
       <ChainOfThoughtHeader
         className="progress-disclosure-trigger"
         icon={
@@ -114,41 +123,42 @@ export function ProgressDisclosure({
           </span>
         }
       >
-        {active && <span className="progress-thinking-label">Thinking…</span>}
-        {title} · {active ? "Working for" : "Worked for"} {duration}
-        <span className="progress-disclosure-count">{updates} updates</span>
-        {active && <span className="progress-disclosure-latest">{items.at(-1)!.text}</span>}
+        {active && <span className="progress-thinking-label">{translateUi("Thinking…")}</span>}
+        {title} · {active ? translateUi("Working for") : translateUi("Worked for")} {duration}
+        {active && (
+          <span className="progress-disclosure-latest">
+            {translateUi(displayActivityItems(items).at(-1)!.text)}
+          </span>
+        )}
       </ChainOfThoughtHeader>
       <ChainOfThoughtContent className="progress-disclosure-content">
-        {items.map((item) => (
-          <ChainOfThoughtStep
-            key={item.id}
-            className="progress-disclosure-step"
-            icon={
-              item.status === "running"
-                ? LoaderCircle
-                : item.status === "complete"
-                  ? Check
-                  : undefined
-            }
-            status={item.status === "running" ? "active" : "complete"}
-            label={
-              <>
-                {item.text}
-                {item.repetitions && item.repetitions > 1 && (
-                  <span className="activity-repeat">{item.repetitions} updates</span>
-                )}
-              </>
-            }
-            description={
-              <time dateTime={item.time}>
-                {new Date(item.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-              </time>
-            }
-          />
+        {displayActivityItems(items).map((item) => (
+          <ProgressStep item={item} key={item.id} />
         ))}
       </ChainOfThoughtContent>
     </ChainOfThought>
+  );
+}
+
+function ProgressStep({ item }: { item: DisplayActivityItem }) {
+  return (
+    <ChainOfThoughtStep
+      className="progress-disclosure-step"
+      icon={
+        item.status === "running" ? LoaderCircle : item.status === "complete" ? Check : undefined
+      }
+      status={item.status === "running" ? "active" : "complete"}
+      label={translateUi(item.text)}
+      description={
+        <time dateTime={item.time}>
+          {new Date(item.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </time>
+      }
+    >
+      {item.children?.map((child) => (
+        <ProgressStep item={child} key={child.id} />
+      ))}
+    </ChainOfThoughtStep>
   );
 }
 
@@ -157,7 +167,7 @@ export function GenerationActivity({
   jobId,
   title,
   completed,
-  label = "Preview",
+  label = translateUi("Preview"),
 }: {
   events: AgentProgressEvent[];
   jobId: string;
@@ -165,16 +175,20 @@ export function GenerationActivity({
   completed: boolean;
   label?: string;
 }) {
+  useUiLanguage();
   const items = useMemo(
     () => activityItems(events.filter((event) => event.jobId === jobId)),
     [events, jobId],
   );
   if (!items.length) return null;
   return (
-    <div className="generation-job-activity" aria-label={`${label} activity · ${title}`}>
+    <div
+      className="generation-job-activity"
+      aria-label={translateUi("{{value0}} activity · {{value1}}", { value0: label, value1: title })}
+    >
       <ProgressDisclosure
         items={items.filter((item) => item.kind !== "message")}
-        title={`${label} progress`}
+        title={translateUi("{{value0}} progress", { value0: label })}
         active={!completed}
       />
       {items
@@ -190,9 +204,10 @@ export function ActivityRow({
   item,
   target,
 }: {
-  item: ActivityItem;
+  item: DisplayActivityItem;
   target?: { label: string; targetId?: string };
 }) {
+  useUiLanguage();
   return (
     <Message from="assistant" className={`activity-item activity-${item.kind}`}>
       <time dateTime={item.time}>
@@ -206,24 +221,22 @@ export function ActivityRow({
             <span className="activity-target">{target.label}</span>
           ))}
         {item.kind !== "message" ? (
-          <p>
-            {item.text}
-            {item.repetitions && item.repetitions > 1 && (
-              <span className="activity-repeat">{item.repetitions} updates</span>
-            )}
-          </p>
+          <p>{translateUi(item.text)}</p>
         ) : (
           <MessageResponse isAnimating={Boolean(item.streaming)} controls={false}>
             {item.text}
           </MessageResponse>
         )}
+        {item.children?.map((child) => (
+          <ActivityRow item={child} key={child.id} />
+        ))}
       </MessageContent>
       {item.kind === "tool" && (item.status === "running" || item.status === "complete") && (
         <span
           className={`tool-status tool-status-${item.status}`}
           role="img"
-          aria-label={item.status === "running" ? "Working" : "Done"}
-          title={item.status === "running" ? "Working" : "Done"}
+          aria-label={item.status === "running" ? translateUi("Working") : translateUi("Done")}
+          title={item.status === "running" ? translateUi("Working") : translateUi("Done")}
         >
           {item.status === "running" ? (
             <LoaderCircle size={14} className="spin" />

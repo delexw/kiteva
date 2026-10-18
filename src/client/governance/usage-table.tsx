@@ -1,9 +1,11 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { Table, Typography, type TableColumnsType } from "antd";
 import type { ModelActivity } from "../../shared/governance";
-const tokens = (value: number | null) => (value === null ? "Not recorded" : value.toLocaleString());
+const tokens = (value: number | null) =>
+  value === null ? translateUi("Not recorded") : value.toLocaleString();
 const money = (row: ModelActivity) =>
   row.costLow === null
-    ? "Unavailable"
+    ? translateUi("Unavailable")
     : row.costHigh !== row.costLow
       ? `$${row.costLow.toFixed(4)}–$${row.costHigh!.toFixed(4)}`
       : `$${row.costLow.toFixed(4)}`;
@@ -14,9 +16,10 @@ export function GovernanceUsageTable({
   rows: ModelActivity[];
   byFunction?: boolean;
 }) {
+  useUiLanguage();
   const columns: TableColumnsType<ModelActivity> = [
     {
-      title: byFunction ? "Model / function" : "Model",
+      title: byFunction ? translateUi("Model / function") : translateUi("Model"),
       dataIndex: "model",
       key: "model",
       width: 230,
@@ -25,51 +28,58 @@ export function GovernanceUsageTable({
           <strong>{row.model}</strong>
           {byFunction && (
             <div className="governance-table-detail">
-              {row.purpose}
-              {row.cacheHits ? ` · ${row.cacheHits} cached summaries reused` : ""}
+              {row.purpose && translateUi(row.purpose)}
+              {row.cacheHits
+                ? translateUi(" · {{value0}} cached summaries reused", { value0: row.cacheHits })
+                : ""}
             </div>
           )}
         </>
       ),
     },
     {
-      title: "Invocations",
+      title: translateUi("Invocations"),
       dataIndex: "calls",
       key: "calls",
       width: 100,
       sorter: (a, b) => a.calls - b.calls,
     },
     {
-      title: "Tools",
+      title: translateUi("Tools"),
       dataIndex: "tools",
       key: "tools",
       width: 70,
       sorter: (a, b) => a.tools - b.tools,
     },
     {
-      title: "Input tokens",
+      title: translateUi("Input tokens"),
       dataIndex: "inputTokens",
       key: "inputTokens",
       width: 110,
       render: tokens,
     },
     {
-      title: "Output tokens",
+      title: translateUi("Output tokens"),
       dataIndex: "outputTokens",
       key: "outputTokens",
       width: 110,
       render: tokens,
     },
     {
-      title: "Cached input",
+      title: translateUi("Cached input"),
       dataIndex: "cachedTokens",
       key: "cachedTokens",
       width: 110,
       render: tokens,
     },
-    { title: "Cached output", key: "cachedOutput", width: 110, render: () => "Not reported" },
     {
-      title: "Estimated USD",
+      title: translateUi("Cached output"),
+      key: "cachedOutput",
+      width: 110,
+      render: () => translateUi("Not reported"),
+    },
+    {
+      title: translateUi("Estimated USD"),
       key: "cost",
       width: 160,
       fixed: "right",
@@ -78,7 +88,7 @@ export function GovernanceUsageTable({
           {money(row)}
           <div>
             <Typography.Text type="secondary" className="governance-table-detail">
-              {byFunction ? row.costBasis : "Known subtotal"}
+              {translateUi(byFunction ? row.costBasis : "Known subtotal")}
             </Typography.Text>
           </div>
         </>
@@ -95,7 +105,7 @@ export function GovernanceUsageTable({
       tableLayout="fixed"
       scroll={{ x: 1000 }}
       size="small"
-      locale={{ emptyText: "No model activity recorded." }}
+      locale={{ emptyText: translateUi("No model activity recorded.") }}
     />
   );
 }

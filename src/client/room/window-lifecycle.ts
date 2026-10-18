@@ -1,3 +1,4 @@
+import { translateUi } from "../i18n/service";
 import { isRunSettled, type Run } from "../../shared/contracts";
 import { projectName } from "../../shared/project-name";
 import { scopedAssetQuestions } from "../../shared/asset-question-scopes";
@@ -99,15 +100,19 @@ export function roomProjectSignals(project: Run) {
 export function roomProjectStatusText(project: Run) {
   const { questions, working, failed } = roomProjectSignals(project);
   return [
-    working ? "working" : failed ? "needs attention" : "",
-    questions ? `${questions} question${questions === 1 ? "" : "s"} waiting` : "",
+    working ? translateUi("working") : failed ? translateUi("needs attention") : "",
+    questions ? translateUi("dock.questions", { count: questions }) : "",
   ]
     .filter(Boolean)
     .join(", ");
 }
 export function roomDockLabel(project: Run, kind: RoomProjectWindowKind) {
   const status = roomProjectStatusText(project);
-  return `Restore ${projectName(project)}, ${kind === "expanded" ? "open project" : "project card"}, minimized${status ? `, ${status}` : ""}`;
+  return translateUi("Restore {{name}}, {{kind}}, minimized{{status}}", {
+    name: projectName(project),
+    kind: translateUi({ expanded: "open project", card: "project card" }[kind]),
+    status: status ? `, ${status}` : "",
+  });
 }
 /** Whether a window is drawn: a route-bound window only shows while its route is open. */
 export function isRoomWindowDisplayed(window: RoomWindowState, routeWindowId?: string) {
@@ -131,6 +136,6 @@ export function roomProjectPlacement(
         : "";
   return {
     cardClosed: cardState === "Closed",
-    label: [cardState, expandedState].filter(Boolean).join(" · "),
+    label: [translateUi(cardState), translateUi(expandedState)].filter(Boolean).join(" · "),
   };
 }

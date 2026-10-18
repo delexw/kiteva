@@ -1,3 +1,5 @@
+import { UiLanguageSwitch, uiLanguages, uiLanguage } from "../i18n";
+import { translateUi, useUiLanguage } from "../i18n";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Attachments, XProvider } from "@ant-design/x";
 import { useReducedMotion } from "motion/react";
@@ -148,6 +150,7 @@ export function CreativeRoom({
     content: (actions: { chooseStyle: (id: string, name: string) => void }) => ReactNode;
   };
 }) {
+  useUiLanguage();
   const saved = useRoomState();
   const { room, setRoom, loaded } = saved;
   const [front, setFront] = useState<string>();
@@ -179,7 +182,11 @@ export function CreativeRoom({
   const refreshMaterials = () => api<RoomLibraryAsset[]>("/api/room/library").then(setMaterials);
   useEffect(() => {
     refreshMaterials().catch((e) =>
-      setError(`Could not open your material shelf: ${(e as Error).message}`),
+      setError(
+        translateUi("Could not open your material shelf: {{value0}}", {
+          value0: (e as Error).message,
+        }),
+      ),
     );
   }, []);
   useEffect(() => {
@@ -291,7 +298,13 @@ export function CreativeRoom({
         );
         setRoom((previous) => ({ ...previous, drafts: { ...previous.drafts, [key]: draft } }));
       })
-      .catch((e) => setError(`Could not load that project’s brief: ${(e as Error).message}`));
+      .catch((e) =>
+        setError(
+          translateUi("Could not load that project’s brief: {{value0}}", {
+            value0: (e as Error).message,
+          }),
+        ),
+      );
     return () => {
       disposed = true;
     };
@@ -350,7 +363,11 @@ export function CreativeRoom({
     await refreshMaterials().catch(() => {});
     setUploading(false);
     if (problems.length) void toast.error(problems.join(" · "), 8);
-    if (duplicates.length) void toast.info(`Already on your shelf: ${duplicates.join(", ")}`, 4);
+    if (duplicates.length)
+      void toast.info(
+        translateUi("Already on your shelf: {{value0}}", { value0: duplicates.join(", ") }),
+        4,
+      );
     return added;
   }
   const openQuestions = (run: Run) => scopedAssetQuestions(run).filter((q) => q.state === "open");
@@ -366,15 +383,15 @@ export function CreativeRoom({
         ? all.find((run) => run.id === appRoute(path.split("?")[0]).projectId)
         : undefined;
     return project
-      ? `${roomUtilities[page].title} · ${projectName(project)}`
-      : roomUtilities[page].title;
+      ? `${translateUi(roomUtilities[page].title)} · ${projectName(project)}`
+      : translateUi(roomUtilities[page].title);
   };
   const windowTitle = (id: string) => {
     const page = roomUtilityPage(id);
     return id === "assistant"
-      ? "Assistant"
+      ? translateUi("Assistant")
       : id === "library"
-        ? "Material shelf"
+        ? translateUi("Material shelf")
         : page
           ? utilityTitle(page)
           : projectName(projectFor(id)!);
@@ -388,14 +405,22 @@ export function CreativeRoom({
     setQuestion(undefined);
     reveal("assistant");
     onHome();
-    void toast.success(`${name} is now the Motion Graphic for your new idea`, 4);
+    void toast.success(
+      translateUi("{{value0}} is now the Motion Graphic for your new idea", { value0: name }),
+      4,
+    );
   }
   const draftKeys = Object.keys(room.drafts).filter((key) => key.startsWith("edit:"));
   const conversationItems = [
-    { key: "new", label: "New idea" },
+    { key: "new", label: translateUi("New idea") },
     ...draftKeys.map((key) => {
       const source = all.find((run) => `edit:${run.id}` === key);
-      return { key, label: `Edit · ${source ? projectName(source) : "earlier project"}` };
+      return {
+        key,
+        label: translateUi("Edit · {{value0}}", {
+          value0: source ? projectName(source) : "earlier project",
+        }),
+      };
     }),
     ...(all.length
       ? [
@@ -404,7 +429,7 @@ export function CreativeRoom({
             key: run.id,
             label: projectName(run),
             extra: openQuestions(run).length ? (
-              <span className="room-attention-dot" aria-label="Waiting for you" />
+              <span className="room-attention-dot" aria-label={translateUi("Waiting for you")} />
             ) : undefined,
           })),
         ]
@@ -501,9 +526,9 @@ export function CreativeRoom({
   }
   function confirmRemoveMaterial(asset: RoomLibraryAsset) {
     modal.confirm({
-      title: `Remove ${asset.originalName} from your shelf?`,
-      content: "Projects and drafts that already use it keep their copy.",
-      okText: "Remove",
+      title: translateUi("Remove {{value0}} from your shelf?", { value0: asset.originalName }),
+      content: translateUi("Projects and drafts that already use it keep their copy."),
+      okText: translateUi("Remove"),
       onOk: () => removeMaterial(asset),
     });
   }
@@ -558,7 +583,8 @@ export function CreativeRoom({
           }}
         />
       );
-    if (!current) return <p className="room-hint room-pad">Choose a conversation.</p>;
+    if (!current)
+      return <p className="room-hint room-pad">{translateUi("Choose a conversation.")}</p>;
     const waiting = openQuestions(current);
     return (
       <div className="room-assistant-project">
@@ -580,11 +606,13 @@ export function CreativeRoom({
         ))}
         {!waiting.length && (
           <p className="room-hint">
-            No questions waiting. Open the project to compare directions or fine-tune a film.
+            {translateUi(
+              "No questions waiting. Open the project to compare directions or fine-tune a film.",
+            )}
           </p>
         )}
         <Button type="primary" onClick={() => onOpen(current)}>
-          Open project
+          {translateUi("Open project")}
         </Button>
       </div>
     );
@@ -601,13 +629,17 @@ export function CreativeRoom({
             return false;
           }}
           placeholder={{
-            title: uploading ? "Adding to your shelf…" : "Drop files here or click to choose",
-            description:
+            title: uploading
+              ? translateUi("Adding to your shelf…")
+              : translateUi("Drop files here or click to choose"),
+            description: translateUi(
               "Documents, images and audio stay on your shelf. Project limits apply only when you pick them.",
+            ),
           }}
         />
         <p className="room-hint">
-          {materials.length} on your shelf · each project can use up to 12 files
+          {materials.length}
+          {" " + translateUi("on your shelf · each project can use up to 12 files")}
         </p>
         <ul className="room-library-items">
           {materials.map((asset) => (
@@ -617,9 +649,9 @@ export function CreativeRoom({
                 trigger={["click"]}
                 menu={{
                   items: [
-                    { key: "rename", label: "Rename" },
-                    { key: "download", label: "Download" },
-                    { key: "remove", label: "Remove from shelf", danger: true },
+                    { key: "rename", label: translateUi("Rename") },
+                    { key: "download", label: translateUi("Download") },
+                    { key: "remove", label: translateUi("Remove from shelf"), danger: true },
                   ],
                   onClick: ({ key }) => {
                     if (key === "rename") {
@@ -634,7 +666,7 @@ export function CreativeRoom({
                 <Button
                   type="text"
                   size="small"
-                  aria-label={`More for ${asset.originalName}`}
+                  aria-label={translateUi("More for {{value0}}", { value0: asset.originalName })}
                   icon={<MoreHorizontal size={16} />}
                 />
               </Dropdown>
@@ -658,17 +690,19 @@ export function CreativeRoom({
               onClick={() => openQuestion(project.id, waiting[0].id)}
             >
               <span className="room-attention-dot" />
-              {waiting.length} question{waiting.length === 1 ? "" : "s"}
+              {waiting.length}
+              {" " + translateUi("question")}
+              {waiting.length === 1 ? "" : "s"}
             </Button>
           )}
           <Button
             type="primary"
             size="small"
             className="room-widget-open"
-            aria-label={`Open ${projectName(project)}`}
+            aria-label={translateUi("Open {{value0}}", { value0: projectName(project) })}
             onClick={() => onOpen(project)}
           >
-            Open
+            {translateUi("Open")}
           </Button>
           <Dropdown
             trigger={["click"]}
@@ -676,16 +710,20 @@ export function CreativeRoom({
               items: [
                 {
                   key: "delete",
-                  label: isRunSettled(project) ? "Delete project" : "Delete (after work stops)",
+                  label: isRunSettled(project)
+                    ? translateUi("Delete project")
+                    : translateUi("Delete (after work stops)"),
                   danger: true,
                   disabled: !isRunSettled(project),
                 },
               ],
               onClick: () =>
                 modal.confirm({
-                  title: `Delete ${projectName(project)}?`,
-                  content: "Its previews and films will be removed. Your shelf is not affected.",
-                  okText: "Delete",
+                  title: translateUi("Delete {{value0}}?", { value0: projectName(project) }),
+                  content: translateUi(
+                    "Its previews and films will be removed. Your shelf is not affected.",
+                  ),
+                  okText: translateUi("Delete"),
                   okButtonProps: { danger: true },
                   onOk: async () => {
                     await api(`/api/runs/${project.id}`, { method: "DELETE" });
@@ -701,7 +739,7 @@ export function CreativeRoom({
             <Button
               type="text"
               size="small"
-              aria-label={`More for ${projectName(project)}`}
+              aria-label={translateUi("More for {{value0}}", { value0: projectName(project) })}
               icon={<MoreHorizontal size={16} />}
             />
           </Dropdown>
@@ -714,6 +752,7 @@ export function CreativeRoom({
   }
   return (
     <XProvider
+      locale={{ ...uiLanguages[uiLanguage.language].antd, ...uiLanguages[uiLanguage.language].x }}
       theme={
         reducedMotion ? { ...roomTheme, token: { ...roomTheme.token, motion: false } } : roomTheme
       }
@@ -742,9 +781,11 @@ export function CreativeRoom({
             }}
           >
             <img src="/kiteva-mark.svg" alt="" />
-            kiteva <span>your creative room</span>
+            {translateUi("kiteva") + " "}
+            <span>{translateUi("your creative room")}</span>
           </a>
-          <nav className="room-menu-actions" aria-label="Room">
+          <nav className="room-menu-actions" aria-label={translateUi("Room")}>
+            <UiLanguageSwitch />
             <Button
               type="primary"
               icon={<Plus size={15} />}
@@ -754,25 +795,29 @@ export function CreativeRoom({
                 reveal("assistant");
               }}
             >
-              New idea
+              {translateUi("New idea")}
             </Button>
-            <Tooltip title="Line up visible windows. Minimized and closed windows stay as they are.">
+            <Tooltip
+              title={translateUi(
+                "Line up visible windows. Minimized and closed windows stay as they are.",
+              )}
+            >
               <Button icon={<LayoutGrid size={15} />} onClick={arrange}>
-                Arrange
+                {translateUi("Arrange")}
               </Button>
             </Tooltip>
             <Dropdown
               menu={{
                 items: [
-                  ...launcherItems,
+                  ...launcherItems.map((item) => ({ ...item, label: translateUi(item.label) })),
                   { type: "divider" },
-                  { key: "appearance", label: "Desktop appearance…" },
+                  { key: "appearance", label: translateUi("Desktop appearance…") },
                 ],
                 onClick: ({ key }) =>
                   key === "appearance" ? setAppearanceOpen(true) : onLaunch(key),
               }}
             >
-              <Button icon={<Compass size={15} />}>Explore</Button>
+              <Button icon={<Compass size={15} />}>{translateUi("Explore")}</Button>
             </Dropdown>
           </nav>
         </header>
@@ -796,8 +841,12 @@ export function CreativeRoom({
               className="room-error"
               type="warning"
               showIcon
-              title={`Another tab changed ${conflictLabel(entry)}.`}
-              description="This tab still shows your version. Choose which one to keep."
+              title={translateUi("Another tab changed {{value0}}.", {
+                value0: conflictLabel(entry),
+              })}
+              description={translateUi(
+                "This tab still shows your version. Choose which one to keep.",
+              )}
               action={
                 <span className="room-conflict-actions">
                   <Button
@@ -805,10 +854,10 @@ export function CreativeRoom({
                     type="primary"
                     onClick={() => saved.resolveConflict(entry, true)}
                   >
-                    Keep this tab’s
+                    {translateUi("Keep this tab’s")}
                   </Button>
                   <Button size="small" onClick={() => saved.resolveConflict(entry, false)}>
-                    Use the other tab’s
+                    {translateUi("Use the other tab’s")}
                   </Button>
                 </span>
               }
@@ -819,8 +868,10 @@ export function CreativeRoom({
               className="room-error"
               type="error"
               showIcon
-              title="Your room changes aren’t saved yet."
-              description={`${saved.error} They stay in this tab; retry from the dock.`}
+              title={translateUi("Your room changes aren’t saved yet.")}
+              description={translateUi("{{value0}} They stay in this tab; retry from the dock.", {
+                value0: saved.error,
+              })}
             />
           )}
           {error && (
@@ -837,7 +888,7 @@ export function CreativeRoom({
         <div
           className="room-desktop"
           ref={desktop}
-          aria-label="Creative desktop"
+          aria-label={translateUi("Creative desktop")}
           style={{
             minHeight: mobile
               ? undefined
@@ -857,16 +908,16 @@ export function CreativeRoom({
             <span />
             <div className="room-wallpaper-dim" />
           </div>
-          {!loaded && !error && <p className="room-empty">Opening your room…</p>}
+          {!loaded && !error && <p className="room-empty">{translateUi("Opening your room…")}</p>}
           {loaded && !projects.length && (
             <div className="room-welcome">
-              <span>IDEAS TAKE FLIGHT</span>
+              <span>{translateUi("IDEAS TAKE FLIGHT")}</span>
               <h1>
-                Your room.
+                {translateUi("Your room.")}
                 <br />
-                Your next story.
+                {translateUi("Your next story.")}
               </h1>
-              <p>Drop in your references, then tell the assistant your idea.</p>
+              <p>{translateUi("Drop in your references, then tell the assistant your idea.")}</p>
             </div>
           )}
           {displayWindows.map((state) => {
@@ -886,7 +937,10 @@ export function CreativeRoom({
                 title={windowTitle(state.id)}
                 badge={
                   waiting > 0 && (
-                    <span className="room-attention-dot" aria-label={`${waiting} waiting`} />
+                    <span
+                      className="room-attention-dot"
+                      aria-label={translateUi("{{value0}} waiting", { value0: waiting })}
+                    />
                   )
                 }
                 desktop={desktop}
@@ -937,7 +991,9 @@ export function CreativeRoom({
                           <Button
                             type="text"
                             className="room-conversation-switch"
-                            aria-label={`Conversation: ${conversationLabel}. Choose another`}
+                            aria-label={translateUi("Conversation: {{value0}}. Choose another", {
+                              value0: conversationLabel,
+                            })}
                           >
                             <span>{conversationLabel}</span>
                             <ChevronDown size={14} />
@@ -951,9 +1007,11 @@ export function CreativeRoom({
                             onClick={() => {
                               const draftKey = conversation;
                               modal.confirm({
-                                title: "Remove this editing draft?",
-                                content: "The project, videos and material shelf will be kept.",
-                                okText: "Remove draft",
+                                title: translateUi("Remove this editing draft?"),
+                                content: translateUi(
+                                  "The project, videos and material shelf will be kept.",
+                                ),
+                                okText: translateUi("Remove draft"),
                                 okButtonProps: { danger: true },
                                 onOk: () => {
                                   setRoom((previous) => ({
@@ -967,11 +1025,14 @@ export function CreativeRoom({
                               });
                             }}
                           >
-                            Remove draft
+                            {translateUi("Remove draft")}
                           </Button>
                         )}
                         {questionCount > 0 && (
-                          <span className="room-hint">{questionCount} waiting for you</span>
+                          <span className="room-hint">
+                            {questionCount}
+                            {" " + translateUi("waiting for you")}
+                          </span>
                         )}
                       </div>
                       <div className="room-assistant-body">{assistantContent()}</div>
@@ -994,26 +1055,28 @@ export function CreativeRoom({
             );
           })}
         </div>
-        <footer className="room-dock" aria-label="Dock">
-          <Tooltip title="Material shelf">
+        <footer className="room-dock" aria-label={translateUi("Dock")}>
+          <Tooltip title={translateUi("Material shelf")}>
             <Button
-              aria-label="Open material shelf"
+              aria-label={translateUi("Open material shelf")}
               icon={<FolderOpen size={18} />}
               onClick={() => reveal("library")}
             />
           </Tooltip>
-          <Tooltip title="Desktop appearance">
+          <Tooltip title={translateUi("Desktop appearance")}>
             <Button
-              aria-label="Change desktop appearance"
+              aria-label={translateUi("Change desktop appearance")}
               aria-expanded={appearanceOpen}
               icon={<Palette size={18} />}
               onClick={() => setAppearanceOpen(true)}
             />
           </Tooltip>
-          <Tooltip title="Assistant">
+          <Tooltip title={translateUi("Assistant")}>
             <Badge count={questionCount} size="small" color={roomColors.activity}>
               <Button
-                aria-label={`Open assistant${questionCount ? `, ${questionCount} questions waiting` : ""}`}
+                aria-label={translateUi("Open assistant{{value0}}", {
+                  value0: questionCount ? `, ${questionCount} questions waiting` : "",
+                })}
                 icon={<MessageCircle size={18} />}
                 onClick={() => reveal("assistant")}
               />
@@ -1036,7 +1099,11 @@ export function CreativeRoom({
             }
           />
           {dockWindows.length + dockUtilities.length > 0 && (
-            <div className="room-dock-windows" role="group" aria-label="Minimized windows">
+            <div
+              className="room-dock-windows"
+              role="group"
+              aria-label={translateUi("Minimized windows")}
+            >
               {dockUtilities.map(({ id, page, path }) => (
                 <RoomDockUtility
                   key={id}
@@ -1071,7 +1138,7 @@ export function CreativeRoom({
           />
         </footer>
         <Modal
-          title="Rename material"
+          title={translateUi("Rename material")}
           open={Boolean(rename)}
           onCancel={() => setRename(undefined)}
           onOk={async () => {
@@ -1089,7 +1156,7 @@ export function CreativeRoom({
           }}
         >
           <Input
-            aria-label="Material name"
+            aria-label={translateUi("Material name")}
             value={renameText}
             onChange={(e) => setRenameText(e.target.value)}
           />

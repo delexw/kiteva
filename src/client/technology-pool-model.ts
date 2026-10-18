@@ -1,3 +1,4 @@
+import { uiLanguage } from "./i18n/service";
 import { technologyPool, type TechnologyDefinition } from "../shared/technology-pool";
 
 export interface TechnologyEntry {
@@ -21,7 +22,13 @@ export function filterTechnologyEntries(
       (!kind || entry.kind === kind) &&
       (!role || entry.definition.production_roles?.includes(role)) &&
       (!search ||
-        `${entry.key} ${JSON.stringify(entry.definition)}`.toLowerCase().includes(search)),
+        uiLanguage.matches(
+          search,
+          entry.key,
+          ...Object.values(entry.definition).filter(
+            (value): value is string => typeof value === "string",
+          ),
+        )),
   );
 }
 

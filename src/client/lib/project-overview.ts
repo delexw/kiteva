@@ -1,3 +1,4 @@
+import { translateUi } from "../i18n/service";
 import { isRunSettled, terminalPhases, type Run } from "../../shared/contracts";
 
 export function projectOverview(project: Run) {
@@ -14,20 +15,20 @@ export function projectOverview(project: Run) {
   const previews = project.jobs.filter((job) => job.kind === "preview");
   const phase = activeFull?.phase || activeJobs[0]?.phase || project.phase;
   const stages = {
-    queued: "Waiting to start",
-    preparing: "Preparing project",
-    ranking: "Exploring directions",
+    queued: translateUi("Waiting to start"),
+    preparing: translateUi("Preparing project"),
+    ranking: translateUi("Exploring directions"),
     generating: activeFull
       ? project.request.outputType === "page"
-        ? "Building full page"
-        : "Building full video"
-      : "Preparing previews",
-    validating: "Checking result",
-    rendering: "Rendering result",
-    ready: "Ready",
-    failed: "Needs attention",
-    cancelled: "Cancelled",
-    interrupted: "Interrupted",
+        ? translateUi("Building full page")
+        : translateUi("Building full video")
+      : translateUi("Preparing previews"),
+    validating: translateUi("Checking result"),
+    rendering: translateUi("Rendering result"),
+    ready: translateUi("Ready"),
+    failed: translateUi("Needs attention"),
+    cancelled: translateUi("Cancelled"),
+    interrupted: translateUi("Interrupted"),
   };
   return {
     active: !isRunSettled(project),

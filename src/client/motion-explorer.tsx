@@ -1,3 +1,4 @@
+import { uiLanguage, translateUi, useUiLanguage } from "./i18n";
 import { PageTemplate } from "./components/page-template";
 import { Button, Input, Tag, Alert, Collapse } from "antd";
 import { StudioSelect, StudioSelectOption } from "./components/studio-select";
@@ -11,6 +12,7 @@ import { MotionPreview } from "./motion-preview";
 import { RecommendedStack } from "./recommended-stack";
 import { MotionVariantList } from "./catalog-variants";
 export function MotionExplorer() {
+  useUiLanguage();
   const [motions, setMotions] = useState<MotionPattern[]>([]);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
@@ -29,24 +31,27 @@ export function MotionExplorer() {
   const filtered = motions.filter(
     (motion) =>
       (category === "All motions" || motion.category === category) &&
-      `${motion.name} ${motion.description} ${motion.category}`
-        .toLowerCase()
-        .includes(search.toLowerCase()),
+      uiLanguage.matches(search, motion.name, motion.description, motion.category),
   );
   return (
     <>
       <PageTemplate
         eyebrow="Library / Motion explorer"
-        title="A motion for every moment."
-        description={<p>Explore reusable actions and transitions.</p>}
-        actions={<Tag>{motions.length} motions</Tag>}
+        title={translateUi("A motion for every moment.")}
+        description={<p>{translateUi("Explore reusable actions and transitions.")}</p>}
+        actions={
+          <Tag>
+            {motions.length}
+            {" " + translateUi("motions")}
+          </Tag>
+        }
         controls={
           <div className="library-controls">
             <div className="search-field">
               <Search size={18} />
               <Input
-                aria-label="Search motions"
-                placeholder="Search actions, transitions, or subjects…"
+                aria-label={translateUi("Search motions")}
+                placeholder={translateUi("Search actions, transitions, or subjects…")}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
@@ -54,12 +59,14 @@ export function MotionExplorer() {
             <label className="category-select">
               <SlidersHorizontal size={16} />
               <StudioSelect
-                aria-label="Motion category"
+                aria-label={translateUi("Motion category")}
                 value={category}
                 onValueChange={(value) => setCategory(value)}
               >
                 {["All motions", ...new Set(motions.map((m) => m.category))].map((value) => (
-                  <StudioSelectOption key={value}>{value}</StudioSelectOption>
+                  <StudioSelectOption key={value} value={value}>
+                    {translateUi(value)}
+                  </StudioSelectOption>
                 ))}
               </StudioSelect>
             </label>
@@ -68,14 +75,19 @@ export function MotionExplorer() {
               aria-pressed={playing}
               onClick={() => setPlaying((value) => !value)}
             >
-              {playing ? "Pause previews" : "Play previews"}
+              {playing ? translateUi("Pause previews") : translateUi("Play previews")}
             </Button>
-            <span>{filtered.length} results</span>
+            <span>
+              {filtered.length}
+              {" " + translateUi("results")}
+            </span>
           </div>
         }
       >
         {error && <Alert type="error" showIcon title={error} />}
-        <p className="example-disclaimer">Code-authored illustrative studies · silent previews</p>
+        <p className="example-disclaimer">
+          {translateUi("Code-authored illustrative studies · silent previews")}
+        </p>
         <div className="style-grid motion-grid">
           {filtered.map((motion) => (
             <MotionCard
@@ -86,52 +98,55 @@ export function MotionExplorer() {
             />
           ))}
         </div>
-        {motions.length > 0 && filtered.length === 0 && <p>No motions match these filters.</p>}
+        {motions.length > 0 && filtered.length === 0 && (
+          <p>{translateUi("No motions match these filters.")}</p>
+        )}
         {selected && (
-          <Dialog title={selected.name} onClose={() => setSelected(undefined)} wide>
+          <Dialog title={translateUi(selected.name)} onClose={() => setSelected(undefined)} wide>
             <div className="style-detail">
               <div>
                 <MotionPreview
                   key={selected.id}
                   motionId={selected.id}
-                  name={selected.name}
+                  name={translateUi(selected.name)}
                   controls
                 />
                 <p className="example-disclaimer">
-                  Illustrative motion study, not original reference footage. Interactive triggers
-                  are scheduled for preview.
+                  {translateUi(
+                    "Illustrative motion study, not original reference footage. Interactive triggers are scheduled for preview.",
+                  )}
                 </p>
-                <p>{selected.description}</p>
-                <h3>Motion sequence</h3>
+                <p>{translateUi(selected.description)}</p>
+                <h3>{translateUi("Motion sequence")}</h3>
                 <ol>
                   {selected.motion_sequence.map((step) => (
-                    <li key={step}>{step}</li>
+                    <li key={step}>{translateUi(step)}</li>
                   ))}
                 </ol>
               </div>
               <div>
-                <div className="eyebrow">{selected.category.replaceAll("_", " ")}</div>
-                <h3>Suitable contexts</h3>
+                <div className="eyebrow">{translateUi(selected.category)}</div>
+                <h3>{translateUi("Suitable contexts")}</h3>
                 <ul>
                   {selected.compatibility.good_fit.map((context) => (
-                    <li key={context}>{context}</li>
+                    <li key={context}>{translateUi(context)}</li>
                   ))}
                 </ul>
-                <h3>Adapt or omit</h3>
+                <h3>{translateUi("Adapt or omit")}</h3>
                 <ul>
                   {selected.compatibility.adapt_or_omit_when.map((context) => (
-                    <li key={context}>{context}</li>
+                    <li key={context}>{translateUi(context)}</li>
                   ))}
                 </ul>
-                <h3>Video adaptation</h3>
-                <p>{selected.video_adaptation}</p>
+                <h3>{translateUi("Video adaptation")}</h3>
+                <p>{translateUi(selected.video_adaptation)}</p>
                 <MotionVariantList variants={selected.variants} />
                 <Collapse
                   size="small"
                   items={[
                     {
                       key: "Recommended stack",
-                      label: "Recommended stack",
+                      label: translateUi("Recommended stack"),
                       forceRender: true,
                       children: (
                         <>
@@ -150,7 +165,7 @@ export function MotionExplorer() {
                   items={[
                     {
                       key: "Executable prompt",
-                      label: "Executable prompt",
+                      label: translateUi("Original executable prompt"),
                       forceRender: true,
                       children: (
                         <>
@@ -165,7 +180,7 @@ export function MotionExplorer() {
                   items={[
                     {
                       key: "Complete metadata",
-                      label: "Complete metadata",
+                      label: translateUi("Complete original metadata"),
                       forceRender: true,
                       children: (
                         <>

@@ -82,6 +82,11 @@ it("requires all combination styles to appear within the same three-second previ
     expect(fullPrompt).toContain("do not claim a visual pass");
     expect(fullPrompt).toContain(videoPacingPolicy.editorial);
     expect(fullPrompt).toContain(videoPacingPolicy.reading);
+    expect(fullPrompt).toContain(videoPacingPolicy.coherence);
+    expect(fullPrompt).toContain("By default, favor brisk, energetic pacing");
+    expect(fullPrompt).toContain("Explicit user direction takes precedence");
+    expect(fullPrompt).toContain("not a fixed speed multiplier");
+    expect(fullPrompt).toContain("Preserve natural narration speed");
     expect(fullPrompt).not.toContain("every 2–4 seconds");
     expect(fullPrompt).toContain("not longer versions of the same six scenes");
     expect(fullPrompt).toContain("Include a pacing audit with timed beats");

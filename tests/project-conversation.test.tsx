@@ -194,7 +194,7 @@ it("isolates and merges consecutive updates within each full job", () => {
     { ...run, jobs: [preview, { ...full, phase: "generating", finishedAt: undefined }] },
     progress,
   );
-  expect(html).toContain("3 updates");
+  expect(html).not.toContain("3 updates");
   expect(html.match(/Working on your project/g)).toHaveLength(1);
 });
 it("does not expose internal narration or cross-job messages in a generation log", () => {
@@ -316,7 +316,7 @@ it("collapses adjacent progress into stable groups without hiding customer messa
   expect(html).toContain('aria-expanded="false"');
   expect(html).toContain("Your brief is ready.");
   expect(html).not.toContain("Reading project content");
-  expect(html).toContain("3 updates");
+  expect(html).not.toContain("3 updates");
   const additional = {
     id: 16,
     runId: run.id,

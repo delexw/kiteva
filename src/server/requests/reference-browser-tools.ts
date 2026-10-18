@@ -32,7 +32,12 @@ export function createReferenceTools(options: {
   let session: ReturnType<typeof createReferenceBrowser> | undefined;
   let calls = 0;
   const browser = () =>
-    (session ??= createReferenceBrowser(options.urls, options.signal, options.mode));
+    (session ??= createReferenceBrowser(
+      options.urls,
+      options.signal,
+      options.mode,
+      options.enableVideoCapture,
+    ));
   async function run(
     action: () => Promise<{ result: ReferenceToolResult; image?: Buffer }>,
     finalizing = false,
@@ -83,7 +88,7 @@ export function createReferenceTools(options: {
     referenceToolNames.click,
     {
       description: options.enableVideoCapture
-        ? "Click a control from the latest inspection in the same headless recording session. Client-only mock workflows are permitted with sample data. Real state-changing HTTP calls, login and credentials remain blocked; do not change real account data."
+        ? "Click a control from the latest inspection in the same dedicated browser recording session. Client-only mock workflows are permitted with sample data. Real state-changing HTTP calls, login and credentials remain blocked; do not change real account data."
         : "Explore a control identified by its ID in the latest inspection, such as a tab, menu, or existing project. Returns updated page inspection. This isolated browser blocks state-changing HTTP requests; never try to generate, delete, submit forms, sign in, or change real project data.",
       inputSchema: { controlId: z.string().regex(/^\d+$/) },
     },
@@ -129,7 +134,7 @@ export function createReferenceTools(options: {
       referenceToolNames.video,
       {
         description:
-          "Built-in headless website video capture. Inspect the supplied URL first. Start, interact with the SAME session using click_control/fill_control/scroll_page/wait_for_view, then stop with the returned recording ID. Stop validates silent WebM footage and saves assets plus timed cursor metadata. No desktop app, installation or Motion Graphic dependency. Maximum 120 seconds per take; use multiple takes for longer demos. Stop before returning your production manifest. Never claim simulated UI is real footage.",
+          "Built-in OpenScreen website video capture. Uses the configured desktop worker, or a dedicated visible browser on the current machine when no worker URL is set. Inspect the supplied URL first. Start, interact with the SAME session using click_control/fill_control/scroll_page/wait_for_view, then stop with the returned recording ID. Stop validates silent WebM footage and saves assets plus timed cursor metadata. Requires OpenScreen on the recording machine; never switches recording engines. A configured but unavailable worker is an error, not permission to record locally. Maximum 120 seconds per take; use multiple takes for longer demos. Stop before returning your production manifest. Never claim simulated UI is real footage.",
         inputSchema: {
           action: z.enum(["start", "stop"]),
           recordingId: z.string().uuid().optional(),

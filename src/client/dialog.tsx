@@ -1,3 +1,4 @@
+import { translateUi } from "./i18n";
 import { Modal } from "antd";
 import type { ReactNode } from "react";
 export function Dialog({
@@ -24,7 +25,7 @@ export function Dialog({
       style={{ top: 24 }}
       focusable={{ trap: true, focusTriggerAfterClose: true }}
       destroyOnHidden
-      closeIcon={<span aria-label="Close dialog">×</span>}
+      closeIcon={<span aria-label={translateUi("Close dialog")}>×</span>}
     >
       <div className="dialog-body">{children}</div>
     </Modal>

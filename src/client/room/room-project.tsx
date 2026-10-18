@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { Bubble, Sender } from "@ant-design/x";
 import { Alert, Button, Select, Tabs } from "antd";
 import { useState, type ReactNode } from "react";
@@ -48,6 +49,7 @@ export function RoomProject({
   view: RoomProjectView;
   onView: (view: RoomProjectView) => void;
 }) {
+  useUiLanguage();
   const overview = projectOverview(run);
   const full = run.jobs.filter((job) => job.kind === "full");
   const tab = view.tab || (full.length ? "full" : "previews");
@@ -72,20 +74,20 @@ export function RoomProject({
       .map((q) => (
         <Button key={q.id} className="room-question-badge" onClick={() => onQuestion(q.id)}>
           <span className="room-attention-dot" />
-          {q.mode === "blocking" ? "Decision needed" : "Your input"}
+          {q.mode === "blocking" ? translateUi("Decision needed") : translateUi("Your input")}
         </Button>
       ));
   return (
     <div className="room-project">
       <div className="room-project-toolbar">
-        <Button onClick={onEdit}>Edit brief</Button>
+        <Button onClick={onEdit}>{translateUi("Edit brief")}</Button>
         {!terminalPhases.has(run.phase) ? (
           <Button danger onClick={onCancel}>
-            Stop project
+            {translateUi("Stop project")}
           </Button>
         ) : (
           ["failed", "interrupted", "cancelled"].includes(run.phase) && (
-            <Button onClick={onRetry}>Retry</Button>
+            <Button onClick={onRetry}>{translateUi("Retry")}</Button>
           )
         )}
         {pending()}
@@ -99,7 +101,7 @@ export function RoomProject({
           items={[
             {
               key: "conversation",
-              label: "Conversation",
+              label: translateUi("Conversation"),
               children: (
                 <div className="room-project-conversation">
                   <Bubble
@@ -129,7 +131,7 @@ export function RoomProject({
                         footer={
                           q.state === "open" ? (
                             <Button size="small" onClick={() => onQuestion(q.id)}>
-                              Answer
+                              {translateUi("Answer")}
                             </Button>
                           ) : undefined
                         }
@@ -148,7 +150,7 @@ export function RoomProject({
             },
             {
               key: "previews",
-              label: "Directions",
+              label: translateUi("Directions"),
               children: (
                 <>
                   {!run.jobs.some((j) => j.kind === "preview") && (
@@ -170,12 +172,16 @@ export function RoomProject({
             },
             {
               key: "full",
-              label: `Full versions${full.length ? ` · ${full.length}` : ""}`,
+              label: translateUi("Full versions{{value0}}", {
+                value0: full.length ? ` · ${full.length}` : "",
+              }),
               children: (
                 <div className="room-preview-grid">
                   {!full.length && (
                     <p className="room-hint">
-                      Choose a direction to make the full version. Your previews stay saved.
+                      {translateUi(
+                        "Choose a direction to make the full version. Your previews stay saved.",
+                      )}
                     </p>
                   )}
                   {full.map((job) => (
@@ -192,7 +198,7 @@ export function RoomProject({
               : [
                   {
                     key: "storyboard",
-                    label: "Storyboard",
+                    label: translateUi("Storyboard"),
                     children: storyboards.length ? (
                       <ul className="room-storyboards">
                         {storyboards.map((job) => (
@@ -203,13 +209,15 @@ export function RoomProject({
                               target="_blank"
                               rel="noreferrer"
                             >
-                              Open storyboard
+                              {translateUi("Open storyboard")}
                             </a>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="room-hint">The storyboard appears when a full film is ready.</p>
+                      <p className="room-hint">
+                        {translateUi("The storyboard appears when a full film is ready.")}
+                      </p>
                     ),
                   },
                 ]),
@@ -222,23 +230,23 @@ export function RoomProject({
         />
       </div>
       {completed.length > 0 && (
-        <section className="room-refinement" aria-label="Fine-tune a finished film">
+        <section className="room-refinement" aria-label={translateUi("Fine-tune a finished film")}>
           <Sender
-            aria-label="Fine-tune instructions"
+            aria-label={translateUi("Fine-tune instructions")}
             value={refine}
             onChange={setRefine}
             loading={busy}
             disabled={overview.active}
             placeholder={
               overview.active
-                ? "Available when the current work finishes"
-                : "Fine-tune: what would you like to change?"
+                ? translateUi("Available when the current work finishes")
+                : translateUi("Fine-tune: what would you like to change?")
             }
             footer={
               <Select
                 size="small"
                 variant="borderless"
-                aria-label="Version to fine-tune"
+                aria-label={translateUi("Version to fine-tune")}
                 value={refineId}
                 popupMatchSelectWidth={false}
                 options={completed.map((job) => ({

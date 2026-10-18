@@ -1,3 +1,4 @@
+import { translateUi } from "./i18n/service";
 import { parseErrorCode, type ErrorCode } from "../shared/errors";
 const customerErrors: Record<ErrorCode, string> = {
   REQUEST_FAILED: "Something went wrong. Please try again.",
@@ -42,5 +43,5 @@ export function customerErrorMessage(
   code: unknown,
   fallback: ErrorCode = "REQUEST_FAILED",
 ): string {
-  return customerErrors[parseErrorCode(code, fallback)];
+  return translateUi(customerErrors[parseErrorCode(code, fallback)]);
 }

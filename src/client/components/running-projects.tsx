@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { useEffect, useState } from "react";
 import { Button, Popover } from "antd";
 import { motion, useReducedMotion } from "motion/react";
@@ -13,6 +14,7 @@ export function RunningProjects({
   projects: Run[];
   onOpen: (project: Run) => void;
 }) {
+  useUiLanguage();
   const [open, setOpen] = useState(false);
   const [now, setNow] = useState(Date.now());
   const reducedMotion = useReducedMotion();
@@ -34,8 +36,8 @@ export function RunningProjects({
           initial={reducedMotion ? false : { opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <strong>Running projects</strong>
-          {!running.length && <p>No projects running. You’re all caught up.</p>}
+          <strong>{translateUi("Running projects")}</strong>
+          {!running.length && <p>{translateUi("No projects running. You’re all caught up.")}</p>}
           <div className="running-project-rows">
             {running.map((project) => {
               const overview = projectOverview(project);
@@ -57,11 +59,13 @@ export function RunningProjects({
                   <span>
                     <strong>{projectName(project)}</strong>
                     <span>
-                      {overview.stage} · {minutes}m elapsed
+                      {overview.stage} · {minutes}
+                      {translateUi("m elapsed")}
                     </span>
                     {overview.previewCount > 0 && (
                       <small>
-                        {overview.readyPreviews}/{overview.previewCount} previews ready
+                        {overview.readyPreviews}/{overview.previewCount}
+                        {" " + translateUi("previews ready")}
                       </small>
                     )}
                   </span>
@@ -76,7 +80,7 @@ export function RunningProjects({
       <Button
         className="running-project-trigger"
         aria-expanded={open}
-        aria-label={`Running projects: ${running.length}`}
+        aria-label={translateUi("Running projects: {{value0}}", { value0: running.length })}
       >
         <span className="running-project-wave" aria-hidden="true">
           {[0, 1, 2].map((bar) => (
@@ -89,7 +93,8 @@ export function RunningProjects({
             />
           ))}
         </span>
-        Running · {running.length}
+        {translateUi("Running ·") + " "}
+        {running.length}
         <ChevronDown size={13} aria-hidden="true" />
       </Button>
     </Popover>

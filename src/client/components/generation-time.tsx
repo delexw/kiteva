@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import type { GenerationJob } from "../../shared/contracts";
 
 type GenerationTiming = Pick<
@@ -8,6 +9,7 @@ type GenerationTiming = Pick<
 };
 
 export function GenerationTime({ job, now }: { job: GenerationTiming; now: number }) {
+  useUiLanguage();
   const hasRecordedTime = [job.generationMs, job.renderMs, job.validationMs].some(
     (value) => value !== undefined,
   );
@@ -20,5 +22,10 @@ export function GenerationTime({ job, now }: { job: GenerationTiming; now: numbe
       ? recordedTime
       : (elapsedTime ?? (hasRecordedTime ? recordedTime : undefined));
   if (totalTime === undefined) return null;
-  return <p className="rationale">Generation {Math.max(0, Math.round(totalTime / 1000))}s</p>;
+  return (
+    <p className="rationale">
+      {translateUi("Generation") + " "}
+      {Math.max(0, Math.round(totalTime / 1000))}s
+    </p>
+  );
 }

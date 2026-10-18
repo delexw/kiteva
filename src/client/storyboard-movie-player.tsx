@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "./i18n";
 import {
   storyboardCrewPlan,
   storyboardCrewState,
@@ -20,7 +21,7 @@ import {
   storyboardDirectorDialogue,
   type StoryboardMovieCue,
 } from "./storyboard-movie";
-import { StoryboardCrew } from "./storyboard-crew";
+import { StoryboardCrew, storyboardCrewLabels } from "./storyboard-crew";
 
 function MovieSet({
   cue,
@@ -31,6 +32,7 @@ function MovieSet({
   base: string;
   title: string;
 }) {
+  useUiLanguage();
   const scene = cue?.scene;
   const asset = scene?.assets.map(storyboardAssetPath).find(Boolean);
   return (
@@ -40,11 +42,11 @@ function MovieSet({
         <div className="movie-prop">
           <span className="movie-prop-label">{scene?.title || title}</span>
           {asset ? (
-            <img src={`${base}/${asset}`} alt="Current scene reference" />
+            <img src={`${base}/${asset}`} alt={translateUi("Current scene reference")} />
           ) : (
             <div className="movie-paper">
               <span>✦</span>
-              <p>{scene?.purpose || "Set ready"}</p>
+              <p>{scene?.purpose || translateUi("Set ready")}</p>
             </div>
           )}
           <div className="movie-caption">
@@ -70,6 +72,7 @@ function MovieCrew({
   dialogue: ReturnType<typeof storyboardDirectorDialogue>;
   crewPlan: CrewPlan;
 }) {
+  useUiLanguage();
   const bubble = storyboardBubble(cue?.beat.development || "Waiting for the next recorded cue.");
   return (
     <>
@@ -80,7 +83,7 @@ function MovieCrew({
             reaction={dialogue.reaction}
             bodyTilt={dialogue.bodyTilt}
           />
-          <b>DIRECTOR</b>
+          <b>{translateUi(storyboardCrewLabels.director.name)}</b>
         </div>
         {(["stage", "lighting", "art", "sound", "camera"] as CrewRole[])
           .filter((role) => role === "stage" || role === "camera" || crewPlan[role].length > 0)
@@ -107,14 +110,8 @@ function MovieCrew({
                   </div>
                   <i className="movie-worker-dust" aria-hidden="true" />
                 </div>
-                <b>
-                  {role === "stage"
-                    ? "STAGE CREW"
-                    : role === "art"
-                      ? "ART DEPT"
-                      : role.toUpperCase()}
-                </b>
-                <span className="movie-worker-task">{state.action}</span>
+                <b>{translateUi(storyboardCrewLabels[role].name)}</b>
+                <span className="movie-worker-task">{translateUi(state.action)}</span>
               </div>
             );
           })}
@@ -128,7 +125,11 @@ function MovieCrew({
         data-speaking={dialogue.reaction}
       >
         <div className="movie-speech-content">
-          <strong>{cue ? `${storyboardTime(cue.start)} · ACTION` : "HOLD"}</strong>
+          <strong>
+            {cue
+              ? translateUi("{{value0}} · ACTION", { value0: storyboardTime(cue.start) })
+              : translateUi("HOLD")}
+          </strong>
           <p>{bubble.text}</p>
         </div>
       </div>
@@ -143,6 +144,7 @@ export function StoryboardMovie({
   storyboard: MangaStoryboard;
   base: string;
 }) {
+  useUiLanguage();
   const root = useRef<HTMLDivElement>(null);
   const timeline = useRef<gsap.core.Timeline | null>(null);
   const [position, setPosition] = useState(0);
@@ -261,19 +263,23 @@ export function StoryboardMovie({
       setPlaying(true);
     }
   }
-  if (!cues.length) return <p>No timed beats are recorded for movie playback.</p>;
+  if (!cues.length) return <p>{translateUi("No timed beats are recorded for movie playback.")}</p>;
   return (
     <div className="manga-movie" ref={root}>
       <div className="movie-heading">
         <strong>
-          ON SET ·{" "}
-          {scene ? `SCENE ${String((cue?.sceneIndex ?? 0) + 1).padStart(2, "0")}` : "BETWEEN CUES"}
+          {translateUi("ON SET ·")}{" "}
+          {scene
+            ? translateUi("SCENE {{value0}}", {
+                value0: String((cue?.sceneIndex ?? 0) + 1).padStart(2, "0"),
+              })
+            : translateUi("BETWEEN CUES")}
         </strong>
         <span>
           {storyboardTime(position)} / {storyboardTime(storyboard.durationSeconds)}
         </span>
       </div>
-      <div className="movie-stage" aria-label="Animated manga rehearsal">
+      <div className="movie-stage" aria-label={translateUi("Animated manga rehearsal")}>
         {transition && (
           <div
             className="movie-scene-pane movie-previous-pane"
@@ -294,10 +300,10 @@ export function StoryboardMovie({
           <div
             className="movie-scene-title"
             style={{ opacity: sceneTitle.opacity }}
-            aria-label="Scene introduction"
+            aria-label={translateUi("Scene introduction")}
           >
-            <span>HOW IT’S MADE</span>
-            <strong>THE DIRECTOR’S NOTEBOOK</strong>
+            <span>{translateUi("HOW IT’S MADE")}</span>
+            <strong>{translateUi("THE DIRECTOR’S NOTEBOOK")}</strong>
             <h2 aria-label={sceneTitle.title}>
               {[
                 ...new Intl.Segmenter("en", { granularity: "grapheme" }).segment(sceneTitle.title),
@@ -329,23 +335,25 @@ export function StoryboardMovie({
                 );
               })}
             </h2>
-            <p>Behind the scenes</p>
+            <p>{translateUi("Behind the scenes")}</p>
           </div>
         )}
       </div>
       <div className="movie-controls">
-        <Button onClick={toggle}>{playing ? "Pause movie" : "Play movie"}</Button>
+        <Button onClick={toggle}>
+          {playing ? translateUi("Pause movie") : translateUi("Play movie")}
+        </Button>
         <Button
           onClick={() => {
             timeline.current?.restart();
             setPlaying(true);
           }}
         >
-          Replay
+          {translateUi("Replay")}
         </Button>
         <input
           type="range"
-          aria-label="Movie time"
+          aria-label={translateUi("Movie time")}
           min={0}
           max={storyboard.durationSeconds}
           step={0.1}

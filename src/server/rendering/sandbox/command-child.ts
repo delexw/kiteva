@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { closeSync, openSync, appendFileSync } from "node:fs";
-import { CommandCaptureSchema } from "./command-payload";
+import { CommandCaptureSchema } from "./command-payload.ts";
 
 const payload = CommandCaptureSchema.parse(
   JSON.parse(Buffer.from(process.argv[2], "base64url").toString("utf8")),

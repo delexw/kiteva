@@ -1,8 +1,7 @@
 import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
-import { createRequire } from "node:module";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { systemEnvironment } from "../../runtime/platform";
 import { watchCommandOutput } from "../../runtime/file-output";
@@ -37,11 +36,10 @@ export async function runCodexSandboxCommand(
   ]);
   const finishStdout = watchCommandOutput(stdoutFile, stdout);
   const finishStderr = watchCommandOutput(stderrFile, stderr);
-  const require = createRequire(import.meta.url);
+  // Node 24 strips this helper's erasable types natively. tsx probes os.userInfo()
+  // on Windows, which is unavailable inside the restricted sandbox account.
   const command = [
     process.execPath,
-    "--import",
-    pathToFileURL(require.resolve("tsx")).href,
     fileURLToPath(new URL("./command-child.ts", import.meta.url)),
     Buffer.from(
       JSON.stringify({

@@ -38,6 +38,6 @@ jobs:
       - name: Check types and build
         run: npm run build
       - name: Check native platform contracts
-        run: npx vitest run tests/native-platform.test.ts tests/process-tree.test.ts tests/workspace-links.test.ts tests/windows-render-policy.test.ts tests/windows-readiness.test.ts tests/browser-executable.test.ts tests/runtime-command.test.ts tests/file-output.test.ts tests/codex-command.test.ts tests/website-capture.integration.test.ts --maxWorkers=4
+        run: npx vitest run tests/native-platform.test.ts tests/process-tree.test.ts tests/workspace-links.test.ts tests/windows-render-policy.test.ts tests/windows-readiness.test.ts tests/browser-executable.test.ts tests/runtime-command.test.ts tests/file-output.test.ts tests/codex-command.test.ts tests/command-child.test.ts tests/website-capture.integration.test.ts --maxWorkers=4
       - name: Verify native Windows security boundary and real render
         run: npm run windows:check

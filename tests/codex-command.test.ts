@@ -1,5 +1,3 @@
-import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
 import { PassThrough } from "node:stream";
 import { EventEmitter } from "node:events";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
@@ -78,11 +76,9 @@ it("uses buffered model-free execution, preserving full output and literal argv"
   ).toBe(7);
   expect(Buffer.concat(output)).toEqual(bytes);
   const request = requests.find((r) => r.method === "command/exec")!;
-  expect(request.params!.command[1]).toBe("--import");
-  expect(new URL(request.params!.command[2]).protocol).toBe("file:");
-  expect(fileURLToPath(request.params!.command[2])).toBe(
-    createRequire(import.meta.url).resolve("tsx"),
-  );
+  expect(request.params!.command[1]).toMatch(/command-child\.ts$/);
+  expect(request.params!.command).not.toContain("--import");
+  expect(request.params!.command.join(" ")).not.toContain("tsx");
   expect(request.params).not.toHaveProperty("streamStdoutStderr");
   expect(request.params).not.toHaveProperty("outputBytesCap");
   expect(request.params).not.toHaveProperty("disableOutputCap");

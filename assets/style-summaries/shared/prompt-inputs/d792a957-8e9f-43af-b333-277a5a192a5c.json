@@ -46,9 +46,7 @@
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
             "selection_guidance": "Use HyperFrames by default. Fall back to Remotion only when the documented fallback condition is met, and record the reason. Do not mix framework APIs.",
             "priority": "primary",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           },
           {
@@ -57,18 +55,11 @@
             "package": "react",
             "runtime": "browser; SSR requires avoiding browser-only APIs during render",
             "purpose": "Organize interface elements, SVG artwork, captions, and charts as components. In the Remotion fallback route, drive animation from Remotion frame time.",
-            "suggested_apis": [
-              "components",
-              "props",
-              "useMemo",
-              "useEffect"
-            ],
+            "suggested_apis": ["components", "props", "useMemo", "useEffect"],
             "optional": false,
             "docs_url": "https://react.dev/reference/react",
             "style_application": "Apply this tool to UI Animation / Product Motion Design according to visual_cues and tech.implementation.",
-            "production_roles": [
-              "supporting_tool"
-            ]
+            "production_roles": ["supporting_tool"]
           },
           {
             "name": "Remotion",
@@ -89,9 +80,7 @@
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
             "priority": "fallback",
             "selection_guidance": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           },
           {
@@ -111,9 +100,7 @@
             "optional": false,
             "docs_url": "https://developer.mozilla.org/en-US/docs/Web/SVG",
             "style_application": "Apply this tool to UI Animation / Product Motion Design according to visual_cues and tech.implementation.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "@remotion/renderer",
@@ -121,17 +108,11 @@
             "package": "@remotion/renderer",
             "runtime": "Node.js only",
             "purpose": "Render compositions from Node.js only when the Remotion fallback route is selected. Do not use it as a HyperFrames renderer or browser-side encoder.",
-            "suggested_apis": [
-              "selectComposition",
-              "renderMedia",
-              "renderStill"
-            ],
+            "suggested_apis": ["selectComposition", "renderMedia", "renderStill"],
             "optional": true,
             "docs_url": "https://www.remotion.dev/docs/renderer",
             "priority": "fallback_dependency",
-            "production_roles": [
-              "render_pipeline"
-            ]
+            "production_roles": ["render_pipeline"]
           },
           {
             "name": "Motion",
@@ -139,18 +120,12 @@
             "runtime": "browser; motion/react for mounted React components",
             "role": "animation_library",
             "purpose": "Optional animation of DOM or SVG layers for UI Animation / Product Motion Design. Preserve the style-specific timing and visual cues; verify deterministic video seeking before use.",
-            "suggested_apis": [
-              "animate",
-              "stagger",
-              "animation.pause()"
-            ],
+            "suggested_apis": ["animate", "stagger", "animation.pause()"],
             "integration_guidance": "Use the JavaScript entry point for HTML compositions. Motion is an optional layer, not a drop-in replacement for the HyperFrames GSAP timeline contract. Explicitly synchronize and verify seeking; use GSAP when that integration is not established. Use motion/react only within a React component runtime.",
             "optional": true,
             "docs_url": "https://motion.dev/docs/animate",
             "kind": "npm_library",
-            "production_roles": [
-              "motion_engine"
-            ]
+            "production_roles": ["motion_engine"]
           },
           {
             "name": "tldraw",
@@ -158,17 +133,12 @@
             "runtime": "mounted React editor in browser; exported assets for video composition",
             "role": "diagram_authoring",
             "purpose": "Optional authoring of diagrams, annotations, and editable graphic assets for UI Animation / Product Motion Design. Match the specified visual cues rather than assuming default editor styling; export layers for video animation.",
-            "suggested_apis": [
-              "Tldraw",
-              "editor"
-            ],
+            "suggested_apis": ["Tldraw", "editor"],
             "integration_guidance": "Use the editor to prepare assets or scene data, then animate exported layers in the selected video framework. It is not a video renderer, 3D engine, or automatic timeline adapter. Verify export APIs against the installed SDK version.",
             "optional": true,
             "docs_url": "https://tldraw.dev/quick-start",
             "kind": "npm_library",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "chroma.js",
@@ -191,9 +161,7 @@
             "optional": true,
             "docs_url": "https://gka.github.io/chroma.js/",
             "style_application": "Read palette.tokens, palette.constraints and palette.agent_instruction for UI Animation / Product Motion Design. Validate approved colors and assess readable existing token pairs with chroma-js. Use palette.gradient only when enabled and appropriate. Preserve task/reference colors exactly; optional suggested tokens are fallback inputs, not permission to recolor assets.",
-            "production_roles": [
-              "supporting_tool"
-            ]
+            "production_roles": ["supporting_tool"]
           },
           {
             "name": "Cropper.js",
@@ -225,9 +193,7 @@
             "docs_url": "https://fengyuanchen.github.io/cropperjs/api/",
             "selection_docs_url": "https://fengyuanchen.github.io/cropperjs/api/cropper-selection.html",
             "style_application": "Prepare screenshot crops without removing controls, labels or interface context required to explain a state change. Preserve actual product UI and branding; do not invent cropped-off content.",
-            "production_roles": [
-              "supporting_tool"
-            ]
+            "production_roles": ["supporting_tool"]
           },
           {
             "name": "Dragula",
@@ -254,9 +220,7 @@
             "verification": "For interactive delivery, verify reorder, container transfer, allowed/rejected drops, cancellation, touch, state persistence, keyboard alternatives and cleanup. For video, compare repeated and out-of-order seeking and inspect decoded motion.",
             "docs_url": "https://github.com/bevacqua/dragula#readme",
             "style_application": "Interactive card, list or Kanban reordering and transfer between containers.",
-            "production_roles": [
-              "supporting_tool"
-            ]
+            "production_roles": ["supporting_tool"]
           },
           {
             "name": "Cytoscape.js",
@@ -319,9 +283,7 @@
             "verification": "Check topology, source/target direction, weights, computed paths and metric interpretation against known input examples. Inspect label overlap, arrows, reading size, graph bounds and palette fidelity. Compare repeated and out-of-order frame requests with sequential video playback; verify renderer readiness and decoded export.",
             "docs_url": "https://js.cytoscape.org/",
             "style_application": "Build or accurately reproduce interactive dependency, workflow or network panels with selection, filtering and navigation; do not invent product relationships or controls.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "Anime.js",
@@ -347,9 +309,7 @@
             "verification": "Verify fixed initial states, exact final copy, geometry integrity, property ownership and time-unit conversion. Compare repeated, backward and out-of-order seeking with sequential playback, then inspect the decoded video for smoothness, readability, palette fidelity and loop continuity.",
             "docs_url": "https://animejs.com/documentation/",
             "style_application": "Animate accurate product states and transitions using explicit beginning and ending layouts.",
-            "production_roles": [
-              "motion_engine"
-            ]
+            "production_roles": ["motion_engine"]
           },
           {
             "name": "Leaflet",
@@ -378,9 +338,7 @@
             "verification": "Check coordinates, projection, bounds, route semantics, legends and required attribution. Verify loaded tiles and images, missing-asset handling, marker alignment, labels and output dimensions. Compare repeated and out-of-order time requests with sequential playback and inspect the decoded video for stable map rendering and readable geographic context.",
             "docs_url": "https://leafletjs.com/reference-versions.html",
             "style_application": "Use for an actual map-based product interface, preserving its documented locations, controls and interactions.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "HTML/CSS",
@@ -388,19 +346,11 @@
             "package": null,
             "runtime": "browser",
             "purpose": "Lay out real text, typography, and interface elements with accessible, measurable browser primitives.",
-            "suggested_apis": [
-              "CSS Grid",
-              "Flexbox",
-              "transform",
-              "clip-path",
-              "backdrop-filter"
-            ],
+            "suggested_apis": ["CSS Grid", "Flexbox", "transform", "clip-path", "backdrop-filter"],
             "optional": false,
             "docs_url": "https://developer.mozilla.org/en-US/docs/Web/CSS",
             "style_application": "Use accurate product interfaces, real copy, and established branding. Separate cards, numbers, charts, and states into animatable elements. Explain features through causal state changes, shared elements, and precise camera framing; avoid invented interfaces and repeatedly sliding a whole screenshot.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "GSAP",
@@ -408,18 +358,11 @@
             "package": "gsap",
             "runtime": "browser",
             "purpose": "Coordinate tweens, staggered actions, and a paused, seekable timeline driven by deterministic video time.",
-            "suggested_apis": [
-              "gsap.timeline",
-              "gsap.to",
-              "stagger",
-              "timeline.seek"
-            ],
+            "suggested_apis": ["gsap.timeline", "gsap.to", "stagger", "timeline.seek"],
             "optional": false,
             "docs_url": "https://gsap.com/docs/v3/",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "motion_engine"
-            ]
+            "production_roles": ["motion_engine"]
           },
           {
             "name": "Layered PNG/SVG Assets",
@@ -427,24 +370,15 @@
             "package": null,
             "runtime": "asset preparation / composition",
             "purpose": "Supply prepared layers or numbered frames. Preserve transparency, consistent dimensions, and clear naming; inspect assets before composition.",
-            "suggested_apis": [
-              "alpha channel",
-              "numbered frame sequence",
-              "layer manifest"
-            ],
+            "suggested_apis": ["alpha channel", "numbered frame sequence", "layer manifest"],
             "optional": false,
             "docs_url": null,
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "supporting_tool"
-            ]
+            "production_roles": ["supporting_tool"]
           }
         ],
         "implementation": "Reconstruct the actual product's components as DOM (cards, numbers, chart states as SVG) using supplied brand tokens, fonts and copy. Neutral #F7F9FA/#263440 is used only for new presentation chrome. A GSAP timeline drives causal state changes: a button press, then a card expands as a shared element (FLIP measured once at build), then numbers count with tabular figures, then the chart path transitions. The camera is a wrapper transform with precise framing. Card labels carry data-reveal-after on their card container. X-ray recipe: exterior and interior supplied layers share one registered transform, and a feathered CSS mask-image radial position animated by GSAP replaces pointer input. No invented internals. 3s preview: tap 0–0.5s → card expansion 0.5–1.4s → metric/chart update 1.4–2.4s → hold. If no real product assets are supplied, report the gap instead of inventing a UI.\nOptional recipe registered_xray: Register exterior/interior media with one coordinate system and shared transform. Reveal matching internal structure through a feathered mask without jumping scale or orientation; retain readable product labels. For export animate the mask with deterministic authored time instead of live pointer state. Keep the primary product/interface central; never manufacture unsupported internal features.",
-        "alternatives": [
-          "HTML/CSS + GSAP",
-          "Remotion"
-        ],
+        "alternatives": ["HTML/CSS + GSAP", "Remotion"],
         "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
         "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
         "framework_selection": {
@@ -475,16 +409,11 @@
         },
         "style_renderer": {
           "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-          "recommended_stack_refs": [
-            "HTML/CSS",
-            "SVG"
-          ]
+          "recommended_stack_refs": ["HTML/CSS", "SVG"]
         },
         "motion_engine": {
           "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-          "recommended_stack_refs": [
-            "GSAP"
-          ]
+          "recommended_stack_refs": ["GSAP"]
         },
         "production_policy_ref": "production_policy",
         "preview_recipes": [
@@ -499,9 +428,7 @@
           "reviewer": "Codex",
           "date": "2026-10-13",
           "evidence": "outputs/skillry-review/final-decisions.md",
-          "source_urls": [
-            "https://skillry.dev/ai-videos/opus-5-5/iamtanzil-120030"
-          ]
+          "source_urls": ["https://skillry.dev/ai-videos/opus-5-5/iamtanzil-120030"]
         },
         "technology_review": {
           "sourceHash": "85397a18a73065053aa0b2c596fe581f2142470502530141368fd101fdf8b27a",
@@ -573,20 +500,13 @@
         "generator": {
           "library": "chroma-js",
           "version": "3.2.0",
-          "operations": [
-            "chroma.valid",
-            "chroma(color).hex()",
-            "chroma.contrast"
-          ]
+          "operations": ["chroma.valid", "chroma(color).hex()", "chroma.contrast"]
         },
         "tokens": {
           "background": "#F7F9FA",
           "foreground": "#263440"
         },
-        "base_colors": [
-          "#F7F9FA",
-          "#263440"
-        ],
+        "base_colors": ["#F7F9FA", "#263440"],
         "base_color_count": 2,
         "constraints": [
           "These hex values are authored suggestions, not previously supplied exact colors or canonical style definitions.",
@@ -712,26 +632,17 @@
               "name": "GSAP",
               "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             },
             {
               "name": "GSAP ScrollTrigger",
               "purpose": "Optional interactive-web adapter: bind normalized progress to scroll. Do not require live scrolling for video export.",
               "package": "gsap",
-              "production_roles": [
-                "supporting_tool"
-              ],
+              "production_roles": ["supporting_tool"],
               "runtime": "browser",
               "optional": true,
               "docs_url": "https://gsap.com/docs/v3/Plugins/ScrollTrigger/",
@@ -747,9 +658,7 @@
               "purpose": "Optional 2D implementation of Scroll-Driven Section Reveal and Card Stacking using sprites, graphics, masks, or layered containers. Preserve the selected style; use Three.js when true 3D geometry is required.",
               "role": "2d_rendering",
               "package": "pixi.js",
-              "production_roles": [
-                "style_renderer"
-              ],
+              "production_roles": ["style_renderer"],
               "runtime": "browser",
               "optional": true,
               "docs_url": "https://pixijs.com/8.x/guides/getting-started/quick-start",
@@ -771,18 +680,11 @@
               "purpose": "Optional DOM or SVG implementation of Scroll-Driven Section Reveal and Card Stacking using controlled keyframes or sequences. Verify synchronization with the selected video framework before adopting this route.",
               "role": "animation_library",
               "package": "motion",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser; motion/react for mounted React components",
               "optional": true,
               "docs_url": "https://motion.dev/docs/animate",
-              "suggested_apis": [
-                "animate",
-                "stagger",
-                "animation.pause()",
-                "animation.time"
-              ],
+              "suggested_apis": ["animate", "stagger", "animation.pause()", "animation.time"],
               "integration_guidance": "Use the JavaScript entry point for HTML compositions. Pause playback and set animation.time in seconds from composition time, then verify that forward, backward, and direct seeks update the visible result. Motion is an optional animation layer, not a drop-in replacement for the HyperFrames GSAP registration contract; keep the registered GSAP timeline as the framework clock and explicitly synchronize Motion. Use motion/react only within mounted React components.",
               "kind": "npm_library"
             },
@@ -791,44 +693,25 @@
               "purpose": "Optionally author diagram, annotation, or card assets for Scroll-Driven Section Reveal and Card Stacking. Export layers or structured scene data; animate them using the video timeline.",
               "role": "diagram_authoring",
               "package": "tldraw",
-              "production_roles": [
-                "style_renderer"
-              ],
+              "production_roles": ["style_renderer"],
               "runtime": "mounted React editor in browser; exported assets for video composition",
               "optional": true,
               "docs_url": "https://tldraw.dev/quick-start",
-              "suggested_apis": [
-                "Tldraw",
-                "editor",
-                "editor.getSvgString",
-                "editor.toImage"
-              ],
+              "suggested_apis": ["Tldraw", "editor", "editor.getSvgString", "editor.toImage"],
               "integration_guidance": "Author diagrams and artwork in a mounted React editor, then export SVG or raster assets using editor.getSvgString or editor.toImage. Await export and split layers deliberately when separate animation is required; a flattened image does not preserve editable shapes. Animate those assets in the chosen framework. Verify signatures against the installed SDK; tldraw is not a video renderer or an automatic timeline adapter.",
               "kind": "npm_library"
             }
           ],
           "implementation": "Use an anchored outer stage with ordered card layers, explicit z-order, and bounded progress windows. Interactive output can use CSS sticky plus scroll-driven animation, or ScrollTrigger pinning with inner animated wrappers. Animate incoming cards over earlier cards; optionally scale or dim covered cards without hiding unread copy. For video, derive card transforms and coverage from composition time, with finite start and release states.",
           "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
-          "available_library_ids": [
-            "three_js",
-            "pixi_js",
-            "gsap",
-            "motion",
-            "tldraw"
-          ],
+          "available_library_ids": ["three_js", "pixi_js", "gsap", "motion", "tldraw"],
           "style_renderer": {
             "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-            "recommended_stack_refs": [
-              "PixiJS",
-              "tldraw"
-            ]
+            "recommended_stack_refs": ["PixiJS", "tldraw"]
           },
           "motion_engine": {
             "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-            "recommended_stack_refs": [
-              "GSAP",
-              "Motion"
-            ]
+            "recommended_stack_refs": ["GSAP", "Motion"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -889,43 +772,27 @@
               "name": "GSAP",
               "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             },
             {
               "name": "Three.js",
               "purpose": "Render genuine 3D forms or shader treatments when a 2D solution is insufficient.",
               "package": "three",
-              "production_roles": [
-                "style_renderer"
-              ],
+              "production_roles": ["style_renderer"],
               "runtime": "browser",
               "optional": true,
               "docs_url": "https://threejs.org/docs/",
-              "suggested_apis": [
-                "WebGLRenderer",
-                "Group",
-                "BufferGeometry",
-                "ShaderMaterial"
-              ]
+              "suggested_apis": ["WebGLRenderer", "Group", "BufferGeometry", "ShaderMaterial"]
             },
             {
               "name": "Web Audio API",
               "purpose": "Optional interactive audio playback and spatial panning after an appropriate user action. For video, use framework-owned audio tracks and precomputed analysis rather than a live AudioContext.",
               "package": null,
-              "production_roles": [
-                "supporting_tool"
-              ],
+              "production_roles": ["supporting_tool"],
               "runtime": "browser",
               "optional": true,
               "docs_url": "https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API",
@@ -941,9 +808,7 @@
               "purpose": "Optional DOM or SVG implementation of Hover-Driven 3D Voice Card Spatial Interaction using controlled keyframes or sequences. Verify synchronization with the selected video framework before adopting this route.",
               "role": "animation_library",
               "package": "motion",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser; motion/react for mounted React components",
               "optional": true,
               "docs_url": "https://motion.dev/docs/animate",
@@ -963,25 +828,14 @@
           ],
           "implementation": "Use CSS perspective with bounded rotateX and rotateY values driven by normalized pointer offsets; use preserve-3d and depth offsets only when inner layers need separation. Motion or GSAP can animate these browser transforms. Keep text legible and separate audio playback controls from tilt. For video, evaluate authored pointer and transform states from composition time and let the video framework own audio; do not depend on live hover or AudioContext playback.",
           "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
-          "available_library_ids": [
-            "three_js",
-            "pixi_js",
-            "gsap",
-            "motion",
-            "tldraw"
-          ],
+          "available_library_ids": ["three_js", "pixi_js", "gsap", "motion", "tldraw"],
           "style_renderer": {
             "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-            "recommended_stack_refs": [
-              "Three.js"
-            ]
+            "recommended_stack_refs": ["Three.js"]
           },
           "motion_engine": {
             "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-            "recommended_stack_refs": [
-              "GSAP",
-              "Motion"
-            ]
+            "recommended_stack_refs": ["GSAP", "Motion"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -1043,26 +897,17 @@
               "name": "GSAP",
               "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             },
             {
               "name": "GSAP ScrollTrigger",
               "purpose": "Optional interactive-web adapter: bind normalized progress to scroll. Do not require live scrolling for video export.",
               "package": "gsap",
-              "production_roles": [
-                "supporting_tool"
-              ],
+              "production_roles": ["supporting_tool"],
               "runtime": "browser",
               "optional": true,
               "docs_url": "https://gsap.com/docs/v3/Plugins/ScrollTrigger/",
@@ -1078,9 +923,7 @@
               "purpose": "Optional 2D implementation of Scroll-Driven Chaptered Scene Transition using sprites, graphics, masks, or layered containers. Preserve the selected style; use Three.js when true 3D geometry is required.",
               "role": "2d_rendering",
               "package": "pixi.js",
-              "production_roles": [
-                "style_renderer"
-              ],
+              "production_roles": ["style_renderer"],
               "runtime": "browser",
               "optional": true,
               "docs_url": "https://pixijs.com/8.x/guides/getting-started/quick-start",
@@ -1102,18 +945,11 @@
               "purpose": "Optional DOM or SVG implementation of Scroll-Driven Chaptered Scene Transition using controlled keyframes or sequences. Verify synchronization with the selected video framework before adopting this route.",
               "role": "animation_library",
               "package": "motion",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser; motion/react for mounted React components",
               "optional": true,
               "docs_url": "https://motion.dev/docs/animate",
-              "suggested_apis": [
-                "animate",
-                "stagger",
-                "animation.pause()",
-                "animation.time"
-              ],
+              "suggested_apis": ["animate", "stagger", "animation.pause()", "animation.time"],
               "integration_guidance": "Use the JavaScript entry point for HTML compositions. Pause playback and set animation.time in seconds from composition time, then verify that forward, backward, and direct seeks update the visible result. Motion is an optional animation layer, not a drop-in replacement for the HyperFrames GSAP registration contract; keep the registered GSAP timeline as the framework clock and explicitly synchronize Motion. Use motion/react only within mounted React components.",
               "kind": "npm_library"
             },
@@ -1122,44 +958,25 @@
               "purpose": "Optionally author diagram, annotation, or card assets for Scroll-Driven Chaptered Scene Transition. Export layers or structured scene data; animate them using the video timeline.",
               "role": "diagram_authoring",
               "package": "tldraw",
-              "production_roles": [
-                "style_renderer"
-              ],
+              "production_roles": ["style_renderer"],
               "runtime": "mounted React editor in browser; exported assets for video composition",
               "optional": true,
               "docs_url": "https://tldraw.dev/quick-start",
-              "suggested_apis": [
-                "Tldraw",
-                "editor",
-                "editor.getSvgString",
-                "editor.toImage"
-              ],
+              "suggested_apis": ["Tldraw", "editor", "editor.getSvgString", "editor.toImage"],
               "integration_guidance": "Author diagrams and artwork in a mounted React editor, then export SVG or raster assets using editor.getSvgString or editor.toImage. Await export and split layers deliberately when separate animation is required; a flattened image does not preserve editable shapes. Animate those assets in the chosen framework. Verify signatures against the installed SDK; tldraw is not a video renderer or an automatic timeline adapter.",
               "kind": "npm_library"
             }
           ],
           "implementation": "Use defined outgoing and incoming scene layers with bounded opacity, mask, or transform states. Tie the full handoff to normalized progress, including copy visibility, rather than firing unrelated enter/exit animations. Interactive output can scrub a GSAP timeline over a finite scroll interval; video uses composition time. Keep framework-owned clip visibility separate from inner transition layers and evaluate reverse or direct seeks without stale scene state.",
           "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
-          "available_library_ids": [
-            "three_js",
-            "pixi_js",
-            "gsap",
-            "motion",
-            "tldraw"
-          ],
+          "available_library_ids": ["three_js", "pixi_js", "gsap", "motion", "tldraw"],
           "style_renderer": {
             "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-            "recommended_stack_refs": [
-              "PixiJS",
-              "tldraw"
-            ]
+            "recommended_stack_refs": ["PixiJS", "tldraw"]
           },
           "motion_engine": {
             "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-            "recommended_stack_refs": [
-              "GSAP",
-              "Motion"
-            ]
+            "recommended_stack_refs": ["GSAP", "Motion"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -1219,27 +1036,18 @@
               "name": "GSAP",
               "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             },
             {
               "name": "PixiJS",
               "purpose": "Optional 2D implementation of Swipe Card Carousel using sprites, graphics, masks, or layered containers. Preserve the selected style; use Three.js when true 3D geometry is required.",
               "role": "2d_rendering",
               "package": "pixi.js",
-              "production_roles": [
-                "style_renderer"
-              ],
+              "production_roles": ["style_renderer"],
               "runtime": "browser",
               "optional": true,
               "docs_url": "https://pixijs.com/8.x/guides/getting-started/quick-start",
@@ -1261,18 +1069,11 @@
               "purpose": "Optional DOM or SVG implementation of Swipe Card Carousel using controlled keyframes or sequences. Verify synchronization with the selected video framework before adopting this route.",
               "role": "animation_library",
               "package": "motion",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser; motion/react for mounted React components",
               "optional": true,
               "docs_url": "https://motion.dev/docs/animate",
-              "suggested_apis": [
-                "animate",
-                "stagger",
-                "animation.pause()",
-                "animation.time"
-              ],
+              "suggested_apis": ["animate", "stagger", "animation.pause()", "animation.time"],
               "integration_guidance": "Use the JavaScript entry point for HTML compositions. Pause playback and set animation.time in seconds from composition time, then verify that forward, backward, and direct seeks update the visible result. Motion is an optional animation layer, not a drop-in replacement for the HyperFrames GSAP registration contract; keep the registered GSAP timeline as the framework clock and explicitly synchronize Motion. Use motion/react only within mounted React components.",
               "kind": "npm_library"
             },
@@ -1281,18 +1082,11 @@
               "purpose": "Optionally author diagram, annotation, or card assets for Swipe Card Carousel. Export layers or structured scene data; animate them using the video timeline.",
               "role": "diagram_authoring",
               "package": "tldraw",
-              "production_roles": [
-                "style_renderer"
-              ],
+              "production_roles": ["style_renderer"],
               "runtime": "mounted React editor in browser; exported assets for video composition",
               "optional": true,
               "docs_url": "https://tldraw.dev/quick-start",
-              "suggested_apis": [
-                "Tldraw",
-                "editor",
-                "editor.getSvgString",
-                "editor.toImage"
-              ],
+              "suggested_apis": ["Tldraw", "editor", "editor.getSvgString", "editor.toImage"],
               "integration_guidance": "Author diagrams and artwork in a mounted React editor, then export SVG or raster assets using editor.getSvgString or editor.toImage. Await export and split layers deliberately when separate animation is required; a flattened image does not preserve editable shapes. Animate those assets in the chosen framework. Verify signatures against the installed SDK; tldraw is not a video renderer or an automatic timeline adapter.",
               "kind": "npm_library"
             },
@@ -1301,9 +1095,7 @@
               "purpose": "Optional image-gallery dialog with swipe navigation, zoom, pan and thumbnail opening or closing transitions for interactive web delivery.",
               "role": "interactive_image_lightbox",
               "package": "photoswipe",
-              "production_roles": [
-                "supporting_tool"
-              ],
+              "production_roles": ["supporting_tool"],
               "runtime": "browser; initialize only after the gallery DOM is mounted",
               "optional": true,
               "docs_url": "https://photoswipe.com/getting-started/",
@@ -1342,17 +1134,11 @@
           ],
           "style_renderer": {
             "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-            "recommended_stack_refs": [
-              "PixiJS",
-              "tldraw"
-            ]
+            "recommended_stack_refs": ["PixiJS", "tldraw"]
           },
           "motion_engine": {
             "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-            "recommended_stack_refs": [
-              "GSAP",
-              "Motion"
-            ]
+            "recommended_stack_refs": ["GSAP", "Motion"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -1413,26 +1199,17 @@
               "name": "GSAP",
               "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             },
             {
               "name": "GSAP ScrollTrigger",
               "purpose": "Optional interactive-web adapter: bind normalized progress to scroll. Do not require live scrolling for video export.",
               "package": "gsap",
-              "production_roles": [
-                "supporting_tool"
-              ],
+              "production_roles": ["supporting_tool"],
               "runtime": "browser",
               "optional": true,
               "docs_url": "https://gsap.com/docs/v3/Plugins/ScrollTrigger/",
@@ -1448,9 +1225,7 @@
               "purpose": "Optional 2D implementation of Scroll-Driven Storytelling using sprites, graphics, masks, or layered containers. Preserve the selected style; use Three.js when true 3D geometry is required.",
               "role": "2d_rendering",
               "package": "pixi.js",
-              "production_roles": [
-                "style_renderer"
-              ],
+              "production_roles": ["style_renderer"],
               "runtime": "browser",
               "optional": true,
               "docs_url": "https://pixijs.com/8.x/guides/getting-started/quick-start",
@@ -1472,18 +1247,11 @@
               "purpose": "Optional DOM or SVG implementation of Scroll-Driven Storytelling using controlled keyframes or sequences. Verify synchronization with the selected video framework before adopting this route.",
               "role": "animation_library",
               "package": "motion",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser; motion/react for mounted React components",
               "optional": true,
               "docs_url": "https://motion.dev/docs/animate",
-              "suggested_apis": [
-                "animate",
-                "stagger",
-                "animation.pause()",
-                "animation.time"
-              ],
+              "suggested_apis": ["animate", "stagger", "animation.pause()", "animation.time"],
               "integration_guidance": "Use the JavaScript entry point for HTML compositions. Pause playback and set animation.time in seconds from composition time, then verify that forward, backward, and direct seeks update the visible result. Motion is an optional animation layer, not a drop-in replacement for the HyperFrames GSAP registration contract; keep the registered GSAP timeline as the framework clock and explicitly synchronize Motion. Use motion/react only within mounted React components.",
               "kind": "npm_library"
             },
@@ -1492,44 +1260,25 @@
               "purpose": "Optionally author diagram, annotation, or card assets for Scroll-Driven Storytelling. Export layers or structured scene data; animate them using the video timeline.",
               "role": "diagram_authoring",
               "package": "tldraw",
-              "production_roles": [
-                "style_renderer"
-              ],
+              "production_roles": ["style_renderer"],
               "runtime": "mounted React editor in browser; exported assets for video composition",
               "optional": true,
               "docs_url": "https://tldraw.dev/quick-start",
-              "suggested_apis": [
-                "Tldraw",
-                "editor",
-                "editor.getSvgString",
-                "editor.toImage"
-              ],
+              "suggested_apis": ["Tldraw", "editor", "editor.getSvgString", "editor.toImage"],
               "integration_guidance": "Author diagrams and artwork in a mounted React editor, then export SVG or raster assets using editor.getSvgString or editor.toImage. Await export and split layers deliberately when separate animation is required; a flattened image does not preserve editable shapes. Animate those assets in the chosen framework. Verify signatures against the installed SDK; tldraw is not a video renderer or an automatic timeline adapter.",
               "kind": "npm_library"
             }
           ],
           "implementation": "Define meaningful story steps, the visual state for each step, and optional continuous progress inside a step. Interactive delivery can use ScrollTrigger timelines or an existing step/progress observer such as Scrollama, with CSS sticky when a graphic should remain visible. Keep copy and graphics synchronized through the same story state. For video, schedule steps and within-step progress on the framework timeline with reading holds; evaluate the full visible state directly on each seek.",
           "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
-          "available_library_ids": [
-            "three_js",
-            "pixi_js",
-            "gsap",
-            "motion",
-            "tldraw"
-          ],
+          "available_library_ids": ["three_js", "pixi_js", "gsap", "motion", "tldraw"],
           "style_renderer": {
             "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-            "recommended_stack_refs": [
-              "PixiJS",
-              "tldraw"
-            ]
+            "recommended_stack_refs": ["PixiJS", "tldraw"]
           },
           "motion_engine": {
             "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-            "recommended_stack_refs": [
-              "GSAP",
-              "Motion"
-            ]
+            "recommended_stack_refs": ["GSAP", "Motion"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -1589,36 +1338,22 @@
               "name": "GSAP",
               "purpose": "Controlled animation for Cursor-Driven Hotspot Exploded Reveal; one owner per property.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             },
             {
               "name": "Motion",
               "purpose": "Controlled animation for Cursor-Driven Hotspot Exploded Reveal; one owner per property.",
               "role": "animation_library",
               "package": "motion",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser; motion/react for mounted React components",
               "optional": true,
               "docs_url": "https://motion.dev/docs/animate",
-              "suggested_apis": [
-                "animate",
-                "stagger",
-                "animation.pause()",
-                "animation.time"
-              ],
+              "suggested_apis": ["animate", "stagger", "animation.pause()", "animation.time"],
               "integration_guidance": "Use the JavaScript entry point for HTML compositions. Pause playback and set animation.time in seconds from composition time, then verify that forward, backward, and direct seeks update the visible result. Motion is an optional animation layer, not a drop-in replacement for the HyperFrames GSAP registration contract; keep the registered GSAP timeline as the framework clock and explicitly synchronize Motion. Use motion/react only within mounted React components.",
               "kind": "npm_library"
             },
@@ -1626,40 +1361,23 @@
               "name": "Three.js",
               "purpose": "Render actual 3D geometry and camera transforms when required.",
               "package": "three",
-              "production_roles": [
-                "style_renderer"
-              ],
+              "production_roles": ["style_renderer"],
               "runtime": "browser",
               "optional": true,
               "docs_url": "https://threejs.org/docs/",
-              "suggested_apis": [
-                "PerspectiveCamera",
-                "Group",
-                "Vector3.lerp"
-              ]
+              "suggested_apis": ["PerspectiveCamera", "Group", "Vector3.lerp"]
             }
           ],
           "implementation": "Use SVG layers for planar exploded diagrams or Three.js groups for true 3D assemblies. Keep component transforms relative to the assembly origin; labels follow anchors. Use one reversible GSAP progress owner.",
           "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
-          "available_library_ids": [
-            "three_js",
-            "pixi_js",
-            "gsap",
-            "motion",
-            "tldraw"
-          ],
+          "available_library_ids": ["three_js", "pixi_js", "gsap", "motion", "tldraw"],
           "style_renderer": {
             "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-            "recommended_stack_refs": [
-              "Three.js"
-            ]
+            "recommended_stack_refs": ["Three.js"]
           },
           "motion_engine": {
             "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-            "recommended_stack_refs": [
-              "GSAP",
-              "Motion"
-            ]
+            "recommended_stack_refs": ["GSAP", "Motion"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -1718,59 +1436,36 @@
               "name": "GSAP",
               "purpose": "Controlled animation for Swipe Gallery Carousel; one owner per property.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             },
             {
               "name": "Motion",
               "purpose": "Controlled animation for Swipe Gallery Carousel; one owner per property.",
               "role": "animation_library",
               "package": "motion",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser; motion/react for mounted React components",
               "optional": true,
               "docs_url": "https://motion.dev/docs/animate",
-              "suggested_apis": [
-                "animate",
-                "stagger",
-                "animation.pause()",
-                "animation.time"
-              ],
+              "suggested_apis": ["animate", "stagger", "animation.pause()", "animation.time"],
               "integration_guidance": "Use the JavaScript entry point for HTML compositions. Pause playback and set animation.time in seconds from composition time, then verify that forward, backward, and direct seeks update the visible result. Motion is an optional animation layer, not a drop-in replacement for the HyperFrames GSAP registration contract; keep the registered GSAP timeline as the framework clock and explicitly synchronize Motion. Use motion/react only within mounted React components.",
               "kind": "npm_library"
             }
           ],
           "implementation": "Use textured planes along a curve or shader-bent planes in WebGL (Three.js/OGL) when matching curved spatial presentation. Use supplied images or authored illustrations. A flat CSS scroll-snap track is an explicitly simplified alternative, not a reproduction of the curved gallery.",
           "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
-          "available_library_ids": [
-            "three_js",
-            "pixi_js",
-            "gsap",
-            "motion",
-            "tldraw"
-          ],
+          "available_library_ids": ["three_js", "pixi_js", "gsap", "motion", "tldraw"],
           "style_renderer": {
             "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
             "recommended_stack_refs": []
           },
           "motion_engine": {
             "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-            "recommended_stack_refs": [
-              "GSAP",
-              "Motion"
-            ]
+            "recommended_stack_refs": ["GSAP", "Motion"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -1826,34 +1521,23 @@
               "name": "GSAP",
               "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             }
           ],
           "implementation": "Preserve a readable starting phrase, then release outgoing glyphs with bounded rotation/downward displacement. Reveal the incoming phrase in deliberate word-sized steps; differentiate the emphasis word and hold the conclusion. Choose pauses from meaning; use verified audio timing only when available. Use the selected style renderer and one seekable timeline. Inspect glyph assets or approved mark geometry first. Preview is a schematic Canvas study, not the source video or a prescribed production renderer.",
           "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
-          "available_library_ids": [
-            "gsap"
-          ],
+          "available_library_ids": ["gsap"],
           "style_renderer": {
             "selection_basis": "Preserve the chosen visual medium and inspect actual geometry/assets before selecting a renderer.",
             "recommended_stack_refs": []
           },
           "motion_engine": {
             "selection_basis": "Use one owner per animated property and a paused seekable composition timeline.",
-            "recommended_stack_refs": [
-              "GSAP"
-            ]
+            "recommended_stack_refs": ["GSAP"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -1938,13 +1622,8 @@
         ],
         "adaptation_guidance": "Select only approved style references from the complete 135-style, three-motion compatibility review. References describe optional compatible actions, not a requirement to use the source aesthetic.",
         "source_evidence": {
-          "review_window_seconds": [
-            6,
-            10
-          ],
-          "source_urls": [
-            "https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"
-          ],
+          "review_window_seconds": [6, 10],
+          "source_urls": ["https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"],
           "sampling": "64 chronologically inspected frames at 16 fps; approximate timing, no verified source easing or music synchronization."
         }
       },
@@ -1965,34 +1644,23 @@
               "name": "GSAP",
               "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             }
           ],
           "implementation": "Use actual punctuation as a persistent shared element. Move the view toward it, enlarge it until it occludes the scene and reveal the next composition underneath. Do not substitute an unrelated rectangle or generic fade. Use the selected style renderer and one seekable timeline. Inspect glyph assets or approved mark geometry first. Preview is a schematic Canvas study, not the source video or a prescribed production renderer.",
           "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
-          "available_library_ids": [
-            "gsap"
-          ],
+          "available_library_ids": ["gsap"],
           "style_renderer": {
             "selection_basis": "Preserve the chosen visual medium and inspect actual geometry/assets before selecting a renderer.",
             "recommended_stack_refs": []
           },
           "motion_engine": {
             "selection_basis": "Use one owner per animated property and a paused seekable composition timeline.",
-            "recommended_stack_refs": [
-              "GSAP"
-            ]
+            "recommended_stack_refs": ["GSAP"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -2085,13 +1753,8 @@
         ],
         "adaptation_guidance": "Select only approved style references from the complete 135-style, three-motion compatibility review. References describe optional compatible actions, not a requirement to use the source aesthetic.",
         "source_evidence": {
-          "review_window_seconds": [
-            6,
-            10
-          ],
-          "source_urls": [
-            "https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"
-          ],
+          "review_window_seconds": [6, 10],
+          "source_urls": ["https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"],
           "sampling": "64 chronologically inspected frames at 16 fps; approximate timing, no verified source easing or music synchronization."
         }
       },
@@ -2112,34 +1775,23 @@
               "name": "GSAP",
               "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             }
           ],
           "implementation": "Stage a central mark, synchronized expanding rays/ring and restrained particle release. Use an expanding circular mask for palette inversion while retaining the mark center. Let the burst decay into a stable logo hold; keep later particles subordinate. Use the selected style renderer and one seekable timeline. Inspect glyph assets or approved mark geometry first. Preview is a schematic Canvas study, not the source video or a prescribed production renderer.",
           "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
-          "available_library_ids": [
-            "gsap"
-          ],
+          "available_library_ids": ["gsap"],
           "style_renderer": {
             "selection_basis": "Preserve the chosen visual medium and inspect actual geometry/assets before selecting a renderer.",
             "recommended_stack_refs": []
           },
           "motion_engine": {
             "selection_basis": "Use one owner per animated property and a paused seekable composition timeline.",
-            "recommended_stack_refs": [
-              "GSAP"
-            ]
+            "recommended_stack_refs": ["GSAP"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -2215,13 +1867,8 @@
         ],
         "adaptation_guidance": "Select only approved style references from the complete 135-style, three-motion compatibility review. References describe optional compatible actions, not a requirement to use the source aesthetic.",
         "source_evidence": {
-          "review_window_seconds": [
-            6,
-            10
-          ],
-          "source_urls": [
-            "https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"
-          ],
+          "review_window_seconds": [6, 10],
+          "source_urls": ["https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"],
           "sampling": "64 chronologically inspected frames at 16 fps; approximate timing, no verified source easing or music synchronization."
         }
       }

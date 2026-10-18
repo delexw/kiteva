@@ -46,9 +46,7 @@
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
             "selection_guidance": "Use HyperFrames by default. Fall back to Remotion only when the documented fallback condition is met, and record the reason. Do not mix framework APIs.",
             "priority": "primary",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           },
           {
@@ -67,9 +65,7 @@
             "optional": false,
             "docs_url": "https://threejs.org/docs/",
             "style_application": "Reflective fractal solids emerge from dark fog, evolve into a landscape and return to sculptural lettering. Preserve coherent reflections, spatial scale and depth.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "GLSL",
@@ -77,20 +73,11 @@
             "package": null,
             "runtime": "GPU shader, hosted by browser renderer",
             "purpose": "Write vertex and fragment shaders with uniforms for time, resolution, color, and textures.",
-            "suggested_apis": [
-              "smoothstep",
-              "mix",
-              "texture",
-              "vertex shader",
-              "fragment shader"
-            ],
+            "suggested_apis": ["smoothstep", "mix", "texture", "vertex shader", "fragment shader"],
             "optional": false,
             "docs_url": "https://threejs.org/docs/pages/ShaderMaterial.html",
             "style_application": "Reflective fractal solids emerge from dark fog, evolve into a landscape and return to sculptural lettering. Preserve coherent reflections, spatial scale and depth.",
-            "production_roles": [
-              "style_renderer",
-              "motion_engine"
-            ]
+            "production_roles": ["style_renderer", "motion_engine"]
           },
           {
             "name": "Offscreen Rendering",
@@ -98,16 +85,11 @@
             "package": "three",
             "runtime": "browser via Three.js",
             "purpose": "Render the background into a texture for material or shader sampling. Avoid sampling the active render target in a feedback loop.",
-            "suggested_apis": [
-              "WebGLRenderTarget",
-              "renderer.setRenderTarget"
-            ],
+            "suggested_apis": ["WebGLRenderTarget", "renderer.setRenderTarget"],
             "optional": false,
             "docs_url": "https://threejs.org/docs/pages/WebGLRenderTarget.html",
             "style_application": "Reflective fractal solids emerge from dark fog, evolve into a landscape and return to sculptural lettering. Preserve coherent reflections, spatial scale and depth.",
-            "production_roles": [
-              "style_renderer"
-            ]
+            "production_roles": ["style_renderer"]
           },
           {
             "name": "GSAP",
@@ -115,18 +97,11 @@
             "package": "gsap",
             "runtime": "browser",
             "purpose": "Coordinate tweens, staggered actions, and a paused, seekable timeline driven by deterministic video time.",
-            "suggested_apis": [
-              "gsap.timeline",
-              "gsap.to",
-              "stagger",
-              "timeline.seek"
-            ],
+            "suggested_apis": ["gsap.timeline", "gsap.to", "stagger", "timeline.seek"],
             "optional": false,
             "docs_url": "https://gsap.com/docs/v3/",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "motion_engine"
-            ]
+            "production_roles": ["motion_engine"]
           },
           {
             "name": "chroma.js",
@@ -149,9 +124,7 @@
             "optional": true,
             "docs_url": "https://gka.github.io/chroma.js/",
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
-            "production_roles": [
-              "supporting_tool"
-            ]
+            "production_roles": ["supporting_tool"]
           },
           {
             "name": "Remotion",
@@ -172,17 +145,12 @@
             "style_application": "Use this tool only for its documented role within the reviewed implementation; preserve this style's palette and material constraints.",
             "priority": "fallback",
             "selection_guidance": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
-            "production_roles": [
-              "render_pipeline"
-            ],
+            "production_roles": ["render_pipeline"],
             "role": "composition_and_export_pipeline"
           }
         ],
         "implementation": "Three.js fullscreen-quad ShaderMaterial that raymarches an SDF scene: a Mandelbox/Mandelbulb-style fractal solid with a bounded iteration count (e.g. 8 fractal iterations, max 96 march steps, max distance clamp).\n\nShading:\n- normals by central differences,\n- one reflection bounce by re-marching along reflect(rd, n) with a reduced step budget,\n- soft AO approximated by a few SDF samples,\n- exponential distance fog toward #080A0C.\n\nThe scene is rendered into a WebGLRenderTarget at about 0.5–0.66 scale and upsampled to the canvas with linear filtering, to bound GPU time per frame. Tone mapping and sRGB output are done once in the final blit.\n\nGSAP tweens uniforms on the paused registered timeline: uEmerge (fog density and fractal power morph), camera position/target along an authored path, and uLandscape (blends the SDF via smooth-min toward a domain-repeated terrain fold). Each update renders synchronously from the uniforms; there is no frame accumulation, so out-of-order seeks match.\n\nPreview (3 s): reflective fractal solids emerge from dark fog with a slow dolly.\nFull video: continues into the landscape and later the sunset. Sculptural lettering is planned as an SDF built from a precomputed glyph distance texture, extruded via max(d2D, |z|-h). It is not in the preview, and that limitation is reported.",
-        "alternatives": [
-          "Canvas 2D",
-          "Remotion"
-        ],
+        "alternatives": ["Canvas 2D", "Remotion"],
         "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
         "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
         "framework_selection": {
@@ -201,17 +169,11 @@
         },
         "style_renderer": {
           "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
-          "recommended_stack_refs": [
-            "Three.js",
-            "GLSL",
-            "Offscreen Rendering"
-          ]
+          "recommended_stack_refs": ["Three.js", "GLSL", "Offscreen Rendering"]
         },
         "motion_engine": {
           "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
-          "recommended_stack_refs": [
-            "GSAP"
-          ]
+          "recommended_stack_refs": ["GSAP"]
         },
         "production_policy_ref": "production_policy",
         "technology_review": {
@@ -244,20 +206,13 @@
         "generator": {
           "library": "chroma-js",
           "version": "3.2.0",
-          "operations": [
-            "chroma.valid",
-            "chroma(color).hex()",
-            "chroma.contrast"
-          ]
+          "operations": ["chroma.valid", "chroma(color).hex()", "chroma.contrast"]
         },
         "tokens": {
           "background": "#080A0C",
           "foreground": "#F2EEE5"
         },
-        "base_colors": [
-          "#080A0C",
-          "#F2EEE5"
-        ],
+        "base_colors": ["#080A0C", "#F2EEE5"],
         "base_color_count": 2,
         "constraints": [
           "These hex values are authored suggestions, not previously supplied exact colors or canonical style definitions.",
@@ -377,34 +332,23 @@
               "name": "GSAP",
               "purpose": "Create a paused, seekable timeline for progress, transforms, masks, and controlled easing.",
               "package": "gsap",
-              "production_roles": [
-                "motion_engine"
-              ],
+              "production_roles": ["motion_engine"],
               "runtime": "browser",
               "optional": false,
               "docs_url": "https://gsap.com/docs/v3/",
-              "suggested_apis": [
-                "gsap.timeline({ paused: true })",
-                "fromTo",
-                "to",
-                "seek"
-              ]
+              "suggested_apis": ["gsap.timeline({ paused: true })", "fromTo", "to", "seek"]
             }
           ],
           "implementation": "Use actual punctuation as a persistent shared element. Move the view toward it, enlarge it until it occludes the scene and reveal the next composition underneath. Do not substitute an unrelated rectangle or generic fade. Use the selected style renderer and one seekable timeline. Inspect glyph assets or approved mark geometry first. Preview is a schematic Canvas study, not the source video or a prescribed production renderer.",
           "library_selection": "Choose libraries by role and scene requirements; the available options are not a required bundle. Prefer existing suitable dependencies. Use one owner for each animated property. Preserve HyperFrames as the primary video framework and Remotion as the conditional fallback. For video, drive all state from seekable composition time; live hover, scroll, and pointer behavior belongs only to interactive delivery. Select visual and motion technologies from the style, action, assets, and required fidelity before choosing the composition and export pipeline. Pipeline availability must not determine or simplify the visual style or motion technique. Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method.",
-          "available_library_ids": [
-            "gsap"
-          ],
+          "available_library_ids": ["gsap"],
           "style_renderer": {
             "selection_basis": "Preserve the chosen visual medium and inspect actual geometry/assets before selecting a renderer.",
             "recommended_stack_refs": []
           },
           "motion_engine": {
             "selection_basis": "Use one owner per animated property and a paused seekable composition timeline.",
-            "recommended_stack_refs": [
-              "GSAP"
-            ]
+            "recommended_stack_refs": ["GSAP"]
           },
           "production_policy_ref": "production_policy"
         },
@@ -497,13 +441,8 @@
         ],
         "adaptation_guidance": "Select only approved style references from the complete 135-style, three-motion compatibility review. References describe optional compatible actions, not a requirement to use the source aesthetic.",
         "source_evidence": {
-          "review_window_seconds": [
-            6,
-            10
-          ],
-          "source_urls": [
-            "https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"
-          ],
+          "review_window_seconds": [6, 10],
+          "source_urls": ["https://skillry.dev/ai-videos/fable-5-5/noreply134882-957013"],
           "sampling": "64 chronologically inspected frames at 16 fps; approximate timing, no verified source easing or music synchronization."
         }
       }

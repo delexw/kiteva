@@ -1,6 +1,15 @@
-import { ChainOfThought, ChainOfThoughtHeader, ChainOfThoughtContent, ChainOfThoughtStep } from "./components/ai-elements/chain-of-thought";
+import {
+  ChainOfThought,
+  ChainOfThoughtHeader,
+  ChainOfThoughtContent,
+  ChainOfThoughtStep,
+} from "./components/ai-elements/chain-of-thought";
 import { useMemo } from "react";
-import { Conversation, ConversationContent, ConversationScrollButton } from "./components/ai-elements/conversation";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from "./components/ai-elements/conversation";
 import { Message, MessageContent, MessageResponse } from "./components/ai-elements/message";
 import { Check, LoaderCircle } from "lucide-react";
 import type { AgentProgressEvent } from "../shared/contracts";

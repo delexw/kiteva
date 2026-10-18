@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>A personal creative room where an idea turns into a short motion-graphics film.</b><br>
-  Runs on your Mac with <a href="https://platform.claude.com/docs/en/about-claude/models/overview">Claude Opus 5.5</a> or <a href="https://developers.openai.com/api/docs/models/gpt-6.1-sol">GPT-6.1 Sol</a>.
+  Create with <a href="https://platform.claude.com/docs/en/about-claude/models/overview">Claude Opus 5.5</a> or <a href="https://developers.openai.com/api/docs/models/gpt-6.1-sol">GPT-6.1 Sol</a>.
 </p>
 
 <p align="center">

@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>一个私人的创作小房间，把一个想法变成一段动态图形短片。</b><br>
-  在你自己的 Mac 上运行，可用 <a href="https://platform.claude.com/docs/en/about-claude/models/overview">Claude Opus 5.5</a> 或 <a href="https://developers.openai.com/api/docs/models/gpt-6.1-sol">GPT-6.1 Sol</a>。
+  使用 <a href="https://platform.claude.com/docs/en/about-claude/models/overview">Claude Opus 5.5</a> 或 <a href="https://developers.openai.com/api/docs/models/gpt-6.1-sol">GPT-6.1 Sol</a>。
 </p>
 
 <p align="center">

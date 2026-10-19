@@ -1,4 +1,3 @@
-import { setTimeout as delay } from "node:timers/promises";
 import { websiteCaptureLimits, readWebsiteRecordings } from "../jobs/subworkflows/website-capture";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
@@ -10,6 +9,7 @@ import { prepareBriefImage } from "./brief-images";
 import { createReferenceBrowser } from "../jobs/subworkflows/website-reference";
 import { referenceToolNames, type ReferenceToolResult } from "./reference-browser-contracts";
 import { WorkQueue } from "../jobs/queue";
+import { CapturePresentationSchema } from "../capture/presentation";
 
 export const referenceManifest = "reference-screenshots.json";
 export async function readReferenceScreenshots(workspace: string) {
@@ -134,13 +134,16 @@ export function createReferenceTools(options: {
       referenceToolNames.video,
       {
         description:
-          "Built-in OpenScreen website video capture. Uses the configured desktop worker, or a dedicated visible browser on the current machine when no worker URL is set. Inspect the supplied URL first. Start, interact with the SAME session using click_control/fill_control/scroll_page/wait_for_view, then stop with the returned recording ID. Stop validates silent WebM footage and saves assets plus timed cursor metadata. Requires OpenScreen on the recording machine; never switches recording engines. A configured but unavailable worker is an error, not permission to record locally. Maximum 120 seconds per take; use multiple takes for longer demos. Stop before returning your production manifest. Never claim simulated UI is real footage.",
+          "Built-in OpenScreen website video capture. Uses the configured desktop worker, or a dedicated visible browser on the current machine when no worker URL is set. Inspect the supplied URL first. Start, interact with the SAME session using click_control/fill_control/scroll_page/wait_for_view, then stop with the returned recording ID. Stop ALWAYS exports through OpenScreen with a visible moving cursor, click feedback, automatic interaction zooms and removal of idle gaps between tool calls, then validates silent WebM footage. Explicit wait_for_view holds remain at normal speed. Returned cursor timestamps match the edited footage. Before typing, fill_control visibly smooth-scrolls to center the input in its scrollable viewport even when it was already visible near the edge, waits for scrolling to finish, then visibly moves/clicks the pointer and types. The scroll animation is retained in the recording. Use the exported video directly; do not stretch it, reinsert idle holds or add a duplicate cursor/zoom layer. The full-film model owns shot selection and should keep demo actions brisk while preserving readable typing and meaningful results. Requires OpenScreen on the recording machine; never switches recording engines. A configured but unavailable worker is an error, not permission to record locally. Maximum 120 seconds per take; use multiple takes for longer demos. Stop before returning your production manifest. Never claim simulated UI is real footage.",
         inputSchema: {
           action: z.enum(["start", "stop"]),
           recordingId: z.string().uuid().optional(),
+          presentation: CapturePresentationSchema.optional().describe(
+            "Choose at start to fit the project's visual language, including framing: padding 0 for edge-to-edge or positive padding for an inset frame. Omitted framing uses native OpenScreen defaults. Auto-zoom and 60 fps remain mandatory; optional zoom regions default to cursor-following focus; manual focus must be explicit.",
+          ),
         },
       },
-      ({ action, recordingId }) =>
+      ({ action, recordingId, presentation }) =>
         run(async () => {
           const recordings = await readWebsiteRecordings(options.workspace);
           if (action === "start") {
@@ -149,12 +152,15 @@ export function createReferenceTools(options: {
             return {
               result: {
                 kind: "recording_started",
-                recordingId: await (await browser()).startRecording(options.workspace),
+                recordingId: await (
+                  await browser()
+                ).startRecording(options.workspace, presentation),
                 maxSeconds: websiteCaptureLimits.seconds,
               },
             };
           }
           if (!recordingId) throw Error("Stop requires the recording ID returned by start");
+          if (presentation) throw Error("Presentation must be selected at recording start");
           const recording = await (await browser()).stopRecording(recordingId);
           recordings.push(recording);
           await writeFile(
@@ -168,7 +174,7 @@ export function createReferenceTools(options: {
       referenceToolNames.fill,
       {
         description:
-          "Fill an ordinary text/search/URL control from the latest inspection in this fresh browser session. No credentials or real account changes. State-changing HTTP requests remain blocked. Use only non-sensitive demonstration text.",
+          "Fill an ordinary text/search/URL control from the latest inspection in this fresh browser session. The tool visibly smooth-scrolls to center the input even if it was already visible near an edge, waits for the scroll to finish, then moves the pointer, clicks and types. No credentials or real account changes. State-changing HTTP requests remain blocked. Use only non-sensitive demonstration text.",
         inputSchema: { controlId: z.string().regex(/^\d+$/), value: z.string().max(4000) },
       },
       ({ controlId, value }) =>
@@ -197,7 +203,7 @@ export function createReferenceTools(options: {
       },
       ({ milliseconds }) =>
         run(async () => {
-          await delay(milliseconds, undefined, { signal: options.signal });
+          await (await browser()).wait(milliseconds);
           return { result: { kind: "waiting", milliseconds } };
         }),
     );

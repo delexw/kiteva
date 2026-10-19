@@ -26,6 +26,7 @@ function fixtureBrowser() {
     inspect: vi.fn(async () => inspection),
     click: vi.fn(async () => inspection),
     fill: vi.fn(async () => inspection),
+    wait: vi.fn(async () => {}),
     scroll: vi.fn(async () => inspection),
     capture: vi.fn(async (destination) => {
       await writeFile(destination, "PNG fixture");
@@ -79,6 +80,17 @@ it("authenticates sessions, isolates files, rejects traversal and closes owned b
       (
         await app.inject({
           method: "POST",
+          url: `/sessions/${id}/actions`,
+          headers,
+          payload: { action: "wait", milliseconds: 1200 },
+        })
+      ).statusCode,
+    ).toBe(200);
+    expect(browser.wait).toHaveBeenCalledWith(1200);
+    expect(
+      (
+        await app.inject({
+          method: "POST",
           url: "/sessions",
           headers,
           payload: { urls: ["https://example.com"], mode: "local" },
@@ -120,7 +132,17 @@ it("transfers worker artifacts over HTTP and keeps interaction and recording in 
   );
   try {
     expect((await client.inspect("https://example.com")).title).toBe("Example");
-    const id = await client.startRecording(workspace);
+    const id = await client.startRecording(workspace, {
+      cursorSize: 1.8,
+      framing: { padding: 30, aspectRatio: "16:9" },
+    });
+    expect(browser.startRecording).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        cursorSize: 1.8,
+        framing: { padding: 30, aspectRatio: "16:9" },
+      }),
+    );
     await client.fill("1", "sample");
     await client.click("2");
     const recording = await client.stopRecording(id);

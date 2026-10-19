@@ -1,3 +1,4 @@
+import { videoRenderTimeoutMs } from "../rendering/timeouts";
 import { mkdir, rename, rm } from "node:fs/promises";
 import { createWriteStream } from "node:fs";
 import { Readable, Transform } from "node:stream";
@@ -7,6 +8,7 @@ import { z } from "zod";
 import type { createLocalReferenceBrowser } from "../jobs/subworkflows/website-reference";
 import { WebsiteRecordingSchema, websiteCaptureLimits } from "../jobs/subworkflows/website-capture";
 import { WorkerAssetNameSchema, type CaptureAction } from "./worker-contract";
+import { CapturePresentationSchema } from "./presentation";
 
 const InspectionSchema = z.object({
   title: z.string(),
@@ -42,13 +44,19 @@ export async function createRemoteReferenceBrowser(
   const token = process.env.KITEVA_CAPTURE_WORKER_TOKEN;
   if (!token || token.length < 32) throw Error("Configure the capture worker authentication token");
   const headers = { authorization: `Bearer ${token}` };
-  async function request(route: string, method: string, body?: unknown, requestSignal = signal) {
+  async function request(
+    route: string,
+    method: string,
+    body?: unknown,
+    requestSignal = signal,
+    timeout = 180000,
+  ) {
     const response = await fetch(new URL(route, base), {
       method,
       headers: body === undefined ? headers : { ...headers, "content-type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),
       redirect: "error",
-      signal: AbortSignal.any([requestSignal, AbortSignal.timeout(180000)]),
+      signal: AbortSignal.any([requestSignal, AbortSignal.timeout(timeout)]),
     });
     if (!response.ok) {
       await response.body?.cancel();
@@ -81,7 +89,15 @@ export async function createRemoteReferenceBrowser(
     signal.throwIfAborted();
   }
   const action = async (body: CaptureAction) =>
-    (await request(`${route}/actions`, "POST", body)).json();
+    (
+      await request(
+        `${route}/actions`,
+        "POST",
+        body,
+        signal,
+        body.action === "stop" ? videoRenderTimeoutMs + 180000 : 180000,
+      )
+    ).json();
   async function download(name: string, destination: string, maximum: number) {
     WorkerAssetNameSchema.parse(name);
     const response = await request(`${route}/assets/${name}`, "GET");
@@ -135,14 +151,22 @@ export async function createRemoteReferenceBrowser(
     fill: async (controlId, value) =>
       InspectionSchema.parse(await action({ action: "fill", controlId, value })),
     scroll: async (deltaY) => InspectionSchema.parse(await action({ action: "scroll", deltaY })),
+    async wait(milliseconds) {
+      await action({ action: "wait", milliseconds });
+    },
     async capture(destination, selector) {
       const result = ScreenshotSchema.parse(await action({ action: "capture", selector }));
       await download(result.name, destination, 30_000_000);
       return { title: result.title, text: result.text, url: result.url };
     },
-    async startRecording(destination) {
+    async startRecording(destination, presentation) {
       workspace = destination;
-      return z.object({ id: z.string().uuid() }).parse(await action({ action: "start" })).id;
+      return z.object({ id: z.string().uuid() }).parse(
+        await action({
+          action: "start",
+          presentation: presentation && CapturePresentationSchema.parse(presentation),
+        }),
+      ).id;
     },
     async stopRecording(recordingId) {
       if (!workspace) throw Error("Start an OpenScreen recording first");

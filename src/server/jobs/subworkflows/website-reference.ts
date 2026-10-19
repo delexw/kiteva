@@ -1,6 +1,10 @@
+import { scrollControlForCapture } from "../../requests/reference-control-framing";
+import { setTimeout as delay } from "node:timers/promises";
+import type { ElementHandle } from "puppeteer-core";
 import { createRemoteReferenceBrowser } from "../../capture/worker-client";
 import puppeteer from "puppeteer-core";
 import { startWebsiteCapture } from "./website-capture";
+import type { CapturePresentationInput } from "../../capture/presentation";
 import {
   inspectReferenceDocument,
   referencePageHasContent,
@@ -158,22 +162,53 @@ export async function createLocalReferenceBrowser(
       await settle();
       return page.evaluate(inspectReferenceDocument);
     }
+    let pointer = { x: 20, y: 20 };
+    async function pointAndClick(target: ElementHandle<Element>, centerInput = false) {
+      await target.evaluate(scrollControlForCapture, centerInput);
+      const box = await target.boundingBox();
+      if (!box) throw Error("Control is not visible");
+      const destination = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+      const cursorType = await target.evaluate((element) => {
+        if (element.matches("input, textarea, [contenteditable=true]")) return "text";
+        if (
+          getComputedStyle(element).cursor === "pointer" ||
+          element.closest("button, a[href], [role=button]")
+        )
+          return "pointer";
+        return "arrow";
+      });
+      const origin = pointer;
+      for (let step = 1; step <= 12; step++) {
+        const x = origin.x + ((destination.x - origin.x) * step) / 12;
+        const y = origin.y + ((destination.y - origin.y) * step) / 12;
+        await page.mouse.move(x, y);
+        recording?.cursor(x, y, "move", step === 12 ? cursorType : "arrow");
+        if (recording) await delay(16, undefined, { signal });
+      }
+      pointer = destination;
+      // Preserve a visible target-acquisition beat for OpenScreen's anticipatory zoom.
+      if (recording) await delay(650, undefined, { signal });
+      await page.mouse.click(pointer.x, pointer.y);
+      recording?.cursor(pointer.x, pointer.y, "click", cursorType);
+    }
+    async function recordedAction<T>(action: () => Promise<T>) {
+      recording?.activity(true);
+      try {
+        return await action();
+      } finally {
+        recording?.activity(false);
+      }
+    }
     return {
       inspect,
       async click(controlId: string) {
         if (!/^\d+$/.test(controlId)) throw Error("Use a control ID from the latest inspection");
         const target = await page.$(`[data-reference-control="${controlId}"]`);
         if (!target) throw Error("Control was not found; inspect again");
-        await target.scrollIntoView();
-        const box = await target.boundingBox();
-        if (!box) throw Error("Control is not visible");
-        const x = box.x + box.width / 2;
-        const y = box.y + box.height / 2;
-        await page.mouse.move(x, y, { steps: 8 });
-        recording?.cursor(x, y, "move");
-        await page.mouse.click(x, y);
-        recording?.cursor(x, y, "click");
-        return inspect();
+        return recordedAction(async () => {
+          await pointAndClick(target);
+          return inspect();
+        });
       },
       async fill(controlId: string, value: string) {
         if (!/^\d+$/.test(controlId)) throw Error("Use a control ID from the latest inspection");
@@ -190,24 +225,33 @@ export async function createLocalReferenceBrowser(
           throw Error(
             "Only ordinary text, search and URL fields can be filled; credentials are prohibited",
           );
-        await target.focus();
-        await target.evaluate((element) => {
-          const field = element as HTMLInputElement | HTMLTextAreaElement;
-          field.select();
+        return recordedAction(async () => {
+          await pointAndClick(target, true);
+          await target.evaluate((element) => {
+            (element as HTMLInputElement | HTMLTextAreaElement).select();
+          });
+          await page.keyboard.type(value, { delay: 15 });
+          return inspect();
         });
-        await page.keyboard.type(value, { delay: 15 });
-        return inspect();
       },
       async scroll(deltaY: number) {
-        await page.mouse.wheel({ deltaY });
-        return inspect();
+        return recordedAction(async () => {
+          await page.mouse.wheel({ deltaY });
+          return inspect();
+        });
       },
-      async startRecording(workspace: string): Promise<string> {
+      async wait(milliseconds: number) {
+        await recordedAction(() => delay(milliseconds, undefined, { signal }));
+      },
+      async startRecording(
+        workspace: string,
+        presentation?: CapturePresentationInput,
+      ): Promise<string> {
         if (recording) throw Error("Stop the current recording before starting another");
         if (!allowedOrigins.has(new URL(page.url()).origin))
           throw Error("Inspect a supplied website first");
         await settle();
-        recording = await startWebsiteCapture(page, workspace, signal, desktop);
+        recording = await startWebsiteCapture(page, workspace, signal, desktop, presentation);
         return recording.id;
       },
       async stopRecording(id: string) {

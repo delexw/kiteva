@@ -30,7 +30,7 @@ On the worker, configure these environment variables:
 | `KITEVA_CAPTURE_WORKER_TOKEN` | Shared random secret of at least 32 characters                       |
 | `KITEVA_CAPTURE_WORKER_PORT`  | Optional; defaults to 4330                                           |
 
-Start `npm run capture:worker`. The service binds to `127.0.0.1`. It permits one browser session at a time and expires abandoned sessions after 15 minutes. Session shutdown stops the owned recorder and browser and removes transferred session assets. OpenScreen's original recordings remain in its own recordings directory; configure retention on the worker.
+Start `npm run capture:worker`. The service binds to `127.0.0.1`. It permits one browser session at a time and expires abandoned sessions after 63 minutes (allowing the one-hour native export plus delivery conversion). Session shutdown stops the owned recorder and browser and removes transferred session assets. OpenScreen's original recordings remain in its own recordings directory; configure retention on the worker.
 
 On the Kiteva host, configure:
 
@@ -51,4 +51,26 @@ Inspection, screenshots, clicking, filling and recording share one worker browse
 
 Verify the worker's OpenScreen `--help` and `sources --json`, then start a sample website session through Kiteva. Record a short take, interact with the page and stop. Check the returned WebM visually and its cursor overlay alignment before using it in a project. Native window framing can include browser chrome; real worker verification is required for the chosen OS and browser. Do not treat mocked transport/process tests as proof of a visually correct recording.
 
+`capture_video` always exports through OpenScreen's native compositor before returning footage: the moving pointer, click feedback and interaction zooms are already rendered. Longer takes use `--auto-zoom`; short takes and early interactions receive a native project focus region because OpenScreen's automatic planner deliberately skips them. The pointer settles over its target for 650 ms before recorded clicks so focus is established before the action. Short-take fallback zooms start before the first click and follow the pointer through every click, rather than highlighting only the first input. The capture tool trims idle model/tool-call gaps, preserves real typing/actions and explicit `wait_for_view` holds, and returns cursor timestamps on the edited timeline. The cursor file identifies source-window coordinates before zoom; do not overlay it again. Composition must not stretch or freeze the edited demo to fill an act. Screenshot-only capture remains unchanged.
+
+The capture tool fixes its pointer appearance to raised blue/cyan/violet Prism Glow artwork, size 2.2, smoothing 0.67, pointer motion blur 0.2 and a strong click bounce of 2.5. These are Kiteva's presentation choices using the [official cursor controls](https://getopenscreen.com/docs/editing-timeline/#cursor-styling), not an upstream recommended preset. Native 3D cursor rendering gives the pointer depth and shadow; click bounce supplies a visible press and impact ring. The 3D cursor appearance is fixed; `cursorClickImpact` remains agent-selectable. The pointer changes to a hand over buttons/links and retains the same themed arrow over inputs. Theme, 3D rendering and arrow-to-hand transitions are tool-owned and cannot be overridden by the agent. The agent chooses framing per take through `presentation.framing`; Kiteva does not force full-size footage. Omitted framing fields use native OpenScreen defaults. Every export includes `--auto-zoom` and renders at 60 fps; delivery conversion preserves 60 fps. Existing 30 fps recordings remain readable.
+
 Missing OpenScreen, permissions, an unavailable window, timeout or export failure is an error. The tool records only the dedicated browser window, never the whole desktop, and never switches recording engines.
+
+## Agent-selected presentation
+
+The main model can pass `presentation` when starting `capture_video`, for both local and worker capture. Choose framing explicitly for the project: `padding: 0` for edge-to-edge, or positive padding with `borderRadius`, `shadowIntensity`, `backgroundBlur`, `motionBlurAmount` and `aspectRatio` for an inset presentation. No framing values are supplied by Kiteva when omitted. The cursor theme is fixed; choose a legible cursor size for the project; tune smoothing, pointer motion blur and click bounce for legibility. Defaults apply to omitted fields. Automatic zoom and 60 fps are mandatory and cannot be disabled. Custom `zoomRegions` default to `focusMode: "auto"` and follow the cursor; use `focusMode: "manual"` explicitly to hold on a fixed point. They supplement the native auto planner, which avoids these explicit regions. Their times refer to the original recording before idle trimming; focus coordinates refer to the full recorded window. Regions must be ordered, non-overlapping and fit within the take. Depth 1–6 maps to 1.25×, 1.5×, 1.8×, 2.2×, 3.5× and 5×. Choose restrained depths for dense interfaces. Effective settings are returned in `recording.presentation.settings` and saved in the recording inventory.
+
+```json
+{
+  "action": "start",
+  "presentation": {
+    "cursorSize": 2.2,
+    "cursorSmoothing": 0.67,
+    "cursorMotionBlur": 0.2,
+    "cursorClickBounce": 1
+  }
+}
+```
+
+Kiteva writes OpenScreen native schema-version-8 documents so 3D cursor and click-impact settings survive export. The legacy v2 loader drops those fields. Trim and zoom regions remain anchored to the single source clip; the native compositor applies them.

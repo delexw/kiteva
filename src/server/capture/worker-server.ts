@@ -1,3 +1,4 @@
+import { videoRenderTimeoutMs } from "../rendering/timeouts";
 import Fastify from "fastify";
 import { timingSafeEqual, randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
@@ -58,12 +59,9 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
       await mkdir(path.join(workspace, "assets"));
       const browser = await createBrowser(input.urls, controller.signal, input.mode);
       const id = randomUUID();
-      const timer = setTimeout(
-        () => {
-          void close(id).catch(() => {});
-        },
-        15 * 60 * 1000,
-      );
+      const timer = setTimeout(() => {
+        void close(id).catch(() => {});
+      }, videoRenderTimeoutMs + 180000);
       timer.unref();
       sessions.set(id, {
         browser,
@@ -87,6 +85,7 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
     const session = sessions.get(id);
     if (!session) return reply.code(404).send({ error: "Capture session expired" });
     const action = CaptureActionSchema.parse(request.body);
+    session.timer.refresh();
     return session.queue.run(async () => {
       if (++session.calls > 80 && action.action !== "stop")
         throw Error("Capture session call limit reached");
@@ -100,8 +99,11 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
           return browser.fill(action.controlId, action.value);
         case "scroll":
           return browser.scroll(action.deltaY);
+        case "wait":
+          await browser.wait(action.milliseconds);
+          return { milliseconds: action.milliseconds };
         case "start":
-          return { id: await browser.startRecording(session.workspace) };
+          return { id: await browser.startRecording(session.workspace, action.presentation) };
         case "stop":
           return browser.stopRecording(action.recordingId);
         case "capture": {

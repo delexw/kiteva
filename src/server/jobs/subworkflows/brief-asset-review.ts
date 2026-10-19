@@ -15,6 +15,7 @@ export const briefPreparationReviewPolicy = `PREPARATION EVIDENCE REVIEW, NOT PR
 Inspect supplied websites enough to establish relevant facts and reachable controls. Capture screenshots only when needed to verify a visual claim or when the user requires a particular still. Do not capture every stage of a requested interaction merely to satisfy a preparation checklist. Clearly distinguish rendered page text from content actually visible in each captured image.
 For requested recorded interactions, missing footage is expected before building and is not a brief defect. Record the requested journey and known access limitations for the main model; do not require a screenshot to prove every future recorded state. For screenshot-only scenes, verify any claims about existing stills and note whether the requested still remains to be captured during building. Mixed requests use the appropriate evidence per requirement, not one global capture mode. Do not invent completed interactions or claim a planned capture already exists.
 Review unsupported factual claims, contradictions with user requirements and genuine observed access barriers. Do not fail solely for pending capture, optional resolution improvements, incomplete production scene coverage or the absence of a main-model production plan. Missing evidence must remain explicitly unverified, never silently verified. A passing preparation review does not approve uncaptured footage or waive final-result review. The main model must acquire the required assets during building and review the actual result before delivery.
+ACTIVE REQUEST AND REPAIR BOUNDARY: Use request in brief-asset-review-input.json as the authoritative active requirements. Active lyrics.text and speech.text control the delivery. translations.original and inactive translations.versions are historical language-switch backups; differences from the active copy are expected, not contradictions or defects. They are omitted from this review's request projection. If other source files include that history, do not treat it as active requirements. Never demand that input.json, request settings, translation backups or application-owned files be edited. Findings must describe a defect in the derived brief and a correction that can be applied to that brief. Preserve the original request and backup text unchanged.
 The legacy assetPlan field is an evidence map, not a binding production plan. Its scenes describe only user-requested uses, not reviewer-invented scenes. Use empty assetPaths and coverage=limited with an explicit pending-production limitation where capture is deferred; this can pass without a repair. Keep observedContent strictly factual. Existing screenshot quality still matters when the brief claims it is readable or usable; distinguish that fact from an optional production improvement.`;
 
 export const briefAssetAlignmentPrinciple = `PURPOSE-FIRST ATTACHMENT ANALYSIS: Extract supported facts relevant to the user's core idea and requirements. Inspect originals, preserve exact copy and settings, distinguish observations from requests and explicitly mark unverified content. For audio, verified streams and duration do not establish mood, instruments, speech or singing. Preserve originals and record genuine conflicts.
@@ -87,6 +88,8 @@ export async function reviewBriefAssets<
     sessionId: input.sessionId,
   };
   if (!input.request.assetIds.length && !input.request.urls.length) return current;
+  const activeRequest = { ...input.request };
+  if ("translations" in activeRequest) delete activeRequest.translations;
   let previousRepair:
     | { issue: z.infer<typeof BriefAssetReviewSchema>["issues"][number]; briefBeforeRepair: T }
     | undefined;
@@ -104,7 +107,7 @@ export async function reviewBriefAssets<
       path.join(input.workspace, "brief-asset-review-input.json"),
       JSON.stringify(
         {
-          request: input.request,
+          request: activeRequest,
           brief: current.value,
           attachments: inventory.attachments,
           screenshots,
@@ -120,40 +123,65 @@ export async function reviewBriefAssets<
     let review: ReturnType<typeof BriefAssetReviewSchema.parse> | undefined;
     for (let correction = 0; correction <= 2; correction++) {
       input.signal.throwIfAborted();
-      const turn = await (input.schedule || ((task) => task()))(() =>
-        agentTurn({
-          provider: input.request.provider,
-          model: textModels[input.request.provider],
-          workspace: input.workspace,
-          signal: input.signal,
-          sessionId: reviewSessionId,
-          readOnly: true,
-          schema: BriefAssetReviewSchema,
-          onEvent: input.onEvent,
-          prompt:
-            reviewFeedback ||
-            `${briefAssetAlignmentGuidance}\nCheck all request.requirements sections against their assigned sources: main story/document facts, music usage and timing, image relevance/readability, and URL evidence provenance. Section wishes must not be mistaken for verified asset properties. Flag supported omissions or cross-section conflicts with concrete expected fixes. Read brief-asset-review-input.json, then independently inspect the relevant original sources before reviewing the draft. Return the structured review; do not accept the preparation agent's claims without evidence. When previousRepair exists, compare briefBeforeRepair with the current brief. Verify only the assigned issue was changed, with any necessary dependency changes confined to that scene/asset. Prioritize regressions to unrelated scenes, assets, exact copy or settings as actionable issues that restore the unaffected content.\nRead availableAssetPaths in brief-asset-review-input.json for the available-source inventory; it includes unused and rejected captures and is not production approval. Review the current brief.assetPlan when present; exclusions belong there, not in the application-owned inventory. Every plan.assets.path must come from this inventory. Account for unused assets explicitly; do not list JSON manifests or derived inspection files as assets.`,
-        }),
-      );
-      reviewSessionId = turn.sessionId || reviewSessionId;
-      const candidate = BriefAssetReviewSchema.parse(turn.value);
-      await writeFile(
-        path.join(input.workspace, `brief-asset-review-${attempt}-${correction}.json`),
-        JSON.stringify(candidate, null, 2),
-      );
+      let candidate: z.infer<typeof BriefAssetReviewSchema> | undefined;
+      let validationError: unknown;
       try {
-        validateBriefAssetPlan(candidate.plan, assetPaths);
-        review = candidate;
-        break;
+        const turn = await (input.schedule || ((task) => task()))(() =>
+          agentTurn({
+            provider: input.request.provider,
+            model: textModels[input.request.provider],
+            workspace: input.workspace,
+            signal: input.signal,
+            sessionId: reviewSessionId,
+            readOnly: true,
+            schema: BriefAssetReviewSchema,
+            onEvent: (event) => {
+              const session = (event.data as { sessionId?: unknown } | undefined)?.sessionId;
+              if (typeof session === "string") reviewSessionId = session;
+              input.onEvent(event);
+            },
+            prompt:
+              reviewFeedback ||
+              `${briefAssetAlignmentGuidance}\nCheck all request.requirements sections against their assigned sources: main story/document facts, music usage and timing, image relevance/readability, and URL evidence provenance. Section wishes must not be mistaken for verified asset properties. Flag supported omissions or cross-section conflicts with concrete expected fixes. Read brief-asset-review-input.json, then independently inspect the relevant original sources before reviewing the draft. Return the structured review; do not accept the preparation agent's claims without evidence. When previousRepair exists, compare briefBeforeRepair with the current brief. Verify only the assigned issue was changed, with any necessary dependency changes confined to that scene/asset. Prioritize regressions to unrelated scenes, assets, exact copy or settings as actionable issues that restore the unaffected content.\nRead availableAssetPaths in brief-asset-review-input.json for the available-source inventory; it includes unused and rejected captures and is not production approval. Review the current brief.assetPlan when present; exclusions belong there, not in the application-owned inventory. Every plan.assets.path must come from this inventory. Account for unused assets explicitly; do not list JSON manifests or derived inspection files as assets.`,
+          }),
+        );
+        reviewSessionId = turn.sessionId || reviewSessionId;
+        candidate = BriefAssetReviewSchema.parse(turn.value);
       } catch (error) {
+        input.signal.throwIfAborted();
+        if (!(error instanceof z.ZodError)) throw error;
+        validationError = error;
+      }
+      if (candidate) {
+        await writeFile(
+          path.join(input.workspace, `brief-asset-review-${attempt}-${correction}.json`),
+          JSON.stringify(candidate, null, 2),
+        );
+        try {
+          validateBriefAssetPlan(candidate.plan, assetPaths);
+          review = candidate;
+          break;
+        } catch (error) {
+          validationError = error;
+        }
+      }
+      if (validationError) {
+        const error = validationError;
         if (correction === 2) throw error;
-        const issue = error instanceof Error ? error.message : String(error);
+        const issue =
+          error instanceof z.ZodError
+            ? JSON.stringify(
+                error.issues.map(({ path, code, message }) => ({ path, code, message })),
+              )
+            : error instanceof Error
+              ? error.message
+              : String(error);
         input.onEvent({
           type: "review_diagnostic",
           message: "Correcting the brief asset review structure",
           data: { issue, attempt, correction },
         });
-        reviewFeedback = `CORRECT ONLY THE REPORTED VALIDATION ISSUE in your review structure in this same review session. Preserve all unrelated review fields and quality findings. Do not repair the creative brief or recapture assets in this turn.\nIssue: ${issue}\nExpected fix: return the full corrected review with exactly one plan.assets entry per available original source (including unused sources), no internal JSON/manifest/inspection paths, unique scene IDs and mutually consistent scene-to-asset mappings. Keep genuine quality findings and expected fixes; correcting the review structure must not change needs_repair to passed without evidence.\nAcceptance criteria: plan.assets paths exactly match availableAssetPaths in brief-asset-review-input.json; each scene.assetPaths and asset.sceneIds link agrees; unused assets have no scenes; limited assets/scenes have explicit limitations.\nRead your previous review from brief-asset-review-${attempt}-${correction}.json and read the exact availableAssetPaths from brief-asset-review-input.json before correcting.`;
+        reviewFeedback = `CORRECT ONLY THE REPORTED VALIDATION ISSUE in your review structure in this same review session. Preserve all unrelated review fields and quality findings. Do not repair the creative brief or recapture assets in this turn.\nIssue: ${issue}\nExpected fix: return the full corrected review satisfying the reported paths. status=needs_repair requires at least one actionable issue; status=passed requires issues=[]. Do not discard genuine defects merely to satisfy the status. Include exactly one plan.assets entry per available original source (including unused sources), no internal JSON/manifest/inspection paths, unique scene IDs and mutually consistent scene-to-asset mappings. Keep genuine quality findings and expected fixes; correcting the review structure must not change needs_repair to passed without evidence.\nAcceptance criteria: plan.assets paths exactly match availableAssetPaths in brief-asset-review-input.json; each scene.assetPaths and asset.sceneIds link agrees; unused assets have no scenes; limited assets/scenes have explicit limitations.\nRead your previous StructuredOutput in this same review session and read the exact availableAssetPaths from brief-asset-review-input.json before correcting.`;
       }
     }
     if (!review) throw Error("Brief asset review structure could not be corrected");

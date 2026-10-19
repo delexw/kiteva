@@ -94,6 +94,8 @@ flowchart LR
 
 ## From idea to film
 
+Brief repairs return typed leaf edits, rather than regenerating the complete brief. The shared `BriefCorrectionSchema` permits guarded scalar replacements and individual text-array additions/removals; it excludes document/container replacement and source identity changes. The application uses [rfc6902](https://github.com/chbrown/rfc6902) (MIT) to apply edits to a copy, checks expected values before changing existing entries, then validates the complete video or page brief. Invalid edits leave the original untouched. Repairs retain the preparation session, provider and governed model call; the independent evidence review rechecks the merged result.
+
 ```mermaid
 sequenceDiagram
   autonumber

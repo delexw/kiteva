@@ -4,6 +4,8 @@ import { directionCandidateId, directionRoundSteps } from "../../shared/directio
 import { scopedAssetQuestions } from "../../shared/asset-question-scopes";
 import { StyleSummarySchema } from "../../shared/agents/schemas/style-summary";
 import { manualDirection } from "./manual-direction";
+import { BriefCorrectionSchema } from "../../shared/agents/schemas/brief-correction";
+import { applyBriefCorrection } from "./subworkflows/brief-correction";
 import { validateAssetLimits } from "../../shared/asset-limits";
 import { RequestSchema } from "../../shared/contracts";
 import { AssetQuestionAnswerSchema } from "../../shared/agents/schemas/asset-needs";
@@ -454,8 +456,8 @@ export class Workflow {
             schedule: (task) => this.agents.run(task),
             onEvent: this.providerEvent(run, undefined, "Brief asset self-review"),
             revise: (draft, sessionId, feedback) =>
-              this.agents.run(() =>
-                agentTurn<Brief | PageBrief>({
+              this.agents.run(async () => {
+                const correction = await agentTurn({
                   provider: run.request.provider,
                   model: textModels[run.request.provider],
                   workspace,
@@ -463,12 +465,20 @@ export class Workflow {
                   sessionId,
                   readOnly: true,
                   referenceUrls: run.request.urls,
-                  schema: briefSchema,
+                  schema: BriefCorrectionSchema,
                   promptContext: { currentDraft: draft, focusedReview: JSON.parse(feedback) },
                   onEvent: this.providerEvent(run, undefined, "Brief asset alignment repair"),
-                  prompt: `${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\n${briefAssetRepairScopeRule} Repair only the single assigned asset alignment issue in this brief. Continue the original preparation session. Inspect affected sources; use reference_browser tools to recapture the correct existing view when required. Preserve the core idea, exact copy and requested settings. Apply only this issue's expected fix and acceptance criterion. Keep every unaffected field, scene, asset, exact copy, requirement and setting unchanged; no unrelated cleanup, rewriting or extra fixes. Change only the targeted source extraction or scene usage and any strictly necessary references, and record any genuine remaining inspection limitation rather than inventing evidence. Update currentDraft.assetPlan for source exclusions and scene links; the available-source inventory is application-owned and must remain unchanged. Return the repaired full brief including its assetPlan; a separate review will recheck it.\nRead currentDraft and focusedReview from the required input JSON. The review contains exactly one issue, its expected fix and acceptance criteria.`,
-                }),
-              ),
+                  prompt: `${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\n${briefAssetRepairScopeRule} Repair only the single assigned asset alignment issue in this brief. Continue the original preparation session. Inspect affected sources; use reference_browser tools to recapture the correct existing view when required. Preserve the core idea, exact copy and requested settings. Apply only this issue's expected fix and acceptance criterion. Keep every unaffected field, scene, asset, exact copy, requirement and setting unchanged; no unrelated cleanup, rewriting or extra fixes. Change only the targeted source extraction or scene usage and any strictly necessary references, and record any genuine remaining inspection limitation rather than inventing evidence. Update currentDraft.assetPlan for source exclusions and scene links; the available-source inventory is application-owned and must remain unchanged. Return only an edits array conforming to the correction schema, never the full brief or an entire array/object. Use JSON Pointer paths into currentDraft. For replace/remove, copy the exact current leaf value into expected; replace value is the complete corrected leaf, not an excerpt. Add/remove only individual text-array entries; paths and indexes refer to the draft after preceding edits. Keep source identity fields unchanged. The application applies the edits atomically and validates the resulting full brief before a separate review rechecks it.\nRead currentDraft and focusedReview from the required input JSON. The review contains exactly one issue, its expected fix and acceptance criteria.`,
+                });
+                return {
+                  ...correction,
+                  value: applyBriefCorrection<Brief | PageBrief>(
+                    draft,
+                    correction.value,
+                    briefSchema,
+                  ),
+                };
+              }),
           });
           run.referenceScreenshots = await readReferenceScreenshots(workspace);
           run.brief = prepared.value;

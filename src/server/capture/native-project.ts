@@ -1,4 +1,15 @@
-import type { recordingEdit, fallbackInteractionZooms } from "./recording-edit";
+import type { recordingEdit } from "./recording-edit";
+
+export interface OpenScreenZoomRegion {
+  id: string;
+  startMs: number;
+  endMs: number;
+  depth: number;
+  customScale?: number;
+  focus: { cx: number; cy: number };
+  focusMode: "auto" | "manual";
+  source: "manual";
+}
 
 /** OpenScreen v2.1.1's native document preserves 3D/impact settings that its v2 loader drops. */
 export function createOpenScreenProject(
@@ -7,7 +18,7 @@ export function createOpenScreenProject(
   dimensions: { width: number; height: number },
   editor: Record<string, unknown> & {
     trimRegions: ReturnType<typeof recordingEdit>;
-    zoomRegions: ReturnType<typeof fallbackInteractionZooms>;
+    zoomRegions: OpenScreenZoomRegion[];
   },
 ) {
   const createdAt = new Date().toISOString();

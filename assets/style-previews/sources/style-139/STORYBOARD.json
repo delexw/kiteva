@@ -1,0 +1,70 @@
+{
+  "version": 3,
+  "title": "Particle Flow Network — an idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "Graph build",
+      "startSeconds": 0,
+      "endSeconds": 0.45,
+      "purpose": "Data Build (motion-030): reveal the stable authored nodes in place, then their curved rails, then node-owned labels.",
+      "visuals": ["Stationary #0B0F17 surround with sparse #2A3242 dotted field and edge vignette", "10 fixed nodes appear in place by opacity and in-place scale (0.00-0.64 s staggered)", "9 cubic Bezier rails draw by stroke-dashoffset after nodes (0.20-0.97 s)", "Title AN IDEA BECOMES A CONNECTED SYSTEM and subtitle fade in"],
+      "assets": ["index.html (SVG back/front layers, Canvas 2D particle layer)"],
+      "beats": [
+        {"startSeconds": 0, "endSeconds": 0.45, "development": "Nodes INTAKE, EXCHANGE, OUTCOME, queue and six satellites appear at fixed positions; rails begin drawing; labels reveal after their owning node from 0.36 s.", "captions": ["AN IDEA BECOMES A CONNECTED SYSTEM", "PARTICLE FLOW NETWORK · AUTHORED, ILLUSTRATIVE STATES"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Activation and first transfer",
+      "startSeconds": 0.45,
+      "endSeconds": 1.45,
+      "purpose": "Source activation then transfer: the idea hub lights up and its particle stream travels to the core exchange.",
+      "visuals": ["INTAKE halo and core accent rise idle grey to active amber (0.45-0.95 s); meta IDEA · IDLE -> IDEA · ACTIVE at 0.60 s", "Two satellites feed INTAKE with sparse idle streams (head 0.45-0.85 s); the fault satellite's dashed rail carries no particles", "Stream head travels INTAKE -> EXCHANGE (0.75-1.30 s) with density ramping 35% -> 100%", "Arrival at 1.30 s: EXCHANGE pulses once, halo/ring/core turn active, counter LINKS 00/06 steps to 03/06"],
+      "assets": [],
+      "beats": [
+        {"startSeconds": 0.45, "endSeconds": 0.75, "development": "Activation: INTAKE halo and state accent rise; satellites begin feeding it.", "captions": ["INTAKE", "IDEA · ACTIVE"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 0.75, "endSeconds": 1.3, "development": "Transfer: seeded particles stream along the INTAKE -> EXCHANGE curve, narrowing at both rims.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 1.3, "endSeconds": 1.45, "development": "Arrival: particles converge into EXCHANGE, which pulses once; LINKS readout steps 01 -> 03 (illustrative).", "captions": ["EXCHANGE", "LINKS 03/06"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Second transfer and arrival",
+      "startSeconds": 1.45,
+      "endSeconds": 2.05,
+      "purpose": "One transfer at a time: EXCHANGE passes the flow to OUTCOME while the first stream settles.",
+      "visuals": ["Stream head EXCHANGE -> OUTCOME (1.45-1.95 s); INTAKE -> EXCHANGE density eases to 20% idle", "Arrival at 1.95 s: OUTCOME pulses once, ring waiting -> active, outer ring appears, meta SYSTEM · WAITING -> SYSTEM · LINKED, LINKS steps to 06/06"],
+      "assets": [],
+      "beats": [
+        {"startSeconds": 1.45, "endSeconds": 1.95, "development": "Transfer: second stream travels from EXCHANGE to OUTCOME; first stream thins.", "captions": [], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 1.95, "endSeconds": 2.05, "development": "Arrival: OUTCOME pulses once and its label updates to SYSTEM · LINKED; counter reaches 06/06 (illustrative).", "captions": ["OUTCOME", "SYSTEM · LINKED", "LINKS 06/06"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0}
+      ]
+    },
+    {
+      "id": "scene-4",
+      "title": "Settle and overview",
+      "startSeconds": 2.05,
+      "endSeconds": 3,
+      "purpose": "Settle to idle density and hold the complete connected system readable.",
+      "visuals": ["OUTCOME distributes sparse streams to its two satellites (head 2.00-2.35 s)", "Main stream density returns to ~24% idle by 2.60 s; halos ease to sustained levels", "Queue node stays WAITING with no flow; FAULT satellite stays dashed and stalled", "Legend ACTIVE / IDLE / WAITING / FAULT pairs each state with text"],
+      "assets": [],
+      "beats": [
+        {"startSeconds": 2.05, "endSeconds": 2.6, "development": "Settle: densities and halos return to idle levels; outcome cluster receives sparse flow.", "captions": ["WAITING", "FAULT"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0},
+        {"startSeconds": 2.6, "endSeconds": 3, "development": "Overview: whole graph held readable; only sparse idle particles continue along authored edges.", "captions": ["INTAKE", "EXCHANGE", "OUTCOME", "LINKS 06/06", "SYSTEM · LINKED"], "audio": {"music": "", "effects": [], "lyrics": []}, "readingHoldSeconds": 0.4}
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": ["Brisk 3 s study: build 0.45 s, two sequential transfers of ~0.5 s each, single pulses on arrival, no simultaneous pulses or flashing.", "All labels are fully legible from 0.60 s; state text swaps are instantaneous, not blinking."],
+    "justifiedHolds": ["2.60-3.00 s overview hold so the connected system and final readouts can be read."]
+  },
+  "notes": [
+    "Nodes (fixed): intake(330,300,r22,idea,idle->active), exchange(640,390,r44,core,idle->active), outcome(930,230,r24,system,waiting->active), queue(1000,540,r20,queue,waiting), spark-a(200,200), spark-b(180,380), spark-c(300,470,fault), out-a(1060,150), out-b(1080,300), queue-a(1110,620).",
+    "Edges (cubic Bezier source->destination): intake->exchange [352,302 440,292 540,330 600,372]; exchange->outcome [676,366 735,315 830,252 904,238]; exchange->queue [682,404 780,438 890,502 978,532] (no flow); spark-a->intake; spark-b->intake; spark-c->intake (fault, no flow); outcome->out-a; outcome->out-b; queue->queue-a (no flow).",
+    "All counts, states and the LINKS readout are authored and illustrative, not measured or live telemetry.",
+    "Motion Graphic: style-139 Particle Flow Network (primary). Motion reference: motion-030 Data Build for node-before-connector build and stepped readouts.",
+    "Silent preview: no music, effects or voice."
+  ]
+}

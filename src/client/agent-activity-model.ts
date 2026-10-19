@@ -90,8 +90,6 @@ export const taskActivityLabels: Record<string, { working: string; saving: strin
   },
 };
 export function customerToolActivity(name: string, type: string, purpose?: string): string {
-  if (/instruments.*instrument_status/.test(name)) return "Checking local instruments…";
-  if (/instruments.*render_instrumental/.test(name)) return "Rendering your instrumental music…";
   if (/react_bits.*search_components/.test(name)) return "Exploring visual components…";
   if (/react_bits.*read_component/.test(name)) return "Checking a visual component…";
   if (/react_bits.*install_component/.test(name)) return "Adding a visual component…";

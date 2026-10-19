@@ -75,17 +75,21 @@ it("publishes only decoded footage and timed cursor metadata with a local produc
       expect(nativeProject.schemaVersion).toBe(8);
       expect(nativeProject.legacyEditor).toMatchObject({
         cursorTheme: "prism-glow",
-        cursorSize: 2.2,
-        cursorSmoothing: 0.67,
-        cursorMotionBlur: 0.2,
-        cursorClickBounce: 2.5,
         cursorModel3d: true,
-        cursorClickImpact: false,
         cursorAlwaysArrow: false,
         cursorAsArrow: ["text"],
       });
       expect(nativeProject.legacyEditor).not.toHaveProperty("padding");
       expect(nativeProject.legacyEditor).not.toHaveProperty("aspectRatio");
+      for (const key of [
+        "cursorSize",
+        "cursorSmoothing",
+        "cursorMotionBlur",
+        "cursorClickBounce",
+        "cursorClickImpact",
+      ])
+        expect(nativeProject.legacyEditor).not.toHaveProperty(key);
+      expect(nativeProject.zoomRanges).toEqual([]);
       const telemetry = JSON.parse(
         await readFile(`${nativeProject.assets[0].originalPath}.cursor.json`, "utf8"),
       );
@@ -227,6 +231,33 @@ it.each(["auto", "manual"] as const)(
     }
   },
 );
+
+it("protects the complete input area ahead of an overlapping requested zoom", async () => {
+  const f = await fixture(undefined, {
+    zoomRegions: [{ startSeconds: 0, endSeconds: 2, depth: 6 }],
+  });
+  try {
+    const now = performance.now();
+    const clock = vi.spyOn(performance, "now").mockReturnValue(now);
+    f.capture.activity(true);
+    f.capture.focusInput({ x: 40, y: 100, width: 1200, height: 200 });
+    clock.mockReturnValue(now + 500);
+    f.capture.activity(false);
+    vi.mocked(exportOpenScreen).mockImplementationOnce(async (project, output) => {
+      const document = JSON.parse(await readFile(project, "utf8"));
+      expect(document.zoomRanges).toHaveLength(1);
+      expect(document.zoomRanges[0]).toMatchObject({
+        id: "input-focus-0",
+        focusMode: "manual",
+        customScale: 1.15,
+      });
+      await writeFile(output, "native-export");
+    });
+    await f.capture.save();
+  } finally {
+    await f.cleanup();
+  }
+});
 
 it("rejects manual zooms beyond the actual recorded duration", async () => {
   const f = await fixture(undefined, {

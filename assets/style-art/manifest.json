@@ -1478,11 +1478,11 @@
     "catalogHash": "c30ec1204a2ab05c07f65d5e737398eb2901ccafa80fc48db1ba915acc3fcf28",
     "thumbnail": "style-136.webp",
     "status": "ready",
-    "authorship": "application",
-    "model": "application-authored",
+    "model": "claude-opus-5-5",
     "source": "style-136.svg",
-    "generatedAt": "2026-10-14T19:57:20.051Z",
-    "designNotes": "Application-authored backstage manga: timed specialist crew tasks, compact badges and readable statuses, a shadowed board, oval dialogue, sparse orange activity dots and continuous right-to-left scenery. Opening title omitted by choice."
+    "generatedAt": "2026-10-19T22:01:40.867Z",
+    "designNotes": "Opus-authored backstage motion preview: the canonical storyboard crew keep consistent cutout silhouettes and role props, with staggered delivery, lettering, lighting, sound and camera tasks around a readable presentation board.",
+    "provider": "claude"
   },
   {
     "styleId": "style-032",
@@ -1516,5 +1516,16 @@
     "source": "style-138.svg",
     "generatedAt": "2026-10-18T03:17:48.466Z",
     "designNotes": "Claude Opus 5.5 code-drawn Terminal Lyric Duotone Anime study: an original, clearly illustrative headphone bust in flat ultramarine, cream and near-black inside a CRT terminal frame with scanlines, seeded grain, vignette and corner brackets; a decoding §07 header, a bilingual monospace/CJK caption with a growing progress underline and signal-blue keyword, a HUD detection box and specimen card that build from authored data, a keyword title that settles from an RGB offset into a thin ellipse ring, and one warning-only red label. Not reference artwork, footage or lyrics."
+  },
+  {
+    "styleId": "style-139",
+    "catalogHash": "188c2e36c21a2679288082d06a1be58cc7f6a40545ff42f39b8188ed688a00e8",
+    "thumbnail": "style-139.webp",
+    "status": "ready",
+    "provider": "claude",
+    "model": "claude-opus-5-5",
+    "source": "style-139.svg",
+    "generatedAt": "2026-10-19T22:03:46.462Z",
+    "designNotes": "Generalised from the observed visual grammar (clustered circular hubs, curved fine-particle streams carrying transfer, restrained halos and semantic state accents, sparse dotted field, compact technical labels, fixed layout while flow and emphasis change) into a domain-neutral node-link style. No source labels, product names, layout, data or code are reused. Motion is defined as five scripted beats (activation, transfer, arrival, settle, overview) evaluated deterministically from composition time, with seeded particles bound to authored source-to-destination curves. The palette is role-based and illustrative with a scene-dependent background; Dark and Light variants share the same roles, and contrast figures are hand-computed WCAG approximations to recheck with chroma-js on composited frames. Motion references are limited to optional motion-030 and motion-016; combinations are limited to style-097 and style-098. The card SVG shows 10 nodes in three clusters around a primary hub, dotted round-cap strokes simulating particle streams that densify toward destinations, warm halos on the active path, one dashed fault ring, a faint dot field and vignette, and three generic labels: INTAKE, EXCHANGE, OUTCOME."
   }
 ]

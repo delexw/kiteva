@@ -4,6 +4,10 @@ import {
   AppliedCapturePresentationSchema,
 } from "../src/server/capture/presentation";
 
+it("leaves omitted cursor timing and effect settings to OpenScreen", () => {
+  expect(CapturePresentationSchema.parse({})).toEqual({ zoomRegions: [] });
+});
+
 it("defaults custom zooms to cursor following without requiring fixed coordinates", () => {
   const settings = CapturePresentationSchema.parse({
     zoomRegions: [{ startSeconds: 1, endSeconds: 3, depth: 3 }],

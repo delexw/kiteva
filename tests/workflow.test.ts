@@ -1,3 +1,11 @@
+vi.mock("../src/server/agents/authoring-resources", () => ({
+  selectAuthoringResources: async () => ({
+    source: "jev",
+    model: "jev-test",
+    selectedIds: ["local_code"],
+    decisions: [],
+  }),
+}));
 import { validStoryboard } from "./fixtures/storyboard";
 import { it, expect, vi } from "vitest";
 import { mkdtemp, rm, readFile, mkdir, writeFile } from "node:fs/promises";
@@ -263,6 +271,7 @@ it("retries interrupted rendering without repeating a completed provider turn", 
     );
     expect(run.jobs[0].sessionId).toBe("session");
     expect(run.jobs[0].renderMs).toBeGreaterThanOrEqual(0);
+    expect(run.jobs[0].authoringResources).toBeUndefined();
     const manifest = run.jobs[0].production!;
     run.jobs[0].production = undefined;
     run.jobs[0].model = "gpt-6-luna";
@@ -276,6 +285,15 @@ it("retries interrupted rendering without repeating a completed provider turn", 
       validStoryboard(),
     );
     expect(run.jobs[0].production).not.toHaveProperty("storyboard");
+    expect(run.jobs[0].authoringResources).toMatchObject({
+      source: "jev",
+      selectedIds: ["local_code"],
+    });
+    expect(
+      JSON.parse(await readFile(path.join(workspace, "style-context.json"), "utf8"))
+        .authoringResources,
+    ).toEqual(run.jobs[0].authoringResources);
+
     expect(agentTurn).toHaveBeenCalledWith(expect.objectContaining({ model: "gpt-6-luna" }));
     run.phase = "interrupted";
     run.jobs[0].phase = "interrupted";

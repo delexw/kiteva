@@ -6,7 +6,6 @@ import type { Page } from "puppeteer-core";
 import { command } from "../../runtime/process";
 import {
   recordingEdit,
-  fallbackInteractionZooms,
   editedPointerEvents,
   type CaptureActivity,
   type CapturePointer,
@@ -18,6 +17,7 @@ import {
 } from "../../capture/openscreen";
 import { probeVideo } from "../../rendering/video-probe";
 import { createOpenScreenProject } from "../../capture/native-project";
+import { inputFocusZooms, type InputFocus } from "../../capture/input-focus";
 import {
   CapturePresentationSchema,
   AppliedCapturePresentationSchema,
@@ -85,6 +85,8 @@ export async function startWebsiteCapture(
   const url = page.url();
   const events: CursorEvent[] = [];
   const activities: CaptureActivity[] = [];
+  const inputs: InputFocus[] = [];
+  let focusedInput: Omit<InputFocus, "end"> | undefined;
   const editDirectory = path.join(assets, `.website-edit-${id}`);
   let activeStart: number | undefined;
   let sourceDuration = 0;
@@ -176,6 +178,16 @@ export async function startWebsiteCapture(
       `${source}.cursor.json`,
       JSON.stringify({ version: 2, provider: "none", assets: [], samples }),
     );
+    const inputZooms = inputFocusZooms(inputs, frame);
+    const requestedZooms = settings.zoomRegions.map((region, index) => ({
+      id: `agent-focus-${index}`,
+      startMs: Math.round(region.startSeconds * 1000),
+      endMs: Math.round(region.endSeconds * 1000),
+      depth: region.depth,
+      focus: { cx: region.focusX, cy: region.focusY },
+      focusMode: region.focusMode,
+      source: "manual" as const,
+    }));
     await writeFile(
       project,
       JSON.stringify(
@@ -192,17 +204,15 @@ export async function startWebsiteCapture(
           cursorAlwaysArrow: settings.cursorAlwaysArrow,
           cursorAsArrow: settings.cursorAsArrow,
           trimRegions: trims,
-          zoomRegions: settings.zoomRegions.length
-            ? settings.zoomRegions.map((region, index) => ({
-                id: `agent-focus-${index}`,
-                startMs: Math.round(region.startSeconds * 1000),
-                endMs: Math.round(region.endSeconds * 1000),
-                depth: region.depth,
-                focus: { cx: region.focusX, cy: region.focusY },
-                focusMode: region.focusMode,
-                source: "manual",
-              }))
-            : fallbackInteractionZooms(events, sourceDuration, frame, trims),
+          zoomRegions: [
+            ...requestedZooms.filter(
+              (region) =>
+                !inputZooms.some(
+                  (input) => input.startMs < region.endMs && input.endMs > region.startMs,
+                ),
+            ),
+            ...inputZooms,
+          ].sort((a, b) => a.startMs - b.startMs),
         }),
       ),
     );
@@ -237,7 +247,14 @@ export async function startWebsiteCapture(
       else if (activeStart !== undefined) {
         activities.push({ start: activeStart, end: now });
         activeStart = undefined;
+        if (focusedInput) {
+          inputs.push({ ...focusedInput, end: now });
+          focusedInput = undefined;
+        }
       }
+    },
+    focusInput(bounds: InputFocus["bounds"]) {
+      focusedInput = { start: (performance.now() - started) / 1000, bounds };
     },
     cursor(
       x: number,

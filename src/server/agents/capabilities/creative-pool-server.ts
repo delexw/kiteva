@@ -1,12 +1,8 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
-import { createInstrumentTools } from "./instruments-tools";
+import { createCreativePoolTools } from "./creative-pool-tools";
 
-const config = z
-  .object({ workspace: z.string(), readOnly: z.boolean() })
-  .parse(JSON.parse(process.argv[2]));
 const controller = new AbortController();
-const server = createInstrumentTools({ ...config, signal: controller.signal });
+const server = createCreativePoolTools(controller.signal);
 const close = () => {
   controller.abort();
   void server.close().finally(() => process.exit(0));

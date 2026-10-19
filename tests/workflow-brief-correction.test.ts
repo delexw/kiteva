@@ -1,3 +1,11 @@
+vi.mock("../src/server/agents/authoring-resources", () => ({
+  selectAuthoringResources: async () => ({
+    source: "jev",
+    model: "jev-test",
+    selectedIds: ["local_code"],
+    decisions: [],
+  }),
+}));
 import { randomUUID } from "node:crypto";
 import { rm } from "node:fs/promises";
 import path from "node:path";
@@ -28,6 +36,7 @@ it.each(["claude", "codex"] as const)(
       phase: "queued",
       request: RequestSchema.parse({
         instructions: "Explain importing",
+        lyrics: { mode: "provided", text: "Exact copy" },
         provider,
         selectedStyleIds: ["style-018"],
         candidateCount: 0,
@@ -54,7 +63,11 @@ it.each(["claude", "codex"] as const)(
     };
     vi.mocked(agentTurn)
       .mockResolvedValueOnce({ value: brief, sessionId: "preparation-session" })
-      .mockResolvedValueOnce({ value: correction, sessionId: "preparation-session" });
+      .mockResolvedValueOnce({
+        value: { edits: [{ ...correction.edits[0], path: "/facts/1" }] },
+        sessionId: "repair-session",
+      })
+      .mockResolvedValueOnce({ value: correction, sessionId: "repair-session" });
     vi.mocked(reviewBriefAssets).mockImplementation(async (input) =>
       input.revise(
         input.brief,
@@ -69,7 +82,7 @@ it.each(["claude", "codex"] as const)(
     try {
       await workflow.prepare(run);
       expect(run.phase, run.error).toBe("ready");
-      expect(agentTurn).toHaveBeenCalledTimes(2);
+      expect(agentTurn).toHaveBeenCalledTimes(3);
       const repair = vi.mocked(agentTurn).mock.calls[1][0];
       expect(repair).toMatchObject({
         provider,
@@ -78,6 +91,19 @@ it.each(["claude", "codex"] as const)(
         readOnly: true,
       });
       expect(repair.prompt).toContain("never the full brief");
+      const retry = vi.mocked(agentTurn).mock.calls[2][0];
+      expect(retry).toMatchObject({
+        sessionId: "repair-session",
+        readOnly: true,
+        promptContext: {
+          currentDraft: brief,
+          previousValidationIssue: expect.stringContaining("/facts/1"),
+        },
+      });
+      expect(JSON.stringify(retry.promptContext)).toContain("Preserve this fact");
+      expect(JSON.stringify(retry.promptContext)).toContain("Unsupported claim");
+      expect(retry).not.toHaveProperty("reasoningEffort");
+
       expect(repair).not.toHaveProperty("reasoningEffort");
       expect(run.brief).toEqual({ ...brief, facts: ["Verified claim", "Preserve this fact"] });
       expect(brief.facts[0]).toBe("Unsupported claim");

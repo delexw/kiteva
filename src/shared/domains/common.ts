@@ -1,3 +1,4 @@
+import type { AuthoringResourceSelection } from "../agents/authoring-resources";
 import { CreativeApproachSchema } from "../creative-approach";
 import { MAX_VIDEO_STYLE_COUNT } from "../style-selection";
 import { type ResultReview } from "../agents/schemas/result-review";
@@ -40,6 +41,7 @@ export interface JobState {
   createdAt?: string;
   startedAt?: string;
   finishedAt?: string;
+  authoringResources?: AuthoringResourceSelection;
   generationMs?: number;
   renderMs?: number;
   error?: string;

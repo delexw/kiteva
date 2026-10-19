@@ -1,3 +1,11 @@
+vi.mock("../src/server/agents/authoring-resources", () => ({
+  selectAuthoringResources: async () => ({
+    source: "jev",
+    model: "jev-test",
+    selectedIds: ["local_code"],
+    decisions: [],
+  }),
+}));
 import { expect, it, vi } from "vitest";
 import { Workflow } from "../src/server/jobs/workflow";
 import { Store } from "../src/server/jobs/store";

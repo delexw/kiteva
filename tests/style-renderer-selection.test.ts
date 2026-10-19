@@ -5,7 +5,7 @@ import { styleTechnologyRecommendations } from "../src/shared/style-technology";
 it("keeps composition renderers out of all style recommendations", async () => {
   const catalog = await loadCatalog();
   const names = ["HyperFrames", "Remotion", "@remotion/renderer", "Multiplane"];
-  expect(catalog.styles).toHaveLength(138);
+  expect(catalog.styles).toHaveLength(139);
   for (const style of catalog.styles) {
     expect(style.tech.recommended_stack.some((tool) => names.includes(tool.name))).toBe(false);
     expect(style.tech.render_pipeline).toContain("project's renderer setting");

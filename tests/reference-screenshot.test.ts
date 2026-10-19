@@ -85,7 +85,11 @@ it("uses a fresh proxied browser, waits for the rendered page, and closes it aft
     on: vi.fn(),
     goto: vi.fn().mockRejectedValue(Error("Navigation failed")),
   };
-  const browser = { newPage: vi.fn().mockResolvedValue(page), close: vi.fn() };
+  const browser = {
+    newPage: vi.fn().mockResolvedValue(page),
+    defaultBrowserContext: () => ({ setPermission: vi.fn() }),
+    close: vi.fn(),
+  };
   vi.mocked(puppeteer.launch).mockResolvedValue(browser as never);
   await expect(
     captureReferencePage(
@@ -198,7 +202,11 @@ it("rejects blank captures with useful JavaScript diagnostics and closes the bro
       .mockRejectedValue(Error("Still blank")),
     screenshot: vi.fn(),
   };
-  const browser = { newPage: vi.fn().mockResolvedValue(page), close: vi.fn() };
+  const browser = {
+    newPage: vi.fn().mockResolvedValue(page),
+    defaultBrowserContext: () => ({ setPermission: vi.fn() }),
+    close: vi.fn(),
+  };
   vi.mocked(puppeteer.launch).mockResolvedValue(browser as never);
   await expect(
     captureReferencePage(

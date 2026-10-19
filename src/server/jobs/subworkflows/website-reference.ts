@@ -1,4 +1,8 @@
-import { scrollControlForCapture } from "../../requests/reference-control-framing";
+import { configureReferencePermissions } from "../../requests/reference-browser-permissions";
+import {
+  captureInputBounds,
+  scrollControlForCapture,
+} from "../../requests/reference-control-framing";
 import { setTimeout as delay } from "node:timers/promises";
 import type { ElementHandle } from "puppeteer-core";
 import { createRemoteReferenceBrowser } from "../../capture/worker-client";
@@ -64,6 +68,8 @@ export async function createLocalReferenceBrowser(
   const loadingErrors: string[] = [];
   try {
     signal.throwIfAborted();
+    await configureReferencePermissions(browser.defaultBrowserContext(), origins, mode);
+    signal.throwIfAborted();
     const page = desktop
       ? ((await browser.pages())[0] ?? (await browser.newPage()))
       : await browser.newPage();
@@ -124,7 +130,6 @@ export async function createLocalReferenceBrowser(
     });
     async function settle() {
       signal.throwIfAborted();
-      await page.waitForNetworkIdle({ idleTime: 500, timeout: 5000 }).catch(() => {});
       try {
         await page.waitForFunction(() => document.fonts.status === "loaded", { timeout: 5000 });
       } catch {
@@ -167,6 +172,7 @@ export async function createLocalReferenceBrowser(
       await target.evaluate(scrollControlForCapture, centerInput);
       const box = await target.boundingBox();
       if (!box) throw Error("Control is not visible");
+      if (centerInput && recording) recording.focusInput(await target.evaluate(captureInputBounds));
       const destination = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
       const cursorType = await target.evaluate((element) => {
         if (element.matches("input, textarea, [contenteditable=true]")) return "text";
@@ -186,8 +192,7 @@ export async function createLocalReferenceBrowser(
         if (recording) await delay(16, undefined, { signal });
       }
       pointer = destination;
-      // Preserve a visible target-acquisition beat for OpenScreen's anticipatory zoom.
-      if (recording) await delay(650, undefined, { signal });
+      if (recording) await delay(450, undefined, { signal });
       await page.mouse.click(pointer.x, pointer.y);
       recording?.cursor(pointer.x, pointer.y, "click", cursorType);
     }

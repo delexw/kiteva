@@ -1,3 +1,4 @@
+import { selectAuthoringResources } from "../agents/authoring-resources";
 import { linkWorkspaceDirectory } from "../runtime/workspace-links";
 import { relevantPreferenceHistory } from "../catalog/preference-history";
 import { directionCandidateId, directionRoundSteps } from "../../shared/direction-rounds";
@@ -6,7 +7,7 @@ import { StyleSummarySchema } from "../../shared/agents/schemas/style-summary";
 import { randomDirections, RandomDirectionsSchema } from "./random-directions";
 import { manualDirection } from "./manual-direction";
 import { BriefCorrectionSchema } from "../../shared/agents/schemas/brief-correction";
-import { applyBriefCorrection } from "./subworkflows/brief-correction";
+import { reviseBriefWithRetry } from "./subworkflows/brief-correction";
 import { validateAssetLimits } from "../../shared/asset-limits";
 import { RequestSchema } from "../../shared/contracts";
 import { AssetQuestionAnswerSchema } from "../../shared/agents/schemas/asset-needs";
@@ -17,10 +18,9 @@ import {
   assetIdsForQuestionScope,
   assetRequirementsPolicy,
 } from "../../shared/asset-requirements-policy";
-import { PageBriefSchema, type PageBrief } from "../../shared/agents/schemas/page";
-import { BriefSchema, type Brief } from "../../shared/agents/schemas/video";
+import { PageBriefSchema } from "../../shared/agents/schemas/page";
+import { BriefSchema } from "../../shared/agents/schemas/video";
 import { proposalSchemaForStyleRange } from "../../shared/agents/schemas/proposals";
-import { briefExplorationInstructions } from "../agents/brief-exploration";
 import { candidateCopyGuidance } from "../../shared/candidate-copy";
 import {
   reviewBriefAssets,
@@ -43,7 +43,6 @@ import { CodedError, errorCode } from "../../shared/errors";
 import { prepareLyrics, resolvedLyricsRequest } from "../domains/video/prepare-lyrics";
 import {
   MIN_AUTO_VIDEO_DURATION,
-  MAX_VIDEO_DURATION,
   resolveVideoDuration,
   videoStyleCountRange,
 } from "../../shared/domains/video";
@@ -69,8 +68,11 @@ import type { Catalog } from "../catalog/catalog.js";
 import { appRoot, dataRoot, models, safeMessage, agentMode } from "../runtime/config.js";
 import { agentTurn, type ProviderEvent } from "../agents/providers.js";
 import { combinationModels, textModels } from "../agents/models.js";
+import { preparationBriefSchemaFor } from "../../shared/agents/schemas/preparation-brief";
+import { assemblePreparationBrief, preparationBriefPrompt } from "./subworkflows/preparation-brief";
 import { prepareStyleSummaries } from "../catalog/style-summaries";
-import { rankOptions, jevClient } from "../catalog/ranking.js";
+import { rankOptions } from "../catalog/ranking.js";
+import { jevClient } from "../agents/jev";
 import { readReferenceScreenshots, referenceManifest } from "../requests/reference-browser-tools";
 import { validateReferenceUrl } from "../requests/reference-url";
 import {
@@ -367,7 +369,7 @@ export class Workflow {
         await writeFile(path.join(workspace, referenceManifest), JSON.stringify(screenshots));
         run.referenceScreenshots = structuredClone(screenshots);
       };
-      await checkpoint(
+      const inputs = await checkpoint(
         "inputs",
         z.object({ descriptions: z.array(z.string()) }),
         async () => {
@@ -405,10 +407,7 @@ export class Workflow {
         },
       );
       const briefSchema = run.request.outputType === "page" ? PageBriefSchema : BriefSchema;
-      const preparationBriefSchema =
-        run.request.outputType === "page"
-          ? PageBriefSchema.omit({ assetPlan: true })
-          : BriefSchema.omit({ assetPlan: true });
+      const preparationBriefSchema = preparationBriefSchemaFor(preparedRequest);
       const brief = await checkpoint(
         "brief",
         z.object({
@@ -430,8 +429,8 @@ export class Workflow {
             return asset;
           });
           await prepareBriefAttachments(workspace, attachments, images, controller.signal);
-          let prepared = await this.agents.run(() =>
-            agentTurn<Brief | PageBrief>({
+          const interpretation = await this.agents.run(() =>
+            agentTurn({
               provider: run.request.provider,
               model: textModels[run.request.provider],
               workspace,
@@ -441,13 +440,18 @@ export class Workflow {
               schema: preparationBriefSchema,
               exploreBriefSections: true,
               onEvent: this.providerEvent(run),
-              prompt:
-                (run.request.outputType === "page"
-                  ? "Prepare a responsive interactive page brief. The previewBeat is one representative section with a meaningful user interaction; no video timing. List sections and interactionGoals. Do not include video duration. "
-                  : "") +
-                `${assetRequirementsPolicy.guidance}\n${briefExplorationInstructions}\n${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\nDuring preparation identify the core idea and main scenes first, then align extracted attachment content and proposed usage with those scenes. Correct unsupported factual descriptions; record pending production captures without blocking preparation. Leave production planning to the main model during building. The independent self-review will verify this handoff.\nRead input.json and brief-images.json. For uploaded images, inspect the listed inspectionPath first; if text or detail is unclear, inspect the unchanged originalPath at full resolution. Pica copies are only for brief inspection, never production assets. When URLs are provided, complete the REQUIRED WEBSITE REFERENCE EXPLORATION procedure before returning this brief: build the requested-view checklist, inspect supplied pages, navigate relevant existing projects/results for missing views, and capture only views needed as visual evidence or requested stills. Do not require complete screenshot coverage of future recordings. Report the navigation attempted for any item still unavailable. Captured website-reference screenshots in assets/ are available product images, not missing uploads. Respect instructions to omit unavailable optional steps, rather than adding placeholder scenes or unrequested asset requirements. Inspect them and use only the page states actually shown. A URL screenshot does not prove unseen pages or interactions. Produce a truthful structured content brief. Return subject as a short idea title of 4–10 words, capturing the core idea rather than repeating the prompt, scene list, requirements or settings. This title becomes the project heading after preparation completes. Identify one representative preview beat shared across Motion Graphics. Keep previewBeat and any proposed scenes Motion Graphic-neutral: describe the narrative action, change and intended meaning, not an invented palette, background, lighting, material, drawing technique, visual effect or camera treatment. For example, describe an overlooked insight becoming clear and shareable. Do not suggest Motion Graphics anywhere in the brief. Preserve visual choices explicitly requested by the user or evidenced in supplied assets; do not turn your own visual suggestions into facts or constraints. Defer all other visual treatment to the subsequent Motion Graphic selection stage. Do not invent facts or describe image content without inspecting it. Infer audience and objective only when omitted and list assumptions in constraints. For video only, suggest a full duration based on content and explain it. Auto full-video duration must be at least ${MIN_AUTO_VIDEO_DURATION} seconds, with distinct story scenes rather than a stretched preview. Previews remain 3 seconds. Respect explicit duration up to the ${MAX_VIDEO_DURATION}-second (5-minute) maximum. Auto duration must not exceed this maximum. For video requests, read the lyrics setting: supplied lyrics are exact creative copy, and write mode reserves time for on-screen lyrics that will be prepared separately; do not write the lyrics yourself. Off means no lyric captions. Lyrics alone never authorize generated vocals. A separate video request.speech setting is explicit voice authorization: narration is prepared by the application with local Kokoro before full-film implementation; uploaded mode uses the selected attached recording. Plan readable on-screen text and reserve space for spoken content when that setting is active. Do not claim singing support, synthesize speech during preparation, or ask for a voice upload merely because local narration was selected. Previews remain silent.`,
+              prompt: preparationBriefPrompt,
             }),
           );
+          let prepared = {
+            ...interpretation,
+            value: assemblePreparationBrief(
+              preparedRequest,
+              interpretation.value,
+              inputs.descriptions,
+              await readReferenceScreenshots(workspace),
+            ),
+          };
           prepared = await reviewBriefAssets({
             brief: prepared.value,
             sessionId: prepared.sessionId,
@@ -457,29 +461,32 @@ export class Workflow {
             schedule: (task) => this.agents.run(task),
             onEvent: this.providerEvent(run, undefined, "Brief asset self-review"),
             revise: (draft, sessionId, feedback) =>
-              this.agents.run(async () => {
-                const correction = await agentTurn({
-                  provider: run.request.provider,
-                  model: textModels[run.request.provider],
-                  workspace,
+              this.agents.run(() =>
+                reviseBriefWithRetry({
+                  draft,
+                  schema: briefSchema,
                   signal: controller.signal,
                   sessionId,
-                  readOnly: true,
-                  referenceUrls: run.request.urls,
-                  schema: BriefCorrectionSchema,
-                  promptContext: { currentDraft: draft, focusedReview: JSON.parse(feedback) },
-                  onEvent: this.providerEvent(run, undefined, "Brief asset alignment repair"),
-                  prompt: `${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\n${briefAssetRepairScopeRule} Repair only the single assigned asset alignment issue in this brief. Continue the original preparation session. Inspect affected sources; use reference_browser tools to recapture the correct existing view when required. Preserve the core idea, exact copy and requested settings. Apply only this issue's expected fix and acceptance criterion. Keep every unaffected field, scene, asset, exact copy, requirement and setting unchanged; no unrelated cleanup, rewriting or extra fixes. Change only the targeted source extraction or scene usage and any strictly necessary references, and record any genuine remaining inspection limitation rather than inventing evidence. Update currentDraft.assetPlan for source exclusions and scene links; the available-source inventory is application-owned and must remain unchanged. Return only an edits array conforming to the correction schema, never the full brief or an entire array/object. Use JSON Pointer paths into currentDraft. For replace/remove, copy the exact current leaf value into expected; replace value is the complete corrected leaf, not an excerpt. Add/remove only individual text-array entries; paths and indexes refer to the draft after preceding edits. Keep source identity fields unchanged. The application applies the edits atomically and validates the resulting full brief before a separate review rechecks it.\nRead currentDraft and focusedReview from the required input JSON. The review contains exactly one issue, its expected fix and acceptance criteria.`,
-                });
-                return {
-                  ...correction,
-                  value: applyBriefCorrection<Brief | PageBrief>(
-                    draft,
-                    correction.value,
-                    briefSchema,
-                  ),
-                };
-              }),
+                  revise: (repairSessionId, previousIssue) =>
+                    agentTurn({
+                      provider: run.request.provider,
+                      model: textModels[run.request.provider],
+                      workspace,
+                      signal: controller.signal,
+                      sessionId: repairSessionId,
+                      readOnly: true,
+                      referenceUrls: run.request.urls,
+                      schema: BriefCorrectionSchema,
+                      promptContext: {
+                        currentDraft: draft,
+                        focusedReview: JSON.parse(feedback),
+                        previousValidationIssue: previousIssue,
+                      },
+                      onEvent: this.providerEvent(run, undefined, "Brief asset alignment repair"),
+                      prompt: `${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\n${briefAssetRepairScopeRule} Repair only the single assigned asset alignment issue in this brief. Continue the original preparation session. Inspect affected sources; use reference_browser tools to recapture the correct existing view when required. Preserve the core idea, exact copy and requested settings. Apply only this issue's expected fix and acceptance criterion. Keep every unaffected field, scene, asset, exact copy, requirement and setting unchanged; no unrelated cleanup, rewriting or extra fixes. Change only the targeted source extraction or scene usage and any strictly necessary references, and record any genuine remaining inspection limitation rather than inventing evidence. Update currentDraft.assetPlan for source exclusions and scene links; the available-source inventory is application-owned and must remain unchanged. Return only an edits array conforming to the correction schema, never the full brief or an entire array/object. Use JSON Pointer paths into currentDraft. For replace/remove, copy the exact current leaf value into expected; replace value is the complete corrected leaf, not an excerpt. Add/remove only individual text-array entries; paths and indexes refer to the draft after preceding edits. Keep source identity fields unchanged. The application applies the edits atomically and validates the resulting full brief before a separate review rechecks it. If previousValidationIssue is present, correct that exact rejected-edit error against the unchanged currentDraft; locate scenes/assets by stable ID before choosing their array indexes.\nRead currentDraft and focusedReview from the required input JSON. The review contains exactly one issue, its expected fix and acceptance criteria.`,
+                    }),
+                }),
+              ),
           });
           run.referenceScreenshots = await readReferenceScreenshots(workspace);
           run.brief = prepared.value;
@@ -849,6 +856,7 @@ export class Workflow {
       JSON.stringify(
         {
           brief: run.brief,
+          authoringResources: job.authoringResources,
           assetInputs: scopedAssetIds.map((id) => {
             const asset = this.store.getAsset(id)!;
             return {
@@ -910,6 +918,17 @@ export class Workflow {
         job.startedAt = new Date().toISOString();
         job.finishedAt = undefined;
         this.update(run);
+        if (!job.authoringResources && !job.production && !job.pageProduction) {
+          job.authoringResources = await selectAuthoringResources({
+            request: run.request,
+            brief: run.brief!,
+            candidate: run.candidates.find((candidate) => candidate.id === job.candidateId)!,
+            styles: this.catalog.styles,
+            signal: controller.signal,
+            onEvent: this.providerEvent(run, job, "Authoring resource selection"),
+          });
+          this.update(run);
+        }
         await this.setup(run, job);
         controller.signal.throwIfAborted();
         if (job.outputType === "page") {

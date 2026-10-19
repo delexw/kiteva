@@ -311,3 +311,11 @@ it("does not re-plan a full video, including legacy previews, and requires their
   await expect(prepareVideoBuildPlan(options)).rejects.toThrow("selected preview's saved session");
   expect(agentTurn).not.toHaveBeenCalled();
 });
+
+it("ignores retired style-contract metadata when resuming a saved Claude job", async () => {
+  const options = await input();
+  Object.assign(options.job, { styleContract: { fingerprint: "retired-policy", value: {} } });
+  expect(needsVideoBuildPlan(options.job, "claude")).toBe(false);
+  expect(await prepareVideoBuildPlan({ ...options, provider: "claude" })).toBe(options.prompt);
+  expect(agentTurn).not.toHaveBeenCalled();
+});

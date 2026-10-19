@@ -40,6 +40,7 @@ vi.mock("@openai/codex-sdk", () => ({
 }));
 import { enabledReferenceTools } from "../src/server/requests/reference-browser-contracts";
 import { agentTurn } from "../src/server/agents/providers";
+import { visualReadabilityRules } from "../src/server/agents/visual-readability";
 
 it.each(["claude", "codex"] as const)(
   "gives %s a job-scoped screenshot MCP server without enabling general network access",
@@ -374,73 +375,35 @@ it.each(["claude", "codex"] as const)(
 );
 
 it.each(["claude", "codex"] as const)(
-  "gives %s instrument discovery and full-build rendering through the same invocation and usage stream",
+  "keeps %s music composition in the main invocation without an instrument MCP server",
   async (provider) => {
-    for (const allowInstrumentRendering of [false, true]) {
-      calls.query.mockClear();
-      calls.codex.mockClear();
-      calls.query.mockImplementation(async function* () {
-        yield {
-          type: "stream_event",
-          event: {
-            type: "content_block_start",
-            content_block: {
-              type: "tool_use",
-              id: "instrument",
-              name: "mcp__instruments__instrument_status",
-            },
-          },
-        };
-        yield {
-          type: "result",
-          subtype: "success",
-          is_error: false,
-          structured_output: { message: "done" },
-          session_id: "music",
-          usage: {},
-          total_cost_usd: 0.001,
-          modelUsage: {},
-        };
-      });
-      const onEvent = vi.fn();
-      await agentTurn({
-        provider,
-        workspace: "/job",
-        allowInstrumentRendering,
-        schema: z.object({ message: z.string() }),
-        signal: new AbortController().signal,
-        onEvent,
-        prompt: "Build the requested music",
-      });
-      const options =
-        provider === "claude"
-          ? calls.query.mock.calls[0][0].options
-          : calls.codex.mock.calls[0][0].config;
-      const server =
-        provider === "claude" ? options.mcpServers.instruments : options.mcp_servers.instruments;
-      expect(JSON.parse(server.args.at(-1))).toEqual({
-        workspace: "/job",
-        readOnly: !allowInstrumentRendering,
-      });
-      if (provider === "claude")
-        expect(await options.canUseTool("mcp__instruments__render_instrumental", {})).toMatchObject(
-          { behavior: allowInstrumentRendering ? "allow" : "deny" },
-        );
-      else {
-        expect(server.enabled_tools).toEqual([
-          "instrument_status",
-          ...(allowInstrumentRendering ? ["render_instrumental"] : []),
-        ]);
-        expect(server.tool_timeout_sec).toBe(600);
-      }
-      const events = onEvent.mock.calls.map(([event]) => event);
-      const invocation = events.find((event) => event.type === "invocation");
-      expect(invocation.data.prompt.system).toContain("BUILT-IN INSTRUMENT RENDERING");
-      expect(events.find((event) => event.type === "usage").data).toMatchObject({
-        provider,
-        model: invocation.data.model,
-        invocationId: invocation.data.invocationId,
-      });
-    }
+    calls.query.mockClear();
+    calls.codex.mockClear();
+    const onEvent = vi.fn();
+    await agentTurn({
+      provider,
+      workspace: "/job",
+      schema: z.object({ message: z.string() }),
+      signal: new AbortController().signal,
+      prompt: "Compose the requested instrumental with code",
+      onEvent,
+    });
+    const options =
+      provider === "claude"
+        ? calls.query.mock.calls[0][0].options
+        : calls.codex.mock.calls[0][0].config;
+    const servers = provider === "claude" ? options.mcpServers : options.mcp_servers;
+    expect(Object.keys(servers)).toEqual(["react_bits", "animate_ui", "creative_pool"]);
+    const pool = servers.creative_pool;
+    expect(provider === "claude" ? pool.args : pool.enabled_tools).toEqual(
+      provider === "claude"
+        ? expect.arrayContaining([expect.stringContaining("creative-pool-server.ts")])
+        : ["search_pool", "read_pool_entry"],
+    );
+    expect(JSON.stringify(options)).not.toContain("FluidSynth");
+    const invocation = onEvent.mock.calls
+      .map(([event]) => event)
+      .find((event) => event.type === "invocation");
+    expect(invocation.data.prompt.system).toContain(visualReadabilityRules);
   },
 );

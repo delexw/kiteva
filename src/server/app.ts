@@ -1,3 +1,4 @@
+import { jevModel } from "./agents/jev";
 import { assertWindowsRenderReady } from "./rendering/sandbox/readiness";
 import { userHome } from "./runtime/platform";
 import { registerRoomRoutes } from "./room/routes";
@@ -279,8 +280,8 @@ export async function createApp(options: { store?: Store } = {}) {
       },
       {
         function: "Combination evaluation and direction selection",
-        claude: "jev-latest",
-        codex: "jev-latest",
+        claude: jevModel,
+        codex: jevModel,
       },
       ...Object.entries(correctionTypeLabels).map(([focus, label]) => ({
         function: label,

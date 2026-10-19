@@ -1,3 +1,11 @@
+vi.mock("../src/server/agents/authoring-resources", () => ({
+  selectAuthoringResources: async () => ({
+    source: "jev",
+    model: "jev-test",
+    selectedIds: ["local_code"],
+    decisions: [],
+  }),
+}));
 import { randomUUID } from "node:crypto";
 import { rm } from "node:fs/promises";
 import path from "node:path";
@@ -7,10 +15,12 @@ vi.mock("../src/server/jobs/subworkflows/brief-asset-review", async (original) =
   ...(await original<typeof import("../src/server/jobs/subworkflows/brief-asset-review")>()),
   reviewBriefAssets: vi.fn(async (input) => ({ value: input.brief, sessionId: input.sessionId })),
 }));
-vi.mock("../src/server/catalog/ranking", () => ({ rankOptions: vi.fn(), jevClient: vi.fn() }));
+vi.mock("../src/server/catalog/ranking", () => ({ rankOptions: vi.fn() }));
+vi.mock("../src/server/agents/jev", () => ({ jevClient: vi.fn() }));
 vi.mock("../src/server/catalog/style-summaries", () => ({ prepareStyleSummaries: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
-import { rankOptions, jevClient } from "../src/server/catalog/ranking";
+import { rankOptions } from "../src/server/catalog/ranking";
+import { jevClient } from "../src/server/agents/jev";
 import { prepareStyleSummaries } from "../src/server/catalog/style-summaries";
 import { Workflow } from "../src/server/jobs/workflow";
 import { Store } from "../src/server/jobs/store";

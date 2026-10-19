@@ -149,10 +149,10 @@ it("finishes timing at the terminal state event and flags legacy attribution", (
   expect(result.incompleteHistory).toBe(true);
   expect(result.activity[0].model).toBe("Unrecorded model");
 });
-it("prices versioned Jev input tokens and leaves unknown versions unpriced", () => {
+it.each(["jev-1.13.0", "jev-1.14.0"])("prices versioned Jev input tokens for %s", (model) => {
   const result = projectGovernance(run, [
     event(1, "usage", {
-      model: "jev-1.13.0",
+      model,
       provider: "jev",
       invocationId: "jev",
       usage: { input_tokens: 1000000, output_tokens: 50 },

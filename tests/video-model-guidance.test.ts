@@ -6,6 +6,11 @@ import {
 import { buildVideoPrompt } from "../src/server/domains/video/prompts";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { VideoRequestSchema, type VideoGenerationJob } from "../src/shared/domains/video";
+import { videoWorkflowRoutingPrompt } from "../src/server/domains/video/route-prompts";
+import { applicationDemoRoutePrompt } from "../src/server/domains/video/route-prompts/application-demo";
+import { screenPresentationRoutePrompt } from "../src/server/domains/video/route-prompts/screen-presentation";
+import { conceptFilmRoutePrompt } from "../src/server/domains/video/route-prompts/concept-film";
+import { mixedFilmRoutePrompt } from "../src/server/domains/video/route-prompts/mixed-film";
 
 it("keeps reusable production principles specific to GPT-6.1 video calls", () => {
   const guidance = videoModelGuidance("codex", "gpt-6.1-sol");
@@ -43,7 +48,7 @@ it.each(["preview", "full", "refinement"] as const)(
       workspace: "/tmp/example",
       ...(kind === "refinement" ? { refinementPrompt: "Make the heading larger" } : {}),
     };
-    const prompt = buildVideoPrompt({
+    const input = {
       job,
       styles,
       width: 1280,
@@ -77,10 +82,28 @@ it.each(["preview", "full", "refinement"] as const)(
         confidence: 0.9,
         dimensions: {},
       },
-    });
+    };
+    const prompt = buildVideoPrompt(input);
     expect(prompt).toContain(videoModelGuidance("codex", "gpt-6.1-sol"));
     expect(prompt).toContain("STORYBOARD.json");
     if (kind === "preview") expect(prompt).toContain("PREVIEW SCOPE:");
     if (kind === "refinement") expect(prompt).toContain("REVISION SCOPE:");
+    for (const provider of ["codex", "claude"] as const) {
+      const routedPrompt = buildVideoPrompt({ ...input, request: { ...input.request, provider } });
+      expect(routedPrompt).toContain(videoWorkflowRoutingPrompt);
+      for (const route of [
+        applicationDemoRoutePrompt,
+        screenPresentationRoutePrompt,
+        conceptFilmRoutePrompt,
+        mixedFilmRoutePrompt,
+      ])
+        expect(routedPrompt).toContain(route);
+      expect(routedPrompt).toContain("A supplied URL alone does not select a demo route");
+      expect(routedPrompt).toContain(
+        "Do not impose fixed feature-by-feature slots unless the user explicitly requests them",
+      );
+      if (kind === "preview") expect(routedPrompt).toContain("PREVIEW SCOPE:");
+      if (kind === "refinement") expect(routedPrompt).toContain("REVISION SCOPE:");
+    }
   },
 );

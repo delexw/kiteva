@@ -41,7 +41,7 @@ it("uses the official SDK wire format and excludes conflicting candidates", asyn
   vi.stubGlobal("fetch", async (_url: string, options: RequestInit) => {
     const body = JSON.parse(String(options.body));
     observed = true;
-    expect(body.model).toBe("jev-latest");
+    expect(body.model).toBe("jev-1.14.0");
     expect(body.state.brief.subject).toBe("Generic system");
     expect(body.state.assetPolicy).toContain("Video previews are silent");
     expect(body.state.combinationGuidance).toContain("not an allowlist");

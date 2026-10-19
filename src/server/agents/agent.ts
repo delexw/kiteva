@@ -18,12 +18,12 @@ export interface AgentTurnOptions<T> {
   sessionId?: string;
   onEvent: (event: ProviderEvent) => void;
   readOnly?: boolean;
-  allowInstrumentRendering?: boolean;
   model?: string;
   textOnly?: boolean;
   reasoningEffort?: "low" | "medium";
   referenceUrls?: string[];
   exploreBriefSections?: boolean;
+  images?: string[];
 }
 
 export interface AgentExecutionOptions extends Omit<

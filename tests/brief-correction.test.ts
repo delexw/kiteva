@@ -1,8 +1,11 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { BriefSchema } from "../src/shared/agents/schemas/video";
 import { PageBriefSchema } from "../src/shared/agents/schemas/page";
 import { BriefCorrectionSchema } from "../src/shared/agents/schemas/brief-correction";
-import { applyBriefCorrection } from "../src/server/jobs/subworkflows/brief-correction";
+import {
+  applyBriefCorrection,
+  reviseBriefWithRetry,
+} from "../src/server/jobs/subworkflows/brief-correction";
 
 const brief = {
   subject: "An idea becomes shareable",
@@ -179,4 +182,85 @@ it("repairs nested evidence notes while preserving source identities and other s
   expect(revised.assetPlan?.scenes[0].id).toBe("import");
   expect(revised.assetPlan?.assets).toEqual(draft.assetPlan?.assets);
   expect(draft.assetPlan?.scenes[0].limitation).toBe("The counter is visible");
+});
+
+it("retries the entire batch against the original draft after a later edit fails", async () => {
+  const original = structuredClone(brief);
+  const revise = vi
+    .fn()
+    .mockResolvedValueOnce({
+      sessionId: "continued",
+      value: {
+        edits: [
+          { op: "replace", path: "/facts/0", expected: brief.facts[0], value: "Corrected first" },
+          {
+            op: "replace",
+            path: "/facts/1",
+            expected: "Wrong existing value",
+            value: "Corrected second",
+          },
+        ],
+      },
+    })
+    .mockResolvedValueOnce({
+      sessionId: "continued",
+      value: {
+        edits: [
+          { op: "replace", path: "/facts/0", expected: brief.facts[0], value: "Corrected first" },
+          { op: "replace", path: "/facts/1", expected: brief.facts[1], value: "Corrected second" },
+        ],
+      },
+    });
+  const result = await reviseBriefWithRetry({
+    draft: brief,
+    schema: BriefSchema,
+    signal: new AbortController().signal,
+    sessionId: "original",
+    revise,
+  });
+  expect(result.value.facts).toEqual(["Corrected first", "Corrected second"]);
+  expect(revise.mock.calls[1][0]).toBe("continued");
+  expect(revise.mock.calls[1][1]).toContain("Brief edit 2 at /facts/1 rejected");
+  expect(revise.mock.calls[1][1]).toContain("currentDraft is unchanged");
+  expect(brief).toEqual(original);
+});
+
+it("bounds invalid correction retries without mutating the brief", async () => {
+  const revise = vi.fn().mockResolvedValue({
+    value: {
+      edits: [{ op: "replace", path: "/facts/1", expected: "Stale", value: "Corrected" }],
+    },
+  });
+  await expect(
+    reviseBriefWithRetry({
+      draft: brief,
+      schema: BriefSchema,
+      signal: new AbortController().signal,
+      revise,
+    }),
+  ).rejects.toThrow("rejected after 3 attempts");
+  expect(revise).toHaveBeenCalledTimes(3);
+  expect(brief.facts[1]).toBe("A verified fact");
+});
+
+it("stops correction retries on cancellation and does not retry provider failures", async () => {
+  const controller = new AbortController();
+  const revise = vi.fn().mockImplementation(async () => {
+    controller.abort(new Error("Cancelled"));
+    return { value: { edits: [] } };
+  });
+  await expect(
+    reviseBriefWithRetry({ draft: brief, schema: BriefSchema, signal: controller.signal, revise }),
+  ).rejects.toThrow("Cancelled");
+  expect(revise).toHaveBeenCalledOnce();
+  const unavailable = vi.fn().mockRejectedValue(new Error("Provider unavailable"));
+  await expect(
+    reviseBriefWithRetry({
+      draft: brief,
+      schema: BriefSchema,
+      signal: new AbortController().signal,
+      revise: unavailable,
+    }),
+  ).rejects.toThrow("Provider unavailable");
+  expect(unavailable).toHaveBeenCalledOnce();
 });

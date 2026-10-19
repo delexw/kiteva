@@ -1,5 +1,3 @@
-import type { InstrumentReadiness, RenderedInstrumental } from "../../audio/instruments/fluidsynth";
-
 export interface AgentMcpCapability {
   command: string;
   args: string[];
@@ -8,7 +6,19 @@ export interface AgentMcpCapability {
   toolTimeoutSeconds?: number;
 }
 
-export interface ReactBitsComponent {
+export interface CreativePoolEntry {
+  kind: "motion_graphic" | "motion" | "technology";
+  id: string;
+  name: string;
+  definition: Record<string, unknown>;
+}
+
+export type CreativePoolResult =
+  | { kind: "search"; entries: Omit<CreativePoolEntry, "definition">[] }
+  | { kind: "entry"; entry: CreativePoolEntry }
+  | { kind: "error"; message: string };
+
+export interface ComponentRegistryItem {
   name: string;
   description?: string;
   dependencies: string[];
@@ -16,13 +26,8 @@ export interface ReactBitsComponent {
   files: { path: string; content: string }[];
 }
 
-export type ReactBitsResult =
+export type ComponentRegistryResult =
   | { kind: "discovery"; items: { name: string; description?: string }[] }
-  | { kind: "source"; item: ReactBitsComponent; source: string }
+  | { kind: "source"; item: ComponentRegistryItem; source: string }
   | { kind: "installed"; directory: string; dependencies: string[]; source: string }
-  | { kind: "error"; message: string };
-
-export type InstrumentToolResult =
-  | ({ kind: "status" } & InstrumentReadiness)
-  | ({ kind: "rendered" } & RenderedInstrumental)
   | { kind: "error"; message: string };

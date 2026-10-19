@@ -139,7 +139,13 @@ export const codexAgent: Agent = {
     };
     signal.throwIfAborted();
     const thread = sessionId ? client.resumeThread(sessionId, opts) : client.startThread(opts);
-    const { events } = await thread.runStreamed(`${systemPrompt}\n\n${prompt}`, {
+    const input = options.images?.length
+      ? [
+          { type: "text" as const, text: `${systemPrompt}\n\n${prompt}` },
+          ...options.images.map((path) => ({ type: "local_image" as const, path })),
+        ]
+      : `${systemPrompt}\n\n${prompt}`;
+    const { events } = await thread.runStreamed(input, {
       signal,
       outputSchema: jsonSchema,
     });

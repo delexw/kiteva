@@ -1,3 +1,23 @@
+/** Runs in the page after scrolling; include associated labels in the native zoom's safe area. */
+export function captureInputBounds(element: Element) {
+  const labels = Array.from((element as HTMLInputElement | HTMLTextAreaElement).labels ?? []);
+  const labelledBy = (element.getAttribute("aria-labelledby") ?? "")
+    .split(/\s+/)
+    .map((id) => document.getElementById(id))
+    .filter((label): label is HTMLElement => Boolean(label));
+  const rectangles = [element, ...labels, ...labelledBy].map((item) =>
+    item.getBoundingClientRect(),
+  );
+  const x = Math.min(...rectangles.map((box) => box.left));
+  const y = Math.min(...rectangles.map((box) => box.top));
+  return {
+    x,
+    y,
+    width: Math.max(...rectangles.map((box) => box.right)) - x,
+    height: Math.max(...rectangles.map((box) => box.bottom)) - y,
+  };
+}
+
 /** Runs in the page: preserve a visible native scroll before pointer movement and typing. */
 export async function scrollControlForCapture(
   element: Element,

@@ -15,6 +15,7 @@ it.skipIf(!browserExecutablePath())(
       fill: "passed",
       click: "passed",
       centeredBeforeTyping: true,
+      backgroundTrafficDoesNotDelayReadyControls: true,
     });
   },
 );

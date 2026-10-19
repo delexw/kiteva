@@ -1,0 +1,10 @@
+import { TypeSafeClient } from "@typesafe-ai/sdk";
+
+export const jevModel = "jev-1.14.0";
+
+export function jevClient() {
+  const apiKey = process.env.TYPESAFE_API_KEY || process.env.JEV_API_KEY;
+  if (!apiKey)
+    throw Error("Set TYPESAFE_API_KEY in .env.local, then restart. Jev ranking is not configured.");
+  return new TypeSafeClient({ apiKey, timeout: 60000, retry: { maxRetries: 2 } });
+}

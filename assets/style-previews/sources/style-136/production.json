@@ -1,0 +1,27 @@
+{
+  "displayTitle": "Production Theatre",
+  "displayDescription": "Backstage manga crew slide in a board and connect one idea into a system with staggered, role-specific actions.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "HTML/CSS",
+    "SVG"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview. No soundtrack, voice or effects; the sound crew's mixer action is a visual cue only.",
+  "audioFile": null,
+  "limitations": [
+    "Blender not used, per user instruction; scene is drawn with HTML/CSS and inline SVG and animated by one paused GSAP timeline.",
+    "Halftone is a stationary CSS/SVG dot pattern approximating screentone; no paper or ink material simulation.",
+    "Rough.js, PixiJS, Anime.js and Matter.js were not needed; contours are clean vector ink, matching the reference illustration.",
+    "STYLE.json has no reviewed preview recipes, so no recipe-specific refresh is demonstrated; the core style and a motion-012 board handoff are shown.",
+    "Rendering and browser seek checks are left to host QA."
+  ]
+}

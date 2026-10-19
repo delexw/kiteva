@@ -49,13 +49,13 @@ export const CapturePresentationSchema = z
       .describe(
         "Optional zoom regions in ORIGINAL recording seconds, before idle cuts. Focus follows the cursor by default. Manual focus must be explicit; its coordinates are normalized to the full recorded window. Native auto-zoom avoids these regions.",
       ),
-    cursorSize: z.number().min(1.5).max(6).default(2.2),
-    cursorSmoothing: z.number().min(0).max(1).default(0.67),
-    cursorMotionBlur: z.number().min(0).max(1).default(0.2),
-    cursorClickBounce: z.number().min(0).max(2.5).default(2.5),
+    cursorSize: z.number().min(1.5).max(6).optional(),
+    cursorSmoothing: z.number().min(0).max(1).optional(),
+    cursorMotionBlur: z.number().min(0).max(1).optional(),
+    cursorClickBounce: z.number().min(0).max(2.5).optional(),
     cursorClickImpact: z
       .boolean()
-      .default(false)
+      .optional()
       .describe(
         "Also push the recorded screen back on each click; choose deliberately for the project's motion language.",
       ),

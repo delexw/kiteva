@@ -33957,7 +33957,7 @@
       "category": "Illustration and Art Media",
       "name_en": "Manga Production Theatre",
       "provenance": "authored",
-      "visual_cues": "A mostly black-and-white backstage manga in one continuous film set. Preserve white round-headed, faceless, short-bodied characters with pointed feet, bold ink outlines and halftone scenery. A persistent director speaks beside a shadowed presentation board while stage, camera, lighting, art and sound crew perform tasks supported by timed storyboard JSON. Backgrounds and boards travel right to left; crew make brief trips to work positions and return for reading holds. Use compact black name badges, readable rounded status labels and small board captions. Oval speech and thought balloons stay above the director, with extra headroom for thought circles. Use #F47B45 sparingly for playback progress, working-crew dots, brief dialogue-change underlines, equipment indicators and an optional opening-title accent. Keep the opening title optional and opening-only; never repeat title cards per scene.",
+      "visual_cues": "A mostly black-and-white backstage manga in one continuous film set. Preserve white round-headed, faceless, short-bodied characters with pointed feet, bold ink outlines and halftone scenery. A persistent director speaks beside a shadowed presentation board while stage, camera, lighting, art and sound crew perform tasks supported by timed storyboard JSON. Backgrounds and boards travel right to left; crew make brief trips to work positions and return for reading holds. Use compact black name badges, readable rounded status labels and small board captions. Oval speech and thought balloons stay above the director, with extra headroom for thought circles. Use #F47B45 sparingly for playback progress, working-crew dots, brief dialogue-change underlines, equipment indicators and an optional opening-title accent. Keep the opening title optional and opening-only; never repeat title cards per scene. Default cast identity: whenever Manga Production Theatre is selected or named, use the established storyboard crew as its character reference without requiring the brief to repeat it. Figures have a large blank white circular head, a compact white cutout body with small side arm points and two pointed feet, a continuous bold black contour and no facial features, fingers or jointed skeletal limbs. Keep head/body proportions, outline weight and prop scale consistent across scenes; use short whole-figure tilts, turns and pose changes rather than substituting generic line-stick people, rounded capsule mascots or realistic humans. The director is slightly larger and remains the persistent narrator beside the board. Roles must be recognizable from their silhouettes and equipment as well as their readable badges: DIRECTOR with a clapperboard; STAGE CREW carrying a prop box; ART DEPT with an oversized pencil; LIGHTING with an adjustable lamp on a stand; SOUND wearing headphones and operating a small mixer; CAMERA with a twin-reel camera and tripod. Keep each figure attached to the same role and prop throughout the film. Show only crew with an actual task, preserving the role-specific action and idle rules; do not invent work just to fill the cast. Explicit user changes take precedence.",
       "note": "Application-authored style derived from the code-driven manga storyboard viewer and user-directed revisions. Not extracted from external reference footage.",
       "tech": {
         "recommended_stack_keys": [
@@ -33972,7 +33972,7 @@
           "chroma_js",
           "remotion"
         ],
-        "implementation": "Build the manga from structured timed scene/beat JSON using HTML/CSS, with SVG only where precise contours help. Use one deterministic, seekable composition clock for board/scenery travel, crew trips, equipment actions, statuses and dialogue. Plan crew roles and tasks from actual recorded props/assets, captions, camera moves, lighting and sound cues; omit unsupported specialists, never imply real production footage, and do not make a model call to animate existing JSON. Preserve the established faceless silhouette rather than adding jointed limbs. Let stagehands deliver props, artists set lettering, lighting crew adjust lights, sound crew cue effects and camera crew aim toward the board. Crew travel out, work, return and settle; pausing, replay and backward seeking reproduce the same poses and labels. Reserve separate board, dialogue and crew zones; stagger crew lanes and stack zones on narrow screens. Keep the director balloon visible, use a concise cue summary, raise thought balloons to clear their trailing circles, and briefly gesture/react only when dialogue changes. Give every board a persistent ink shadow outside its reveal mask and keep captions smaller than dialogue. Use black pill name badges, high-contrast compact rounded task labels and an orange dot only while working. Share #F47B45 with small equipment indicators and dialogue-change underlines; do not use orange for low-contrast body text, permanent reaction rays or large color washes. In an interactive viewer, center a naturally scrolling bounded stage in the content area, hide scrollbar chrome while preserving scrolling, and use orange timeline progress/thumb. Playback controls and status chrome are viewer features, not mandatory video artwork. An opening-only Glitch Type Build is optional; omit it when not requested, and never add a title card per scene. A gentle phased character wave is a visual tempo effect unless actual audio beats were analyzed. Keep export resolution, frame rate, GIF size and excerpt duration in delivery settings rather than hardcoding them into this style. Retain readable holds, exact word spacing and reduced-motion access. Rough.js adds cached sketch contours; PixiJS is optional for a complex world; Matter.js is only for baked physical props. Anime.js may replace the motion owner after seek verification. HyperFrames owns composition/export, with Remotion only for a verified limitation. Crew performance rules: Give each crew member an independent cue-based schedule with explicit idle/frozen, travel, work, react and settle intervals; one shared seekable clock does not mean synchronized movement. Stage crew make a quick delivery and stop after placing a prop; art crew work deliberately on a lettering/drawing cue and freeze once it is readable; lighting crew make a short adjustment then hold the light steady; sound crew make a brief cue-triggered control action and then wait; camera crew use a slower smooth tracking move only during the recorded camera action, aiming at the board, then lock off. Stagger starts, travel duration, task duration and return timing by role so some crew remain still while others work; never make everyone run, bounce or react on every beat. Idle characters stay fully still, especially during reading holds; omit unsupported specialists. Reactions are short and motivated by a new instruction, reveal, impact or completion. A shout-out is a brief visual callout only for an explicit action/cut, warning or meaningful payoff, never every caption and never invented audible speech; keep callouts away from the board and director dialogue. Keep the director dialogue visible while its text updates; at a new cue, allow a subtle 1–3 degree head nod or turn toward the board, optionally a small body gesture, then settle. Preserve the faceless round-head silhouette without adding facial features or jointed limbs. Orange reaction marks appear briefly only with a reaction, not for the entire dialogue interval. Store each role's timed actions, pauses, reactions and callouts in deterministic code derived from storyboard cues; do not add unvalidated fields to STORYBOARD.json. Preview the same conditional acting language in a concise sample, rather than uniformly animating every character. Verify that unsupported and idle crew stay frozen, role timings differ, gestures end, callouts do not overlap, and direct/backward seeking recreates the same character states.",
+        "implementation": "Build the manga from structured timed scene/beat JSON using HTML/CSS, with SVG only where precise contours help. Use one deterministic, seekable composition clock for board/scenery travel, crew trips, equipment actions, statuses and dialogue. Plan crew roles and tasks from actual recorded props/assets, captions, camera moves, lighting and sound cues; omit unsupported specialists, never imply real production footage, and do not make a model call to animate existing JSON. Preserve the established faceless silhouette rather than adding jointed limbs. Let stagehands deliver props, artists set lettering, lighting crew adjust lights, sound crew cue effects and camera crew aim toward the board. Crew travel out, work, return and settle; pausing, replay and backward seeking reproduce the same poses and labels. Reserve separate board, dialogue and crew zones; stagger crew lanes and stack zones on narrow screens. Keep the director balloon visible, use a concise cue summary, raise thought balloons to clear their trailing circles, and briefly gesture/react only when dialogue changes. Give every board a persistent ink shadow outside its reveal mask and keep captions smaller than dialogue. Use black pill name badges, high-contrast compact rounded task labels and an orange dot only while working. Share #F47B45 with small equipment indicators and dialogue-change underlines; do not use orange for low-contrast body text, permanent reaction rays or large color washes. In an interactive viewer, center a naturally scrolling bounded stage in the content area, hide scrollbar chrome while preserving scrolling, and use orange timeline progress/thumb. Playback controls and status chrome are viewer features, not mandatory video artwork. An opening-only Glitch Type Build is optional; omit it when not requested, and never add a title card per scene. A gentle phased character wave is a visual tempo effect unless actual audio beats were analyzed. Keep export resolution, frame rate, GIF size and excerpt duration in delivery settings rather than hardcoding them into this style. Retain readable holds, exact word spacing and reduced-motion access. Rough.js adds cached sketch contours; PixiJS is optional for a complex world; Matter.js is only for baked physical props. Anime.js may replace the motion owner after seek verification. HyperFrames owns composition/export, with Remotion only for a verified limitation. Crew performance rules: Give each crew member an independent cue-based schedule with explicit idle/frozen, travel, work, react and settle intervals; one shared seekable clock does not mean synchronized movement. Stage crew make a quick delivery and stop after placing a prop; art crew work deliberately on a lettering/drawing cue and freeze once it is readable; lighting crew make a short adjustment then hold the light steady; sound crew make a brief cue-triggered control action and then wait; camera crew use a slower smooth tracking move only during the recorded camera action, aiming at the board, then lock off. Stagger starts, travel duration, task duration and return timing by role so some crew remain still while others work; never make everyone run, bounce or react on every beat. Idle characters stay fully still, especially during reading holds; omit unsupported specialists. Reactions are short and motivated by a new instruction, reveal, impact or completion. A shout-out is a brief visual callout only for an explicit action/cut, warning or meaningful payoff, never every caption and never invented audible speech; keep callouts away from the board and director dialogue. Keep the director dialogue visible while its text updates; at a new cue, allow a subtle 1–3 degree head nod or turn toward the board, optionally a small body gesture, then settle. Preserve the faceless round-head silhouette without adding facial features or jointed limbs. Orange reaction marks appear briefly only with a reaction, not for the entire dialogue interval. Store each role's timed actions, pauses, reactions and callouts in deterministic code derived from storyboard cues; do not add unvalidated fields to STORYBOARD.json. Preview the same conditional acting language in a concise sample, rather than uniformly animating every character. Verify that unsupported and idle crew stay frozen, role timings differ, gestures end, callouts do not overlap, and direct/backward seeking recreates the same character states. Default character construction: start from the same reusable storyboard crew silhouette for every role, then attach the role-specific prop. Build a blank round head and a short pointed white body with bold black contours; hide the head/body seam so the cutout reads as one coherent figure. Do not replace it with thin line arms and legs, add a face or improvise a new mascot per scene. Keep separate head, body and prop groups only for controlled posing; no articulated human rig is required. Give the director a clapperboard, stage crew a box, art crew a pencil, lighting crew a lamp and stand, sound crew headphones and a mixer, and camera crew a twin-reel camera on a tripod. Assign stable role IDs and reuse their geometry, proportions, badge style and equipment across shots. Map each role to its existing independent cue-based schedule; the prop action must match the role. Describe the chosen crew and their tasks in the normal storyboard scene descriptions without adding new schema fields. Credits names, monogram avatars and contributions are replaceable content, separate from the crew role; a personal avatar must not silently replace the theatre figure. In every implementation, inspect an overview and a work pose to confirm the same silhouette, identifiable equipment, readable role badge, clear board/dialogue zones and idle crew remaining still.",
         "alternatives": [
           "Anime.js for verified seekable motion",
           "PixiJS for complex scrolling scenery",
@@ -34067,7 +34067,7 @@
         },
         "stack_property_order": {}
       },
-      "executable_prompt_template": "Create an original Manga Production Theatre video about {{subject}} for {{audience_and_objective}}, using {{assets_and_exact_copy}}. Duration {{duration_seconds}}, aspect ratio {{aspect_ratio}}, resolution {{resolution}}, frame rate {{frame_rate}}. Honor {{audio_or_rhythm_requirements}}. Save to {{output_directory}}. Use {{render_pipeline}} for composition/export; default HyperFrames, Remotion only for a verified limitation. Write structured STORYBOARD.json with timed scenes, exact copy, actions and local assets.\nVisual rules: A mostly black-and-white backstage manga in one continuous film set. Preserve white round-headed, faceless, short-bodied characters with pointed feet, bold ink outlines and halftone scenery. A persistent director speaks beside a shadowed presentation board while stage, camera, lighting, art and sound crew perform tasks supported by timed storyboard JSON. Backgrounds and boards travel right to left; crew make brief trips to work positions and return for reading holds. Use compact black name badges, readable rounded status labels and small board captions. Oval speech and thought balloons stay above the director, with extra headroom for thought circles. Use #F47B45 sparingly for playback progress, working-crew dots, brief dialogue-change underlines, equipment indicators and an optional opening-title accent. Keep the opening title optional and opening-only; never repeat title cards per scene.\nImplementation: Build the manga from structured timed scene/beat JSON using HTML/CSS, with SVG only where precise contours help. Use one deterministic, seekable composition clock for board/scenery travel, crew trips, equipment actions, statuses and dialogue. Plan crew roles and tasks from actual recorded props/assets, captions, camera moves, lighting and sound cues; omit unsupported specialists, never imply real production footage, and do not make a model call to animate existing JSON. Preserve the established faceless silhouette rather than adding jointed limbs. Let stagehands deliver props, artists set lettering, lighting crew adjust lights, sound crew cue effects and camera crew aim toward the board. Crew travel out, work, return and settle; pausing, replay and backward seeking reproduce the same poses and labels. Reserve separate board, dialogue and crew zones; stagger crew lanes and stack zones on narrow screens. Keep the director balloon visible, use a concise cue summary, raise thought balloons to clear their trailing circles, and briefly gesture/react only when dialogue changes. Give every board a persistent ink shadow outside its reveal mask and keep captions smaller than dialogue. Use black pill name badges, high-contrast compact rounded task labels and an orange dot only while working. Share #F47B45 with small equipment indicators and dialogue-change underlines; do not use orange for low-contrast body text, permanent reaction rays or large color washes. In an interactive viewer, center a naturally scrolling bounded stage in the content area, hide scrollbar chrome while preserving scrolling, and use orange timeline progress/thumb. Playback controls and status chrome are viewer features, not mandatory video artwork. An opening-only Glitch Type Build is optional; omit it when not requested, and never add a title card per scene. A gentle phased character wave is a visual tempo effect unless actual audio beats were analyzed. Keep export resolution, frame rate, GIF size and excerpt duration in delivery settings rather than hardcoding them into this style. Retain readable holds, exact word spacing and reduced-motion access. Rough.js adds cached sketch contours; PixiJS is optional for a complex world; Matter.js is only for baked physical props. Anime.js may replace the motion owner after seek verification. HyperFrames owns composition/export, with Remotion only for a verified limitation. Crew performance rules: Give each crew member an independent cue-based schedule with explicit idle/frozen, travel, work, react and settle intervals; one shared seekable clock does not mean synchronized movement. Stage crew make a quick delivery and stop after placing a prop; art crew work deliberately on a lettering/drawing cue and freeze once it is readable; lighting crew make a short adjustment then hold the light steady; sound crew make a brief cue-triggered control action and then wait; camera crew use a slower smooth tracking move only during the recorded camera action, aiming at the board, then lock off. Stagger starts, travel duration, task duration and return timing by role so some crew remain still while others work; never make everyone run, bounce or react on every beat. Idle characters stay fully still, especially during reading holds; omit unsupported specialists. Reactions are short and motivated by a new instruction, reveal, impact or completion. A shout-out is a brief visual callout only for an explicit action/cut, warning or meaningful payoff, never every caption and never invented audible speech; keep callouts away from the board and director dialogue. Keep the director dialogue visible while its text updates; at a new cue, allow a subtle 1–3 degree head nod or turn toward the board, optionally a small body gesture, then settle. Preserve the faceless round-head silhouette without adding facial features or jointed limbs. Orange reaction marks appear briefly only with a reaction, not for the entire dialogue interval. Store each role's timed actions, pauses, reactions and callouts in deterministic code derived from storyboard cues; do not add unvalidated fields to STORYBOARD.json. Preview the same conditional acting language in a concise sample, rather than uniformly animating every character. Verify that unsupported and idle crew stay frozen, role timings differ, gestures end, callouts do not overlap, and direct/backward seeking recreates the same character states.\nRead the selected palette and tool guidance. Validate the storyboard schema, direct/backward seeks, non-overlapping resting layouts and rendered frames; preserve exact word spacing.",
+      "executable_prompt_template": "Create an original Manga Production Theatre video about {{subject}} for {{audience_and_objective}}, using {{assets_and_exact_copy}}. Duration {{duration_seconds}}, aspect ratio {{aspect_ratio}}, resolution {{resolution}}, frame rate {{frame_rate}}. Honor {{audio_or_rhythm_requirements}}. Save to {{output_directory}}. Use {{render_pipeline}} for composition/export; default HyperFrames, Remotion only for a verified limitation. Write structured STORYBOARD.json with timed scenes, exact copy, actions and local assets.\nVisual rules: A mostly black-and-white backstage manga in one continuous film set. Preserve white round-headed, faceless, short-bodied characters with pointed feet, bold ink outlines and halftone scenery. A persistent director speaks beside a shadowed presentation board while stage, camera, lighting, art and sound crew perform tasks supported by timed storyboard JSON. Backgrounds and boards travel right to left; crew make brief trips to work positions and return for reading holds. Use compact black name badges, readable rounded status labels and small board captions. Oval speech and thought balloons stay above the director, with extra headroom for thought circles. Use #F47B45 sparingly for playback progress, working-crew dots, brief dialogue-change underlines, equipment indicators and an optional opening-title accent. Keep the opening title optional and opening-only; never repeat title cards per scene. Default cast identity: whenever Manga Production Theatre is selected or named, use the established storyboard crew as its character reference without requiring the brief to repeat it. Figures have a large blank white circular head, a compact white cutout body with small side arm points and two pointed feet, a continuous bold black contour and no facial features, fingers or jointed skeletal limbs. Keep head/body proportions, outline weight and prop scale consistent across scenes; use short whole-figure tilts, turns and pose changes rather than substituting generic line-stick people, rounded capsule mascots or realistic humans. The director is slightly larger and remains the persistent narrator beside the board. Roles must be recognizable from their silhouettes and equipment as well as their readable badges: DIRECTOR with a clapperboard; STAGE CREW carrying a prop box; ART DEPT with an oversized pencil; LIGHTING with an adjustable lamp on a stand; SOUND wearing headphones and operating a small mixer; CAMERA with a twin-reel camera and tripod. Keep each figure attached to the same role and prop throughout the film. Show only crew with an actual task, preserving the role-specific action and idle rules; do not invent work just to fill the cast. Explicit user changes take precedence.\nImplementation: Build the manga from structured timed scene/beat JSON using HTML/CSS, with SVG only where precise contours help. Use one deterministic, seekable composition clock for board/scenery travel, crew trips, equipment actions, statuses and dialogue. Plan crew roles and tasks from actual recorded props/assets, captions, camera moves, lighting and sound cues; omit unsupported specialists, never imply real production footage, and do not make a model call to animate existing JSON. Preserve the established faceless silhouette rather than adding jointed limbs. Let stagehands deliver props, artists set lettering, lighting crew adjust lights, sound crew cue effects and camera crew aim toward the board. Crew travel out, work, return and settle; pausing, replay and backward seeking reproduce the same poses and labels. Reserve separate board, dialogue and crew zones; stagger crew lanes and stack zones on narrow screens. Keep the director balloon visible, use a concise cue summary, raise thought balloons to clear their trailing circles, and briefly gesture/react only when dialogue changes. Give every board a persistent ink shadow outside its reveal mask and keep captions smaller than dialogue. Use black pill name badges, high-contrast compact rounded task labels and an orange dot only while working. Share #F47B45 with small equipment indicators and dialogue-change underlines; do not use orange for low-contrast body text, permanent reaction rays or large color washes. In an interactive viewer, center a naturally scrolling bounded stage in the content area, hide scrollbar chrome while preserving scrolling, and use orange timeline progress/thumb. Playback controls and status chrome are viewer features, not mandatory video artwork. An opening-only Glitch Type Build is optional; omit it when not requested, and never add a title card per scene. A gentle phased character wave is a visual tempo effect unless actual audio beats were analyzed. Keep export resolution, frame rate, GIF size and excerpt duration in delivery settings rather than hardcoding them into this style. Retain readable holds, exact word spacing and reduced-motion access. Rough.js adds cached sketch contours; PixiJS is optional for a complex world; Matter.js is only for baked physical props. Anime.js may replace the motion owner after seek verification. HyperFrames owns composition/export, with Remotion only for a verified limitation. Crew performance rules: Give each crew member an independent cue-based schedule with explicit idle/frozen, travel, work, react and settle intervals; one shared seekable clock does not mean synchronized movement. Stage crew make a quick delivery and stop after placing a prop; art crew work deliberately on a lettering/drawing cue and freeze once it is readable; lighting crew make a short adjustment then hold the light steady; sound crew make a brief cue-triggered control action and then wait; camera crew use a slower smooth tracking move only during the recorded camera action, aiming at the board, then lock off. Stagger starts, travel duration, task duration and return timing by role so some crew remain still while others work; never make everyone run, bounce or react on every beat. Idle characters stay fully still, especially during reading holds; omit unsupported specialists. Reactions are short and motivated by a new instruction, reveal, impact or completion. A shout-out is a brief visual callout only for an explicit action/cut, warning or meaningful payoff, never every caption and never invented audible speech; keep callouts away from the board and director dialogue. Keep the director dialogue visible while its text updates; at a new cue, allow a subtle 1–3 degree head nod or turn toward the board, optionally a small body gesture, then settle. Preserve the faceless round-head silhouette without adding facial features or jointed limbs. Orange reaction marks appear briefly only with a reaction, not for the entire dialogue interval. Store each role's timed actions, pauses, reactions and callouts in deterministic code derived from storyboard cues; do not add unvalidated fields to STORYBOARD.json. Preview the same conditional acting language in a concise sample, rather than uniformly animating every character. Verify that unsupported and idle crew stay frozen, role timings differ, gestures end, callouts do not overlap, and direct/backward seeking recreates the same character states. Default character construction: start from the same reusable storyboard crew silhouette for every role, then attach the role-specific prop. Build a blank round head and a short pointed white body with bold black contours; hide the head/body seam so the cutout reads as one coherent figure. Do not replace it with thin line arms and legs, add a face or improvise a new mascot per scene. Keep separate head, body and prop groups only for controlled posing; no articulated human rig is required. Give the director a clapperboard, stage crew a box, art crew a pencil, lighting crew a lamp and stand, sound crew headphones and a mixer, and camera crew a twin-reel camera on a tripod. Assign stable role IDs and reuse their geometry, proportions, badge style and equipment across shots. Map each role to its existing independent cue-based schedule; the prop action must match the role. Describe the chosen crew and their tasks in the normal storyboard scene descriptions without adding new schema fields. Credits names, monogram avatars and contributions are replaceable content, separate from the crew role; a personal avatar must not silently replace the theatre figure. In every implementation, inspect an overview and a work pose to confirm the same silhouette, identifiable equipment, readable role badge, clear board/dialogue zones and idle crew remaining still.\nRead the selected palette and tool guidance. Validate the storyboard schema, direct/backward seeks, non-overlapping resting layouts and rendered frames; preserve exact word spacing.",
       "motion_references": {
         "catalog_file": "motion-pattern-catalog.json",
         "required": false,
@@ -34770,6 +34770,329 @@
         ]
       },
       "combination_guidance_provenance": "authored_compatibility_guidance_2026-10-18"
+    },
+    {
+      "id": "style-139",
+      "category": "Motion Graphic",
+      "name_en": "Particle Flow Network",
+      "provenance": "authored",
+      "visual_cues": "Particle Flow Network: a stable node-link diagram in which transfer is shown as streams of fine particles travelling along curved connections between circular hubs. Hubs sit in branching clusters around one or a few primary nodes; node size and a soft halo carry importance, and a small set of semantic state accents (active, idle, waiting, fault) mark status alongside text labels. A sparse dotted field and a quiet dark or paper-light surround keep the graph legible. Particle density, direction and speed communicate volume and flow; the layout itself does not drift. Typography is compact and technical: short node names with small secondary metadata in a monospace or neat sans. Applies to knowledge maps, biological pathways, logistics routes, team collaboration and cause-and-effect systems, not only software. Avoid neon rainbow networking clichés, random floating dots with no source or destination, dashboard chrome without a graph, crowded unreadable labels and constant flashing.",
+      "note": "Authored by Claude Opus 5.5 (claude-opus-5-5) on 2026-10-20 from observation of two user-supplied screenshots and four chronological frames of a 7-second, 84-frame GIF: https://github.com/tomtomsatnav/agent-orchestration-standard/blob/main/docs/screenshots/01-graph-dark.png, https://github.com/tomtomsatnav/agent-orchestration-standard/blob/main/docs/screenshots/02-graph-light.png and https://github.com/tomtomsatnav/agent-orchestration-standard/blob/main/docs/hero.gif. The entry records reusable visual and motion rules only; no source code, layout, labels, data, product name or branding is reused. Colour values are illustrative defaults, not measured source hex. Related to Particle Art (style-062), Scientific Visualization / Data Storytelling (style-097) and Futuristic UI (FUI) / HUD Design (style-112), none of which fixes a stable node-link layout with particle streams that carry meaningful source-to-destination transfer.",
+      "tech": {
+        "recommended_stack_keys": ["html_css", "svg", "canvas_2d", "gsap", "chroma_js"],
+        "implementation": "Author the graph first: a fixed node list (id, position, radius, cluster, state) and an edge list with an explicit source, destination and curve (quadratic or cubic Bézier control points), sized for video with roughly 7-20 visible nodes and labels that never overlap streams. Render the dotted field, edges, halos, nodes and labels in SVG or HTML/CSS; draw particles in Canvas 2D (or SVG for low counts). Each particle has a seeded edge, phase, lateral offset and size; its position is p = curve(edge, frac(phase + t·speed)) plus a perpendicular offset that narrows near both endpoints so streams leave and enter nodes cleanly. Evaluate everything from absolute composition time with a seeded PRNG; never Math.random, wall clock or free-running loops. Script beats as states of one timeline: activation (source halo and state accent rise), transfer (stream density ramps along the edge), arrival (particles converge, destination pulses once, counter or label updates), settle (density returns to idle level) and overview (hold the whole graph readable). Node emphasis changes by halo, ring and fill, not by moving nodes. Mark any counts or states as authored or illustrative unless the user supplies measured data; never imply live telemetry. Use one owner per animated property and verify identical frames for forward, backward and direct seeks. Use the user's chosen renderer when specified.",
+        "alternatives": [
+          "SVG dotted strokes (stroke-dasharray with round caps and animated dash offset) for low particle counts or static frames",
+          "Pre-sampled curve lookup tables cached per edge instead of evaluating Bézier math per particle",
+          "PixiJS or WebGL point rendering only when particle counts exceed what Canvas 2D can draw at the target frame rate"
+        ],
+        "render_pipeline": "Uses the project's renderer setting. Motion Graphic recommendations select visual and motion tools, not the composition or export framework.",
+        "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
+        "framework_selection": {
+          "source": "project.renderer",
+          "scope": "Composition and export follow the project setting."
+        },
+        "available_library_ids": ["gsap", "chroma_js"],
+        "library_selection": "Use SVG or HTML/CSS for the field, edges, nodes, halos and labels, Canvas 2D for seeded particle streams, and GSAP for one paused timeline that drives a pure time-state function. Use chroma-js to validate label and state colours against the actual surround. Do not add a 3D engine, physics engine or force-directed layout at render time; author or precompute positions.",
+        "motion_guidance": {
+          "shared_reference": "shared_motion_guidance",
+          "application": "Particles travel source to destination along fixed curves; hubs signal activation with a halo and state accent, streams thicken during transfer, destinations pulse once on arrival, then the graph settles and holds for an overview.",
+          "cadence_guidance": "Run one primary transfer at a time, a few seconds each, with a readable hold after arrival. Keep particle motion continuous and smooth, halos easing over roughly half a second or more, and avoid simultaneous pulses or flashing; idle streams stay sparse.",
+          "implementation": "Evaluate particle positions, densities, halos and labels from absolute composition time through one pure time-state function; seed every random choice and keep one owner per property; verify forward, backward and direct seeks."
+        },
+        "style_renderer": {
+          "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
+          "recommended_stack_refs": ["SVG", "Canvas 2D", "HTML/CSS"]
+        },
+        "motion_engine": {
+          "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
+          "recommended_stack_refs": ["GSAP"]
+        },
+        "production_policy_ref": "production_policy",
+        "stack_overrides": {
+          "html_css": {
+            "values": {
+              "style_application": "Node labels, secondary metadata, legends and titles as real text in compact technical type; place labels clear of streams and keep reading order."
+            },
+            "remove": []
+          },
+          "svg": {
+            "values": {
+              "style_application": "Dotted field, curved edges, node rings, halos and state accents; dotted round-cap strokes for static frames or sparse streams."
+            },
+            "remove": []
+          },
+          "canvas_2d": {
+            "values": {
+              "style_application": "Seeded particle streams sampled along authored curves from composition time, with endpoint-tapered spread and density ramps; no requestAnimationFrame loops or wall clock."
+            },
+            "remove": []
+          },
+          "gsap": {
+            "values": {
+              "style_application": "One paused, seekable timeline advances the clock; the time-state function sets stream density, halo intensity, node state and label updates for activation, transfer, arrival, settle and overview."
+            },
+            "remove": []
+          },
+          "chroma_js": {
+            "values": {
+              "style_application": "Check label, metadata and state-accent colours against the composited surround in both variants; verify state accents remain distinguishable and paired with text."
+            },
+            "remove": []
+          }
+        },
+        "stack_property_order": {}
+      },
+      "executable_prompt_template": "Create an original Particle Flow Network video about {{subject}} for {{audience_and_objective}}, using {{assets_and_exact_copy}}. Duration {{duration_seconds}}, aspect ratio {{aspect_ratio}}, resolution {{resolution}}, frame rate {{frame_rate}}. Honor {{audio_or_rhythm_requirements}}. Save to {{output_directory}}. Use {{render_pipeline}} for composition/export; the project renderer setting remains binding. Write structured STORYBOARD.json with the node list, edge list (source, destination, curve), node states, exact labels, timed activation, transfer, arrival, settle and overview beats, and whether each value is measured or illustrative.\nVisual rules: Particle Flow Network: a stable node-link diagram in which transfer is shown as streams of fine particles travelling along curved connections between circular hubs. Hubs sit in branching clusters around one or a few primary nodes; node size and a soft halo carry importance, and a small set of semantic state accents (active, idle, waiting, fault) mark status alongside text labels. A sparse dotted field and a quiet dark or paper-light surround keep the graph legible. Particle density, direction and speed communicate volume and flow; the layout itself does not drift. Typography is compact and technical: short node names with small secondary metadata in a monospace or neat sans. Applies to knowledge maps, biological pathways, logistics routes, team collaboration and cause-and-effect systems, not only software. Avoid neon rainbow networking clichés, random floating dots with no source or destination, dashboard chrome without a graph, crowded unreadable labels and constant flashing.\nImplementation: Author the graph first: a fixed node list (id, position, radius, cluster, state) and an edge list with an explicit source, destination and curve (quadratic or cubic Bézier control points), sized for video with roughly 7-20 visible nodes and labels that never overlap streams. Render the dotted field, edges, halos, nodes and labels in SVG or HTML/CSS; draw particles in Canvas 2D (or SVG for low counts). Each particle has a seeded edge, phase, lateral offset and size; its position is p = curve(edge, frac(phase + t·speed)) plus a perpendicular offset that narrows near both endpoints so streams leave and enter nodes cleanly. Evaluate everything from absolute composition time with a seeded PRNG; never Math.random, wall clock or free-running loops. Script beats as states of one timeline: activation (source halo and state accent rise), transfer (stream density ramps along the edge), arrival (particles converge, destination pulses once, counter or label updates), settle (density returns to idle level) and overview (hold the whole graph readable). Node emphasis changes by halo, ring and fill, not by moving nodes. Mark any counts or states as authored or illustrative unless the user supplies measured data; never imply live telemetry. Use one owner per animated property and verify identical frames for forward, backward and direct seeks. Use the user's chosen renderer when specified.\nRead the selected palette and tool guidance. Validate the storyboard schema, a meaningful source and destination for every particle stream, label legibility at delivery size, forward/backward/direct seek determinism, state accents paired with text, and rendered frames; preserve exact copy.",
+      "motion_references": {
+        "catalog_file": "motion-pattern-catalog.json",
+        "required": false,
+        "selection_policy": "Optional candidates are screened for natural style compatibility. Before selection, inspect the actual scene illustration, assets, geometry and narrative beat. Keep only references whose defining action is supported by that scene. Choosing no reference is valid. Do not infer motion from a similar label; do not replace the existing style motion direction.",
+        "candidates": [
+          {
+            "motion_id": "motion-030",
+            "usage_guidance": "Arrival and overview readouts: after particles reach a destination, its label metadata or counter steps to an authored target and holds; mark invented values illustrative.",
+            "review_evidence": "Authored compatibility screening by claude-opus-5-5, 2026-10-20; no separate review file."
+          }
+        ],
+        "agent_instruction": "Read the complete Data Build definition before using its sequence. Reveal stable nodes before connectors and dependent values, then hold the conclusion. Particle transfer must connect meaningful sources and destinations; no unrelated opening motion is implied."
+      },
+      "palette": {
+        "background_policy": "scene_dependent",
+        "status": "style_compatible_suggestion",
+        "scope": "new_artwork_when_no_approved_palette_is_supplied",
+        "direction": "An illustrative quiet surround with a sparse dotted field, muted idle nodes, warm light particles and one warm active accent; a light paper variant inverts values while keeping the same roles.",
+        "generator": {
+          "library": "chroma-js",
+          "version": "3.2.0",
+          "operations": ["chroma.valid", "chroma(color).hex()", "chroma.contrast"]
+        },
+        "tokens": {
+          "background": "#0B0F17",
+          "field_dot": "#2A3242",
+          "node_idle": "#7D8698",
+          "node_active": "#E2B66B",
+          "particle": "#E9E1CF",
+          "text_primary": "#ECE7DC",
+          "text_secondary": "#9AA3B5",
+          "accent_alert": "#E8705F",
+          "foreground": "#ECE7DC"
+        },
+        "base_colors": [
+          "#0B0F17",
+          "#2A3242",
+          "#7D8698",
+          "#E2B66B",
+          "#E9E1CF",
+          "#ECE7DC",
+          "#9AA3B5",
+          "#E8705F"
+        ],
+        "base_color_count": 8,
+        "constraints": [
+          "Choose the surround from the scene; #0B0F17 is an illustrative swatch, not a required value.",
+          "Assign colours by role (field, idle node, active node, particle, text, alert) and keep the same roles across variants; supplied brand or domain colours take precedence.",
+          "Use at most two or three semantic state accents per scene, and pair each with a label, ring style or icon so meaning does not rely on colour.",
+          "Particles use one light tone on dark surrounds or one dark tone on light surrounds; vary opacity and size, not hue, to show density.",
+          "Keep the dotted field and halos faint enough that labels meet 4.5:1 on the composited frame."
+        ],
+        "gradient": {
+          "enabled": true,
+          "instruction": "Radial gradients are allowed for soft node halos and an optional edge vignette, and linear opacity ramps along a stream may show direction; keep node fills, labels and state accents flat."
+        },
+        "contrast_checks": {
+          "background": "opaque_sRGB",
+          "normal_text_target": 4.5,
+          "foreground_on_background": 15.55,
+          "suggested_text_pairs": [
+            {
+              "background_token": "background",
+              "foreground_token": "text_primary",
+              "contrast_ratio": 15.55,
+              "meets_normal_text_target": true,
+              "use": "Node names and titles."
+            },
+            {
+              "background_token": "background",
+              "foreground_token": "text_secondary",
+              "contrast_ratio": 7.56,
+              "meets_normal_text_target": true,
+              "use": "Secondary metadata and legends."
+            },
+            {
+              "background_token": "background",
+              "foreground_token": "node_active",
+              "contrast_ratio": 10.17,
+              "meets_normal_text_target": true,
+              "use": "Active state labels and hub accents."
+            },
+            {
+              "background_token": "background",
+              "foreground_token": "accent_alert",
+              "contrast_ratio": 6.31,
+              "meets_normal_text_target": true,
+              "use": "Fault or warning labels paired with text."
+            }
+          ],
+          "limitation": "Two-color checks only. Not a guarantee of complete accessibility or readability over images, textures, glass, video, outlines or animated lighting. Recheck every actual foreground/background pairing in representative frames."
+        },
+        "composition_guidance": "Leave generous space between clusters; place one primary hub near the optical centre or on a third with two to four secondary clusters around it. Show one active transfer at a time, keep labels beside nodes on the side away from incoming streams, and reserve frame edges for at most a title or legend.",
+        "agent_instruction": "Resolve colors in this order: task-provided exact palette, established brand or approved source palette, existing semantic color mappings, then this optional example. Read visual_cues and palette.constraints. Preserve approved anchor values, color families, ink counts and asset colors. Use chroma-js for validation, equivalent normalization and contrast assessment; evaluate gradients only when enabled and appropriate. Select readable token pairs from contrast_checks, otherwise move text onto an existing contrasting backing. Record the resolved tokens and inspect actual composited frames before rendering."
+      },
+      "audio_direction": {
+        "prompt": "Choose audio from the subject and setting: a quiet bed, soft cues aligned to visible arrivals, narration explaining what moves where, or silence. Do not prescribe a genre or instrument, and do not claim synchronisation to data or beats that were not measured. The catalog preview is silent.",
+        "suggestion_dimensions": [
+          "Whether background music is useful, and its suggested mood, texture, energy, tempo range, and progression.",
+          "Whether voiceover helps explain the topic, and its suggested language, tone, pace, and placement.",
+          "Whether sung vocals support the topic or distract from narration and essential text.",
+          "Whether sound effects, ambience, or silence clarify key actions, transitions, and reading holds.",
+          "How audio changes across scenes, supports motion cadence, and leaves space for speech and comprehension."
+        ],
+        "selection_guidance": "Treat these as task-specific suggestions, not requirements to include every audio layer. Honor explicit user audio choices and supplied assets. When inputs are absent, propose a coherent direction and state assumptions; do not silently default to instrumental music or invent available audio assets.",
+        "integration_guidance": "Select or create authorized audio assets separately from visual construction and motion design. Use render_pipeline to assemble, synchronize, mix, and export audio with picture. Keep speech intelligible, avoid clipping and competing vocals, and inspect the delivered audio and picture together."
+      },
+      "suggested_combinations": {
+        "selection_guidance": "Particle Flow Network is complete on its own. Add a supporting style only for a specific explanatory beat or transition, keeping the stable graph, meaningful flows and readable labels dominant.",
+        "suggestions": [
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-097",
+                "role": "Annotated explanation of flows, quantities and cause and effect"
+              }
+            ],
+            "rationale": "Data storytelling adds callouts, scales and step-by-step emphasis that explain why a transfer matters.",
+            "best_for": "Explainers for causal systems, supply chains and biological pathways.",
+            "video_application": "After an arrival, hold the graph and add one callout with a sourced or illustrative quantity, then return to the overview.",
+            "html_application": "Scroll steps that highlight one edge and its annotation at a time, with a static annotated fallback.",
+            "consistency_rules": [
+              "Annotate one flow at a time.",
+              "Mark values as measured or illustrative."
+            ],
+            "avoid": ["Charts that hide the graph.", "Unsourced precise figures."]
+          },
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-098",
+                "role": "Drill-down from a hub into its own sub-network"
+              }
+            ],
+            "rationale": "A continuous zoom into one hub reveals that it contains a smaller network, explaining hierarchy without a cut.",
+            "best_for": "Nested teams, organs within body systems or regional hubs within a logistics network.",
+            "video_application": "Scale toward a settled hub until its ring fills the frame, then resolve the inner cluster with the same flow rules and labels.",
+            "html_application": "Click or scroll to zoom into a hub, with a plain crossfade under reduced motion.",
+            "consistency_rules": [
+              "Keep the same palette roles and particle rules at every level.",
+              "One clock for zoom and particles."
+            ],
+            "avoid": ["Endless recursive zooming.", "Inventing structure not in the brief."]
+          }
+        ]
+      },
+      "combination_guidance_provenance": "authored_compatibility_guidance_2026-10-20",
+      "motion_graphic_variants": [
+        {
+          "id": "dark",
+          "name": "Dark",
+          "source_key": "reference-dark",
+          "summary": "For screens, video and presentations in dim rooms: dark surround, light particles and a warm active accent; keep halos subtle so streams remain the brightest moving element.",
+          "use_when": "Dark backgrounds",
+          "visual_guidance": [
+            "Leave generous space between clusters; place one primary hub near the optical centre or on a third with two to four secondary clusters around it. Show one active transfer at a time, keep labels beside nodes on the side away from incoming streams, and reserve frame edges for at most a title or legend."
+          ],
+          "animation_guidance": [
+            "Particles travel source to destination along fixed curves; hubs signal activation with a halo and state accent, streams thicken during transfer, destinations pulse once on arrival, then the graph settles and holds for an overview."
+          ],
+          "palette_guidance": "For screens, video and presentations in dim rooms: dark surround, light particles and a warm active accent; keep halos subtle so streams remain the brightest moving element.",
+          "illustrative_swatches": [
+            {
+              "role": "Scene surround (illustrative)",
+              "hex": "#0B0F17"
+            },
+            {
+              "role": "Sparse dotted field",
+              "hex": "#2A3242"
+            },
+            {
+              "role": "Idle nodes and quiet rings",
+              "hex": "#7D8698"
+            },
+            {
+              "role": "Active hubs, halos and state labels",
+              "hex": "#E2B66B"
+            },
+            {
+              "role": "Flowing particles",
+              "hex": "#E9E1CF"
+            },
+            {
+              "role": "Primary labels",
+              "hex": "#ECE7DC"
+            },
+            {
+              "role": "Secondary metadata",
+              "hex": "#9AA3B5"
+            },
+            {
+              "role": "Fault or warning accent, brief and paired with text",
+              "hex": "#E8705F"
+            }
+          ],
+          "paired_motion_ids": ["motion-030"],
+          "limitations": []
+        },
+        {
+          "id": "light",
+          "name": "Light",
+          "source_key": "reference-light",
+          "summary": "For daylight presentations, print-like explainers or light pages: paper surround, dark particles and a deeper ochre active accent; halos become soft tints and the dotted field stays faint.",
+          "use_when": "Light backgrounds",
+          "visual_guidance": [
+            "Leave generous space between clusters; place one primary hub near the optical centre or on a third with two to four secondary clusters around it. Show one active transfer at a time, keep labels beside nodes on the side away from incoming streams, and reserve frame edges for at most a title or legend."
+          ],
+          "animation_guidance": [
+            "Particles travel source to destination along fixed curves; hubs signal activation with a halo and state accent, streams thicken during transfer, destinations pulse once on arrival, then the graph settles and holds for an overview."
+          ],
+          "palette_guidance": "For daylight presentations, print-like explainers or light pages: paper surround, dark particles and a deeper ochre active accent; halos become soft tints and the dotted field stays faint.",
+          "illustrative_swatches": [
+            {
+              "role": "Scene surround (illustrative)",
+              "hex": "#F2EDE3"
+            },
+            {
+              "role": "Sparse dotted field",
+              "hex": "#CFC6B6"
+            },
+            {
+              "role": "Idle nodes and quiet rings",
+              "hex": "#8A909C"
+            },
+            {
+              "role": "Active hubs, halos and state labels",
+              "hex": "#7A5418"
+            },
+            {
+              "role": "Flowing particles",
+              "hex": "#3A3530"
+            },
+            {
+              "role": "Primary labels",
+              "hex": "#1C1A17"
+            },
+            {
+              "role": "Secondary metadata",
+              "hex": "#5B5750"
+            },
+            {
+              "role": "Fault or warning accent, brief and paired with text",
+              "hex": "#B23A2E"
+            }
+          ],
+          "paired_motion_ids": ["motion-030"],
+          "limitations": []
+        }
+      ]
     }
   ],
   "library_options": [

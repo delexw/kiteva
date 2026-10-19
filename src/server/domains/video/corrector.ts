@@ -143,7 +143,6 @@ export class VideoCorrectionCoordinator {
         provider,
         model,
         workspace: job.workspace,
-        allowInstrumentRendering: job.kind === "full",
         signal,
         sessionId,
         schema: videoGenerationOutputSchemaForDuration(job.duration),

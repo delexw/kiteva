@@ -5,7 +5,6 @@
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "scripts": {
-    "music:setup": "node --import tsx scripts/setup-instruments.ts",
     "speech:setup:pocket": "node --import tsx scripts/setup-pocket-tts.ts",
     "speech:setup": "node --import tsx scripts/setup-speech.ts",
     "dev": "node --import tsx src/server/index.ts",
@@ -30,8 +29,9 @@
     "capture:worker": "node --import tsx scripts/capture-worker.ts"
   },
   "dependencies": {
+    "@animate-ui/react": "^2.0.0",
     "@ant-design/x": "^2.9.0",
-    "@anthropic-ai/claude-agent-sdk": "latest",
+    "@anthropic-ai/claude-agent-sdk": "^0.3.303",
     "@caveman-ai/cli": "4.0.1",
     "@fastify/multipart": "^9.3.0",
     "@fastify/static": "^8.3.0",
@@ -47,7 +47,6 @@
     "@streamdown/code": "^2.0.0",
     "@streamdown/math": "^1.0.3",
     "@streamdown/mermaid": "^1.0.3",
-    "@tonejs/midi": "^2.0.28",
     "@typesafe-ai/sdk": "latest",
     "ai": "^7.0.137",
     "antd": "^6.6.6",
@@ -86,8 +85,10 @@
     "react-i18next": "^17.1.0",
     "react-router-dom": "^7.18.4",
     "remotion": "latest",
+    "rfc6902": "^5.3.0",
     "roughjs": "latest",
     "sharp": "latest",
+    "shell-quote": "^1.12.0",
     "streamdown": "^2.7.0",
     "tailwind-merge": "^3.7.0",
     "three": "latest",

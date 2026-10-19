@@ -1,0 +1,109 @@
+{
+  "version": 3,
+  "title": "Manga Production Theatre — An idea becomes a connected system",
+  "durationSeconds": 3,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "title": "The board flies in",
+      "startSeconds": 0,
+      "endSeconds": 0.9,
+      "purpose": "Establish the backstage set: persistent director with clapperboard beside his speech balloon, five faceless crew in staggered lanes, and the presentation board arriving.",
+      "visuals": [
+        "Stationary white paper set with ink fly rail, faint perspective lines and halftone floor",
+        "Board (flown flat with hangers and persistent ink drop-shadow) slides right-to-left into place 0-0.66s",
+        "Stage crew (box) makes a quick trip toward the board foot 0.10-0.36s, sets the box down 0.36-0.50s and returns 0.52-0.82s; status Ready > Delivering > Placed, orange badge dot only while working",
+        "Director balloon reads 'Let’s bring it to life.'; all other crew stay frozen"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 0,
+          "endSeconds": 0.66,
+          "development": "Board slides in from the right carrying title, single IDEA node and caption; stage crew sets off with the prop box.",
+          "captions": ["DIRECTOR: Let’s bring it to life."],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 0.66,
+          "endSeconds": 0.9,
+          "development": "Board settles; stage crew places the box and heads back; art dept begins its trip.",
+          "captions": ["01 / CONNECT THE IDEA", "One idea becomes a connected system."],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.2
+        }
+      ]
+    },
+    {
+      "id": "scene-2",
+      "title": "Crew connect the idea",
+      "startSeconds": 0.9,
+      "endSeconds": 2.3,
+      "purpose": "Show role-specific, staggered work turning the single idea into a connected network.",
+      "visuals": [
+        "Art dept raises its oversized pencil and deliberately draws six links; four satellite nodes pop in 0.94-1.70s, then returns 1.72-2.00s",
+        "Lighting tilts the lamp toward the board 0.92-1.28s, lamp indicator and ink beam marks stay steady",
+        "Camera slowly tilts its twin-reel camera toward the board 1.22-2.20s (REC indicator while tracking), then locks off",
+        "Director snaps the clapperboard at 1.70s with a 2.5 degree nod, balloon updates to 'Now it’s a system.' with a brief orange underline and reaction marks",
+        "Sound pushes one mixer fader 2.00-2.22s and waits"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 0.9,
+          "endSeconds": 1.7,
+          "development": "Art dept draws the network links on the board; lighting makes a short adjustment and holds; camera begins its slow tilt. Stage crew and sound stay still.",
+          "captions": [],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        },
+        {
+          "startSeconds": 1.7,
+          "endSeconds": 2.3,
+          "development": "Network complete: director cue and single motivated reaction, dialogue changes, art returns, sound fader cue, camera locks off.",
+          "captions": ["DIRECTOR: Now it’s a system."],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0
+        }
+      ]
+    },
+    {
+      "id": "scene-3",
+      "title": "Settled system",
+      "startSeconds": 2.3,
+      "endSeconds": 3,
+      "purpose": "Readable final frame: connected network on the board, director line, crew badges and final statuses all still.",
+      "visuals": [
+        "All crew frozen at home positions with statuses Placed, Done, Lit, Waiting, Locked",
+        "Placed box remains by the board foot"
+      ],
+      "assets": [],
+      "beats": [
+        {
+          "startSeconds": 2.3,
+          "endSeconds": 3,
+          "development": "Reading hold of the settled composition.",
+          "captions": ["01 / CONNECT THE IDEA", "One idea becomes a connected system.", "DIRECTOR: Now it’s a system."],
+          "audio": { "music": "", "effects": [], "lyrics": [] },
+          "readingHoldSeconds": 0.7
+        }
+      ]
+    }
+  ],
+  "pacingAudit": {
+    "findings": [
+      "Crew work windows are staggered: stage 0.10-0.82, art 0.62-2.00, lighting 0.92-1.28, camera 1.22-2.20, director 1.54-2.05, sound 2.00-2.22; idle crew are fully still outside their windows.",
+      "Only one reaction (director at the dialogue change); no synchronized bouncing and no callouts.",
+      "Board copy is static once the slide ends at 0.66s; the composition is fully settled by about 2.3s."
+    ],
+    "justifiedHolds": [
+      "2.3-3.0s final reading hold for board title, caption, dialogue and badges."
+    ]
+  },
+  "notes": [
+    "Silent preview: no music, voice or sound effects; the sound crew's fader push is a visual cue only.",
+    "No reviewed preview recipes exist (STYLE.json tech.preview_recipes is absent; the task supplied an empty list), so the preview demonstrates the core Manga Production Theatre acting language plus a motion-012 style right-to-left board handoff.",
+    "Illustrative procedural scene drawn in HTML/CSS and inline SVG; not real production footage. Halftone is a CSS/SVG dot pattern."
+  ]
+}

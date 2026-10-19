@@ -592,22 +592,3 @@ it("shows distinct component actions without exposing registry payloads or sourc
     }
   }
 });
-
-it("shows curated instrument labels without raw score, tool output or setup paths", () => {
-  for (const [name, label] of [
-    ["instrument_status", "Checking local instruments…"],
-    ["render_instrumental", "Rendering your instrumental music…"],
-  ]) {
-    for (const toolName of [`mcp__instruments__${name}`, `instruments: ${name}`]) {
-      expect(customerToolActivity(toolName, "tool", "full video generation")).toBe(label);
-      expect(
-        activityItems([
-          event(1, "tool", "private filename and raw score", "a", {
-            itemId: "instrument",
-            toolName,
-          }),
-        ]).map((item) => item.text),
-      ).toEqual([label]);
-    }
-  }
-});

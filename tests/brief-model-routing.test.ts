@@ -1,3 +1,11 @@
+vi.mock("../src/server/agents/authoring-resources", () => ({
+  selectAuthoringResources: async () => ({
+    source: "jev",
+    model: "jev-test",
+    selectedIds: ["local_code"],
+    decisions: [],
+  }),
+}));
 import { type Proposal } from "../src/shared/agents/schemas/proposals";
 import { randomUUID } from "node:crypto";
 import { readFile, rm, writeFile, mkdir } from "node:fs/promises";
@@ -12,7 +20,8 @@ vi.mock("../src/server/catalog/style-summaries", async (original) => ({
   ...(await original<typeof import("../src/server/catalog/style-summaries")>()),
   prepareStyleSummaries: vi.fn(),
 }));
-vi.mock("../src/server/catalog/ranking", () => ({ jevClient: vi.fn(), rankOptions: vi.fn() }));
+vi.mock("../src/server/catalog/ranking", () => ({ rankOptions: vi.fn() }));
+vi.mock("../src/server/agents/jev", () => ({ jevClient: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { prepareStyleSummaries } from "../src/server/catalog/style-summaries";
@@ -252,7 +261,13 @@ it.each([
       expect(
         await readFile(path.join(run.jobs[0].workspace, "assets/website-reference-1.png"), "utf8"),
       ).toBe("actual-screenshot-bytes");
-      expect(run.brief).toMatchObject(brief);
+      expect(run.brief).toMatchObject({
+        ...brief,
+        assetDescriptions: expect.arrayContaining([
+          expect.stringContaining("http://127.0.0.1:4317/"),
+          expect.stringContaining("assets/website-reference-1.png"),
+        ]),
+      });
       expect(run.brief?.assetPlan?.coreIdea).toBe("Explain an idea");
       expect(agentTurn).toHaveBeenCalledTimes(3);
       expect(agentTurn).toHaveBeenNthCalledWith(
@@ -268,7 +283,7 @@ it.each([
         expect.objectContaining({ provider, model: textModels[provider], readOnly: true }),
       );
       expect(rankOptions).toHaveBeenLastCalledWith(
-        expect.objectContaining(brief),
+        expect.objectContaining({ ...brief, assetDescriptions: run.brief?.assetDescriptions }),
         [combination, single, otherCombination],
         catalog.styles,
         run.request,

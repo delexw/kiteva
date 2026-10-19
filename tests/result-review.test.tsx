@@ -266,6 +266,31 @@ it("includes pacing calibration cases and explicit evidence boundaries in review
   expect(videoResultReviewGuidance).not.toContain(JSON.stringify(videoReviewTestCases));
   expect(videoResultReviewGuidance).toContain("You are not seeing video frames");
   expect(videoResultReviewGuidance).toContain("Missing evidence is not a correction");
+  const { visualReadabilityRules } = await import("../src/server/agents/visual-readability");
+  expect(videoResultReviewGuidance).toContain(visualReadabilityRules);
+  expect(videoResultReviewGuidance).toContain(
+    "Do not infer unreadability without rendered evidence",
+  );
+  expect(videoResultReviewGuidance).toContain(
+    "completed visualAssessment documenting clipped required footage content",
+  );
+  expect(videoResultReviewGuidance).toContain(
+    "Do not infer clipping from a filename, intended zoom or missing visual assessment",
+  );
+});
+
+it("shares footage framing safeguards across production, capture and final review", async () => {
+  const { capturedFootageFramingRules, fullVideoQualityRules } =
+    await import("../src/server/domains/video/full-video-quality");
+  const { websiteCaptureInstructions } =
+    await import("../src/server/requests/reference-browser-instructions");
+  const { videoResultReviewGuidance } = await import("../src/server/jobs/result-review-guidance");
+  for (const guidance of [
+    fullVideoQualityRules,
+    websiteCaptureInstructions,
+    videoResultReviewGuidance,
+  ])
+    expect(guidance).toContain(capturedFootageFramingRules);
 });
 
 it("keeps the strict nested structured-output schema", async () => {

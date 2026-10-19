@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Particle Flow Network — an idea becomes a connected system</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #0B0F17; overflow: hidden; }
+  #root { position: relative; width: 100%; height: 100%; background: #0B0F17; overflow: hidden; }
+  #root > svg, #root > canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  #particles { object-fit: contain; }
+  text { font-family: Menlo, "SF Mono", "DejaVu Sans Mono", Consolas, monospace; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="video" data-width="1280" data-height="720" data-duration="3" data-fps="30">
+
+  <!-- BACK LAYER: stationary surround, dotted field, halos, edge rails -->
+  <svg id="back" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <defs>
+      <pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse">
+        <circle cx="16" cy="16" r="1" fill="#2A3242"/>
+      </pattern>
+      <radialGradient id="haloWarm">
+        <stop offset="0" stop-color="#E2B66B" stop-opacity="0.26"/>
+        <stop offset="0.45" stop-color="#E2B66B" stop-opacity="0.11"/>
+        <stop offset="1" stop-color="#E2B66B" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="vig" cx="50%" cy="50%" r="72%">
+        <stop offset="0.6" stop-color="#05070B" stop-opacity="0"/>
+        <stop offset="1" stop-color="#05070B" stop-opacity="0.8"/>
+      </radialGradient>
+    </defs>
+    <rect x="0" y="0" width="1280" height="720" fill="#0B0F17"/>
+    <rect x="0" y="0" width="1280" height="720" fill="url(#dots)" opacity="0.75"/>
+    <g id="halos"></g>
+    <g id="edges" fill="none" stroke-linecap="round"></g>
+    <rect x="0" y="0" width="1280" height="720" fill="url(#vig)"/>
+  </svg>
+
+  <!-- PARTICLE LAYER: Canvas 2D, redrawn from absolute composition time -->
+  <canvas id="particles" width="2560" height="1440" aria-hidden="true"></canvas>
+
+  <!-- FRONT LAYER: nodes, pulse rings, labels, title, legend -->
+  <svg id="front" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+    <g id="pulses" fill="none"></g>
+    <g id="nodes"></g>
+    <g id="labels" letter-spacing="3"></g>
+    <g id="chrome">
+      <text id="title" x="64" y="66" font-size="15" letter-spacing="3" fill="#ECE7DC">AN IDEA BECOMES A CONNECTED SYSTEM</text>
+      <text id="subtitle" x="64" y="88" font-size="11" letter-spacing="2" fill="#9AA3B5">PARTICLE FLOW NETWORK · AUTHORED, ILLUSTRATIVE STATES</text>
+      <g id="legend" font-size="11" letter-spacing="2" fill="#9AA3B5">
+        <circle cx="70" cy="664" r="5" fill="#E2B66B"/>
+        <text x="84" y="668">ACTIVE</text>
+        <circle cx="178" cy="664" r="5" fill="#7D8698"/>
+        <text x="192" y="668">IDLE</text>
+        <circle cx="266" cy="664" r="6" fill="none" stroke="#B9C0CE" stroke-width="1.4"/>
+        <circle cx="266" cy="664" r="3" fill="#7D8698"/>
+        <text x="280" y="668">WAITING</text>
+        <circle cx="384" cy="664" r="6.5" fill="none" stroke="#E8705F" stroke-width="1.2" stroke-dasharray="2 3"/>
+        <circle cx="384" cy="664" r="3" fill="#E8705F"/>
+        <text x="398" y="668">FAULT</text>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<script src="gsap.min.js"></script>
+<script src="chroma.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var W = 1280, H = 720, DURATION = 3;
+
+  /* ---------- palette roles (dark variant, scene: night-quiet thinking space) ---------- */
+  var C = {
+    bg: "#0B0F17", field: "#2A3242", rail: "#39425A", idle: "#7D8698", active: "#E2B66B",
+    particle: "#E9E1CF", text: "#ECE7DC", meta: "#9AA3B5", alert: "#E8705F",
+    nodeFill: "#0E1420", ringIdle: "#3A4356", ringWait: "#B9C0CE"
+  };
+
+  /* ---------- AUTHORED GRAPH: fixed nodes (never move) ---------- */
+  var NODES = [
+    { id: "intake",   x: 330,  y: 300, r: 22, core: 9,  cluster: "idea",    state: "idle",    halo: 110 },
+    { id: "exchange", x: 640,  y: 390, r: 44, core: 18, cluster: "core",    state: "idle",    halo: 170 },
+    { id: "outcome",  x: 930,  y: 230, r: 24, core: 10, cluster: "system",  state: "waiting", halo: 120 },
+    { id: "queue",    x: 1000, y: 540, r: 20, core: 8,  cluster: "queue",   state: "waiting" },
+    { id: "spark-a",  x: 200,  y: 200, r: 13, core: 7,  cluster: "idea",    state: "idle" },
+    { id: "spark-b",  x: 180,  y: 380, r: 13, core: 7,  cluster: "idea",    state: "idle" },
+    { id: "spark-c",  x: 300,  y: 470, r: 13, core: 7,  cluster: "idea",    state: "fault" },
+    { id: "out-a",    x: 1060, y: 150, r: 13, core: 7,  cluster: "system",  state: "idle" },
+    { id: "out-b",    x: 1080, y: 300, r: 13, core: 7,  cluster: "system",  state: "idle" },
+    { id: "queue-a",  x: 1110, y: 620, r: 13, core: 7,  cluster: "queue",   state: "idle" }
+  ];
+  var N = {}; NODES.forEach(function (n) { N[n.id] = n; });
+
+  /* ---------- AUTHORED EDGES: explicit source, destination, cubic Bézier ---------- */
+  // p: [P0, P1, P2, P3] — P0 on the source rim, P3 on the destination rim.
+  var EDGES = [
+    { id: "e-intake-exchange",  from: "intake",   to: "exchange", p: [[352,302],[440,292],[540,330],[600,372]], width: 9, count: 260, speed: 0.62, seed: 11 },
+    { id: "e-exchange-outcome", from: "exchange", to: "outcome",  p: [[676,366],[735,315],[830,252],[904,238]], width: 9, count: 260, speed: 0.66, seed: 23 },
+    { id: "e-exchange-queue",   from: "exchange", to: "queue",    p: [[682,404],[780,438],[890,502],[978,532]], width: 0, count: 0,   speed: 0,    seed: 0 },
+    { id: "e-sparka-intake",    from: "spark-a",  to: "intake",   p: [[214,210],[245,220],[290,250],[316,284]], width: 3.5, count: 40, speed: 0.75, seed: 31 },
+    { id: "e-sparkb-intake",    from: "spark-b",  to: "intake",   p: [[198,376],[225,370],[270,340],[310,312]], width: 3.5, count: 40, speed: 0.75, seed: 37 },
+    { id: "e-sparkc-intake",    from: "spark-c",  to: "intake",   p: [[304,452],[312,420],[322,370],[326,322]], width: 0, count: 0,   speed: 0,    seed: 0, fault: true },
+    { id: "e-outcome-outa",     from: "outcome",  to: "out-a",    p: [[948,218],[990,190],[1020,165],[1046,156]], width: 3.5, count: 40, speed: 0.8, seed: 41 },
+    { id: "e-outcome-outb",     from: "outcome",  to: "out-b",    p: [[950,240],[995,262],[1035,285],[1064,294]], width: 3.5, count: 40, speed: 0.8, seed: 43 },
+    { id: "e-queue-queuea",     from: "queue",    to: "queue-a",  p: [[1016,552],[1045,575],[1075,600],[1096,610]], width: 0, count: 0, speed: 0, seed: 0 }
+  ];
+
+  /* ---------- TIMED BEATS (seconds, absolute composition time) ---------- */
+  var T = {
+    nodeIn: 0.00, nodeDur: 0.32, nodeStagger: 0.035,
+    railIn: 0.20, railDur: 0.45, railStagger: 0.04,
+    labelIn: 0.36, labelDur: 0.24,
+    activate: [0.45, 0.95],          // INTAKE halo + accent rise
+    feed: [0.45, 0.85],              // sparks feed the idea (idle-density streams)
+    transfer1: [0.75, 1.30],         // stream head INTAKE -> EXCHANGE
+    arrive1: 1.30,                   // EXCHANGE pulses once, counter steps
+    transfer2: [1.45, 1.95],         // stream head EXCHANGE -> OUTCOME
+    arrive2: 1.95,                   // OUTCOME pulses once, label updates
+    branch: [2.00, 2.35],            // OUTCOME distributes to its cluster
+    settle: [2.05, 2.60],            // densities return to idle level
+    overview: [2.60, 3.00]           // hold readable graph
+  };
+
+  /* ---------- deterministic helpers ---------- */
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  var E = {
+    io: gsap.parseEase("power2.inOut"),
+    sine: gsap.parseEase("sine.inOut"),
+    back: gsap.parseEase("back.out(1.2)"),
+    out: gsap.parseEase("power2.out")
+  };
+  function ramp(t, a, b, ease) { return (ease || E.io)(clamp01((t - a) / (b - a))); }
+  function lerp(a, b, k) { return a + (b - a) * k; }
+  function mix(a, b, k) { return chroma.mix(a, b, clamp01(k), "lab").hex(); }
+
+  function bez(p, s) {
+    var u = 1 - s, a = u * u * u, b = 3 * u * u * s, c = 3 * u * s * s, d = s * s * s;
+    return [a * p[0][0] + b * p[1][0] + c * p[2][0] + d * p[3][0],
+            a * p[0][1] + b * p[1][1] + c * p[2][1] + d * p[3][1]];
+  }
+  function bezTan(p, s) {
+    var u = 1 - s;
+    var x = 3 * u * u * (p[1][0] - p[0][0]) + 6 * u * s * (p[2][0] - p[1][0]) + 3 * s * s * (p[3][0] - p[2][0]);
+    var y = 3 * u * u * (p[1][1] - p[0][1]) + 6 * u * s * (p[2][1] - p[1][1]) + 3 * s * s * (p[3][1] - p[2][1]);
+    var l = Math.sqrt(x * x + y * y) || 1;
+    return [x / l, y / l];
+  }
+
+  /* ---------- precompute: lookup tables + seeded particles (cached once) ---------- */
+  var LUT_N = 240;
+  EDGES.forEach(function (e) {
+    e.lut = [];
+    for (var i = 0; i <= LUT_N; i++) {
+      var s = i / LUT_N, pt = bez(e.p, s), tn = bezTan(e.p, s);
+      e.lut.push([pt[0], pt[1], -tn[1], tn[0]]); // position + normal
+    }
+    e.d = "M" + e.p[0].join(",") + " C" + e.p[1].join(",") + " " + e.p[2].join(",") + " " + e.p[3].join(",");
+    e.parts = [];
+    var rnd = mulberry32(e.seed || 1);
+    for (var k = 0; k < e.count; k++) {
+      var g = (rnd() + rnd() + rnd()) / 3 * 2 - 1;       // centre-weighted lateral offset
+      e.parts.push({
+        phase: rnd(),
+        off: g,
+        size: 0.55 + rnd() * rnd() * 1.5,
+        alpha: 0.35 + rnd() * 0.65,
+        speedJ: 0.86 + rnd() * 0.28,
+        rank: rnd()                                       // density gate
+      });
+    }
+  });
+  function sample(e, s) {
+    var f = s * LUT_N, i = Math.floor(f), k = f - i;
+    if (i >= LUT_N) return e.lut[LUT_N];
+    var a = e.lut[i], b = e.lut[i + 1];
+    return [lerp(a[0], b[0], k), lerp(a[1], b[1], k), lerp(a[2], b[2], k), lerp(a[3], b[3], k)];
+  }
+
+  /* ---------- build the stationary SVG scene ---------- */
+  function el(tag, attrs, parent) {
+    var n = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  var gHalos = document.getElementById("halos");
+  var gEdges = document.getElementById("edges");
+  var gNodes = document.getElementById("nodes");
+  var gPulses = document.getElementById("pulses");
+  var gLabels = document.getElementById("labels");
+
+  NODES.forEach(function (n) {
+    if (n.halo) n.haloEl = el("circle", { cx: n.x, cy: n.y, r: n.halo, fill: "url(#haloWarm)", opacity: 0 }, gHalos);
+  });
+  EDGES.forEach(function (e, i) {
+    e.railEl = el("path", {
+      id: e.id, d: e.d, stroke: e.fault ? C.alert : C.rail, "stroke-width": e.fault ? 1.1 : 1,
+      "stroke-dasharray": e.fault ? "3 6" : "1 1",
+      "stroke-dashoffset": e.fault ? 0 : 1, opacity: 0
+    }, gEdges);
+    if (!e.fault) e.railEl.setAttribute("pathLength", "1");
+    e.order = i;
+  });
+  NODES.forEach(function (n, i) {
+    n.g = el("g", { id: "node-" + n.id, opacity: 0 }, gNodes);
+    n.ring = el("circle", { cx: n.x, cy: n.y, r: n.r, fill: C.nodeFill, stroke: C.ringIdle, "stroke-width": 1.2 }, n.g);
+    if (n.state === "fault") {
+      n.ring.setAttribute("stroke", "none");
+      el("circle", { cx: n.x, cy: n.y, r: n.r + 4, fill: "none", stroke: C.alert, "stroke-width": 1.2, "stroke-dasharray": "2 3" }, n.g);
+    }
+    if (n.id === "outcome") {           // quiet outer ring shown once active
+      n.outer = el("circle", { cx: n.x, cy: n.y, r: 36, fill: "none", stroke: C.active, "stroke-width": 1, opacity: 0 }, n.g);
+    }
+    n.coreEl = el("circle", { cx: n.x, cy: n.y, r: n.core, fill: n.state === "fault" ? C.alert : C.idle }, n.g);
+    n.order = i;
+    if (n.id === "exchange" || n.id === "outcome") {
+      n.pulse = el("circle", { cx: n.x, cy: n.y, r: n.r, stroke: C.active, "stroke-width": 1.6, opacity: 0 }, gPulses);
+    }
+  });
+
+  // Labels (owned by their node; revealed only after the node is complete)
+  function label(id, owner, x, y, size, anchor, fill, txt, spacing) {
+    var t = el("text", { id: id, x: x, y: y, "font-size": size, "text-anchor": anchor, fill: fill,
+      "data-reveal-after": "node-" + owner, opacity: 0 }, gLabels);
+    if (spacing != null) t.setAttribute("letter-spacing", spacing);
+    t.textContent = txt;
+    return t;
+  }
+  var L = {
+    intake:      label("lbl-intake", "intake", 362, 256, 16, "start", C.text, "INTAKE"),
+    intakeMeta:  label("meta-intake", "intake", 362, 275, 11, "start", C.meta, "IDEA · IDLE", 1.5),
+    exchange:    label("lbl-exchange", "exchange", 640, 466, 18, "middle", C.active, "EXCHANGE"),
+    exchangeMeta:label("meta-exchange", "exchange", 640, 487, 11, "middle", C.meta, "LINKS 00/06", 1.5),
+    outcome:     label("lbl-outcome", "outcome", 916, 190, 16, "middle", C.text, "OUTCOME"),
+    outcomeMeta: label("meta-outcome", "outcome", 916, 168, 11, "middle", C.meta, "SYSTEM · WAITING", 1.5),
+    queue:       label("lbl-queue", "queue", 1000, 590, 11, "middle", C.meta, "WAITING", 1.5),
+    fault:       label("lbl-fault", "spark-c", 276, 474, 11, "end", C.alert, "FAULT", 1.5)
+  };
+  var titleEl = document.getElementById("title");
+  var subEl = document.getElementById("subtitle");
+  var legendEl = document.getElementById("legend");
+
+  /* ---------- canvas ---------- */
+  var cv = document.getElementById("particles");
+  var ctx = cv.getContext("2d");
+  var SCALE = cv.width / W;
+
+  /* ---------- per-edge flow state from time (pure) ---------- */
+  function flow(e, t) {
+    // returns { head: 0..1 stream front, density: 0..1 fraction visible }
+    switch (e.id) {
+      case "e-intake-exchange":
+        return { head: ramp(t, T.transfer1[0], T.transfer1[1], E.sine),
+                 density: t < T.transfer1[0] ? 0 :
+                   lerp(lerp(0.35, 1, ramp(t, T.transfer1[0], 1.05)), 0.2, ramp(t, 1.45, 2.05)) };
+      case "e-exchange-outcome":
+        return { head: ramp(t, T.transfer2[0], T.transfer2[1], E.sine),
+                 density: t < T.transfer2[0] ? 0 :
+                   lerp(lerp(0.35, 1, ramp(t, T.transfer2[0], 1.7)), 0.24, ramp(t, T.settle[0], T.settle[1])) };
+      case "e-sparka-intake":
+      case "e-sparkb-intake":
+        return { head: ramp(t, T.feed[0], T.feed[1], E.sine), density: t < T.feed[0] ? 0 : 0.55 };
+      case "e-outcome-outa":
+      case "e-outcome-outb":
+        return { head: ramp(t, T.branch[0], T.branch[1], E.sine), density: t < T.branch[0] ? 0 : 0.55 };
+    }
+    return { head: 0, density: 0 };
+  }
+
+  function drawParticles(t) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+    ctx.fillStyle = C.particle;
+    for (var ei = 0; ei < EDGES.length; ei++) {
+      var e = EDGES[ei];
+      if (!e.count) continue;
+      var f = flow(e, t);
+      if (f.density <= 0 || f.head <= 0) continue;
+      for (var k = 0; k < e.parts.length; k++) {
+        var q = e.parts[k];
+        if (q.rank > f.density) continue;
+        var s = q.phase + t * e.speed * q.speedJ;
+        s = s - Math.floor(s);
+        if (s > f.head) continue;
+        // soft stream front + endpoint fades so streams leave and enter rims cleanly
+        var a = q.alpha * clamp01((f.head - s) / 0.07 + (f.head >= 1 ? 1 : 0))
+                * clamp01(s / 0.05) * clamp01((1 - s) / 0.05);
+        // fade the density gate edge so ramps are smooth rather than popping
+        a *= clamp01((f.density - q.rank) / 0.08);
+        if (a <= 0.01) continue;
+        var sp = sample(e, s);
+        var taper = Math.pow(Math.sin(Math.PI * s), 0.8);   // narrows at both endpoints
+        var o = q.off * e.width * taper;
+        var x = sp[0] + sp[2] * o, y = sp[1] + sp[3] * o;
+        ctx.globalAlpha = a;
+        ctx.beginPath();
+        ctx.arc(x, y, q.size, 0, 6.2832);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- pure time -> scene state renderer (sole owner of every visual attribute) ---------- */
+  function setAttr(n, k, v) { if (n.getAttribute(k) !== String(v)) n.setAttribute(k, v); }
+  function setText(n, s) { if (n.textContent !== s) n.textContent = s; }
+  function pad2(v) { return (v < 10 ? "0" : "") + v; }
+
+  function render(t) {
+    t = Math.max(0, Math.min(DURATION, t));
+
+    // build: nodes appear in place (opacity + in-place scale only; positions are fixed)
+    NODES.forEach(function (n) {
+      var k = ramp(t, T.nodeIn + n.order * T.nodeStagger, T.nodeIn + n.order * T.nodeStagger + T.nodeDur, E.back);
+      var o = clamp01((t - (T.nodeIn + n.order * T.nodeStagger)) / (T.nodeDur * 0.6));
+      setAttr(n.g, "opacity", o.toFixed(3));
+      var sc = (0.6 + 0.4 * k).toFixed(4);
+      setAttr(n.g, "transform", "translate(" + n.x + " " + n.y + ") scale(" + sc + ") translate(" + (-n.x) + " " + (-n.y) + ")");
+    });
+    // rails draw after their nodes
+    EDGES.forEach(function (e) {
+      var a = T.railIn + e.order * T.railStagger, k = ramp(t, a, a + T.railDur, E.io);
+      setAttr(e.railEl, "opacity", (e.fault ? 0.55 * k : 0.95 * clamp01(k * 3)).toFixed(3));
+      if (!e.fault) setAttr(e.railEl, "stroke-dashoffset", (1 - k).toFixed(4));
+    });
+
+    // node states: halo, ring and fill change; nodes never move
+    var aIn = ramp(t, T.activate[0], T.activate[1], E.sine);
+    var aEx = ramp(t, T.arrive1 - 0.05, T.arrive1 + 0.5, E.sine);
+    var aOut = ramp(t, T.arrive2 - 0.05, T.arrive2 + 0.5, E.sine);
+    var intake = N.intake, ex = N.exchange, out = N.outcome;
+
+    setAttr(intake.haloEl, "opacity", (aIn * lerp(1, 0.6, ramp(t, 1.4, 2.0, E.sine))).toFixed(3));
+    setAttr(intake.coreEl, "fill", mix(C.idle, C.active, aIn));
+    setAttr(intake.ring, "stroke", mix(C.ringIdle, C.meta, aIn));
+
+    setAttr(ex.haloEl, "opacity", (aEx * lerp(1, 0.85, ramp(t, 2.1, 2.6, E.sine))).toFixed(3));
+    setAttr(ex.coreEl, "fill", mix(C.idle, C.active, aEx));
+    setAttr(ex.ring, "stroke", mix(C.ringIdle, C.active, aEx));
+    setAttr(ex.ring, "stroke-opacity", lerp(1, 0.75, aEx).toFixed(3));
+
+    setAttr(out.haloEl, "opacity", (aOut * 0.95).toFixed(3));
+    setAttr(out.coreEl, "fill", mix(C.idle, C.active, aOut));
+    setAttr(out.ring, "stroke", mix(C.ringWait, C.active, aOut));
+    setAttr(out.outer, "opacity", (0.35 * aOut).toFixed(3));
+
+    var q = N.queue;
+    setAttr(q.ring, "stroke", C.ringWait);
+
+    // destination pulses: once each, on arrival
+    [[ex, T.arrive1], [out, T.arrive2]].forEach(function (pair) {
+      var n = pair[0], p = clamp01((t - pair[1]) / 0.55);
+      var live = t >= pair[1] && p < 1;
+      var pe = E.out(p);
+      setAttr(n.pulse, "r", (n.r + 34 * pe).toFixed(2));
+      setAttr(n.pulse, "opacity", live ? (0.85 * (1 - pe)).toFixed(3) : 0);
+    });
+
+    // labels: revealed after owning node is complete
+    var lk = ramp(t, T.labelIn, T.labelIn + T.labelDur, E.sine);
+    for (var key in L) setAttr(L[key], "opacity", lk.toFixed(3));
+    setAttr(titleEl, "opacity", ramp(t, 0, 0.25, E.sine).toFixed(3));
+    setAttr(subEl, "opacity", ramp(t, 0.08, 0.33, E.sine).toFixed(3));
+    setAttr(legendEl, "opacity", ramp(t, 0.5, 0.8, E.sine).toFixed(3));
+
+    // authored data readouts (illustrative, stepping from one source of truth)
+    var activeIn = t >= T.activate[0] + 0.15;
+    setText(L.intakeMeta, activeIn ? "IDEA · ACTIVE" : "IDEA · IDLE");
+    setAttr(L.intakeMeta, "fill", activeIn ? C.active : C.meta);
+    var links = 0;
+    if (t >= T.arrive1) links = Math.min(3, 1 + Math.floor((t - T.arrive1) / 0.07));
+    if (t >= T.arrive2) links = Math.min(6, 4 + Math.floor((t - T.arrive2) / 0.07));
+    setText(L.exchangeMeta, "LINKS " + pad2(links) + "/06");
+    setAttr(L.exchangeMeta, "fill", links > 0 ? C.text : C.meta);
+    var linked = t >= T.arrive2 + 0.05;
+    setText(L.outcomeMeta, linked ? "SYSTEM · LINKED" : "SYSTEM · WAITING");
+    setAttr(L.outcomeMeta, "fill", linked ? C.active : C.meta);
+
+    drawParticles(t);
+  }
+
+  /* ---------- the one paused GSAP timeline: owns only clock.t ---------- */
+  var _t = 0;
+  var clock = {};
+  Object.defineProperty(clock, "t", {
+    get: function () { return _t; },
+    set: function (v) { _t = v; render(v); }
+  });
+  var tl = gsap.timeline({ paused: true });
+  tl.to(clock, { t: DURATION, duration: DURATION, ease: "none" }, 0);
+  window.__timelines = window.__timelines || {};
+  window.__timelines.video = tl;
+
+  window.addEventListener("hf-seek", function (ev) {
+    var d = ev && ev.detail;
+    var time = d && typeof d.time === "number" ? d.time : tl.time();
+    render(time);
+  });
+
+  render(0);
+})();
+</script>
+<script id="arrow-drawing-runtime">(()=>{const __name=(value)=>value;const installArrowDrawing=function installArrowDrawing(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;let count=0;const ns="http://www.w3.org/2000/svg";for(const timeline of Object.values(host.__timelines)){if(timeline.__arrowDrawingInstalled)continue;timeline.__arrowDrawingInstalled=true;const children=timeline.getChildren(true,true,false);const shafts=new Map;for(const tween of children){if(tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime();let parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(target instanceof SVGGeometryElement&&typeof target.getTotalLength==="function")shafts.set(target,Math.max(shafts.get(target)||0,end))}}const claimed=new Set;const gate=__name((head,end)=>{if(claimed.has(head))return;claimed.add(head);const opacity=Number(getComputedStyle(head).opacity)||1;gsap.set(head,{opacity:0});timeline.fromTo(head,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end);count++},"gate");for(const[shaft,end]of shafts){const markerUrl=shaft.getAttribute("marker-end")||getComputedStyle(shaft).markerEnd;const markerId=markerUrl?.match(/#([^"')\s]+)/)?.[1];const marker=markerId?document.getElementById(markerId):null;if(marker?.localName==="marker"){const clone=marker.cloneNode(true);clone.id="arrow-drawing-marker-"+count;const group=document.createElementNS(ns,"g");while(clone.firstChild)group.appendChild(clone.firstChild);clone.appendChild(group);marker.parentNode.appendChild(clone);shaft.style.markerEnd="url(#"+clone.id+")";gate(group,end)}const svg=shaft.ownerSVGElement;const matrix=shaft.getCTM();if(!svg||!matrix)continue;const point=shaft.getPointAtLength(shaft.getTotalLength());const endpoint=new DOMPoint(point.x,point.y).matrixTransform(matrix);for(const head of svg.querySelectorAll("path,polyline,polygon")){if(head===shaft||head.closest("defs,marker,clipPath,mask"))continue;const explicit=head.getAttribute("data-arrowhead-for");if(explicit){if(explicit===shaft.id)gate(head,end);continue}if(shaft.getTotalLength()<40)continue;if(head.localName==="path"&&!/^mllz?$/i.test((head.getAttribute("d")||"").match(/[a-df-z]/gi)?.join("")||""))continue;if((head.localName==="polygon"||head.localName==="polyline")&&head.points.numberOfItems!==3)continue;const box=head.getBBox(),transform=head.getCTM();if(!transform||box.width>64||box.height>64||box.width<2||box.height<2)continue;const style=getComputedStyle(head),shaftStyle=getComputedStyle(shaft);if(style.stroke!==shaftStyle.stroke&&style.fill!==shaftStyle.stroke)continue;const corners=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(p=>p.matrixTransform(transform));const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y);if(endpoint.x>=Math.min(...xs)-2&&endpoint.x<=Math.max(...xs)+2&&endpoint.y>=Math.min(...ys)-2&&endpoint.y<=Math.max(...ys)+2)gate(head,end)}}}host.__arrowDrawingCount=count};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installArrowDrawing,{once:true});else installArrowDrawing();})();</script><script id="content-reveal-runtime">(()=>{const __name=(value)=>value;const install=function installContentReveal(){const host=window;if(!host.gsap||!host.__timelines)return;const gsap=host.gsap;const bounds=__name(element=>{const box=element.getBBox(),matrix=element.getCTM();if(!matrix)return null;const points=[new DOMPoint(box.x,box.y),new DOMPoint(box.x+box.width,box.y),new DOMPoint(box.x,box.y+box.height),new DOMPoint(box.x+box.width,box.y+box.height)].map(point=>point.matrixTransform(matrix));return{left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))}},"bounds");for(const timeline of Object.values(host.__timelines)){const tweens=timeline.getChildren(true,true,false);const animated=tweens.flatMap(tween=>tween.targets()).filter(target=>target instanceof SVGGraphicsElement);const originalTime=timeline.time();timeline.seek(timeline.duration(),true);const reveals=new Map;for(const tween of tweens){if(tween.vars.opacity===void 0&&tween.vars.strokeDashoffset===void 0)continue;let end=tween.endTime(),parent=tween.parent;while(parent&&parent!==timeline){end=parent.startTime()+end/Math.abs(parent.timeScale()||1);parent=parent.parent}for(const target of tween.targets()){if(!(target instanceof SVGGraphicsElement))continue;const shape=target.matches("rect,use,circle,ellipse,polygon,path")?target:target.querySelector("rect,use,circle,ellipse,polygon,path");if(!(shape instanceof SVGGraphicsElement))continue;if(shape.localName==="path"&&!/[zZ]\s*$/.test(shape.getAttribute("d")||""))continue;const box=bounds(shape);if(!box||box.right-box.left>1e3||box.bottom-box.top>600)continue;for(const label of shape.ownerSVGElement.querySelectorAll("text")){if(target.contains(label)||animated.some(actor=>actor===label||actor.contains(label)))continue;const ownership=label.getAttribute("data-reveal-after");const textBox=bounds(label);const contained=textBox&&textBox.left>=box.left-1&&textBox.right<=box.right+1&&textBox.top>=box.top-1&&textBox.bottom<=box.bottom+1;if(ownership?ownership===shape.id||ownership===target.id:contained)reveals.set(label,Math.max(reveals.get(label)||0,end))}}}timeline.seek(originalTime,true);for(const[label,end]of reveals){const opacity=Number(getComputedStyle(label).opacity);gsap.set(label,{opacity:0});timeline.fromTo(label,{opacity:0},{opacity,duration:.001,ease:"none",immediateRender:false},end)}}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();})();</script></body>
+</html>

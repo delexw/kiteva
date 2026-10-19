@@ -11,7 +11,12 @@ const hash = (value: unknown) => createHash("sha256").update(JSON.stringify(valu
 // the orbit review's original hashes meaningful for all prior content.
 const laterMotionIds = ["motion-044", "motion-045", "motion-046", "motion-047", "motion-048"];
 // Motion Graphics authored after the orbit review were not part of it and must not claim motion-043.
-const laterStyleIds = ["style-137", "style-138"];
+const laterStyleIds = ["style-137", "style-138", "style-139"];
+// The user-directed Manga crew revision postdates the orbit review. Keep its
+// historical evidence unchanged and verify the revised metadata separately.
+const laterMetadataHashes: Record<string, string> = {
+  "style-136": "5ad165955cb64f60707a2b53b1fdee94d548a85ef1e55fae3e710bfbfbcb9541",
+};
 const withoutLaterMotionAdditions = (pattern: Record<string, unknown>) => {
   const { variants: _variants, ...rest } = pattern;
   return rest;
@@ -93,7 +98,9 @@ it("records the Opus orbit assessment and attaches only approved Motion Graphics
       motion_graphic_variants: _variants,
       ...metadata
     } = style;
-    expect(hash(metadata)).toBe(row.originalMetadataHash);
+    expect(hash(metadata), style.id).toBe(
+      laterMetadataHashes[style.id] ?? row.originalMetadataHash,
+    );
   }
   expect(review.styleReviews.some((row: { decision: string }) => row.decision === "attach")).toBe(
     true,

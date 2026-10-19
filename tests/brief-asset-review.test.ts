@@ -475,3 +475,165 @@ it.each([
     }
   },
 );
+
+it("reviews active delivery copy without exposing historical translation backups or changing the request", async () => {
+  const input = await fixture();
+  try {
+    const active = "Keep the conversation tied to the moment.";
+    const historical = "Keep the conversation with the moment.";
+    const request = RequestSchema.parse({
+      ...input.request,
+      outputType: "video",
+      outputLanguage: "en",
+      lyrics: { mode: "provided", text: active },
+      speech: { mode: "narration", text: active },
+      translations: {
+        original: { lyrics: historical, narration: historical },
+        versions: { en: { lyrics: active, narration: active }, zh: { lyrics: "保留历史版本" } },
+      },
+    });
+    const original = structuredClone(request);
+    await writeFile(path.join(input.workspace, "input.json"), JSON.stringify({ request }));
+    vi.mocked(agentTurn).mockResolvedValue({ value: { status: "passed", plan, issues: [] } });
+    const revise = vi.fn();
+    await reviewBriefAssets({ ...input, request, revise });
+    const reviewInput = JSON.parse(
+      await readFile(path.join(input.workspace, "brief-asset-review-input.json"), "utf8"),
+    );
+    expect(reviewInput.request).not.toHaveProperty("translations");
+    expect(reviewInput.request).toMatchObject({
+      lyrics: { text: active },
+      speech: { text: active },
+    });
+    expect(request).toEqual(original);
+    expect(JSON.parse(await readFile(path.join(input.workspace, "input.json"), "utf8"))).toEqual({
+      request: original,
+    });
+    expect(vi.mocked(agentTurn).mock.calls[0][0].prompt).toContain(
+      "historical language-switch backups",
+    );
+    expect(vi.mocked(agentTurn).mock.calls[0][0].prompt).toContain("Never demand that input.json");
+    expect(revise).not.toHaveBeenCalled();
+  } finally {
+    await rm(input.workspace, { recursive: true, force: true });
+  }
+});
+
+it.each([
+  { provider: "claude", rejectedByProvider: true },
+  { provider: "codex", rejectedByProvider: true },
+  { provider: "claude", rejectedByProvider: false },
+  { provider: "codex", rejectedByProvider: false },
+] as const)(
+  "$provider retries invalid review status/issues in its original review session (provider rejection: $rejectedByProvider)",
+  async ({ provider, rejectedByProvider }) => {
+    const input = await fixture();
+    try {
+      const invalid = { status: "needs_repair", plan, issues: [] };
+      const parsed = BriefAssetReviewSchema.safeParse(invalid);
+      if (parsed.success) throw Error("Regression fixture must fail strict review validation");
+      vi.mocked(agentTurn)
+        .mockImplementationOnce(async (options) => {
+          options.onEvent({ type: "session", message: "", data: { sessionId: "review-session" } });
+          if (rejectedByProvider) throw parsed.error;
+          return { value: invalid, sessionId: "review-session" };
+        })
+        .mockResolvedValueOnce({
+          value: { status: "passed", plan, issues: [] },
+          sessionId: "review-session",
+        });
+      const revise = vi.fn();
+      const result = await reviewBriefAssets({
+        ...input,
+        request: { ...input.request, provider },
+        revise,
+      });
+      expect(result.value.facts).toEqual(input.brief.facts);
+      const retry = vi.mocked(agentTurn).mock.calls[1][0];
+      expect(retry.sessionId).toBe("review-session");
+      expect(retry.schema).toBe(BriefAssetReviewSchema);
+      expect(retry.prompt).toContain('"path":["issues"]');
+      expect(retry.prompt).toContain("Failed reviews need actionable findings");
+      expect(retry.prompt).toContain("at least one actionable issue");
+      expect(retry.prompt).toContain("must not change needs_repair to passed without evidence");
+      expect(retry.readOnly).toBe(true);
+      expect(revise).not.toHaveBeenCalled();
+      expect(agentTurn).toHaveBeenCalledTimes(2);
+    } finally {
+      await rm(input.workspace, { recursive: true, force: true });
+    }
+  },
+);
+
+it("bounds invalid schema retries and does not retry transport errors as review defects", async () => {
+  const input = await fixture();
+  try {
+    const invalid = { status: "needs_repair", plan, issues: [] };
+    vi.mocked(agentTurn).mockResolvedValue({ value: invalid, sessionId: "review-session" });
+    const revise = vi.fn();
+    await expect(reviewBriefAssets({ ...input, revise })).rejects.toThrow(
+      "Failed reviews need actionable findings",
+    );
+    expect(agentTurn).toHaveBeenCalledTimes(3);
+    expect(revise).not.toHaveBeenCalled();
+    vi.mocked(agentTurn).mockReset().mockRejectedValue(Error("Provider connection closed"));
+    await expect(reviewBriefAssets({ ...input, revise })).rejects.toThrow(
+      "Provider connection closed",
+    );
+    expect(agentTurn).toHaveBeenCalledOnce();
+  } finally {
+    await rm(input.workspace, { recursive: true, force: true });
+  }
+});
+
+it("preserves real findings after correcting an invalid review instead of automatically passing the brief", async () => {
+  const input = await fixture();
+  try {
+    const issue = {
+      sceneId: "import",
+      assetPath: "assets/reference.txt",
+      issue: "The brief invents a payment step",
+      expectedFix: "Remove the unsupported payment step",
+      acceptanceCriteria: "Only documented importing steps remain",
+    };
+    vi.mocked(agentTurn)
+      .mockResolvedValueOnce({
+        value: { status: "passed", plan, issues: [issue] },
+        sessionId: "review-session",
+      })
+      .mockResolvedValueOnce({
+        value: { status: "needs_repair", plan, issues: [issue] },
+        sessionId: "review-session",
+      })
+      .mockResolvedValueOnce({ value: { status: "passed", plan, issues: [] } });
+    const revise = vi.fn(async () => ({ value: input.brief }));
+    await reviewBriefAssets({ ...input, revise });
+    expect(revise).toHaveBeenCalledOnce();
+    expect(revise.mock.calls[0]).toEqual(
+      expect.arrayContaining([expect.stringContaining(issue.expectedFix)]),
+    );
+    expect(agentTurn).toHaveBeenCalledTimes(3);
+  } finally {
+    await rm(input.workspace, { recursive: true, force: true });
+  }
+});
+it("does not resume review retries after cancellation, even if the provider reports a schema error", async () => {
+  const input = await fixture();
+  try {
+    const controller = new AbortController();
+    const parsed = BriefAssetReviewSchema.safeParse({ status: "needs_repair", plan, issues: [] });
+    if (parsed.success) throw Error("Invalid regression fixture");
+    vi.mocked(agentTurn).mockImplementationOnce(async () => {
+      controller.abort();
+      throw parsed.error;
+    });
+    const revise = vi.fn();
+    await expect(
+      reviewBriefAssets({ ...input, signal: controller.signal, revise }),
+    ).rejects.toMatchObject({ name: "AbortError" });
+    expect(agentTurn).toHaveBeenCalledOnce();
+    expect(revise).not.toHaveBeenCalled();
+  } finally {
+    await rm(input.workspace, { recursive: true, force: true });
+  }
+});

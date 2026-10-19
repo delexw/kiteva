@@ -1,4 +1,5 @@
 import { videoPacingPolicy } from "../src/server/domains/video/pacing";
+import { capturedFootageFramingRules } from "../src/server/domains/video/full-video-quality";
 import { BriefSchema, type Brief } from "../src/shared/agents/schemas/video";
 import { expect, it } from "vitest";
 import { buildVideoPrompt } from "../src/server/domains/video/prompts";
@@ -74,6 +75,10 @@ it("requires all combination styles to appear within the same three-second previ
       job: { ...job, kind: "full", duration: 120 },
     });
     expect(fullPrompt).toContain("DURATION AND PACING RULES:");
+    expect(fullPrompt).toContain(capturedFootageFramingRules);
+    expect(fullPrompt).toContain(
+      "main model composes and builds requested original music/instrumentals directly",
+    );
     expect(fullPrompt).toContain("self-check every headline");
     expect(fullPrompt).toContain("explicit inter-word spacing");
     expect(fullPrompt).toContain("including the final title");

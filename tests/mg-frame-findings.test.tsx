@@ -221,7 +221,7 @@ describe("catalog integration", () => {
     expect(catalog.motions.map((motion) => motion.id)).toEqual(
       Array.from({ length: 48 }, (_, i) => `motion-${String(i + 1).padStart(3, "0")}`),
     );
-    expect(catalog.styles).toHaveLength(138);
+    expect(catalog.styles).toHaveLength(139);
     const template = Object.keys(raw.patterns.find((p: { id: string }) => p.id === "motion-041"));
     for (const id of ["motion-044", "motion-045", "motion-046"]) {
       const entry = raw.patterns.find((p: { id: string }) => p.id === id);
@@ -357,7 +357,7 @@ describe("catalog integration", () => {
     // Variants are not new Motion Graphic IDs.
     expect(
       catalog.styles.filter((style) => style.motion_graphic_variants).map((s) => s.id),
-    ).toEqual(["style-003", "style-016", "style-055", "style-111"]);
+    ).toEqual(["style-003", "style-016", "style-055", "style-111", "style-139"]);
   });
 
   it("carries variant guidance into video and page agent context", async () => {

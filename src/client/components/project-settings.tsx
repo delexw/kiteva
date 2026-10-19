@@ -1,3 +1,4 @@
+import { creativeApproaches } from "../../shared/creative-approach";
 import { translateUi, useUiLanguage } from "../i18n";
 import { videoLanguageLabel } from "../../shared/video-language";
 import { Popover } from "antd";
@@ -39,9 +40,7 @@ export function ProjectSettings({
     request.candidateCount === 0
       ? "Manual Motion Graphics"
       : translateUi("{{count}} directions", { count: request.candidateCount }),
-    ...(request.candidateCount > 0
-      ? [request.preference === "creative" ? "Explore creative ideas" : "Follow my brief"]
-      : []),
+    ...(request.candidateCount > 0 ? [creativeApproaches[request.preference].label] : []),
   ];
   return (
     <div

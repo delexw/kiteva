@@ -76,10 +76,6 @@ driven from composition time and checked with forward, backward and direct seeks
 
 [React Bits](https://reactbits.dev/get-started/mcp) is available through Kiteva’s job-scoped MCP adapter for both providers, independently of authoring skills and Motion Graphics. Planning can search and inspect the official shadcn-compatible registry; builds can save selected source, dependencies, provenance and the upstream MIT + Commons Clause license. Components are fetched on demand, not bundled. Installation does not run npm or upstream scripts. See [registration, stage permissions and renderer guidance](../src/server/agents/capabilities/README.md).
 
-## Local instrument rendering
-
-[FluidSynth](https://www.fluidsynth.org/) is an optional native engine behind Kiteva’s built-in instrument MCP tool for both providers. [@tonejs/midi](https://github.com/Tonejs/Midi) (MIT) writes MIDI from a validated score composed in the current governed model turn. `npm run music:setup` downloads [GeneralUser GS](https://www.schristiancollins.com/generaluser.php) and its original license into a Git-ignored model folder; no instrument samples are bundled. Voice settings remain separate. See [setup, score format and audio handoff](instrumental-music.md).
-
 ## Renderers
 
 | Renderer                                                 | Version                                    | How it's chosen                       | Notes                                                                                                                                                              |
@@ -122,7 +118,7 @@ generated singing. Weights and voice files are downloaded only by the setup comm
 | Motion Graphic combination proposals                                                           | `claude-opus-5-5`                                                                    | `gpt-6.1-sol`                               |
 | Preview planning                                                                               | not used                                                                             | `gpt-6.1-sol`                               |
 | Previews, full films, pacing/style repairs                                                     | selected main model (default `claude-opus-5-5`)                                      | selected main model (default `gpt-6.1-sol`) |
-| Combination evaluation and direction selection                                                 | JEV via [`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript) (`jev-latest`) | same                                        |
+| Combination evaluation and direction selection                                                 | JEV via [`@typesafe-ai/sdk`](https://docs.typesafe.ai/sdk/javascript) (`jev-1.14.0`) | same                                        |
 
 Finished-result review uses the same selected main model that built the job, using the provider’s default reasoning effort. It runs as a separate read-only invocation with the existing QA evidence and Governance tracking.
 

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { prepareCodexToolHook } from "./codex-tool-hooks";
 import { userHome } from "../runtime/platform";
 import { linkSdkFile } from "../runtime/workspace-links";
 import { mkdir, access, readdir } from "node:fs/promises";
@@ -23,6 +24,7 @@ async function prepare() {
       if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
     }
   }
+  await prepareCodexToolHook(folder);
   return folder;
 }
 async function linkExistingSession(folder: string, id: string) {

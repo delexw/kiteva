@@ -5,8 +5,11 @@ import {
   type SDKMessage,
   type SDKAssistantMessageError,
   type Query,
+  type SDKUserMessage,
 } from "@anthropic-ai/claude-agent-sdk";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { sdkToolHook } from "./execution-policy";
 import { briefExplorationAgents } from "./brief-exploration";
 import { requireForegroundSubagent } from "./claude-subagent-policy";
 import { childEnvironment, safeMessage } from "../runtime/config";
@@ -143,8 +146,27 @@ export const claudeAgent: Agent = {
     let terminalAssistantError: SDKAssistantMessageError | undefined;
     try {
       signal.throwIfAborted();
+      const images = await Promise.all(
+        (options.images || []).map(async (file) => ({
+          type: "image" as const,
+          source: {
+            type: "base64" as const,
+            media_type: "image/png" as const,
+            data: (await readFile(file)).toString("base64"),
+          },
+        })),
+      );
+      const imagePrompt = async function* (): AsyncGenerator<SDKUserMessage> {
+        yield {
+          type: "user",
+          parent_tool_use_id: null,
+          session_id: sessionId || "",
+          message: { role: "user", content: [{ type: "text", text: prompt }, ...images] },
+        };
+      };
+      signal.throwIfAborted();
       stream = query({
-        prompt,
+        prompt: images.length ? imagePrompt() : prompt,
         options: {
           cwd: workspace,
           model: model,
@@ -194,7 +216,10 @@ export const claudeAgent: Agent = {
               : ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "Skill"],
           permissionMode: "acceptEdits",
           hooks: {
-            PreToolUse: [{ matcher: "^(Agent|Task)$", hooks: [requireForegroundSubagent] }],
+            PreToolUse: [
+              { matcher: "^(Agent|Task)$", hooks: [requireForegroundSubagent] },
+              { matcher: "^Bash$", hooks: [async (input) => sdkToolHook(input)] },
+            ],
           },
           canUseTool: async (name, input) => {
             for (const [server, capability] of Object.entries(options.capabilityServers || {})) {

@@ -10,6 +10,72 @@ vi.mock("../src/server/agents/caveman", async (importOriginal) => ({
   codexCavemanAuth: async () => ({ auth_mode: "apikey" }),
 }));
 import { z } from "zod";
+import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import path from "node:path";
+import os from "node:os";
+
+it.each(["claude", "codex"] as const)(
+  "sends actual frame image content through the %s SDK",
+  async (provider) => {
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "sdk-frame-input-"));
+    const image = path.join(workspace, "frame.png");
+    const bytes = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a8S8AAAAASUVORK5CYII=",
+      "base64",
+    );
+    await writeFile(image, bytes);
+    sdk.query.mockImplementation(async function* () {
+      yield {
+        type: "result",
+        subtype: "success",
+        is_error: false,
+        structured_output: { message: "done" },
+        session_id: "vision-session",
+        usage: {},
+        modelUsage: {},
+      };
+    });
+    sdk.codexEvents.mockImplementation(async function* () {
+      yield { type: "thread.started", thread_id: "vision-session" };
+      yield {
+        type: "item.completed",
+        item: { id: "answer", type: "agent_message", text: '{"message":"done"}' },
+      };
+      yield { type: "turn.completed", usage: {} };
+    });
+    try {
+      await agentTurn({
+        provider,
+        workspace,
+        prompt: "Assess the attached frame",
+        images: [image],
+        model: "selected-model",
+        readOnly: true,
+        schema: z.object({ message: z.literal("done") }),
+        signal: new AbortController().signal,
+        onEvent: vi.fn(),
+      });
+      if (provider === "codex")
+        expect(sdk.stream.mock.calls.at(-1)![0]).toEqual([
+          expect.objectContaining({ type: "text" }),
+          { type: "local_image", path: image },
+        ]);
+      else {
+        const messages = [];
+        for await (const message of sdk.query.mock.calls.at(-1)![0].prompt) messages.push(message);
+        expect(messages[0].message.content).toEqual([
+          { type: "text", text: expect.stringContaining("Assess the attached frame") },
+          {
+            type: "image",
+            source: { type: "base64", media_type: "image/png", data: bytes.toString("base64") },
+          },
+        ]);
+      }
+    } finally {
+      await rm(workspace, { recursive: true, force: true });
+    }
+  },
+);
 
 const sdk = vi.hoisted(() => ({
   query: vi.fn(),
@@ -99,6 +165,9 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
       onEvent: (event) => events.push(event),
     });
     expect(result).toEqual({ value: { message: "done" }, sessionId: "resumed-session" });
+    expect(events.find((event) => event.type === "invocation")?.data).toMatchObject({
+      prompt: { system: expect.stringContaining("Blender is disallowed") },
+    });
     expect(events.at(-1)?.data).toMatchObject({
       provider: agent.provider,
       model: "selected-model",
@@ -107,9 +176,31 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
     });
     if (agent.provider === "claude") {
       expect(sdk.query.mock.calls.at(-1)?.[0].options.resume).toBe("original-session");
+      const hook = sdk.query.mock.calls
+        .at(-1)?.[0]
+        .options.hooks.PreToolUse.find((entry: { matcher: string }) => entry.matcher === "^Bash$")
+        .hooks[0];
+      expect(
+        await hook({
+          hook_event_name: "PreToolUse",
+          tool_name: "Bash",
+          tool_input: { command: "blender -b" },
+        }),
+      ).toMatchObject({ hookSpecificOutput: { permissionDecision: "deny" } });
+      expect(
+        await hook({
+          hook_event_name: "PreToolUse",
+          tool_name: "Bash",
+          tool_input: { command: "node scene.js" },
+        }),
+      ).toEqual({});
       expect(sdk.close).toHaveBeenCalledOnce();
     } else {
       expect(sdk.resume).toHaveBeenCalledWith("original-session");
+      expect(sdk.threadOptions.mock.calls.at(-1)?.[0]).toMatchObject({
+        sandboxMode: "workspace-write",
+        networkAccessEnabled: false,
+      });
       expect(events.find((event) => event.type === "usage")?.data).toMatchObject({
         usageScope: "session",
       });
@@ -865,3 +956,36 @@ it("closes Claude immediately when cancellation arrives while no SDK event is av
   expect(finalized).toHaveBeenCalledOnce();
   expect(sdk.close).toHaveBeenCalledOnce();
 });
+
+it.each(["claude", "codex"] as const)(
+  "gives %s system-level MCP search/read-first guidance without a style gate",
+  async (provider) => {
+    sdk.query.mockReset().mockImplementation(claudeRecoveredTurn);
+    sdk.codexEvents.mockReset().mockImplementation(async function* () {
+      yield { type: "thread.started", thread_id: "style-guidance-session" };
+      yield {
+        type: "item.completed",
+        item: { id: "answer", type: "agent_message", text: '{"message":"done"}' },
+      };
+      yield { type: "turn.completed", usage: {} };
+    });
+    await agentTurn({ ...capacityAttemptOptions(), provider, readOnly: true });
+    const guidance =
+      provider === "claude"
+        ? sdk.query.mock.calls.at(-1)![0].options.systemPrompt
+        : sdk.stream.mock.calls.at(-1)![0];
+    expect(guidance).toContain("FIRST STEP FOR EVERY VIDEO TASK");
+    expect(guidance).toContain("creative_pool.search_pool");
+    expect(guidance).toContain("creative_pool.read_pool_entry");
+    expect(guidance).toContain("Before planning, writing code or making implementation choices");
+    expect(guidance).toContain("the main model decides the scene/act assignments and timing");
+    const servers =
+      provider === "claude"
+        ? sdk.query.mock.calls.at(-1)![0].options.mcpServers
+        : sdk.construct.mock.calls.at(-1)![0].config.mcp_servers;
+    expect(servers.creative_pool).toBeDefined();
+    expect(servers.creative_pool.args).not.toEqual(
+      expect.arrayContaining([expect.stringContaining("auditId")]),
+    );
+  },
+);

@@ -1,3 +1,4 @@
+import { jevModel, jevClient } from "../agents/jev";
 import { preferenceHistoryPolicy, type PreferenceHistoryRecord } from "./preference-history";
 import { assetRequirementsPolicy } from "../../shared/asset-requirements-policy";
 import { type StyleSummary } from "../../shared/agents/schemas/style-summary";
@@ -7,7 +8,7 @@ import { randomUUID } from "node:crypto";
 import { suggestedCombinationGuidance } from "../../shared/style-combinations";
 import type { ProviderEvent } from "../agents/providers";
 
-import { TypeSafeClient, score, noul } from "@typesafe-ai/sdk";
+import { score, noul } from "@typesafe-ai/sdk";
 import type {
   ContentBrief,
   Style,
@@ -63,12 +64,6 @@ const levels = {
     "Can be built faithfully and efficiently with available assets and code",
   ],
 };
-export function jevClient() {
-  const apiKey = process.env.TYPESAFE_API_KEY || process.env.JEV_API_KEY;
-  if (!apiKey)
-    throw Error("Set TYPESAFE_API_KEY in .env.local, then restart. Jev ranking is not configured.");
-  return new TypeSafeClient({ apiKey, timeout: 60000, retry: { maxRetries: 2 } });
-}
 export async function rankOptions(
   brief: ContentBrief,
   options: Proposal[],
@@ -79,6 +74,8 @@ export async function rankOptions(
   onEvent: (event: ProviderEvent) => void = () => {},
   preferenceHistory: PreferenceHistoryRecord[] = [],
 ) {
+  if (request.preference === "random") throw Error("Random selection must bypass ranking");
+  const rankingPreference = request.preference;
   const history = preferenceHistory.slice(0, preferenceHistoryPolicy.maxRecords);
   const historyProjects = new Set(history.map((record) => record.projectId)).size;
   const criteria = {
@@ -145,19 +142,19 @@ export async function rankOptions(
       message: "Motion Graphic evaluation started",
       data: {
         provider: "jev",
-        model: "jev-latest",
+        model: jevModel,
         invocationId,
         preferenceHistory: { records: history.length, projects: historyProjects },
         prompt: {
           system: null,
-          user: redactSecrets(JSON.stringify({ model: "jev-latest", state, questions }, null, 2)),
+          user: redactSecrets(JSON.stringify({ model: jevModel, state, questions }, null, 2)),
           outputSchema: null,
           reasoningEffort: null,
           note: "Recorded JEV state and questions submitted to its API. Provider-internal prompt text is not exposed by the SDK.",
         },
       },
     });
-    const r = await client.systemOne({ model: "jev-latest", state, questions }, { signal });
+    const r = await client.systemOne({ model: jevModel, state, questions }, { signal });
     onEvent({
       type: "usage",
       message: "Motion Graphic evaluation complete",
@@ -179,7 +176,7 @@ export async function rankOptions(
         ...o,
         id: `candidate-${offset + i + 1}`,
         dimensions,
-        score: weightedScore(dimensions, request.preference, historyProjects),
+        score: weightedScore(dimensions, rankingPreference, historyProjects),
         confidence: Math.min(...confidences),
       });
     });

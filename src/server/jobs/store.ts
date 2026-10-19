@@ -9,6 +9,8 @@ export class Store {
   readonly bus = new EventEmitter();
   constructor(filename = path.join(dataRoot, "jobs.sqlite")) {
     this.db = new DatabaseSync(filename);
+    // The web development server and generation backend share this database.
+    this.db.exec("PRAGMA busy_timeout=5000");
     this.db.exec(
       "PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY,json TEXT NOT NULL); CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY AUTOINCREMENT,run_id TEXT NOT NULL,json TEXT NOT NULL); CREATE INDEX IF NOT EXISTS events_run ON events(run_id,id); CREATE TABLE IF NOT EXISTS assets(id TEXT PRIMARY KEY,json TEXT NOT NULL);",
     );

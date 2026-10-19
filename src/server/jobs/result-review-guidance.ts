@@ -1,4 +1,5 @@
 import { fullVideoQualityRules } from "../domains/video/full-video-quality";
+import { visualReadabilityRules } from "../agents/visual-readability";
 import { videoPacingRules } from "../domains/video/pacing";
 
 // Calibration examples are stored in the file-backed review context and exercised by tests.
@@ -215,12 +216,13 @@ G. Validate consistency before returning: needs_review for pacing/style MUST hav
 CORRECTOR ROUTING
 pacing: excessive empty holds, stretching, repetitive filler, unexplained timing gaps; fix actual timed content and storyboard together.
 style: supported mismatch with selected Motion Graphic contribution; fix affected appearance/motion while preserving combination.
-layout: supported browser error for overlap/clipping/alignment; identify exact element and time and require the original check to pass.
-contrast: supported unreadable text against composited background; identify affected element/time and retain the existing threshold.
+layout: supported browser error for overlap/clipping/alignment, or a completed visualAssessment documenting clipped required footage content (such as a control, label, typed text, result or pointer). A passing DOM-bounds check does not override observed clipping inside video/canvas pixels. Identify the affected element or footage scene and available time from evidence; require the original check and a rendered framing recheck to pass. Do not infer clipping from a filename, intended zoom or missing visual assessment.
+contrast: supported unreadable text against composited background, including a completed visualAssessment documenting decorative grids, texture or overlays crossing text or recorded UI. Identify affected text and available element/time evidence; retain the existing threshold. A passing token or DOM check does not override a completed observation of obscured lettering. Do not infer unreadability without rendered evidence.
 technical: supported composition runtime/asset/initialization failure; identify the actual failure and expected working behavior. Do not infer defects from missing evidence.
 
 ${videoPacingRules}
 ${fullVideoQualityRules}
+${visualReadabilityRules}
 
 CALIBRATION TEST CASES (EXAMPLES, NOT OBSERVATIONS ABOUT THE CURRENT VIDEO)
 Read calibrationTestCases in the required input JSON. These examples calibrate the review and are NOT observations about the current video.

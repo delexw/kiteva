@@ -1,3 +1,4 @@
+import { videoRenderTimeoutMs } from "./timeouts";
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
@@ -194,7 +195,7 @@ export async function runMultiplane(
   workspace: string,
   signal: AbortSignal,
   onProgress: (text: string) => void = () => {},
-  timeout = 600000,
+  timeout = command === "render" ? videoRenderTimeoutMs : 600000,
 ) {
   let stdout = "";
   let pending = "";

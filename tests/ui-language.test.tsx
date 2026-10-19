@@ -8,7 +8,6 @@ import zh from "../src/client/i18n/zh-CN.json";
 import { RoomDraftSchema } from "../src/shared/room";
 import { roomOnboardingReplies } from "../src/client/room/onboarding-replies";
 import { VideoRequestSchema } from "../src/shared/domains/video";
-import { customerToolActivity } from "../src/client/agent-activity-model";
 
 afterEach(async () => {
   await uiLanguage.change("en");
@@ -72,13 +71,6 @@ it("changes UI summaries without altering the idea, script, lyrics or output-lan
   expect(replies[6].text).toContain("模型：");
   expect(JSON.stringify(draft)).toBe(before);
   expect(draft.request.outputLanguage).toBe("en");
-});
-it("localizes curated activity labels without changing the internal activity contracts", async () => {
-  const label = customerToolActivity("mcp__instruments__render_instrumental", "tool");
-  expect(label).toBe("Rendering your instrumental music…");
-  await uiLanguage.change("zh-CN");
-  expect(uiLanguage.translate(label)).toBe("正在渲染器乐配乐…");
-  expect(customerToolActivity("mcp__instruments__render_instrumental", "tool")).toBe(label);
 });
 
 it("covers every catalog card and tool purpose, with bilingual search and stable source data", async () => {

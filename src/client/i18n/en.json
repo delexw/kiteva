@@ -747,7 +747,6 @@
   "Capturing your website reference…": "Capturing your website reference…",
   "Checking": "Checking",
   "Checking a visual component…": "Checking a visual component…",
-  "Checking local instruments…": "Checking local instruments…",
   "Checking references against your story…": "Checking references against your story…",
   "Checking the design and playback…": "Checking the design and playback…",
   "Choose audio no longer than 10 minutes per file.": "Choose audio no longer than 10 minutes per file.",
@@ -1037,5 +1036,8 @@
   "Stick-figure lettering artist": "Stick-figure lettering artist",
   "Stick-figure sound technician": "Stick-figure sound technician",
   "Stick-figure camera operator": "Stick-figure camera operator",
-  "Creating your video…": "Creating your video…"
+  "Creating your video…": "Creating your video…",
+  "Random selection": "Random selection",
+  "Draw Motion Graphics uniformly from the full pool. No scores, weights or preference history. Build around your brief and the random draw.": "Draw Motion Graphics uniformly from the full pool. No scores, weights or preference history. Build around your brief and the random draw.",
+  "Drawing random Motion Graphics from the full pool…": "Drawing random Motion Graphics from the full pool…"
 }

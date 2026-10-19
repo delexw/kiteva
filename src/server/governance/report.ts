@@ -274,7 +274,7 @@ export function projectGovernance(
           output * r.longOutput) /
         1e6;
       basis = "Standard API equivalent · short/long-context range";
-    } else if (input !== null && output !== null && /^jev-1\.13(?:[.-]|$)/.test(model)) {
+    } else if (input !== null && output !== null && /^jev-1\.(?:13|14)(?:[.-]|$)/.test(model)) {
       low = high = (input * 0.042) / 1e6;
       basis = "Published Jev API rate";
     }

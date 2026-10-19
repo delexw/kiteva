@@ -1,3 +1,11 @@
+vi.mock("../src/server/agents/authoring-resources", () => ({
+  selectAuthoringResources: async () => ({
+    source: "jev",
+    model: "jev-test",
+    selectedIds: ["local_code"],
+    decisions: [],
+  }),
+}));
 import { randomUUID } from "node:crypto";
 import sharp from "sharp";
 import { mkdtemp, rm, writeFile, readFile } from "node:fs/promises";
@@ -10,11 +18,13 @@ vi.mock("../src/server/catalog/style-summaries", async (original) => ({
   ...(await original<typeof import("../src/server/catalog/style-summaries")>()),
   prepareStyleSummaries: vi.fn(),
 }));
-vi.mock("../src/server/catalog/ranking", () => ({ jevClient: vi.fn(), rankOptions: vi.fn() }));
+vi.mock("../src/server/catalog/ranking", () => ({ rankOptions: vi.fn() }));
+vi.mock("../src/server/agents/jev", () => ({ jevClient: vi.fn() }));
 vi.mock("../src/server/domains/video/prepare-lyrics", () => ({ prepareLyrics: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
 import { prepareStyleSummaries } from "../src/server/catalog/style-summaries";
-import { rankOptions, jevClient } from "../src/server/catalog/ranking";
+import { rankOptions } from "../src/server/catalog/ranking";
+import { jevClient } from "../src/server/agents/jev";
 import { prepareLyrics } from "../src/server/domains/video/prepare-lyrics";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { Store } from "../src/server/jobs/store";

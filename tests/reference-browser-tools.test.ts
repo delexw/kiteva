@@ -40,6 +40,7 @@ it.each([64, 3000])(
         return { title: inspection.title, url: inspection.url, text: inspection.text };
       }),
       fill: vi.fn().mockResolvedValue(inspection),
+      wait: vi.fn(async () => {}),
       scroll: vi.fn().mockResolvedValue(inspection),
       startRecording: vi.fn(),
       stopRecording: vi.fn(),
@@ -145,6 +146,7 @@ it("keeps stop available after the interaction budget and preserves earlier reco
     inspect: vi.fn().mockResolvedValue(inspection),
     click: vi.fn(),
     fill: vi.fn(),
+    wait: vi.fn(async () => {}),
     scroll: vi.fn(),
     capture: vi.fn(),
     startRecording: vi.fn().mockResolvedValue(id),
@@ -165,8 +167,18 @@ it("keeps stop available after the interaction budget and preserves earlier reco
     await tools.server.connect(serverTransport);
     await client.connect(clientTransport);
     expect(
-      await client.callTool({ name: "capture_video", arguments: { action: "start" } }),
+      await client.callTool({
+        name: "capture_video",
+        arguments: {
+          action: "start",
+          presentation: { cursorSize: 2.5 },
+        },
+      }),
     ).toMatchObject({ structuredContent: { kind: "recording_started", recordingId: id } });
+    expect(session.startRecording).toHaveBeenCalledWith(
+      workspace,
+      expect.objectContaining({ cursorSize: 2.5 }),
+    );
     for (let index = 0; index < 80; index++)
       await client.callTool({ name: "inspect_page", arguments: {} });
     expect(await client.callTool({ name: "inspect_page", arguments: {} })).toMatchObject({

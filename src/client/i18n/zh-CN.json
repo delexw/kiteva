@@ -747,7 +747,6 @@
   "Capturing your website reference…": "正在截取网站参考…",
   "Checking": "正在检查",
   "Checking a visual component…": "正在检查视觉组件…",
-  "Checking local instruments…": "正在检查本地乐器…",
   "Checking references against your story…": "正在核对参考与故事的对应关系…",
   "Checking the design and playback…": "正在检查设计与播放…",
   "Choose audio no longer than 10 minutes per file.": "请选择每个文件不超过 10 分钟的音频。",
@@ -1037,5 +1036,8 @@
   "Stick-figure lettering artist": "简笔画文字美术师",
   "Stick-figure sound technician": "简笔画音效师",
   "Stick-figure camera operator": "简笔画摄影师",
-  "Creating your video…": "正在创作你的视频…"
+  "Creating your video…": "正在创作你的视频…",
+  "Random selection": "随机选择",
+  "Draw Motion Graphics uniformly from the full pool. No scores, weights or preference history. Build around your brief and the random draw.": "从完整动态图形库中等概率随机抽取，不使用评分、权重或偏好历史。围绕你的简报和抽取结果创作。",
+  "Drawing random Motion Graphics from the full pool…": "正在从完整库中随机抽取动态图形…"
 }

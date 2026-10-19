@@ -415,3 +415,17 @@ it("turns a HyperFrames preview into a verified WebM and keeps full films as MP4
   expect(full.video).toBe("renders/full.mp4");
   expect(transcodePreviewToWebm).not.toHaveBeenCalled();
 });
+
+it("gives a Multiplane render one hour without extending inspection timeouts", async () => {
+  vi.mocked(isolatedCommand).mockImplementation(
+    async (_exe, _args, _cwd, _signal, _output, _timeout, stdout) => {
+      stdout?.(result("render", true) + "\n");
+      return "";
+    },
+  );
+  const signal = new AbortController().signal;
+  await runMultiplane("render", [], os.tmpdir(), signal);
+  expect(vi.mocked(isolatedCommand).mock.calls[0][5]).toBe(3_600_000);
+  await runMultiplane("inspect", [], os.tmpdir(), signal);
+  expect(vi.mocked(isolatedCommand).mock.calls[1][5]).toBe(600_000);
+});

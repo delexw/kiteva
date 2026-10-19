@@ -1,3 +1,4 @@
+import { creativeApproaches } from "../../shared/creative-approach";
 import { translateUi, useUiLanguage } from "../i18n";
 import { deliverySpeech, editVideoCopy, type VideoLanguage } from "../../shared/video-language";
 import { VideoLanguageControl } from "../components/video-language-control";
@@ -521,12 +522,24 @@ export function RoomOnboarding({
                 <Select
                   aria-label={translateUi("Creative approach")}
                   value={request.preference}
-                  options={[
-                    { value: "context", label: translateUi("Follow my brief") },
-                    { value: "creative", label: translateUi("Explore creative ideas") },
-                  ]}
-                  onChange={(preference) => patch({ preference })}
+                  options={Object.entries(creativeApproaches).map(([value, approach]) => ({
+                    value,
+                    label: translateUi(approach.label),
+                  }))}
+                  onChange={(preference) =>
+                    patch({
+                      preference,
+                      ...(preference === "random"
+                        ? {
+                            selectedStyleIds: undefined,
+                            pinnedStyleId: undefined,
+                            candidateCount: request.candidateCount || 5,
+                          }
+                        : {}),
+                    })
+                  }
                 />
+                <small>{translateUi(creativeApproaches[request.preference].description)}</small>
               </label>
               {request.outputType === "video" ? (
                 <>
@@ -642,7 +655,14 @@ export function RoomOnboarding({
                     request.outputType,
                     request.outputType === "page" ? "auto" : request.duration,
                   )}
-                  onChange={(selectedStyleIds) => patch({ selectedStyleIds })}
+                  onChange={(selectedStyleIds) =>
+                    patch({
+                      selectedStyleIds,
+                      ...(selectedStyleIds.length && request.preference === "random"
+                        ? { preference: "context" }
+                        : {}),
+                    })
+                  }
                 />
               </div>
             </div>

@@ -1,0 +1,28 @@
+{
+  "displayTitle": "Particle Flow",
+  "displayDescription": "Fixed node graph where seeded particle streams carry an idea from INTAKE through EXCHANGE to OUTCOME, pulsing once on each arrival.",
+  "pipeline": "HyperFrames",
+  "fallbackReason": null,
+  "styleRenderer": [
+    "SVG",
+    "Canvas 2D",
+    "HTML/CSS"
+  ],
+  "motionEngine": [
+    "GSAP"
+  ],
+  "sourceFile": "index.html",
+  "duration": 3,
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audioDescription": "Silent preview; no music, sound effects or voice.",
+  "audioFile": null,
+  "limitations": [
+    "Halos are flat SVG radial gradients standing in for glow, not a lighting simulation.",
+    "Particles are seeded procedural dots sampled on authored Bezier curves, not a physics simulation.",
+    "Node states, LINKS counter and labels are authored illustrative values, not measured data.",
+    "Typography uses locally installed Menlo/SF Mono with monospace fallback.",
+    "No Blender used."
+  ]
+}

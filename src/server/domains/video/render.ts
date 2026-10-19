@@ -1,3 +1,4 @@
+import { videoRenderTimeoutMs } from "../../rendering/timeouts";
 import { type Production } from "../../../shared/agents/schemas/video";
 import { withContentReveal } from "../../motion/content-reveal";
 import { withArrowDrawing } from "../../motion/arrow-drawing";
@@ -129,7 +130,7 @@ async function renderHyperFrames(
     job.workspace,
     signal,
     (t) => emit("render_progress", t),
-    600000,
+    videoRenderTimeoutMs,
   );
 }
 async function renderRemotion(
@@ -162,7 +163,7 @@ async function renderRemotion(
     job.workspace,
     signal,
     (t) => emit("render_progress", t),
-    600000,
+    videoRenderTimeoutMs,
   );
 }
 async function renderMultiplane(

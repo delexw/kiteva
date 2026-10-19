@@ -34,6 +34,7 @@ export async function command(
     });
     let output = "";
     let timedOut = false;
+    let outputFailed = false;
     const stop = () => {
       stopProcessTree(child.pid);
     };
@@ -45,12 +46,20 @@ export async function command(
     for (const stream of [child.stdout, child.stderr]) {
       const decoder = new StringDecoder("utf8");
       const emit = (decoded: string) => {
-        if (!decoded) return;
-        const text = safeMessage(decoded);
-        // Machine-readable stdout stays intact; only the display channel is redacted.
-        if (stream === child.stdout) onStdout(decoded);
-        output = (output + text).slice(-60000);
-        onOutput(text);
+        if (!decoded || outputFailed) return;
+        try {
+          const text = safeMessage(decoded);
+          // Machine-readable stdout stays intact; only the display channel is redacted.
+          if (stream === child.stdout) onStdout(decoded);
+          output = (output + text).slice(-60000);
+          onOutput(text);
+        } catch (error) {
+          outputFailed = true;
+          clearTimeout(timer);
+          signal.removeEventListener("abort", stop);
+          stop();
+          reject(error);
+        }
       };
       stream.on("data", (chunk) => emit(decoder.write(chunk)));
       stream.on("end", () => emit(decoder.end()));

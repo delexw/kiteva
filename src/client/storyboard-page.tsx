@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "./i18n";
 import { useEffect, useState } from "react";
 import { Button } from "antd";
 import { PageTemplate } from "./components/page-template";
@@ -12,6 +13,7 @@ export function StoryboardComic({
   storyboard: MangaStoryboard;
   base: string;
 }) {
+  useUiLanguage();
   return (
     <div className="manga-storyboard">
       <StoryboardMovie storyboard={storyboard} base={base} />
@@ -28,6 +30,7 @@ export function StoryboardPage({
   jobId: string;
   onBack: () => void;
 }) {
+  useUiLanguage();
   const [storyboard, setStoryboard] = useState<MangaStoryboard>();
   const [error, setError] = useState(false);
   const base = `/api/artifacts/${encodeURIComponent(projectId)}/${encodeURIComponent(jobId)}`;
@@ -51,24 +54,29 @@ export function StoryboardPage({
     <PageTemplate
       className="storyboard-page"
       eyebrow="Workspace / Storyboard"
-      title={storyboard?.title || "The director’s notebook."}
+      title={storyboard?.title || translateUi("The director’s notebook.")}
       description={
         <p>
           {storyboard
-            ? `${storyboard.scenes.length} scenes · ${storyboardTime(storyboard.durationSeconds)}`
-            : "Your film, told panel by panel."}
+            ? translateUi("{{value0}} scenes · {{value1}}", {
+                value0: storyboard.scenes.length,
+                value1: storyboardTime(storyboard.durationSeconds),
+              })
+            : translateUi("Your film, told panel by panel.")}
         </p>
       }
-      actions={<Button onClick={onBack}>Back to project</Button>}
+      actions={<Button onClick={onBack}>{translateUi("Back to project")}</Button>}
     >
       {error ? (
         <p role="alert">
-          We couldn’t load this storyboard. Check that the video has a saved storyboard.
+          {translateUi(
+            "We couldn’t load this storyboard. Check that the video has a saved storyboard.",
+          )}
         </p>
       ) : storyboard ? (
         <StoryboardComic storyboard={storyboard} base={base} />
       ) : (
-        <p role="status">Opening the storyboard…</p>
+        <p role="status">{translateUi("Opening the storyboard…")}</p>
       )}
     </PageTemplate>
   );

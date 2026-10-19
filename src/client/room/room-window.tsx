@@ -1,3 +1,4 @@
+import { UiLanguageSwitch, translateUi, useUiLanguage } from "../i18n";
 import {
   useEffect,
   useLayoutEffect,
@@ -54,6 +55,7 @@ export function RoomWindow({
   closeHint?: string;
   onBack?: () => void;
 }) {
+  useUiLanguage();
   const controls = useDragControls();
   const reduced = useReducedMotion();
   const node = useRef<HTMLElement>(null);
@@ -121,7 +123,7 @@ export function RoomWindow({
               <Button
                 type="text"
                 className="room-traffic is-close"
-                aria-label={`Close ${title}`}
+                aria-label={translateUi("Close {{value0}}", { value0: title })}
                 icon={
                   <span className="room-traffic-dot">
                     <X size={9} strokeWidth={3} />
@@ -132,11 +134,11 @@ export function RoomWindow({
                 }
               />
             </Tooltip>
-            <Tooltip title="Minimize to dock">
+            <Tooltip title={translateUi("Minimize to dock")}>
               <Button
                 type="text"
                 className="room-traffic is-minimize"
-                aria-label={`Minimize ${title}`}
+                aria-label={translateUi("Minimize {{value0}}", { value0: title })}
                 icon={
                   <span className="room-traffic-dot">
                     <Minus size={9} strokeWidth={3} />
@@ -146,11 +148,13 @@ export function RoomWindow({
               />
             </Tooltip>
             {!mobile && (
-              <Tooltip title={state.maximized ? "Restore size" : "Fill the room"}>
+              <Tooltip
+                title={state.maximized ? translateUi("Restore size") : translateUi("Fill the room")}
+              >
                 <Button
                   type="text"
                   className={`room-traffic ${state.maximized ? "is-restore" : "is-zoom"}`}
-                  aria-label={`${state.maximized ? "Restore" : "Expand"} ${title}`}
+                  aria-label={`${state.maximized ? translateUi("Restore") : translateUi("Expand")} ${title}`}
                   aria-pressed={state.maximized}
                   icon={
                     <span className="room-traffic-dot">
@@ -170,7 +174,11 @@ export function RoomWindow({
         <span
           className="room-window-title"
           tabIndex={expanded ? -1 : 0}
-          aria-label={expanded ? title : `${title}. Use arrow keys to move this window`}
+          aria-label={
+            expanded
+              ? title
+              : translateUi("{{value0}}. Use arrow keys to move this window", { value0: title })
+          }
           onKeyDown={(event) => {
             const offset = arrowOffsets[event.key];
             if (offset && !expanded) {
@@ -183,14 +191,17 @@ export function RoomWindow({
         </span>
         {badge}
         {mobile && front && (
-          <Button
-            size="small"
-            className="room-window-back"
-            icon={<ArrowLeft size={14} />}
-            onClick={onBack}
-          >
-            Back to room
-          </Button>
+          <>
+            <UiLanguageSwitch />
+            <Button
+              size="small"
+              className="room-window-back"
+              icon={<ArrowLeft size={14} />}
+              onClick={onBack}
+            >
+              {translateUi("Back to room")}
+            </Button>
+          </>
         )}
       </header>
       <div
@@ -206,7 +217,9 @@ export function RoomWindow({
         <button
           type="button"
           className="room-resize-grip"
-          aria-label={`Resize ${title}. Drag, or use the arrow keys`}
+          aria-label={translateUi("Resize {{value0}}. Drag, or use the arrow keys", {
+            value0: title,
+          })}
           onPointerDown={(event) => {
             event.preventDefault();
             event.stopPropagation();

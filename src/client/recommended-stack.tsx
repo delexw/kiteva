@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "./i18n";
 import { Collapse } from "antd";
 import { Link } from "react-router-dom";
 import { technologyCardPath, technologyEntryForDefinition } from "./technology-pool-model";
@@ -13,27 +14,28 @@ export function RecommendedStack({
   implementation?: string;
   selectionGuidance?: string;
 }) {
+  useUiLanguage();
   return (
     <div className="recommended-stack">
-      {libraries.length === 0 && <p>No specific libraries suggested.</p>}
+      {libraries.length === 0 && <p>{translateUi("No specific libraries suggested.")}</p>}
       {libraries.map((library) => {
         const technology = technologyEntryForDefinition(library);
         return (
           <article className="stack-entry" key={library.name}>
             <strong>
               {technology ? (
-                <Link to={technologyCardPath(technology.key)}>{library.name}</Link>
+                <Link to={technologyCardPath(technology.key)}>{translateUi(library.name)}</Link>
               ) : (
-                library.name
+                translateUi(library.name)
               )}
             </strong>
-            {library.optional && <small>Optional</small>}
-            <p>{library.purpose}</p>
+            {library.optional && <small>{translateUi("Optional")}</small>}
+            <p>{translateUi(library.purpose ?? "Not specified")}</p>
             {(library.package || library.runtime) && (
               <dl className="stack-facts">
                 {library.package && (
                   <>
-                    <dt>Package</dt>
+                    <dt>{translateUi("Package")}</dt>
                     <dd>
                       <code>{library.package}</code>
                     </dd>
@@ -41,15 +43,15 @@ export function RecommendedStack({
                 )}
                 {library.runtime && (
                   <>
-                    <dt>Runs in</dt>
-                    <dd>{library.runtime}</dd>
+                    <dt>{translateUi("Runs in")}</dt>
+                    <dd>{translateUi(library.runtime)}</dd>
                   </>
                 )}
               </dl>
             )}
             {!!library.suggested_apis?.length && (
               <>
-                <h4>Suggested APIs</h4>
+                <h4>{translateUi("Suggested APIs")}</h4>
                 <ul className="stack-apis">
                   {library.suggested_apis.map((api) => (
                     <li key={api}>
@@ -59,10 +61,10 @@ export function RecommendedStack({
                 </ul>
               </>
             )}
-            {library.integration_guidance && <p>{library.integration_guidance}</p>}
+            {library.integration_guidance && <p>{translateUi(library.integration_guidance)}</p>}
             {library.docs_url && /^https?:\/\//.test(library.docs_url) && (
               <a href={library.docs_url} target="_blank" rel="noreferrer">
-                Documentation ↗
+                {translateUi("Documentation ↗")}
               </a>
             )}
           </article>
@@ -70,8 +72,8 @@ export function RecommendedStack({
       })}
       {implementation && (
         <>
-          <h3>Implementation approach</h3>
-          <p>{implementation}</p>
+          <h3>{translateUi("Implementation approach")}</h3>
+          <p>{translateUi(implementation)}</p>
         </>
       )}
       {selectionGuidance && (
@@ -80,11 +82,11 @@ export function RecommendedStack({
           items={[
             {
               key: "Choosing libraries",
-              label: "Choosing libraries",
+              label: translateUi("Choosing libraries"),
               forceRender: true,
               children: (
                 <>
-                  <p>{selectionGuidance}</p>
+                  <p>{translateUi(selectionGuidance)}</p>
                 </>
               ),
             },

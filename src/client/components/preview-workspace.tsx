@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { createContext, useContext, type ReactNode } from "react";
 import { defineCatalog, type Spec } from "@json-render/core";
 import { defineRegistry, Renderer, JSONUIProvider } from "@json-render/react";
@@ -78,6 +79,7 @@ export function PreviewLoadingMedia({
   status: string;
   loading?: boolean;
 }) {
+  useUiLanguage();
   return (
     <div className="preview-loading-media" role="status">
       {loading && <LoaderCircle className="spin" size={24} />}
@@ -93,13 +95,13 @@ interface PreviewContextValue {
 const PreviewContext = createContext<PreviewContextValue | undefined>(undefined);
 function usePreviewContext() {
   const context = useContext(PreviewContext);
-  if (!context) throw Error("Preview components require their workspace provider");
+  if (!context) throw Error(translateUi("Preview components require their workspace provider"));
   return context;
 }
 const { registry } = defineRegistry(previewCatalog, {
   components: {
     PreviewWorkspace: ({ children }) => (
-      <div className="inline-preview-workspace" aria-label="Preview selection">
+      <div className="inline-preview-workspace" aria-label={translateUi("Preview selection")}>
         {children}
       </div>
     ),
@@ -109,8 +111,11 @@ const { registry } = defineRegistry(previewCatalog, {
       <article className="candidate" aria-busy="true">
         <PreviewLoadingMedia status={props.status} />
         <div className="candidate-body">
-          <h3>Direction {props.index}</h3>
-          <p>Your preview will appear here when it is ready.</p>
+          <h3>
+            {translateUi("Direction") + " "}
+            {props.index}
+          </h3>
+          <p>{translateUi("Your preview will appear here when it is ready.")}</p>
         </div>
       </article>
     ),
@@ -125,6 +130,7 @@ export function PreviewWorkspace({
   pendingCount = 0,
   pendingStatus,
 }: PreviewContextValue & { jobIds: string[]; pendingCount?: number; pendingStatus?: string }) {
+  useUiLanguage();
   return (
     <PreviewContext.Provider value={{ controls, renderCard }}>
       <JSONUIProvider registry={registry}>

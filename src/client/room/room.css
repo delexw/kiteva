@@ -2007,3 +2007,12 @@
     animation: none;
   }
 }
+
+.room-language-switch {
+  align-self: center;
+  flex-shrink: 0;
+}
+.room-menu-actions {
+  align-items: center;
+  flex-wrap: wrap;
+}

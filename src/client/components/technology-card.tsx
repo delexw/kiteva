@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { useState } from "react";
 import { Alert, Button, Collapse, Input } from "antd";
 import { Copy } from "lucide-react";
@@ -5,6 +6,7 @@ import { RecommendedStack } from "../recommended-stack";
 import { technologyCardPath, type TechnologyEntry } from "../technology-pool-model";
 
 export function TechnologyCard({ entry }: { entry: TechnologyEntry }) {
+  useUiLanguage();
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
@@ -25,13 +27,16 @@ export function TechnologyCard({ entry }: { entry: TechnologyEntry }) {
       <div className="technology-card-actions">
         <code>{entry.key}</code>
         <Button icon={<Copy size={14} />} onClick={() => void copyLink()}>
-          {copied ? "Link copied" : "Copy link"}
+          {copied ? translateUi("Link copied") : translateUi("Copy link")}
         </Button>
       </div>
       {copyError && (
         <>
-          <Alert type="error" title="Couldn’t copy the link. Select it below to copy." />
-          <Input aria-label="Tool card link" readOnly value={shareUrl} />
+          <Alert
+            type="error"
+            title={translateUi("Couldn’t copy the link. Select it below to copy.")}
+          />
+          <Input aria-label={translateUi("Tool card link")} readOnly value={shareUrl} />
         </>
       )}
       <RecommendedStack libraries={[entry.definition]} />
@@ -40,7 +45,7 @@ export function TechnologyCard({ entry }: { entry: TechnologyEntry }) {
         items={[
           {
             key: "definition",
-            label: "Full technology definition",
+            label: translateUi("Original technology definition"),
             children: <pre>{JSON.stringify(entry.definition, null, 2)}</pre>,
           },
         ]}

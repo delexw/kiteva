@@ -1,3 +1,4 @@
+import { uiLanguage, translateUi, useUiLanguage } from "../i18n";
 import { PageTemplate } from "../components/page-template";
 import { Button, Card, Collapse, Select, Statistic, Table, Tag, Alert } from "antd";
 import { GovernanceUsageTable } from "./usage-table";
@@ -8,11 +9,16 @@ import { RefreshCw } from "lucide-react";
 import type { GovernanceReport } from "../../shared/governance";
 
 const date = (value: string | null) =>
-  value ? new Date(value).toLocaleString() : "Not finished / not recorded";
+  value ? uiLanguage.date(value) : translateUi("Not finished / not recorded");
 const duration = (ms: number) =>
-  `${Math.floor(ms / 3600000)}h ${Math.floor(ms / 60000) % 60}m ${Math.floor(ms / 1000) % 60}s`;
+  translateUi("{{hours}}h {{minutes}}m {{seconds}}s", {
+    hours: Math.floor(ms / 3600000),
+    minutes: Math.floor(ms / 60000) % 60,
+    seconds: Math.floor(ms / 1000) % 60,
+  });
 
 export function GovernancePage() {
+  useUiLanguage();
   const [report, setReport] = useState<GovernanceReport>();
   const [selected, setSelected] = useState("all");
   const [error, setError] = useState("");
@@ -22,7 +28,7 @@ export function GovernancePage() {
     const load = async () => {
       try {
         const response = await fetch("/api/admin/governance", { signal: controller.signal });
-        if (!response.ok) throw Error("Unable to load governance data.");
+        if (!response.ok) throw Error(translateUi("Unable to load governance data."));
         setReport(await response.json());
         setError("");
       } catch (e) {
@@ -40,10 +46,10 @@ export function GovernancePage() {
     return (
       <PageTemplate
         eyebrow="Admin / AI governance"
-        title="AI governance"
-        description={<p>Project inputs, responsibilities, usage and spend.</p>}
+        title={translateUi("AI governance")}
+        description={<p>{translateUi("Project inputs, responsibilities, usage and spend.")}</p>}
       >
-        <div role="status">{error || "Loading governance…"}</div>
+        <div role="status">{error || translateUi("Loading governance…")}</div>
       </PageTemplate>
     );
   const projects = report.projects.filter(
@@ -60,28 +66,28 @@ export function GovernancePage() {
     <PageTemplate
       className="governance-page governance-ant"
       eyebrow="Admin / AI governance"
-      title="AI governance"
-      description={<p>Project inputs, responsibilities, usage and spend.</p>}
+      title={translateUi("AI governance")}
+      description={<p>{translateUi("Project inputs, responsibilities, usage and spend.")}</p>}
       actions={
         <Button icon={<RefreshCw size={16} />} onClick={() => setRevision((n) => n + 1)}>
-          Refresh
+          {translateUi("Refresh")}
         </Button>
       }
       controls={
         <div className="governance-filter">
           <Select
-            aria-label="Governance project"
+            aria-label={translateUi("Governance project")}
             className="governance-ant-select"
             styles={{ popup: { root: { maxWidth: "calc(100vw - 32px)", minWidth: 0 } } }}
             value={selected}
             onChange={setSelected}
             showSearch={{ optionFilterProp: "label" }}
             options={[
-              { value: "all", label: "All projects", description: "" },
+              { value: "all", label: translateUi("All projects"), description: "" },
               ...report.projects.map((project) => ({
                 value: project.id,
                 label: project.name,
-                description: `${project.request.outputType === "page" ? "HTML" : "Video"} · ${project.request.provider === "claude" ? "Claude" : "GPT"} · ${date(project.started)} · ${project.id}`,
+                description: `${project.request.outputType === "page" ? translateUi("HTML") : translateUi("Video")} · ${project.request.provider === "claude" ? translateUi("Claude") : translateUi("GPT")} · ${date(project.started)} · ${project.id}`,
               })),
             ]}
             optionRender={(option) => (
@@ -93,24 +99,28 @@ export function GovernancePage() {
               </div>
             )}
           />
-          <span>Updated {date(report.generatedAt)} · refreshes every 10s</span>
+          <span>
+            {translateUi("Updated") + " "}
+            {date(report.generatedAt)}
+            {" " + translateUi("· refreshes every 10s")}
+          </span>
         </div>
       }
     >
       {error && <Alert type="error" title={error} showIcon />}
       <div className="governance-stats">
         <Card size="small">
-          <Statistic title="Projects" value={projects.length} />
+          <Statistic title={translateUi("Projects")} value={projects.length} />
         </Card>
         <Card size="small">
-          <Statistic title="Recorded tool calls" value={totalTools} />
+          <Statistic title={translateUi("Recorded tool calls")} value={totalTools} />
         </Card>
         <Card size="small">
-          <Statistic title="Recorded tokens" value={totalTokens} />
+          <Statistic title={translateUi("Recorded tokens")} value={totalTokens} />
         </Card>
         <Card size="small">
           <Statistic
-            title="Known cost subtotal · USD"
+            title={translateUi("Known cost subtotal · USD")}
             value={totalCost}
             precision={4}
             prefix="$"
@@ -118,7 +128,7 @@ export function GovernancePage() {
           />
         </Card>
       </div>
-      <Card title="Model responsibilities" className="governance-ant-card">
+      <Card title={translateUi("Model responsibilities")} className="governance-ant-card">
         <Table
           dataSource={report.models}
           rowKey="function"
@@ -126,20 +136,36 @@ export function GovernancePage() {
           size="small"
           scroll={{ x: 700 }}
           columns={[
-            { title: "Function", dataIndex: "function" },
-            { title: "Claude selection", dataIndex: "claude" },
-            { title: "GPT selection", dataIndex: "codex" },
+            {
+              title: translateUi("Function"),
+              dataIndex: "function",
+              render: (value: string) => translateUi(value),
+            },
+            {
+              title: translateUi("Claude selection"),
+              dataIndex: "claude",
+              render: (value: string) => translateUi(value),
+            },
+            {
+              title: translateUi("GPT selection"),
+              dataIndex: "codex",
+              render: (value: string) => translateUi(value),
+            },
           ]}
         />
         <p className="governance-table-note">
-          Configured routing above; actual model IDs appear in each project's activity below.
-          Render/export runs locally without an AI model.
+          {translateUi(
+            "Configured routing above; actual model IDs appear in each project's activity below. Render/export runs locally without an AI model.",
+          )}
         </p>
       </Card>
-      <Card title="Usage by model · selected projects" className="governance-ant-card">
+      <Card
+        title={translateUi("Usage by model · selected projects")}
+        className="governance-ant-card"
+      >
         <GovernanceUsageTable rows={aggregateModels(activity)} />
       </Card>
-      {projects.length === 0 && <p>No projects recorded yet.</p>}
+      {projects.length === 0 && <p>{translateUi("No projects recorded yet.")}</p>}
       {projects.map((project) => (
         <Card
           key={project.id}
@@ -160,35 +186,38 @@ export function GovernancePage() {
                     : "processing"
               }
             >
-              {project.status}
+              {translateUi(project.status)}
             </Tag>
           }
         >
           <dl className="governance-timing">
             <div>
-              <dt>Started</dt>
+              <dt>{translateUi("Started")}</dt>
               <dd>{date(project.started)}</dd>
             </div>
             <div>
-              <dt>Finished</dt>
+              <dt>{translateUi("Finished")}</dt>
               <dd>{date(project.finished)}</dd>
             </div>
             <div>
-              <dt>Total duration</dt>
+              <dt>{translateUi("Total duration")}</dt>
               <dd>
-                {project.durationMs === null ? "Not recorded" : duration(project.durationMs)}
+                {project.durationMs === null
+                  ? translateUi("Not recorded")
+                  : duration(project.durationMs)}
                 {project.finished
                   ? ""
                   : ["ready", "failed", "cancelled", "interrupted"].includes(project.status)
-                    ? " · incomplete timing"
-                    : " · elapsed"}
+                    ? translateUi(" · incomplete timing")
+                    : translateUi(" · elapsed")}
               </dd>
             </div>
           </dl>
           {project.incompleteHistory && (
             <p className="governance-note">
-              Historical record: some function/model attribution or usage was not captured. Counts
-              cover recorded activity only.
+              {translateUi(
+                "Historical record: some function/model attribution or usage was not captured. Counts cover recorded activity only.",
+              )}
             </p>
           )}
           <Collapse
@@ -197,83 +226,85 @@ export function GovernancePage() {
             items={[
               {
                 key: "inputs",
-                label: "User input and settings",
+                label: translateUi("User input and settings"),
                 children: (
                   <div className="governance-subsection-body">
-                    <h3>Instructions</h3>
+                    <h3>{translateUi("Instructions")}</h3>
                     <p className="governance-copy">{project.request.instructions}</p>
                     {project.request.requirements && (
                       <>
-                        <h3>Music / instrumental requirements</h3>
+                        <h3>{translateUi("Music / instrumental requirements")}</h3>
                         <p className="governance-copy">
-                          {project.request.requirements.music.instructions || "None"}
+                          {project.request.requirements.music.instructions || translateUi("None")}
                         </p>
-                        <h3>Image requirements</h3>
+                        <h3>{translateUi("Image requirements")}</h3>
                         <p className="governance-copy">
-                          {project.request.requirements.images.instructions || "None"}
+                          {project.request.requirements.images.instructions || translateUi("None")}
                         </p>
-                        <h3>URL requirements</h3>
+                        <h3>{translateUi("URL requirements")}</h3>
                         <p className="governance-copy">
-                          {project.request.requirements.urls.instructions || "None"}
+                          {project.request.requirements.urls.instructions || translateUi("None")}
                         </p>
                       </>
                     )}
                     <dl className="governance-settings">
                       <div>
-                        <dt>Output</dt>
+                        <dt>{translateUi("Output")}</dt>
                         <dd>
-                          {project.request.outputType === "page" ? "Interactive HTML" : "Video"}
+                          {project.request.outputType === "page"
+                            ? translateUi("Interactive HTML")
+                            : translateUi("Video")}
                         </dd>
                       </div>
                       <div>
-                        <dt>Provider</dt>
+                        <dt>{translateUi("Provider")}</dt>
                         <dd>{project.request.provider}</dd>
                       </div>
                       <div>
-                        <dt>Creative approach</dt>
+                        <dt>{translateUi("Creative approach")}</dt>
                         <dd>
                           {project.request.pinnedStyleId
-                            ? "Using selected Motion Graphic"
+                            ? translateUi("Using selected Motion Graphic")
                             : project.request.preference === "creative"
-                              ? "Explore creative ideas"
-                              : "Follow my brief"}
+                              ? translateUi("Explore creative ideas")
+                              : translateUi("Follow my brief")}
                         </dd>
                       </div>
                       <div>
-                        <dt>Preview options</dt>
+                        <dt>{translateUi("Preview options")}</dt>
                         <dd>{project.request.candidateCount}</dd>
                       </div>
                       <div>
-                        <dt>Primary Motion Graphic</dt>
-                        <dd>{project.request.pinnedStyleId || "Automatic"}</dd>
+                        <dt>{translateUi("Primary Motion Graphic")}</dt>
+                        <dd>{project.request.pinnedStyleId || translateUi("Automatic")}</dd>
                       </div>
                       {project.request.outputType === "page" ? (
                         <div>
-                          <dt>Viewport</dt>
+                          <dt>{translateUi("Viewport")}</dt>
                           <dd>{project.request.viewport}</dd>
                         </div>
                       ) : (
                         <>
                           <div>
-                            <dt>Duration</dt>
+                            <dt>{translateUi("Duration")}</dt>
                             <dd>
                               {project.request.duration === "auto"
-                                ? "Auto"
+                                ? translateUi("Auto")
                                 : `${project.request.duration}s`}
                             </dd>
                           </div>
                           <div>
-                            <dt>Aspect ratio</dt>
+                            <dt>{translateUi("Aspect ratio")}</dt>
                             <dd>{project.request.aspectRatio}</dd>
                           </div>
                           <div>
-                            <dt>Lyrics</dt>
+                            <dt>{translateUi("Lyrics")}</dt>
                             <dd>
                               {project.request.lyrics?.mode === "provided"
-                                ? "User supplied"
+                                ? translateUi("User supplied")
                                 : project.request.lyrics?.mode === "write"
-                                  ? "Generate"
-                                  : "Off"}
+                                  ? translateUi("Generate")
+                                  : translateUi("Off")}
                             </dd>
                           </div>
                         </>
@@ -282,11 +313,11 @@ export function GovernancePage() {
                     {project.request.outputType !== "page" &&
                       project.request.lyrics?.mode === "provided" && (
                         <>
-                          <h3>Supplied lyrics</h3>
+                          <h3>{translateUi("Supplied lyrics")}</h3>
                           <p className="governance-copy">{project.request.lyrics.text}</p>
                         </>
                       )}
-                    <h3>URLs</h3>
+                    <h3>{translateUi("URLs")}</h3>
                     {project.request.urls.length ? (
                       <ul>
                         {project.request.urls.map((url) => (
@@ -294,28 +325,35 @@ export function GovernancePage() {
                         ))}
                       </ul>
                     ) : (
-                      <p>None</p>
+                      <p>{translateUi("None")}</p>
                     )}
-                    <h3>Attachments</h3>
+                    <h3>{translateUi("Attachments")}</h3>
                     {project.attachments.length ? (
                       <ul>
                         {project.attachments.map((asset, i) => (
                           <li key={i}>
-                            {asset.name} · {asset.kind} · {asset.bytes.toLocaleString()} bytes
+                            {asset.name} · {translateUi(asset.kind)} ·{" "}
+                            {asset.bytes.toLocaleString()}
+                            {" " + translateUi("bytes")}
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p>None</p>
+                      <p>{translateUi("None")}</p>
                     )}
-                    <h3>Candidate Motion Graphics</h3>
-                    <p>{project.selectedStyles.join(" · ") || "Not selected yet"}</p>
+                    <h3>{translateUi("Candidate Motion Graphics")}</h3>
+                    <p>
+                      {project.selectedStyles.map((name) => translateUi(name)).join(" · ") ||
+                        translateUi("Not selected yet")}
+                    </p>
                   </div>
                 ),
               },
               {
                 key: "prompts",
-                label: `Model prompts · ${(project.prompts || []).length} prompts`,
+                label: translateUi("Model prompts · {{value0}} prompts", {
+                  value0: (project.prompts || []).length,
+                }),
                 children: (
                   <div className="governance-subsection-body">
                     <ModelPromptBrowser projectId={project.id} prompts={project.prompts || []} />
@@ -324,7 +362,7 @@ export function GovernancePage() {
               },
               {
                 key: "usage",
-                label: "Usage by model and function",
+                label: translateUi("Usage by model and function"),
                 children: (
                   <div className="governance-subsection-body">
                     <GovernanceUsageTable rows={project.activity} byFunction />
@@ -335,29 +373,23 @@ export function GovernancePage() {
           />
         </Card>
       ))}
-      <Card title="Accounting notes" className="governance-ant-card">
+      <Card title={translateUi("Accounting notes")} className="governance-ant-card">
         <p>
-          Duration is wall-clock time from project creation to the latest completed phase, including
-          waits and retries. Input totals include cache reads/writes; cached input is a subset. Tool
-          starts, updates and results count once per unique tool ID. Invocations are SDK turns, not
-          individual API requests. Failed or cancelled invocations may lack a final usage report.
-          The connected providers report cached input, but no separate cached-output token count.
-          Cached output therefore appears as “Not reported”, rather than zero.
+          {translateUi(
+            "Duration is wall-clock time from project creation to the latest completed phase, including waits and retries. Input totals include cache reads/writes; cached input is a subset. Tool starts, updates and results count once per unique tool ID. Invocations are SDK turns, not individual API requests. Failed or cancelled invocations may lack a final usage report. The connected providers report cached input, but no separate cached-output token count. Cached output therefore appears as “Not reported”, rather than zero.",
+          )}
         </p>
         <p>
-          Costs are estimates, not invoices. Claude SDK estimates and cumulative Codex token
-          counters are differenced across continued sessions, so earlier turns are counted once. GPT
-          costs show standard short/long-context API-equivalent bounds; subscriptions, fast tiers,
-          discounts and infrastructure costs are excluded. Unpriced models remain unavailable.
-          Cached summaries add no new model spend. Older extraction and ranking usage cannot be
-          reconstructed. Totals include retained project records only, excluding deleted projects
-          and separate catalog demo generation.
+          {translateUi(
+            "Costs are estimates, not invoices. Claude SDK estimates and cumulative Codex token counters are differenced across continued sessions, so earlier turns are counted once. GPT costs show standard short/long-context API-equivalent bounds; subscriptions, fast tiers, discounts and infrastructure costs are excluded. Unpriced models remain unavailable. Cached summaries add no new model spend. Older extraction and ranking usage cannot be reconstructed. Totals include retained project records only, excluding deleted projects and separate catalog demo generation.",
+          )}
         </p>
         <p>
-          Rates checked {report.pricingDate}:{" "}
+          {translateUi("Rates checked") + " "}
+          {report.pricingDate}:{" "}
           {report.pricingSources.map((source) => (
             <a key={source.url} href={source.url} target="_blank" rel="noreferrer">
-              {source.label}
+              {translateUi(source.label)}
             </a>
           ))}
         </p>

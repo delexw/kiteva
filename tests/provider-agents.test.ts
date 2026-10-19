@@ -13,19 +13,24 @@ import { z } from "zod";
 
 const sdk = vi.hoisted(() => ({
   query: vi.fn(),
+  close: vi.fn(),
   codexEvents: vi.fn(),
   resume: vi.fn(),
   construct: vi.fn(),
   cavemanRuntime: vi.fn(),
   delay: vi.fn().mockResolvedValue(undefined),
   stream: vi.fn(),
+  threadOptions: vi.fn(),
 }));
 afterEach(() => {
+  sdk.close.mockReset();
   sdk.cavemanRuntime.mockReset();
   sdk.delay.mockReset().mockResolvedValue(undefined);
 });
 vi.mock("node:timers/promises", () => ({ setTimeout: sdk.delay }));
-vi.mock("@anthropic-ai/claude-agent-sdk", () => ({ query: sdk.query }));
+vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
+  query: (...args: unknown[]) => Object.assign(sdk.query(...args), { close: sdk.close }),
+}));
 vi.mock("../src/server/agents/sdk-home", () => ({
   isolatedCodexHome: async () => "/isolated-home",
 }));
@@ -34,7 +39,8 @@ vi.mock("@openai/codex-sdk", () => ({
     constructor(options: unknown) {
       sdk.construct(options);
     }
-    startThread() {
+    startThread(options?: unknown) {
+      sdk.threadOptions(options);
       return {
         runStreamed: async (prompt: string, options: unknown) => {
           sdk.stream(prompt, options);
@@ -42,9 +48,9 @@ vi.mock("@openai/codex-sdk", () => ({
         },
       };
     }
-    resumeThread(sessionId: string) {
+    resumeThread(sessionId: string, options?: unknown) {
       sdk.resume(sessionId);
-      return this.startThread();
+      return this.startThread(options);
     }
   },
 }));
@@ -99,9 +105,10 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
       sessionId: "resumed-session",
       invocationId: expect.any(String),
     });
-    if (agent.provider === "claude")
+    if (agent.provider === "claude") {
       expect(sdk.query.mock.calls.at(-1)?.[0].options.resume).toBe("original-session");
-    else {
+      expect(sdk.close).toHaveBeenCalledOnce();
+    } else {
       expect(sdk.resume).toHaveBeenCalledWith("original-session");
       expect(events.find((event) => event.type === "usage")?.data).toMatchObject({
         usageScope: "session",
@@ -229,6 +236,11 @@ it.each([
     expect(system).toContain(videoPacingSystemGuidance);
     expect(system).toContain(videoPacingPolicy.editorial);
     expect(system).toContain(videoPacingPolicy.reading);
+    expect(system).toContain(videoPacingPolicy.coherence);
+    expect(system).toContain("By default, favor brisk, energetic pacing");
+    expect(system).toContain("Explicit user direction takes precedence");
+    expect(system).toContain("not a fixed speed multiplier");
+    expect(system).toContain("Preserve natural narration speed");
     expect(system).not.toContain("every 2–4 seconds");
     expect(system).toContain("Preserve the selected total duration");
     expect(system).toContain(
@@ -281,7 +293,10 @@ it.each([false, true])(
   },
 );
 
-function capacityAttemptOptions(onEvent = vi.fn(), signal = new AbortController().signal) {
+function capacityAttemptOptions(
+  onEvent: (event: ProviderEvent) => void = vi.fn(),
+  signal = new AbortController().signal,
+) {
   return {
     provider: "codex" as const,
     model: "gpt-6.1-sol",
@@ -618,4 +633,235 @@ it("does not carry an earlier overload across a later native retry with a differ
   await expect(agentTurn(claudeCapacityOptions())).rejects.toThrow("Request failed");
   expect(sdk.query).toHaveBeenCalledTimes(1);
   expect(sdk.delay).not.toHaveBeenCalled();
+});
+
+it.each(["claude", "codex"] as const)(
+  "leaves %s reasoning effort unset by default and forwards explicit task overrides",
+  async (provider) => {
+    sdk.query.mockImplementation(async function* () {
+      yield {
+        type: "result",
+        subtype: "success",
+        is_error: false,
+        structured_output: { message: "done" },
+        session_id: "effort-session",
+        usage: {},
+        modelUsage: {},
+      };
+    });
+    sdk.codexEvents.mockImplementation(async function* () {
+      yield {
+        type: "item.completed",
+        item: { id: "answer", type: "agent_message", text: '{"message":"done"}' },
+      };
+      yield { type: "turn.completed", usage: {} };
+    });
+    for (const reasoningEffort of [undefined, "low", "medium"] as const) {
+      const onEvent = vi.fn();
+      await agentTurn({
+        provider,
+        workspace: "/job",
+        prompt: "Review supplied evidence",
+        schema: z.object({ message: z.string() }),
+        signal: new AbortController().signal,
+        onEvent,
+        ...(reasoningEffort ? { reasoningEffort } : {}),
+      });
+      const native =
+        provider === "claude"
+          ? sdk.query.mock.calls.at(-1)![0].options
+          : sdk.threadOptions.mock.calls.at(-1)![0];
+      const field = provider === "claude" ? "effort" : "modelReasoningEffort";
+      if (reasoningEffort) expect(native[field]).toBe(reasoningEffort);
+      else expect(native).not.toHaveProperty(field);
+      const invocation = onEvent.mock.calls
+        .map(([event]) => event)
+        .find((event) => event.type === "invocation");
+      expect(invocation.data.prompt.reasoningEffort).toBe(reasoningEffort ?? null);
+    }
+  },
+);
+
+it.each([claudeAgent, codexAgent])(
+  "does not launch $provider after cancellation during setup",
+  async (agent) => {
+    for (const preAborted of [true, false]) {
+      const controller = new AbortController();
+      const reason = new Error("User cancelled during setup");
+      const queryCalls = sdk.query.mock.calls.length;
+      const codexCalls = sdk.construct.mock.calls.length;
+      if (preAborted) controller.abort(reason);
+      else
+        sdk.cavemanRuntime.mockImplementationOnce(async () => {
+          controller.abort(reason);
+          return undefined;
+        });
+      await expect(
+        agent.run({
+          ...capacityAttemptOptions(vi.fn(), controller.signal),
+          model: "selected-model",
+          systemPrompt: "Test cancellation",
+          jsonSchema: {},
+          textOnly: true,
+        }),
+      ).rejects.toBe(reason);
+      expect(sdk.query.mock.calls.length).toBe(queryCalls);
+      expect(sdk.construct.mock.calls.length).toBe(codexCalls);
+    }
+  },
+);
+
+it.each([claudeAgent, codexAgent])(
+  "closes $provider resources when cancellation happens inside an event callback",
+  async (agent) => {
+    const controller = new AbortController();
+    const reason = new Error("User cancelled the active turn");
+    const finalized = vi.fn();
+    sdk.query.mockImplementation(async function* () {
+      try {
+        yield { type: "system", subtype: "init", session_id: "session", skills: [] };
+        yield {
+          type: "result",
+          subtype: "success",
+          is_error: false,
+          structured_output: { message: "done" },
+          session_id: "session",
+        };
+      } finally {
+        finalized();
+      }
+    });
+    sdk.codexEvents.mockImplementation(async function* () {
+      try {
+        yield { type: "thread.started", thread_id: "session" };
+        yield {
+          type: "item.completed",
+          item: { type: "agent_message", id: "answer", text: '{"message":"done"}' },
+        };
+        yield { type: "turn.completed", usage: {} };
+      } finally {
+        finalized();
+      }
+    });
+    const remove = vi.spyOn(controller.signal, "removeEventListener");
+    await expect(
+      agent.run({
+        ...capacityAttemptOptions(() => controller.abort(reason), controller.signal),
+        model: "selected-model",
+        systemPrompt: "Test cancellation",
+        jsonSchema: {},
+        textOnly: true,
+      }),
+    ).rejects.toBe(reason);
+    expect(finalized).toHaveBeenCalledOnce();
+    if (agent.provider === "claude") {
+      expect(sdk.close).toHaveBeenCalledOnce();
+      expect(sdk.query.mock.calls.at(-1)![0].options.abortController.signal.reason).toBe(reason);
+      expect(remove).toHaveBeenCalledWith("abort", expect.any(Function));
+    }
+    remove.mockRestore();
+  },
+);
+
+it.each([claudeAgent, codexAgent])(
+  "cleans up $provider after a stream crash or callback exception",
+  async (agent) => {
+    for (const callbackFails of [false, true]) {
+      sdk.close.mockClear();
+      const failure = new Error(callbackFails ? "Event persistence failed" : "SDK process crashed");
+      const finalized = vi.fn();
+      sdk.query.mockImplementation(async function* () {
+        try {
+          yield { type: "system", subtype: "init", session_id: "session", skills: [] };
+          throw failure;
+        } finally {
+          finalized();
+        }
+      });
+      sdk.codexEvents.mockImplementation(async function* () {
+        try {
+          yield { type: "thread.started", thread_id: "session" };
+          throw failure;
+        } finally {
+          finalized();
+        }
+      });
+      await expect(
+        agent.run({
+          ...capacityAttemptOptions(() => {
+            if (callbackFails) throw failure;
+          }),
+          model: "selected-model",
+          systemPrompt: "Test crash cleanup",
+          jsonSchema: {},
+          textOnly: true,
+        }),
+      ).rejects.toBe(failure);
+      expect(finalized).toHaveBeenCalledOnce();
+      if (agent.provider === "claude") expect(sdk.close).toHaveBeenCalledOnce();
+    }
+  },
+);
+
+it.each(["claude", "codex"] as const)(
+  "rejects cancellation on the final %s usage event instead of reporting success",
+  async (provider) => {
+    const controller = new AbortController();
+    const reason = new Error("Cancelled at completion");
+    sdk.query.mockImplementation(async function* () {
+      yield {
+        type: "result",
+        subtype: "success",
+        is_error: false,
+        structured_output: { message: "done" },
+        session_id: "session",
+        usage: {},
+      };
+    });
+    sdk.codexEvents.mockImplementation(completedCapacityRetry);
+    await expect(
+      agentTurn({
+        ...capacityAttemptOptions((event) => {
+          if (event.type === "usage") controller.abort(reason);
+        }, controller.signal),
+        provider,
+        textOnly: true,
+      }),
+    ).rejects.toBe(reason);
+  },
+);
+
+it("closes Claude immediately when cancellation arrives while no SDK event is available", async () => {
+  const controller = new AbortController();
+  const reason = new Error("Cancel a blocked stream");
+  let release!: () => void;
+  let waiting = false;
+  const stopped = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const finalized = vi.fn();
+  sdk.close.mockImplementation(() => release());
+  sdk.query.mockImplementation(async function* () {
+    try {
+      waiting = true;
+      await stopped;
+      yield { type: "system", subtype: "init", session_id: "session", skills: [] };
+    } finally {
+      finalized();
+    }
+  });
+  const running = claudeAgent.run({
+    ...capacityAttemptOptions(vi.fn(), controller.signal),
+    model: "selected-model",
+    systemPrompt: "Test blocked cancellation",
+    jsonSchema: {},
+    textOnly: true,
+  });
+  const rejected = expect(running).rejects.toBe(reason);
+  await vi.waitFor(() => expect(waiting).toBe(true));
+  controller.abort(reason);
+  expect(sdk.close).toHaveBeenCalledOnce();
+  await rejected;
+  expect(finalized).toHaveBeenCalledOnce();
+  expect(sdk.close).toHaveBeenCalledOnce();
 });

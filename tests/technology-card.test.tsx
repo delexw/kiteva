@@ -34,6 +34,6 @@ it("renders reusable tool details and a share action without accessing browser A
   );
   expect(html).toContain(entry.key);
   expect(html).toContain("Copy link");
-  expect(html).toContain("Full technology definition");
+  expect(html).toContain("Original technology definition");
   expect(html).toContain("Suggested APIs");
 });

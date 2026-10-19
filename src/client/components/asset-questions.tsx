@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { scopedAssetQuestions } from "../../shared/asset-question-scopes";
 import { validateAssetLimits } from "../../shared/asset-limits";
 import { useState } from "react";
@@ -19,12 +20,13 @@ import {
 import { ComposerAttachments } from "./composer-attachments";
 
 function ReferenceUpload({ disabled }: { disabled: boolean }) {
+  useUiLanguage();
   const attachments = usePromptInputAttachments();
   return (
     <>
       <ComposerAttachments />
       <Button htmlType="button" disabled={disabled} onClick={attachments.openFileDialog}>
-        Attach reference
+        {translateUi("Attach reference")}
       </Button>
     </>
   );
@@ -37,6 +39,7 @@ export function AssetQuestionCard({
   question: AssetQuestion;
   onAnswer: (answer: string, files: PromptInputMessage["files"]) => Promise<void>;
 }) {
+  useUiLanguage();
   const [answer, setAnswer] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -46,7 +49,7 @@ export function AssetQuestionCard({
     try {
       await onAnswer(text, files);
     } catch {
-      setError("We couldn't save your reply. Please try again.");
+      setError(translateUi("We couldn't save your reply. Please try again."));
     } finally {
       setBusy(false);
     }
@@ -55,12 +58,15 @@ export function AssetQuestionCard({
     <Message from="assistant" className="asset-question-card">
       <MessageContent>
         <p>{question.question}</p>
-        <p className="asset-question-fallback">Alternative: {question.fallback}</p>
+        <p className="asset-question-fallback">
+          {translateUi("Alternative:") + " "}
+          {question.fallback}
+        </p>
         <p className="asset-question-note">
-          Work continues while you decide.{" "}
+          {translateUi("Work continues while you decide.")}{" "}
           {question.jobId
-            ? "Your reply and references apply to this result’s next build."
-            : "Your reply and references apply to the project."}
+            ? translateUi("Your reply and references apply to this result’s next build.")
+            : translateUi("Your reply and references apply to the project.")}
         </p>
         <PromptInput
           multiple
@@ -71,23 +77,23 @@ export function AssetQuestionCard({
           onSubmit={(message) => submit(message.text, message.files)}
         >
           <PromptInputTextarea
-            aria-label="Your reply"
+            aria-label={translateUi("Your reply")}
             value={answer}
             onChange={(event) => setAnswer(event.target.value)}
-            placeholder="Add a preference or attach a reference…"
+            placeholder={translateUi("Add a preference or attach a reference…")}
             disabled={busy}
           />
           <PromptInputFooter className="asset-question-actions">
             <ReferenceUpload disabled={busy} />
             <Button htmlType="submit" type="primary" disabled={busy}>
-              Send reply
+              {translateUi("Send reply")}
             </Button>
             <Button
               htmlType="button"
               disabled={busy}
               onClick={() => void submit(question.fallback, [])}
             >
-              Continue with alternative
+              {translateUi("Continue with alternative")}
             </Button>
           </PromptInputFooter>
         </PromptInput>
@@ -106,6 +112,7 @@ export function AssetQuestions({
   onUpdated: (run: Run) => void;
   jobId?: string;
 }) {
+  useUiLanguage();
   const questions =
     scopedAssetQuestions(run).filter(
       (question) => question.state === "open" && question.jobId === jobId,
@@ -121,7 +128,7 @@ export function AssetQuestions({
       : [];
     for (const file of files) {
       const response = await fetch(file.url);
-      if (!response.ok) throw Error("Could not read attachment");
+      if (!response.ok) throw Error(translateUi("Could not read attachment"));
       const form = new FormData();
       const blob = await response.blob();
       const name = file.filename || "reference";
@@ -143,9 +150,13 @@ export function AssetQuestions({
   return (
     <section
       className="asset-questions"
-      aria-label={jobId ? "Questions for this result" : "Project questions"}
+      aria-label={
+        jobId ? translateUi("Questions for this result") : translateUi("Project questions")
+      }
     >
-      <h4>{jobId ? "Question for this result" : "Main progress questions"}</h4>
+      <h4>
+        {jobId ? translateUi("Question for this result") : translateUi("Main progress questions")}
+      </h4>
       {questions.map((question) => (
         <AssetQuestionCard
           key={question.id}

@@ -15,5 +15,7 @@ export const ContentBriefSchema = z.object({
   previewBeat: z.string(),
   assetDescriptions: z.array(z.string()),
   constraints: z.array(z.string()),
-  assetPlan: BriefAssetPlanSchema.optional(),
+  assetPlan: BriefAssetPlanSchema.optional().describe(
+    "Preparation evidence map: verified sources, requested uses and inspection limitations. Advisory input for the main model, which owns production planning and pending captures during building; not approval of uncaptured footage.",
+  ),
 });

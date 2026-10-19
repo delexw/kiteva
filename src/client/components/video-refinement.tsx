@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { useState } from "react";
 import { Button, Select } from "antd";
 import type { Run } from "../../shared/contracts";
@@ -9,6 +10,7 @@ import { api } from "../lib/api";
 import { PromptInput, PromptInputTextarea, PromptInputFooter } from "./ai-elements/prompt-input";
 
 export function VideoRefinement({ run, onUpdated }: { run: Run; onUpdated: (run: Run) => void }) {
+  useUiLanguage();
   const completed = run.jobs.filter(
     (job) =>
       job.kind === "full" && job.phase === "ready" && job.outputType !== "page" && job.sessionId,
@@ -24,20 +26,27 @@ export function VideoRefinement({ run, onUpdated }: { run: Run; onUpdated: (run:
     !terminalPhases.has(run.phase) ||
     run.jobs.some((job) => !terminalPhases.has(job.phase));
   return (
-    <section className="video-refinement" aria-label="Fine-tune your video">
-      <h3>Fine-tune your video</h3>
-      <p>Describe what to change. Your current video stays saved as a separate version.</p>
+    <section className="video-refinement" aria-label={translateUi("Fine-tune your video")}>
+      <h3>{translateUi("Fine-tune your video")}</h3>
+      <p>
+        {translateUi(
+          "Describe what to change. Your current video stays saved as a separate version.",
+        )}
+      </p>
       <Select
-        aria-label="Video to fine-tune"
+        aria-label={translateUi("Video to fine-tune")}
         value={selected.id}
         disabled={active}
         onChange={setSelectedId}
         options={completed.map((job, index) => ({
           value: job.id,
-          label: `${candidateDisplayTitle(
-            run.candidates.find((entry) => entry.id === job.candidateId),
-            index + 1,
-          )} · version ${index + 1}`,
+          label: translateUi("{{value0}} · version {{value1}}", {
+            value0: candidateDisplayTitle(
+              run.candidates.find((entry) => entry.id === job.candidateId),
+              index + 1,
+            ),
+            value1: index + 1,
+          }),
         }))}
       />
       <PromptInput
@@ -60,8 +69,8 @@ export function VideoRefinement({ run, onUpdated }: { run: Run; onUpdated: (run:
         }}
       >
         <PromptInputTextarea
-          aria-label="Fine-tune instructions"
-          placeholder="For example: slow the opening and make the captions larger…"
+          aria-label={translateUi("Fine-tune instructions")}
+          placeholder={translateUi("For example: slow the opening and make the captions larger…")}
           maxLength={6000}
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
@@ -74,7 +83,7 @@ export function VideoRefinement({ run, onUpdated }: { run: Run; onUpdated: (run:
             loading={busy}
             disabled={active || !prompt.trim()}
           >
-            Apply changes
+            {translateUi("Apply changes")}
           </Button>
         </PromptInputFooter>
       </PromptInput>

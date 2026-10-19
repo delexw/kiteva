@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { VideoPlayer } from "./video-player";
 import { useEffect, useRef, useState } from "react";
 import { useViewportVisibility } from "../use-viewport-visibility";
@@ -14,6 +15,7 @@ import { projectOverview } from "../lib/project-overview";
 import { InteractivePagePreview } from "../domains/page/preview";
 
 export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: () => void }) {
+  useUiLanguage();
   const container = useRef<HTMLDivElement>(null);
   const hasEnteredViewport = useViewportVisibility(container, 0, true);
   const visible = useViewportVisibility(container, 0);
@@ -58,7 +60,7 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
               ? "video"
               : "progress"
       }
-      label={`Results for ${projectName(project)}`}
+      label={translateUi("Results for {{value0}}", { value0: projectName(project) })}
       carousel={stacked}
     >
       <div className={`project-media-stack ${stacked ? "has-multiple-results" : ""}`}>
@@ -114,13 +116,16 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
           transition={{ duration: 0.22 }}
         >
           {media && !hasEnteredViewport ? (
-            <div className="recent-project-placeholder" aria-label="Preview loads when visible">
+            <div
+              className="recent-project-placeholder"
+              aria-label={translateUi("Preview loads when visible")}
+            >
               {project.request.outputType === "page" ? (
                 <FileCode2 aria-hidden="true" />
               ) : (
                 <Film aria-hidden="true" />
               )}
-              <p>Preview</p>
+              <p>{translateUi("Preview")}</p>
             </div>
           ) : media?.outputType === "page" && media.page ? (
             <InteractivePagePreview
@@ -135,7 +140,7 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
               <video
                 ref={clipPlayer}
                 className="project-card-clip"
-                aria-label={`Clip from ${projectName(project)}`}
+                aria-label={translateUi("Clip from {{value0}}", { value0: projectName(project) })}
                 src={clipSource}
                 poster={media.poster ? artifact(media.poster) : undefined}
                 muted
@@ -146,7 +151,9 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
             </>
           ) : media?.video ? (
             <VideoPlayer
-              aria-label={`Video project: ${projectName(project)}`}
+              aria-label={translateUi("Video project: {{value0}}", {
+                value0: projectName(project),
+              })}
               src={artifact(playbackVideoOf(media)!)}
               poster={media.poster ? artifact(media.poster) : undefined}
               playsInline
@@ -160,10 +167,10 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
               className="project-card-play"
               size="small"
               icon={<Play size={14} />}
-              aria-label={`Play film: ${projectName(project)}`}
+              aria-label={translateUi("Play film: {{value0}}", { value0: projectName(project) })}
               onClick={onOpen}
             >
-              Play film
+              {translateUi("Play film")}
             </Button>
           )}
         </motion.div>
@@ -172,7 +179,9 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
         <div className="project-media-stack-controls">
           <Button
             className="project-stack-previous"
-            aria-label={`Previous result for ${projectName(project)}`}
+            aria-label={translateUi("Previous result for {{value0}}", {
+              value0: projectName(project),
+            })}
             icon={<ArrowLeft size={16} />}
             onClick={() => rotate(-1)}
           />
@@ -183,13 +192,17 @@ export function ProjectMediaStack({ project, onOpen }: { project: Run; onOpen: (
           )}
           <Button
             className="project-stack-next"
-            aria-label={`Next result for ${projectName(project)}`}
+            aria-label={translateUi("Next result for {{value0}}", { value0: projectName(project) })}
             icon={<ArrowRight size={16} />}
             onClick={() => rotate(1)}
           />
         </div>
       ) : (
-        media && <span className="recent-project-media-caption">Latest finished result</span>
+        media && (
+          <span className="recent-project-media-caption">
+            {translateUi("Latest finished result")}
+          </span>
+        )
       )}
     </ProjectPreviewFrame>
   );

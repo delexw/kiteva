@@ -9,7 +9,9 @@ vi.mock("../src/server/agents/caveman", () => ({
 }));
 import { z } from "zod";
 const calls = vi.hoisted(() => ({ codex: vi.fn(), query: vi.fn(), streamedPrompt: vi.fn() }));
-vi.mock("@anthropic-ai/claude-agent-sdk", () => ({ query: calls.query }));
+vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
+  query: (...args: unknown[]) => Object.assign(calls.query(...args), { close: vi.fn() }),
+}));
 vi.mock("./../src/server/agents/sdk-home", () => ({
   isolatedCodexHome: async () => "/isolated-home",
 }));
@@ -74,6 +76,8 @@ it.each(["claude", "codex"] as const)(
       provider === "claude" ? options.systemPrompt : calls.streamedPrompt.mock.calls.at(-1)?.[0];
     expect(effectivePrompt).toContain("you MUST explore relevant navigation controls");
     expect(effectivePrompt).toContain("NOT YET CAPTURED DOES NOT MEAN UNAVAILABLE");
+    expect(effectivePrompt).toContain("The main model chooses the production plan during building");
+    expect(effectivePrompt).toContain("not mandatory screenshots for every future interaction");
     expect(effectivePrompt).toContain("pending lyric generation is not a missing uploaded asset");
     expect(effectivePrompt).toContain("do not log in");
     const server =
@@ -278,6 +282,9 @@ it.each(["claude", "codex"] as const)(
     const prompt =
       provider === "claude" ? options.systemPrompt : calls.streamedPrompt.mock.calls.at(-1)?.[0];
     expect(prompt).toContain("you MUST use capture_video");
+    expect(prompt).toContain("Treat brief.assetPlan as an advisory evidence map");
+    expect(prompt).toContain("for still-only scenes capture the required views");
+    expect(prompt).toContain("Review actual footage/stills");
     expect(prompt).toContain("independent of Motion Graphics");
     const server =
       provider === "claude"

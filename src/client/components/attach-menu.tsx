@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { useRef, useState } from "react";
 import { Paperclip, FileText, Image, Music, ChevronDown, Link, X } from "lucide-react";
 import { Textarea } from "./ui/textarea";
@@ -19,6 +20,7 @@ export function AttachMenu({
   urls: string;
   onUrlsChange: (value: string) => void;
 }) {
+  useUiLanguage();
   const [showUrls, setShowUrls] = useState(Boolean(urls.trim()));
   const filesInput = useRef<HTMLInputElement>(null);
   const imagesInput = useRef<HTMLInputElement>(null);
@@ -29,29 +31,35 @@ export function AttachMenu({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button type="button" className="upload-button" disabled={uploading}>
-              <Paperclip size={16} /> {uploading ? "Uploading…" : "Attach"}
+              <Paperclip size={16} />{" "}
+              {uploading ? translateUi("Uploading…") : translateUi("Attach")}
               <ChevronDown size={14} />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="attach-menu">
             <DropdownMenuItem onSelect={() => filesInput.current?.click()}>
-              <FileText size={16} /> Files
+              <FileText size={16} />
+              {" " + translateUi("Files")}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => imagesInput.current?.click()}>
-              <Image size={16} /> Images
+              <Image size={16} />
+              {" " + translateUi("Images")}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => audioInput.current?.click()}>
-              <Music size={16} /> Audio
+              <Music size={16} />
+              {" " + translateUi("Audio")}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setShowUrls(true)}>
-              <Link size={16} /> URLs{urls.trim() ? " · added" : ""}
+              <Link size={16} />
+              {" " + translateUi("URLs")}
+              {urls.trim() ? translateUi(" · added") : ""}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         {[
-          { ref: filesInput, label: "Upload reference files", accept: undefined },
-          { ref: imagesInput, label: "Upload images", accept: "image/*" },
-          { ref: audioInput, label: "Upload audio", accept: "audio/*" },
+          { ref: filesInput, label: translateUi("Upload reference files"), accept: undefined },
+          { ref: imagesInput, label: translateUi("Upload images"), accept: "image/*" },
+          { ref: audioInput, label: translateUi("Upload audio"), accept: "audio/*" },
         ].map(({ ref, label, accept }) => (
           <input
             key={label}
@@ -73,7 +81,7 @@ export function AttachMenu({
       {showUrls && (
         <div className="composer-urls">
           <label className="field-label">
-            Website URLs
+            {translateUi("Website URLs")}
             <Textarea
               className="url-input"
               placeholder="https://example.com — one URL per line"
@@ -81,7 +89,11 @@ export function AttachMenu({
               onChange={(event) => onUrlsChange(event.target.value)}
             />
           </label>
-          <button type="button" aria-label="Close URL editor" onClick={() => setShowUrls(false)}>
+          <button
+            type="button"
+            aria-label={translateUi("Close URL editor")}
+            onClick={() => setShowUrls(false)}
+          >
             <X size={14} />
           </button>
         </div>

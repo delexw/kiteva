@@ -14,7 +14,7 @@ export interface ActivityItem {
   progressStage?: "render" | "playback-copy";
   status?: "running" | "complete" | "failed" | "stopped";
 }
-const taskActivityLabels: Record<string, { working: string; saving: string }> = {
+export const taskActivityLabels: Record<string, { working: string; saving: string }> = {
   "Brief preparation": { working: "Preparing your brief…", saving: "Saving the draft brief…" },
   "Brief asset self-review": {
     working: "Checking references against your story…",

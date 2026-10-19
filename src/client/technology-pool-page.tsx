@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "./i18n";
 import { PageTemplate } from "./components/page-template";
 import { useState } from "react";
 import {
@@ -23,7 +24,7 @@ import {
   type TechnologyEntry,
 } from "./technology-pool-model";
 
-const readable = (value: string) => value.replaceAll("_", " ");
+const readable = (value: string) => translateUi(value);
 const kinds = [...new Set(technologyEntries.map((entry) => entry.kind))].sort();
 const roles = [
   ...new Set(technologyEntries.flatMap((entry) => entry.definition.production_roles || [])),
@@ -37,7 +38,7 @@ const columns: TableColumnsType<TechnologyEntry> = [
     render: (_, entry) => (
       <>
         <strong>
-          <Link to={technologyCardPath(entry.key)}>{entry.definition.name}</Link>
+          <Link to={technologyCardPath(entry.key)}>{translateUi(entry.definition.name)}</Link>
         </strong>
         <div>
           <code>{entry.key}</code>
@@ -64,9 +65,9 @@ const columns: TableColumnsType<TechnologyEntry> = [
     render: (_, entry) => (
       <Typography.Paragraph
         className="technology-purpose"
-        ellipsis={{ rows: 2, tooltip: entry.definition.purpose }}
+        ellipsis={{ rows: 2, tooltip: translateUi(entry.definition.purpose ?? "Not specified") }}
       >
-        {entry.definition.purpose || "Not specified"}
+        {translateUi(entry.definition.purpose || "Not specified")}
       </Typography.Paragraph>
     ),
   },
@@ -78,11 +79,12 @@ const columns: TableColumnsType<TechnologyEntry> = [
       entry.definition.package ? (
         <code>{entry.definition.package}</code>
       ) : (
-        <span title="No package specified">—</span>
+        <span title={translateUi("No package specified")}>—</span>
       ),
   },
 ];
 export function TechnologyPoolPage() {
+  useUiLanguage();
   const [params, setParams] = useSearchParams();
   const toolKey = params.get("tool");
   const selected = technologyEntries.find((entry) => entry.key === toolKey);
@@ -101,44 +103,56 @@ export function TechnologyPoolPage() {
     <PageTemplate
       className="technology-pool-page"
       eyebrow="Library / Technology pool"
-      title="Technology pool."
-      description={<p>Explore tools for Motion Graphics, motion and production.</p>}
-      actions={<Tag>{technologyEntries.length} technologies</Tag>}
+      title={translateUi("Technology pool.")}
+      description={
+        <p>{translateUi("Explore tools for Motion Graphics, motion and production.")}</p>
+      }
+      actions={
+        <Tag>
+          {technologyEntries.length}
+          {" " + translateUi("technologies")}
+        </Tag>
+      }
       controls={
         <>
           <div className="technology-pool-controls">
             <Input
-              aria-label="Search technologies"
+              aria-label={translateUi("Search technologies")}
               prefix={<Search size={16} />}
-              placeholder="Search names, pool keys, packages or capabilities…"
+              placeholder={translateUi("Search names, pool keys, packages or capabilities…")}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               allowClear
             />
             <Select
-              aria-label="Technology type"
+              aria-label={translateUi("Technology type")}
               value={kind}
               onChange={setKind}
               allowClear
-              placeholder="All types"
+              placeholder={translateUi("All types")}
               options={kinds.map((value) => ({ value, label: readable(value) }))}
             />
             <Select
-              aria-label="Production role"
+              aria-label={translateUi("Production role")}
               value={role}
               onChange={setRole}
               allowClear
-              placeholder="All roles"
+              placeholder={translateUi("All roles")}
               options={roles.map((value) => ({ value, label: readable(value) }))}
             />
           </div>
           <p className="technology-pool-count" role="status">
-            {entries.length} of {technologyEntries.length} technologies
+            {entries.length}
+            {" " + translateUi("of") + " "}
+            {technologyEntries.length}
+            {" " + translateUi("technologies")}
           </p>
         </>
       }
     >
-      {!entries.length && <Empty description="No technologies match these filters." />}
+      {!entries.length && (
+        <Empty description={translateUi("No technologies match these filters.")} />
+      )}
       {groupTechnologyEntries(entries).map((group) => (
         <Card
           key={group.kind}
@@ -147,19 +161,23 @@ export function TechnologyPoolPage() {
           title={readable(group.kind)}
           extra={
             <Tag>
-              {group.entries.length} {group.entries.length === 1 ? "technology" : "technologies"}
+              {group.entries.length}{" "}
+              {group.entries.length === 1 ? translateUi("technology") : translateUi("technologies")}
             </Tag>
           }
         >
           <Table
             rowKey="key"
-            columns={columns}
+            columns={columns.map((column) => ({
+              ...column,
+              title: typeof column.title === "string" ? translateUi(column.title) : column.title,
+            }))}
             dataSource={group.entries}
             pagination={false}
             size="small"
             tableLayout="fixed"
             scroll={{ x: 1000 }}
-            locale={{ emptyText: "No technologies match these filters." }}
+            locale={{ emptyText: translateUi("No technologies match these filters.") }}
             expandable={{
               columnWidth: 40,
               expandedRowRender: (entry) => <TechnologyCard key={entry.key} entry={entry} />,
@@ -168,13 +186,14 @@ export function TechnologyPoolPage() {
         </Card>
       ))}
       {selected && (
-        <Dialog title={selected.definition.name} onClose={closeCard} wide>
+        <Dialog title={translateUi(selected.definition.name)} onClose={closeCard} wide>
           <TechnologyCard key={selected.key} entry={selected} />
         </Dialog>
       )}
       {toolKey && !selected && (
         <div role="alert">
-          Tool not found. <Button onClick={closeCard}>Back to technology pool</Button>
+          {translateUi("Tool not found.") + " "}
+          <Button onClick={closeCard}>{translateUi("Back to technology pool")}</Button>
         </div>
       )}
     </PageTemplate>

@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import { Badge, Button, Dropdown, Tooltip } from "antd";
 import {
@@ -26,6 +27,7 @@ import {
 } from "./window-lifecycle";
 
 function ProjectGlyph({ project }: { project: Run }) {
+  useUiLanguage();
   return (
     <span
       className="room-project-glyph"
@@ -49,6 +51,7 @@ export function isDockMenuKey(event: Pick<KeyboardEvent, "key" | "shiftKey">) {
 }
 /** A minimized project window in the dock: icon only, with its name in the tooltip and label. */
 export function RoomDockProject(props: DockProjectProps) {
+  useUiLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
   return <RoomDockProjectTile {...props} menuOpen={menuOpen} onMenuOpenChange={setMenuOpen} />;
 }
@@ -82,8 +85,8 @@ function dockTile({
       autoFocus
       menu={{
         items: [
-          { key: "restore", label: "Restore" },
-          { key: "close", label: "Close window" },
+          { key: "restore", label: translateUi("Restore") },
+          { key: "close", label: translateUi("Close window") },
         ],
         onClick: ({ key }) => {
           onMenuOpenChange(false);
@@ -107,12 +110,12 @@ function dockTile({
           </Button>
         </Tooltip>
         {marks}
-        <Tooltip title="Close window">
+        <Tooltip title={translateUi("Close window")}>
           <Button
             type="text"
             size="small"
             className="room-dock-close"
-            aria-label={`Close ${name}`}
+            aria-label={translateUi("Close {{value0}}", { value0: name })}
             icon={<X size={10} strokeWidth={3} />}
             onClick={onClose}
           />
@@ -141,7 +144,7 @@ export function RoomDockProjectTile({
       <>
         <strong>{name}</strong>
         <br />
-        {kind === "expanded" ? "Open project" : "Project card"}
+        {kind === "expanded" ? translateUi("Open project") : translateUi("Project card")}
         {status && ` · ${status}`}
       </>
     ),
@@ -177,6 +180,7 @@ type DockUtilityProps = {
 };
 /** A minimized tool window (Motion Graphic explore, governance…) in the dock, icon only. */
 export function RoomDockUtility(props: DockUtilityProps) {
+  useUiLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
   return <RoomDockUtilityTile {...props} menuOpen={menuOpen} onMenuOpenChange={setMenuOpen} />;
 }
@@ -192,7 +196,7 @@ export function RoomDockUtilityTile({
     ...menu,
     kind: "utility",
     name: title,
-    label: `Restore ${title}, minimized`,
+    label: translateUi("Restore {{value0}}, minimized", { value0: title }),
     tooltip: title,
     glyph: (
       <span className="room-utility-glyph" aria-hidden="true">
@@ -235,7 +239,7 @@ export function RoomProjectsLauncher({
           ? [
               {
                 type: "group",
-                label: "Projects",
+                label: translateUi("Projects"),
                 children: projects.map((project) => {
                   const status = roomProjectStatusText(project);
                   const placement = placements.get(project.id)!.label;
@@ -247,7 +251,10 @@ export function RoomProjectsLauncher({
                     extra: (
                       <span className="room-projects-menu-state">
                         {roomProjectSignals(project).questions > 0 && (
-                          <span className="room-attention-dot" aria-label="Waiting for you" />
+                          <span
+                            className="room-attention-dot"
+                            aria-label={translateUi("Waiting for you")}
+                          />
                         )}
                         {placement}
                       </span>
@@ -256,9 +263,13 @@ export function RoomProjectsLauncher({
                 }),
               },
               { type: "divider" },
-              { key: "show-all", label: "Show all projects on the desktop", disabled: !closed },
+              {
+                key: "show-all",
+                label: translateUi("Show all projects on the desktop"),
+                disabled: !closed,
+              },
             ]
-          : [{ key: "none", label: "No projects yet", disabled: true }],
+          : [{ key: "none", label: translateUi("No projects yet"), disabled: true }],
         onClick: ({ key }) => {
           if (key === "show-all") onShowAll();
           const project = projects.find((item) => item.id === key);
@@ -267,10 +278,18 @@ export function RoomProjectsLauncher({
       }}
     >
       <span>
-        <Tooltip title={closed ? `Projects · ${closed} closed` : "Projects"}>
+        <Tooltip
+          title={
+            closed
+              ? translateUi("Projects · {{value0}} closed", { value0: closed })
+              : translateUi("Projects")
+          }
+        >
           <Badge className="room-dock-count" count={closed} size="small" offset={[-3, 3]}>
             <Button
-              aria-label={`Projects${closed ? `, ${closed} closed` : ""}. Show a project on the desktop`}
+              aria-label={translateUi("Projects{{value0}}. Show a project on the desktop", {
+                value0: closed ? translateUi(", {{count}} closed", { count: closed }) : "",
+              })}
               icon={<Clapperboard size={18} />}
             />
           </Badge>
@@ -299,23 +318,24 @@ export function RoomSaveStatusIcon({
   uploading: boolean;
   onRetry: () => void;
 }) {
+  useUiLanguage();
   const text = status === "unsaved" && needsChoice ? "Needs your choice" : saveText[status];
   return (
     <span className="room-dock-status">
       {uploading && (
-        <Tooltip title="Adding to your shelf…">
+        <Tooltip title={translateUi("Adding to your shelf…")}>
           <span className="room-dock-status-icon" role="status">
             <CloudUpload size={15} aria-hidden="true" />
-            <span className="room-sr-only">Adding to your shelf…</span>
+            <span className="room-sr-only">{translateUi("Adding to your shelf…")}</span>
           </span>
         </Tooltip>
       )}
       {status === "failed" ? (
-        <Tooltip title="Not saved · Retry">
+        <Tooltip title={translateUi("Not saved · Retry")}>
           <Button
             danger
             size="small"
-            aria-label="Room changes not saved. Retry saving"
+            aria-label={translateUi("Room changes not saved. Retry saving")}
             icon={<RotateCw size={14} />}
             onClick={onRetry}
           />

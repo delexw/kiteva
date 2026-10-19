@@ -1,3 +1,4 @@
+import { translateUi } from "../i18n/service";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Alert, Button } from "antd";
 
@@ -19,11 +20,11 @@ export class RoomErrorBoundary extends Component<
         <Alert
           type="error"
           showIcon
-          title={`${this.props.label} couldn’t be shown`}
-          description="Nothing was deleted. The rest of your room still works."
+          title={translateUi("{{label}} couldn’t be shown", { label: this.props.label })}
+          description={translateUi("Nothing was deleted. The rest of your room still works.")}
           action={
             <Button size="small" onClick={() => this.setState({ error: undefined })}>
-              Try again
+              {translateUi("Try again")}
             </Button>
           }
         />

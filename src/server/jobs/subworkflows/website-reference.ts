@@ -1,3 +1,4 @@
+import { createRemoteReferenceBrowser } from "../../capture/worker-client";
 import puppeteer from "puppeteer-core";
 import { startWebsiteCapture } from "./website-capture";
 import {
@@ -10,21 +11,29 @@ import { CodedError } from "../../../shared/errors";
 import { agentMode } from "../../runtime/config";
 import { browserExecutablePath } from "../../runtime/browser";
 
-export async function createReferenceBrowser(
+export async function createLocalReferenceBrowser(
   origins: string[],
   signal: AbortSignal,
   mode: "local" | "hosted" = agentMode,
+  desktop = process.env.KITEVA_CAPTURE_DESKTOP === "1",
 ) {
   const allowedOrigins = new Set(origins.map((url) => new URL(url).origin));
-  const executablePath = browserExecutablePath();
+  const executablePath = browserExecutablePath(desktop);
   if (!executablePath)
-    throw new CodedError("REFERENCE_CAPTURE_FAILED", "Screenshot browser unavailable");
+    throw new CodedError(
+      "REFERENCE_CAPTURE_FAILED",
+      desktop
+        ? "OpenScreen recording requires full Chrome or Chromium; configure VIDEO_BROWSER_PATH"
+        : "Screenshot browser unavailable",
+    );
   const browser = await puppeteer
     .launch({
       executablePath,
-      headless: "shell",
+      headless: desktop ? false : "shell",
+      ...(desktop ? { defaultViewport: null } : {}),
       timeout: 10000,
       args: [
+        ...(desktop ? ["--app=about:blank", "--window-size=1440,1000"] : []),
         "--proxy-server=http://127.0.0.1:9",
         "--proxy-bypass-list=<-loopback>",
         "--disable-quic",
@@ -51,13 +60,15 @@ export async function createReferenceBrowser(
   const loadingErrors: string[] = [];
   try {
     signal.throwIfAborted();
-    const page = await browser.newPage();
+    const page = desktop
+      ? ((await browser.pages())[0] ?? (await browser.newPage()))
+      : await browser.newPage();
     page.setDefaultTimeout(10000);
     page.on("pageerror", (error) => {
       loadingErrors.push(error instanceof Error ? error.message : String(error));
       if (loadingErrors.length > 5) loadingErrors.shift();
     });
-    await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+    if (!desktop) await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
     await page.setBypassServiceWorker(true);
     await page.setRequestInterception(true);
     page.on("request", (request) => {
@@ -191,12 +202,12 @@ export async function createReferenceBrowser(
         await page.mouse.wheel({ deltaY });
         return inspect();
       },
-      async startRecording(workspace: string) {
+      async startRecording(workspace: string): Promise<string> {
         if (recording) throw Error("Stop the current recording before starting another");
         if (!allowedOrigins.has(new URL(page.url()).origin))
           throw Error("Inspect a supplied website first");
         await settle();
-        recording = await startWebsiteCapture(page, workspace, signal);
+        recording = await startWebsiteCapture(page, workspace, signal, desktop);
         return recording.id;
       },
       async stopRecording(id: string) {
@@ -229,4 +240,21 @@ export async function createReferenceBrowser(
     await browser.close();
     throw error;
   }
+}
+
+/** A configured worker takes priority; otherwise recording uses the current desktop. */
+export async function createReferenceBrowser(
+  origins: string[],
+  signal: AbortSignal,
+  mode: "local" | "hosted" = agentMode,
+  enableVideoCapture = false,
+) {
+  if (process.env.KITEVA_CAPTURE_WORKER_URL && process.env.KITEVA_CAPTURE_DESKTOP !== "1")
+    return createRemoteReferenceBrowser(origins, signal, mode);
+  return createLocalReferenceBrowser(
+    origins,
+    signal,
+    mode,
+    enableVideoCapture || process.env.KITEVA_CAPTURE_DESKTOP === "1",
+  );
 }

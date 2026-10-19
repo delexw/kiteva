@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { useLayoutEffect, useRef, useState } from "react";
 import { StoryboardCrew } from "../storyboard-crew";
 import { useViewportVisibility } from "../use-viewport-visibility";
@@ -11,6 +12,7 @@ export function productionSetScale(width: number, height: number) {
 }
 
 export function ProjectResultPending({ project, visible }: { project: Run; visible?: boolean }) {
+  useUiLanguage();
   const container = useRef<HTMLDivElement>(null);
   const slot = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -55,7 +57,7 @@ export function ProjectResultPending({ project, visible }: { project: Run; visib
       ref={container}
       className={`project-result-pending ${working && shown ? "is-working" : ""}`}
       role="status"
-      aria-label="Full result status"
+      aria-label={translateUi("Full result status")}
     >
       <div className="project-production-slot" ref={slot}>
         <div
@@ -64,7 +66,10 @@ export function ProjectResultPending({ project, visible }: { project: Run; visib
           style={{ transform: `translate(-50%, -50%) scale(${scale})` }}
         >
           <div className="production-set-board">
-            <span>ON SET · {activeFull ? "FULL FILM" : "DIRECTIONS"}</span>
+            <span>
+              {translateUi("ON SET ·") + " "}
+              {activeFull ? translateUi("FULL FILM") : translateUi("DIRECTIONS")}
+            </span>
             <div className="production-set-scene">
               <i />
               <i />
@@ -73,12 +78,16 @@ export function ProjectResultPending({ project, visible }: { project: Run; visib
             </div>
             <small>
               {overview.readyPreviews}/{overview.previewCount || project.request.candidateCount}{" "}
-              ready
+              {translateUi("ready")}
             </small>
           </div>
           <div className="production-set-director">
             <span className="production-set-speech">
-              {working ? (activeFull ? "Action!" : "Finding the shot…") : "Your call!"}
+              {working
+                ? activeFull
+                  ? translateUi("Action!")
+                  : translateUi("Finding the shot…")
+                : translateUi("Your call!")}
             </span>
             <StoryboardCrew role="director" reaction />
           </div>

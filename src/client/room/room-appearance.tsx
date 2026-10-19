@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { useEffect, useState, type CSSProperties } from "react";
 import {
   Alert,
@@ -38,6 +39,7 @@ export function RoomAppearanceSlider({
   caption,
   ...slider
 }: SliderSingleProps & { id: string; caption: string }) {
+  useUiLanguage();
   return (
     <div className="room-appearance-field">
       <span id={id}>{caption}</span>
@@ -57,6 +59,7 @@ export function RoomAppearanceDrawer({
   appearance: RoomAppearance;
   onChange: (change: Partial<RoomAppearance>) => void;
 }) {
+  useUiLanguage();
   const [images, setImages] = useState<RoomLibraryAsset[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -64,7 +67,11 @@ export function RoomAppearanceDrawer({
     if (!open) return;
     api<RoomLibraryAsset[]>("/api/room/wallpapers")
       .then(setImages)
-      .catch((e) => setError(`Could not load your images: ${(e as Error).message}`));
+      .catch((e) =>
+        setError(
+          translateUi("Could not load your images: {{value0}}", { value0: (e as Error).message }),
+        ),
+      );
   }, [open]);
   const image = appearance.source === "image" ? appearance.imageId : undefined;
   const value = image ? imageValue(image) : appearance.preset;
@@ -79,7 +86,7 @@ export function RoomAppearanceDrawer({
     try {
       const extension = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
       if (!roomWallpaperExtensions.includes(extension))
-        throw new Error("Use a PNG, JPG or WebP image");
+        throw new Error(translateUi("Use a PNG, JPG or WebP image"));
       validateAssetLimits([{ name: file.name, bytes: file.size }]);
       setUploading(true);
       const form = new FormData();
@@ -108,7 +115,7 @@ export function RoomAppearanceDrawer({
   }
   return (
     <Drawer
-      title="Desktop appearance"
+      title={translateUi("Desktop appearance")}
       open={open}
       onClose={onClose}
       mask={{ enabled: true, blur: false, closable: true }}
@@ -119,7 +126,7 @@ export function RoomAppearanceDrawer({
       <div className="room-appearance-body">
         {moods.map(({ mood, title }) => (
           <section key={mood} aria-labelledby={`room-wallpaper-${mood}`}>
-            <h3 id={`room-wallpaper-${mood}`}>{title}</h3>
+            <h3 id={`room-wallpaper-${mood}`}>{translateUi(title)}</h3>
             <Radio.Group
               name="room-wallpaper"
               value={value}
@@ -139,8 +146,8 @@ export function RoomAppearanceDrawer({
                       <span className="room-wallpaper-scene" />
                     </span>
                     <span className="room-wallpaper-option-text">
-                      <strong>{preset.name}</strong>
-                      <small>{preset.description}</small>
+                      <strong>{translateUi(preset.name)}</strong>
+                      <small>{translateUi(preset.description)}</small>
                     </span>
                   </Radio>
                 ))}
@@ -148,7 +155,7 @@ export function RoomAppearanceDrawer({
           </section>
         ))}
         <section aria-labelledby="room-wallpaper-images">
-          <h3 id="room-wallpaper-images">Your images</h3>
+          <h3 id="room-wallpaper-images">{translateUi("Your images")}</h3>
           <Upload
             accept={roomWallpaperExtensions.join(",")}
             showUploadList={false}
@@ -158,12 +165,13 @@ export function RoomAppearanceDrawer({
             }}
           >
             <Button icon={<ImagePlus size={15} />} loading={uploading}>
-              Choose an image…
+              {translateUi("Choose an image…")}
             </Button>
           </Upload>
           <p className="room-hint">
-            PNG, JPG or WebP up to 10 MB. It stays on this computer and is not added to your
-            material shelf.
+            {translateUi(
+              "PNG, JPG or WebP up to 10 MB. It stays on this computer and is not added to your material shelf.",
+            )}
           </p>
           {images.length > 0 && (
             <Radio.Group
@@ -185,7 +193,9 @@ export function RoomAppearanceDrawer({
                   <Button
                     type="text"
                     size="small"
-                    aria-label={`Remove ${asset.originalName} from your images`}
+                    aria-label={translateUi("Remove {{value0}} from your images", {
+                      value0: asset.originalName,
+                    })}
                     icon={<Trash2 size={14} />}
                     onClick={() => void remove(asset)}
                   />
@@ -198,17 +208,17 @@ export function RoomAppearanceDrawer({
           <Alert type="error" showIcon title={error} closable onClose={() => setError("")} />
         )}
         <section aria-labelledby="room-wallpaper-comfort" className="room-appearance-comfort">
-          <h3 id="room-wallpaper-comfort">Keep windows easy to read</h3>
+          <h3 id="room-wallpaper-comfort">{translateUi("Keep windows easy to read")}</h3>
           {image && (
             <div className="room-appearance-field">
-              <span id="room-wallpaper-fit">Image size</span>
+              <span id="room-wallpaper-fit">{translateUi("Image size")}</span>
               <Segmented<RoomAppearance["fit"]>
                 aria-labelledby="room-wallpaper-fit"
                 block
                 value={appearance.fit}
                 options={[
-                  { value: "cover", label: "Fill the screen" },
-                  { value: "contain", label: "Show the whole image" },
+                  { value: "cover", label: translateUi("Fill the screen") },
+                  { value: "contain", label: translateUi("Show the whole image") },
                 ]}
                 onChange={(fit) => onChange({ fit })}
               />
@@ -239,7 +249,7 @@ export function RoomAppearanceDrawer({
           )}
         </section>
         <Button onClick={() => onChange({ ...defaultRoomAppearance, imageId: undefined })}>
-          Restore original charcoal
+          {translateUi("Restore original charcoal")}
         </Button>
       </div>
     </Drawer>

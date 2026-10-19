@@ -85,10 +85,27 @@ export class Workflow {
   private agents = new WorkQueue(5);
   private renders = new WorkQueue(1);
   private controllers = new Map<string, AbortController>();
+  private taskSettlements = new Map<string, Promise<void>>();
+  private stopping = false;
   private playbackCopies = new Map<
     string,
     { controller: AbortController; discard: boolean; done: Promise<void> }
   >();
+  private startTask(id: string) {
+    if (this.stopping || this.controllers.has(id)) return;
+    const controller = new AbortController();
+    let settle!: () => void;
+    this.taskSettlements.set(id, new Promise<void>((resolve) => (settle = resolve)));
+    this.controllers.set(id, controller);
+    return {
+      controller,
+      finish: () => {
+        this.controllers.delete(id);
+        this.taskSettlements.delete(id);
+        settle();
+      },
+    };
+  }
   hasActiveTasks(run: Run) {
     return this.controllers.has(run.id) || run.jobs.some((job) => this.controllers.has(job.id));
   }
@@ -171,7 +188,7 @@ export class Workflow {
     throw new InputRequired();
   }
   private resumeInputs(run: Run) {
-    if (run.phase === "cancelled") return;
+    if (this.stopping || run.phase === "cancelled") return;
     for (const wait of run.inputWaits || []) {
       const job = wait.jobId ? run.jobs.find((item) => item.id === wait.jobId) : undefined;
       if (
@@ -192,7 +209,13 @@ export class Workflow {
     }
   }
   private settleRun(run: Run, job: GenerationJob) {
-    if (run.phase === "cancelled" || run.inputWaits?.length || this.hasActiveTasks(run)) return;
+    if (
+      this.stopping ||
+      run.phase === "cancelled" ||
+      run.inputWaits?.length ||
+      this.hasActiveTasks(run)
+    )
+      return;
     run.phase =
       job.kind === "full" || !run.jobs.some((item) => item.phase === "ready") ? job.phase : "ready";
     this.update(run);
@@ -283,8 +306,9 @@ export class Workflow {
     };
   }
   async prepare(run: Run) {
-    const controller = new AbortController();
-    this.controllers.set(run.id, controller);
+    const task = this.startTask(run.id);
+    if (!task) return;
+    const { controller } = task;
     try {
       if (!run.request.selectedStyleIds?.length) jevClient();
       run.phase = "preparing";
@@ -418,7 +442,7 @@ export class Workflow {
                 (run.request.outputType === "page"
                   ? "Prepare a responsive interactive page brief. The previewBeat is one representative section with a meaningful user interaction; no video timing. List sections and interactionGoals. Do not include video duration. "
                   : "") +
-                `${assetRequirementsPolicy.guidance}\n${briefExplorationInstructions}\n${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\nDuring preparation identify the core idea and main scenes first, then align extracted attachment content and proposed usage with those scenes. Repair unsuitable captures before returning where tools permit. The independent self-review will verify this handoff.\nRead input.json and brief-images.json. For uploaded images, inspect the listed inspectionPath first; if text or detail is unclear, inspect the unchanged originalPath at full resolution. Pica copies are only for brief inspection, never production assets. When URLs are provided, complete the REQUIRED WEBSITE REFERENCE EXPLORATION procedure before returning this brief: build the requested-view checklist, inspect supplied pages, navigate relevant existing projects/results for missing views, and capture those views. Report the navigation attempted for any item still unavailable. Captured website-reference screenshots in assets/ are available product images, not missing uploads. Respect instructions to omit unavailable optional steps, rather than adding placeholder scenes or unrequested asset requirements. Inspect them and use only the page states actually shown. A URL screenshot does not prove unseen pages or interactions. Produce a truthful structured content brief. Return subject as a short idea title of 4–10 words, capturing the core idea rather than repeating the prompt, scene list, requirements or settings. This title becomes the project heading after preparation completes. Identify one representative preview beat shared across Motion Graphics. Keep previewBeat and any proposed scenes Motion Graphic-neutral: describe the narrative action, change and intended meaning, not an invented palette, background, lighting, material, drawing technique, visual effect or camera treatment. For example, describe an overlooked insight becoming clear and shareable. Do not suggest Motion Graphics anywhere in the brief. Preserve visual choices explicitly requested by the user or evidenced in supplied assets; do not turn your own visual suggestions into facts or constraints. Defer all other visual treatment to the subsequent Motion Graphic selection stage. Do not invent facts or describe image content without inspecting it. Infer audience and objective only when omitted and list assumptions in constraints. For video only, suggest a full duration based on content and explain it. Auto full-video duration must be at least ${MIN_AUTO_VIDEO_DURATION} seconds, with distinct story scenes rather than a stretched preview. Previews remain 3 seconds. Respect explicit duration up to the ${MAX_VIDEO_DURATION}-second (5-minute) maximum. Auto duration must not exceed this maximum. For video requests, read the lyrics setting: supplied lyrics are exact creative copy, and write mode reserves time for on-screen lyrics that will be prepared separately; do not write the lyrics yourself. Off means no lyric captions. Lyrics alone never authorize generated vocals. A separate video request.speech setting is explicit voice authorization: narration is prepared by the application with local Kokoro before full-film implementation; uploaded mode uses the selected attached recording. Plan readable on-screen text and reserve space for spoken content when that setting is active. Do not claim singing support, synthesize speech during preparation, or ask for a voice upload merely because local narration was selected. Previews remain silent.`,
+                `${assetRequirementsPolicy.guidance}\n${briefExplorationInstructions}\n${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\nDuring preparation identify the core idea and main scenes first, then align extracted attachment content and proposed usage with those scenes. Correct unsupported factual descriptions; record pending production captures without blocking preparation. Leave production planning to the main model during building. The independent self-review will verify this handoff.\nRead input.json and brief-images.json. For uploaded images, inspect the listed inspectionPath first; if text or detail is unclear, inspect the unchanged originalPath at full resolution. Pica copies are only for brief inspection, never production assets. When URLs are provided, complete the REQUIRED WEBSITE REFERENCE EXPLORATION procedure before returning this brief: build the requested-view checklist, inspect supplied pages, navigate relevant existing projects/results for missing views, and capture only views needed as visual evidence or requested stills. Do not require complete screenshot coverage of future recordings. Report the navigation attempted for any item still unavailable. Captured website-reference screenshots in assets/ are available product images, not missing uploads. Respect instructions to omit unavailable optional steps, rather than adding placeholder scenes or unrequested asset requirements. Inspect them and use only the page states actually shown. A URL screenshot does not prove unseen pages or interactions. Produce a truthful structured content brief. Return subject as a short idea title of 4–10 words, capturing the core idea rather than repeating the prompt, scene list, requirements or settings. This title becomes the project heading after preparation completes. Identify one representative preview beat shared across Motion Graphics. Keep previewBeat and any proposed scenes Motion Graphic-neutral: describe the narrative action, change and intended meaning, not an invented palette, background, lighting, material, drawing technique, visual effect or camera treatment. For example, describe an overlooked insight becoming clear and shareable. Do not suggest Motion Graphics anywhere in the brief. Preserve visual choices explicitly requested by the user or evidenced in supplied assets; do not turn your own visual suggestions into facts or constraints. Defer all other visual treatment to the subsequent Motion Graphic selection stage. Do not invent facts or describe image content without inspecting it. Infer audience and objective only when omitted and list assumptions in constraints. For video only, suggest a full duration based on content and explain it. Auto full-video duration must be at least ${MIN_AUTO_VIDEO_DURATION} seconds, with distinct story scenes rather than a stretched preview. Previews remain 3 seconds. Respect explicit duration up to the ${MAX_VIDEO_DURATION}-second (5-minute) maximum. Auto duration must not exceed this maximum. For video requests, read the lyrics setting: supplied lyrics are exact creative copy, and write mode reserves time for on-screen lyrics that will be prepared separately; do not write the lyrics yourself. Off means no lyric captions. Lyrics alone never authorize generated vocals. A separate video request.speech setting is explicit voice authorization: narration is prepared by the application with local Kokoro before full-film implementation; uploaded mode uses the selected attached recording. Plan readable on-screen text and reserve space for spoken content when that setting is active. Do not claim singing support, synthesize speech during preparation, or ask for a voice upload merely because local narration was selected. Previews remain silent.`,
             }),
           );
           prepared = await reviewBriefAssets({
@@ -439,10 +463,10 @@ export class Workflow {
                   sessionId,
                   readOnly: true,
                   referenceUrls: run.request.urls,
-                  schema: preparationBriefSchema,
+                  schema: briefSchema,
                   promptContext: { currentDraft: draft, focusedReview: JSON.parse(feedback) },
                   onEvent: this.providerEvent(run, undefined, "Brief asset alignment repair"),
-                  prompt: `${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\n${briefAssetRepairScopeRule} Repair only the single assigned asset alignment issue in this brief. Continue the original preparation session. Inspect affected sources; use reference_browser tools to recapture the correct existing view when required. Preserve the core idea, exact copy and requested settings. Apply only this issue's expected fix and acceptance criterion. Keep every unaffected field, scene, asset, exact copy, requirement and setting unchanged; no unrelated cleanup, rewriting or extra fixes. Change only the targeted source extraction or scene usage and any strictly necessary references, and record any genuine remaining inspection limitation rather than inventing evidence. Return the repaired full brief; a separate review will recheck it.\nRead currentDraft and focusedReview from the required input JSON. The review contains exactly one issue, its expected fix and acceptance criteria.`,
+                  prompt: `${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\n${briefAssetRepairScopeRule} Repair only the single assigned asset alignment issue in this brief. Continue the original preparation session. Inspect affected sources; use reference_browser tools to recapture the correct existing view when required. Preserve the core idea, exact copy and requested settings. Apply only this issue's expected fix and acceptance criterion. Keep every unaffected field, scene, asset, exact copy, requirement and setting unchanged; no unrelated cleanup, rewriting or extra fixes. Change only the targeted source extraction or scene usage and any strictly necessary references, and record any genuine remaining inspection limitation rather than inventing evidence. Update currentDraft.assetPlan for source exclusions and scene links; the available-source inventory is application-owned and must remain unchanged. Return the repaired full brief including its assetPlan; a separate review will recheck it.\nRead currentDraft and focusedReview from the required input JSON. The review contains exactly one issue, its expected fix and acceptance criteria.`,
                 }),
               ),
           });
@@ -701,7 +725,7 @@ export class Workflow {
       this.emit(run, "error", run.error);
       this.update(run);
     } finally {
-      this.controllers.delete(run.id);
+      task.finish();
       this.resumeInputs(run);
     }
   }
@@ -841,9 +865,9 @@ export class Workflow {
     );
   }
   async generate(run: Run, job: GenerationJob, feedback?: string, decisions?: string) {
-    if (this.controllers.has(job.id)) return;
-    const controller = new AbortController();
-    this.controllers.set(job.id, controller);
+    const task = this.startTask(job.id);
+    if (!task) return;
+    const { controller } = task;
     try {
       this.inputCheckpoint(run, job);
       feedback = [
@@ -863,6 +887,7 @@ export class Workflow {
         job.finishedAt = undefined;
         this.update(run);
         await this.setup(run, job);
+        controller.signal.throwIfAborted();
         if (job.outputType === "page") {
           if (run.request.outputType !== "page") throw Error("Page job requires a page request");
           await generatePage({
@@ -881,6 +906,7 @@ export class Workflow {
             onEvent: this.providerEvent(run, job),
             emit: (type, msg) => this.emit(run, type, msg, job),
           });
+          controller.signal.throwIfAborted();
           return;
         }
         if (run.request.outputType === "page") throw Error("Video job requires a video request");
@@ -913,6 +939,7 @@ export class Workflow {
           emit: (type, msg) => this.emit(run, type, msg, job),
           render: (task) => this.renders.run(task),
         });
+        controller.signal.throwIfAborted();
       });
       if (job.kind === "full" && job.outputType !== "page" && job.phase === "ready")
         this.queuePlaybackCopies(run, job.id);
@@ -928,7 +955,7 @@ export class Workflow {
       this.update(run);
       this.emit(run, "error", job.error, job);
     } finally {
-      this.controllers.delete(job.id);
+      task.finish();
       this.resumeInputs(run);
     }
   }
@@ -1097,6 +1124,22 @@ export class Workflow {
         throw Error("Preparation is still stopping; retry when it finishes.");
       if (!["failed", "interrupted", "cancelled"].includes(run.phase))
         throw Error("Run is already active");
+      // A project retry resumes its latest attempts; preparation is only needed
+      // when it failed itself or has not produced a generation job yet.
+      const retryableJobs = run.error
+        ? []
+        : run.jobs.filter(
+            (job, index) =>
+              ["failed", "interrupted", "cancelled"].includes(job.phase) &&
+              run.candidates.some((candidate) => candidate.id === job.candidateId) &&
+              !run.jobs
+                .slice(index + 1)
+                .some((later) => later.candidateId === job.candidateId && later.kind === job.kind),
+          );
+      if (retryableJobs.length) {
+        for (const job of retryableJobs) this.retry(run, job.id);
+        return;
+      }
       void this.prepare(run);
       return;
     }
@@ -1173,11 +1216,16 @@ export class Workflow {
     }
     await Promise.all(entries.map((entry) => entry.done));
   }
-  shutdown() {
+  async shutdown() {
+    this.stopping = true;
     for (const c of this.controllers.values()) c.abort();
     for (const entry of this.playbackCopies.values()) {
       entry.discard = true;
       entry.controller.abort();
     }
+    await Promise.all([
+      ...this.taskSettlements.values(),
+      ...[...this.playbackCopies.values()].map((entry) => entry.done),
+    ]);
   }
 }

@@ -1,4 +1,14 @@
+import { translateUi, useUiLanguage } from "./i18n";
 import type { CrewRole } from "./storyboard-crew-plan";
+export const storyboardCrewLabels = {
+  director: { name: "DIRECTOR", description: "Stick-figure director with a clapperboard" },
+  stage: { name: "STAGE CREW", description: "Stick-figure stagehand carrying a prop" },
+  lighting: { name: "LIGHTING", description: "Stick-figure lighting technician" },
+  art: { name: "ART DEPT", description: "Stick-figure lettering artist" },
+  sound: { name: "SOUND", description: "Stick-figure sound technician" },
+  camera: { name: "CAMERA", description: "Stick-figure camera operator" },
+} satisfies Record<"director" | CrewRole, { name: string; description: string }>;
+
 export function StoryboardCrew({
   role,
   reaction = false,
@@ -8,23 +18,12 @@ export function StoryboardCrew({
   reaction?: boolean;
   bodyTilt?: number;
 }) {
+  useUiLanguage();
   return (
     <div
       className={`manga-crew manga-crew-${role}`}
       role="img"
-      aria-label={
-        role === "director"
-          ? "Stick-figure director with a clapperboard"
-          : role === "camera"
-            ? "Stick-figure camera operator"
-            : role === "stage"
-              ? "Stick-figure stagehand carrying a prop"
-              : role === "lighting"
-                ? "Stick-figure lighting technician"
-                : role === "art"
-                  ? "Stick-figure lettering artist"
-                  : "Stick-figure sound technician"
-      }
+      aria-label={translateUi(storyboardCrewLabels[role].description)}
     >
       <i className="manga-head" />
       <i

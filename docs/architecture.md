@@ -142,13 +142,15 @@ work they belong to, at a saved checkpoint.
 
 ### Which model does what
 
-| Step                                                                               | Claude projects     | Codex projects      | Why                                                              |
-| ---------------------------------------------------------------------------------- | ------------------- | ------------------- | ---------------------------------------------------------------- |
-| Brief, attachment review, summaries, lyrics, result review, eligible small repairs | `claude-haiku-5-5`  | `gpt-6-luna`        | Simple preparation and checking. Cheap and fast enough           |
-| Combination proposals                                                              | `claude-opus-5-5`   | `gpt-6.1-sol`       | The main creative judgement                                      |
-| Preview planning                                                                   | not used            | `gpt-6.1-sol`       | GPT-6.1 previews get a read-only plan first, in the same session |
-| Previews, full film, pacing/style repairs                                          | selected main model | selected main model | Creative implementation                                          |
-| Choosing directions                                                                | JEV                 | JEV                 | A separate evaluator, not the model that proposed the options    |
+| Step                                                                | Claude projects     | Codex projects      | Why                                                              |
+| ------------------------------------------------------------------- | ------------------- | ------------------- | ---------------------------------------------------------------- |
+| Brief, attachment review, summaries, lyrics, eligible small repairs | `claude-haiku-5-5`  | `gpt-6-luna`        | Simple preparation and checking. Cheap and fast enough           |
+| Combination proposals                                               | `claude-opus-5-5`   | `gpt-6.1-sol`       | The main creative judgement                                      |
+| Preview planning                                                    | not used            | `gpt-6.1-sol`       | GPT-6.1 previews get a read-only plan first, in the same session |
+| Previews, full film, pacing/style repairs                           | selected main model | selected main model | Creative implementation                                          |
+| Choosing directions                                                 | JEV                 | JEV                 | A separate evaluator, not the model that proposed the options    |
+
+Finished-result review uses the same selected main model that built the job, using the provider’s default reasoning effort. It runs as a separate read-only invocation with the existing QA evidence and Governance tracking.
 
 The default main models come from `src/shared/model-display-name.ts` and can be overridden with
 `VIDEO_CLAUDE_MODEL` / `VIDEO_CODEX_MODEL`.
@@ -188,10 +190,10 @@ separate home directory, no provider credentials and local-only network access.
 ```mermaid
 flowchart TB
   URL["Website you add<br/>(public, or localhost in local mode)"] --> Check["URL policy:<br/>DNS pinned, redirects checked,<br/>private ranges blocked"]
-  Check --> Session["Fresh headless Chrome<br/>via puppeteer-core"]
+  Check --> Session["Dedicated desktop Chrome<br/>local default or configured worker<br/>controlled via puppeteer-core"]
   Session --> Inspect["inspect_page / click_control"]
   Inspect --> Shot["capture_screenshot<br/>→ brief assets (PNG)"]
-  Session --> Rec["capture_video<br/>(implementation turns only)"]
+  Session --> Rec["capture_video → OpenScreen CLI<br/>(local or worker, implementation only)"]
   Rec --> Probe["Stream probe + full decode"]
   Probe --> Footage["Silent WebM + cursor JSON<br/>→ job assets"]
 ```
@@ -206,7 +208,7 @@ flowchart TB
 - Limits: navigation stays on the supplied origins, no login session is inherited, state-changing
   requests are blocked, there are per-resource and per-session byte budgets, and you get six takes per
   job, each up to 120 s and 150 MB.
-- No visible window and no personal browser profile are used. It isn't a desktop screen recorder.
+- Without a worker URL, OpenScreen records a dedicated visible browser on the current machine. A configured isolated worker keeps that window off the current desktop. Worker failures never silently switch to local recording. See [setup and verification status](openscreen-worker.md).
 
 ## Installed skill staging
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { translateUi, useUiLanguage } from "../../i18n";
+
 import {
   Command,
   CommandEmpty,
@@ -856,7 +858,7 @@ export const PromptInput = ({
     <>
       <input
         accept={accept}
-        aria-label="Upload files"
+        aria-label={translateUi("Upload files")}
         className="hidden"
         multiple={multiple}
         onChange={handleChange}
@@ -1130,6 +1132,7 @@ export const PromptInputSubmit = ({
   children,
   ...props
 }: PromptInputSubmitProps) => {
+  useUiLanguage();
   const isGenerating = status === "submitted" || status === "streaming";
 
   let Icon = <CornerDownLeftIcon className="size-4" />;
@@ -1156,7 +1159,9 @@ export const PromptInputSubmit = ({
 
   return (
     <InputGroupButton
-      aria-label={isGenerating ? "Stop" : "Submit"}
+      aria-label={translateUi(
+        { true: "Stop", false: "Submit" }[String(isGenerating) as "true" | "false"],
+      )}
       className={cn(className)}
       onClick={handleClick}
       size={size}

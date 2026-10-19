@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { Select } from "antd";
 import { Layers } from "lucide-react";
 import type { StyleExample } from "../../shared/contracts";
@@ -13,6 +14,7 @@ export function StylePickerPreview({
   example?: StyleExample;
   compact?: boolean;
 }) {
+  useUiLanguage();
   return (
     <div className={compact ? "style-picker-option" : "style-picker-preview"}>
       {compact ? (
@@ -26,7 +28,7 @@ export function StylePickerPreview({
           motionStatus={example?.motionStatus}
         />
       )}
-      <span>{style.name_en}</span>
+      <span>{translateUi(style.name_en)}</span>
     </div>
   );
 }
@@ -43,18 +45,19 @@ export function StylePicker({
   limit: number;
   onChange: (ids: string[]) => void;
 }) {
+  useUiLanguage();
   return (
     <>
       <Select
         mode="multiple"
         prefix={<Layers size={16} aria-hidden="true" />}
-        aria-label="Choose your own Motion Graphics"
-        placeholder="Browse Motion Graphic previews or search by name"
+        aria-label={translateUi("Choose your own Motion Graphics")}
+        placeholder={translateUi("Browse Motion Graphic previews or search by name")}
         value={selectedIds}
         maxCount={limit}
         optionFilterProp="label"
         listHeight={360}
-        options={styles.map((style) => ({ value: style.id, label: style.name_en }))}
+        options={styles.map((style) => ({ value: style.id, label: translateUi(style.name_en) }))}
         optionRender={(option) => (
           <StylePickerPreview
             compact
@@ -64,7 +67,10 @@ export function StylePicker({
         onChange={onChange}
       />
       {selectedIds.length > 0 && (
-        <div className="style-picker-previews" aria-label="Selected Motion Graphic previews">
+        <div
+          className="style-picker-previews"
+          aria-label={translateUi("Selected Motion Graphic previews")}
+        >
           {selectedIds.map((id) => {
             const style = styles.find((entry) => entry.id === id);
             return style ? (

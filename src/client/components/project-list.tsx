@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { Button, Card, Empty } from "antd";
 import { Trash2, SlidersHorizontal } from "lucide-react";
 import { isRunSettled, type Run, type Style, type StyleExample } from "../../shared/contracts";
@@ -21,9 +22,12 @@ export function ProjectList({
   styles?: Pick<Style, "id" | "name_en">[];
   examples?: StyleExample[];
 }) {
+  useUiLanguage();
   return (
     <div className="history-list recent-projects-grid">
-      {!projects.length && <Empty description="Your first project starts with an idea." />}
+      {!projects.length && (
+        <Empty description={translateUi("Your first project starts with an idea.")} />
+      )}
       {projects.map((project) => {
         return (
           <Card key={project.id} className="project-list-card" size="small">
@@ -35,7 +39,9 @@ export function ProjectList({
                     type="button"
                     className="recent-project-open"
                     onClick={() => onOpen(project)}
-                    aria-label={`Open project: ${projectName(project)}`}
+                    aria-label={translateUi("Open project: {{value0}}", {
+                      value0: projectName(project),
+                    })}
                   >
                     {projectName(project)}
                   </button>
@@ -51,16 +57,20 @@ export function ProjectList({
               <div className="recent-project-actions">
                 <details
                   className="recent-project-settings"
-                  aria-label={`Settings for ${projectName(project)}`}
+                  aria-label={translateUi("Settings for {{value0}}", {
+                    value0: projectName(project),
+                  })}
                 >
-                  <summary>Settings</summary>
+                  <summary>{translateUi("Settings")}</summary>
                   <ProjectSettings run={project} styles={styles} examples={examples} />
                 </details>
                 {onEdit && (
                   <Button
                     type="text"
-                    aria-label={`Edit settings for ${projectName(project)}`}
-                    title="Edit settings"
+                    aria-label={translateUi("Edit settings for {{value0}}", {
+                      value0: projectName(project),
+                    })}
+                    title={translateUi("Edit settings")}
                     icon={<SlidersHorizontal size={15} />}
                     onClick={() => onEdit(project)}
                   />
@@ -69,12 +79,14 @@ export function ProjectList({
                   danger
                   type="text"
                   icon={<Trash2 size={15} />}
-                  aria-label={`Delete project: ${projectName(project)}`}
+                  aria-label={translateUi("Delete project: {{value0}}", {
+                    value0: projectName(project),
+                  })}
                   disabled={!isRunSettled(project)}
                   title={
                     isRunSettled(project)
-                      ? "Delete project"
-                      : "Cancel the project and wait for it to stop first"
+                      ? translateUi("Delete project")
+                      : translateUi("Cancel the project and wait for it to stop first")
                   }
                   onClick={() => onDelete(project)}
                 />

@@ -155,24 +155,16 @@ it.each(["brief", "lyrics", "styles", "proposals", "selection"] as const)(
       }
       if (failedStep === "selection") {
         const completedCounts = { ...counts };
-        resumed.jobs[0].phase = "failed";
+        const existingJob = resumed.jobs[0];
+        const prepareCalls = prepare.mock.calls.length;
+        existingJob.phase = "failed";
         resumed.phase = "failed";
         workflow.retry(resumed);
-        await prepare.mock.results.at(-1)!.value;
-        expect(resumed.phase).toBe("ready");
+        await vi.waitFor(() => expect(resumed.phase).toBe("ready"));
         expect(counts).toEqual(completedCounts);
-        const oldProposal = resumed.preparation!.checkpoints.proposals!;
-        if (oldProposal.state !== "completed") throw Error("Expected completed proposals");
-        delete (oldProposal.output as { policyRevision?: number }).policyRevision;
-        resumed.jobs[0].phase = "failed";
-        resumed.phase = "failed";
-        workflow.retry(resumed);
-        await prepare.mock.results.at(-1)!.value;
-        expect(resumed.phase).toBe("ready");
-        expect(counts.brief).toBe(completedCounts.brief);
-        expect(counts.styles).toBe(completedCounts.styles);
-        expect(counts.proposals).toBe(completedCounts.proposals + 1);
-        expect(counts.selection).toBe(completedCounts.selection + 1);
+        expect(prepare).toHaveBeenCalledTimes(prepareCalls);
+        expect(resumed.jobs).toEqual([existingJob]);
+        expect(workflow.generate).toHaveBeenLastCalledWith(resumed, existingJob);
       }
       if (failedStep !== "brief")
         expect(

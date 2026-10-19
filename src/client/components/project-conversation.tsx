@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { ProjectSettings } from "./project-settings";
 import { VideoRefinement } from "./video-refinement";
 import { Button, Card } from "antd";
@@ -35,6 +36,7 @@ function GenerationProgressCard({
   onCancel?: () => void;
   activity?: ReactNode;
 }) {
+  useUiLanguage();
   const active = !["ready", "failed", "cancelled", "interrupted"].includes(job.phase);
   return (
     <Card
@@ -59,7 +61,7 @@ function GenerationProgressCard({
         {active && onCancel && (
           <div className="candidate-actions">
             <Button className="secondary compact" onClick={onCancel}>
-              Cancel
+              {translateUi("Cancel")}
             </Button>
           </div>
         )}
@@ -97,6 +99,7 @@ export function ProjectConversation({
   onCancel?: (jobId: string) => void;
   onPreviewActivate?: () => void;
 }) {
+  useUiLanguage();
   const [previewPanelOpen, setPreviewPanelOpen] = useState(true);
   const hasFullBuild = run.jobs.some((job) => job.kind === "full");
   const previews = run.jobs.filter((job) => job.kind === "preview");
@@ -104,16 +107,16 @@ export function ProjectConversation({
   const active = (job: GenerationJob) =>
     !["ready", "failed", "cancelled", "interrupted"].includes(job.phase);
   return (
-    <section className="project-chat" aria-label="Project conversation">
+    <section className="project-chat" aria-label={translateUi("Project conversation")}>
       <div className="section-heading">
-        <h2>Project conversation</h2>
+        <h2>{translateUi("Project conversation")}</h2>
         {hasFullBuild ? (
           <Button
             className="secondary compact project-action-button"
             aria-expanded={previewPanelOpen}
             onClick={() => setPreviewPanelOpen((open) => !open)}
           >
-            Preview choices
+            {translateUi("Preview choices")}
           </Button>
         ) : (
           <span className="local-dot" />
@@ -124,7 +127,7 @@ export function ProjectConversation({
         <Conversation
           contextRef={contextRef}
           className="project-chat-conversation"
-          aria-label="Project activity"
+          aria-label={translateUi("Project activity")}
           aria-live="polite"
           aria-relevant="additions text"
         >
@@ -164,7 +167,7 @@ export function ProjectConversation({
                     >
                       <MessageContent>
                         <div className="project-brief-section">
-                          <h3>Main prompt</h3>
+                          <h3>{translateUi("Main prompt")}</h3>
                           <p>{run.request.instructions}</p>
                           {run.request.requirements?.main.instructions && (
                             <p>{run.request.requirements.main.instructions}</p>
@@ -189,7 +192,7 @@ export function ProjectConversation({
                         )}
                         {run.request.urls.length > 0 && (
                           <div className="project-brief-section">
-                            <h3>Website URLs</h3>
+                            <h3>{translateUi("Website URLs")}</h3>
                             <ul>
                               {run.request.urls.map((url) => (
                                 <li key={url}>
@@ -211,7 +214,9 @@ export function ProjectConversation({
                   <Message from="assistant" key={entry.id} className="project-chat-artifact">
                     <MessageContent>
                       <h2>
-                        {previews.some(active) ? "Creating your previews" : "Choose your direction"}
+                        {previews.some(active)
+                          ? translateUi("Creating your previews")
+                          : translateUi("Choose your direction")}
                       </h2>
                       <PreviewWorkspace
                         jobIds={entry.jobIds}
@@ -259,8 +264,11 @@ export function ProjectConversation({
                     <MessageContent>
                       <p>
                         {job.refinementPrompt
-                          ? `Fine-tune: ${job.refinementPrompt}`
-                          : `Build the full ${output} using ${titleFor(job)}.`}
+                          ? translateUi("Fine-tune: {{value0}}", { value0: job.refinementPrompt })
+                          : translateUi("Build the full {{value0}} using {{value1}}.", {
+                              value0: output,
+                              value1: titleFor(job),
+                            })}
                       </p>
                     </MessageContent>
                   </Message>
@@ -270,7 +278,7 @@ export function ProjectConversation({
                   events={events}
                   jobId={job.id}
                   title={titleFor(job)}
-                  label={`Full ${output}`}
+                  label={translateUi("Full {{value0}}", { value0: output })}
                   completed={!active(job)}
                 />
               );
@@ -279,10 +287,10 @@ export function ProjectConversation({
                   <MessageContent>
                     <h2>
                       {active(job)
-                        ? `Building your full ${output}`
+                        ? translateUi("Building your full {{value0}}", { value0: output })
                         : job.phase === "ready"
-                          ? `Your finished ${output}`
-                          : "Build needs attention"}
+                          ? translateUi("Your finished {{value0}}", { value0: output })
+                          : translateUi("Build needs attention")}
                     </h2>
                     <div
                       id={`generation-full-${job.id}`}
@@ -306,16 +314,20 @@ export function ProjectConversation({
                 </Message>
               );
             })}
-            {!events.length && !run.jobs.length && <p role="status">Preparing your project…</p>}
+            {!events.length && !run.jobs.length && (
+              <p role="status">{translateUi("Preparing your project…")}</p>
+            )}
             <VideoRefinement key={`refine-${run.id}`} run={run} onUpdated={onRunUpdated} />
           </ConversationContent>
-          <ConversationScrollButton aria-label="Jump to latest project update" />
+          <ConversationScrollButton aria-label={translateUi("Jump to latest project update")} />
         </Conversation>
         {hasFullBuild && previewPanelOpen && (
-          <aside className="project-preview-panel" aria-label="Preview choices">
-            <h3>Preview choices</h3>
+          <aside className="project-preview-panel" aria-label={translateUi("Preview choices")}>
+            <h3>{translateUi("Preview choices")}</h3>
             <p>
-              Your finished versions are saved. Select another preview to build another version.
+              {translateUi(
+                "Your finished versions are saved. Select another preview to build another version.",
+              )}
             </p>
             <div className="project-preview-panel-content">
               <PreviewWorkspace
@@ -348,7 +360,7 @@ export function ProjectConversation({
                       job.phase === "ready" &&
                       job.candidateId === preview.candidateId,
                   ),
-                ) && <p>All directions built</p>}
+                ) && <p>{translateUi("All directions built")}</p>}
             </div>
           </aside>
         )}

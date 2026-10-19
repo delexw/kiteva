@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "./i18n";
 import { useViewportVisibility } from "./use-viewport-visibility";
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
@@ -13,6 +14,7 @@ export function MotionPreview({
   playbackEnabled?: boolean;
   controls?: boolean;
 }) {
+  useUiLanguage();
   const canvas = useRef<HTMLCanvasElement>(null);
   const container = useRef<HTMLDivElement>(null);
   const visible = useViewportVisibility(container);
@@ -46,25 +48,25 @@ export function MotionPreview({
           height={360}
           className="example"
           role="img"
-          aria-label={`${name} motion preview`}
+          aria-label={translateUi("{{value0}} motion preview", { value0: translateUi(name) })}
         />
         <span className="motion-label">
           {reducedMotion
-            ? "Still preview · reduced motion"
+            ? translateUi("Still preview · reduced motion")
             : playing
-              ? "Playing · 6s motion study"
-              : "Paused · 6s motion study"}
+              ? translateUi("Playing · 6s motion study")
+              : translateUi("Paused · 6s motion study")}
         </span>
       </div>
       {controls && (
         <div className="motion-preview-controls">
           <button type="button" onClick={() => setManualPause((paused) => !paused)}>
-            {manualPause ? "Play preview" : "Pause preview"}
+            {manualPause ? translateUi("Play preview") : translateUi("Pause preview")}
           </button>
           <label>
-            Preview time{" "}
+            {translateUi("Preview time")}{" "}
             <input
-              aria-label="Preview time"
+              aria-label={translateUi("Preview time")}
               type="range"
               min="0"
               max={motionPreviewDuration}

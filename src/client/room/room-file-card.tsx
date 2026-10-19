@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../i18n";
 import { FileCard } from "@ant-design/x";
 import { Button, Image } from "antd";
 import { Trash2 } from "lucide-react";
@@ -54,7 +55,7 @@ export function RoomFilePick({
       role="button"
       tabIndex={0}
       aria-pressed={picked}
-      aria-label={`${picked ? "Remove" : "Add"} ${asset.originalName}`}
+      aria-label={`${picked ? translateUi("Remove") : translateUi("Add")} ${asset.originalName}`}
       onClick={onToggle}
       onKeyDown={(event) => {
         if (event.key !== "Enter" && event.key !== " ") return;
@@ -73,8 +74,8 @@ export function RoomFilePick({
         size="small"
         danger
         loading={deleting}
-        aria-label={`Delete ${asset.originalName} from shelf`}
-        title="Delete from shelf"
+        aria-label={translateUi("Delete {{value0}} from shelf", { value0: asset.originalName })}
+        title={translateUi("Delete from shelf")}
         icon={<Trash2 size={15} />}
         onClick={onDelete}
       />
@@ -94,6 +95,7 @@ export function RoomChosenFile({
   onRemove?: () => void;
   removing?: boolean;
 }) {
+  useUiLanguage();
   return (
     <div className="room-chosen-file">
       <FileCard {...cardProps(asset)} />
@@ -102,8 +104,8 @@ export function RoomChosenFile({
           type="text"
           size="small"
           loading={removing}
-          aria-label={`Remove ${asset.originalName}`}
-          title="Delete file"
+          aria-label={translateUi("Remove {{value0}}", { value0: asset.originalName })}
+          title={translateUi("Delete file")}
           icon={<Trash2 size={15} />}
           onClick={onRemove}
         />
@@ -112,5 +114,6 @@ export function RoomChosenFile({
   );
 }
 export function RoomFileCard({ asset }: { asset: RoomLibraryAsset }) {
+  useUiLanguage();
   return <FileCard {...cardProps(asset)} />;
 }

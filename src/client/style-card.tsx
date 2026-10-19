@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "./i18n";
 import { Button, Card, Popover } from "antd";
 import { useViewportVisibility } from "./use-viewport-visibility";
 import type { ReactNode } from "react";
@@ -15,6 +16,7 @@ export function PaletteSwatches({
   backgroundPolicy?: Style["palette"]["background_policy"];
   compact?: boolean;
 }) {
+  useUiLanguage();
   const [openColor, setOpenColor] = useState<string | null>(null);
   const flexibleBackground = backgroundPolicy === "scene_dependent";
   const swatches = Object.entries(tokens).filter(
@@ -22,7 +24,7 @@ export function PaletteSwatches({
   );
   if (compact)
     return (
-      <div className="palette-circles" role="group" aria-label="Color palette">
+      <div className="palette-circles" role="group" aria-label={translateUi("Color palette")}>
         {swatches.map(([key, color]) => (
           <Popover
             key={key}
@@ -31,7 +33,7 @@ export function PaletteSwatches({
             onOpenChange={(open) =>
               setOpenColor((current) => (open ? key : current === key ? null : current))
             }
-            title={key.replaceAll("_", " ").replaceAll("-", " ")}
+            title={translateUi(key.replaceAll("_", " ").replaceAll("-", " "))}
             content={
               <div className="palette-color-details">
                 <span
@@ -47,7 +49,10 @@ export function PaletteSwatches({
               htmlType="button"
               className="palette-circle"
               style={{ background: color }}
-              aria-label={`Show color details: ${key} ${color}`}
+              aria-label={translateUi("Show color details: {{value0}} {{value1}}", {
+                value0: key,
+                value1: color,
+              })}
               onKeyDown={(event) => {
                 if (event.key === "Escape") setOpenColor(null);
               }}
@@ -57,9 +62,11 @@ export function PaletteSwatches({
       </div>
     );
   return (
-    <div className="swatches" role="group" aria-label="Color palette">
+    <div className="swatches" role="group" aria-label={translateUi("Color palette")}>
       {flexibleBackground && (
-        <span className="palette-background-note">Background follows the scene</span>
+        <span className="palette-background-note">
+          {translateUi("Background follows the scene")}
+        </span>
       )}
       {swatches.map(([key, color]) => (
         <span
@@ -70,7 +77,7 @@ export function PaletteSwatches({
         >
           <span className="palette-swatch-color" style={{ background: color }} aria-hidden="true" />
           <span className="palette-swatch-name">
-            {key.replaceAll("_", " ").replaceAll("-", " ")}
+            {translateUi(key.replaceAll("_", " ").replaceAll("-", " "))}
           </span>
           <code className="palette-swatch-value">{color}</code>
         </span>
@@ -95,6 +102,7 @@ export function StyleExampleMedia({
   playbackEnabled?: boolean;
   playOnOpen?: boolean;
 }) {
+  useUiLanguage();
   const [failed, setFailed] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
   const player = useRef<HTMLVideoElement>(null);
@@ -118,7 +126,7 @@ export function StyleExampleMedia({
   return (
     <div ref={container} className="example-media">
       {failed ? (
-        <div className="example-placeholder">Claude example is being prepared</div>
+        <div className="example-placeholder">{translateUi("Claude example is being prepared")}</div>
       ) : showVideo ? (
         <video
           ref={player}
@@ -131,29 +139,29 @@ export function StyleExampleMedia({
           playsInline
           preload="none"
           onError={() => setVideoFailed(true)}
-          aria-label="Three-second silent Motion Graphic motion demo"
+          aria-label={translateUi("Three-second silent Motion Graphic motion demo")}
         />
       ) : (
         <img
           className="example"
           src={poster}
-          alt="Claude-authored illustrative Motion Graphic study"
+          alt={translateUi("Claude-authored illustrative Motion Graphic study")}
           loading="lazy"
           onError={() => setFailed(true)}
         />
       )}
       <span className="motion-label">
         {videoFailed
-          ? "Motion unavailable · retry by refreshing"
+          ? translateUi("Motion unavailable · retry by refreshing")
           : video
             ? reducedMotion
-              ? "Motion demo · reduced motion"
+              ? translateUi("Motion demo · reduced motion")
               : shouldPlay
-                ? "Playing · 3s motion demo"
-                : "Paused · 3s motion demo"
+                ? translateUi("Playing · 3s motion demo")
+                : translateUi("Paused · 3s motion demo")
             : motionStatus === "needs_repair"
-              ? "Motion needs repair"
-              : "Motion queued for preparation"}
+              ? translateUi("Motion needs repair")
+              : translateUi("Motion queued for preparation")}
       </span>
     </div>
   );
@@ -183,6 +191,7 @@ export const StyleCard = memo(function StyleCard({
   showPalette = true,
   onSelect,
 }: StyleCardProps) {
+  useUiLanguage();
   return (
     <Card className="style-card-frame" hoverable styles={{ body: { padding: 0 } }}>
       <motion.button
@@ -214,9 +223,11 @@ export const StyleCard = memo(function StyleCard({
                     className="example-placeholder"
                     style={{ background: "inherit", color: "inherit", height: "100%" }}
                   >
-                    No preview generated
+                    {translateUi("No preview generated")}
                   </div>
-                  <span className="motion-label">Palette only · no motion demo</span>
+                  <span className="motion-label">
+                    {translateUi("Palette only · no motion demo")}
+                  </span>
                 </div>
               ) : (
                 <StyleExampleMedia
@@ -230,7 +241,11 @@ export const StyleCard = memo(function StyleCard({
               )}
               {!example?.video && (
                 <span className="illustrative">
-                  {!example ? "PALETTE" : example.source ? "CLAUDE STUDY" : "GENERATING"}
+                  {!example
+                    ? translateUi("PALETTE")
+                    : example.source
+                      ? translateUi("CLAUDE STUDY")
+                      : translateUi("GENERATING")}
                 </span>
               )}
             </>
@@ -240,9 +255,9 @@ export const StyleCard = memo(function StyleCard({
           </span>
         </div>
         <div className="style-card-content">
-          {showCategory && <div className="style-category">{style.category}</div>}
-          <h3>{style.name_en}</h3>
-          {showDescription && <p>{style.visual_cues}</p>}
+          {showCategory && <div className="style-category">{translateUi(style.category)}</div>}
+          <h3>{translateUi(style.name_en)}</h3>
+          {showDescription && <p>{translateUi(style.visual_cues)}</p>}
           <div className="style-footer">{showId && <span>{style.id}</span>}</div>
         </div>
       </motion.button>

@@ -18,7 +18,9 @@ vi.mock("../src/server/agents/caveman", () => ({
 vi.mock("../src/server/agents/sdk-home", () => ({
   isolatedCodexHome: async () => "/isolated-home",
 }));
-vi.mock("@anthropic-ai/claude-agent-sdk", () => ({ query: sdk.query }));
+vi.mock("@anthropic-ai/claude-agent-sdk", () => ({
+  query: (...args: unknown[]) => Object.assign(sdk.query(...args), { close: vi.fn() }),
+}));
 vi.mock("@openai/codex-sdk", () => ({
   Codex: class {
     constructor(options: unknown) {

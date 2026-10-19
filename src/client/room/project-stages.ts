@@ -1,3 +1,4 @@
+import { translateUi } from "../i18n/service";
 import type { ThoughtChainItemType } from "@ant-design/x";
 import {
   terminalPhases,
@@ -19,6 +20,7 @@ import {
   type PreparationStep,
 } from "../../shared/preparation";
 import { activityItems, type ActivityItem } from "../agent-activity-model";
+import { displayActivityItems } from "../activity-display";
 import { roomQuestionScope } from "./question-scope";
 
 type StageStatus = ThoughtChainItemType["status"];
@@ -64,7 +66,7 @@ function checkpointItems(
           : checkpoint.state === "interrupted"
             ? "abort"
             : "loading";
-    return [{ key: step, title: preparationStepNames[step], status }];
+    return [{ key: step, title: translateUi(preparationStepNames[step]), status }];
   });
 }
 function preparationStatus(
@@ -88,13 +90,12 @@ function duration(items: ActivityItem[]) {
   return seconds >= 60 ? `${Math.floor(seconds / 60)}m ${seconds % 60}s` : `${seconds}s`;
 }
 function summary(status: StageStatus, items: ActivityItem[], fallback: string) {
-  const steps = items.filter((item) => item.kind !== "message");
-  if (status === "loading") return steps.at(-1)?.text || fallback;
+  const steps = displayActivityItems(items.filter((item) => item.kind !== "message"));
+  if (status === "loading") return translateUi(steps.at(-1)?.text || fallback);
   if (status === undefined && fallback) return fallback;
   if (!items.length) return fallback;
-  const updates = items.reduce((total, item) => total + (item.repetitions || 1), 0);
   const took = duration(items);
-  return [fallback, `${updates} update${updates === 1 ? "" : "s"}`, took && `worked for ${took}`]
+  return [fallback, took && translateUi("worked for {{time}}", { time: took })]
     .filter(Boolean)
     .join(" · ");
 }
@@ -140,7 +141,7 @@ export function roomActivityContexts(
       key,
       label,
       status,
-      summary: summary(status, items, fallback),
+      summary: summary(status, items, translateUi(fallback)),
       items,
       checkpoints,
     };
@@ -185,7 +186,9 @@ export function roomActivityContexts(
     const key = preparationKey(round);
     const preparation = context(
       key,
-      round ? `New directions · round ${round + 1}` : "Project preparation",
+      round
+        ? translateUi("New directions · round {{round}}", { round: round + 1 })
+        : translateUi("Project preparation"),
       status,
       current && status === undefined && waits.some((wait) => !wait.jobId)
         ? "Waiting for your decision"
@@ -211,14 +214,14 @@ export function roomActivityContexts(
     for (const job of jobs) {
       const waiting = waits.some((wait) => wait.jobId === job.id);
       const status = jobStatus(job.phase, waiting);
-      const phase = phaseLabels[job.phase] || job.phase;
+      const phase = translateUi(phaseLabels[job.phase] || job.phase);
       const jobContext = context(
         job.id,
-        `${roomQuestionScope(run, job.id)}${round ? ` · round ${round + 1}` : ""}`,
+        `${roomQuestionScope(run, job.id)}${round ? translateUi(" · round {{round}}", { round: round + 1 }) : ""}`,
         status,
         waiting
           ? "Waiting for your decision"
-          : `${job.refinementPrompt ? "Fine-tune · " : ""}${phase}`,
+          : `${job.refinementPrompt ? translateUi("Fine-tune · ") : ""}${phase}`,
       );
       timeline.push({
         context: jobContext,
@@ -236,7 +239,7 @@ export function roomActivityContexts(
     .sort((a, b) => a.start - b.start)
     .map((entry) => entry.context);
   if (byContext.has("earlier"))
-    contexts.push(context("earlier", "Earlier generation", "success", ""));
+    contexts.push(context("earlier", translateUi("Earlier generation"), "success", ""));
   return contexts;
 }
 

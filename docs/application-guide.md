@@ -202,7 +202,7 @@ JEV preference history is derived locally from retained structured project recor
 
 `src/server/jobs/workflow.ts` coordinates jobs. Reusable subworkflows live in `src/server/jobs/subworkflows`, with one TypeScript entry point per workflow:
 
-- `website-capture.ts`: records a validated headless page using the bundled Puppeteer screencast API, with 120-second/150-MB take limits and cancellation cleanup. Successful silent WebM files pass stream probing and full decode checks before publishing; timed viewport cursor coordinates accompany each take.
+- `website-capture.ts`: records the isolated worker browser window using the OpenScreen CLI (see [worker setup](openscreen-worker.md)), with 120-second/150-MB take limits and cancellation cleanup. Successful silent WebM files pass stream probing and full decode checks before publishing; timed viewport cursor coordinates accompany each take.
 - `website-reference.ts`: owns an isolated headless browser session, rendered-content readiness, inspection, navigation and screenshot capture. The external application remains URL-only and outside the project workspace. Blank pages fail before screenshots enter the asset inventory; recent JavaScript/resource failures accompany the error. Inspection and screenshots share the session. Recording shares this same session through `website-capture.ts`.
 - `brief-asset-review.ts`: reviews reference coverage and scene usage, with focused brief repairs.
 - `result-review.ts`: reviews finished page/video output using the application's validation artifacts.

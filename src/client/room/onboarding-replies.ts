@@ -1,3 +1,4 @@
+import { translateUi } from "../i18n/service";
 import { deliverySpeech, videoLanguageLabel } from "../../shared/video-language";
 import type { CreativeRequest } from "../../shared/contracts";
 import type { RoomLibraryAsset } from "../../shared/room";
@@ -16,22 +17,49 @@ type ReplyStyle = { id: string; name_en: string };
 function speechReply(request: CreativeRequest, assets: RoomLibraryAsset[]) {
   if (request.outputType !== "video") return [];
   const speech = activeSpeech({ ...request, speech: deliverySpeech(request) });
-  if (!speech) return ["Speech: Off"];
+  if (!speech) return [translateUi("Speech: Off")];
   if (speech.mode === "uploaded") {
     return [
-      `Speech: Uploaded vocals — ${assets.find((asset) => asset.id === speech.assetId)?.originalName || "Unavailable audio file"}`,
+      translateUi("Speech: Uploaded vocals — {{value0}}", {
+        value0:
+          assets.find((asset) => asset.id === speech.assetId)?.originalName ||
+          "Unavailable audio file",
+      }),
     ];
   }
   return [
-    "Speech: Narration",
-    `Speech engine: ${speechEngines.find((engine) => engine.id === (speech.engine || "kokoro"))!.label}`,
-    `Speech language: ${pocketLanguages.find((language) => language.id === speechLanguage(speech.voice, speech.engine, speech.language))?.label || speechLanguage(speech.voice, speech.engine, speech.language)}`,
-    `Voice: ${speechVoices.find((voice) => voice.id === speech.voice)?.label || speech.voice}`,
-    `Narration volume: ${Math.round((speech.volume ?? 1) * 100)}%`,
-    `Speech speed: ${speech.speed}×`,
-    `Script source: ${speech.source === "provided" ? "My script" : speech.source === "lyrics" ? "Use lyrics" : "Write a script"}`,
-    speech.source === "provided" && speech.text ? `Narration script:\n${speech.text}` : "",
-    speech.instructions ? `Speech instructions:\n${speech.instructions}` : "",
+    translateUi("Speech: Narration"),
+    translateUi("Speech engine: {{value0}}", {
+      value0: speechEngines.find((engine) => engine.id === (speech.engine || "kokoro"))!.label,
+    }),
+    translateUi("Speech language: {{value0}}", {
+      value0:
+        pocketLanguages.find(
+          (language) =>
+            language.id === speechLanguage(speech.voice, speech.engine, speech.language),
+        )?.label || speechLanguage(speech.voice, speech.engine, speech.language),
+    }),
+    translateUi("Voice: {{value0}}", {
+      value0: speechVoices.find((voice) => voice.id === speech.voice)?.label || speech.voice,
+    }),
+    translateUi("Narration volume: {{value0}}%", {
+      value0: Math.round((speech.volume ?? 1) * 100),
+    }),
+    translateUi("Speech speed: {{value0}}×", { value0: speech.speed }),
+    translateUi("Script source: {{value0}}", {
+      value0:
+        speech.source === "provided"
+          ? "My script"
+          : speech.source === "lyrics"
+            ? "Use lyrics"
+            : "Write a script",
+    }),
+    speech.source === "provided" && speech.text
+      ? translateUi("Narration script:\n{{value0}}", { value0: speech.text })
+      : "",
+    speech.instructions
+      ? translateUi("Speech instructions:\n{{value0}}", { value0: speech.instructions })
+      : "",
   ].filter(Boolean);
 }
 
@@ -42,23 +70,57 @@ export function roomSettingsReply(request: CreativeRequest, styles: ReplyStyle[]
   );
   return [
     ...(request.outputType === "video" && request.outputLanguage
-      ? [`Video language: ${videoLanguageLabel(request.outputLanguage)}`]
+      ? [
+          translateUi("Video language: {{value0}}", {
+            value0: translateUi(videoLanguageLabel(request.outputLanguage)),
+          }),
+        ]
       : []),
-    `Model: ${request.mainModel ? modelDisplayName(request.mainModel) : providerDisplayName(request.provider)}`,
-    `Output: ${request.outputType === "page" ? "Interactive page" : "Video"}`,
+    translateUi("Model: {{value0}}", {
+      value0: request.mainModel
+        ? modelDisplayName(request.mainModel)
+        : providerDisplayName(request.provider),
+    }),
+    translateUi("Output: {{value0}}", {
+      value0: translateUi(
+        { page: "Interactive page", video: "Video" }[request.outputType || "video"],
+      ),
+    }),
     ...(request.outputType === "video"
       ? [
-          `Length: ${request.duration === "auto" ? "Auto" : `${request.duration} seconds`}`,
-          `Aspect ratio: ${request.aspectRatio}`,
-          `Resolution: ${request.resolution || "1080p"}`,
-          `Frame rate: ${request.frameRate || 30} fps`,
-          `Renderer: ${videoRenderers[videoRendererOf(request)].label}`,
+          translateUi("Length: {{value0}}", {
+            value0:
+              request.duration === "auto"
+                ? translateUi("Auto")
+                : translateUi("{{count}} seconds", { count: request.duration }),
+          }),
+          translateUi("Aspect ratio: {{value0}}", { value0: request.aspectRatio }),
+          translateUi("Resolution: {{value0}}", { value0: request.resolution || "1080p" }),
+          translateUi("Frame rate: {{value0}} fps", { value0: request.frameRate || 30 }),
+          translateUi("Renderer: {{value0}}", {
+            value0: videoRenderers[videoRendererOf(request)].label,
+          }),
         ]
-      : [`Preview viewport: ${request.viewport === "mobile" ? "Mobile" : "Desktop"}`]),
-    `Creative approach: ${request.preference === "creative" ? "Explore creative ideas" : "Follow my brief"}`,
+      : [
+          translateUi("Preview viewport: {{value0}}", {
+            value0: translateUi(
+              { mobile: "Mobile", desktop: "Desktop" }[request.viewport || "desktop"],
+            ),
+          }),
+        ]),
+    translateUi("Creative approach: {{value0}}", {
+      value0: translateUi(
+        request.preference === "creative" ? "Explore creative ideas" : "Follow my brief",
+      ),
+    }),
     styleNames.length
-      ? `Selected Motion Graphics: ${styleNames.join(", ")}\nPreview directions: Skipped — build selected Motion Graphics directly`
-      : `Preview directions: ${request.candidateCount || 5}\nStyles: Select from preview directions`,
+      ? translateUi(
+          "Selected Motion Graphics: {{value0}}\nPreview directions: Skipped — build selected Motion Graphics directly",
+          { value0: styleNames.map((name) => translateUi(name)).join(", ") },
+        )
+      : translateUi("Preview directions: {{value0}}\nStyles: Select from preview directions", {
+          value0: request.candidateCount || 5,
+        }),
   ].join("\n");
 }
 
@@ -74,13 +136,13 @@ export function roomOnboardingReplies(
     if (index === 6) return { text: roomSettingsReply(request, styles), skipped: false };
     if (index === 5) {
       if (request.outputType !== "video")
-        return { text: "Not used for interactive pages", skipped: true };
+        return { text: translateUi("Not used for interactive pages"), skipped: true };
       const text = [
         request.lyrics?.mode === "provided"
-          ? `Lyrics on screen:\n${request.lyrics.text}`
+          ? translateUi("Lyrics on screen:\n{{value0}}", { value0: request.lyrics.text })
           : request.lyrics?.mode === "write"
-            ? "Lyrics on screen: Write lyrics for me"
-            : "Lyrics on screen: Off",
+            ? translateUi("Lyrics on screen: Write lyrics for me")
+            : translateUi("Lyrics on screen: Off"),
         ...speechReply(request, selected),
       ].join("\n\n");
       return { text, skipped: false };
@@ -91,16 +153,20 @@ export function roomOnboardingReplies(
         request.requirements?.urls.instructions,
       ];
       const text = parts.filter(Boolean).join("\n\n");
-      return { text: text || "No websites", skipped: !text };
+      return { text: text || translateUi("No websites"), skipped: !text };
     }
     const section = roomMaterialSteps[index as keyof typeof roomMaterialSteps];
     if (!section) return { text: "", skipped: true };
     const files = selected.filter((asset) => roomMaterialSection(asset.originalName) === section);
     const parts = [
       request.requirements?.[section].instructions,
-      files.length ? `Files:\n${files.map((asset) => asset.originalName).join("\n")}` : "",
+      files.length
+        ? translateUi("Files:\n{{value0}}", {
+            value0: files.map((asset) => asset.originalName).join("\n"),
+          })
+        : "",
     ];
     const text = parts.filter(Boolean).join("\n\n");
-    return { text: text || "Skipped", skipped: !text };
+    return { text: text || translateUi("Skipped"), skipped: !text };
   });
 }

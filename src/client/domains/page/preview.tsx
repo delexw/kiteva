@@ -1,3 +1,4 @@
+import { translateUi, useUiLanguage } from "../../i18n";
 import { useEffect, useRef, useState } from "react";
 import type { PageGenerationJob } from "../../../shared/domains/page";
 export function InteractivePagePreview({
@@ -9,6 +10,7 @@ export function InteractivePagePreview({
   title: string;
   viewport: "desktop" | "mobile";
 }) {
+  useUiLanguage();
   const host = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const width = viewport === "mobile" ? 390 : 1280;
@@ -26,7 +28,7 @@ export function InteractivePagePreview({
       style={{ aspectRatio: `${width} / ${height}` }}
     >
       <iframe
-        title={`Interactive preview: ${title}`}
+        title={translateUi("Interactive preview: {{value0}}", { value0: title })}
         src={`/api/pages/${job.runId}/${job.id}/index.html`}
         sandbox="allow-scripts"
         className="page-preview"

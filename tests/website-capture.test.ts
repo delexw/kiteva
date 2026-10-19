@@ -1,9 +1,10 @@
-import { PassThrough } from "node:stream";
-import { mkdtemp, readFile, readdir, rm, copyFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import type { Page } from "puppeteer-core";
 import { afterEach, expect, it, vi } from "vitest";
+vi.mock("../src/server/capture/openscreen", () => ({ startOpenScreen: vi.fn() }));
+import { startOpenScreen } from "../src/server/capture/openscreen";
 vi.mock("../src/server/rendering/video-probe", () => ({ probeVideo: vi.fn() }));
 vi.mock("../src/server/runtime/process", () => ({ command: vi.fn() }));
 import { probeVideo } from "../src/server/rendering/video-probe";
@@ -17,16 +18,21 @@ import {
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
 });
-async function fixture() {
+async function fixture(frame = { width: 1440, height: 900, left: 0, top: 0 }) {
   const workspace = await mkdtemp(path.join(os.tmpdir(), "website-capture-"));
-  const stream = new PassThrough();
-  const stop = vi.fn(async () => {
-    stream.end(Buffer.from("encoded-video"));
-  });
-  const recorder = Object.assign(stream, { stop });
+  vi.stubEnv("KITEVA_CAPTURE_DESKTOP", "1");
+  const stop = vi.fn(async () => ({
+    event: "done" as const,
+    success: true as const,
+    screenVideoPath: "/worker/recordings/take.mp4",
+    durationMs: 2500,
+  }));
+  vi.mocked(startOpenScreen).mockResolvedValue({ stop });
   const page = {
-    screencast: vi.fn().mockResolvedValue(recorder),
+    evaluate: vi.fn().mockResolvedValue(frame),
+    title: async () => "Example",
     url: () => "https://example.com/",
   } as unknown as Page;
   vi.mocked(probeVideo).mockResolvedValue({
@@ -36,11 +42,11 @@ async function fixture() {
     ],
   });
   vi.mocked(command).mockImplementation(async (_executable, args) => {
-    if (args.includes("copy")) await copyFile(args[args.indexOf("-i") + 1], args.at(-1)!);
+    if (!args.includes("null")) await writeFile(args.at(-1)!, "encoded-video");
     return "";
   });
   const controller = new AbortController();
-  const capture = await startWebsiteCapture(page, workspace, controller.signal);
+  const capture = await startWebsiteCapture(page, workspace, controller.signal, true);
   return {
     workspace,
     capture,
@@ -121,6 +127,18 @@ it("does not accept arbitrary paths in a persisted recording inventory", async (
       JSON.stringify([{ assetPath: "../../private.webm" }]),
     );
     await expect(readWebsiteRecordings(f.workspace)).rejects.toThrow();
+  } finally {
+    await f.cleanup();
+  }
+});
+
+it("maps viewport cursor events into native window pixels including chrome and display scaling", async () => {
+  const f = await fixture({ width: 720, height: 450, left: 4, top: 64 });
+  try {
+    f.capture.cursor(40, 60, "click");
+    const video = await f.capture.save();
+    const cursor = JSON.parse(await readFile(path.join(f.workspace, video.cursorPath), "utf8"));
+    expect(cursor.events[0]).toMatchObject({ x: 88, y: 248, kind: "click" });
   } finally {
     await f.cleanup();
   }

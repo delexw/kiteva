@@ -1,5 +1,5 @@
 import { nativeExecutable } from "../runtime/platform";
-import { once } from "node:events";
+import { addAbortListener, once } from "node:events";
 import { spawn, type ChildProcess } from "node:child_process";
 import { access, mkdir, open, readFile } from "node:fs/promises";
 import { setTimeout as delay } from "node:timers/promises";
@@ -16,6 +16,7 @@ export function cavemanSettings(env = process.env) {
 }
 
 let starting: Promise<void> | undefined;
+let startupController = new AbortController();
 let ownedProxy: ChildProcess | undefined;
 async function proxyHealthy() {
   const settings = cavemanSettings();
@@ -49,6 +50,7 @@ async function startProxy(signal: AbortSignal) {
   await mkdir(home, { recursive: true, mode: 0o700 });
   const log = await open(path.join(home, "sdk-proxy.log"), "a", 0o600);
   try {
+    signal.throwIfAborted();
     ownedProxy = spawn(path.join(home, "bin", nativeExecutable("caveman-proxy")), [], {
       cwd: appRoot,
       env: {
@@ -84,13 +86,22 @@ async function startProxy(signal: AbortSignal) {
 }
 
 export async function cavemanRuntime(signal: AbortSignal) {
+  signal.throwIfAborted();
   const settings = cavemanSettings();
   if (!settings.enabled) return undefined;
-  starting ??= startProxy(signal).catch((error) => {
+  starting ??= startProxy(startupController.signal).catch((error) => {
     starting = undefined;
     throw error;
   });
-  await starting;
+  // Startup belongs to the shared runtime, not whichever job requested it first.
+  let rejectCancellation!: (reason: unknown) => void;
+  const cancelled = new Promise<never>((_resolve, reject) => (rejectCancellation = reject));
+  const cancellation = addAbortListener(signal, () => rejectCancellation(signal.reason));
+  try {
+    await Promise.race([starting, cancelled]);
+  } finally {
+    cancellation[Symbol.dispose]();
+  }
   signal.throwIfAborted();
   if (!(await proxyHealthy())) {
     starting = undefined;
@@ -98,6 +109,7 @@ export async function cavemanRuntime(signal: AbortSignal) {
       "Caveman proxy is unavailable; model call stopped rather than bypassing cost measurement",
     );
   }
+  signal.throwIfAborted();
   return {
     url: settings.url,
     env: { CAVEMAN_HOME: settings.home },
@@ -135,6 +147,8 @@ export async function codexCavemanAuth(home: string) {
 }
 
 export async function stopCaveman() {
+  startupController.abort();
+  startupController = new AbortController();
   const proxy = ownedProxy;
   ownedProxy = undefined;
   starting = undefined;

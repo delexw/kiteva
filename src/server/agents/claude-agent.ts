@@ -7,6 +7,7 @@ import {
   type Query,
 } from "@anthropic-ai/claude-agent-sdk";
 import path from "node:path";
+import { sdkToolHook } from "./execution-policy";
 import { briefExplorationAgents } from "./brief-exploration";
 import { requireForegroundSubagent } from "./claude-subagent-policy";
 import { childEnvironment, safeMessage } from "../runtime/config";
@@ -194,7 +195,10 @@ export const claudeAgent: Agent = {
               : ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "Skill"],
           permissionMode: "acceptEdits",
           hooks: {
-            PreToolUse: [{ matcher: "^(Agent|Task)$", hooks: [requireForegroundSubagent] }],
+            PreToolUse: [
+              { matcher: "^(Agent|Task)$", hooks: [requireForegroundSubagent] },
+              { matcher: "^Bash$", hooks: [async (input) => sdkToolHook(input)] },
+            ],
           },
           canUseTool: async (name, input) => {
             for (const [server, capability] of Object.entries(options.capabilityServers || {})) {

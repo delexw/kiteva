@@ -99,6 +99,9 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
       onEvent: (event) => events.push(event),
     });
     expect(result).toEqual({ value: { message: "done" }, sessionId: "resumed-session" });
+    expect(events.find((event) => event.type === "invocation")?.data).toMatchObject({
+      prompt: { system: expect.stringContaining("Blender is disallowed") },
+    });
     expect(events.at(-1)?.data).toMatchObject({
       provider: agent.provider,
       model: "selected-model",
@@ -107,9 +110,31 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
     });
     if (agent.provider === "claude") {
       expect(sdk.query.mock.calls.at(-1)?.[0].options.resume).toBe("original-session");
+      const hook = sdk.query.mock.calls
+        .at(-1)?.[0]
+        .options.hooks.PreToolUse.find((entry: { matcher: string }) => entry.matcher === "^Bash$")
+        .hooks[0];
+      expect(
+        await hook({
+          hook_event_name: "PreToolUse",
+          tool_name: "Bash",
+          tool_input: { command: "blender -b" },
+        }),
+      ).toMatchObject({ hookSpecificOutput: { permissionDecision: "deny" } });
+      expect(
+        await hook({
+          hook_event_name: "PreToolUse",
+          tool_name: "Bash",
+          tool_input: { command: "node scene.js" },
+        }),
+      ).toEqual({});
       expect(sdk.close).toHaveBeenCalledOnce();
     } else {
       expect(sdk.resume).toHaveBeenCalledWith("original-session");
+      expect(sdk.threadOptions.mock.calls.at(-1)?.[0]).toMatchObject({
+        sandboxMode: "workspace-write",
+        networkAccessEnabled: false,
+      });
       expect(events.find((event) => event.type === "usage")?.data).toMatchObject({
         usageScope: "session",
       });

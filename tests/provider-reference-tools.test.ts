@@ -103,6 +103,7 @@ it.each(["claude", "codex"] as const)(
     if (provider === "claude") {
       expect(options.hooks.PreToolUse).toEqual([
         { matcher: "^(Agent|Task)$", hooks: [expect.any(Function)] },
+        { matcher: "^Bash$", hooks: [expect.any(Function)] },
       ]);
       expect(options.strictMcpConfig).toBe(true);
       expect(options.settingSources).toEqual([]);

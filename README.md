@@ -30,7 +30,29 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 
 ## Recent updates
 
-Dates below use New Zealand time. Updates are released through the `main` branch.
+Dates below use New Zealand time. Merged updates are available on `main`; work awaiting merge is labelled.
+
+<details open>
+<summary>2026-10-20 · in progress — PR #4</summary>
+
+These changes are on the development branch in [draft PR #4](https://github.com/delexw/kiteva/pull/4), awaiting merge.
+
+- Added **Animate UI** component discovery for both providers and shared **JEV 1.14.0 Choice** selection of one primary authoring capability, bundled skill or local-code approach. Internal creative-pool tools expose complete Motion Graphic, motion and technology definitions; the main model retains production planning.
+- Split workflow guidance into application-demo, static-screen, concept-film and mixed-film route prompts. Mixed films apply the appropriate route to each section while preserving act boundaries, selected styles and required feature coverage; detailed timings are planned from the actual content and reference evidence.
+- Simplified preparation output so the application preserves original request data and settings. Guarded brief corrections report the exact rejected edit and retry against the unchanged valid draft.
+- Refined **OpenScreen capture**: a **450 ms** pause after pointer arrival, smooth input centering, native zoom framing that includes the full active field and label, and removal of automatic network-idle holds after each action. Auto-zoom remains enabled; other cursor controls retain native defaults unless supplied. Generation and review guidance also address clipped footage and decorative patterns obscuring text.
+- Added **Particle Flow Network**, bringing the collection to **139 Motion Graphics and 48 motions**, and rebuilt its preview and **Manga Production Theatre** with consistent role-specific crew. Removed the structured-score/MIDI/FluidSynth requirement; the main model composes instrumental music with the available local tools.
+
+</details>
+
+<details>
+<summary>2026-10-19</summary>
+
+- Merged [PR #3](https://github.com/delexw/kiteva/pull/3): **English / 中文 interface switching**, translated catalog and Governance views, clearer activity grouping, and improvements to project, retry and video workflows. Interface language remains separate from generated-video language.
+- Added local **OpenScreen recording with an optional desktop worker**, cursor and zoom presentation controls, and smoother recorded browser interactions. Local recording uses a dedicated visible browser window.
+- Updated the agent SDK dependencies and added tool-call execution checks that disallow Blender, guarded leaf-level brief corrections, **uniform random creative directions**, a one-hour render timeout and SQLite lock-contention handling. These follow-up changes are included in [draft PR #4](https://github.com/delexw/kiteva/pull/4) and await merge.
+
+</details>
 
 <details>
 <summary>2026-10-18</summary>

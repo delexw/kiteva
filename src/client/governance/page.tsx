@@ -1,3 +1,4 @@
+import { creativeApproaches } from "../../shared/creative-approach";
 import { uiLanguage, translateUi, useUiLanguage } from "../i18n";
 import { PageTemplate } from "../components/page-template";
 import { Button, Card, Collapse, Select, Statistic, Table, Tag, Alert } from "antd";
@@ -265,9 +266,7 @@ export function GovernancePage() {
                         <dd>
                           {project.request.pinnedStyleId
                             ? translateUi("Using selected Motion Graphic")
-                            : project.request.preference === "creative"
-                              ? translateUi("Explore creative ideas")
-                              : translateUi("Follow my brief")}
+                            : translateUi(creativeApproaches[project.request.preference].label)}
                         </dd>
                       </div>
                       <div>

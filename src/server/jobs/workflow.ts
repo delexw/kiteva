@@ -3,6 +3,7 @@ import { relevantPreferenceHistory } from "../catalog/preference-history";
 import { directionCandidateId, directionRoundSteps } from "../../shared/direction-rounds";
 import { scopedAssetQuestions } from "../../shared/asset-question-scopes";
 import { StyleSummarySchema } from "../../shared/agents/schemas/style-summary";
+import { randomDirections, RandomDirectionsSchema } from "./random-directions";
 import { manualDirection } from "./manual-direction";
 import { BriefCorrectionSchema } from "../../shared/agents/schemas/brief-correction";
 import { applyBriefCorrection } from "./subworkflows/brief-correction";
@@ -312,7 +313,7 @@ export class Workflow {
     if (!task) return;
     const { controller } = task;
     try {
-      if (!run.request.selectedStyleIds?.length) jevClient();
+      if (!run.request.selectedStyleIds?.length && run.request.preference !== "random") jevClient();
       run.phase = "preparing";
       run.error = undefined;
       run.errorCode = undefined;
@@ -558,33 +559,6 @@ export class Workflow {
       }
       run.phase = "ranking";
       this.update(run);
-      const summaries = await checkpoint(
-        "styles",
-        z.union([
-          z.array(StyleSummarySchema).length(this.catalog.styles.length),
-          z
-            .object({ summaries: z.array(StyleSummarySchema).length(this.catalog.styles.length) })
-            .transform((checkpoint) => checkpoint.summaries),
-        ]),
-        () => {
-          this.emit(run, "input", "Preparing Motion Graphic information for your project…");
-          return prepareStyleSummaries(
-            this.catalog,
-            run.request.provider,
-            controller.signal,
-            this.providerEvent(run, undefined, "Motion Graphic information extraction"),
-          );
-        },
-      );
-      if (
-        run.request.pinnedStyleId &&
-        !this.catalog.styles.some((style) => style.id === run.request.pinnedStyleId)
-      )
-        throw Error("Pinned Motion Graphic was not found");
-      await writeFile(
-        path.join(workspace, "style-summaries.json"),
-        JSON.stringify(summaries, null, 2),
-      );
       const styleRange =
         run.request.outputType === "page"
           ? { min: 1, max: 3 }
@@ -594,112 +568,152 @@ export class Workflow {
                 BriefSchema.parse(run.brief).suggestedDuration,
               ),
             );
-      const proposalSchema = proposalSchemaForStyleRange(styleRange);
-      await writeFile(
-        path.join(workspace, "style-combinations.json"),
-        JSON.stringify(
-          this.catalog.styles.map((style) => ({
-            styleId: style.id,
-            suggested_combinations: style.suggested_combinations,
-          })),
-          null,
-          2,
-        ),
-      );
-      const proposals = await checkpoint(
-        "proposals",
-        z.object({
-          policyRevision: z.literal(combinationProposalPolicyRevision),
-          value: proposalSchema,
-          screenshots: z.array(ReferenceScreenshotSchema),
-        }),
-        async () => {
-          await restoreReferences(brief.screenshots);
-          this.emit(run, "ranking", "Exploring visual directions for your project…");
-          const proposed = await this.agents.run(() =>
-            agentTurn({
-              provider: run.request.provider,
-              model: combinationModels[run.request.provider],
-              workspace,
-              signal: controller.signal,
-              readOnly: true,
-              referenceUrls: run.request.urls,
-              schema: proposalSchema,
-              promptContext: {
-                brief: run.brief,
-                previousDirections: run.candidates,
-                regenerationRound: run.directionRound || 0,
-              },
-              onEvent: this.providerEvent(run, undefined, "Motion Graphic combination proposals"),
-              prompt: `${assetRequirementsPolicy.guidance}\nOutput type: ${run.request.outputType || "video"}. For pages, evaluate responsive layout and working user interactions rather than video timing. Read all ${summaries.length} cached Motion Graphic summaries in style-summaries.json before proposing directions. There is no individual Motion Graphic shortlist: consider every Motion Graphic both as a primary identity and as a useful supporting contribution. Propose ${Math.max(12, run.request.candidateCount * 4)} distinct candidate options for the brief in the required input JSON. These are proposals for JEV to evaluate, not the final selected directions. Offer meaningfully different visual approaches, not cosmetic variations of one idea. Each direction must contain ${styleRange.min}–${styleRange.max} total distinct Motion Graphics, counting the primary plus supporting Motion Graphics. ${run.request.outputType === "page" ? "" : "This range comes from the full video duration, not the 3-second preview. Motion Graphic count is separate from the requested number of preview directions."} Include single Motion Graphics when permitted and compatible combinations with specific scene roles and honest asset feasibility. Read style-combinations.json for the full recommendations and their roles, rationale, consistency rules and pitfalls; compressed summaries are not the complete suggestion list. ${suggestedCombinationGuidance} ${candidateCopyGuidance} Keep one primary identity and add supporting Motion Graphics within the permitted count only when they contribute meaningfully. Do not force the maximum; vary combination sizes where appropriate. Preserve the primary palette and visual identity, assign subordinate roles, and explain shared typography and motion rhythm. IDs must come from style-summaries.json. A primary Motion Graphic may appear in multiple genuinely distinct combinations. ${run.request.pinnedStyleId ? `Every primary Motion Graphic must be ${run.request.pinnedStyleId}.` : ""} Only when the model and available tools cannot fulfil a requested requirement, including inaccessible supplied URLs, return a focused assetNeeds question with its capability or access cause. Missing uploads alone do not warrant questions. Propose an honest adapted direction using available material; do not invent references. Use supplied images where appropriate and available code-generated visuals where none are supplied. Do not list multiple copies of the same combination, including reordered supporting Motion Graphics.`,
-            }),
-          );
-          run.referenceScreenshots = await readReferenceScreenshots(workspace);
-
-          const allowed = new Set(this.catalog.styles.map((s) => s.id));
-          const signatures = new Set<string>();
-          const options = proposed.value.options.filter((o) => {
-            const ids = [o.primaryStyleId, ...o.supportingStyleIds];
-            const signature = [o.primaryStyleId, ...[...o.supportingStyleIds].sort()].join("|");
-            if (
-              ids.length < styleRange.min ||
-              ids.length > styleRange.max ||
-              ids.some((id) => !allowed.has(id)) ||
-              new Set(ids).size !== ids.length ||
-              signatures.has(signature) ||
-              (run.request.pinnedStyleId && o.primaryStyleId !== run.request.pinnedStyleId)
-            )
-              return false;
-            signatures.add(signature);
-            return true;
-          });
-
-          return {
-            policyRevision: combinationProposalPolicyRevision,
-            value: { options },
-            screenshots: run.referenceScreenshots || [],
-          };
-        },
-        async (output) => validateReferences(output.screenshots),
-      );
-      await restoreReferences(proposals.screenshots);
-      const options = proposals.value.options;
-      const candidateSchema = proposalSchema.shape.options.element.extend({
-        id: z.string(),
-        score: z.number(),
-        confidence: z.number(),
-        dimensions: z.record(z.string(), z.number()),
-      });
-      const ranked = await checkpoint(
-        "selection",
-        z.object({ model: z.string(), candidates: z.array(candidateSchema).min(1) }),
-        async () => {
-          const selected = await rankOptions(
-            run.brief!,
-            options,
-            this.catalog.styles,
-            run.request,
-            controller.signal,
-            summaries,
-            this.providerEvent(run, undefined, "Combination evaluation"),
-            relevantPreferenceHistory(this.store.allRuns(), {
-              id: run.id,
-              brief: run.brief!,
-              request: run.request,
-            }),
-          );
-          if (!selected.candidates.length)
-            throw Error(
-              "No feasible Motion Graphic option passed the brief constraints. Supply the missing assets or clarify the request.",
+      let selectedCandidates: StyleCandidate[];
+      if (run.request.preference === "random") {
+        const selection = await checkpoint("selection", RandomDirectionsSchema, async () => {
+          this.emit(run, "ranking", "Drawing random Motion Graphics from the full pool…");
+          return randomDirections(this.catalog.styles, run.request.candidateCount, styleRange);
+        });
+        run.rankingModel = undefined;
+        selectedCandidates = selection.candidates.map((candidate) => ({
+          ...candidate,
+          id: directionCandidateId(run.directionRound || 0, candidate.id),
+        }));
+      } else {
+        const summaries = await checkpoint(
+          "styles",
+          z.union([
+            z.array(StyleSummarySchema).length(this.catalog.styles.length),
+            z
+              .object({ summaries: z.array(StyleSummarySchema).length(this.catalog.styles.length) })
+              .transform((checkpoint) => checkpoint.summaries),
+          ]),
+          () => {
+            this.emit(run, "input", "Preparing Motion Graphic information for your project…");
+            return prepareStyleSummaries(
+              this.catalog,
+              run.request.provider,
+              controller.signal,
+              this.providerEvent(run, undefined, "Motion Graphic information extraction"),
             );
-          return selected;
-        },
-      );
-      run.rankingModel = ranked.model;
-      const selectedCandidates = ranked.candidates.map((candidate) => ({
-        ...candidate,
-        id: directionCandidateId(run.directionRound || 0, candidate.id),
-      }));
+          },
+        );
+        if (
+          run.request.pinnedStyleId &&
+          !this.catalog.styles.some((style) => style.id === run.request.pinnedStyleId)
+        )
+          throw Error("Pinned Motion Graphic was not found");
+        await writeFile(
+          path.join(workspace, "style-summaries.json"),
+          JSON.stringify(summaries, null, 2),
+        );
+        const proposalSchema = proposalSchemaForStyleRange(styleRange);
+        await writeFile(
+          path.join(workspace, "style-combinations.json"),
+          JSON.stringify(
+            this.catalog.styles.map((style) => ({
+              styleId: style.id,
+              suggested_combinations: style.suggested_combinations,
+            })),
+            null,
+            2,
+          ),
+        );
+        const proposals = await checkpoint(
+          "proposals",
+          z.object({
+            policyRevision: z.literal(combinationProposalPolicyRevision),
+            value: proposalSchema,
+            screenshots: z.array(ReferenceScreenshotSchema),
+          }),
+          async () => {
+            await restoreReferences(brief.screenshots);
+            this.emit(run, "ranking", "Exploring visual directions for your project…");
+            const proposed = await this.agents.run(() =>
+              agentTurn({
+                provider: run.request.provider,
+                model: combinationModels[run.request.provider],
+                workspace,
+                signal: controller.signal,
+                readOnly: true,
+                referenceUrls: run.request.urls,
+                schema: proposalSchema,
+                promptContext: {
+                  brief: run.brief,
+                  previousDirections: run.candidates,
+                  regenerationRound: run.directionRound || 0,
+                },
+                onEvent: this.providerEvent(run, undefined, "Motion Graphic combination proposals"),
+                prompt: `${assetRequirementsPolicy.guidance}\nOutput type: ${run.request.outputType || "video"}. For pages, evaluate responsive layout and working user interactions rather than video timing. Read all ${summaries.length} cached Motion Graphic summaries in style-summaries.json before proposing directions. There is no individual Motion Graphic shortlist: consider every Motion Graphic both as a primary identity and as a useful supporting contribution. Propose ${Math.max(12, run.request.candidateCount * 4)} distinct candidate options for the brief in the required input JSON. These are proposals for JEV to evaluate, not the final selected directions. Offer meaningfully different visual approaches, not cosmetic variations of one idea. Each direction must contain ${styleRange.min}–${styleRange.max} total distinct Motion Graphics, counting the primary plus supporting Motion Graphics. ${run.request.outputType === "page" ? "" : "This range comes from the full video duration, not the 3-second preview. Motion Graphic count is separate from the requested number of preview directions."} Include single Motion Graphics when permitted and compatible combinations with specific scene roles and honest asset feasibility. Read style-combinations.json for the full recommendations and their roles, rationale, consistency rules and pitfalls; compressed summaries are not the complete suggestion list. ${suggestedCombinationGuidance} ${candidateCopyGuidance} Keep one primary identity and add supporting Motion Graphics within the permitted count only when they contribute meaningfully. Do not force the maximum; vary combination sizes where appropriate. Preserve the primary palette and visual identity, assign subordinate roles, and explain shared typography and motion rhythm. IDs must come from style-summaries.json. A primary Motion Graphic may appear in multiple genuinely distinct combinations. ${run.request.pinnedStyleId ? `Every primary Motion Graphic must be ${run.request.pinnedStyleId}.` : ""} Only when the model and available tools cannot fulfil a requested requirement, including inaccessible supplied URLs, return a focused assetNeeds question with its capability or access cause. Missing uploads alone do not warrant questions. Propose an honest adapted direction using available material; do not invent references. Use supplied images where appropriate and available code-generated visuals where none are supplied. Do not list multiple copies of the same combination, including reordered supporting Motion Graphics.`,
+              }),
+            );
+            run.referenceScreenshots = await readReferenceScreenshots(workspace);
+
+            const allowed = new Set(this.catalog.styles.map((s) => s.id));
+            const signatures = new Set<string>();
+            const options = proposed.value.options.filter((o) => {
+              const ids = [o.primaryStyleId, ...o.supportingStyleIds];
+              const signature = [o.primaryStyleId, ...[...o.supportingStyleIds].sort()].join("|");
+              if (
+                ids.length < styleRange.min ||
+                ids.length > styleRange.max ||
+                ids.some((id) => !allowed.has(id)) ||
+                new Set(ids).size !== ids.length ||
+                signatures.has(signature) ||
+                (run.request.pinnedStyleId && o.primaryStyleId !== run.request.pinnedStyleId)
+              )
+                return false;
+              signatures.add(signature);
+              return true;
+            });
+
+            return {
+              policyRevision: combinationProposalPolicyRevision,
+              value: { options },
+              screenshots: run.referenceScreenshots || [],
+            };
+          },
+          async (output) => validateReferences(output.screenshots),
+        );
+        await restoreReferences(proposals.screenshots);
+        const options = proposals.value.options;
+        const candidateSchema = proposalSchema.shape.options.element.extend({
+          id: z.string(),
+          score: z.number(),
+          confidence: z.number(),
+          dimensions: z.record(z.string(), z.number()),
+        });
+        const ranked = await checkpoint(
+          "selection",
+          z.object({ model: z.string(), candidates: z.array(candidateSchema).min(1) }),
+          async () => {
+            const selected = await rankOptions(
+              run.brief!,
+              options,
+              this.catalog.styles,
+              run.request,
+              controller.signal,
+              summaries,
+              this.providerEvent(run, undefined, "Combination evaluation"),
+              relevantPreferenceHistory(this.store.allRuns(), {
+                id: run.id,
+                brief: run.brief!,
+                request: run.request,
+              }),
+            );
+            if (!selected.candidates.length)
+              throw Error(
+                "No feasible Motion Graphic option passed the brief constraints. Supply the missing assets or clarify the request.",
+              );
+            return selected;
+          },
+        );
+        run.rankingModel = ranked.model;
+        selectedCandidates = ranked.candidates.map((candidate) => ({
+          ...candidate,
+          id: directionCandidateId(run.directionRound || 0, candidate.id),
+        }));
+      }
       run.candidates = [
         ...run.candidates.filter(
           (candidate) => !selectedCandidates.some((selected) => selected.id === candidate.id),

@@ -1,3 +1,4 @@
+import { creativeApproaches } from "../../shared/creative-approach";
 import { translateUi } from "../i18n/service";
 import { deliverySpeech, videoLanguageLabel } from "../../shared/video-language";
 import type { CreativeRequest } from "../../shared/contracts";
@@ -109,9 +110,7 @@ export function roomSettingsReply(request: CreativeRequest, styles: ReplyStyle[]
           }),
         ]),
     translateUi("Creative approach: {{value0}}", {
-      value0: translateUi(
-        request.preference === "creative" ? "Explore creative ideas" : "Follow my brief",
-      ),
+      value0: translateUi(creativeApproaches[request.preference].label),
     }),
     styleNames.length
       ? translateUi(

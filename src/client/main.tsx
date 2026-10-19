@@ -1,3 +1,4 @@
+import { creativeApproaches, type CreativeApproach } from "../shared/creative-approach";
 import { UiLanguageProvider } from "./i18n";
 import { uiLanguage, translateUi, useUiLanguage } from "./i18n";
 import { VideoPlayer } from "./components/video-player";
@@ -160,7 +161,7 @@ function App() {
   }, [page, detail?.id]);
   const [demo, setDemo] = useState(false);
   const [instructions, setInstructions] = useState("");
-  const [preference, setPreference] = useState<"context" | "creative">("context");
+  const [preference, setPreference] = useState<CreativeApproach>("context");
   const [provider, setProvider] = useState<Provider>("codex");
   const [count, setCount] = useState(5);
   const [outputType, setOutputType] = useState<"video" | "page">("video");
@@ -448,7 +449,7 @@ function App() {
       uploading ||
       selectedStyleIds.length > styleLimit ||
       instructions.trim().length < 8 ||
-      (!manual && !setup?.jevConfigured)
+      (!manual && preference !== "random" && !setup?.jevConfigured)
     )
       return;
     const revision = draftRevision.current;
@@ -1503,6 +1504,7 @@ function App() {
                           limit={styleLimit}
                           onChange={(ids) => {
                             setSelectedStyleIds(ids);
+                            if (ids.length && preference === "random") setPreference("context");
                             setCount(ids.length ? 0 : 5);
                           }}
                         />
@@ -1728,9 +1730,7 @@ function App() {
                             aria-describedby="creative-approach-help"
                             disabled={manual}
                             value={preference}
-                            onValueChange={(value) =>
-                              setPreference(value as "context" | "creative")
-                            }
+                            onValueChange={(value) => setPreference(value as CreativeApproach)}
                           >
                             <StudioSelectOption value="context">
                               {manual
@@ -1741,6 +1741,9 @@ function App() {
                               {manual
                                 ? translateUi("Using your selected Motion Graphic")
                                 : translateUi("Explore creative ideas")}
+                            </StudioSelectOption>
+                            <StudioSelectOption value="random">
+                              {translateUi(creativeApproaches.random.label)}
                             </StudioSelectOption>
                           </StudioSelect>
                         </div>
@@ -1758,7 +1761,7 @@ function App() {
                             uploading ||
                             selectedStyleIds.length > styleLimit ||
                             instructions.trim().length < 8 ||
-                            (!manual && !setup?.jevConfigured)
+                            (!manual && preference !== "random" && !setup?.jevConfigured)
                           }
                         >
                           {busy ? (
@@ -1792,15 +1795,9 @@ function App() {
                       ? translateUi(
                           "Build directly with your chosen Motion Graphics. No direction proposals or ranking calls.",
                         )
-                      : preference === "context"
-                        ? translateUi(
-                            "Follow my brief: choose visuals that stay close to your message.",
-                          )
-                        : translateUi(
-                            "Explore creative ideas: try unexpected visuals while keeping your message.",
-                          )}
+                      : translateUi(creativeApproaches[preference].description)}
                   </p>
-                  {!manual && !setup?.jevConfigured && (
+                  {!manual && preference !== "random" && !setup?.jevConfigured && (
                     <div className="setup-note needs-setup">
                       <strong>{translateUi("Creation is currently unavailable")}</strong>
                       <p>{translateUi("Please check the app setup and try again.")}</p>
@@ -1879,6 +1876,7 @@ function App() {
       {detail &&
         styleDetailDialog(detail, () => {
           setSelectedStyleIds([detail.id]);
+          if (preference === "random") setPreference("context");
           setCount(0);
           setDetail(undefined);
           newRequest(true);

@@ -34,6 +34,8 @@ export function trimStylesForDuration(
 export function validateStyleSelection(
   request: {
     outputType: "video" | "page";
+    preference?: string;
+    pinnedStyleId?: string;
     duration?: number | "auto";
     candidateCount: number;
     selectedStyleIds?: string[];
@@ -41,6 +43,13 @@ export function validateStyleSelection(
   context: z.RefinementCtx,
 ) {
   const ids = request.selectedStyleIds || [];
+  if (request.preference === "random" && (ids.length || request.pinnedStyleId))
+    context.addIssue({
+      code: "custom",
+      path: ["preference"],
+      message:
+        "Random selection uses the full pool. Clear selected or pinned Motion Graphics first.",
+    });
   if (ids.length > 0 !== (request.candidateCount === 0))
     context.addIssue({
       code: "custom",

@@ -1,3 +1,4 @@
+import { CreativeApproachSchema } from "../creative-approach";
 import { MAX_VIDEO_STYLE_COUNT } from "../style-selection";
 import { type ResultReview } from "../agents/schemas/result-review";
 import type { ErrorCode } from "../errors";
@@ -11,7 +12,7 @@ export const SharedRequestSchema = z.object({
   instructions: z.string().trim().min(8).max(24000),
   assetIds: z.array(z.string().uuid()).max(20).default([]),
   urls: z.array(z.url()).max(5).default([]),
-  preference: z.enum(["context", "creative"]).default("context"),
+  preference: CreativeApproachSchema.default("context"),
   provider: ProviderSchema.default("codex"),
   mainModel: z.string().trim().min(1).optional(),
   candidateCount: z.number().int().min(0).max(5).default(5),

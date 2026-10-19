@@ -79,6 +79,8 @@ export async function rankOptions(
   onEvent: (event: ProviderEvent) => void = () => {},
   preferenceHistory: PreferenceHistoryRecord[] = [],
 ) {
+  if (request.preference === "random") throw Error("Random selection must bypass ranking");
+  const rankingPreference = request.preference;
   const history = preferenceHistory.slice(0, preferenceHistoryPolicy.maxRecords);
   const historyProjects = new Set(history.map((record) => record.projectId)).size;
   const criteria = {
@@ -179,7 +181,7 @@ export async function rankOptions(
         ...o,
         id: `candidate-${offset + i + 1}`,
         dimensions,
-        score: weightedScore(dimensions, request.preference, historyProjects),
+        score: weightedScore(dimensions, rankingPreference, historyProjects),
         confidence: Math.min(...confidences),
       });
     });

@@ -1037,5 +1037,8 @@
   "Stick-figure lettering artist": "简笔画文字美术师",
   "Stick-figure sound technician": "简笔画音效师",
   "Stick-figure camera operator": "简笔画摄影师",
-  "Creating your video…": "正在创作你的视频…"
+  "Creating your video…": "正在创作你的视频…",
+  "Random selection": "随机选择",
+  "Draw Motion Graphics uniformly from the full pool. No scores, weights or preference history. Build around your brief and the random draw.": "从完整动态图形库中等概率随机抽取，不使用评分、权重或偏好历史。围绕你的简报和抽取结果创作。",
+  "Drawing random Motion Graphics from the full pool…": "正在从完整库中随机抽取动态图形…"
 }

@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { z } from "zod";
 import { RequestSchema } from "../src/shared/contracts";
 import { preparationBriefSchemaFor } from "../src/shared/agents/schemas/preparation-brief";
-import { assemblePreparationBrief } from "../src/server/jobs/subworkflows/preparation-brief";
+import { assemblePreparationBrief } from "../src/server/jobs/subworkflows/full-brief/preparation";
 
 const interpretation = {
   subject: "An insight becomes shareable",

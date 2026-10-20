@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+export const captureCursorThemes = [
+  "default",
+  "studio-ink",
+  "prism-glow",
+  "pop-coral",
+  "pixel-candy",
+  "star-sprout",
+  "glass-lens",
+] as const;
+
 const ZoomRegionSchema = z
   .object({
     startSeconds: z.number().min(0).max(120),
@@ -49,10 +59,16 @@ export const CapturePresentationSchema = z
       .describe(
         "Optional zoom regions in ORIGINAL recording seconds, before idle cuts. Focus follows the cursor by default. Manual focus must be explicit; its coordinates are normalized to the full recorded window. Native auto-zoom avoids these regions.",
       ),
+    cursorTheme: z
+      .enum(captureCursorThemes)
+      .default("default")
+      .describe(
+        "Choose a 2D cursor theme to complement the idea's primary Motion Graphic, palette and tone while remaining visible over the app. Keep the same theme across related takes. Omission uses OpenScreen's default theme; 3D is disabled.",
+      ),
     cursorSize: z.number().min(1.5).max(6).optional(),
     cursorSmoothing: z.number().min(0).max(1).optional(),
     cursorMotionBlur: z.number().min(0).max(1).optional(),
-    cursorClickBounce: z.number().min(0).max(2.5).optional(),
+    cursorClickBounce: z.number().min(0).max(2).optional(),
     cursorClickImpact: z
       .boolean()
       .optional()
@@ -63,29 +79,21 @@ export const CapturePresentationSchema = z
   .strict();
 export type CapturePresentationInput = z.input<typeof CapturePresentationSchema>;
 
-/** Fixed product appearance; the agent controls pacing and framing, not the cursor identity. */
+/** Shared 2D cursor behavior; theme selection belongs to the capture tool caller. */
 export const captureCursorAppearance = {
-  cursorTheme: "prism-glow",
-  cursorModel3d: true,
+  cursorModel3d: false,
   cursorAlwaysArrow: false,
   cursorAsArrow: ["text"] as Array<"text">,
 } as const;
 
 /** Recording provenance also accepts the appearances used by earlier saved takes. */
 export const AppliedCapturePresentationSchema = CapturePresentationSchema.extend({
+  // The previous CLI export path accepted 2.5; retain saved recording metadata.
+  cursorClickBounce: z.number().min(0).max(2.5).optional(),
   // Earlier saved custom regions were exported as manual before focusMode was exposed.
   zoomRegions: z
     .array(ZoomRegionSchema.safeExtend({ focusMode: z.enum(["auto", "manual"]).default("manual") }))
     .default([]),
-  cursorTheme: z.enum([
-    "default",
-    "studio-ink",
-    "prism-glow",
-    "pop-coral",
-    "pixel-candy",
-    "star-sprout",
-    "glass-lens",
-  ]),
   cursorModel3d: z.boolean().default(false),
   cursorAlwaysArrow: z.boolean().default(true),
   cursorAsArrow: z.array(z.literal("text")).optional(),

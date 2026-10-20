@@ -1,4 +1,7 @@
 {
+  "Full video planning": "Full video planning",
+  "Planning your full video…": "Planning your full video…",
+  "Saving the full video plan…": "Saving the full video plan…",
   " · added": " · added",
   " · elapsed": " · elapsed",
   " · incomplete timing": " · incomplete timing",
@@ -683,6 +686,7 @@
   "Your reply": "Your reply",
   "Your reply and references apply to the project.": "Your reply and references apply to the project.",
   "Your reply and references apply to this result’s next build.": "Your reply and references apply to this result’s next build.",
+  "Your reply and references apply before this result continues.": "Your reply and references apply before this result continues.",
   "Your reply ·": "Your reply ·",
   "Your room changes aren’t saved yet.": "Your room changes aren’t saved yet.",
   "Your room.": "Your room.",
@@ -1039,5 +1043,11 @@
   "Creating your video…": "Creating your video…",
   "Random selection": "Random selection",
   "Draw Motion Graphics uniformly from the full pool. No scores, weights or preference history. Build around your brief and the random draw.": "Draw Motion Graphics uniformly from the full pool. No scores, weights or preference history. Build around your brief and the random draw.",
-  "Drawing random Motion Graphics from the full pool…": "Drawing random Motion Graphics from the full pool…"
+  "Drawing random Motion Graphics from the full pool…": "Drawing random Motion Graphics from the full pool…",
+  "Shared script": "Shared script",
+  "Use one script for narration and on-screen text.": "Use one script for narration and on-screen text.",
+  "Add URL": "Add URL",
+  "Remove URL {{value0}}": "Remove URL {{value0}}",
+  "Website URL {{value0}}": "Website URL {{value0}}",
+  "Add up to five website links.": "Add up to five website links."
 }

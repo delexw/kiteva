@@ -125,6 +125,8 @@ export const claudeAgent: Agent = {
     const { workspace, signal, prompt, systemPrompt, jsonSchema, referenceServer, onEvent, model } =
       options;
     signal.throwIfAborted();
+    if (options.planMode && !options.readOnly)
+      throw Error("Native planning requires a read-only turn");
     const caveman = await cavemanRuntime(signal);
     signal.throwIfAborted();
     let sessionId = options.sessionId;
@@ -211,10 +213,17 @@ export const claudeAgent: Agent = {
                   "Glob",
                   "Grep",
                   "Skill",
+                  ...(options.planMode ? ["ExitPlanMode"] : []),
                   ...(options.exploreBriefSections ? ["Agent"] : []),
                 ]
               : ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "Skill"],
-          permissionMode: "acceptEdits",
+          permissionMode: options.planMode ? "plan" : "acceptEdits",
+          ...(options.planMode
+            ? {
+                planModeInstructions:
+                  "Plan the supplied task before implementation, following its domain-specific discovery and story guidance. This turn is read-only: do not record, implement, install or write files, including a separate plan file. Use the requested structured output for the plan. Call ExitPlanMode when the plan is ready; Kiteva automatically accepts this planning handoff, not unresolved user decisions. Do not ask the user to approve the plan or start implementation in this turn. Return the requested structured plan after the handoff. Report missing facts or capabilities honestly; never treat planned assets as already captured.",
+              }
+            : {}),
           hooks: {
             PreToolUse: [
               { matcher: "^(Agent|Task)$", hooks: [requireForegroundSubagent] },
@@ -222,6 +231,10 @@ export const claudeAgent: Agent = {
             ],
           },
           canUseTool: async (name, input) => {
+            if (name === "ExitPlanMode")
+              return options.planMode
+                ? { behavior: "allow", updatedInput: input }
+                : { behavior: "deny", message: "No native planning handoff is active" };
             for (const [server, capability] of Object.entries(options.capabilityServers || {})) {
               const prefix = `mcp__${server}__`;
               if (

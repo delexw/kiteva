@@ -45,3 +45,28 @@ it("preserves short names and avoids splitting unicode code points", () => {
   expect(Array.from(title)).toHaveLength(80);
   expect(title).toBe("🎬".repeat(79) + "…");
 });
+
+it("uses the original heading for direct builds and repairs legacy placeholder names", () => {
+  const request = RequestSchema.parse({
+    instructions: "MY PRODUCT — IDEAS IN MOTION\n\nCreate a film showing the main workflow.",
+    selectedStyleIds: ["style-018"],
+    candidateCount: 0,
+  });
+  expect(projectName({ request })).toBe("MY PRODUCT — IDEAS IN MOTION");
+  const brief = BriefSchema.parse({
+    subject: "Your selection",
+    audience: "",
+    objective: request.instructions,
+    facts: [],
+    exactCopy: [],
+    previewBeat: "",
+    assetDescriptions: [],
+    constraints: [],
+    suggestedDuration: 15,
+    durationReason: "Pending planning",
+  });
+  expect(projectName({ request, brief })).toBe("MY PRODUCT — IDEAS IN MOTION");
+  expect(projectName({ request, brief: { ...brief, subject: "An authored title" } })).toBe(
+    "An authored title",
+  );
+});

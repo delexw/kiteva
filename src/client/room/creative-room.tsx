@@ -106,10 +106,6 @@ function roomViewportArea() {
     height: Math.max(560, window.innerHeight - menuBarHeight),
   };
 }
-function isTyping() {
-  const element = document.activeElement;
-  return element instanceof HTMLElement && element.matches("input,textarea,[contenteditable=true]");
-}
 
 export function CreativeRoom({
   projects,
@@ -310,19 +306,16 @@ export function CreativeRoom({
     };
   }, [loaded, editSourceId]);
   useEffect(() => {
-    if (!loaded || question || isTyping()) return;
+    if (!loaded || question) return;
     const pending = all.flatMap((run) =>
       scopedAssetQuestions(run)
-        .filter(
-          (q) =>
-            q.state === "open" && q.mode === "blocking" && !room.dismissedQuestions.includes(q.id),
-        )
+        .filter((q) => q.state === "open" && !room.dismissedQuestions.includes(q.id))
         .map((q) => ({ runId: run.id, id: q.id })),
     )[0];
     if (pending) {
       setQuestion(pending);
       setConversation(pending.runId);
-      reveal("assistant", false);
+      reveal("assistant");
     }
   }, [loaded, projects, active, question, room.dismissedQuestions, focusTick]);
   const current = all.find((run) => run.id === (question?.runId || conversation));

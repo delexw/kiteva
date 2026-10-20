@@ -1,3 +1,4 @@
+import { NativeCaptureRequestSchema } from "./native-editor";
 import { z } from "zod";
 import { CapturePresentationSchema } from "./presentation";
 
@@ -16,8 +17,14 @@ export const CaptureActionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("scroll"), deltaY: z.number().min(-1800).max(1800) }),
   z.object({ action: z.literal("capture"), selector: z.string().max(500).optional() }),
   z.object({ action: z.literal("start"), presentation: CapturePresentationSchema.optional() }),
+  z.object({ action: z.literal("prepare"), recordingId: z.string().uuid() }),
+  z.object({
+    action: z.literal("edit"),
+    recordingId: z.string().uuid(),
+    request: NativeCaptureRequestSchema,
+  }),
+  z.object({ action: z.literal("export"), recordingId: z.string().uuid() }),
   z.object({ action: z.literal("wait"), milliseconds: z.number().int().min(100).max(5000) }),
-  z.object({ action: z.literal("stop"), recordingId: z.string().uuid() }),
 ]);
 export type CaptureAction = z.infer<typeof CaptureActionSchema>;
 export const WorkerAssetNameSchema = z

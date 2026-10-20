@@ -3,15 +3,39 @@
 These are MCP tools registered directly with the Claude Agent SDK and Codex SDK on each turn.
 They are separate from authoring skills (`../bundled-skills/`), Motion Graphics and rendering engines.
 
-| Capability | Registration    | Guidance               | Implementation                                            |
-| ---------- | --------------- | ---------------------- | --------------------------------------------------------- |
-| React Bits | `react-bits.ts` | `react-bits-prompt.ts` | `react-bits-tools.ts`, launched by `react-bits-server.ts` |
-| Animate UI | `animate-ui.ts` | `animate-ui-prompt.ts` | `animate-ui-tools.ts`, launched by `animate-ui-server.ts` |
+| Capability                                                              | Registration                                 | Guidance                             | Implementation                                                                                              |
+| ----------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| React Bits                                                              | [capability.ts](react-bits/capability.ts)    | [prompt.ts](react-bits/prompt.ts)    | [tools.ts](react-bits/tools.ts), [server.ts](react-bits/server.ts)                                          |
+| Animate UI                                                              | [capability.ts](animate-ui/capability.ts)    | [prompt.ts](animate-ui/prompt.ts)    | [tools.ts](animate-ui/tools.ts), [server.ts](animate-ui/server.ts)                                          |
+| Creative Pool                                                           | [capability.ts](creative-pool/capability.ts) | [prompt.ts](creative-pool/prompt.ts) | [tools.ts](creative-pool/tools.ts), [server.ts](creative-pool/server.ts)                                    |
+| [Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) | [capability.ts](audio-studio/capability.ts)  | [prompt.ts](audio-studio/prompt.ts)  | [tools.ts](audio-studio/tools.ts), [server.ts](audio-studio/server.ts), [client.ts](audio-studio/client.ts) |
 
 `registry.ts` collects registrations and guidance. Text-only calls receive neither. Planning/review
 calls (`readOnly: true`) get `search_components` and `read_component`; build/correction calls also get
 `install_component`. The planning server does not register the installation tool, independent of
 provider permissions or prompt compliance. No user/global MCP configuration is modified.
+
+## Folder layout
+
+```text
+capabilities/
+├── registry.ts
+├── animate-ui/
+│   ├── capability.ts
+│   ├── prompt.ts
+│   ├── server.ts
+│   └── tools.ts
+├── react-bits/             # Same registration/prompt/server/tools layout
+├── creative-pool/          # Same layout, plus capability-specific types.ts
+├── audio-studio/           # Same layout, plus client.ts and types.ts
+└── shared/
+    ├── types.ts
+    └── component-registry-tools.ts
+```
+
+Each capability owns its registration, system guidance, server entry point, tools and specific types.
+The root registry only collects capabilities. Shared types and the component-registry adapter stay in
+`shared/` because multiple capabilities consume them.
 
 ## Animate UI and authoring resource selection
 
@@ -78,3 +102,36 @@ do not redistribute the component collection. No upstream component code is bund
 The provider adapters keep their existing event path. Tool events and usage carry the same invocation,
 model, session and task attribution into Workflow/Governance. The adapter makes no AI calls and adds no
 separate model billing path. Customer Activity shows only curated component-action labels.
+
+## Audio Studio MCP
+
+[Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) is a separate local audio
+capability for both SDK providers. It does not replace the renderer or the visual-resource selection.
+`audio-studio/capability.ts` registers the workspace adapter, `audio-studio/client.ts` probes upstream MCP
+startup/tools, and `audio-studio/tools.ts` forwards the upstream tool schemas and server instructions.
+Read-only planning/review and text-only turns receive no audio tools. Build turns expose
+`generate_audio`, `edit_audio`, `process_audio` and `unload_models` when installed.
+
+Run the root [install.sh](../../../../install.sh) for app and Audio Studio setup together. For a
+standalone setup, use the upstream installer in `.data/audio-studio-mcp`, or set `AUDIO_STUDIO_MCP_COMMAND` to an
+absolute executable path from an existing installation. Kiteva automatically detects
+`.data/audio-studio-mcp/.venv/bin/audio-studio-mcp` (Windows: `.venv/Scripts/audio-studio-mcp.exe`).
+Follow upstream hardware, runtime and model-license requirements. The Apple Silicon installer
+supports `--skip-weights` for MCP/post-processing tests; the first generation then downloads model
+weights. Installation/downloads are never started automatically by a video job. For Windows NVIDIA
+setup use the upstream `install.ps1` instructions. Custom backend settings may use
+`AUDIO_STUDIO_BACKEND`, `AUDIO_STUDIO_SA3_DIR`, `AUDIO_STUDIO_SA3_MODEL` and
+`AUDIO_STUDIO_IDLE_UNLOAD_MIN`.
+
+The adapter saves output under each job's `audio/audio-studio/`, rejects input files outside that
+workspace (including symlink escapes), and retains upstream schemas, descriptions and argument
+ranges. Outputs include readable text and discriminated structured content. Native MCP errors are
+preserved. Generation/edit calls allow up to 30 minutes; no audio is generated during availability
+probing. The agent integrates actual output through the chosen renderer, with narration mixed by
+Kiteva's existing speech path. See `../../jev/README.md` for the independent audio Choice strategy.
+
+Visual selection metadata belongs to each capability's `metadata.ts`; the shared registry client is
+used by MCP component tools. JEV receives extracted prose about each option’s advantages and limits. React Bits names accept JS/TS-only entries as well
+as JS/TS × CSS/Tailwind variants, matching the current official registry. Registry discovery remains
+read-only; saving a component still does not install npm or recursively install registry dependencies.
+See [JEV visual guidance](../../jev/README.md#visual-choice-guidance) for selection details.

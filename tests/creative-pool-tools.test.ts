@@ -2,8 +2,8 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { afterEach, expect, it } from "vitest";
-import { createCreativePoolTools } from "../src/server/agents/capabilities/creative-pool-tools";
-import { creativePoolCapability } from "../src/server/agents/capabilities/creative-pool";
+import { createCreativePoolTools } from "../src/server/agents/capabilities/creative-pool/tools";
+import { creativePoolCapability } from "../src/server/agents/capabilities/creative-pool/capability";
 import { agentCapabilities } from "../src/server/agents/capabilities/registry";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { technologyPool } from "../src/shared/technology-pool";
@@ -122,14 +122,18 @@ it("launches the actual SDK stdio server and advertises only read-only pool tool
   for (const readOnly of [true, false]) {
     const capabilities = agentCapabilities("/job", readOnly);
     expect(capabilities.servers.creative_pool).toEqual(capability);
-    expect(capabilities.guidance).toContain("Before planning or implementing");
-    expect(capabilities.guidance).toContain("Read every selected Motion Graphic definition");
+    expect(capabilities.guidance).toContain(
+      "Before planning, writing code or making implementation choices",
+    );
+    expect(capabilities.guidance).toContain(
+      "EVERY selected Motion Graphic and every named Motion Graphic or motion",
+    );
     expect(capabilities.guidance).toContain("Preserve the draft’s selected Motion Graphic IDs");
     expect(capabilities.guidance).toContain("their primary/supporting roles");
     expect(capabilities.guidance).toContain("any explicit act/scene assignments");
     expect(capabilities.guidance).toContain("must not spread into other acts");
     expect(capabilities.guidance).toContain(
-      "does not authorize replacing, dropping, promoting or adding",
+      "Pool discovery alone does not authorize unrequested additions",
     );
   }
   expect(agentCapabilities("/job", false, true)).toEqual({ servers: {}, guidance: "" });

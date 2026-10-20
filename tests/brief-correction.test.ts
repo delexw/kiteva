@@ -5,7 +5,7 @@ import { BriefCorrectionSchema } from "../src/shared/agents/schemas/brief-correc
 import {
   applyBriefCorrection,
   reviseBriefWithRetry,
-} from "../src/server/jobs/subworkflows/brief-correction";
+} from "../src/server/jobs/subworkflows/full-brief/correction";
 
 const brief = {
   subject: "An idea becomes shareable",

@@ -1,4 +1,4 @@
-vi.mock("../src/server/agents/authoring-resources", () => ({
+vi.mock("../src/server/jev/strategies/visual-authoring", () => ({
   selectAuthoringResources: async () => ({
     source: "jev",
     model: "jev-test",
@@ -50,12 +50,14 @@ function fixture(): Run {
     ],
   };
 }
-it("scopes blocking questions without treating legacy optional questions as blockers", () => {
+it("scopes every open question as a blocker, including legacy optional questions", () => {
   const run = fixture();
   expect(blockingQuestions(run)).toHaveLength(0);
   expect(blockingQuestions(run, run.jobs[0])).toHaveLength(1);
   run.assetQuestions![0].mode = undefined;
-  expect(blockingQuestions(run, run.jobs[0])).toHaveLength(0);
+  expect(blockingQuestions(run, run.jobs[0])).toHaveLength(1);
+  run.assetQuestions![0].mode = "optional";
+  expect(blockingQuestions(run, run.jobs[0])).toHaveLength(1);
   run.assetQuestions![0].mode = "blocking";
   run.assetQuestions![0].jobId = undefined;
   expect(blockingQuestions(run)).toHaveLength(1);
@@ -160,6 +162,39 @@ it("never pauses finished work and ignores a duplicate start for a running job",
   workflow["controllers"].set("preview", new AbortController());
   await workflow.generate(run, run.jobs[0]);
   expect(run.inputWaits).toBeUndefined();
+  store.close();
+});
+it("waits for every answer and applies both decisions before resuming once", async () => {
+  const store = new Store(":memory:");
+  const workflow = new Workflow(store, await loadCatalog());
+  const run = fixture();
+  run.assetQuestions![0].mode = "optional";
+  run.assetQuestions!.push({ ...run.assetQuestions![0], id: "second", kind: "voice" });
+  await workflow.generate(run, run.jobs[0]);
+  const generate = vi.spyOn(workflow, "generate").mockResolvedValue();
+  workflow.answerAssetQuestion(run, "question", { answer: "Use my reference" });
+  expect(generate).not.toHaveBeenCalled();
+  expect(run.inputWaits).toHaveLength(1);
+  workflow.answerAssetQuestion(run, "second", { answer: "Use captions" });
+  expect(generate).toHaveBeenCalledOnce();
+  expect(generate.mock.calls[0][3]).toContain("Use my reference");
+  expect(generate.mock.calls[0][3]).toContain("Use captions");
+  expect(run.inputWaits).toEqual([]);
+  await vi.waitFor(() => expect(run.phase).toBe("queued"));
+  store.close();
+});
+it("does not accept an empty reply as permission to use the fallback", async () => {
+  const store = new Store(":memory:");
+  const workflow = new Workflow(store, await loadCatalog());
+  const run = fixture();
+  await workflow.generate(run, run.jobs[0]);
+  const generate = vi.spyOn(workflow, "generate").mockResolvedValue();
+  expect(() => workflow.answerAssetQuestion(run, "question", { answer: "  " })).toThrow(
+    "explicitly choose the alternative",
+  );
+  expect(run.assetQuestions![0].state).toBe("open");
+  expect(run.inputWaits).toHaveLength(1);
+  expect(generate).not.toHaveBeenCalled();
   store.close();
 });
 it("settles the project when a waiting job is cancelled, and that job cannot be resumed", async () => {

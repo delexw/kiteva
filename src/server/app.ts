@@ -1,4 +1,4 @@
-import { jevModel } from "./agents/jev";
+import { jevModel } from "./jev/client";
 import { assertWindowsRenderReady } from "./rendering/sandbox/readiness";
 import { userHome } from "./runtime/platform";
 import { registerRoomRoutes } from "./room/routes";
@@ -261,7 +261,12 @@ export async function createApp(options: { store?: Store } = {}) {
       {
         function: "Preview video planning",
         claude: "Not used",
-        codex: "gpt-6.1-sol before each preview; full video reuses the selected preview session",
+        codex: "gpt-6.1-sol before each preview",
+      },
+      {
+        function: "Full video planning",
+        claude: "Selected main model before implementation, in the same session",
+        codex: "Selected main model before implementation, in the same session",
       },
       {
         function: "Previews and full generation",

@@ -1,16 +1,14 @@
-import { command } from "../src/server/runtime/process";
 import { EventEmitter } from "node:events";
 import { PassThrough, Writable } from "node:stream";
 import type { ChildProcess } from "node:child_process";
 import { afterEach, expect, it, vi } from "vitest";
-vi.mock("../src/server/runtime/process", () => ({ command: vi.fn() }));
 vi.mock("node:fs", () => ({ existsSync: () => false }));
 vi.mock("node:child_process", () => ({ spawn: vi.fn() }));
 vi.mock("node:fs/promises", () => ({ access: vi.fn() }));
 vi.mock("../src/server/runtime/process-tree", () => ({ stopProcessTree: vi.fn() }));
 import { spawn } from "node:child_process";
 import { stopProcessTree } from "../src/server/runtime/process-tree";
-import { exportOpenScreen, startOpenScreen } from "../src/server/capture/openscreen";
+import { startOpenScreen } from "../src/server/capture/openscreen";
 
 afterEach(() => {
   vi.resetAllMocks();
@@ -91,32 +89,4 @@ it("refuses to select a substitute recorder when OpenScreen is not configured", 
     startOpenScreen("Kiteva capture unique-id", new AbortController().signal),
   ).rejects.toThrow("OPENSCREEN_EXECUTABLE");
   expect(spawn).not.toHaveBeenCalled();
-});
-
-it("exports cursor and auto-zoom through OpenScreen despite native compositor diagnostics", async () => {
-  vi.stubEnv("OPENSCREEN_EXECUTABLE", "/worker/OpenScreen");
-  vi.mocked(command).mockResolvedValue(
-    '[pipeline] Rendering 20 frames\n{"event":"done","success":true,"outputPath":"/worker/output.mp4"}\n',
-  );
-  await exportOpenScreen(
-    "/worker/capture.openscreen",
-    "/worker/output.mp4",
-    new AbortController().signal,
-  );
-  expect(command).toHaveBeenCalledWith(
-    "/worker/OpenScreen",
-    expect.arrayContaining(["export", "/worker/capture.openscreen", "--auto-zoom", "--fps", "60"]),
-    "/worker",
-    expect.any(AbortSignal),
-    expect.any(Function),
-    3_600_000,
-  );
-  vi.mocked(command).mockResolvedValue('{"event":"done","success":false}');
-  await expect(
-    exportOpenScreen(
-      "/worker/capture.openscreen",
-      "/worker/output.mp4",
-      new AbortController().signal,
-    ),
-  ).rejects.toThrow();
 });

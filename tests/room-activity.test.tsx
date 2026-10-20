@@ -120,3 +120,28 @@ it("shows preparation immediately before any event or checkpoint arrives", () =>
     renderToStaticMarkup(<RoomActivityNow run={preparing} events={[]} onOpen={() => {}} />),
   ).toContain('role="status"');
 });
+
+it("shows timestamps on individual entries rather than their summary parents", () => {
+  const earlier = {
+    id: 1,
+    scope: "project",
+    kind: "tool" as const,
+    text: "Building your full video…",
+    time: "2026-01-01T10:34:00Z",
+    status: "failed" as const,
+  };
+  const parent = roomActivityStep({
+    ...earlier,
+    id: 2,
+    time: "2026-01-01T10:42:00Z",
+    status: "complete",
+    children: [earlier],
+  });
+  expect(parent.description).toBeUndefined();
+  expect(parent.status).toBe("success");
+  const child = roomActivityStep(earlier);
+  expect(renderToStaticMarkup(<>{child.description}</>)).toContain(
+    'dateTime="2026-01-01T10:34:00Z"',
+  );
+  expect(child.status).toBe("error");
+});

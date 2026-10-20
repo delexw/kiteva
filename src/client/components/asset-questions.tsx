@@ -63,9 +63,9 @@ export function AssetQuestionCard({
           {question.fallback}
         </p>
         <p className="asset-question-note">
-          {translateUi("Work continues while you decide.")}{" "}
+          {translateUi("This part is paused until you answer. Everything else keeps going.")}{" "}
           {question.jobId
-            ? translateUi("Your reply and references apply to this result’s next build.")
+            ? translateUi("Your reply and references apply before this result continues.")
             : translateUi("Your reply and references apply to the project.")}
         </p>
         <PromptInput

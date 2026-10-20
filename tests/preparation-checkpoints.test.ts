@@ -1,4 +1,4 @@
-vi.mock("../src/server/agents/authoring-resources", () => ({
+vi.mock("../src/server/jev/strategies/visual-authoring", () => ({
   selectAuthoringResources: async () => ({
     source: "jev",
     model: "jev-test",
@@ -18,13 +18,13 @@ vi.mock("../src/server/catalog/style-summaries", async (original) => ({
   ...(await original<typeof import("../src/server/catalog/style-summaries")>()),
   prepareStyleSummaries: vi.fn(),
 }));
-vi.mock("../src/server/catalog/ranking", () => ({ rankOptions: vi.fn() }));
-vi.mock("../src/server/agents/jev", () => ({ jevClient: vi.fn() }));
+vi.mock("../src/server/jev/strategies/style-combination", () => ({ rankOptions: vi.fn() }));
+vi.mock("../src/server/jev/client", () => ({ jevClient: vi.fn() }));
 vi.mock("../src/server/domains/video/prepare-lyrics", () => ({ prepareLyrics: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
 import { prepareStyleSummaries } from "../src/server/catalog/style-summaries";
-import { rankOptions } from "../src/server/catalog/ranking";
-import { jevClient } from "../src/server/agents/jev";
+import { rankOptions } from "../src/server/jev/strategies/style-combination";
+import { jevClient } from "../src/server/jev/client";
 import { prepareLyrics } from "../src/server/domains/video/prepare-lyrics";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { Store } from "../src/server/jobs/store";
@@ -36,7 +36,7 @@ import {
 import { RequestSchema, type Run } from "../src/shared/contracts";
 import { preparationSteps } from "../src/shared/preparation";
 import { dataRoot } from "../src/server/runtime/config";
-import { textModels } from "../src/server/agents/models";
+import { textModels, combinationModels } from "../src/server/agents/models";
 
 beforeEach(() => vi.clearAllMocks());
 const brief = {
@@ -152,6 +152,15 @@ it.each(["brief", "lyrics", "styles", "proposals", "selection"] as const)(
       workflow.retry(resumed);
       await prepare.mock.results[0].value;
       expect(resumed.phase, resumed.error).toBe("ready");
+      const proposalCall = vi
+        .mocked(agentTurn)
+        .mock.calls.find(([options]) => options.model === combinationModels.claude)?.[0];
+      expect(proposalCall?.promptContext).toMatchObject({
+        originalIdea: resumed.request.instructions,
+      });
+      expect(proposalCall?.prompt).toContain(
+        "Creative result; Contributions; Advantages; Disadvantages; Compatibility and adaptation",
+      );
       for (const step of preparationSteps)
         expect(resumed.preparation?.checkpoints[step]).toMatchObject({ state: "completed" });
       for (const step of preparationSteps.slice(1, preparationSteps.indexOf(failedStep)))
@@ -374,16 +383,20 @@ it.each(["claude", "codex"] as const)(
   },
 );
 
-it("manual styles build a full video without summary, proposal or ranking calls", async () => {
+it("manual styles use only title preparation before the full build", async () => {
   const run = newRun();
   run.request = RequestSchema.parse({
-    instructions: "Explain a product",
+    instructions:
+      "Explain a product. Credits: Avery (AV) — Engineering: built the application. Closing copy: Make ideas move.",
     provider: "claude",
     duration: 60,
     candidateCount: 0,
     selectedStyleIds: ["style-108", "style-018"],
   });
-  vi.mocked(agentTurn).mockResolvedValue({ value: brief, sessionId: "brief-only" });
+  vi.mocked(agentTurn).mockResolvedValue({
+    value: { subject: "A product story" },
+    sessionId: "title-only",
+  });
   const workflow = new Workflow(new Store(":memory:"), await loadCatalog());
   const generate = vi.spyOn(workflow, "generate").mockImplementation(async (_run, job) => {
     await workflow["setup"](run, job);
@@ -397,7 +410,17 @@ it("manual styles build a full video without summary, proposal or ranking calls"
       primaryStyleId: "style-108",
       supportingStyleIds: ["style-018"],
     });
+    expect(context.request).toEqual(run.request);
+    expect(context.request.instructions).toContain(
+      "Avery (AV) — Engineering: built the application",
+    );
     expect(context.brief).toEqual(run.brief);
+    expect(context.brief.objective).toBe(run.request.instructions);
+    expect(run.preparation?.checkpoints.brief).toMatchObject({
+      state: "completed",
+      output: { variant: "title-only", value: { subject: "A product story" } },
+    });
+    expect(context.brief.subject).toBe("A product story");
     expect(context.production_policy).toEqual(workflow.catalog.production_policy);
     expect(context.motions).toEqual(workflow.catalog.motions);
     job.phase = "ready";
@@ -406,12 +429,21 @@ it("manual styles build a full video without summary, proposal or ranking calls"
     await workflow.prepare(run);
     expect(run.phase, run.error).toBe("ready");
     expect(agentTurn).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(agentTurn).mock.calls[0][0]).toMatchObject({
+      model: textModels.claude,
+      textOnly: true,
+      readOnly: true,
+    });
     expect(jevClient).not.toHaveBeenCalled();
     expect(prepareStyleSummaries).not.toHaveBeenCalled();
     expect(rankOptions).not.toHaveBeenCalled();
     expect(generate).toHaveBeenCalledTimes(1);
     expect(run.jobs[0]).toMatchObject({ kind: "full", duration: 60 });
     expect(run.jobs[0].sessionId).toBeUndefined();
+    await workflow.prepare(run);
+    expect(run.phase, run.error).toBe("ready");
+    expect(agentTurn).toHaveBeenCalledTimes(1);
+    expect(generate).toHaveBeenCalledTimes(2);
     expect(run.candidates[0]).toMatchObject({
       primaryStyleId: "style-108",
       supportingStyleIds: ["style-018"],
@@ -537,3 +569,89 @@ it("refuses regeneration during active work or for manual styles", async () => {
   expect(() => workflow.regenerateDirections(run)).toThrow("Manual Motion Graphics");
   expect(agentTurn).not.toHaveBeenCalled();
 });
+
+it.each(["claude", "codex"] as const)(
+  "hands uploads and URLs to the %s direct-build planner with title-only preparation",
+  async (provider) => {
+    const folder = await mkdtemp(path.join(os.tmpdir(), "direct-build-inputs-"));
+    const run = newRun();
+    const documentId = randomUUID();
+    const imageId = randomUUID();
+    const store = new Store(":memory:");
+    const document = path.join(folder, "notes.txt");
+    const image = path.join(folder, "reference.png");
+    await writeFile(document, "Exact closing line: Make ideas move.");
+    await sharp({ create: { width: 100, height: 100, channels: 3, background: "#aabbcc" } })
+      .png()
+      .toFile(image);
+    store.asset({
+      id: documentId,
+      name: `${documentId}.txt`,
+      originalName: "notes.txt",
+      path: document,
+      kind: "text/plain",
+      bytes: 40,
+    });
+    store.asset({
+      id: imageId,
+      name: `${imageId}.png`,
+      originalName: "reference.png",
+      path: image,
+      kind: "image/png",
+      bytes: 200,
+    });
+    run.request = RequestSchema.parse({
+      instructions: "Use my references and original closing line.",
+      provider,
+      selectedStyleIds: ["style-018"],
+      candidateCount: 0,
+      duration: 60,
+      assetIds: [documentId, imageId],
+      urls: ["http://127.0.0.1:4320/example"],
+    });
+    vi.mocked(agentTurn).mockResolvedValue({ value: { subject: "An original product story" } });
+    const workflow = new Workflow(store, await loadCatalog());
+    vi.spyOn(workflow, "generate").mockImplementation(async (_, job) => {
+      await workflow["setup"](run, job);
+      const context = JSON.parse(
+        await readFile(path.join(job.workspace, "style-context.json"), "utf8"),
+      );
+      expect(context.request).toEqual(run.request);
+      expect(context.assetInputs.map((asset: { id: string }) => asset.id)).toEqual([
+        documentId,
+        imageId,
+      ]);
+      const attachments = JSON.parse(
+        await readFile(path.join(job.workspace, "brief-attachments.json"), "utf8"),
+      );
+      expect(attachments.attachments).toHaveLength(2);
+      const document = attachments.attachments.find(
+        (asset: { id: string }) => asset.id === documentId,
+      );
+      expect(await readFile(path.join(job.workspace, document.textPath), "utf8")).toBe(
+        "Exact closing line: Make ideas move.",
+      );
+      job.phase = "ready";
+    });
+    try {
+      await workflow.prepare(run);
+      expect(run.phase, run.error).toBe("ready");
+      expect(agentTurn).toHaveBeenCalledTimes(1);
+      expect(vi.mocked(agentTurn).mock.calls[0][0]).toMatchObject({
+        provider,
+        model: textModels[provider],
+        textOnly: true,
+        readOnly: true,
+      });
+      expect(jevClient).not.toHaveBeenCalled();
+      expect(run.preparation?.checkpoints.brief).toMatchObject({
+        state: "completed",
+        output: { variant: "title-only" },
+      });
+    } finally {
+      store.close();
+      await rm(folder, { recursive: true, force: true });
+      await rm(path.join(dataRoot, "runs", run.id), { recursive: true, force: true });
+    }
+  },
+);

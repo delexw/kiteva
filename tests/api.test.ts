@@ -59,7 +59,7 @@ describe("local application API", () => {
     expect(response.json().code).toBe("FILE_TOO_LARGE");
   });
 
-  it("saves optional reference decisions without pausing work and accepts supported uploads", async () => {
+  it("requires explicit reference decisions and accepts supported uploads", async () => {
     const id = randomUUID();
     const questionId = randomUUID();
     const audioQuestionId = randomUUID();
@@ -108,11 +108,19 @@ describe("local application API", () => {
       });
       expect(invalid.statusCode).toBe(400);
       expect(server.store.get(id)?.assetQuestions?.[0].state).toBe("open");
-      const continued = await server.app.inject({
+      const unanswered = await server.app.inject({
         method: "POST",
         url: `/api/runs/${id}/asset-questions/${questionId}`,
         headers,
         payload: {},
+      });
+      expect(unanswered.statusCode).toBe(400);
+      expect(server.store.get(id)?.assetQuestions?.[0].state).toBe("open");
+      const continued = await server.app.inject({
+        method: "POST",
+        url: `/api/runs/${id}/asset-questions/${questionId}`,
+        headers,
+        payload: { answer: "Use a code illustration" },
       });
       expect(continued.statusCode).toBe(200);
       expect(continued.json().phase).toBe("preparing");

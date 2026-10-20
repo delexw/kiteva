@@ -1,4 +1,4 @@
-import type { AgentMcpCapability } from "./capabilities/types";
+import type { AgentMcpCapability } from "./capabilities/shared/types";
 import type { z } from "zod";
 import type { Provider } from "../../shared/contracts";
 
@@ -18,6 +18,7 @@ export interface AgentTurnOptions<T> {
   sessionId?: string;
   onEvent: (event: ProviderEvent) => void;
   readOnly?: boolean;
+  planMode?: boolean;
   model?: string;
   textOnly?: boolean;
   reasoningEffort?: "low" | "medium";

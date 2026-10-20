@@ -9,7 +9,7 @@ import { browserExecutablePath } from "../src/server/runtime/browser";
 import { appRoot } from "../src/server/runtime/config";
 
 it.skipIf(!browserExecutablePath())(
-  "separates Music from Narration / lyrics and preserves voice choices",
+  "shares the narration/lyrics script and preserves voice choices",
   async () => {
     const languageRequests: string[] = [];
     const previewRequests: Record<string, unknown>[] = [];
@@ -94,21 +94,14 @@ function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speec
         visible: true,
       });
       await page.locator('.ant-select-item-option[title="English · UK"]').click();
-      await page.click('[aria-label="Narration script source"]');
-      await page.waitForSelector('.ant-select-item-option[title="Use my narration script"]', {
-        visible: true,
-      });
-      await page.locator('.ant-select-item-option[title="Use my narration script"]').click();
-      await page.type('[aria-label="Narration script"]', "Let your idea take flight.");
+      expect(await page.$$('[aria-label="Shared script"]')).toHaveLength(1);
+      await page.type('[aria-label="Shared script"]', "Let your idea take flight.");
       await page.click('[role="switch"]');
       await page.waitForSelector('[aria-label="Speech and vocals"]');
       await page.click('[role="switch"]');
-      await page.waitForSelector('[aria-label="Narration script"]');
+      await page.waitForSelector('[aria-label="Shared script"]');
       expect(
-        await page.$eval(
-          '[aria-label="Narration script"]',
-          (el) => (el as HTMLTextAreaElement).value,
-        ),
+        await page.$eval('[aria-label="Shared script"]', (el) => (el as HTMLTextAreaElement).value),
       ).toBe("Let your idea take flight.");
       expect(
         await page.$eval('[aria-label="Speech and vocals"]', (el) => el.textContent),
@@ -164,16 +157,13 @@ function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speec
         if (await button.evaluate((el) => el.textContent === "Settings")) await button.click();
       await page.waitForSelector('[aria-label="Model"]');
       expect(await page.$('[aria-label="Speech and vocals"]')).toBeNull();
-      expect(await page.$('[aria-label="Narration script"]')).toBeNull();
+      expect(await page.$('[aria-label="Shared script"]')).toBeNull();
       const back = await page.$$("button");
       for (const button of back)
         if (await button.evaluate((el) => el.textContent === "Back")) await button.click();
-      await page.waitForSelector('[aria-label="Narration script"]');
+      await page.waitForSelector('[aria-label="Shared script"]');
       expect(
-        await page.$eval(
-          '[aria-label="Narration script"]',
-          (el) => (el as HTMLTextAreaElement).value,
-        ),
+        await page.$eval('[aria-label="Shared script"]', (el) => (el as HTMLTextAreaElement).value),
       ).toBe("Let your idea take flight.");
       expect(
         await page.$eval('[role="slider"][aria-label="Narration volume"]', (el) =>
@@ -239,10 +229,7 @@ function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speec
       ).toContain("Fantine");
 
       expect(
-        await page.$eval(
-          '[aria-label="Narration script"]',
-          (el) => (el as HTMLTextAreaElement).value,
-        ),
+        await page.$eval('[aria-label="Shared script"]', (el) => (el as HTMLTextAreaElement).value),
       ).toBe("Let your idea take flight.");
       expect(
         await page.$eval('[role="slider"][aria-label="Narration volume"]', (el) =>
@@ -285,7 +272,7 @@ function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speec
             el.textContent?.includes("Preparing your language"),
           ),
       );
-      await page.locator('[aria-label="Your lyrics"]').fill("Let your idea take flight.");
+      await page.locator('[aria-label="Shared script"]').fill("Let your idea take flight.");
       const clickStep = async (label: string) => {
         await page.evaluate((name) => {
           const button = Array.from(document.querySelectorAll(".room-step-tabs button")).find(
@@ -315,11 +302,11 @@ function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speec
       await clickStep("Narration / lyrics");
       await page.waitForFunction(
         () =>
-          (document.querySelector('[aria-label="Narration script"]') as HTMLTextAreaElement)
-            ?.value === "Let your idea take flight.",
+          (document.querySelector('[aria-label="Shared script"]') as HTMLTextAreaElement)?.value ===
+          "Let your idea take flight.",
       );
       expect(
-        await page.$eval('[aria-label="Your lyrics"]', (el) => (el as HTMLTextAreaElement).value),
+        await page.$eval('[aria-label="Shared script"]', (el) => (el as HTMLTextAreaElement).value),
       ).toBe("Let your idea take flight.");
       expect(
         await page.$eval('[aria-label="Speech and vocals"]', (el) => el.textContent),
@@ -372,11 +359,11 @@ function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speec
       await clickStep("Narration / lyrics");
       await page.waitForFunction(
         () =>
-          (document.querySelector('[aria-label="Narration script"]') as HTMLTextAreaElement)
-            ?.value === "Let your idea take flight.",
+          (document.querySelector('[aria-label="Shared script"]') as HTMLTextAreaElement)?.value ===
+          "Let your idea take flight.",
       );
       expect(
-        await page.$eval('[aria-label="Your lyrics"]', (el) => (el as HTMLTextAreaElement).value),
+        await page.$eval('[aria-label="Shared script"]', (el) => (el as HTMLTextAreaElement).value),
       ).toBe("Let your idea take flight.");
       expect(languageRequests).toEqual([]);
       const savedDraft = await page.$eval("#draft-state", (el) => JSON.parse(el.textContent!));

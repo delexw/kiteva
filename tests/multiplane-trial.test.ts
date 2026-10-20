@@ -429,3 +429,24 @@ it("gives a Multiplane render one hour without extending inspection timeouts", a
   await runMultiplane("inspect", [], os.tmpdir(), signal);
   expect(vi.mocked(isolatedCommand).mock.calls[1][5]).toBe(600_000);
 });
+
+it("requires WAV generation before the full Multiplane handoff without changing silent previews", () => {
+  const settings = { width: 1920, height: 1080, duration: 20, fps: 30 };
+  const full = renderContract("multiplane", { ...settings, kind: "full" });
+  expect(full).toContain("MULTIPLANE AUDIO-FIRST HANDOFF");
+  expect(full).toContain("generate the actual WAV using the chosen audio capability");
+  expect(full).toContain("generate_audio");
+  expect(full).toContain("before implementing audio-synchronized visuals");
+  expect(full).toContain("workspace-relative WAV path");
+  expect(full).toContain("Multiplane render --audio");
+  expect(full).toContain("keep application-prepared narration separate");
+  expect(full).toContain("For uploaded music, inspect and use the supplied audio");
+  expect(full).toContain("During a planning-only turn");
+  expect(full).toContain("If no music or sound is requested or supplied, audioFile may be null");
+  expect(renderContract("multiplane", { ...settings, kind: "preview" })).not.toContain(
+    "MULTIPLANE AUDIO-FIRST HANDOFF",
+  );
+  expect(renderContract("hyperframes", { ...settings, kind: "full" })).not.toContain(
+    "MULTIPLANE AUDIO-FIRST HANDOFF",
+  );
+});

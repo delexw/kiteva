@@ -17,7 +17,7 @@ const item = (id: number, change: Partial<ActivityItem> = {}): ActivityItem => (
   status: "complete",
   ...change,
 });
-it("shows one video task around a recorded instrumental step, without duplicate building rows or counts", () => {
+it("shows one video task around a recorded instrumental step, with a consolidated implementation group and no action counts", () => {
   const source = [
     item(1, { repetitions: 15 }),
     item(2, { text: "Rendering your instrumental music…" }),
@@ -28,7 +28,10 @@ it("shows one video task around a recorded instrumental step, without duplicate 
   expect(shown).toHaveLength(1);
   expect(shown[0]).toMatchObject({
     text: "Creating your video…",
-    children: [{ text: "Rendering your instrumental music…", status: "complete" }],
+    children: [
+      { text: "Building your full video…", status: "complete" },
+      { text: "Rendering your instrumental music…", status: "complete" },
+    ],
   });
   expect(shown[0].status).toBeUndefined();
   expect(shown[0].repetitions).toBeUndefined();
@@ -47,7 +50,9 @@ it("preserves running and failed capability statuses without claiming video comp
     item(3, { status: "running" }),
   ]);
   expect(shown.status).toBe("running");
-  expect(shown.children?.[0].status).toBe("failed");
+  expect(
+    shown.children?.find((child) => child.text === "Recording your website reference…")?.status,
+  ).toBe("failed");
 });
 it("does not merge different jobs, model invocations, or review and repair tasks", () => {
   const shown = displayActivityItems([
@@ -113,7 +118,7 @@ it("translates the video parent and recorded child capabilities into Chinese", a
   }
 });
 
-it("shows each recorded capability once within its task while retaining failures and active work", () => {
+it("shows recovered capabilities as complete without intermediate errors while preserving active work", () => {
   const [shown] = displayActivityItems([
     item(1, { text: "Exploring your website reference…" }),
     item(2, { text: "Capturing your website reference…", status: "failed" }),
@@ -123,8 +128,63 @@ it("shows each recorded capability once within its task while retaining failures
   ]);
   expect(shown.children?.map((child) => [child.text, child.status])).toEqual([
     ["Exploring your website reference…", "running"],
-    ["Capturing your website reference…", "failed"],
+    ["Capturing your website reference…", "complete"],
   ]);
+  expect(shown.children?.[1].children).toBeUndefined();
+});
+
+it("replaces a failed scroll with the successful retry without nested attempts", () => {
+  const context = { purpose: "full video generation", invocationId: "call" };
+  const events = [
+    {
+      id: 1,
+      type: "tool",
+      message: "mcp__reference_browser__scroll_page",
+      data: { ...context, itemId: "failed-scroll" },
+    },
+    {
+      id: 2,
+      type: "tool_result",
+      message: "private validation error",
+      data: {
+        ...context,
+        results: [{ itemId: "failed-scroll", failed: true, output: "private arguments" }],
+      },
+    },
+    {
+      id: 3,
+      type: "tool",
+      message: "mcp__reference_browser__scroll_page",
+      data: { ...context, itemId: "retry" },
+    },
+    {
+      id: 4,
+      type: "tool_result",
+      message: "private page content",
+      data: { ...context, results: [{ itemId: "retry", failed: false, output: "private page" }] },
+    },
+  ].map((event) => ({ ...event, runId: "run", jobId: "job", time: "2026-10-19T00:00:00Z" }));
+  const before = JSON.stringify(events);
+  const pending = displayActivityItems(activityItems(events.slice(0, 3)))[0].children![0];
+  expect(pending.status).toBe("running");
+  const [shown] = displayActivityItems(activityItems(events));
+  const capability = shown.children![0];
+  expect(capability.status).toBe("complete");
+  expect(capability.children).toBeUndefined();
+  expect(roomActivityStep(capability).status).toBe("success");
+  expect(renderToStaticMarkup(<>{roomActivityStep(shown).content}</>)).not.toContain("error");
+  expect(shown.status).toBeUndefined();
+  expect(JSON.stringify(shown)).not.toContain("private");
+  expect(JSON.stringify(events)).toBe(before);
+});
+
+it("keeps a later failed attempt red and does not let another capability clear it", () => {
+  const [shown] = displayActivityItems([
+    item(1, { text: "Exploring your website reference…" }),
+    item(2, { text: "Exploring your website reference…", status: "failed" }),
+    item(3, { text: "Capturing your website reference…" }),
+  ]);
+  expect(shown.children?.map((child) => child.status)).toEqual(["failed", "complete"]);
 });
 
 it("advances the existing video group's timestamp and exposes the recorded details step", () => {
@@ -135,5 +195,40 @@ it("advances the existing video group's timestamp and exposes the recorded detai
   ]);
   expect(shown.time).toBe("2026-10-19T00:04:00Z");
   expect(shown.status).toBe("running");
-  expect(shown.children?.map((child) => child.text)).toEqual(["Recording video details…"]);
+  expect(shown.children?.map((child) => child.text)).toEqual([
+    "Building your full video…",
+    "Recording video details…",
+  ]);
+});
+
+it("keeps implementation visible after recording, updating its time and active state", () => {
+  const [shown] = displayActivityItems([
+    item(1, { text: "Recording your website reference…" }),
+    item(2, { time: "2026-10-19T00:01:00Z" }),
+    item(3, { status: "running", time: "2026-10-19T00:03:00Z" }),
+  ]);
+  expect(shown.children).toHaveLength(2);
+  const building = shown.children![1];
+  expect(building).toMatchObject({
+    text: "Building your full video…",
+    status: "running",
+    time: "2026-10-19T00:03:00Z",
+  });
+  expect(roomActivityStep(building).status).toBe("loading");
+  expect(shown.children![0].status).toBe("complete");
+});
+
+it("places a later-updated capability after earlier capabilities", () => {
+  const [shown] = displayActivityItems([
+    item(1, { time: "2026-10-19T00:00:00Z" }),
+    item(2, { text: "Recording your website reference…", time: "2026-10-19T00:01:00Z" }),
+    item(3, { text: "Exploring your website reference…", time: "2026-10-19T00:02:00Z" }),
+    item(4, { status: "running", time: "2026-10-19T00:03:00Z" }),
+  ]);
+  expect(shown.children?.map((child) => child.text)).toEqual([
+    "Recording your website reference…",
+    "Exploring your website reference…",
+    "Building your full video…",
+  ]);
+  expect(shown.children?.at(-1)).toMatchObject({ status: "running", time: "2026-10-19T00:03:00Z" });
 });

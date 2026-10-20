@@ -1,4 +1,4 @@
-vi.mock("../src/server/agents/authoring-resources", () => ({
+vi.mock("../src/server/jev/strategies/visual-authoring", () => ({
   selectAuthoringResources: async () => ({
     source: "jev",
     model: "jev-test",
@@ -487,72 +487,82 @@ it("persists separate questions for each result and deduplicates only within tha
   store.close();
 });
 
-it("records preview planning separately while retaining its session for generation and full builds", async () => {
-  const store = new Store(":memory:");
-  const workflow = new Workflow(store, await loadCatalog());
-  const run: Run = {
-    id: "planning-governance",
-    phase: "generating",
-    createdAt: "now",
-    request: RequestSchema.parse({ instructions: "An original film", provider: "codex" }),
-    candidates: [],
-    jobs: [],
-  };
-  const job = {
-    id: "preview-plan",
-    runId: run.id,
-    candidateId: "direction",
-    kind: "preview" as const,
-    phase: "generating" as const,
-    workspace: "/tmp/preview-plan",
-    model: "gpt-6.1-sol",
-    duration: 3,
-  };
-  run.jobs.push(job);
-  const receive = workflow["providerEvent"](run, job);
-  receive({
-    type: "session",
-    message: "Planning opened",
-    data: { sessionId: "shared-preview-session", videoBuildPlanning: true },
-  });
-  receive({
-    type: "invocation",
-    message: "Plan",
-    data: { model: "gpt-6.1-sol", invocationId: "plan", videoBuildPlanning: true },
-  });
-  receive({
-    type: "usage",
-    message: "Plan complete",
-    data: {
+it.each(["preview", "full"] as const)(
+  "records %s planning separately while retaining its session for generation",
+  async (kind) => {
+    const store = new Store(":memory:");
+    const workflow = new Workflow(store, await loadCatalog());
+    const run: Run = {
+      id: "planning-governance",
+      phase: "generating",
+      createdAt: "now",
+      request: RequestSchema.parse({ instructions: "An original film", provider: "codex" }),
+      candidates: [],
+      jobs: [],
+    };
+    const job = {
+      id: "preview-plan",
+      runId: run.id,
+      candidateId: "direction",
+      kind,
+      phase: "generating" as const,
+      workspace: "/tmp/preview-plan",
       model: "gpt-6.1-sol",
-      invocationId: "plan",
-      input_tokens: 100,
-      output_tokens: 20,
-      videoBuildPlanning: true,
-    },
-  });
-  receive({
-    type: "invocation",
-    message: "Build",
-    data: { model: "gpt-6.1-sol", invocationId: "build" },
-  });
-  const events = store.allEvents(run.id);
-  expect(events.map((event) => (event.data as { purpose: string }).purpose)).toEqual([
-    "Preview video planning",
-    "Preview video planning",
-    "Preview video planning",
-    "preview video generation",
-  ]);
-  expect(store.get(run.id)?.jobs[0].sessionId).toBe("shared-preview-session");
-  const { projectGovernance } = await import("../src/server/governance/report");
-  const report = projectGovernance(run, events);
-  expect(report.activity.find((row) => row.purpose === "Preview video planning")).toMatchObject({
-    calls: 1,
-    inputTokens: 100,
-    outputTokens: 20,
-  });
-  expect(report.activity.find((row) => row.purpose === "preview video generation")).toMatchObject({
-    calls: 1,
-  });
-  store.close();
-});
+      duration: 3,
+    };
+    run.jobs.push(job);
+    const receive = workflow["providerEvent"](run, job);
+    receive({
+      type: "session",
+      message: "Planning opened",
+      data: { sessionId: "shared-preview-session", videoBuildPlanning: true },
+    });
+    receive({
+      type: "invocation",
+      message: "Plan",
+      data: { model: "gpt-6.1-sol", invocationId: "plan", videoBuildPlanning: true },
+    });
+    receive({
+      type: "usage",
+      message: "Plan complete",
+      data: {
+        model: "gpt-6.1-sol",
+        invocationId: "plan",
+        input_tokens: 100,
+        output_tokens: 20,
+        videoBuildPlanning: true,
+      },
+    });
+    receive({
+      type: "invocation",
+      message: "Build",
+      data: { model: "gpt-6.1-sol", invocationId: "build" },
+    });
+    const events = store.allEvents(run.id);
+    expect(events.map((event) => (event.data as { purpose: string }).purpose)).toEqual([
+      kind === "preview" ? "Preview video planning" : "Full video planning",
+      kind === "preview" ? "Preview video planning" : "Full video planning",
+      kind === "preview" ? "Preview video planning" : "Full video planning",
+      `${kind} video generation`,
+    ]);
+    expect(store.get(run.id)?.jobs[0].sessionId).toBe("shared-preview-session");
+    const { projectGovernance } = await import("../src/server/governance/report");
+    const report = projectGovernance(run, events);
+    expect(
+      report.activity.find(
+        (row) =>
+          row.purpose === (kind === "preview" ? "Preview video planning" : "Full video planning"),
+      ),
+    ).toMatchObject({
+      calls: 1,
+      inputTokens: 100,
+      outputTokens: 20,
+    });
+    expect(report.activity.find((row) => row.purpose === `${kind} video generation`)).toMatchObject(
+      {
+        calls: 1,
+      },
+    );
+    store.close();
+  },
+);

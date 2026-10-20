@@ -4,20 +4,14 @@ import path from "node:path";
 import { z } from "zod";
 import type { Page } from "puppeteer-core";
 import { command } from "../../runtime/process";
-import {
-  recordingEdit,
-  editedPointerEvents,
-  type CaptureActivity,
-  type CapturePointer,
-} from "../../capture/recording-edit";
-import {
-  exportOpenScreen,
-  startOpenScreen,
-  openScreenExportFrameRate,
-} from "../../capture/openscreen";
+import { startOpenScreen, openScreenExportFrameRate } from "../../capture/openscreen";
 import { probeVideo } from "../../rendering/video-probe";
-import { createOpenScreenProject } from "../../capture/native-project";
-import { inputFocusZooms, type InputFocus } from "../../capture/input-focus";
+import type { OpenScreenTrimRegion, OpenScreenZoomRegion } from "../../capture/native-project";
+import {
+  createNativeCaptureEditor,
+  type NativeCaptureRequest,
+  type EditableCapture,
+} from "../../capture/native-editor";
 import {
   CapturePresentationSchema,
   AppliedCapturePresentationSchema,
@@ -44,7 +38,7 @@ export const WebsiteRecordingSchema = z.object({
       engine: z.literal("OpenScreen"),
       cursorRendered: z.literal(true),
       autoZoom: z.literal(true),
-      idleGapsTrimmed: z.literal(true),
+      idleGapsTrimmed: z.boolean(),
       sourceDuration: z.number().positive(),
       settings: AppliedCapturePresentationSchema.optional(),
     })
@@ -60,7 +54,13 @@ export async function readWebsiteRecordings(workspace: string) {
   );
   return z.array(WebsiteRecordingSchema).parse(JSON.parse(raw));
 }
-export type CursorEvent = CapturePointer;
+export interface CursorEvent {
+  time: number;
+  x: number;
+  y: number;
+  kind: "move" | "click";
+  cursorType?: "arrow" | "pointer" | "text";
+}
 
 /** Owns one bounded recording of an already validated, isolated browser page. */
 export async function startWebsiteCapture(
@@ -84,13 +84,12 @@ export async function startWebsiteCapture(
   const cursorName = `website-video-${id}.cursor.json`;
   const url = page.url();
   const events: CursorEvent[] = [];
-  const activities: CaptureActivity[] = [];
-  const inputs: InputFocus[] = [];
-  let focusedInput: Omit<InputFocus, "end"> | undefined;
   const editDirectory = path.join(assets, `.website-edit-${id}`);
-  let activeStart: number | undefined;
+  let editor: Awaited<ReturnType<typeof createNativeCaptureEditor>> | undefined;
+  let preparedStream: { width: number; height: number } | undefined;
+  let nativeZooms: OpenScreenZoomRegion[] = [];
   let sourceDuration = 0;
-  let trims: ReturnType<typeof recordingEdit> = [];
+  let trims: OpenScreenTrimRegion[] = [];
   if (!desktop)
     throw Error(
       "OpenScreen needs a dedicated desktop browser; headless browser recording is not supported",
@@ -125,7 +124,7 @@ export async function startWebsiteCapture(
     await page
       .evaluate((value) => {
         document.title = value;
-      }, originalTitle)
+      }, originalTitle.trim() || "Application demo")
       .catch(() => {});
   }
   let failure: Error | undefined;
@@ -150,8 +149,6 @@ export async function startWebsiteCapture(
     if (failure) throw failure;
     await mkdir(editDirectory, { recursive: true });
     const source = path.join(editDirectory, "source.mp4");
-    const output = path.join(editDirectory, "edited.mp4");
-    const project = path.join(editDirectory, "capture.openscreen");
     await copyFile(result.screenVideoPath, source);
     const sourceStream = (await probeVideo(source, signal)).streams.find(
       (stream) => stream.codec_type === "video",
@@ -162,7 +159,6 @@ export async function startWebsiteCapture(
       throw Error(
         "A requested zoom extends beyond the recording; capture a longer take or correct its timing",
       );
-    trims = recordingEdit(sourceDuration, activities);
     const samples = events.map((event) => ({
       timeMs: event.time * 1000,
       cx: (event.x + frame.left) / frame.width,
@@ -178,7 +174,6 @@ export async function startWebsiteCapture(
       `${source}.cursor.json`,
       JSON.stringify({ version: 2, provider: "none", assets: [], samples }),
     );
-    const inputZooms = inputFocusZooms(inputs, frame);
     const requestedZooms = settings.zoomRegions.map((region, index) => ({
       id: `agent-focus-${index}`,
       startMs: Math.round(region.startSeconds * 1000),
@@ -188,35 +183,11 @@ export async function startWebsiteCapture(
       focusMode: region.focusMode,
       source: "manual" as const,
     }));
-    await writeFile(
-      project,
-      JSON.stringify(
-        createOpenScreenProject(source, sourceDuration, sourceStream, {
-          // Framing belongs to the agent; omitted fields retain native OpenScreen defaults.
-          ...settings.framing,
-          cursorTheme: settings.cursorTheme,
-          cursorSize: settings.cursorSize,
-          cursorSmoothing: settings.cursorSmoothing,
-          cursorMotionBlur: settings.cursorMotionBlur,
-          cursorClickBounce: settings.cursorClickBounce,
-          cursorModel3d: settings.cursorModel3d,
-          cursorClickImpact: settings.cursorClickImpact,
-          cursorAlwaysArrow: settings.cursorAlwaysArrow,
-          cursorAsArrow: settings.cursorAsArrow,
-          trimRegions: trims,
-          zoomRegions: [
-            ...requestedZooms.filter(
-              (region) =>
-                !inputZooms.some(
-                  (input) => input.startMs < region.endMs && input.endMs > region.startMs,
-                ),
-            ),
-            ...inputZooms,
-          ].sort((a, b) => a.startMs - b.startMs),
-        }),
-      ),
-    );
-    await exportOpenScreen(project, output, signal);
+    nativeZooms = requestedZooms;
+    return sourceStream;
+  }
+  async function convertExport() {
+    const output = path.join(editDirectory, "edited.mp4");
     await command(
       "ffmpeg",
       [
@@ -237,25 +208,83 @@ export async function startWebsiteCapture(
       assets,
       signal,
     );
-    return sourceStream;
+  }
+  async function finalize(sourceStream: {
+    width: number;
+    height: number;
+  }): Promise<WebsiteRecording> {
+    signal.throwIfAborted();
+    if (failure) throw failure;
+    if ((await stat(temporary)).size > websiteCaptureLimits.bytes)
+      throw Error("Recording too large");
+    // FFmpeg's streaming WebM omits seek indexes and duration. Finalize the
+    // container before exposing it as a seekable composition input.
+    await command(
+      "ffmpeg",
+      ["-v", "error", "-y", "-i", temporary, "-c", "copy", finalized],
+      assets,
+      signal,
+    );
+    const probe = await probeVideo(finalized, signal);
+    const stream = probe.streams.find((item) => item.codec_type === "video");
+    const duration = Number(probe.format.duration);
+    if (
+      !stream ||
+      !Number.isFinite(duration) ||
+      duration <= 0 ||
+      duration > websiteCaptureLimits.seconds + 2
+    )
+      throw Error("Website recording has no valid video stream or duration");
+    await command(
+      "ffmpeg",
+      ["-v", "error", "-xerror", "-i", finalized, "-f", "null", "-"],
+      assets,
+      signal,
+    );
+    await writeFile(
+      path.join(assets, cursorName),
+      JSON.stringify(
+        {
+          version: 1,
+          coordinateSpace: "source-window-before-zoom",
+          rendered: true,
+          timeSpace: "source-recording",
+          nativeTrimRegions: trims,
+          width: sourceStream.width,
+          height: sourceStream.height,
+          events: events.map((event) => ({
+            ...event,
+            x: ((event.x + frame.left) * sourceStream.width) / frame.width,
+            y: ((event.y + frame.top) * sourceStream.height) / frame.height,
+          })),
+        },
+        null,
+        2,
+      ),
+    );
+    await rename(finalized, path.join(assets, name));
+    await rm(temporary, { force: true });
+    return {
+      assetPath: `assets/${name}`,
+      cursorPath: `assets/${cursorName}`,
+      url,
+      duration,
+      width: stream.width,
+      height: stream.height,
+      fps: openScreenExportFrameRate,
+      silent: true,
+      presentation: {
+        engine: "OpenScreen",
+        cursorRendered: true,
+        autoZoom: true,
+        idleGapsTrimmed: trims.length > 0,
+        sourceDuration,
+        settings,
+      },
+    };
   }
   return {
     id,
-    activity(active: boolean) {
-      const now = (performance.now() - started) / 1000;
-      if (active) activeStart ??= now;
-      else if (activeStart !== undefined) {
-        activities.push({ start: activeStart, end: now });
-        activeStart = undefined;
-        if (focusedInput) {
-          inputs.push({ ...focusedInput, end: now });
-          focusedInput = undefined;
-        }
-      }
-    },
-    focusInput(bounds: InputFocus["bounds"]) {
-      focusedInput = { start: (performance.now() - started) / 1000, bounds };
-    },
     cursor(
       x: number,
       y: number,
@@ -265,92 +294,63 @@ export async function startWebsiteCapture(
       if (!stopping && events.length < 10000)
         events.push({ time: (performance.now() - started) / 1000, x, y, kind, cursorType });
     },
-    async save(): Promise<WebsiteRecording> {
+    async prepare(): Promise<EditableCapture> {
       try {
-        const sourceStream = await finish();
-        signal.throwIfAborted();
-        if (failure) throw failure;
-        if ((await stat(temporary)).size > websiteCaptureLimits.bytes)
-          throw Error("Recording too large");
-        // FFmpeg's streaming WebM omits seek indexes and duration. Finalize the
-        // container before exposing it as a seekable composition input.
-        await command(
-          "ffmpeg",
-          ["-v", "error", "-y", "-i", temporary, "-c", "copy", finalized],
-          assets,
+        preparedStream = await finish();
+        editor = await createNativeCaptureEditor(
+          path.join(editDirectory, "source.mp4"),
+          path.join(editDirectory, "edited.mp4"),
           signal,
+          settings,
+          nativeZooms,
         );
-        const probe = await probeVideo(finalized, signal);
-        const stream = probe.streams.find((item) => item.codec_type === "video");
-        const duration = Number(probe.format.duration);
-        if (
-          !stream ||
-          !Number.isFinite(duration) ||
-          duration <= 0 ||
-          duration > websiteCaptureLimits.seconds + 2
-        )
-          throw Error("Website recording has no valid video stream or duration");
-        await command(
-          "ffmpeg",
-          ["-v", "error", "-xerror", "-i", finalized, "-f", "null", "-"],
-          assets,
-          signal,
-        );
-        await writeFile(
-          path.join(assets, cursorName),
-          JSON.stringify(
-            {
-              version: 1,
-              coordinateSpace: "source-window-before-zoom",
-              rendered: true,
-              removedIdleRanges: trims,
-              width: sourceStream.width,
-              height: sourceStream.height,
-              events: editedPointerEvents(events, trims).map((event) => ({
-                ...event,
-                x: ((event.x + frame.left) * sourceStream.width) / frame.width,
-                y: ((event.y + frame.top) * sourceStream.height) / frame.height,
-              })),
-            },
-            null,
-            2,
-          ),
-        );
-        await rename(finalized, path.join(assets, name));
-        await rm(temporary, { force: true });
         return {
-          assetPath: `assets/${name}`,
-          cursorPath: `assets/${cursorName}`,
-          url,
-          duration,
-          width: stream.width,
-          height: stream.height,
-          fps: openScreenExportFrameRate,
-          silent: true,
-          presentation: {
-            engine: "OpenScreen",
-            cursorRendered: true,
-            autoZoom: true,
-            idleGapsTrimmed: true,
-            sourceDuration,
-            settings,
-          },
+          kind: "editable_capture",
+          recordingId: id,
+          duration: sourceDuration,
+          tools: editor.tools,
         };
       } catch (error) {
-        await rm(temporary, { force: true });
-        await rm(finalized, { force: true });
-        await rm(path.join(assets, cursorName), { force: true });
-        throw error;
-      } finally {
         await rm(editDirectory, { recursive: true, force: true });
+        throw error;
       }
     },
-    async discard() {
+    async edit(request: NativeCaptureRequest) {
+      if (!editor) throw Error("Stop the take for review before editing");
+      return editor.call(request);
+    },
+    async export(): Promise<WebsiteRecording> {
+      if (!editor || !preparedStream) throw Error("Stop the take for review before exporting");
+      const document = await editor.call({ operation: "getCurrentDocument" });
+      if (document.isError) throw Error("Cannot read the native capture document before export");
+      // Keep provenance source-anchored; all edit timing calculations remain OpenScreen's responsibility.
+      const snapshot = z
+        .object({
+          trimRanges: z.array(
+            z.object({ id: z.string(), startSec: z.number(), endSec: z.number() }),
+          ),
+        })
+        .parse(document.data);
+      trims = snapshot.trimRanges.map((range) => ({
+        id: range.id,
+        startMs: range.startSec * 1000,
+        endMs: range.endSec * 1000,
+      }));
+      await editor.export();
+      await convertExport();
+      return finalize(preparedStream);
+    },
+    async close() {
+      clearTimeout(timer);
+      signal.removeEventListener("abort", abort);
+      await editor?.close();
       try {
         await stop();
       } finally {
-        await rm(editDirectory, { recursive: true, force: true });
+        // Native projects keep referencing the take for later review; retain their source.
+        if (!editor) await rm(editDirectory, { recursive: true, force: true });
         await rm(temporary, { force: true });
+        await rm(finalized, { force: true });
       }
     },
   };

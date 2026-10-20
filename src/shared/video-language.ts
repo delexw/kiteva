@@ -82,6 +82,30 @@ export function editVideoCopy(
         : {}),
   };
 }
+/** One editor feeds narration and optional on-screen text in the Assistant. */
+export function sharedVideoScript(request: VideoRequest): string {
+  return request.lyrics?.mode === "provided"
+    ? request.lyrics.text
+    : request.speech?.mode === "narration" && request.speech.source === "provided"
+      ? request.speech.text
+      : "";
+}
+export function editSharedVideoScript(request: VideoRequest, text: string): VideoRequest {
+  const showText = Boolean(request.lyrics && request.lyrics.mode !== "off");
+  let result = showText ? editVideoCopy(request, "lyrics", text) : request;
+  if (result.speech?.mode === "narration") {
+    result = editVideoCopy(result, "narration", text);
+    if (result.speech?.mode === "narration")
+      result = {
+        ...result,
+        speech: {
+          ...result.speech,
+          source: showText ? "lyrics" : text.trim() ? "provided" : "write",
+        },
+      };
+  }
+  return result;
+}
 export function videoLanguageDirection(language?: VideoLanguage) {
   return language
     ? `DELIVERY LANGUAGE: ${videoLanguageLabel(language)} (${language}). This setting overrides any different language requested in the idea or reference material. Write every authored title, label, caption, diagram annotation and end credit in this language. Use natural native wording, preserving factual meaning, brand names, proper names, code and URLs. Keep captured website UI and supplied images authentic; do not falsify translated captures. Use locally available fonts covering the selected script. For HyperFrames declare OS CJK fonts through @font-face with src:local(...) so font validation can resolve them; verify Chinese glyphs render rather than showing missing-character boxes. Reflow text, and recalculate reading holds and line breaks. The separately selected narration language controls spoken audio only.`

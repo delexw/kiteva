@@ -1,3 +1,4 @@
+import type { EditableCapture, NativeCaptureReply } from "../capture/native-editor";
 import type { ReferenceScreenshot } from "../../shared/contracts";
 import type { createReferenceBrowser } from "../jobs/subworkflows/website-reference";
 import type { WebsiteRecording } from "../jobs/subworkflows/website-capture";
@@ -11,6 +12,8 @@ export const referenceToolNames = {
   wait: "wait_for_view",
 } as const;
 export type ReferenceToolResult =
+  | EditableCapture
+  | NativeCaptureReply
   | {
       kind: "inspection";
       page: Awaited<ReturnType<Awaited<ReturnType<typeof createReferenceBrowser>>["inspect"]>>;
@@ -23,6 +26,11 @@ export type ReferenceToolResult =
 
 export function enabledReferenceTools(readOnly = false) {
   return readOnly
-    ? [referenceToolNames.inspect, referenceToolNames.click, referenceToolNames.capture]
+    ? [
+        referenceToolNames.inspect,
+        referenceToolNames.click,
+        referenceToolNames.capture,
+        referenceToolNames.scroll,
+      ]
     : Object.values(referenceToolNames);
 }

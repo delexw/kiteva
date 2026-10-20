@@ -96,7 +96,7 @@ it("uses matching titled sections for materials, websites, lyrics and review", (
       request: { instructions: "A short film about a lighthouse", lyrics: { mode: "write" } },
     }),
   );
-  expect(music).toContain("<h3>On-screen lyrics</h3>");
+  expect(music).toContain("<h3>Shared script</h3>");
   expect(music).toContain("<h3>Speech / vocals</h3>");
   expect(music).toContain("Choose a narrator or use your own vocal recording.");
 });
@@ -251,11 +251,11 @@ it("shows editable narration only in Narration / lyrics while preserving its sav
     },
   };
   const music = render(draftAt(5, { request }));
-  expect(music).toContain('aria-label="Narration script"');
+  expect(music).toContain('aria-label="Shared script"');
   const settings = render(draftAt(6, { request }));
   expect(settings).toContain("Generation settings");
   expect(settings).not.toContain('aria-label="Speech and vocals"');
-  expect(settings).not.toContain('aria-label="Narration script"');
+  expect(settings).not.toContain('aria-label="Shared script"');
   expect(settings).toContain("Our narration stays in Narration / lyrics.");
 });
 
@@ -290,13 +290,88 @@ it("offers narration with lyrics off in a separate Assistant step", () => {
   });
   const speech = render(draft);
   expect(speech).toContain("Assistant · Narration / lyrics");
-  expect(speech).toContain('aria-label="Narration script"');
+  expect(speech).toContain('aria-label="Shared script"');
   expect(speech).not.toContain('aria-label="Your lyrics"');
   const music = render({ ...draft, step: 4 });
   expect(music).not.toContain('aria-label="Speech and vocals"');
-  expect(music).not.toContain('aria-label="Narration script"');
+  expect(music).not.toContain('aria-label="Shared script"');
   expect(roomSubmission(roomDraftRequest(draft))).toMatchObject({
     lyrics: { mode: "off" },
     speech: { text: "A spoken story", source: "provided" },
+  });
+});
+
+it("places website links inside their section and keeps the reply for instructions", () => {
+  const html = render(
+    draftAt(3, {
+      request: {
+        instructions: "An example film",
+        urls: ["https://example.com"],
+        requirements: {
+          main: { instructions: "", assetIds: [] },
+          images: { instructions: "", assetIds: [] },
+          music: { instructions: "", assetIds: [] },
+          urls: { instructions: "Show the main journey." },
+        },
+      },
+    }),
+  );
+  const section = html.slice(
+    html.indexOf("<h3>Website references</h3>"),
+    html.indexOf("</section>", html.indexOf("<h3>Website references</h3>")),
+  );
+  expect(section).toContain('aria-label="Website URL 1"');
+  expect(section).toContain("https://example.com");
+  expect(html).toContain("Show the main journey.");
+  expect(html).not.toContain("Add links and instructions in your reply below.");
+});
+
+it("preserves spaces being typed into section instructions until submission", () => {
+  const draft = draftAt(3, {
+    request: {
+      instructions: "An example film",
+      requirements: {
+        main: { instructions: "Document note ", assetIds: [] },
+        images: { instructions: "Image note ", assetIds: [] },
+        music: { instructions: "Music note ", assetIds: [] },
+        urls: { instructions: "Website note " },
+      },
+    },
+  });
+  const request = roomDraftRequest(draft);
+  for (const section of ["main", "images", "music", "urls"] as const)
+    expect(request.requirements![section].instructions.endsWith(" ")).toBe(true);
+  expect(roomSubmission(request).requirements?.urls.instructions).toBe("Website note");
+});
+
+it("shows only one script editor for narration and on-screen text", () => {
+  const html = render(
+    draftAt(5, {
+      request: {
+        instructions: "An example film",
+        lyrics: { mode: "provided", text: "Shared words" },
+        speech: { mode: "narration", source: "provided", text: "Shared words" },
+      },
+    }),
+  );
+  expect(html.match(/aria-label="Shared script"/g)).toHaveLength(1);
+  expect(html).not.toContain('aria-label="Narration script"');
+  expect(html).not.toContain('aria-label="Narration script source"');
+});
+
+it("submits legacy duplicated text through the shared script source", () => {
+  const request = roomDraftRequest(
+    draftAt(5, {
+      request: {
+        instructions: "An example film",
+        lyrics: { mode: "provided", text: "Displayed script" },
+        speech: { mode: "narration", source: "provided", text: "Old separate narration" },
+      },
+    }),
+  );
+  const submitted = roomSubmission(request);
+  expect(submitted.outputType === "video" && submitted.speech).toMatchObject({
+    source: "lyrics",
+    text: "Displayed script",
   });
 });

@@ -1,5 +1,9 @@
 import type { z } from "zod";
-import { deliverySpeech } from "../../shared/video-language";
+import {
+  deliverySpeech,
+  editSharedVideoScript,
+  sharedVideoScript,
+} from "../../shared/video-language";
 import { speechConfigurationProblem } from "../../shared/speech";
 import { RequestSchema, type CreativeRequest } from "../../shared/contracts";
 import { SharedRequestSchema } from "../../shared/domains/common";
@@ -161,7 +165,23 @@ export function roomDraftRequest(draft: Partial<RoomDraft>): CreativeRequest {
     instructions: typeof saved.instructions === "string" ? saved.instructions : "",
     urls: strings(saved.urls),
     assetIds: strings(saved.assetIds),
-    ...(requirements.success ? { requirements: requirements.data } : {}),
+    ...(requirements.success
+      ? {
+          requirements: {
+            ...requirements.data,
+            ...Object.fromEntries(
+              (["main", "music", "images", "urls"] as const).map((section) => [
+                section,
+                {
+                  ...requirements.data[section],
+                  instructions:
+                    (saved.requirements as BriefRequirements)[section].instructions ?? "",
+                },
+              ]),
+            ),
+          },
+        }
+      : {}),
     candidateCount: count,
   };
 }
@@ -316,6 +336,8 @@ export function roomDraftFromProject(
   };
 }
 export function roomSubmission(request: CreativeRequest): CreativeRequest {
+  if (request.outputType === "video")
+    request = editSharedVideoScript(request, sharedVideoScript(request));
   if (request.outputType === "video") {
     const problem = speechConfigurationProblem({ ...request, speech: deliverySpeech(request) });
     if (problem) throw Error(problem);

@@ -20,3 +20,14 @@ it("describes every setting in plain words without command-line terms", () => {
     expect(Boolean(item.limit)).toBe(item.support !== "supported");
   }
 });
+
+it("distinguishes frame-based recorded footage from unsupported direct playback", () => {
+  expect(
+    multiplaneSettingCoverage.find((item) => item.setting === "Video clips in scenes"),
+  ).toMatchObject({
+    support: "partial",
+    detail: expect.stringContaining("prepared image frames with verified timing"),
+  });
+  expect(multiplaneLimits).toContain("recorded clips need frame preparation");
+  expect(multiplaneLimits).not.toContain("no video clips in scenes");
+});

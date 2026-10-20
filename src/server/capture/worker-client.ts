@@ -1,3 +1,8 @@
+import {
+  EditableCaptureSchema,
+  NativeCaptureReplySchema,
+  NativeCaptureRequestSchema,
+} from "./native-editor";
 import { videoRenderTimeoutMs } from "../rendering/timeouts";
 import { mkdir, rename, rm } from "node:fs/promises";
 import { createWriteStream } from "node:fs";
@@ -95,7 +100,9 @@ export async function createRemoteReferenceBrowser(
         "POST",
         body,
         signal,
-        body.action === "stop" ? videoRenderTimeoutMs + 180000 : 180000,
+        ["prepare", "edit", "export"].includes(body.action)
+          ? videoRenderTimeoutMs + 180000
+          : 180000,
       )
     ).json();
   async function download(name: string, destination: string, maximum: number) {
@@ -143,6 +150,20 @@ export async function createRemoteReferenceBrowser(
       throw error;
     }
   }
+  async function downloadRecording(recording: z.infer<typeof WebsiteRecordingSchema>) {
+    if (!workspace) throw Error("Start an OpenScreen recording first");
+    const video = path.join(workspace, recording.assetPath);
+    const cursor = path.join(workspace, recording.cursorPath);
+    try {
+      await download(path.basename(recording.assetPath), video, websiteCaptureLimits.bytes);
+      await download(path.basename(recording.cursorPath), cursor, 2_000_000);
+    } catch (error) {
+      await rm(video, { force: true });
+      await rm(cursor, { force: true });
+      throw error;
+    }
+    return recording;
+  }
   let workspace: string | undefined;
   return {
     inspect: async (url) => InspectionSchema.parse(await action({ action: "inspect", url })),
@@ -168,20 +189,22 @@ export async function createRemoteReferenceBrowser(
         }),
       ).id;
     },
-    async stopRecording(recordingId) {
-      if (!workspace) throw Error("Start an OpenScreen recording first");
-      const recording = WebsiteRecordingSchema.parse(await action({ action: "stop", recordingId }));
-      const video = path.join(workspace, recording.assetPath);
-      const cursor = path.join(workspace, recording.cursorPath);
-      try {
-        await download(path.basename(recording.assetPath), video, websiteCaptureLimits.bytes);
-        await download(path.basename(recording.cursorPath), cursor, 2_000_000);
-      } catch (error) {
-        await rm(video, { force: true });
-        await rm(cursor, { force: true });
-        throw error;
-      }
-      return recording;
+    async prepareRecording(recordingId) {
+      return EditableCaptureSchema.parse(await action({ action: "prepare", recordingId }));
+    },
+    async editRecording(recordingId, request) {
+      return NativeCaptureReplySchema.parse(
+        await action({
+          action: "edit",
+          recordingId,
+          request: NativeCaptureRequestSchema.parse(request),
+        }),
+      );
+    },
+    async exportRecording(recordingId) {
+      return downloadRecording(
+        WebsiteRecordingSchema.parse(await action({ action: "export", recordingId })),
+      );
     },
     close,
   };

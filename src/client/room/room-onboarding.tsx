@@ -1,6 +1,11 @@
 import { creativeApproaches } from "../../shared/creative-approach";
 import { translateUi, useUiLanguage } from "../i18n";
-import { deliverySpeech, editVideoCopy, type VideoLanguage } from "../../shared/video-language";
+import {
+  deliverySpeech,
+  editSharedVideoScript,
+  sharedVideoScript,
+  type VideoLanguage,
+} from "../../shared/video-language";
 import { VideoLanguageControl } from "../components/video-language-control";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Bubble, Sender } from "@ant-design/x";
@@ -10,6 +15,8 @@ import { Alert, Button, Input, InputNumber, Select, Switch, Tag, Upload } from "
 import { ZodError } from "zod";
 import {
   PencilLine,
+  Plus,
+  Trash2,
   FileText,
   Image as ImageIcon,
   Link,
@@ -129,9 +136,6 @@ export function RoomOnboarding({
     onChange({ ...draft, request: { ...request, ...change } as CreativeRequest });
   };
   const changeLanguage = (outputLanguage: VideoLanguage) => patch({ outputLanguage });
-  const changeSpeech = (
-    speech: NonNullable<Extract<CreativeRequest, { outputType: "video" }>["speech"]>,
-  ) => patch({ speech });
   const requirements = request.requirements || {
     main: { instructions: "", assetIds: [] },
     images: { instructions: "", assetIds: [] },
@@ -142,13 +146,14 @@ export function RoomOnboarding({
     step === 0
       ? request.instructions
       : step === 3
-        ? request.urls.join("\n")
+        ? requirements.urls.instructions
         : section
           ? requirements[section].instructions
           : "";
   const setText = (value: string) => {
     if (step === 0) patch({ instructions: value });
-    else if (step === 3) patch({ urls: value.split("\n") });
+    else if (step === 3)
+      patch({ requirements: { ...requirements, urls: { instructions: value } } });
     else if (section)
       patch({
         requirements: {
@@ -260,7 +265,12 @@ export function RoomOnboarding({
       )}
       {step < 7 && (
         <Button type={step === 6 ? "primary" : "default"} onClick={advance}>
-          {step === 0 || step === 6 || text.trim() || sectionSelected.length || step === 5
+          {step === 0 ||
+          step === 6 ||
+          text.trim() ||
+          (step === 3 && request.urls.some((url) => url.trim())) ||
+          sectionSelected.length ||
+          step === 5
             ? translateUi("Continue")
             : translateUi("Skip")}
         </Button>
@@ -401,16 +411,49 @@ export function RoomOnboarding({
             <section className="room-materials">
               <SettingsSectionHeading
                 title={translateUi("Website references")}
-                description={translateUi("Add links and instructions in your reply below.")}
+                description={translateUi("Add up to five website links.")}
                 icon={<Link size={18} />}
               />
+              <div className="room-website-items">
+                {request.urls.map((url, index) => (
+                  <div className="room-website-item" key={index}>
+                    <Input
+                      aria-label={translateUi("Website URL {{value0}}", { value0: index + 1 })}
+                      type="url"
+                      value={url}
+                      onChange={(event) =>
+                        patch({
+                          urls: request.urls.map((value, position) =>
+                            position === index ? event.target.value : value,
+                          ),
+                        })
+                      }
+                      placeholder="https://example.com"
+                    />
+                    <Button
+                      aria-label={translateUi("Remove URL {{value0}}", { value0: index + 1 })}
+                      icon={<Trash2 size={16} />}
+                      onClick={() =>
+                        patch({ urls: request.urls.filter((_, position) => position !== index) })
+                      }
+                    />
+                  </div>
+                ))}
+                <Button
+                  icon={<Plus size={16} />}
+                  disabled={request.urls.length >= 5}
+                  onClick={() => patch({ urls: [...request.urls, ""] })}
+                >
+                  {translateUi("Add URL")}
+                </Button>
+              </div>
             </section>
           )}
           {step === 5 && request.outputType === "video" && (
             <div className="room-inline-field room-materials">
               <SettingsSectionHeading
-                title={translateUi("On-screen lyrics")}
-                description={translateUi("Show your own words or let the agent write them.")}
+                title={translateUi("Shared script")}
+                description={translateUi("Use one script for narration and on-screen text.")}
                 icon={<Captions size={18} />}
               />
               <label>
@@ -418,29 +461,34 @@ export function RoomOnboarding({
                   size="small"
                   checked={request.lyrics?.mode !== "off" && Boolean(request.lyrics)}
                   onChange={(enabled) =>
-                    patch({
-                      lyrics: lyricsFromInput(
-                        enabled,
-                        request.lyrics?.mode === "provided" ? request.lyrics.text : "",
+                    onChange({
+                      ...draft,
+                      request: editSharedVideoScript(
+                        {
+                          ...request,
+                          lyrics: lyricsFromInput(enabled, sharedVideoScript(request)),
+                        },
+                        sharedVideoScript(request),
                       ),
                     })
                   }
                 />{" "}
                 {translateUi("Show lyrics on screen")}
               </label>
-              {request.lyrics && request.lyrics.mode !== "off" && (
+              {((request.lyrics && request.lyrics.mode !== "off") ||
+                request.speech?.mode === "narration") && (
                 <>
                   <Input.TextArea
-                    aria-label={translateUi("Your lyrics")}
+                    aria-label={translateUi("Shared script")}
                     autoSize={{ minRows: 2, maxRows: 6 }}
                     placeholder={translateUi(
                       "Paste your lyrics, or leave empty and I’ll write them",
                     )}
-                    value={request.lyrics.mode === "provided" ? request.lyrics.text : ""}
+                    value={sharedVideoScript(request)}
                     onChange={(e) => {
                       onChange({
                         ...draft,
-                        request: editVideoCopy(request, "lyrics", e.target.value),
+                        request: editSharedVideoScript(request, e.target.value),
                       });
                     }}
                   />
@@ -449,18 +497,16 @@ export function RoomOnboarding({
               <SpeechSettings
                 value={deliverySpeech(request)}
                 videoLanguage={request.outputLanguage}
-                onChange={(speech) => {
-                  if (
-                    speech.mode === "narration" &&
-                    request.speech?.mode === "narration" &&
-                    speech.text !== request.speech.text
-                  ) {
-                    onChange({
-                      ...draft,
-                      request: editVideoCopy({ ...request, speech }, "narration", speech.text),
-                    });
-                  } else changeSpeech(speech);
-                }}
+                sharedScript
+                onChange={(speech) =>
+                  onChange({
+                    ...draft,
+                    request: editSharedVideoScript(
+                      { ...request, speech },
+                      sharedVideoScript(request),
+                    ),
+                  })
+                }
                 audioAssets={selected
                   .filter((asset) => requirements.music.assetIds.includes(asset.id))
                   .map((asset) => ({ id: asset.id, name: asset.originalName }))}
@@ -706,11 +752,7 @@ export function RoomOnboarding({
           onSubmit={advance}
           autoSize={{ minRows: 1, maxRows: 6 }}
           placeholder={
-            step === 0
-              ? translateUi("Tell me your idea…")
-              : step === 3
-                ? "https://… (Shift+Enter for a new line)"
-                : translateUi("Add a note, or skip…")
+            step === 0 ? translateUi("Tell me your idea…") : translateUi("Add a note, or skip…")
           }
           footer={actions}
         />

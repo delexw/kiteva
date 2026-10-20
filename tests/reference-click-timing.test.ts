@@ -15,18 +15,18 @@ import { startWebsiteCapture } from "../src/server/jobs/subworkflows/website-cap
 import { createLocalReferenceBrowser } from "../src/server/jobs/subworkflows/website-reference";
 
 it.skipIf(!browserExecutablePath())(
-  "pauses 450 ms after pointer arrival before a recorded click",
+  "clicks after pointer arrival without adding a fixed dwell",
   async () => {
     const events: Array<{ kind: string; time: number }> = [];
     vi.mocked(startWebsiteCapture).mockResolvedValue({
       id: randomUUID(),
-      activity: vi.fn(),
-      focusInput: vi.fn(),
       cursor: (_x, _y, kind) => {
         events.push({ kind, time: performance.now() });
       },
-      save: vi.fn(),
-      discard: vi.fn(async () => {}),
+      prepare: vi.fn(),
+      edit: vi.fn(),
+      export: vi.fn(),
+      close: vi.fn(async () => {}),
     });
     const web = createServer((_request, response) => {
       response.setHeader("content-type", "text/html");
@@ -53,13 +53,11 @@ it.skipIf(!browserExecutablePath())(
       ).toContain("Clicked");
       const click = events.find((event) => event.kind === "click")!;
       const arrival = events.filter((event) => event.kind === "move").at(-1)!;
-      expect(click.time - arrival.time).toBeGreaterThanOrEqual(450);
-      expect(
-        vi
-          .mocked(delay)
-          .mock.calls.map(([milliseconds]) => milliseconds)
-          .filter((milliseconds) => milliseconds !== 16),
-      ).toEqual([450]);
+      expect(click.time).toBeGreaterThanOrEqual(arrival.time);
+      expect(events.map((event) => event.kind)).toEqual([...Array(12).fill("move"), "click"]);
+      expect(vi.mocked(delay).mock.calls.map(([milliseconds]) => milliseconds)).toEqual(
+        Array(12).fill(16),
+      );
     } finally {
       await browser.close();
       await new Promise<void>((resolve) => web.close(() => resolve()));

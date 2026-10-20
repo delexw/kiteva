@@ -4,7 +4,7 @@ import { mkdtemp, readFile, readdir, rm, symlink } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 import { afterEach, expect, it, vi } from "vitest";
-import { createReactBitsTools } from "../src/server/agents/capabilities/react-bits-tools";
+import { createReactBitsTools } from "../src/server/agents/capabilities/react-bits/tools";
 import { agentCapabilities } from "../src/server/agents/capabilities/registry";
 
 const name = "GenericPulse-TS-CSS";
@@ -36,7 +36,12 @@ async function connect(
     async (input) =>
       new Response(
         String(input).endsWith("registry.json")
-          ? JSON.stringify({ items: [{ name, description: "A pulse" }] })
+          ? JSON.stringify({
+              items: [
+                { name, description: "A pulse" },
+                { name: "GenericUtility-TS", description: "A utility" },
+              ],
+            })
           : String(input).endsWith("LICENSE.md")
             ? license
             : JSON.stringify(payload),
@@ -181,4 +186,22 @@ it("registers separate guidance, Windows-safe loader URLs, and no tools for text
   expect(agentCapabilities("/job", false, true)).toEqual({ servers: {}, guidance: "" });
   expect(planning.guidance).toContain("Preserve the chosen renderer");
   expect(planning.guidance).toContain("absolute video time");
+});
+
+it("accepts JS/TS-only registry entries without breaking discovery or source reads", async () => {
+  const utilityName = "GenericUtility-TS";
+  const { client } = await connect(true, { ...item, name: utilityName });
+  const found = await client.callTool({
+    name: "search_components",
+    arguments: { query: "utility" },
+  });
+  expect(found.isError).not.toBe(true);
+  expect(found.structuredContent).toMatchObject({
+    kind: "discovery",
+    items: [{ name: utilityName }],
+  });
+  expect(
+    (await client.callTool({ name: "read_component", arguments: { name: utilityName } }))
+      .structuredContent,
+  ).toMatchObject({ kind: "source", item: { name: utilityName } });
 });

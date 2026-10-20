@@ -78,11 +78,11 @@ driven from composition time and checked with forward, backward and direct seeks
 
 ## Renderers
 
-| Renderer                                                 | Version                                    | How it's chosen                       | Notes                                                                                                                                                              |
-| -------------------------------------------------------- | ------------------------------------------ | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [HyperFrames](https://github.com/heygen-com/hyperframes) | 0.8.144 (pinned)                           | Default setting                       | Runs `hyperframes check` with layout and contrast QA, then renders. Check failures go back to the same agent for focused repairs                                   |
-| [Multiplane](https://github.com/LBEILC/Multiplane)       | 0.3.10 (pinned, shares the app's Three.js) | Setting labelled "Multiplane · trial" | Runs lint, inspect, verify and render. Limits in Kiteva: one sound file, no video clips inside scenes, no automatic layout/contrast checks, faster preview quality |
-| [Remotion](https://www.remotion.dev/docs/)               | 4.0.534                                    | Not a setting                         | Used only when the agent records a verified fallback reason. Remotion has its own license, and some companies need a company license                               |
+| Renderer                                                 | Version                                    | How it's chosen                       | Notes                                                                                                                                                                        |
+| -------------------------------------------------------- | ------------------------------------------ | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [HyperFrames](https://github.com/heygen-com/hyperframes) | 0.8.144 (pinned)                           | Default setting                       | Runs `hyperframes check` with layout and contrast QA, then renders. Check failures go back to the same agent for focused repairs                                             |
+| [Multiplane](https://github.com/LBEILC/Multiplane)       | 0.3.10 (pinned, shares the app's Three.js) | Setting labelled "Multiplane · trial" | Runs lint, inspect, verify and render. Limits in Kiteva: one sound file, recorded clips require prepared frames, no automatic layout/contrast checks, faster preview quality |
+| [Remotion](https://www.remotion.dev/docs/)               | 4.0.534                                    | Not a setting                         | Used only when the agent records a verified fallback reason. Remotion has its own license, and some companies need a company license                                         |
 
 ## Built-in browser tools
 
@@ -248,7 +248,7 @@ GSAP, Three.js and Pica under `vendor/`.
 
 ### User-supplied input materials (21)
 
-These are pool entries for material a person provides, such as photographed stop-motion frames or layered artwork. Kiteva never generates them with an image model. If they are missing, the agent adapts the scene or asks an optional question.
+These are pool entries for material a person provides, such as photographed stop-motion frames or layered artwork. Kiteva never generates them with an image model. If they are missing, the agent adapts the scene. If a verified capability gap requires your decision, it asks a question and pauses the affected work until you answer.
 
 | Entry                                | What it is                                 | Constraints from the pool |
 | ------------------------------------ | ------------------------------------------ | ------------------------- |

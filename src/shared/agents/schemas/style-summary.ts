@@ -3,6 +3,7 @@ export const StyleSummarySchema = z.object({
   styleId: z.string(),
   name: z.string(),
   visualIdentity: z.string(),
+  decisionGuidance: z.string().min(1).optional(),
   suitableUses: z.string(),
   limitations: z.string(),
   palette: z.string(),

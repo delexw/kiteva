@@ -84,6 +84,27 @@ export async function generateVideo(input: {
     request.aspectRatio,
     job.kind === "preview" ? 720 : request.resolution === "1440p" ? 1440 : 1080,
   );
+  if (
+    job.kind === "full" &&
+    request.selectedStyleIds?.length &&
+    request.duration === "auto" &&
+    !job.buildPlan &&
+    !job.production &&
+    !job.refinementPrompt
+  ) {
+    await prepareVideoBuildPlan({
+      job,
+      provider: request.provider,
+      prompt: buildVideoPrompt({ job, candidate, styles, brief, request, ...size, feedback }),
+      referenceUrls: request.urls,
+      automaticDuration: true,
+      ...size,
+      fps,
+      signal,
+      onEvent,
+      update,
+    });
+  }
   job.speechTrack =
     job.kind === "full"
       ? await prepareSpeech({
@@ -141,9 +162,11 @@ export async function generateVideo(input: {
       const copy = CandidateCopySchema.safeParse(turn.value);
       if (copy.success) Object.assign(candidate, copy.data);
     }
+    update();
   };
   if (!job.production) {
     const implementationPrompt = await prepareVideoBuildPlan({
+      referenceUrls: request.urls,
       job,
       provider: request.provider,
       prompt,
@@ -159,9 +182,8 @@ export async function generateVideo(input: {
   } else if (decisions) {
     emit("state", "Applying your decision…");
     await buildTurn(
-      `The user answered a question about this existing ${job.kind === "preview" ? "preview" : "full video"}. Continue this session and apply only the decision below to the current composition. Inspect any newly supplied files listed in style-context.json assetInputs before using them. Keep the selected Motion Graphics, ${job.duration}s duration, dimensions, ${fps} fps and every unaffected scene unchanged. Read STORYBOARD.json completely and return the updated production manifest and complete storyboard.\n\n${decisions}`,
+      `The user answered a question about this existing ${job.kind === "preview" ? "preview" : "full video"}. Continue this session and apply only the decision below to the current composition. Read request.instructions in style-context.json for the complete original idea and exact copy before reporting any information missing. Inspect any newly supplied files listed in style-context.json assetInputs before using them. Keep the selected Motion Graphics, ${job.duration}s duration, dimensions, ${fps} fps and every unaffected scene unchanged. Read STORYBOARD.json completely and return the updated production manifest and complete storyboard.\n\n${decisions}`,
     );
-    update();
   }
   while (true) {
     signal.throwIfAborted();

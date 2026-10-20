@@ -4,7 +4,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { createAnimateUiTools } from "../src/server/agents/capabilities/animate-ui-tools";
+import { createAnimateUiTools } from "../src/server/agents/capabilities/animate-ui/tools";
 import { agentCapabilities } from "../src/server/agents/capabilities/registry";
 const cleanups: (() => Promise<unknown>)[] = [];
 afterEach(async () => {

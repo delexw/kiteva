@@ -3,6 +3,8 @@ import { expect, it } from "vitest";
 import { VideoRequestSchema } from "../src/shared/domains/video";
 import {
   deliverySpeech,
+  sharedVideoScript,
+  editSharedVideoScript,
   editVideoCopy,
   narrationLanguage,
   videoLanguageDirection,
@@ -66,4 +68,32 @@ it("preserves spaces while typing lyrics and captures the complete original only
   });
   const next = editVideoCopy(first, "lyrics", "Let your idea take flight.");
   expect(next.translations).toBeUndefined();
+});
+
+it("uses one script for displayed text and narration while retaining voice settings", () => {
+  const request = VideoRequestSchema.parse({
+    instructions: "An example film",
+    lyrics: { mode: "provided", text: "Display script" },
+    speech: { mode: "narration", source: "provided", text: "Old duplicate", voice: "am_michael" },
+  });
+  expect(sharedVideoScript(request)).toBe("Display script");
+  const edited = editSharedVideoScript(request, "One shared script ");
+  expect(edited.lyrics).toEqual({ mode: "provided", text: "One shared script " });
+  expect(edited.speech).toMatchObject({
+    source: "lyrics",
+    text: "One shared script ",
+    voice: "am_michael",
+  });
+  const narrationOnly = editSharedVideoScript(
+    { ...edited, lyrics: { mode: "off" } },
+    "Narration alone",
+  );
+  expect(narrationOnly.lyrics).toEqual({ mode: "off" });
+  expect(narrationOnly.speech).toMatchObject({ source: "provided", text: "Narration alone" });
+  expect(editSharedVideoScript({ ...request, lyrics: { mode: "write" } }, "").speech).toMatchObject(
+    { source: "lyrics" },
+  );
+  expect(editSharedVideoScript({ ...request, lyrics: { mode: "off" } }, "").speech).toMatchObject({
+    source: "write",
+  });
 });

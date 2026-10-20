@@ -63,11 +63,11 @@ it("requires all combination styles to appear within the same three-second previ
   expect(sixtyFps).toContain("durationInFrames=180");
   expect(sixtyFps).toContain("Dimensions MUST be 2560x1440");
   expect(prompt).not.toContain("DURATION AND PACING RULES:");
-  expect(prompt).not.toContain("FULL-VIDEO TEXT AND INSTRUMENTAL RULES:");
-  expect(prompt).toContain("vendor/pica.min.js");
-  expect(prompt).toContain("Keep original files unchanged; save derivatives separately");
-  expect(prompt).toContain("screenshot text to remain readable");
-  expect(prompt).toContain("never resize asynchronously during frame updates or seeking");
+  expect(prompt).not.toContain("FULL-VIDEO TEXT RULES:");
+  expect(prompt).not.toContain("vendor/pica.min.js");
+  expect(prompt).not.toContain("Keep original files unchanged; save derivatives separately");
+  expect(prompt).not.toContain("screenshot text to remain readable");
+  expect(prompt).not.toContain("never resize asynchronously during frame updates or seeking");
   for (const style of catalog.styles) {
     const fullPrompt = buildVideoPrompt({
       ...input,
@@ -76,14 +76,12 @@ it("requires all combination styles to appear within the same three-second previ
     });
     expect(fullPrompt).toContain("DURATION AND PACING RULES:");
     expect(fullPrompt).toContain(capturedFootageFramingRules);
-    expect(fullPrompt).toContain(
-      "main model composes and builds requested original music/instrumentals directly",
-    );
+    expect(fullPrompt).not.toContain("MUSIC AUTHORING:");
     expect(fullPrompt).toContain("self-check every headline");
     expect(fullPrompt).toContain("explicit inter-word spacing");
     expect(fullPrompt).toContain("including the final title");
-    expect(fullPrompt).toContain("Avoid repeated bell, chime, plink");
-    expect(fullPrompt).toContain("continuous musical groove");
+    expect(fullPrompt).not.toContain("Avoid repeated bell, chime, plink");
+    expect(fullPrompt).not.toContain("continuous musical groove");
     expect(fullPrompt).toContain("do not claim a visual pass");
     expect(fullPrompt).toContain(videoPacingPolicy.editorial);
     expect(fullPrompt).toContain(videoPacingPolicy.reading);

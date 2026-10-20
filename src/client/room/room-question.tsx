@@ -76,11 +76,8 @@ export function RoomQuestion({
     <div className="room-question">
       <div className="room-question-scroll">
         <div className="room-question-scope">
-          <Tag
-            bordered={false}
-            className={question.mode === "blocking" ? "is-blocking" : "is-optional"}
-          >
-            {question.mode === "blocking" ? translateUi("Paused for you") : translateUi("Optional")}
+          <Tag bordered={false} className="is-blocking">
+            {translateUi("Paused for you")}
           </Tag>
           <span className="room-scope">{scope}</span>
         </div>
@@ -98,9 +95,7 @@ export function RoomQuestion({
           footer={<span className="room-hint">{question.reason}</span>}
         />
         <p className="room-hint">
-          {question.mode === "blocking"
-            ? translateUi("This part is paused until you answer. Everything else keeps going.")
-            : translateUi("Work keeps going. Your answer is used in the next build.")}
+          {translateUi("This part is paused until you answer. Everything else keeps going.")}
         </p>
         {choices.length > 0 && (
           <div className="room-shelf-picks" aria-label={translateUi("Add from your shelf")}>

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { RequestSchema, dimensions, isRunSettled } from "../src/shared/contracts";
 import { resolveTemplate } from "../src/server/domains/video/prompts";
-import { weightedScore } from "../src/server/catalog/ranking";
+import { weightedScore } from "../src/server/jev/strategies/style-combination";
 import { isPublicAddress, readReferenceUrl } from "../src/server/requests/inputs";
 import { Store } from "../src/server/jobs/store";
 import { WorkQueue } from "../src/server/jobs/queue";

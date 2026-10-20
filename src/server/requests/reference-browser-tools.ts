@@ -10,6 +10,7 @@ import { createReferenceBrowser } from "../jobs/subworkflows/website-reference";
 import { referenceToolNames, type ReferenceToolResult } from "./reference-browser-contracts";
 import { WorkQueue } from "../jobs/queue";
 import { CapturePresentationSchema } from "../capture/presentation";
+import { NativeCaptureRequestSchema } from "../capture/native-editor";
 
 export const referenceManifest = "reference-screenshots.json";
 export async function readReferenceScreenshots(workspace: string) {
@@ -31,6 +32,8 @@ export function createReferenceTools(options: {
   const queue = new WorkQueue(1);
   let session: ReturnType<typeof createReferenceBrowser> | undefined;
   let calls = 0;
+  let takes: number | undefined;
+  let editingCalls = 0;
   const browser = () =>
     (session ??= createReferenceBrowser(
       options.urls,
@@ -53,11 +56,13 @@ export function createReferenceTools(options: {
         return {
           content: [
             { type: "text" as const, text: JSON.stringify(result) },
+            ...(result.kind === "native_capture" ? result.content : []),
             ...(image
               ? [{ type: "image" as const, data: image.toString("base64"), mimeType: "image/png" }]
               : []),
           ],
           structuredContent: result,
+          ...(result.kind === "native_capture" && result.isError ? { isError: true } : {}),
         };
       } catch (error) {
         const result: ReferenceToolResult = {
@@ -129,69 +134,97 @@ export function createReferenceTools(options: {
         };
       }),
   );
+  server.registerTool(
+    referenceToolNames.scroll,
+    {
+      description:
+        "Scroll the current website viewport during inspection or recording. Accepts -1800 to +1800 pixels per call: negative scrolls up, positive scrolls down. For longer distances, make multiple calls within this range. Returns updated controls.",
+      inputSchema: {
+        deltaY: z
+          .number()
+          .min(-1800)
+          .max(1800)
+          .describe(
+            "Vertical scroll distance in pixels, from -1800 to +1800 inclusive. Negative scrolls up; positive scrolls down. Split longer distances into multiple calls.",
+          ),
+      },
+    },
+    ({ deltaY }) =>
+      run(async () => ({
+        result: { kind: "inspection", page: await (await browser()).scroll(deltaY) },
+      })),
+  );
   if (options.enableVideoCapture) {
     server.registerTool(
       referenceToolNames.video,
       {
         description:
-          "Built-in OpenScreen website video capture. Uses the configured desktop worker, or a dedicated visible browser on the current machine when no worker URL is set. Inspect the supplied URL first. Start, interact with the SAME session using click_control/fill_control/scroll_page/wait_for_view, then stop with the returned recording ID. Stop ALWAYS exports through OpenScreen with a visible moving cursor, click feedback, automatic interaction zooms and removal of idle gaps between tool calls, then validates silent WebM footage. Explicit wait_for_view holds remain at normal speed. Returned cursor timestamps match the edited footage. Before typing, fill_control visibly smooth-scrolls to center the input in its scrollable viewport even when it was already visible near the edge, waits for scrolling to finish, then visibly moves/clicks the pointer and types. The scroll animation is retained in the recording. Use the exported video directly; do not stretch it, reinsert idle holds or add a duplicate cursor/zoom layer. The full-film model owns shot selection and should keep demo actions brisk while preserving readable typing and meaningful results. Requires OpenScreen on the recording machine; never switches recording engines. A configured but unavailable worker is an error, not permission to record locally. Maximum 120 seconds per take; use multiple takes for longer demos. Stop before returning your production manifest. Never claim simulated UI is real footage.",
+          "OpenScreen recording and native editing for the isolated reference browser. Follow the copied OpenScreen demo skill: start → interact in this browser → stop → review/edit → export → review. Stop returns an editable take and live native tool descriptions/schemas; it does NOT export footage or choose cuts. For native operations use action edit with native.operation and native.arguments, omitting projectId and all paths (the tool binds this take). getFrames returns images; getCurrentDocument describes source trim seconds, virtual ruler seconds, and camera transition windows. OpenScreen applies the agent's chosen trims, speed regions, zooms and annotations. Export always uses native automatic zoom and 60 fps, returns validated silent WebM, and saves it in the video manifest. Review the edited take with getFrames, repair and re-export when needed. No automatic thinking-gap removal, custom cut heuristics or duplicate cursor/zoom layers. Maximum 120 seconds/take, six takes/session. Uses configured worker or dedicated local browser; never falls back when a configured worker fails. Never use the user's normal browser or physical mouse. Stop active recording before returning; export approved takes before assembling the film.",
         inputSchema: {
-          action: z.enum(["start", "stop"]),
+          action: z.enum(["start", "stop", "edit", "export"]),
           recordingId: z.string().uuid().optional(),
+          native: NativeCaptureRequestSchema.optional().describe(
+            "Required only for action edit. Choose an operation and arguments using the native schemas returned by stop. Never pass projectId or paths; the take is scoped automatically. Native source-time trims and virtual-time modifiers use seconds, as documented by getCurrentDocument. Inspect refusals and camera cutTransitions warnings; partial native edits are not all-or-nothing.",
+          ),
           presentation: CapturePresentationSchema.optional().describe(
-            "Choose at start to fit the project's visual language, including framing: padding 0 for edge-to-edge or positive padding for an inset frame. Omitted framing uses native OpenScreen defaults. Auto-zoom and 60 fps remain mandatory; optional zoom regions default to cursor-following focus; manual focus must be explicit.",
+            "Only at start: choose one of seven 2D cursor themes and framing to fit the idea. 3D is disabled; native automatic zoom and 60 fps remain enabled. Omitted values use OpenScreen defaults.",
           ),
         },
       },
-      ({ action, recordingId, presentation }) =>
+      ({ action, recordingId, presentation, native }) =>
         run(async () => {
-          const recordings = await readWebsiteRecordings(options.workspace);
           if (action === "start") {
-            if (recordings.length >= websiteCaptureLimits.recordings)
+            if (native || recordingId) throw Error("Start accepts presentation only");
+            const recordings = await readWebsiteRecordings(options.workspace);
+            takes ??= recordings.length;
+            if (takes >= websiteCaptureLimits.recordings)
               throw Error("Recording limit reached; reuse saved footage");
+            const id = await (await browser()).startRecording(options.workspace, presentation);
+            takes++;
             return {
               result: {
                 kind: "recording_started",
-                recordingId: await (
-                  await browser()
-                ).startRecording(options.workspace, presentation),
+                recordingId: id,
                 maxSeconds: websiteCaptureLimits.seconds,
               },
             };
           }
-          if (!recordingId) throw Error("Stop requires the recording ID returned by start");
+          if (!recordingId) throw Error("Use the recording ID returned by start");
           if (presentation) throw Error("Presentation must be selected at recording start");
-          const recording = await (await browser()).stopRecording(recordingId);
-          recordings.push(recording);
+          if (action !== "edit" && native) throw Error("Native operations require action edit");
+          if (action === "stop")
+            return { result: await (await browser()).prepareRecording(recordingId) };
+          if (action === "edit") {
+            if (!native) throw Error("Edit requires a native operation and its arguments");
+            if (++editingCalls > 80)
+              throw Error(
+                "Native editing call limit reached; export the take or report remaining work",
+              );
+            return { result: await (await browser()).editRecording(recordingId, native) };
+          }
+          const recording = await (await browser()).exportRecording(recordingId);
+          const recordings = await readWebsiteRecordings(options.workspace);
           await writeFile(
             path.join(options.workspace, "reference-videos.json"),
-            JSON.stringify(recordings, null, 2),
+            JSON.stringify(
+              [...recordings.filter((saved) => saved.assetPath !== recording.assetPath), recording],
+              null,
+              2,
+            ),
           );
           return { result: { kind: "video", recording } };
-        }, action === "stop"),
+        }, action !== "start"),
     );
     server.registerTool(
       referenceToolNames.fill,
       {
         description:
-          "Fill an ordinary text/search/URL control from the latest inspection in this fresh browser session. The tool visibly smooth-scrolls to center the input even if it was already visible near an edge, waits for the scroll to finish, then moves the pointer, clicks and types. No credentials or real account changes. State-changing HTTP requests remain blocked. Use only non-sensitive demonstration text.",
+          "Fill an ordinary text/search/URL control from the latest inspection in this fresh browser session. The control must be fully visible. Move the pointer, click and type without automatic scrolling or centering. Use scroll_page explicitly to reach an offscreen field. No credentials or real account changes. State-changing HTTP requests remain blocked. Use only non-sensitive demonstration text.",
         inputSchema: { controlId: z.string().regex(/^\d+$/), value: z.string().max(4000) },
       },
       ({ controlId, value }) =>
         run(async () => ({
           result: { kind: "inspection", page: await (await browser()).fill(controlId, value) },
-        })),
-    );
-    server.registerTool(
-      referenceToolNames.scroll,
-      {
-        description:
-          "Scroll the current website viewport during inspection or recording. Returns updated controls.",
-        inputSchema: { deltaY: z.number().min(-1800).max(1800) },
-      },
-      ({ deltaY }) =>
-        run(async () => ({
-          result: { kind: "inspection", page: await (await browser()).scroll(deltaY) },
         })),
     );
     server.registerTool(

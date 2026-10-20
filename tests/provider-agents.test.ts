@@ -979,6 +979,15 @@ it.each(["claude", "codex"] as const)(
     expect(guidance).toContain("creative_pool.read_pool_entry");
     expect(guidance).toContain("Before planning, writing code or making implementation choices");
     expect(guidance).toContain("the main model decides the scene/act assignments and timing");
+    expect(guidance).toContain(
+      "authorized requirements even when absent from the Settings selection",
+    );
+    expect(guidance).toContain("Absence from Settings is not a conflict");
+    expect(guidance).toContain("Pool discovery alone does not authorize unrequested additions");
+    expect(guidance).toContain(
+      "A user-requested act-specific treatment remains confined to that act",
+    );
+    expect(guidance).not.toContain("does not authorize replacing, dropping, promoting or adding");
     const servers =
       provider === "claude"
         ? sdk.query.mock.calls.at(-1)![0].options.mcpServers
@@ -989,3 +998,41 @@ it.each(["claude", "codex"] as const)(
     );
   },
 );
+
+it("uses Claude native Plan Mode and automatically accepts only its exit handoff", async () => {
+  sdk.query.mockReset().mockImplementation(claudeRecoveredTurn);
+  const options = {
+    ...capacityAttemptOptions(),
+    provider: "claude" as const,
+    model: "claude-opus-5-5",
+  };
+  await agentTurn({ ...options, readOnly: true, planMode: true });
+  const planning = sdk.query.mock.calls.at(-1)![0].options;
+  expect(planning.permissionMode).toBe("plan");
+  expect(planning.planModeInstructions).toContain(
+    "Kiteva automatically accepts this planning handoff",
+  );
+  expect(planning.tools).toContain("ExitPlanMode");
+  expect(planning.tools).not.toEqual(expect.arrayContaining(["Write", "Edit", "Bash"]));
+  expect(await planning.canUseTool("ExitPlanMode", {})).toMatchObject({ behavior: "allow" });
+  for (const tool of ["Write", "Edit", "Bash"])
+    expect(await planning.canUseTool(tool, {})).toMatchObject({ behavior: "deny" });
+  await agentTurn({ ...options, sessionId: "claude-direction" });
+  const implementation = sdk.query.mock.calls.at(-1)![0].options;
+  expect(implementation.resume).toBe("claude-direction");
+  expect(implementation.permissionMode).toBe("acceptEdits");
+  expect(implementation.planModeInstructions).toBeUndefined();
+  expect(implementation.tools).not.toContain("ExitPlanMode");
+  expect(await implementation.canUseTool("ExitPlanMode", {})).toMatchObject({ behavior: "deny" });
+});
+
+it("keeps ordinary read-only Claude calls outside native planning and rejects writable planning", async () => {
+  sdk.query.mockReset().mockImplementation(claudeRecoveredTurn);
+  const options = { ...capacityAttemptOptions(), provider: "claude" as const };
+  await agentTurn({ ...options, readOnly: true });
+  expect(sdk.query.mock.calls.at(-1)![0].options.permissionMode).toBe("acceptEdits");
+  await expect(agentTurn({ ...options, planMode: true })).rejects.toThrow(
+    "requires a read-only turn",
+  );
+  expect(sdk.query).toHaveBeenCalledOnce();
+});

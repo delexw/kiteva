@@ -5,8 +5,6 @@ import { existsSync } from "node:fs";
 import { access } from "node:fs/promises";
 import { z } from "zod";
 import { systemEnvironment } from "../runtime/platform";
-import { command } from "../runtime/process";
-import { videoRenderTimeoutMs } from "../rendering/timeouts";
 import { stopProcessTree } from "../runtime/process-tree";
 
 export const openScreenExportFrameRate = 60;
@@ -125,7 +123,7 @@ export async function startOpenScreen(windowTitle: string, signal: AbortSignal) 
   };
 }
 
-async function openScreenExecutable() {
+export async function openScreenExecutable() {
   const executable =
     process.env.OPENSCREEN_EXECUTABLE ||
     [
@@ -136,50 +134,4 @@ async function openScreenExecutable() {
   if (!executable) throw Error("Configure OPENSCREEN_EXECUTABLE on the recording machine");
   await access(executable);
   return executable;
-}
-
-/** Render through OpenScreen's own compositor, including its cursor and automatic zoom engine. */
-export async function exportOpenScreen(project: string, output: string, signal: AbortSignal) {
-  const executable = await openScreenExecutable();
-  const stdout = await command(
-    executable,
-    [
-      "export",
-      project,
-      "--out",
-      output,
-      "--format",
-      "mp4",
-      "--quality",
-      "source",
-      "--fps",
-      String(openScreenExportFrameRate),
-      "--auto-zoom",
-      "--json",
-    ],
-    path.dirname(project),
-    signal,
-    () => {},
-    videoRenderTimeoutMs,
-  );
-  const completed = stdout
-    .split("\n")
-    .filter(Boolean)
-    .flatMap((line): unknown[] => {
-      try {
-        return [JSON.parse(line)];
-      } catch {
-        return [];
-      } // OpenScreen's native compositor also writes [pipeline] diagnostics.
-    })
-    .map((event) => z.object({ event: z.string() }).passthrough().safeParse(event))
-    .filter((event) => event.success)
-    .map((event) => event.data)
-    .reverse()
-    .find((event) => event.event === "done");
-  const result = z
-    .object({ event: z.literal("done"), success: z.literal(true), outputPath: z.string() })
-    .parse(completed);
-  if (path.resolve(result.outputPath) !== path.resolve(output))
-    throw Error("OpenScreen returned an unexpected export path");
 }

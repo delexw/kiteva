@@ -132,6 +132,67 @@ describe("readable agent activity", () => {
     expect(items).toHaveLength(2);
     expect(items.map((item) => item.status)).toEqual(["failed", "complete"]);
   });
+  it.each(["complete", "failed", "stopped"] as const)(
+    "keeps recording heartbeats attached to their owner with a %s outcome",
+    (status) => {
+      const data = { purpose: "full video generation", invocationId: "build" };
+      const events = [
+        event(1, "tool", "mcp__reference_browser__capture_video", "a", { ...data, itemId: "take" }),
+        event(2, "tool", "Read", "a", { ...data, itemId: "parallel" }),
+        {
+          ...event(3, "tool_progress", "capture_video · 30s", "a", {
+            ...data,
+            itemId: "take-heartbeat-0",
+            toolName: "mcp__reference_browser__capture_video",
+          }),
+          time: "2026-10-11T00:00:30Z",
+        },
+      ];
+      expect(activityItems(events, false)[0]).toMatchObject({
+        itemId: "take",
+        time: "2026-10-11T00:00:30Z",
+        status: "running",
+      });
+      if (status !== "stopped")
+        events.push(
+          event(4, "tool_result", "", "a", {
+            ...data,
+            results: [{ itemId: "take", failed: status === "failed", output: "Result" }],
+          }),
+        );
+      events.push(event(5, "usage", "Turn complete", "a", data));
+      events.push(
+        event(6, "tool_progress", "capture_video · 60s", "a", {
+          ...data,
+          itemId: "take-heartbeat-1",
+          toolName: "mcp__reference_browser__capture_video",
+        }),
+      );
+      const items = activityItems(events, false);
+      expect(items).toHaveLength(2);
+      expect(items[0]).toMatchObject({ itemId: "take", status });
+      expect(items[1]).toMatchObject({ itemId: "parallel", status: "stopped" });
+      expect(items.some((item) => item.itemId?.includes("heartbeat"))).toBe(false);
+    },
+  );
+  it("does not invent tasks for unmatched progress or attach it to another invocation", () => {
+    const items = activityItems(
+      [
+        event(1, "tool", "Read", "a", { itemId: "tool", invocationId: "first" }),
+        event(2, "tool_progress", "Read · 30s", "a", {
+          itemId: "tool-heartbeat-0",
+          invocationId: "second",
+        }),
+        event(3, "tool_progress", "Read · 30s", "a", {
+          itemId: "unknown-heartbeat-0",
+          invocationId: "first",
+        }),
+      ],
+      false,
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0].time).toBe("2026-10-11T00:00:00Z");
+  });
   it("renders messages and named tools without SDK labels, usage JSON or duplicate tool messages", () => {
     const html = renderToStaticMarkup(
       <AgentActivity
@@ -395,6 +456,7 @@ it.each([
   ["Lyrics generation", "Writing your on-screen text…", "Saving your on-screen text…"],
   ["Video copy translation", "Translating your video text…", "Saving translated video text…"],
   ["Preview video planning", "Planning your preview…", "Saving the preview plan…"],
+  ["Full video planning", "Planning your full video…", "Saving the full video plan…"],
   ["preview video generation", "Building your video preview…", "Recording preview details…"],
   ["full video generation", "Building your full video…", "Recording video details…"],
   ["preview HTML generation", "Building your page preview…", "Recording page preview details…"],
@@ -435,7 +497,7 @@ it.each([
   const html = renderToStaticMarkup(<AgentActivity events={events} />);
   if (purpose === "full video generation") {
     expect(html).toContain("Creating your video…");
-    expect(html).not.toContain(working);
+    expect(html).toContain(working);
     expect(html).toContain(saving);
   } else {
     expect(html).toContain(working);

@@ -1,8 +1,5 @@
+import type { NativeCaptureRequest } from "../../capture/native-editor";
 import { configureReferencePermissions } from "../../requests/reference-browser-permissions";
-import {
-  captureInputBounds,
-  scrollControlForCapture,
-} from "../../requests/reference-control-framing";
 import { setTimeout as delay } from "node:timers/promises";
 import type { ElementHandle } from "puppeteer-core";
 import { createRemoteReferenceBrowser } from "../../capture/worker-client";
@@ -38,10 +35,18 @@ export async function createLocalReferenceBrowser(
     .launch({
       executablePath,
       headless: desktop ? false : "shell",
-      ...(desktop ? { defaultViewport: null } : {}),
+      ...(desktop
+        ? {
+            defaultViewport: null,
+            // Puppeteer's extra startup tab opens a normal window alongside --app.
+            ignoreDefaultArgs: ["about:blank"],
+          }
+        : {}),
       timeout: 10000,
       args: [
-        ...(desktop ? ["--app=about:blank", "--window-size=1440,1000"] : []),
+        ...(desktop
+          ? ["--app=data:text/html,<title>Capture</title>", "--window-size=1440,1000"]
+          : []),
         "--proxy-server=http://127.0.0.1:9",
         "--proxy-bypass-list=<-loopback>",
         "--disable-quic",
@@ -55,9 +60,10 @@ export async function createLocalReferenceBrowser(
       );
     });
   let recording: Awaited<ReturnType<typeof startWebsiteCapture>> | undefined;
+  const editable = new Map<string, Awaited<ReturnType<typeof startWebsiteCapture>>>();
   const stop = () => {
     void (async () => {
-      await recording?.discard().catch(() => {});
+      await recording?.close().catch(() => {});
       await browser.close().catch(() => {});
     })();
   };
@@ -168,11 +174,13 @@ export async function createLocalReferenceBrowser(
       return page.evaluate(inspectReferenceDocument);
     }
     let pointer = { x: 20, y: 20 };
-    async function pointAndClick(target: ElementHandle<Element>, centerInput = false) {
-      await target.evaluate(scrollControlForCapture, centerInput);
+    async function pointAndClick(target: ElementHandle<Element>) {
+      if (!(await target.isIntersectingViewport({ threshold: 1 })))
+        throw Error(
+          "Control is outside the visible viewport; use scroll_page explicitly before interacting",
+        );
       const box = await target.boundingBox();
       if (!box) throw Error("Control is not visible");
-      if (centerInput && recording) recording.focusInput(await target.evaluate(captureInputBounds));
       const destination = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
       const cursorType = await target.evaluate((element) => {
         if (element.matches("input, textarea, [contenteditable=true]")) return "text";
@@ -192,17 +200,8 @@ export async function createLocalReferenceBrowser(
         if (recording) await delay(16, undefined, { signal });
       }
       pointer = destination;
-      if (recording) await delay(450, undefined, { signal });
       await page.mouse.click(pointer.x, pointer.y);
       recording?.cursor(pointer.x, pointer.y, "click", cursorType);
-    }
-    async function recordedAction<T>(action: () => Promise<T>) {
-      recording?.activity(true);
-      try {
-        return await action();
-      } finally {
-        recording?.activity(false);
-      }
     }
     return {
       inspect,
@@ -210,10 +209,8 @@ export async function createLocalReferenceBrowser(
         if (!/^\d+$/.test(controlId)) throw Error("Use a control ID from the latest inspection");
         const target = await page.$(`[data-reference-control="${controlId}"]`);
         if (!target) throw Error("Control was not found; inspect again");
-        return recordedAction(async () => {
-          await pointAndClick(target);
-          return inspect();
-        });
+        await pointAndClick(target);
+        return inspect();
       },
       async fill(controlId: string, value: string) {
         if (!/^\d+$/.test(controlId)) throw Error("Use a control ID from the latest inspection");
@@ -230,23 +227,19 @@ export async function createLocalReferenceBrowser(
           throw Error(
             "Only ordinary text, search and URL fields can be filled; credentials are prohibited",
           );
-        return recordedAction(async () => {
-          await pointAndClick(target, true);
-          await target.evaluate((element) => {
-            (element as HTMLInputElement | HTMLTextAreaElement).select();
-          });
-          await page.keyboard.type(value, { delay: 15 });
-          return inspect();
+        await pointAndClick(target);
+        await target.evaluate((element) => {
+          (element as HTMLInputElement | HTMLTextAreaElement).select();
         });
+        await page.keyboard.type(value, { delay: 15 });
+        return inspect();
       },
       async scroll(deltaY: number) {
-        return recordedAction(async () => {
-          await page.mouse.wheel({ deltaY });
-          return inspect();
-        });
+        await page.mouse.wheel({ deltaY });
+        return inspect();
       },
       async wait(milliseconds: number) {
-        await recordedAction(() => delay(milliseconds, undefined, { signal }));
+        await delay(milliseconds, undefined, { signal });
       },
       async startRecording(
         workspace: string,
@@ -259,11 +252,28 @@ export async function createLocalReferenceBrowser(
         recording = await startWebsiteCapture(page, workspace, signal, desktop, presentation);
         return recording.id;
       },
-      async stopRecording(id: string) {
+      async prepareRecording(id: string) {
         if (!recording || recording.id !== id) throw Error("Use the active recording ID");
         const current = recording;
         recording = undefined;
-        return current.save();
+        try {
+          const take = await current.prepare();
+          editable.set(id, current);
+          return take;
+        } catch (error) {
+          await current.close().catch(() => {});
+          throw error;
+        }
+      },
+      async editRecording(id: string, request: NativeCaptureRequest) {
+        const take = editable.get(id);
+        if (!take) throw Error("Use a stopped take from this browser session");
+        return take.edit(request);
+      },
+      async exportRecording(id: string) {
+        const take = editable.get(id);
+        if (!take) throw Error("Use a stopped take from this browser session");
+        return take.export();
       },
       async capture(screenshotPath: string, selector?: string) {
         if (!allowedOrigins.has(new URL(page.url()).origin))
@@ -280,7 +290,8 @@ export async function createLocalReferenceBrowser(
       },
       async close() {
         signal.removeEventListener("abort", stop);
-        await recording?.discard().catch(() => {});
+        await recording?.close().catch(() => {});
+        await Promise.all([...editable.values()].map((take) => take.close().catch(() => {})));
         await browser.close();
       },
     };

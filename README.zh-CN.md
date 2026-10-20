@@ -33,9 +33,23 @@
 以下日期采用新西兰时间。已合并的更新可在 `main` 使用；尚未合并的工作会明确标注。
 
 <details open>
-<summary>2026-10-20 · 开发中 — PR #4</summary>
+<summary>2026-10-21 · 开发中</summary>
 
-以下变更位于开发分支的[草稿 PR #4](https://github.com/delexw/kiteva/pull/4)，尚未合并。
+以下代码变更位于开发分支，尚未合并。
+
+- **JEV 选择：**保留完整原始想法和各设置说明，使用文字描述视觉创作选项的优势、劣势与限制。风格组合先分批评估，再由 JEV Choice 对所有通过检查的方向反复比较，直到选出要求数量的方向；初步分数不再决定最终顺序。
+- **音频创作：**接入本地 [Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) 能力，通过独立的 JEV 策略选择，并由各渲染器维护音频能力和接入约定。Multiplane 在渲染前接收已准备的音频素材；上传音频仍使用自身的素材指引。
+- **规划与准备：**分开完整简报和仅提取标题的工作流。直接制作保留原始想法并生成项目标题。完整视频由主模型先生成文字计划（Claude 使用原生规划模式），再录制和实施；按渲染器区分演示路线，保留主要功能覆盖、章节标题及各幕指定的 Motion Graphic。
+- **OpenScreen 原生编辑：**引用上游演示技能，通过仅作用于当前文档的 MCP 工具审阅、裁剪、变速、缩放和导出。移除自定义空闲间隙编辑、输入框自动滚动/居中和固定 450 毫秒停顿，并要求录屏完整适配最终画面。
+- **助手与 Activity：**网站链接改为一项一个 URL，旁白和屏幕歌词共用脚本，通过共享逻辑应用各设置自己的素材指引。遇到阻塞问题时暂停生成并在助手中显示。Activity 跟随新增日志滚动，恢复成功后以最新状态替换失败状态，不再显示重试子树。
+- **安装与目录：**新增 `install.sh` 和 OpenScreen 安装辅助脚本，精简 `.env.example`，通过 `latest` 更新 Claude Agent SDK，并分别组织能力、渲染器元数据及 JEV 策略。React Bits 检索支持当前仅带 JS/TS 后缀的条目。
+
+</details>
+
+<details>
+<summary>2026-10-20 · 已合并 — PR #4</summary>
+
+合并 [PR #4](https://github.com/delexw/kiteva/pull/4)：改进代理规划、能力和演示录制。
 
 - 为两种提供商加入 **Animate UI** 组件检索，并通过共享的 **JEV 1.14.0 Choice** 选择一个主要创作能力、内置技能或本地代码方案。内部创意池工具提供完整的 Motion Graphic、motion 和技术定义；制作规划仍由主模型负责。
 - 将工作流指引拆分为应用演示、静态截图展示、概念短片和混合影片四种路线提示。混合影片按章节采用对应路线，保留幕次边界、所选风格和要求覆盖的功能；具体时间安排根据实际内容与参考证据在规划时生成。
@@ -50,7 +64,7 @@
 
 - 合并 [PR #3](https://github.com/delexw/kiteva/pull/3)：新增 **English / 中文界面切换**，翻译目录及 Governance 页面，改进 Activity 分组，以及项目、重试和视频工作流。界面语言仍与生成视频的语言独立。
 - 加入本机 **OpenScreen 录制及可选独立桌面工作节点**、光标与缩放展示参数，并优化录制时的浏览器交互。本机录制使用独立可见的浏览器窗口。
-- 更新 agent SDK 依赖，加入禁止 Blender 的工具调用执行检查、受保护的简报叶子字段修正、**均匀随机创意方向**、一小时渲染超时及 SQLite 锁竞争处理。这些后续变更包含在[草稿 PR #4](https://github.com/delexw/kiteva/pull/4) 中，尚未合并。
+- 更新 agent SDK 依赖，加入禁止 Blender 的工具调用执行检查、受保护的简报叶子字段修正、**均匀随机创意方向**、一小时渲染超时及 SQLite 锁竞争处理。这些后续变更已于 10 月 20 日合并至 [PR #4](https://github.com/delexw/kiteva/pull/4)。
 
 </details>
 
@@ -169,31 +183,34 @@ Storyboard 页面把它回放成一段小小的“幕后排练”：一位火柴
 
 ## 快速开始
 
-macOS 安装需要 [Node.js](https://nodejs.org) 24+、[Chrome](https://www.google.com/chrome/) 或 [Chromium](https://www.chromium.org)，
-以及带 `ffprobe` 的 [FFmpeg](https://ffmpeg.org)。另外还需要两类访问权限：
+macOS 可以运行 [install.sh](install.sh)，一次安装缺少的系统工具、锁定版本的 npm 依赖（Claude Agent SDK 单独更新到 `latest`）、独立的 Chrome for Testing、OpenScreen、Caveman、本地旁白，以及 Audio Studio MCP 和模型权重，然后构建应用。缺少系统工具时使用 Homebrew，旁白使用托管的 Python 3.11。已有配置和应用会保留。默认包含较大的模型下载，可用 `./install.sh --help` 查看选项。另外还需要两类访问权限：
 
 - **模型提供方：用 API key，或者用已经登录的订阅账号都可以。** Claude：设置 `ANTHROPIC_API_KEY` 或
   `CLAUDE_CODE_OAUTH_TOKEN`，或者直接在这台 Mac 上登录 [Claude Code](https://code.claude.com/docs/en/overview)。
   Codex：设置 `CODEX_API_KEY` 或 `OPENAI_API_KEY`，或者登录 [Codex CLI](https://developers.openai.com/codex)（`~/.codex/auth.json`）。
   订阅可以用，但订阅用量和剩余百分比的显示我还没测过。
 - **[JEV](https://docs.typesafe.ai/models) 需要单独配置。** 在 `.env.local` 里填 `TYPESAFE_API_KEY`。
-  只要由 Kiteva 生成方向就需要它；如果自己手动选 Motion Graphic，则会跳过 JEV。
+  它用于风格方向评估以及视觉、音频能力选择。手动选择 Motion Graphic 会跳过风格排名，能力选择仍独立进行。
 
 ```sh
 git clone https://github.com/delexw/kiteva.git
 cd kiteva
-npm ci
-cp .env.example .env.local      # 填入 TYPESAFE_API_KEY（已登录订阅时，提供方 key 可不填）
-npm run build
+./install.sh
+# 编辑自动创建的 .env.local：填入 TYPESAFE_API_KEY，以及需要的提供方 key。
 npm start                       # 打开 http://127.0.0.1:4317
 ```
 
-可选：`npm run speech:setup`（[Kokoro](https://github.com/thewh1teagle/kokoro-onnx)）或 `npm run speech:setup:pocket`（[Pocket TTS](https://pypi.org/project/pocket-tts/)），
-用于本地旁白，需要 [Python](https://www.python.org) 3.10–3.13。做界面开发时，保持后端运行，再用 `npx vite`（[Vite](https://vite.dev)，`http://127.0.0.1:4319`）。
+轻量安装可运行 `./install.sh --minimal`，跳过旁白和 Audio Studio；`./install.sh --speech pocket` 只安装 Pocket TTS 旁白。
+`--audio-no-weights` 将 Audio Studio 模型下载推迟到首次生成。默认复用现有 `speech:setup*` 脚本安装 Kokoro、Pocket TTS 和中文 Pocket TTS。
+提供方登录、API key，以及 macOS 屏幕录制和辅助功能权限仍需你配置；安装器不会启动应用或操作浏览器。
+OpenScreen 从官方 GitHub Release 下载并校验 SHA-256；若 `/Applications` 不可写，会使用用户的 Applications 目录并将路径加入 `.env.local`。
+参见[旁白设置](docs/speech.md)和[语言设置](docs/video-languages.md)。开发界面时保持后端运行，再用 `npx vite`（`http://127.0.0.1:4319`）。
 
 Anatomy 在服务启动时自动安装或更新。首次启动需要网络，通过 HTTPS 下载 ZIP 安装，不需要 Git 或额外 CLI；以后离线启动可使用已校验的本地版本。上游文件保存在 Git 忽略的 `skills/anatomy/`，提供商注册和 Kiteva 指引仍在源码中。
 
 [React Bits](https://github.com/DavidHDev/react-bits) 和 [Animate UI](https://github.com/imskyleen/animate-ui) 支持规划时检索组件、构建时安装源码。JEV 根据每个任务选择适用的能力、内置技能或本地代码。参见[集成与许可说明](src/server/agents/capabilities/README.md)。
+
+[Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) 为两种提供商提供本地音乐和音效生成能力。完整视频有 Music 提示词且未上传音乐时，独立的 JEV Choice 策略选择 Audio Studio 或本地代码音频创作。上传音频沿用现有使用指导，方向预览保持静音。Multiplane 路线指导主模型先生成并验证 WAV，再通过 `production.audioFile` 将路径交给 `--audio`。参见 [Audio Studio 配置与集成](src/server/agents/capabilities/README.md#audio-studio-mcp)和 [JEV 策略目录](src/server/jev/README.md)。
 
 目录、审阅过的插画和 139 段预览短片都随仓库提供，浏览不花钱。你的项目、上传文件、房间布局、数据库和凭据
 都保存在本机被 Git 忽略的目录里。
@@ -234,7 +251,7 @@ Haiku 的准备和审阅只花了几美分，JEV 排序不到一美分。最贵�
 ## 已知限制
 
 - macOS 已经过本地验证；原生 Windows 10/11 支持为实验性实现，使用前请完成 [Windows 安装和检查](docs/windows.md)。单用户，仅本地运行。
-- [Multiplane](https://github.com/LBEILC/Multiplane) 是试用：只支持一个音频文件，场景里不能放视频片段，也没有自动的布局和对比度检查（仍会校验帧的一致性）。
+- [Multiplane](https://github.com/LBEILC/Multiplane) 是试用：只支持一个音频文件，录屏片段需要预先提取帧，也没有自动的布局和对比度检查（仍会校验帧的一致性）。
 - [Remotion](https://www.remotion.dev) 只是后备，不是可选设置，它的渲染同样不做 HyperFrames 的布局/对比度检查。
 - 不生成歌声，不生成图片，也没有素材库视频。画面由代码绘制，或来自你上传的文件和网站截图。
 - 目录是我个人的收集，有些描述或技术建议可能不对，欢迎提 issue。

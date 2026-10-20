@@ -13,7 +13,7 @@ const config = z
 const controller = new AbortController();
 const tools = createReferenceTools({
   ...config,
-  signal: AbortSignal.any([controller.signal, AbortSignal.timeout(600000)]),
+  signal: controller.signal,
 });
 const close = () => {
   controller.abort();

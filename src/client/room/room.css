@@ -2016,3 +2016,20 @@
   align-items: center;
   flex-wrap: wrap;
 }
+
+.room-website-items {
+  display: grid;
+  gap: 10px;
+}
+.room-website-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.room-website-item .ant-input {
+  min-width: 0;
+  flex: 1;
+}
+.room-website-items > .ant-btn {
+  justify-self: start;
+}

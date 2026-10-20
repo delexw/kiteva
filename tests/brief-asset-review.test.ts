@@ -13,7 +13,7 @@ import { agentTurn } from "../src/server/agents/providers";
 import {
   reviewBriefAssets,
   validateBriefAssetPlan,
-} from "../src/server/jobs/subworkflows/brief-asset-review";
+} from "../src/server/jobs/subworkflows/full-brief/asset-review";
 const plan: BriefAssetPlan = {
   coreIdea: "Explain the image import workflow",
   scenes: [

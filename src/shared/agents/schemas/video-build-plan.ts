@@ -49,7 +49,34 @@ const PlanSchema = z.object({
   tools: z.array(z.object({ name: text, responsibility: text })).min(1),
   acceptanceChecks: z.array(text).min(1),
 });
-export type VideoBuildPlan = z.infer<typeof PlanSchema>;
+const FullVideoPlanSchema = z.object({
+  version: z.literal(2),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  fps: z.number().int().positive(),
+  durationSeconds: z.number().finite().positive(),
+  plan: text.describe(
+    "The full film story, scene/act estimates, visual treatments, demo navigation and capture plan, dependencies, uncertainties and acceptance checks. This is a production plan, not executable layer choreography.",
+  ),
+});
+export type FullVideoPlan = z.infer<typeof FullVideoPlanSchema>;
+export type VideoBuildPlan = z.infer<typeof PlanSchema> | FullVideoPlan;
+export function fullVideoPlanSchemaFor(expected: {
+  duration?: number;
+  width: number;
+  height: number;
+  fps: number;
+}) {
+  return FullVideoPlanSchema.extend({
+    width: z.literal(expected.width),
+    height: z.literal(expected.height),
+    fps: z.literal(expected.fps),
+    durationSeconds:
+      expected.duration === undefined
+        ? z.number().int().min(15).max(300)
+        : z.literal(expected.duration),
+  });
+}
 export function videoBuildPlanSchemaFor(expected: {
   duration: number;
   width: number;

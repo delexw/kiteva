@@ -14,7 +14,8 @@ it.skipIf(!browserExecutablePath())(
     expect(JSON.parse(stdout)).toMatchObject({
       fill: "passed",
       click: "passed",
-      centeredBeforeTyping: true,
+      explicitScrollBeforeTyping: true,
+      visibleBeforeTyping: true,
       backgroundTrafficDoesNotDelayReadyControls: true,
     });
   },

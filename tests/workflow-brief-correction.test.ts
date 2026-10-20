@@ -1,4 +1,4 @@
-vi.mock("../src/server/agents/authoring-resources", () => ({
+vi.mock("../src/server/jev/strategies/visual-authoring", () => ({
   selectAuthoringResources: async () => ({
     source: "jev",
     model: "jev-test",
@@ -11,12 +11,12 @@ import { rm } from "node:fs/promises";
 import path from "node:path";
 import { expect, it, vi, afterEach } from "vitest";
 vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
-vi.mock("../src/server/jobs/subworkflows/brief-asset-review", async (original) => ({
-  ...(await original<typeof import("../src/server/jobs/subworkflows/brief-asset-review")>()),
+vi.mock("../src/server/jobs/subworkflows/full-brief/asset-review", async (original) => ({
+  ...(await original<typeof import("../src/server/jobs/subworkflows/full-brief/asset-review")>()),
   reviewBriefAssets: vi.fn(),
 }));
 import { agentTurn } from "../src/server/agents/providers";
-import { reviewBriefAssets } from "../src/server/jobs/subworkflows/brief-asset-review";
+import { reviewBriefAssets } from "../src/server/jobs/subworkflows/full-brief/asset-review";
 import { Workflow } from "../src/server/jobs/workflow";
 import { Store } from "../src/server/jobs/store";
 import { loadCatalog } from "../src/server/catalog/catalog";
@@ -38,8 +38,8 @@ it.each(["claude", "codex"] as const)(
         instructions: "Explain importing",
         lyrics: { mode: "provided", text: "Exact copy" },
         provider,
-        selectedStyleIds: ["style-018"],
-        candidateCount: 0,
+        preference: "random",
+        candidateCount: 1,
       }),
       candidates: [],
       jobs: [],

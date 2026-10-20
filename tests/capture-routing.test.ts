@@ -27,7 +27,8 @@ it("uses a local visible browser for video when no worker URL exists", async () 
   expect(puppeteer.launch).toHaveBeenCalledWith(
     expect.objectContaining({
       headless: false,
-      args: expect.arrayContaining(["--app=about:blank"]),
+      args: expect.arrayContaining(["--app=data:text/html,<title>Capture</title>"]),
+      ignoreDefaultArgs: expect.arrayContaining(["about:blank"]),
     }),
   );
   expect(createRemoteReferenceBrowser).not.toHaveBeenCalled();

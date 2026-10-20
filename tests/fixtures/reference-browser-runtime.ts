@@ -10,7 +10,7 @@ const web = createServer((request, response) => {
   }
   response.setHeader("content-type", "text/html");
   response.end(`<!doctype html><h1>Form example</h1><div style="height:1100px"></div>
-    <label>Project title<input onbeforeinput="document.querySelector('output').textContent='TYPING_CENTER:'+Math.round(this.getBoundingClientRect().top+this.getBoundingClientRect().height/2)+':'+Math.round(innerHeight/2)"></label>
+    <label>Project title<input onbeforeinput="document.querySelector('output').textContent='TYPING_BOUNDS:'+Math.round(this.getBoundingClientRect().top)+':'+Math.round(this.getBoundingClientRect().bottom)+':'+innerHeight"></label>
     <button onclick="fetch('/background-stream');document.querySelector('h1').textContent='Preview ready'">Build demo</button>
     <output></output><div style="height:1500px"></div>`);
 });
@@ -23,10 +23,14 @@ try {
   const initial = await browser.inspect(url);
   const input = initial.controls.find((control) => control.name === "Project title");
   assert(input);
-  const filled = await browser.fill(input.id, "An idea");
-  const centers = filled.text.match(/TYPING_CENTER:(\d+):(\d+)/);
-  assert(centers);
-  assert(Math.abs(Number(centers[1]) - Number(centers[2])) <= 1);
+  await assert.rejects(browser.fill(input.id, "An idea"), /outside the visible viewport/);
+  const scrolled = await browser.scroll(1000);
+  const visibleInput = scrolled.controls.find((control) => control.name === "Project title");
+  assert(visibleInput);
+  const filled = await browser.fill(visibleInput.id, "An idea");
+  const bounds = filled.text.match(/TYPING_BOUNDS:(\d+):(\d+):(\d+)/);
+  assert(bounds);
+  assert(Number(bounds[1]) >= 0 && Number(bounds[2]) <= Number(bounds[3]));
   const button = filled.controls.find((control) => control.name === "Build demo");
   assert(button);
   const clickStarted = performance.now();
@@ -39,7 +43,8 @@ try {
       runtime: "node --import tsx",
       fill: "passed",
       click: "passed",
-      centeredBeforeTyping: true,
+      explicitScrollBeforeTyping: true,
+      visibleBeforeTyping: true,
       backgroundTrafficDoesNotDelayReadyControls: true,
       clickSeconds,
     }),

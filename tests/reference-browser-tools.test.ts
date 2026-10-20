@@ -3,6 +3,7 @@ import os from "node:os";
 import sharp from "sharp";
 import path from "node:path";
 import { expect, it, vi } from "vitest";
+import { captureCursorThemes } from "../src/server/capture/presentation";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
@@ -43,7 +44,9 @@ it.each([64, 3000])(
       wait: vi.fn(async () => {}),
       scroll: vi.fn().mockResolvedValue(inspection),
       startRecording: vi.fn(),
-      stopRecording: vi.fn(),
+      prepareRecording: vi.fn(),
+      editRecording: vi.fn(),
+      exportRecording: vi.fn(),
       close: vi.fn(),
     };
     vi.mocked(createReferenceBrowser).mockResolvedValue(session);
@@ -63,6 +66,7 @@ it.each([64, 3000])(
         "inspect_page",
         "click_control",
         "capture_screenshot",
+        "scroll_page",
       ]);
       expect(session.capture).not.toHaveBeenCalled();
       const state = await client.callTool({
@@ -150,7 +154,18 @@ it("keeps stop available after the interaction budget and preserves earlier reco
     scroll: vi.fn(),
     capture: vi.fn(),
     startRecording: vi.fn().mockResolvedValue(id),
-    stopRecording: vi.fn().mockResolvedValue(next),
+    prepareRecording: vi
+      .fn()
+      .mockResolvedValue({ kind: "editable_capture", recordingId: id, duration: 2, tools: [] }),
+    editRecording: vi.fn().mockResolvedValue({
+      kind: "native_capture",
+      content: [
+        { type: "text", text: "native review" },
+        { type: "image", data: "aW1hZ2U=", mimeType: "image/png" },
+      ],
+      data: { reviewed: true },
+    }),
+    exportRecording: vi.fn().mockResolvedValue(next),
     close: vi.fn(),
   };
   vi.mocked(createReferenceBrowser).mockResolvedValue(session);
@@ -166,18 +181,38 @@ it("keeps stop available after the interaction budget and preserves earlier reco
   try {
     await tools.server.connect(serverTransport);
     await client.connect(clientTransport);
+    const scroll = (await client.listTools()).tools.find((tool) => tool.name === "scroll_page")!;
+    const videoTool = (await client.listTools()).tools.find(
+      (tool) => tool.name === "capture_video",
+    )!;
+    expect(videoTool.inputSchema.properties?.presentation).toMatchObject({
+      properties: { cursorTheme: { enum: [...captureCursorThemes] } },
+    });
+    expect(videoTool.inputSchema.properties?.action).toMatchObject({
+      enum: ["start", "stop", "edit", "export"],
+    });
+    expect(videoTool.inputSchema.properties?.trimRegions).toBeUndefined();
+    expect(videoTool.description).toContain("Stop returns an editable take");
+
+    expect(scroll.description).toContain("-1800 to +1800 pixels per call");
+    expect(scroll.description).toContain("multiple calls");
+    expect(scroll.inputSchema.properties?.deltaY).toMatchObject({
+      minimum: -1800,
+      maximum: 1800,
+      description: expect.stringContaining("Negative scrolls up; positive scrolls down"),
+    });
     expect(
       await client.callTool({
         name: "capture_video",
         arguments: {
           action: "start",
-          presentation: { cursorSize: 2.5 },
+          presentation: { cursorSize: 2.5, cursorTheme: "pixel-candy" },
         },
       }),
     ).toMatchObject({ structuredContent: { kind: "recording_started", recordingId: id } });
     expect(session.startRecording).toHaveBeenCalledWith(
       workspace,
-      expect.objectContaining({ cursorSize: 2.5 }),
+      expect.objectContaining({ cursorSize: 2.5, cursorTheme: "pixel-candy" }),
     );
     for (let index = 0; index < 80; index++)
       await client.callTool({ name: "inspect_page", arguments: {} });
@@ -189,7 +224,37 @@ it("keeps stop available after the interaction budget and preserves earlier reco
         name: "capture_video",
         arguments: { action: "stop", recordingId: id },
       }),
-    ).toMatchObject({ structuredContent: { kind: "video", recording: next } });
+    ).toMatchObject({ structuredContent: { kind: "editable_capture" } });
+    expect(session.prepareRecording).toHaveBeenCalledWith(id);
+    expect(session.exportRecording).not.toHaveBeenCalled();
+    expect(JSON.parse(await readFile(path.join(root, "reference-videos.json"), "utf8"))).toEqual([
+      first,
+    ]);
+    const review = await client.callTool({
+      name: "capture_video",
+      arguments: {
+        action: "edit",
+        recordingId: id,
+        native: { operation: "getFrames", arguments: { count: 6 } },
+      },
+    });
+    expect(review).toMatchObject({
+      content: expect.arrayContaining([{ type: "image", data: "aW1hZ2U=", mimeType: "image/png" }]),
+      structuredContent: { kind: "native_capture", data: { reviewed: true } },
+    });
+    expect(session.editRecording).toHaveBeenCalledWith(id, {
+      operation: "getFrames",
+      arguments: { count: 6 },
+    });
+    await client.callTool({
+      name: "capture_video",
+      arguments: { action: "export", recordingId: id },
+    });
+    // A repair and re-export replace this take's inventory entry rather than duplicating it.
+    await client.callTool({
+      name: "capture_video",
+      arguments: { action: "export", recordingId: id },
+    });
     expect(JSON.parse(await readFile(path.join(root, "reference-videos.json"), "utf8"))).toEqual([
       first,
       next,

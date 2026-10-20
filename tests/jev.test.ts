@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { noul } from "@typesafe-ai/sdk";
-import { jevClient, jevModel } from "../src/server/agents/jev";
+import { jevClient, jevModel } from "../src/server/jev/client";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -43,6 +43,6 @@ it("fails before making a request when neither JEV key is configured", () => {
   vi.stubEnv("JEV_API_KEY", "");
   const fetch = vi.fn();
   vi.stubGlobal("fetch", fetch);
-  expect(() => jevClient()).toThrow("Jev ranking is not configured");
+  expect(() => jevClient()).toThrow("JEV decisions are not configured");
   expect(fetch).not.toHaveBeenCalled();
 });

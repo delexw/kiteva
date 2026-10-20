@@ -44,6 +44,10 @@ export const taskActivityLabels: Record<string, { working: string; saving: strin
     working: "Writing your on-screen text…",
     saving: "Saving your on-screen text…",
   },
+  "Full video planning": {
+    working: "Planning your full video…",
+    saving: "Saving the full video plan…",
+  },
   "Preview video planning": {
     working: "Planning your preview…",
     saving: "Saving the preview plan…",
@@ -116,6 +120,10 @@ export function mergeProgressItems(
     previous.purpose !== item.purpose ||
     previous.invocationId !== item.invocationId ||
     previous.progressStage !== item.progressStage ||
+    previous.status === "failed" ||
+    previous.status === "stopped" ||
+    item.status === "failed" ||
+    item.status === "stopped" ||
     previous.kind === "message" ||
     item.kind !== previous.kind ||
     item.text !== previous.text
@@ -245,16 +253,27 @@ export function activityItems(
             : event.type === "file_change"
               ? "Edit files"
               : event.message.split(" · ")[0]);
+      // SDK heartbeats may use a synthetic ID rather than the owning tool-use ID.
+      const ownerId =
+        event.type === "tool_progress" ? data.itemId?.replace(/-heartbeat-\d+$/, "") : data.itemId;
       const prior = data.itemId
         ? items
             .slice()
             .reverse()
             .find(
-              (item) => ownsInvocation(item) && item.kind === "tool" && item.itemId === data.itemId,
+              (item) =>
+                ownsInvocation(item) &&
+                item.kind === "tool" &&
+                (item.itemId === data.itemId || item.itemId === ownerId),
             )
         : event.type === "tool_progress"
           ? latest("tool")
           : undefined;
+      // Progress is not a separate action and cannot reopen a terminal result.
+      if (event.type === "tool_progress") {
+        if (prior?.status === "running") prior.time = event.time;
+        continue;
+      }
       const item = prior || add("tool", customerToolActivity(name, event.type, data.purpose));
       item.status = data.state === "item.completed" ? "complete" : "running";
       continue;

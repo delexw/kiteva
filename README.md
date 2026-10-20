@@ -33,9 +33,23 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 Dates below use New Zealand time. Merged updates are available on `main`; work awaiting merge is labelled.
 
 <details open>
-<summary>2026-10-20 · in progress — PR #4</summary>
+<summary>2026-10-21 · in progress</summary>
 
-These changes are on the development branch in [draft PR #4](https://github.com/delexw/kiteva/pull/4), awaiting merge.
+These codebase changes are on the development branch and have not been merged.
+
+- **JEV selection:** retain the original idea and section instructions; compare visual authoring options using textual advantages, disadvantages and constraints. Style combinations are evaluated in batches, then JEV Choice compares all survivors repeatedly until the requested number of directions is selected. Preliminary scores no longer determine the final order.
+- **Audio authoring:** add [Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) as a local capability, with independent JEV selection and renderer-owned audio contracts. Multiplane receives prepared audio assets before rendering; uploaded audio retains its own usage guidance.
+- **Planning and preparation:** separate full-brief and title-only workflows. Direct builds preserve the original idea and still receive a project title. Full videos use a main-model planning turn (Claude's native plan mode for Claude) and a prose plan before capture and implementation; renderer-specific demo routes preserve feature coverage, section titles and act-specific Motion Graphics.
+- **Native OpenScreen editing:** use the referenced upstream demo skill and document-scoped MCP tools for review, trims, speed regions, zooms and export. Remove custom idle-gap editing, automatic input scrolling/centering and the fixed 450 ms pause. Keep the captured frame fitted within the final composition.
+- **Assistant and activity:** add website references one URL per item, share the narration/lyrics script, apply each setting's source guidance through shared logic, pause generation for blocking questions and surface them in the Assistant. Activity follows appended logs and replaces recovered failures with the latest status without retry subtrees.
+- **Setup and organization:** add `install.sh` and an OpenScreen setup helper, simplify `.env.example`, update Claude Agent SDK through `latest`, and group capabilities, renderer metadata and JEV strategies in their own folders. React Bits discovery accepts current JS/TS-only registry entries.
+
+</details>
+
+<details>
+<summary>2026-10-20 · merged — PR #4</summary>
+
+Merged [PR #4](https://github.com/delexw/kiteva/pull/4): agent planning, capabilities and demo capture.
 
 - Added **Animate UI** component discovery for both providers and shared **JEV 1.14.0 Choice** selection of one primary authoring capability, bundled skill or local-code approach. Internal creative-pool tools expose complete Motion Graphic, motion and technology definitions; the main model retains production planning.
 - Split workflow guidance into application-demo, static-screen, concept-film and mixed-film route prompts. Mixed films apply the appropriate route to each section while preserving act boundaries, selected styles and required feature coverage; detailed timings are planned from the actual content and reference evidence.
@@ -50,7 +64,7 @@ These changes are on the development branch in [draft PR #4](https://github.com/
 
 - Merged [PR #3](https://github.com/delexw/kiteva/pull/3): **English / 中文 interface switching**, translated catalog and Governance views, clearer activity grouping, and improvements to project, retry and video workflows. Interface language remains separate from generated-video language.
 - Added local **OpenScreen recording with an optional desktop worker**, cursor and zoom presentation controls, and smoother recorded browser interactions. Local recording uses a dedicated visible browser window.
-- Updated the agent SDK dependencies and added tool-call execution checks that disallow Blender, guarded leaf-level brief corrections, **uniform random creative directions**, a one-hour render timeout and SQLite lock-contention handling. These follow-up changes are included in [draft PR #4](https://github.com/delexw/kiteva/pull/4) and await merge.
+- Updated the agent SDK dependencies and added tool-call execution checks that disallow Blender, guarded leaf-level brief corrections, **uniform random creative directions**, a one-hour render timeout and SQLite lock-contention handling. These follow-up changes merged in [PR #4](https://github.com/delexw/kiteva/pull/4) on October 20.
 
 </details>
 
@@ -180,8 +194,7 @@ More detail, including the workflow diagrams, is in [docs/architecture.md](docs/
 
 Native Windows 10/11 setup is experimental and has its own [installation and verification guide](docs/windows.md); WSL is not required.
 
-For the tested macOS setup, you need [Node.js](https://nodejs.org) 24+, [Chrome](https://www.google.com/chrome/) or
-[Chromium](https://www.chromium.org), and [FFmpeg](https://ffmpeg.org) with `ffprobe`. Then two kinds of access:
+On macOS, [install.sh](install.sh) installs missing system prerequisites, locked npm dependencies (with the Claude Agent SDK refreshed to `latest`), isolated Chrome for Testing, OpenScreen, Caveman, local speech providers and Audio Studio MCP with model weights, then builds the app. It uses Homebrew when system tools are missing and managed Python 3.11 for speech. Existing configuration and installed apps are preserved. The default setup includes large model downloads; see `./install.sh --help` for options. You still need two kinds of access:
 
 - **A model provider, by API key or by an existing signed-in subscription.** For Claude, set
   `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN`, or just be signed in to
@@ -189,23 +202,32 @@ For the tested macOS setup, you need [Node.js](https://nodejs.org) 24+, [Chrome]
   `OPENAI_API_KEY`, or be signed in to the [Codex CLI](https://developers.openai.com/codex) (`~/.codex/auth.json`).
   Subscriptions work, but I haven't tested how subscription usage or remaining percentage is reported.
 - **[JEV](https://docs.typesafe.ai/models), configured separately.** Put `TYPESAFE_API_KEY` in `.env.local`.
-  It's needed whenever Kiteva generates directions. Picking Motion Graphics yourself skips it.
+  It is used for generated style directions and visual/audio capability selection. Manually selecting Motion Graphics skips style ranking, while capability decisions remain separate.
 
 ```sh
 git clone https://github.com/delexw/kiteva.git
 cd kiteva
-npm ci
-cp .env.example .env.local      # add TYPESAFE_API_KEY (provider keys are optional if you're signed in)
-npm run build
+./install.sh
+# Edit the created .env.local: add TYPESAFE_API_KEY and provider keys if needed.
 npm start                       # open http://127.0.0.1:4317
 ```
 
-Optional: `npm run speech:setup` ([Kokoro](https://github.com/thewh1teagle/kokoro-onnx)) or `npm run speech:setup:pocket`
-([Pocket TTS](https://pypi.org/project/pocket-tts/)) for local narration; add `npm run speech:setup:pocket:zh` for [Mandarin Pocket TTS](https://huggingface.co/hustfyb/PocketTTS-ZH-6L). See [language controls](docs/video-languages.md). They need [Python](https://www.python.org) 3.10–3.13. For UI development, keep the backend running and use `npx vite` ([Vite](https://vite.dev), `http://127.0.0.1:4319`).
+For a smaller installation, use `./install.sh --minimal` to skip speech and Audio Studio, or
+`./install.sh --speech pocket` to install only Pocket TTS narration. `--audio-no-weights` defers Audio
+Studio model downloads until first generation. The default installs Kokoro, Pocket TTS and Mandarin
+Pocket TTS using the existing `speech:setup*` scripts. See [speech setup](docs/speech.md) and
+[language controls](docs/video-languages.md). Provider sign-in/API keys and macOS Screen Recording
+and Accessibility permissions require your action; the installer does not start the app or operate
+your browser. OpenScreen downloads come from its official GitHub releases and are SHA-256 checked;
+if `/Applications` is not writable, its user Applications path is added to `.env.local`.
+For UI development, keep the backend running and use `npx vite` ([Vite](https://vite.dev),
+`http://127.0.0.1:4319`).
 
 Anatomy installs or updates automatically on server launch. Connect to the internet for the first launch; skill installation uses direct HTTPS ZIP downloads and needs no Git or extra CLI; later launches can use the last verified installation offline. Upstream files stay in Git-ignored `skills/anatomy/`, while provider registration and Kiteva guidance remain in source.
 
 [React Bits](https://github.com/DavidHDev/react-bits) and [Animate UI](https://github.com/imskyleen/animate-ui) provide component discovery during planning and source installation during building. JEV selects suitable capabilities, bundled skills or local code for each job. See [integration and licensing](src/server/agents/capabilities/README.md).
+
+[Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) adds local music and sound-effect generation for both providers. A separate JEV Choice strategy selects Audio Studio or local code-based audio authoring when a full video has a Music prompt and no uploaded music. Uploaded audio retains its existing guidance; previews remain silent. For Multiplane, the agent is instructed to generate and verify a WAV first, then supply its path through `production.audioFile` for `--audio`. See [Audio Studio setup and integration](src/server/agents/capabilities/README.md#audio-studio-mcp) and the [JEV strategies](src/server/jev/README.md).
 
 The catalogs, reviewed artwork and 139 preview clips ship with the repo, so browsing costs nothing.
 Your projects, uploads, room layout, databases and credentials stay in Git-ignored folders on your machine.
@@ -224,7 +246,7 @@ Your projects, uploads, room layout, databases and credentials stay in Git-ignor
 | [Caveman](https://github.com/JuliusBrussee/caveman)                                                                                                                                                                                                                           | Local token-compression proxy for SDK calls                                                                                                          | npm dependency, on by default                                                                                           |
 | [GSAP](https://gsap.com), [Three.js](https://threejs.org), [PixiJS](https://pixijs.com), [Paper.js](http://paperjs.org), [Rough.js](https://roughjs.com), [Motion](https://motion.dev), [chroma.js](https://gka.github.io/chroma.js/), [Pica](https://github.com/nodeca/pica) | Drawing and motion libraries offered to generated films                                                                                              | npm dependencies                                                                                                        |
 | [React](https://react.dev), [Ant Design](https://ant.design) + [Ant Design X](https://x.ant.design), [Radix](https://radix-ui.com), [Tailwind CSS](https://tailwindcss.com), [Vite](https://vite.dev), [Fastify](https://fastify.dev), [Zod](https://zod.dev)                 | App UI, server and shared contracts                                                                                                                  | npm dependencies                                                                                                        |
-| [FFmpeg](https://ffmpeg.org), [Chrome](https://www.google.com/chrome/)/[Chromium](https://www.chromium.org), [Python](https://www.python.org), [Blender](https://www.blender.org) (optional)                                                                                  | External tools                                                                                                                                       | Not bundled. You install them                                                                                           |
+| [FFmpeg](https://ffmpeg.org), [Chrome](https://www.google.com/chrome/)/[Chromium](https://www.chromium.org), [Python](https://www.python.org), [Blender](https://www.blender.org) (optional)                                                                                  | External tools                                                                                                                                       | Not bundled. `install.sh` sets up the supported macOS tools; Blender remains optional and separate                      |
 
 Being in the 92-entry technology pool doesn't mean a library is installed. Twelve pool entries are
 recommendations only, and generation can't install packages or use the network. The full list with a
@@ -248,7 +270,7 @@ your plan's allowance. I haven't tested subscription usage or remaining-percenta
 ## Known limits
 
 - macOS is the tested platform. Native Windows 10/11 support is experimental; see [Windows setup and required checks](docs/windows.md). Single user, local only.
-- [Multiplane](https://github.com/LBEILC/Multiplane) is a trial: one sound file, no video clips inside scenes, and no automatic layout or contrast checks (frame consistency is still verified).
+- [Multiplane](https://github.com/LBEILC/Multiplane) is a trial: one sound file, recorded clips require prepared frames, and there are no automatic layout or contrast checks (frame consistency is still verified).
 - [Remotion](https://www.remotion.dev) is a fallback, not a setting, and its renders skip the HyperFrames layout/contrast checks too.
 - No generated singing, image generation or stock footage. Visuals are drawn in code, or come from your uploads and website captures.
 - The catalog is my personal collection. Some descriptions or technology suggestions may be off. Issues are welcome.

@@ -1,3 +1,4 @@
+import type { AudioAuthoringSelection } from "../agents/audio-authoring";
 import type { AuthoringResourceSelection } from "../agents/authoring-resources";
 import { CreativeApproachSchema } from "../creative-approach";
 import { MAX_VIDEO_STYLE_COUNT } from "../style-selection";
@@ -42,6 +43,7 @@ export interface JobState {
   startedAt?: string;
   finishedAt?: string;
   authoringResources?: AuthoringResourceSelection;
+  audioAuthoring?: AudioAuthoringSelection;
   generationMs?: number;
   renderMs?: number;
   error?: string;

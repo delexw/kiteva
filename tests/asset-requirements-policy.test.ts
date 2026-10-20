@@ -32,7 +32,7 @@ it("preserves precise questions and deduplicates needs across candidate directio
     assetRequirementsPolicy.collectNeeds([{ assetNeeds: [need] }, { assetNeeds: [need] }]),
   ).toEqual([need]);
 });
-it("adapts old cached missing-asset strings without blocking or losing the upload category", () => {
+it("pauses for verified legacy capability questions without turning missing uploads into questions", () => {
   const needs = assetRequirementsPolicy.collectNeeds([
     {
       missingAssets: [
@@ -46,6 +46,7 @@ it("adapts old cached missing-asset strings without blocking or losing the uploa
   ]);
   expect(needs.map((need) => need.kind)).toEqual(["soundtrack", "urls", "voice"]);
   expect(needs.every((need) => AssetNeedSchema.safeParse(need).success)).toBe(true);
+  expect(needs.every((need) => need.mode === "blocking")).toBe(true);
 });
 it("passes only answered decisions to the next build", () => {
   const need = {
@@ -89,7 +90,9 @@ it("asks only for recorded capability or URL access failures, never reference im
       reason: "The supplied website denies access through available tools.",
     },
   ];
-  expect(assetRequirementsPolicy.collectNeeds([{ assetNeeds: failures }])).toEqual(failures);
+  expect(assetRequirementsPolicy.collectNeeds([{ assetNeeds: failures }])).toEqual(
+    failures.map((need) => ({ ...need, mode: "blocking" })),
+  );
   expect(AssetNeedSchema.safeParse({ ...reference, cause: "missing-upload" }).success).toBe(false);
   expect(assetRequirementsPolicy.guidance).toContain("First consider all available tools");
 });
@@ -148,4 +151,22 @@ it("inherits decisions along the selected result lineage and isolates uploaded r
   expect(
     assetQuestionBuildScope({ id: "cycle", candidateId: "a", sourceJobId: "cycle" }, []),
   ).toEqual(["cycle"]);
+});
+
+it("never treats an optional model question as permission to use its fallback", () => {
+  const need = {
+    mode: "optional" as const,
+    kind: "urls" as const,
+    cause: "url-access" as const,
+    reason: "The supplied website cannot be accessed.",
+    question: "Use an alternative reference?",
+    fallback: "Use the supplied description.",
+  };
+  expect(assetRequirementsPolicy.collectNeeds([{ assetNeeds: [need] }])).toEqual([
+    { ...need, mode: "blocking" },
+  ]);
+  expect(need.mode).toBe("optional");
+  expect(assetRequirementsPolicy.guidance).toContain(
+    "never continue with a proposed fallback without explicit acceptance",
+  );
 });

@@ -48,9 +48,10 @@ export const multiplaneSettingCoverage: Array<{
   },
   {
     setting: "Video clips in scenes",
-    support: "unsupported",
-    detail: "Video clips can't play inside a scene yet.",
-    limit: "no video clips in scenes",
+    support: "partial",
+    detail:
+      "Recorded clips need prepared image frames with verified timing, rather than direct playback.",
+    limit: "recorded clips need frame preparation",
   },
   {
     setting: "Layout and contrast checks",

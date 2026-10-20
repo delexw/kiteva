@@ -74,7 +74,7 @@ export function RoomProject({
       .map((q) => (
         <Button key={q.id} className="room-question-badge" onClick={() => onQuestion(q.id)}>
           <span className="room-attention-dot" />
-          {q.mode === "blocking" ? translateUi("Decision needed") : translateUi("Your input")}
+          {translateUi("Decision needed")}
         </Button>
       ));
   return (

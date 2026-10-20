@@ -1,4 +1,4 @@
-vi.mock("../src/server/agents/authoring-resources", () => ({
+vi.mock("../src/server/jev/strategies/visual-authoring", () => ({
   selectAuthoringResources: async () => ({
     source: "jev",
     model: "jev-test",
@@ -20,12 +20,12 @@ vi.mock("../src/server/catalog/style-summaries", async (original) => ({
   ...(await original<typeof import("../src/server/catalog/style-summaries")>()),
   prepareStyleSummaries: vi.fn(),
 }));
-vi.mock("../src/server/catalog/ranking", () => ({ rankOptions: vi.fn() }));
-vi.mock("../src/server/agents/jev", () => ({ jevClient: vi.fn() }));
+vi.mock("../src/server/jev/strategies/style-combination", () => ({ rankOptions: vi.fn() }));
+vi.mock("../src/server/jev/client", () => ({ jevClient: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { prepareStyleSummaries } from "../src/server/catalog/style-summaries";
-import { rankOptions } from "../src/server/catalog/ranking";
+import { rankOptions } from "../src/server/jev/strategies/style-combination";
 import { Store } from "../src/server/jobs/store";
 import { Workflow } from "../src/server/jobs/workflow";
 

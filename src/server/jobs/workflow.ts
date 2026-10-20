@@ -1,13 +1,13 @@
-import { selectAuthoringResources } from "../agents/authoring-resources";
+import { selectAudioAuthoring } from "../jev/strategies/audio-authoring";
+import { selectAuthoringResources } from "../jev/strategies/visual-authoring";
 import { linkWorkspaceDirectory } from "../runtime/workspace-links";
 import { relevantPreferenceHistory } from "../catalog/preference-history";
 import { directionCandidateId, directionRoundSteps } from "../../shared/direction-rounds";
 import { scopedAssetQuestions } from "../../shared/asset-question-scopes";
 import { StyleSummarySchema } from "../../shared/agents/schemas/style-summary";
 import { randomDirections, RandomDirectionsSchema } from "./random-directions";
+import { directBuildContext } from "./direct-build-context";
 import { manualDirection } from "./manual-direction";
-import { BriefCorrectionSchema } from "../../shared/agents/schemas/brief-correction";
-import { reviseBriefWithRetry } from "./subworkflows/brief-correction";
 import { validateAssetLimits } from "../../shared/asset-limits";
 import { RequestSchema } from "../../shared/contracts";
 import { AssetQuestionAnswerSchema } from "../../shared/agents/schemas/asset-needs";
@@ -22,11 +22,6 @@ import { PageBriefSchema } from "../../shared/agents/schemas/page";
 import { BriefSchema } from "../../shared/agents/schemas/video";
 import { proposalSchemaForStyleRange } from "../../shared/agents/schemas/proposals";
 import { candidateCopyGuidance } from "../../shared/candidate-copy";
-import {
-  reviewBriefAssets,
-  briefAssetAlignmentPrinciple,
-  briefAssetRepairScopeRule,
-} from "./subworkflows/brief-asset-review";
 import { z } from "zod";
 import {
   combinationProposalPolicyRevision,
@@ -41,11 +36,7 @@ import {
 import { GeneratedLyricsSchema } from "../../shared/domains/video";
 import { CodedError, errorCode } from "../../shared/errors";
 import { prepareLyrics, resolvedLyricsRequest } from "../domains/video/prepare-lyrics";
-import {
-  MIN_AUTO_VIDEO_DURATION,
-  resolveVideoDuration,
-  videoStyleCountRange,
-} from "../../shared/domains/video";
+import { resolveVideoDuration, videoStyleCountRange } from "../../shared/domains/video";
 import { generateVideo } from "../domains/video/workflow";
 import { pageStyleContext } from "../domains/page/prompts";
 
@@ -68,18 +59,17 @@ import type { Catalog } from "../catalog/catalog.js";
 import { appRoot, dataRoot, models, safeMessage, agentMode } from "../runtime/config.js";
 import { agentTurn, type ProviderEvent } from "../agents/providers.js";
 import { combinationModels, textModels } from "../agents/models.js";
-import { preparationBriefSchemaFor } from "../../shared/agents/schemas/preparation-brief";
-import { assemblePreparationBrief, preparationBriefPrompt } from "./subworkflows/preparation-brief";
+import {
+  runTitleBriefWorkflow,
+  TitleBriefCheckpointSchema,
+} from "./subworkflows/title-brief/workflow";
+import { runFullBriefWorkflow } from "./subworkflows/full-brief/workflow";
 import { prepareStyleSummaries } from "../catalog/style-summaries";
-import { rankOptions } from "../catalog/ranking.js";
-import { jevClient } from "../agents/jev";
+import { rankOptions } from "../jev/strategies/style-combination.js";
+import { jevClient } from "../jev/client";
 import { readReferenceScreenshots, referenceManifest } from "../requests/reference-browser-tools";
 import { validateReferenceUrl } from "../requests/reference-url";
-import {
-  prepareBriefAttachments,
-  briefAttachmentKind,
-  briefAttachmentInstructions,
-} from "../requests/brief-attachments";
+import { prepareBriefAttachments, briefAttachmentKind } from "../requests/brief-attachments";
 import { prepareBriefImages } from "../requests/brief-images";
 import { describeAsset } from "../requests/inputs.js";
 import { WorkQueue } from "./queue.js";
@@ -131,6 +121,8 @@ export class Workflow {
       (question.jobId && run.jobs.find((job) => job.id === question.jobId)?.phase === "cancelled")
     )
       throw new CodedError("INVALID_REQUEST", "This work was cancelled", 409);
+    if (!body.answer && !body.assetIds.length)
+      throw new CodedError("INVALID_REQUEST", "Reply or explicitly choose the alternative", 400);
     const section = assetRequirementsPolicy.requirements[question.kind].section;
     for (const id of body.assetIds) {
       const asset = this.store.getAsset(id);
@@ -167,9 +159,7 @@ export class Workflow {
     }
     run.request = RequestSchema.parse(request);
     question.state = "answered";
-    question.answer =
-      body.answer ||
-      (body.assetIds.length ? "Use the newly supplied reference." : question.fallback);
+    question.answer = body.answer || "Use the newly supplied reference.";
     question.assetIds = added;
     this.update(run);
     this.resumeInputs(run);
@@ -300,7 +290,9 @@ export class Workflow {
         purpose: eventData?.videoLocalization
           ? "Video copy translation"
           : eventData?.videoBuildPlanning
-            ? "Preview video planning"
+            ? job?.kind === "full"
+              ? "Full video planning"
+              : "Preview video planning"
             : eventData?.resultReview
               ? "Result quality review"
               : eventData?.correctionFocus
@@ -406,8 +398,42 @@ export class Workflow {
           }
         },
       );
+      if (run.request.selectedStyleIds?.length) {
+        const title = await checkpoint("brief", TitleBriefCheckpointSchema, () =>
+          this.agents.run(() =>
+            runTitleBriefWorkflow({
+              request: preparedRequest,
+              workspace,
+              signal: controller.signal,
+              onEvent: this.providerEvent(run),
+            }),
+          ),
+        );
+        run.brief = directBuildContext(run.request, inputs.descriptions, title.value.subject);
+        const candidate = manualDirection(run.request, this.catalog.styles);
+        run.candidates = [candidate];
+        run.winnerId = candidate.id;
+        run.rankingModel = undefined;
+        const job = this.newJob(
+          run,
+          candidate,
+          "full",
+          run.request.outputType === "page"
+            ? 3
+            : resolveVideoDuration(
+                run.request.duration,
+                BriefSchema.parse(run.brief).suggestedDuration,
+              ),
+        );
+        run.jobs.push(job);
+        run.phase = "generating";
+        this.update(run);
+        await this.generate(run, job);
+        run.phase = job.phase;
+        this.update(run);
+        return;
+      }
       const briefSchema = run.request.outputType === "page" ? PageBriefSchema : BriefSchema;
-      const preparationBriefSchema = preparationBriefSchemaFor(preparedRequest);
       const brief = await checkpoint(
         "brief",
         z.object({
@@ -417,100 +443,16 @@ export class Workflow {
           screenshots: z.array(ReferenceScreenshotSchema),
         }),
         async () => {
-          await restoreReferences([]);
-          const imageNames = preparedRequest.assetIds.flatMap((id) => {
-            const asset = this.store.getAsset(id);
-            return asset && briefAttachmentKind(asset) === "image" ? [asset.name] : [];
-          });
-          const images = await prepareBriefImages(workspace, imageNames, controller.signal);
-          const attachments = preparedRequest.assetIds.map((id) => {
-            const asset = this.store.getAsset(id);
-            if (!asset) throw Error("Uploaded asset not found");
-            return asset;
-          });
-          await prepareBriefAttachments(workspace, attachments, images, controller.signal);
-          const interpretation = await this.agents.run(() =>
-            agentTurn({
-              provider: run.request.provider,
-              model: textModels[run.request.provider],
-              workspace,
-              signal: controller.signal,
-              readOnly: true,
-              referenceUrls: run.request.urls,
-              schema: preparationBriefSchema,
-              exploreBriefSections: true,
-              onEvent: this.providerEvent(run),
-              prompt: preparationBriefPrompt,
-            }),
-          );
-          let prepared = {
-            ...interpretation,
-            value: assemblePreparationBrief(
-              preparedRequest,
-              interpretation.value,
-              inputs.descriptions,
-              await readReferenceScreenshots(workspace),
-            ),
-          };
-          prepared = await reviewBriefAssets({
-            brief: prepared.value,
-            sessionId: prepared.sessionId,
+          return runFullBriefWorkflow({
             request: preparedRequest,
             workspace,
             signal: controller.signal,
+            sourceDescriptions: inputs.descriptions,
+            getAsset: (id) => this.store.getAsset(id),
+            restoreReferences,
             schedule: (task) => this.agents.run(task),
-            onEvent: this.providerEvent(run, undefined, "Brief asset self-review"),
-            revise: (draft, sessionId, feedback) =>
-              this.agents.run(() =>
-                reviseBriefWithRetry({
-                  draft,
-                  schema: briefSchema,
-                  signal: controller.signal,
-                  sessionId,
-                  revise: (repairSessionId, previousIssue) =>
-                    agentTurn({
-                      provider: run.request.provider,
-                      model: textModels[run.request.provider],
-                      workspace,
-                      signal: controller.signal,
-                      sessionId: repairSessionId,
-                      readOnly: true,
-                      referenceUrls: run.request.urls,
-                      schema: BriefCorrectionSchema,
-                      promptContext: {
-                        currentDraft: draft,
-                        focusedReview: JSON.parse(feedback),
-                        previousValidationIssue: previousIssue,
-                      },
-                      onEvent: this.providerEvent(run, undefined, "Brief asset alignment repair"),
-                      prompt: `${briefAttachmentInstructions}\n${briefAssetAlignmentPrinciple}\n${briefAssetRepairScopeRule} Repair only the single assigned asset alignment issue in this brief. Continue the original preparation session. Inspect affected sources; use reference_browser tools to recapture the correct existing view when required. Preserve the core idea, exact copy and requested settings. Apply only this issue's expected fix and acceptance criterion. Keep every unaffected field, scene, asset, exact copy, requirement and setting unchanged; no unrelated cleanup, rewriting or extra fixes. Change only the targeted source extraction or scene usage and any strictly necessary references, and record any genuine remaining inspection limitation rather than inventing evidence. Update currentDraft.assetPlan for source exclusions and scene links; the available-source inventory is application-owned and must remain unchanged. Return only an edits array conforming to the correction schema, never the full brief or an entire array/object. Use JSON Pointer paths into currentDraft. For replace/remove, copy the exact current leaf value into expected; replace value is the complete corrected leaf, not an excerpt. Add/remove only individual text-array entries; paths and indexes refer to the draft after preceding edits. Keep source identity fields unchanged. The application applies the edits atomically and validates the resulting full brief before a separate review rechecks it. If previousValidationIssue is present, correct that exact rejected-edit error against the unchanged currentDraft; locate scenes/assets by stable ID before choosing their array indexes.\nRead currentDraft and focusedReview from the required input JSON. The review contains exactly one issue, its expected fix and acceptance criteria.`,
-                    }),
-                }),
-              ),
+            onEvent: (purpose) => this.providerEvent(run, undefined, purpose),
           });
-          run.referenceScreenshots = await readReferenceScreenshots(workspace);
-          run.brief = prepared.value;
-          if (run.request.outputType !== "page") {
-            const videoBrief = BriefSchema.parse(run.brief);
-            const duration = resolveVideoDuration(
-              run.request.duration,
-              videoBrief.suggestedDuration,
-            );
-            run.brief = {
-              ...videoBrief,
-              suggestedDuration: duration,
-              durationReason:
-                run.request.duration === "auto" && videoBrief.suggestedDuration < duration
-                  ? `${videoBrief.durationReason} Auto duration has a ${MIN_AUTO_VIDEO_DURATION}-second minimum for a complete story.`
-                  : videoBrief.durationReason,
-            };
-          }
-          return {
-            assetReviewRevision: 2 as const,
-            value: run.brief!,
-            sessionId: prepared.sessionId,
-            screenshots: run.referenceScreenshots || [],
-          };
         },
         async (output) => validateReferences(output.screenshots),
       );
@@ -539,30 +481,6 @@ export class Workflow {
           run.brief.exactCopy.push(run.generatedLyrics.text);
         this.update(run);
         this.emit(run, "lyrics", "Lyrics ready");
-      }
-      if (run.request.selectedStyleIds?.length) {
-        const candidate = manualDirection(run.request, this.catalog.styles);
-        run.candidates = [candidate];
-        run.winnerId = candidate.id;
-        run.rankingModel = undefined;
-        const job = this.newJob(
-          run,
-          candidate,
-          "full",
-          run.request.outputType === "page"
-            ? 3
-            : resolveVideoDuration(
-                run.request.duration,
-                BriefSchema.parse(run.brief).suggestedDuration,
-              ),
-        );
-        run.jobs.push(job);
-        run.phase = "generating";
-        this.update(run);
-        await this.generate(run, job);
-        run.phase = job.phase;
-        this.update(run);
-        return;
       }
       run.phase = "ranking";
       this.update(run);
@@ -646,12 +564,14 @@ export class Workflow {
                 referenceUrls: run.request.urls,
                 schema: proposalSchema,
                 promptContext: {
+                  originalIdea: run.request.instructions,
+                  sectionInstructions: run.request.requirements,
                   brief: run.brief,
                   previousDirections: run.candidates,
                   regenerationRound: run.directionRound || 0,
                 },
                 onEvent: this.providerEvent(run, undefined, "Motion Graphic combination proposals"),
-                prompt: `${assetRequirementsPolicy.guidance}\nOutput type: ${run.request.outputType || "video"}. For pages, evaluate responsive layout and working user interactions rather than video timing. Read all ${summaries.length} cached Motion Graphic summaries in style-summaries.json before proposing directions. There is no individual Motion Graphic shortlist: consider every Motion Graphic both as a primary identity and as a useful supporting contribution. Propose ${Math.max(12, run.request.candidateCount * 4)} distinct candidate options for the brief in the required input JSON. These are proposals for JEV to evaluate, not the final selected directions. Offer meaningfully different visual approaches, not cosmetic variations of one idea. Each direction must contain ${styleRange.min}–${styleRange.max} total distinct Motion Graphics, counting the primary plus supporting Motion Graphics. ${run.request.outputType === "page" ? "" : "This range comes from the full video duration, not the 3-second preview. Motion Graphic count is separate from the requested number of preview directions."} Include single Motion Graphics when permitted and compatible combinations with specific scene roles and honest asset feasibility. Read style-combinations.json for the full recommendations and their roles, rationale, consistency rules and pitfalls; compressed summaries are not the complete suggestion list. ${suggestedCombinationGuidance} ${candidateCopyGuidance} Keep one primary identity and add supporting Motion Graphics within the permitted count only when they contribute meaningfully. Do not force the maximum; vary combination sizes where appropriate. Preserve the primary palette and visual identity, assign subordinate roles, and explain shared typography and motion rhythm. IDs must come from style-summaries.json. A primary Motion Graphic may appear in multiple genuinely distinct combinations. ${run.request.pinnedStyleId ? `Every primary Motion Graphic must be ${run.request.pinnedStyleId}.` : ""} Only when the model and available tools cannot fulfil a requested requirement, including inaccessible supplied URLs, return a focused assetNeeds question with its capability or access cause. Missing uploads alone do not warrant questions. Propose an honest adapted direction using available material; do not invent references. Use supplied images where appropriate and available code-generated visuals where none are supplied. Do not list multiple copies of the same combination, including reordered supporting Motion Graphics.`,
+                prompt: `${assetRequirementsPolicy.guidance}\nOutput type: ${run.request.outputType || "video"}. For pages, evaluate responsive layout and working user interactions rather than video timing. Read all ${summaries.length} cached Motion Graphic summaries in style-summaries.json before proposing directions. There is no individual Motion Graphic shortlist: consider every Motion Graphic both as a primary identity and as a useful supporting contribution. Propose ${Math.max(12, run.request.candidateCount * 4)} distinct candidate options for the brief in the required input JSON. These are proposals for JEV to evaluate, not the final selected directions. Offer meaningfully different visual approaches, not cosmetic variations of one idea. Each direction must contain ${styleRange.min}–${styleRange.max} total distinct Motion Graphics, counting the primary plus supporting Motion Graphics. ${run.request.outputType === "page" ? "" : "This range comes from the full video duration, not the 3-second preview. Motion Graphic count is separate from the requested number of preview directions."} Include single Motion Graphics when permitted and compatible combinations with specific scene roles and honest asset feasibility. The unchanged originalIdea and sectionInstructions are authoritative; the brief is supporting context and cannot remove explicit requirements. In each rationale write a concise, self-contained comparison in complete sentences with these labels: Creative result; Contributions; Advantages; Disadvantages; Compatibility and adaptation. Explain the primary identity, what every support adds, why the whole combination suits this request, what it sacrifices compared with alternatives, conflicts in palette/material/typography/motion and how those conflicts would be reconciled without overriding visual restrictions. Explain when using the primary alone is better. Do not describe an option only by IDs, praise or a technology list; acknowledge unknowns rather than inventing evidence. Read style-combinations.json for the full recommendations and their roles, rationale, consistency rules and pitfalls; compressed summaries are not the complete suggestion list. ${suggestedCombinationGuidance} ${candidateCopyGuidance} Keep one primary identity and add supporting Motion Graphics within the permitted count only when they contribute meaningfully. Do not force the maximum; vary combination sizes where appropriate. Preserve the primary palette and visual identity, assign subordinate roles, and explain shared typography and motion rhythm. IDs must come from style-summaries.json. A primary Motion Graphic may appear in multiple genuinely distinct combinations. ${run.request.pinnedStyleId ? `Every primary Motion Graphic must be ${run.request.pinnedStyleId}.` : ""} Only when the model and available tools cannot fulfil a requested requirement, including inaccessible supplied URLs, return a focused assetNeeds question with its capability or access cause. Missing uploads alone do not warrant questions. Propose an honest adapted direction using available material; do not invent references. Use supplied images where appropriate and available code-generated visuals where none are supplied. Do not list multiple copies of the same combination, including reordered supporting Motion Graphics.`,
               }),
             );
             run.referenceScreenshots = await readReferenceScreenshots(workspace);
@@ -692,7 +612,11 @@ export class Workflow {
         });
         const ranked = await checkpoint(
           "selection",
-          z.object({ model: z.string(), candidates: z.array(candidateSchema).min(1) }),
+          z.object({
+            policyRevision: z.literal(combinationProposalPolicyRevision),
+            model: z.string(),
+            candidates: z.array(candidateSchema).min(1),
+          }),
           async () => {
             const selected = await rankOptions(
               run.brief!,
@@ -712,7 +636,7 @@ export class Workflow {
               throw Error(
                 "No feasible Motion Graphic option passed the brief constraints. Supply the missing assets or clarify the request.",
               );
-            return selected;
+            return { ...selected, policyRevision: combinationProposalPolicyRevision };
           },
         );
         run.rankingModel = ranked.model;
@@ -781,7 +705,7 @@ export class Workflow {
       workspace: path.join(dataRoot, "runs", run.id, id),
     };
   }
-  private async setup(run: Run, job: GenerationJob) {
+  private async setup(run: Run, job: GenerationJob, signal = new AbortController().signal) {
     await mkdir(path.join(job.workspace, "assets"), { recursive: true });
     await mkdir(path.join(job.workspace, "vendor"), { recursive: true });
     await linkWorkspaceDirectory(
@@ -796,6 +720,15 @@ export class Workflow {
     for (const id of scopedAssetIds) {
       const a = this.store.getAsset(id)!;
       await copyFile(a.path, path.join(job.workspace, "assets", a.name));
+    }
+    if (run.request.selectedStyleIds?.length) {
+      const assets = scopedAssetIds.map((id) => this.store.getAsset(id)!);
+      const images = await prepareBriefImages(
+        job.workspace,
+        assets.filter((asset) => briefAttachmentKind(asset) === "image").map((asset) => asset.name),
+        signal,
+      );
+      await prepareBriefAttachments(job.workspace, assets, images, signal);
     }
     for (const screenshot of run.referenceScreenshots || []) {
       await copyFile(
@@ -855,8 +788,10 @@ export class Workflow {
       path.join(job.workspace, "style-context.json"),
       JSON.stringify(
         {
+          request: run.request,
           brief: run.brief,
           authoringResources: job.authoringResources,
+          audioAuthoring: job.audioAuthoring,
           assetInputs: scopedAssetIds.map((id) => {
             const asset = this.store.getAsset(id)!;
             return {
@@ -929,7 +864,17 @@ export class Workflow {
           });
           this.update(run);
         }
-        await this.setup(run, job);
+        if (run.request.outputType !== "page" && !job.audioAuthoring) {
+          job.audioAuthoring = await selectAudioAuthoring({
+            request: run.request,
+            workspace: job.workspace,
+            preview: job.kind === "preview",
+            signal: controller.signal,
+            onEvent: this.providerEvent(run, job, "Audio authoring selection"),
+          });
+          this.update(run);
+        }
+        await this.setup(run, job, controller.signal);
         controller.signal.throwIfAborted();
         if (job.outputType === "page") {
           if (run.request.outputType !== "page") throw Error("Page job requires a page request");

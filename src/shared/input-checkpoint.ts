@@ -13,9 +13,6 @@ export interface InputWait {
 }
 export function blockingQuestions(run: Run, job?: Pick<GenerationJob, "id">) {
   return scopedAssetQuestions(run).filter(
-    (question) =>
-      question.state === "open" &&
-      question.mode === "blocking" &&
-      (!question.jobId || question.jobId === job?.id),
+    (question) => question.state === "open" && (!question.jobId || question.jobId === job?.id),
   );
 }

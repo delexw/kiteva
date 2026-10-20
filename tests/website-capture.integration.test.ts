@@ -1,8 +1,6 @@
-import sharp from "sharp";
-import { command } from "../src/server/runtime/process";
 import { setTimeout as delay } from "node:timers/promises";
 import { createServer } from "node:http";
-import { mkdtemp, rm, readFile, mkdir, copyFile } from "node:fs/promises";
+import { mkdtemp, rm, readFile, mkdir, copyFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -22,7 +20,7 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1" || !browserExecutable
     const web = createServer((_request, response) => {
       response.setHeader("content-type", "text/html");
       response.end(
-        `<h1>Example creator</h1><label>Video title<input></label><label>Password<input type="password"></label><button onclick="document.querySelector('h1').textContent='Preview ready'">Build demo</button><div style="height:1800px;background:linear-gradient(#567,#abc)">Demo content</div>`,
+        `<h1>Example creator</h1><output id="window-mode" style="display:block"></output><script>document.querySelector("#window-mode").textContent="Window mode: "+(matchMedia("(display-mode: standalone)").matches?"standalone":"browser");</script><label>Video title<input></label><label>Password<input type="password"></label><button onclick="document.querySelector('h1').textContent='Preview ready'">Build demo</button><div style="height:1800px;background:linear-gradient(#567,#abc)">Demo content</div>`,
       );
     });
     await new Promise<void>((resolve) => web.listen(0, "127.0.0.1", resolve));
@@ -49,17 +47,18 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1" || !browserExecutable
       expect((await client.listTools()).tools.map((tool) => tool.name)).toContain("capture_video");
       const inspection = await call("inspect_page", { url });
       if (inspection.kind !== "inspection") throw Error(JSON.stringify(inspection));
+      expect(inspection.page.text).toContain("Window mode: standalone");
       const start = await call("capture_video", {
         action: "start",
         presentation: {
+          cursorTheme: "studio-ink",
           cursorSize: 2.4,
-          cursorClickBounce: 2.5,
+          cursorClickBounce: 2,
           framing: { padding: 20, borderRadius: 16, shadowIntensity: 0.4, aspectRatio: "native" },
-          zoomRegions: [{ startSeconds: 2, endSeconds: 6, depth: 3 }],
         },
       });
       if (start.kind !== "recording_started") throw Error(JSON.stringify(start));
-      await delay(2200); // Simulate model/tool-call latency: it must not survive in the exported demo.
+      await delay(2200); // Preserve this pause until an explicit native edit is requested.
       const control = (name: string) =>
         inspection.page.controls.find((item) => item.name === name)!.id;
       expect(
@@ -72,9 +71,44 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1" || !browserExecutable
         kind: "inspection",
         page: { text: expect.stringContaining("Preview ready") },
       });
-      await call("wait_for_view", { milliseconds: 1200 });
-      const stopped = await call("capture_video", {
+      await call("wait_for_view", { milliseconds: 3000 });
+      const take = await call("capture_video", {
         action: "stop",
+        recordingId: start.recordingId,
+      });
+      if (take.kind !== "editable_capture") throw Error(JSON.stringify(take));
+      await expect(readFile(path.join(workspace, "reference-videos.json"))).rejects.toThrow();
+      expect(take.tools.map((tool) => tool.name)).toEqual(
+        expect.arrayContaining([
+          "getCurrentDocument",
+          "getFrames",
+          "addTrims",
+          "addSpeed",
+          "addAutoZooms",
+        ]),
+      );
+      const edit = (operation: string, args: Record<string, unknown> = {}) =>
+        call("capture_video", {
+          action: "edit",
+          recordingId: start.recordingId,
+          native: { operation, arguments: args },
+        });
+      const document = await edit("getCurrentDocument");
+      expect(document).toMatchObject({ kind: "native_capture", isError: false });
+      const review = await edit("getFrames", { count: 3 });
+      if (review.kind !== "native_capture") throw Error(JSON.stringify(review));
+      expect(review.isError).toBe(false);
+      expect(review.content.filter((item) => item.type === "image")).toHaveLength(3);
+      const trimmed = await edit("addTrims", {
+        ranges: [{ startSec: 0.2, endSec: 0.8, reason: "Remove an observed opening pause" }],
+      });
+      expect(trimmed).toMatchObject({
+        kind: "native_capture",
+        isError: false,
+        data: { appliedCount: 1, refusedCount: 0 },
+      });
+      const stopped = await call("capture_video", {
+        action: "export",
         recordingId: start.recordingId,
       });
       if (stopped.kind !== "video") throw Error(JSON.stringify(stopped));
@@ -86,7 +120,7 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1" || !browserExecutable
       });
       expect(
         stopped.recording.presentation!.sourceDuration - stopped.recording.duration,
-      ).toBeGreaterThan(1);
+      ).toBeCloseTo(0.6, 0);
       const video = path.join(workspace, stopped.recording.assetPath);
       const probe = await probeVideo(video, controller.signal);
       expect(Number(probe.format.duration)).toBeGreaterThan(0);
@@ -115,49 +149,47 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1" || !browserExecutable
         cursorRendered: true,
         idleGapsTrimmed: true,
         settings: {
-          cursorTheme: "prism-glow",
+          cursorTheme: "studio-ink",
+          cursorModel3d: false,
           cursorSize: 2.4,
-          cursorClickBounce: 2.5,
-          zoomRegions: [{ focusMode: "auto", focusX: 0.5, focusY: 0.5 }],
+          cursorClickBounce: 2,
+          zoomRegions: [],
         },
       });
-      async function whiteHeaderBottom(time: number) {
-        const image = path.join(workspace, `frame-${time}.png`);
-        await command(
-          "ffmpeg",
-          ["-v", "error", "-y", "-ss", String(time), "-i", video, "-frames:v", "1", image],
-          workspace,
-          controller.signal,
-        );
-        const { data, info } = await sharp(image)
-          .resize({ width: 320 })
-          .removeAlpha()
-          .raw()
-          .toBuffer({ resolveWithObject: true });
-        let bottom = 0;
-        for (let y = 0; y < info.height; y++) {
-          let white = 0;
-          for (let x = 5; x < info.width - 5; x++) {
-            const offset = (y * info.width + x) * info.channels;
-            if (data[offset] > 230 && data[offset + 1] > 230 && data[offset + 2] > 230) white++;
-          }
-          if (white / (info.width - 10) > 0.8) bottom = y;
-        }
-        return bottom;
-      }
-      // Check actual rendered pixels: the header grows during native zoom and returns wide at the end.
-      expect(await whiteHeaderBottom(0.9)).toBeGreaterThan(
-        (await whiteHeaderBottom(stopped.recording.duration - 0.1)) * 1.1,
+      const finalReview = await edit("getFrames", { count: 3 });
+      if (finalReview.kind !== "native_capture") throw Error(JSON.stringify(finalReview));
+      expect(finalReview.isError).toBe(false);
+      expect(finalReview.content.filter((item) => item.type === "image")).toHaveLength(3);
+      const inventory = JSON.parse(
+        await readFile(path.join(workspace, "reference-videos.json"), "utf8"),
       );
-      const wideHeader = await whiteHeaderBottom(stopped.recording.duration - 0.1);
-      for (const click of cursor.events.filter(
-        (event: { kind: string }) => event.kind === "click",
-      )) {
-        expect(await whiteHeaderBottom(click.time - 0.1)).toBeGreaterThan(wideHeader * 1.1);
-      }
+      expect(inventory).toEqual([stopped.recording]);
+      expect(cursor.nativeTrimRegions).toEqual([
+        expect.objectContaining({ startMs: 200, endMs: 800 }),
+      ]);
       if (process.env.KITEVA_CAPTURE_VERIFY_DIR) {
         await mkdir(process.env.KITEVA_CAPTURE_VERIFY_DIR, { recursive: true });
         await copyFile(video, path.join(process.env.KITEVA_CAPTURE_VERIFY_DIR, "capture.webm"));
+        let frame = 0;
+        for (const part of finalReview.content)
+          if (part.type === "image") {
+            await writeFile(
+              path.join(process.env.KITEVA_CAPTURE_VERIFY_DIR!, `review-${frame++}.png`),
+              Buffer.from(part.data, "base64"),
+            );
+          }
+        await writeFile(
+          path.join(process.env.KITEVA_CAPTURE_VERIFY_DIR, "flow.json"),
+          JSON.stringify(
+            {
+              take: { kind: take.kind, duration: take.duration },
+              trim: trimmed,
+              recording: stopped.recording,
+            },
+            null,
+            2,
+          ),
+        );
         await copyFile(
           path.join(workspace, stopped.recording.cursorPath),
           path.join(process.env.KITEVA_CAPTURE_VERIFY_DIR, "cursor.json"),

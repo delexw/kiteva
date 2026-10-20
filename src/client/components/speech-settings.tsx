@@ -37,11 +37,13 @@ export function SpeechSettings({
   onChange,
   audioAssets,
   videoLanguage,
+  sharedScript = false,
 }: {
   value?: Settings;
   onChange: (settings: Settings) => void;
   audioAssets: Array<{ id: string; name: string }>;
   videoLanguage?: VideoLanguage;
+  sharedScript?: boolean;
 }) {
   useUiLanguage();
   const [status, setStatus] = useState<SpeechReadiness>();
@@ -322,41 +324,51 @@ export function SpeechSettings({
               onChange={(speed) => onChange({ ...value, speed })}
             />
           </div>
-          <Typography.Text className="speech-script-label">{translateUi("Script")}</Typography.Text>
-          <Select
-            aria-label={translateUi("Narration script source")}
-            style={{ width: "100%" }}
-            value={value.source}
-            options={[
-              { value: "lyrics", label: translateUi("Speak the displayed lyrics") },
-              { value: "write", label: translateUi("Write a separate narration script") },
-              { value: "provided", label: translateUi("Use my narration script") },
-            ]}
-            onChange={(source) => onChange({ ...value, source })}
-          />
-          {value.source === "provided" && (
-            <Input.TextArea
-              aria-label={translateUi("Narration script")}
-              autoSize={{ minRows: 3, maxRows: 8 }}
-              maxLength={8000}
-              value={value.text}
-              placeholder={translateUi("Write the words to speak…")}
-              onChange={(event) => onChange({ ...value, text: event.target.value })}
-            />
+          {!sharedScript && (
+            <>
+              <Typography.Text className="speech-script-label">
+                {translateUi("Script")}
+              </Typography.Text>
+              <Select
+                aria-label={translateUi("Narration script source")}
+                style={{ width: "100%" }}
+                value={value.source}
+                options={[
+                  { value: "lyrics", label: translateUi("Speak the displayed lyrics") },
+                  { value: "write", label: translateUi("Write a separate narration script") },
+                  { value: "provided", label: translateUi("Use my narration script") },
+                ]}
+                onChange={(source) => onChange({ ...value, source })}
+              />
+              {value.source === "provided" && (
+                <Input.TextArea
+                  aria-label={translateUi("Narration script")}
+                  autoSize={{ minRows: 3, maxRows: 8 }}
+                  maxLength={8000}
+                  value={value.text}
+                  placeholder={translateUi("Write the words to speak…")}
+                  onChange={(event) => onChange({ ...value, text: event.target.value })}
+                />
+              )}
+              {value.source === "write" && (
+                <Input.TextArea
+                  aria-label={translateUi("Narration writing direction")}
+                  autoSize={{ minRows: 2, maxRows: 4 }}
+                  maxLength={2000}
+                  value={value.instructions}
+                  placeholder={translateUi("Language, tone and script direction…")}
+                  onChange={(event) => onChange({ ...value, instructions: event.target.value })}
+                />
+              )}
+            </>
           )}
-          {value.source === "write" && (
-            <Input.TextArea
-              aria-label={translateUi("Narration writing direction")}
-              autoSize={{ minRows: 2, maxRows: 4 }}
-              maxLength={2000}
-              value={value.instructions}
-              placeholder={translateUi("Language, tone and script direction…")}
-              onChange={(event) => onChange({ ...value, instructions: event.target.value })}
-            />
+          {!sharedScript && (
+            <Typography.Text type="secondary" className="speech-footnote">
+              {translateUi(
+                "Writing instructions guide the script. Direction previews stay silent.",
+              )}
+            </Typography.Text>
           )}
-          <Typography.Text type="secondary" className="speech-footnote">
-            {translateUi("Writing instructions guide the script. Direction previews stay silent.")}
-          </Typography.Text>
         </>
       )}
       {error && <Alert type="error" showIcon title={error} />}

@@ -2,7 +2,7 @@ import type { PreferenceHistoryRecord } from "../src/server/catalog/preference-h
 import { type Brief } from "../src/shared/agents/schemas/video";
 import { type Proposal } from "../src/shared/agents/schemas/proposals";
 import { it, expect, vi, afterEach } from "vitest";
-import { rankOptions, weightedScore } from "../src/server/catalog/ranking";
+import { rankOptions, weightedScore } from "../src/server/jev/strategies/style-combination";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { RequestSchema } from "../src/shared/contracts";
 const brief: Brief = {
@@ -31,6 +31,34 @@ const summaries = (styles: { id: string; name_en: string }[]) =>
     combinations: "Optional",
     productionApproach: "Style-led rendering",
   }));
+function choiceResponse(
+  body: {
+    questions: Record<string, { type: string; criteria: Record<string, string> }>;
+    state: { preliminaryEvaluations: { id: string; score: number }[] };
+  },
+  preferred?: string,
+) {
+  const criteria = body.questions.direction.criteria;
+  const winner =
+    preferred || [...body.state.preliminaryEvaluations].sort((a, b) => b.score - a.score)[0].id;
+  return new Response(
+    JSON.stringify({
+      model: "jev-test-version",
+      answers: {
+        direction: {
+          type: "choice",
+          choice: winner,
+          confidence: 0.9,
+          probabilities: Object.fromEntries(
+            Object.keys(criteria).map((id) => [id, id === winner ? 1 : 0]),
+          ),
+        },
+      },
+      usage: { input_tokens: 10, output_tokens: 5 },
+    }),
+    { headers: { "content-type": "application/json" } },
+  );
+}
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
@@ -40,9 +68,12 @@ it("uses the official SDK wire format and excludes conflicting candidates", asyn
   let observed = false;
   vi.stubGlobal("fetch", async (_url: string, options: RequestInit) => {
     const body = JSON.parse(String(options.body));
+    if (body.questions.direction?.type === "choice") return choiceResponse(body);
     observed = true;
     expect(body.model).toBe("jev-1.14.0");
     expect(body.state.brief.subject).toBe("Generic system");
+    expect(body.state.renderer.id).toBe("hyperframes");
+    expect(body.state.renderer.audio.generatesMusic).toBe(false);
     expect(body.state.assetPolicy).toContain("Video previews are silent");
     expect(body.state.combinationGuidance).toContain("not an allowlist");
     expect(body.state.combinationGuidance).toContain("not fixed scoring weights");
@@ -166,6 +197,7 @@ it.each([undefined, "style-046"])(
     vi.stubEnv("TYPESAFE_API_KEY", "test-only-placeholder");
     vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
       const body = JSON.parse(String(init.body));
+      if (body.questions.direction?.type === "choice") return choiceResponse(body);
       const answers = Object.fromEntries(
         Object.entries(body.questions).map(([id, value]) => {
           const query = value as { type: string; criteria: string[] };
@@ -260,6 +292,7 @@ it("adds contextual preference fit within the existing JEV request without overr
   vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
     calls++;
     const body = JSON.parse(String(init.body));
+    if (body.questions.direction?.type === "choice") return choiceResponse(body);
     expect(body.state.preferenceHistory).toEqual(history);
     expect(body.state.preferenceHistoryGuidance).toContain(
       "Unchosen previews and regeneration are not negative feedback",
@@ -317,7 +350,7 @@ it("adds contextual preference fit within the existing JEV request without overr
     onEvent,
     history,
   );
-  expect(calls).toBe(1);
+  expect(calls).toBe(3);
   expect(result.candidates.map((candidate) => candidate.primaryStyleId)).toEqual([
     "style-107",
     "style-108",
@@ -343,3 +376,249 @@ it("caps preference influence, discounts sparse history, and preserves scores wi
   const { preferenceFit: _unused, ...withoutHistory } = dimensions;
   expect(weightedScore(withoutHistory, "context", 3)).toBe(50);
 });
+
+it("preserves original instructions and evaluates readable combination tradeoffs without production inventories or a proposal veto", async () => {
+  vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+  const catalog = await loadCatalog();
+  const extracted = summaries(catalog.styles).map((summary) => ({
+    ...summary,
+    decisionGuidance:
+      "Identity: marker diagrams. Advantages: causal clarity. Disadvantages: limited material depth. Combination fit: preserve line weight and reading pauses. Visual constraints: no invented hand.",
+    palette: "CONTRAST_INVENTORY",
+    audio: "AUDIO_DISCLAIMER",
+    productionApproach: "WRONG_RENDERER_DEFAULT",
+  }));
+  const originalIdea =
+    "Keep this exact request: " + "A visual explanation. ".repeat(100) + "END_OF_ORIGINAL";
+  const request = RequestSchema.parse({
+    instructions: originalIdea,
+    candidateCount: 2,
+    requirements: {
+      main: { instructions: "Preserve all main requirements" },
+      images: { instructions: "No presenter figures" },
+      music: { instructions: "Quiet instrumental" },
+      urls: { instructions: "Use the live site" },
+    },
+  });
+  const requestBefore = structuredClone(request);
+  const options: Proposal[] = [
+    {
+      primaryStyleId: "style-026",
+      supportingStyleIds: ["style-097"],
+      sceneRoles: ["Explain causality", "Show real quantities"],
+      rationale:
+        "Creative result: clear explanation. Contributions: charts quantify the line story. Advantages: causal clarity. Disadvantages: less spectacle. Compatibility and adaptation: matching strokes and reading holds.",
+      feasible: false,
+      missingAssets: ["No uploaded chart"],
+    },
+    {
+      primaryStyleId: "style-032",
+      supportingStyleIds: [],
+      sceneRoles: ["Illustrate"],
+      rationale: "Conflicting alternative",
+      feasible: true,
+      missingAssets: [],
+    },
+  ];
+  let calls = 0;
+  vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
+    calls++;
+    const payload = JSON.parse(String(init.body));
+    if (payload.questions.direction?.type === "choice") return choiceResponse(payload);
+    expect(payload.state.originalIdea).toBe(originalIdea);
+    expect(payload.state.sectionInstructions).toEqual({
+      main: "Preserve all main requirements",
+      images: "No presenter figures",
+      music: "Quiet instrumental",
+      urls: "Use the live site",
+    });
+    expect(payload.state.options[0].rationale).toBe(options[0].rationale);
+    expect(payload.state.options[0].styles[0]).toContain(
+      extracted.find((s) => s.styleId === "style-026")!.decisionGuidance,
+    );
+    expect(payload.state.options[0].compatibility).toContain(
+      "Chart strokes match the whiteboard marker weight",
+    );
+    expect(payload.state.options[0].compatibility).toContain("Invented values");
+    expect(payload.state.options[0]).not.toHaveProperty("feasible");
+    expect(payload.state.options[0]).not.toHaveProperty("displayTitle");
+    expect(JSON.stringify(payload.state)).not.toMatch(
+      /CONTRAST_INVENTORY|AUDIO_DISCLAIMER|WRONG_RENDERER_DEFAULT/,
+    );
+    expect(payload.questions.option0_constraints.instructions).toContain("originalIdea");
+    const answers = Object.fromEntries(
+      Object.entries(payload.questions).map(([key, q]) => {
+        const question = q as { type: string; criteria: string[] };
+        return [
+          key,
+          question.type === "noul"
+            ? { type: "noul", noul: key.startsWith("option1") ? 1 : 0 }
+            : {
+                type: "score",
+                score: 3,
+                confidence: 0.9,
+                legend: Object.fromEntries(question.criteria.map((text, index) => [index, text])),
+                probabilities: { 0: 0, 1: 0, 2: 0, 3: 1 },
+              },
+        ];
+      }),
+    );
+    return new Response(JSON.stringify({ model: "jev-test", answers, usage: {} }), {
+      headers: { "content-type": "application/json" },
+    });
+  });
+  const result = await rankOptions(
+    brief,
+    options,
+    catalog.styles,
+    request,
+    new AbortController().signal,
+    extracted,
+  );
+  expect(result.candidates).toHaveLength(1);
+  expect(result.candidates[0]).toMatchObject({
+    primaryStyleId: "style-026",
+    feasible: true,
+    score: 100,
+  });
+  expect(request).toEqual(requestBefore);
+  expect(options[0].feasible).toBe(false);
+  expect(calls).toBe(2);
+});
+
+it("compares survivors across all batches repeatedly and obeys JEV choice order over batch scores", async () => {
+  vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+  const catalog = await loadCatalog();
+  const options: Proposal[] = catalog.styles.slice(0, 6).map((style) => ({
+    primaryStyleId: style.id,
+    supportingStyleIds: [],
+    sceneRoles: ["Explain"],
+    rationale: "A distinct option",
+    feasible: true,
+    missingAssets: [],
+  }));
+  let calls = 0;
+  const request = RequestSchema.parse({ instructions: "A generic explanation", candidateCount: 2 });
+  vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
+    calls++;
+    const payload = JSON.parse(String(init.body));
+    if (payload.questions.direction?.type === "choice") {
+      const round = payload.state.selectionRound;
+      expect(Object.keys(payload.questions.direction.criteria)).toHaveLength(round === 1 ? 6 : 5);
+      expect(payload.state.selectedDirections).toHaveLength(round - 1);
+      expect(payload.questions.direction.instructions).toContain("ALL evaluation batches");
+      if (round === 2) {
+        expect(payload.state.selectedDirections[0].id).toBe("candidate-6");
+        expect(payload.questions.direction.criteria).not.toHaveProperty("candidate-6");
+      }
+      return choiceResponse(payload, round === 1 ? "candidate-6" : "candidate-2");
+    }
+    expect(payload.state.originalIdea).toBe(request.instructions);
+    expect(payload.state.evaluationGuidance).toContain(
+      "same absolute scoring standards across batches",
+    );
+    const answers = Object.fromEntries(
+      Object.entries(payload.questions).map(([key, value]) => {
+        const question = value as { type: string; criteria: string[] };
+        const index = Number(key.match(/^option(\d+)_/)![1]);
+        const rating =
+          payload.state.options[index].primaryStyleId === options[0].primaryStyleId ? 3 : 2;
+        return [
+          key,
+          question.type === "noul"
+            ? { type: "noul", noul: 0 }
+            : {
+                type: "score",
+                score: rating,
+                confidence: 0.9,
+                legend: Object.fromEntries(question.criteria.map((text, index) => [index, text])),
+                probabilities: { 0: 0, 1: 0, 2: rating === 2 ? 1 : 0, 3: rating === 3 ? 1 : 0 },
+              },
+        ];
+      }),
+    );
+    return new Response(JSON.stringify({ model: "jev-test", answers, usage: {} }), {
+      headers: { "content-type": "application/json" },
+    });
+  });
+  const result = await rankOptions(
+    brief,
+    options,
+    catalog.styles,
+    request,
+    new AbortController().signal,
+    summaries(catalog.styles),
+  );
+  expect(calls).toBe(4);
+  expect(result.candidates).toHaveLength(2);
+  expect(result.candidates[0]).toMatchObject({
+    primaryStyleId: options[5].primaryStyleId,
+    score: 66.7,
+  });
+  expect(result.candidates[1].primaryStyleId).toBe(options[1].primaryStyleId);
+});
+
+it.each(["all-conflict", "invalid-choice", "cancel"] as const)(
+  "does not invent or fall back to a score winner when cross-batch selection is %s",
+  async (scenario) => {
+    vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+    const catalog = await loadCatalog();
+    const controller = new AbortController();
+    let calls = 0;
+    vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
+      calls++;
+      const payload = JSON.parse(String(init.body));
+      if (payload.questions.direction?.type === "choice") {
+        if (scenario === "cancel") {
+          controller.abort(Error("Cancelled selection"));
+          throw controller.signal.reason;
+        }
+        return choiceResponse(payload, "not-a-remaining-direction");
+      }
+      const answers = Object.fromEntries(
+        Object.entries(payload.questions).map(([key, value]) => {
+          const question = value as { type: string; criteria: string[] };
+          return [
+            key,
+            question.type === "noul"
+              ? { type: "noul", noul: scenario === "all-conflict" ? 1 : 0 }
+              : {
+                  type: "score",
+                  score: 3,
+                  confidence: 0.9,
+                  legend: Object.fromEntries(question.criteria.map((text, index) => [index, text])),
+                  probabilities: { 0: 0, 1: 0, 2: 0, 3: 1 },
+                },
+          ];
+        }),
+      );
+      return new Response(JSON.stringify({ model: "jev-test", answers, usage: {} }), {
+        headers: { "content-type": "application/json" },
+      });
+    });
+    const task = rankOptions(
+      brief,
+      [
+        {
+          primaryStyleId: catalog.styles[0].id,
+          supportingStyleIds: [],
+          sceneRoles: ["Explain"],
+          rationale: "An option",
+          feasible: true,
+          missingAssets: [],
+        },
+      ],
+      catalog.styles,
+      RequestSchema.parse({ instructions: "A generic explanation", candidateCount: 2 }),
+      controller.signal,
+      summaries(catalog.styles),
+    );
+    if (scenario === "all-conflict") {
+      expect((await task).candidates).toEqual([]);
+      expect(calls).toBe(1);
+    } else {
+      await expect(task).rejects.toThrow();
+      expect(calls).toBe(2);
+    }
+  },
+);

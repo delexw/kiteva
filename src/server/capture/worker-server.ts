@@ -87,7 +87,7 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
     const action = CaptureActionSchema.parse(request.body);
     session.timer.refresh();
     return session.queue.run(async () => {
-      if (++session.calls > 80 && action.action !== "stop")
+      if (++session.calls > 80 && !["prepare", "edit", "export"].includes(action.action))
         throw Error("Capture session call limit reached");
       const browser = session.browser;
       switch (action.action) {
@@ -104,8 +104,12 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
           return { milliseconds: action.milliseconds };
         case "start":
           return { id: await browser.startRecording(session.workspace, action.presentation) };
-        case "stop":
-          return browser.stopRecording(action.recordingId);
+        case "prepare":
+          return browser.prepareRecording(action.recordingId);
+        case "edit":
+          return browser.editRecording(action.recordingId, action.request);
+        case "export":
+          return browser.exportRecording(action.recordingId);
         case "capture": {
           const name = `website-reference-${randomUUID()}.png`;
           return {

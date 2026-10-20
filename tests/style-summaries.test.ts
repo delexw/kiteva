@@ -29,6 +29,8 @@ const summary = {
   styleId: "style-001",
   name: "Example",
   visualIdentity: "Grid",
+  decisionGuidance:
+    "Identity: Structured grid. Advantages: clear comparisons. Disadvantages: restrained expression. Combination fit: ordered layouts. Visual constraints: preserve hierarchy.",
   suitableUses: "Clarity",
   limitations: "Restrained",
   palette: "Original",
@@ -54,6 +56,11 @@ it("sends all original metadata and referenced motion information, without trunc
       prompt: expect.stringContaining("Read the complete originalSource"),
     }),
   );
+  const options = vi.mocked(generate).mock.calls[0][0];
+  expect(options.prompt).toContain("Advantages; Disadvantages; Combination fit");
+  expect(options.prompt).toContain("Exclude library inventories");
+  const { decisionGuidance: _omitted, ...incomplete } = summary;
+  expect(options.schema.safeParse(incomplete).success).toBe(false);
 });
 
 it.each(["claude", "codex"] as const)(
@@ -181,4 +188,23 @@ it("does not cache failures or accept summaries for another style", async () => 
   await expect(
     summarizeStyle(source, "claude", controller.signal, folder, generate),
   ).rejects.toThrow();
+});
+
+it("reuses source-matched legacy summaries without forcing a catalog-wide regeneration", async () => {
+  const source = styleSummarySource(await loadCatalog(), "style-001");
+  const folder = await cache();
+  const hash = createHash("sha256")
+    .update(JSON.stringify({ revision: 3, source }))
+    .digest("hex");
+  await mkdir(path.join(folder, "shared"), { recursive: true });
+  const { decisionGuidance: _old, ...oldSummary } = summary;
+  await writeFile(
+    path.join(folder, "shared", `style-001-${hash}.json`),
+    JSON.stringify({ summary: oldSummary, model: summaryModels.claude, provider: "claude" }),
+  );
+  const generate = vi.fn(async () => ({ value: summary })) as unknown as typeof agentTurn;
+  expect(
+    await summarizeStyle(source, "claude", new AbortController().signal, folder, generate),
+  ).toEqual(oldSummary);
+  expect(generate).not.toHaveBeenCalled();
 });

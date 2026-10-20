@@ -469,3 +469,27 @@ it("keeps the cumulative baseline through capacity failures without inventing th
     outputTokens: 15,
   });
 });
+
+it("shows the idea heading for existing direct-build placeholders", () => {
+  const selectedRun: Run = {
+    ...run,
+    request: RequestSchema.parse({
+      instructions: "MY PRODUCT — IDEAS IN MOTION\n\nShow the main workflow.",
+      selectedStyleIds: ["style-018"],
+      candidateCount: 0,
+    }),
+    brief: {
+      subject: "Your selection",
+      audience: "",
+      objective: "Show the workflow",
+      facts: [],
+      exactCopy: [],
+      previewBeat: "",
+      assetDescriptions: [],
+      constraints: [],
+      suggestedDuration: 30,
+      durationReason: "User duration",
+    },
+  };
+  expect(projectGovernance(selectedRun, [], Date.now()).name).toBe("MY PRODUCT — IDEAS IN MOTION");
+});

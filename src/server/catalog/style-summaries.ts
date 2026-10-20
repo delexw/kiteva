@@ -17,6 +17,7 @@ export { StyleSummarySchema, type StyleSummary } from "../../shared/agents/schem
 import { StyleSummarySchema, type StyleSummary } from "../../shared/agents/schemas/style-summary";
 const inFlight = new WeakMap<AbortSignal, Map<string, Promise<StyleSummary>>>();
 const queue = new WorkQueue(2);
+const ExtractionSummarySchema = StyleSummarySchema.extend({ decisionGuidance: z.string().min(1) });
 const CachedSummarySchema = z.object({
   summary: StyleSummarySchema,
   model: z.string(),
@@ -120,11 +121,13 @@ export async function summarizeStyle(
       readOnly: true,
       workspace: path.join(dataRoot, "style-summary-workspaces"),
       signal: AbortSignal.any([signal, AbortSignal.timeout(180000)]),
-      schema: StyleSummarySchema,
+      schema: ExtractionSummarySchema,
       onEvent,
-      prompt: `Read ALL supplied original metadata without skipping fields. Write concise COMPLETE sentences, about 200 characters per field where practical; never cut off a sentence to fit a limit. Target about 1800 characters across the full summary by compressing phrasing, not omitting decision constraints. Extract decision-useful information for Jev to choose Motion Graphics for either videos or interactive HTML. Cover identity, use cases, limitations, palette roles/constraints (distinguish scene-dependent background suggestions from approved exact colors), motion and interactions, audio, assets, compatible combinations and production responsibilities. Distinguish explicit facts from inferred suitability. Do not invent missing information; say unspecified. Resolve prompt placeholders conceptually rather than copying executable prompts. Names of libraries are useful only with their visual or interaction capability. Preserve exceptions and constraints. Return styleId ${styleId}. Read the complete originalSource in the required input JSON. Do not write code, browse, modify files or inspect unrelated sources.`,
+      prompt: `Read ALL supplied original metadata without skipping fields. Write concise COMPLETE sentences, about 200 characters per field where practical; never cut off a sentence to fit a limit. Target about 2600 characters across the full summary by compressing phrasing, not omitting decision constraints. Extract decision-useful information for Jev to choose Motion Graphics for either videos or interactive HTML. Cover identity, use cases, limitations, palette roles/constraints (distinguish scene-dependent background suggestions from approved exact colors), motion and interactions, audio, assets, compatible combinations and production responsibilities. Distinguish explicit facts from inferred suitability. Do not invent missing information; say unspecified. Resolve prompt placeholders conceptually rather than copying executable prompts. Names of libraries are useful only with their visual or interaction capability. Preserve exceptions and constraints. In decisionGuidance write standalone comparison prose under these labels: Identity; Advantages; Disadvantages; Combination fit; Visual constraints. Explain the distinctive result, message/audience fit, limitations, meaningful supporting roles, palette/material/motion compatibility and when this style should stand alone. Preserve genuinely required visual restrictions and distinguish facts from inference. Exclude library inventories, implementation commands, renderer defaults/fallbacks, exact contrast statistics, optional motion IDs and generic audio disclaimers from decisionGuidance. Do not invent constraints. Keep decisionGuidance about 800 characters where practical without cutting sentences. Return styleId ${styleId}. Read the complete originalSource in the required input JSON. Do not write code, browse, modify files or inspect unrelated sources.`,
     });
-    const summary = StyleSummarySchema.parse(result.value);
+    const summary = StyleSummarySchema.extend({ decisionGuidance: z.string().min(1) }).parse(
+      result.value,
+    );
     if (summary.styleId !== styleId)
       throw Error("Model returned a different Motion Graphic summary");
     await saveSummaryCache(file, { summary, model, provider }, signal);

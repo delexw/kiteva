@@ -5,6 +5,12 @@ Renderer in its video settings. That choice is saved with the project request, s
 direction previews, regenerated previews and the full film all use Multiplane. Every other
 project keeps HyperFrames.
 
+## Recorded application demos
+
+Route A records real application usage with OpenScreen for either renderer. The saved renderer setting selects exactly one integration prompt in code; the model is not asked to choose between renderer paths. HyperFrames integrates the exported video with deterministic seeking. Multiplane uses its [documented frame-sequence approach](https://github.com/LBEILC/Multiplane/blob/main/skills/multiplane/SKILL.md#determinism-constraints-most-important): extract the recording into chronological frames, load the required images in `setup()` / `ready`, then select and draw the matching frame synchronously in `render(t)`.
+
+This preserves the pointer, clicks, scrolling and zooms already rendered by OpenScreen. It is recorded footage, not Route B's static screenshot presentation. Plan source-time mapping, quality and decoded-frame memory before implementation; a long high-resolution clip may need bounded segments. Kiteva provides this authoring guidance, not an automatic frame-conversion service. A verified capture or integration failure must pause for a user decision rather than silently substitute stills or change renderer.
+
 ## Source and install
 
 - Package: [`multiplane@0.3.10`](https://www.npmjs.com/package/multiplane) on the npm registry.

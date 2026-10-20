@@ -3,9 +3,9 @@ import { assetNeedCauses, assetRequirementKinds } from "../../asset-requirements
 export const AssetNeedSchema = z.object({
   mode: z
     .enum(["optional", "blocking"])
-    .optional()
+    .default("blocking")
     .describe(
-      "Default optional. Blocking only for a verified capability/access failure whose alternative would violate an explicit user constraint; never for missing optional uploads.",
+      "Use blocking for every question: wait for an explicit answer before continuing. Legacy optional values are accepted for compatibility but also pause work. Missing optional uploads never justify asking.",
     ),
   kind: z.enum(assetRequirementKinds),
   cause: z

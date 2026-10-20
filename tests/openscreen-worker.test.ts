@@ -36,7 +36,7 @@ function fixtureBrowser() {
       workspace = destination;
       return recordingId;
     }),
-    stopRecording: vi.fn(async () => {
+    exportRecording: vi.fn(async () => {
       await writeFile(path.join(workspace, "assets", `${name}.webm`), "OpenScreen fixture footage");
       await writeFile(path.join(workspace, "assets", `${name}.cursor.json`), "{}");
       return {
@@ -50,6 +50,13 @@ function fixtureBrowser() {
         silent: true as const,
       };
     }),
+    prepareRecording: vi.fn(async () => ({
+      kind: "editable_capture" as const,
+      recordingId,
+      duration: 2,
+      tools: [],
+    })),
+    editRecording: vi.fn(async () => ({ kind: "native_capture" as const, content: [], data: {} })),
     close: vi.fn(async () => {}),
   };
   return browser;
@@ -133,26 +140,35 @@ it("transfers worker artifacts over HTTP and keeps interaction and recording in 
   try {
     expect((await client.inspect("https://example.com")).title).toBe("Example");
     const id = await client.startRecording(workspace, {
+      cursorTheme: "glass-lens",
       cursorSize: 1.8,
       framing: { padding: 30, aspectRatio: "16:9" },
     });
     expect(browser.startRecording).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
+        cursorTheme: "glass-lens",
         cursorSize: 1.8,
         framing: { padding: 30, aspectRatio: "16:9" },
       }),
     );
     await client.fill("1", "sample");
     await client.click("2");
-    const recording = await client.stopRecording(id);
+    const take = await client.prepareRecording(id);
+    expect(take).toMatchObject({ kind: "editable_capture", recordingId: id });
+    expect(browser.exportRecording).not.toHaveBeenCalled();
+    const nativeRequest = { operation: "getFrames" as const, arguments: { count: 2 } };
+    expect(await client.editRecording(id, nativeRequest)).toMatchObject({ kind: "native_capture" });
+    expect(browser.editRecording).toHaveBeenCalledWith(id, nativeRequest);
+    const recording = await client.exportRecording(id);
     expect(await readFile(path.join(workspace, recording.assetPath), "utf8")).toBe(
       "OpenScreen fixture footage",
     );
     const screenshot = path.join(workspace, "screen.png");
     await client.capture(screenshot);
     expect(await readFile(screenshot, "utf8")).toBe("PNG fixture");
-    expect(browser.stopRecording).toHaveBeenCalledWith(id);
+    expect(browser.prepareRecording).toHaveBeenCalledWith(id);
+    expect(browser.exportRecording).toHaveBeenCalledWith(id);
     controller.abort();
     await vi.waitFor(() => expect(browser.close).toHaveBeenCalledOnce());
   } finally {

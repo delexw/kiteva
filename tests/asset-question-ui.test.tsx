@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { RequestSchema, type Run } from "../src/shared/contracts";
 import { expect, it } from "vitest";
 import { AssetQuestionCard, AssetQuestions } from "../src/client/components/asset-questions";
-it("offers an upload, a reply and a nonblocking alternative using AI Elements", () => {
+it("offers an upload, a reply and an explicit alternative while work is paused", () => {
   const html = renderToStaticMarkup(
     <AssetQuestionCard
       question={{
@@ -17,7 +17,8 @@ it("offers an upload, a reply and a nonblocking alternative using AI Elements", 
     />,
   );
   expect(html).toContain("Provide a voice recording");
-  expect(html).toContain("Work continues while you decide");
+  expect(html).toContain("This part is paused until you answer");
+  expect(html).not.toContain("next build");
   expect(html).toContain("Attach reference");
   expect(html).toContain("Continue with alternative");
   expect(html).toContain('accept=".wav,.mp3,.m4a"');

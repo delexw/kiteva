@@ -1,4 +1,4 @@
-vi.mock("../src/server/agents/authoring-resources", () => ({
+vi.mock("../src/server/jev/strategies/visual-authoring", () => ({
   selectAuthoringResources: async () => ({
     source: "jev",
     model: "jev-test",
@@ -11,16 +11,16 @@ import { rm } from "node:fs/promises";
 import path from "node:path";
 import { expect, it, vi, afterEach } from "vitest";
 vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
-vi.mock("../src/server/jobs/subworkflows/brief-asset-review", async (original) => ({
-  ...(await original<typeof import("../src/server/jobs/subworkflows/brief-asset-review")>()),
+vi.mock("../src/server/jobs/subworkflows/full-brief/asset-review", async (original) => ({
+  ...(await original<typeof import("../src/server/jobs/subworkflows/full-brief/asset-review")>()),
   reviewBriefAssets: vi.fn(async (input) => ({ value: input.brief, sessionId: input.sessionId })),
 }));
-vi.mock("../src/server/catalog/ranking", () => ({ rankOptions: vi.fn() }));
-vi.mock("../src/server/agents/jev", () => ({ jevClient: vi.fn() }));
+vi.mock("../src/server/jev/strategies/style-combination", () => ({ rankOptions: vi.fn() }));
+vi.mock("../src/server/jev/client", () => ({ jevClient: vi.fn() }));
 vi.mock("../src/server/catalog/style-summaries", () => ({ prepareStyleSummaries: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
-import { rankOptions } from "../src/server/catalog/ranking";
-import { jevClient } from "../src/server/agents/jev";
+import { rankOptions } from "../src/server/jev/strategies/style-combination";
+import { jevClient } from "../src/server/jev/client";
 import { prepareStyleSummaries } from "../src/server/catalog/style-summaries";
 import { Workflow } from "../src/server/jobs/workflow";
 import { Store } from "../src/server/jobs/store";

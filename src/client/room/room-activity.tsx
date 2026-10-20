@@ -1,6 +1,7 @@
 import { translateUi, useUiLanguage } from "../i18n";
 import { Bubble, ThoughtChain, type ThoughtChainItemType } from "@ant-design/x";
-import { useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, type ReactNode } from "react";
+import { useStickToBottom } from "use-stick-to-bottom";
 import { Button, Collapse } from "antd";
 import {
   CircleAlert,
@@ -41,7 +42,9 @@ export function roomActivityStep(item: DisplayActivityItem): ThoughtChainItemTyp
         items={item.children.map(roomActivityStep)}
       />
     ) : undefined,
-    description: <time dateTime={item.time}>{clock(item.time)}</time>,
+    description: item.children?.length ? undefined : (
+      <time dateTime={item.time}>{clock(item.time)}</time>
+    ),
     status: item.status ? stepStatus[item.status] : undefined,
     icon: item.status ? undefined : (
       <span
@@ -195,12 +198,24 @@ export function RoomActivityNow({
 export function RoomActivity({ run, events }: { run: Run; events: AgentProgressEvent[] }) {
   const { language } = useUiLanguage();
   const contexts = useMemo(() => roomActivityContexts(run, events), [run, events, language]);
+  const { scrollRef, contentRef } = useStickToBottom({ initial: "smooth", resize: "smooth" });
+  const activityRef = useCallback(
+    (element: HTMLElement | null) => {
+      scrollRef(element?.closest<HTMLElement>(".room-project-scroll") ?? null);
+      contentRef(element);
+    },
+    [scrollRef, contentRef],
+  );
   if (!contexts.length)
     return (
       <p className="room-hint">{translateUi("Activity appears here as soon as work starts.")}</p>
     );
   return (
-    <section className="room-activity" aria-label={translateUi("Project activity")}>
+    <section
+      ref={activityRef}
+      className="room-activity"
+      aria-label={translateUi("Project activity")}
+    >
       <Collapse
         size="small"
         ghost

@@ -133,8 +133,12 @@ it("preserves script and voice through edit, submit and settings restoration", (
   });
   const restored = roomSubmission(roomDraftRequest(roomDraftFromProject(request, [])));
   expect(projectSettingsDraft(restored).speech).toEqual(
-    request.outputType === "video" && request.speech,
+    request.outputType === "video" && { ...request.speech, source: "lyrics" },
   );
+  expect(restored.outputType === "video" && restored.lyrics).toEqual({
+    mode: "provided",
+    text: "A spoken idea",
+  });
   expect(switchRoomOutputType(restored, "page")).not.toHaveProperty("speech");
 });
 it("rejects unsupported singing, invalid voice/speed, empty scripts and unattached vocal files", () => {

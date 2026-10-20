@@ -1,8 +1,10 @@
+import { websiteCaptureInstructions } from "../src/server/requests/reference-browser-instructions";
 vi.mock("../src/server/agents/bundled-skills", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../src/server/agents/bundled-skills")>()),
   prepareBundledSkills: vi.fn(),
 }));
-import { expect, it, vi } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
+afterEach(() => vi.unstubAllEnvs());
 vi.mock("../src/server/agents/caveman", () => ({
   cavemanSettings: () => ({ enabled: false }),
   cavemanRuntime: async () => undefined,
@@ -94,11 +96,17 @@ it.each(["claude", "codex"] as const)(
       expect.arrayContaining([expect.stringContaining("reference-browser-server.ts")]),
     );
     if (provider === "codex") {
-      expect(server.enabled_tools).toEqual(["inspect_page", "click_control", "capture_screenshot"]);
+      expect(server.enabled_tools).toEqual([
+        "inspect_page",
+        "click_control",
+        "capture_screenshot",
+        "scroll_page",
+      ]);
       expect(server.tools).toEqual({
         inspect_page: { approval_mode: "approve" },
         click_control: { approval_mode: "approve" },
         capture_screenshot: { approval_mode: "approve" },
+        scroll_page: { approval_mode: "approve" },
       });
     }
     if (provider === "claude") {
@@ -283,11 +291,7 @@ it.each(["claude", "codex"] as const)(
         : calls.codex.mock.calls[0][0].config;
     const prompt =
       provider === "claude" ? options.systemPrompt : calls.streamedPrompt.mock.calls.at(-1)?.[0];
-    expect(prompt).toContain("you MUST use capture_video");
-    expect(prompt).toContain("Treat brief.assetPlan as an advisory evidence map");
-    expect(prompt).toContain("for still-only scenes capture the required views");
-    expect(prompt).toContain("Review actual footage/stills");
-    expect(prompt).toContain("independent of Motion Graphics");
+    expect(prompt).toContain(websiteCaptureInstructions);
     const server =
       provider === "claude"
         ? options.mcpServers.reference_browser
@@ -375,8 +379,9 @@ it.each(["claude", "codex"] as const)(
 );
 
 it.each(["claude", "codex"] as const)(
-  "keeps %s music composition in the main invocation without an instrument MCP server",
+  "keeps %s music composition in the main invocation when optional Audio Studio is unavailable",
   async (provider) => {
+    vi.stubEnv("AUDIO_STUDIO_MCP_COMMAND", "/unavailable/audio-studio-mcp");
     calls.query.mockClear();
     calls.codex.mockClear();
     const onEvent = vi.fn();
@@ -397,7 +402,7 @@ it.each(["claude", "codex"] as const)(
     const pool = servers.creative_pool;
     expect(provider === "claude" ? pool.args : pool.enabled_tools).toEqual(
       provider === "claude"
-        ? expect.arrayContaining([expect.stringContaining("creative-pool-server.ts")])
+        ? expect.arrayContaining([expect.stringMatching(/creative-pool[/\\]server\.ts$/)])
         : ["search_pool", "read_pool_entry"],
     );
     expect(JSON.stringify(options)).not.toContain("FluidSynth");

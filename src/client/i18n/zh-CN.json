@@ -1,4 +1,7 @@
 {
+  "Full video planning": "完整视频规划",
+  "Planning your full video…": "正在规划完整视频…",
+  "Saving the full video plan…": "正在保存完整视频计划…",
   " · added": " · 已添加",
   " · elapsed": " · 已用时",
   " · incomplete timing": " · 时间信息不完整",
@@ -683,6 +686,7 @@
   "Your reply": "你的回复",
   "Your reply and references apply to the project.": "回复与参考素材将应用于此项目。",
   "Your reply and references apply to this result’s next build.": "回复与参考素材将用于此结果的下一次构建。",
+  "Your reply and references apply before this result continues.": "此结果会先应用你的回答和参考资料，再继续构建。",
   "Your reply ·": "你的回复 ·",
   "Your room changes aren’t saved yet.": "房间更改尚未保存。",
   "Your room.": "你的创作室。",
@@ -1039,5 +1043,11 @@
   "Creating your video…": "正在创作你的视频…",
   "Random selection": "随机选择",
   "Draw Motion Graphics uniformly from the full pool. No scores, weights or preference history. Build around your brief and the random draw.": "从完整动态图形库中等概率随机抽取，不使用评分、权重或偏好历史。围绕你的简报和抽取结果创作。",
-  "Drawing random Motion Graphics from the full pool…": "正在从完整库中随机抽取动态图形…"
+  "Drawing random Motion Graphics from the full pool…": "正在从完整库中随机抽取动态图形…",
+  "Shared script": "共用脚本",
+  "Use one script for narration and on-screen text.": "旁白和屏幕文字使用同一份脚本。",
+  "Add URL": "添加网址",
+  "Remove URL {{value0}}": "移除网址 {{value0}}",
+  "Website URL {{value0}}": "网站网址 {{value0}}",
+  "Add up to five website links.": "最多添加五个网站链接。"
 }

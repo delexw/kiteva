@@ -2,7 +2,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import {
   selectAuthoringResources,
   authoringResources,
-} from "../src/server/agents/authoring-resources";
+} from "../src/server/jev/strategies/visual-authoring";
 import { RequestSchema } from "../src/shared/contracts";
 import { loadCatalog } from "../src/server/catalog/catalog";
 afterEach(() => {
@@ -15,6 +15,12 @@ async function input() {
     request: RequestSchema.parse({
       instructions: "Explain a concept without people",
       selectedStyleIds: ["style-026"],
+      requirements: {
+        main: {},
+        music: {},
+        urls: {},
+        images: { instructions: "Keep the exact visual direction." },
+      },
       candidateCount: 0,
     }),
     brief: {
@@ -54,6 +60,23 @@ it.each(["animate_ui", "react_bits", "anatomy", "local_code"])(
         const body = JSON.parse(String(options.body));
         expect(body.model).toBe("jev-1.14.0");
         expect(body.state.selected.primary).toBe("style-026");
+        expect(body.state).not.toHaveProperty("evidence");
+        expect(body.state.visualInstructions).toBe("Keep the exact visual direction.");
+        expect(body.state.instructions).toBe("Explain a concept without people");
+        for (const resource of authoringResources) {
+          const description = body.questions.resource.criteria[resource.id];
+          expect(description).toBe(resource.guidance);
+          expect(description).toContain("Advantages / best fit:");
+          expect(description).toContain("Disadvantages / poor fit:");
+          expect(description).toContain("Video adaptation:");
+        }
+        expect(body.questions.resource.criteria.anatomy).toContain("SVG/HTML");
+        expect(body.questions.resource.criteria.local_code).toContain(
+          "Pre-authored component effects",
+        );
+        expect(body.state.renderer.id).toBe("hyperframes");
+        expect(body.state.renderer.visuals.frameContract).toContain("GSAP");
+        expect(body.state.renderer.audio.generatesMusic).toBe(false);
         expect(body.state.policy).toContain("Do not change selected styles");
         expect(body.state.resources.map((r: { id: string }) => r.id)).toEqual(
           authoringResources.map((r) => r.id),
@@ -85,6 +108,7 @@ it.each(["animate_ui", "react_bits", "anatomy", "local_code"])(
     const options = await input();
     const before = structuredClone(options.request);
     const result = await selectAuthoringResources(options);
+    expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1);
     expect(result).toMatchObject({ source: "jev", selectedIds: [winner] });
     expect(
       result.decisions.filter((decision) => decision.use).map((decision) => decision.id),

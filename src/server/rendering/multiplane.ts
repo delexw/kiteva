@@ -1,3 +1,4 @@
+import { multiplaneMetadata } from "./multiplane/metadata";
 import { videoRenderTimeoutMs } from "./timeouts";
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -132,7 +133,7 @@ export function multiplaneRenderArgs(input: {
     preview ? "fast" : "standard",
     "--out",
     input.output,
-    ...(!preview && input.audioFile ? ["--audio", input.audioFile] : []),
+    ...(!preview && input.audioFile ? [multiplaneMetadata.audio.cliArgument, input.audioFile] : []),
   ];
 }
 export function multiplaneResult(stdout: string): MultiplaneResult | undefined {

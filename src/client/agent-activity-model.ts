@@ -100,7 +100,9 @@ export function customerToolActivity(name: string, type: string, purpose?: strin
   if (name.includes("capture_screenshot")) return "Capturing your website reference…";
   if (name.includes("capture_video")) return "Recording your website reference…";
   if (name.includes("wait_for_view")) return "Waiting for the website view…";
-  if (/inspect_page|click_control|fill_control|scroll_page/.test(name))
+  if (
+    /inspect_page|click_control|fill_control|upload_files|scroll_page|(?:^|__)browser_/.test(name)
+  )
     return "Exploring your website reference…";
   const task = purpose ? taskActivityLabels[purpose] : undefined;
   if (task) return /structuredoutput/i.test(name) ? task.saving : task.working;

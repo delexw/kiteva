@@ -25,10 +25,10 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 
 ## Recent updates
 
-Dates below use New Zealand time. Merged updates are available on `main`; work awaiting merge is labelled.
+Dates below use New Zealand time.
 
 <details open>
-<summary>2026-10-22 · in progress</summary>
+<summary>2026-10-22</summary>
 
 - **MIT license:** switched to standard MIT, removed the top license reminder and simplified the license section.
 
@@ -47,7 +47,7 @@ Dates below use New Zealand time. Merged updates are available on `main`; work a
 </details>
 
 <details open>
-<summary>2026-10-21 · in progress</summary>
+<summary>2026-10-21</summary>
 
 - **Plan validation recovery:** rejected video plans retain their response and SDK session so the same main model can correct exact layer-reference and timing errors before building (up to three total plan attempts). Cancellation and unrelated provider failures do not trigger correction. Activity distinguishes receiving a plan from validation and successful saving.
 
@@ -75,8 +75,6 @@ Dates below use New Zealand time. Merged updates are available on `main`; work a
 
 - **Explicit-style previews:** styles selected in Settings can produce the requested preview directions without JEV style-combination proposals or ranking. Preview count is independent of style selection; zero directions keeps direct build. Saved settings, regeneration and act/scene style assignments are preserved. The original act/scene style rule is shared by preview and full-build prompts. Removed prompt-name matching: only Settings selections enter routing and count limits; the original idea goes unchanged to the model.
 
-These codebase changes are on the development branch and have not been merged.
-
 - **Vintage Rubber Hose Animation:** a new Motion Graphic for early hand-inked cartoon drawing: strong irregular ink silhouettes, painterly shadow masses, expressive warped scenery and elastic, stepped acting at 12 drawings a second, adapted to the project's output settings. Any original subject works, with or without characters; the project's colours, story, renderer and audio settings stay in charge. Its only optional effects are film wear and a precise vintage film-leader countdown. The rendered preview is a Claude-authored sample, a crooked house at night followed by a 3-2-1 leader. The collection now has **140 Motion Graphics**.
 - **Capture lifecycle:** remove local and remote browser-call, native-edit, screenshot, take-count, recording-duration and output-size budgets. Recordings stop explicitly or on cancellation.
 - **Camera planning:** the main model explores the live application before choosing component focus, zoom amount and timing. Automatic zoom generation stays disabled, cursor smoothing is 0.15, and exports preserve reviewed zooms and wide intervals.
@@ -85,12 +83,7 @@ These codebase changes are on the development branch and have not been merged.
 - **Activity display:** consolidate recovered tool retries, order updates chronologically, preserve spacing without timestamps and follow appended activity.
 - **Editable project downloads:** expose available sources and media even from failed builds, with an OTIO timeline, SRT lyrics, audio files and streaming ZIP delivery. See the [export guide](docs/editable-projects.md).
 
-</details>
-
-<details>
-<summary>2026-10-21 · merged — PR #5</summary>
-
-Merged [PR #5](https://github.com/delexw/kiteva/pull/5): video planning, native capture and JEV selection.
+video planning, native capture and JEV selection.
 
 - **JEV selection:** retain the original idea and section instructions; compare visual authoring options using textual advantages, disadvantages and constraints. Style combinations are evaluated in batches, then JEV Choice compares all survivors repeatedly until the requested number of directions is selected. Preliminary scores no longer determine the final order.
 - **Audio authoring:** add [Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) as a local capability, with independent JEV selection and renderer-owned audio contracts. Multiplane receives prepared audio assets before rendering; uploaded audio retains its own usage guidance.
@@ -102,9 +95,9 @@ Merged [PR #5](https://github.com/delexw/kiteva/pull/5): video planning, native 
 </details>
 
 <details>
-<summary>2026-10-20 · merged — PR #4</summary>
+<summary>2026-10-20</summary>
 
-Merged [PR #4](https://github.com/delexw/kiteva/pull/4): agent planning, capabilities and demo capture.
+agent planning, capabilities and demo capture.
 
 - Added **Animate UI** component discovery for both providers and shared **JEV 1.14.0 Choice** selection of one primary authoring capability, bundled skill or local-code approach. Internal creative-pool tools expose complete Motion Graphic, motion and technology definitions; the main model retains production planning.
 - Split workflow guidance into application-demo, static-screen, concept-film and mixed-film route prompts. Mixed films apply the appropriate route to each section while preserving act boundaries, selected styles and required feature coverage; detailed timings are planned from the actual content and reference evidence.
@@ -117,9 +110,9 @@ Merged [PR #4](https://github.com/delexw/kiteva/pull/4): agent planning, capabil
 <details>
 <summary>2026-10-19</summary>
 
-- Merged [PR #3](https://github.com/delexw/kiteva/pull/3): **English / 中文 interface switching**, translated catalog and Governance views, clearer activity grouping, and improvements to project, retry and video workflows. Interface language remains separate from generated-video language.
+- **English / 中文 interface switching**, translated catalog and Governance views, clearer activity grouping, and improvements to project, retry and video workflows. Interface language remains separate from generated-video language.
 - Added local **OpenScreen recording with an optional desktop worker**, cursor and zoom presentation controls, and smoother recorded browser interactions. Local recording uses a dedicated visible browser window.
-- Updated the agent SDK dependencies and added tool-call execution checks that disallow Blender, guarded leaf-level brief corrections, **uniform random creative directions**, a one-hour render timeout and SQLite lock-contention handling. These follow-up changes merged in [PR #4](https://github.com/delexw/kiteva/pull/4) on October 20.
+- Updated the agent SDK dependencies and added tool-call execution checks that disallow Blender, guarded leaf-level brief corrections, **uniform random creative directions**, a one-hour render timeout and SQLite lock-contention handling.
 
 </details>
 

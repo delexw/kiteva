@@ -1,3 +1,4 @@
+import { rendererCliPath, rendererCommandFlags } from "./execution";
 import { multiplaneMetadata } from "./multiplane/metadata";
 import { videoRenderTimeoutMs } from "./timeouts";
 import { existsSync } from "node:fs";
@@ -6,11 +7,10 @@ import { randomUUID } from "node:crypto";
 import os from "node:os";
 import path from "node:path";
 import { z } from "zod";
-import { appRoot } from "../runtime/config.js";
 import { isolatedCommand } from "../runtime/process.js";
 import { formatMultiplaneDiagnostic, RendererDiagnosticError } from "./diagnostics";
 
-export const multiplaneCli = path.join(appRoot, "node_modules/multiplane/bin/multiplane");
+export const multiplaneCli = rendererCliPath(multiplaneMetadata);
 export const multiplaneJobsDir = "renders/multiplane-jobs";
 
 const ResultSchema = z.object({
@@ -75,7 +75,7 @@ export function multiplaneEnvironment(): Record<string, string> {
   };
 }
 export function multiplaneInspectArgs(shot: string) {
-  return [multiplaneCli, "inspect", shot, "--json"];
+  return [multiplaneCli, "inspect", shot, ...rendererCommandFlags(multiplaneMetadata, "inspect")];
 }
 export function multiplaneShotProblems(
   data: Record<string, unknown> | null | undefined,
@@ -100,8 +100,7 @@ export function multiplaneVerifyArgs(shot: string, fps: number) {
     multiplaneCli,
     "verify",
     shot,
-    "--json",
-    "--no-hosted",
+    ...rendererCommandFlags(multiplaneMetadata, "verify"),
     "--fps",
     String(fps),
     "--job-dir",
@@ -120,18 +119,16 @@ export function multiplaneRenderArgs(input: {
     multiplaneCli,
     "render",
     input.shot,
-    "--json",
-    "--no-hosted",
-    "--overwrite",
+    ...rendererCommandFlags(multiplaneMetadata, "render"),
     "--job-dir",
     multiplaneJobsDir,
     "--fps",
     String(input.fps),
     "--format",
-    preview ? "webm" : "mp4",
+    multiplaneMetadata.execution.format[input.kind],
     "--quality",
-    preview ? "fast" : "standard",
-    "--out",
+    multiplaneMetadata.execution.quality[input.kind],
+    multiplaneMetadata.execution.outputArgument,
     input.output,
     ...(!preview && input.audioFile ? [multiplaneMetadata.audio.cliArgument, input.audioFile] : []),
   ];

@@ -3,6 +3,8 @@ import { Table, Typography, type TableColumnsType } from "antd";
 import type { ModelActivity } from "../../shared/governance";
 const tokens = (value: number | null) =>
   value === null ? translateUi("Not recorded") : value.toLocaleString();
+const probability = (value: number | null) =>
+  value === null ? translateUi("Not recorded") : `${Math.round(value * 100)}%`;
 const money = (row: ModelActivity) =>
   row.costLow === null
     ? translateUi("Unavailable")
@@ -34,6 +36,23 @@ export function GovernanceUsageTable({
                 : ""}
             </div>
           )}
+          {byFunction &&
+            row.visualAuthoringSelections?.map((selection) => (
+              <div key={selection.jobId} className="governance-table-detail">
+                <div>
+                  {translateUi(selection.kind === "preview" ? "Preview" : "Full film")}
+                  {selection.direction && ` · ${selection.direction}`}
+                </div>
+                {selection.resources
+                  .filter((resource) => resource.selected)
+                  .map((resource) => (
+                    <div key={resource.id}>
+                      {translateUi("Selected authoring resource")}: {translateUi(resource.name)} (
+                      {probability(resource.probability)})
+                    </div>
+                  ))}
+              </div>
+            ))}
         </>
       ),
     },
@@ -97,6 +116,36 @@ export function GovernanceUsageTable({
   ];
   return (
     <Table<ModelActivity>
+      expandable={
+        byFunction
+          ? {
+              rowExpandable: (row) => Boolean(row.visualAuthoringSelections?.length),
+              expandedRowRender: (row) => (
+                <div>
+                  {row.visualAuthoringSelections?.map((selection) => (
+                    <section
+                      key={selection.jobId}
+                      aria-label={translateUi("Visual authoring comparison")}
+                    >
+                      <strong>
+                        {translateUi(selection.kind === "preview" ? "Preview" : "Full film")}
+                        {selection.direction && ` · ${selection.direction}`}
+                      </strong>
+                      <ul>
+                        {selection.resources.map((resource) => (
+                          <li key={resource.id}>
+                            {translateUi(resource.name)} · {probability(resource.probability)}
+                            {resource.selected && ` · ${translateUi("Selected")}`}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  ))}
+                </div>
+              ),
+            }
+          : undefined
+      }
       className="governance-ant-table"
       columns={columns}
       dataSource={rows}

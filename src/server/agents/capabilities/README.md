@@ -72,8 +72,12 @@ definitions before implementation while preserving explicit user refinements and
 Tool availability and instructions do not by themselves prove that the rendered motion is faithful;
 the finished composition still needs visual verification.
 
-Both providers receive shared system guidance to use `search_pool` and `read_pool_entry` first for
-selected and named Motion Graphics and motions, before planning or implementation. The main model
+Authoring handoffs carry selected IDs and primary/supporting roles, without embedded style definitions
+or resolved catalog executable templates. Both providers receive shared system guidance to call
+`read_pool_entry({ kind: "motion_graphic", idOrName: selectedId })` for every selected ID before
+planning or implementation. Known IDs need no search; names in the original idea are resolved through
+`search_pool`, then read in full. Production parameters and renderer contracts remain in the handoff;
+catalog video examples do not override page interactions or the chosen renderer. The main model
 interprets the full definitions, preserves draft roles and user act assignments, and records their
 contributions in the storyboard. These are model instructions, not a host-enforced read gate. There
 are no read receipts, style-scope contracts, quote-matching validators or forced style-planning turns.
@@ -135,3 +139,9 @@ used by MCP component tools. JEV receives extracted prose about each option’s 
 as JS/TS × CSS/Tailwind variants, matching the current official registry. Registry discovery remains
 read-only; saving a component still does not install npm or recursively install registry dependencies.
 See [JEV visual guidance](../../jev/README.md#visual-choice-guidance) for selection details.
+
+The idea editor uses Ant Design X Sender tag slots and Suggestion for `@` style mentions. A mention
+is saved inline as `<style id="style-140">Vintage Rubber Hose Animation</style>` in the original
+idea string. Shared system guidance resolves its ID through `read_pool_entry` before authoring,
+preserves adjacent act/scene scope and exclusions, and treats the label as reference data. Mentions
+do not become Settings selections or enter host-side routing/count validation.

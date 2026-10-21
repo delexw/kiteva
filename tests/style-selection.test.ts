@@ -21,7 +21,9 @@ it.each([
     instructions: draft.instructions,
     outputLanguage: "zh",
     lyrics: draft.lyrics,
-    candidateCount: selection.selectedStyleIds?.length ? 0 : selection.candidateCount || 5,
+    candidateCount: selection.selectedStyleIds?.length
+      ? selection.candidateCount
+      : selection.candidateCount || 5,
   });
   expect(request.selectedStyleIds).toEqual(
     selection.selectedStyleIds?.length ? selection.selectedStyleIds : undefined,
@@ -57,10 +59,9 @@ it.each([
     }).success,
   ).toBe(false);
 });
-it("rejects zero without styles, duplicates and directions with manual styles", async () => {
+it("rejects zero without styles and duplicate styles", async () => {
   for (const input of [
     { candidateCount: 0 },
-    { candidateCount: 2, selectedStyleIds: ["style-001"] },
     { candidateCount: 0, selectedStyleIds: ["style-001", "style-001"] },
   ])
     expect(RequestSchema.safeParse({ instructions: "A visual story", ...input }).success).toBe(
@@ -109,4 +110,15 @@ it("derives both request and proposal caps from the duration policy", async () =
     expect(schema.safeParse(ids).success).toBe(true);
     expect(schema.safeParse([...ids, "style-099"]).success).toBe(false);
   }
+});
+
+it("keeps prompt names, IDs and exclusions as original text without changing Settings selections", () => {
+  const instructions =
+    "Act 1: Vintage Rubber Hose Animation (style-140), continuing Rubber Hose animation. Act 3: Manga Production Theatre (style-136); keep manga characters there. No Mosaic, no Glitch Art, no Art Deco, no style-034.";
+  const selectedStyleIds = ["style-056", "style-098", "style-093"];
+  const request = RequestSchema.parse(
+    normalizeStyleSelection({ instructions, selectedStyleIds, duration: 180, candidateCount: 0 }),
+  );
+  expect(request.instructions).toBe(instructions);
+  expect(request.selectedStyleIds).toEqual(selectedStyleIds);
 });

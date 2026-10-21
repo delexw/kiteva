@@ -141,7 +141,7 @@ export function roomDraftRequest(draft: Partial<RoomDraft>): CreativeRequest {
     urls: [],
     assetIds: [],
     requirements: undefined,
-    candidateCount: styles.length ? 0 : count,
+    candidateCount: styles.length && merged.candidateCount === 0 ? 0 : count,
   });
   const savedLyrics = saved.lyrics;
   const draftLyricsText =
@@ -182,7 +182,7 @@ export function roomDraftRequest(draft: Partial<RoomDraft>): CreativeRequest {
           },
         }
       : {}),
-    candidateCount: count,
+    candidateCount: styles.length && merged.candidateCount === 0 ? 0 : count,
   };
 }
 const emptyRequirements = (): BriefRequirements => ({
@@ -331,7 +331,7 @@ export function roomDraftFromProject(
   return {
     step: 6,
     stepLayout: "separate-speech",
-    request: { ...request, candidateCount: request.candidateCount || 5 },
+    request: { ...normalizeStyleSelection(request) },
     assets: assets.filter((asset) => request.assetIds.includes(asset.id)),
   };
 }

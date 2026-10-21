@@ -1,13 +1,13 @@
 import type { z } from "zod";
 
-/** Convert editing choices into the mutually exclusive API selection modes. */
+/** Normalize optional style selection without changing the requested preview count. */
 export function normalizeStyleSelection<
   T extends { candidateCount: number; selectedStyleIds?: string[] },
 >(request: T): T {
   const manual = Boolean(request.selectedStyleIds?.length);
   return {
     ...request,
-    candidateCount: manual ? 0 : request.candidateCount || 5,
+    candidateCount: manual ? request.candidateCount : request.candidateCount || 5,
     selectedStyleIds: manual ? request.selectedStyleIds : undefined,
   };
 }
@@ -50,7 +50,7 @@ export function validateStyleSelection(
       message:
         "Random selection uses the full pool. Clear selected or pinned Motion Graphics first.",
     });
-  if (ids.length > 0 !== (request.candidateCount === 0))
+  if (!ids.length && request.candidateCount === 0)
     context.addIssue({
       code: "custom",
       path: ["candidateCount"],

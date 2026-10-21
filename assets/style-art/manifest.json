@@ -1527,5 +1527,16 @@
     "source": "style-139.svg",
     "generatedAt": "2026-10-19T22:03:46.462Z",
     "designNotes": "Generalised from the observed visual grammar (clustered circular hubs, curved fine-particle streams carrying transfer, restrained halos and semantic state accents, sparse dotted field, compact technical labels, fixed layout while flow and emphasis change) into a domain-neutral node-link style. No source labels, product names, layout, data or code are reused. Motion is defined as five scripted beats (activation, transfer, arrival, settle, overview) evaluated deterministically from composition time, with seeded particles bound to authored source-to-destination curves. The palette is role-based and illustrative with a scene-dependent background; Dark and Light variants share the same roles, and contrast figures are hand-computed WCAG approximations to recheck with chroma-js on composited frames. Motion references are limited to optional motion-030 and motion-016; combinations are limited to style-097 and style-098. The card SVG shows 10 nodes in three clusters around a primary hub, dotted round-cap strokes simulating particle streams that densify toward destinations, warm halos on the active path, one dashed fault ring, a faint dot field and vignette, and three generic labels: INTAKE, EXCHANGE, OUTCOME."
+  },
+  {
+    "styleId": "style-140",
+    "catalogHash": "47986dee13db123f64da21d49db6ffd16f97b11114ca38d074eb13269dd1c322",
+    "thumbnail": "style-140.webp",
+    "status": "ready",
+    "provider": "claude",
+    "model": "claude-opus-5-5",
+    "source": "style-140.svg",
+    "generatedAt": "2026-10-21T08:37:29.172Z",
+    "designNotes": "Claude Opus 5.5 code-drawn Vintage Rubber Hose Animation sample. An original crooked house on a hill at night shows the hand-inked style: strong irregular ink silhouettes, painterly sepia rim light and dry-brush shadow, small glowing windows, leaning bare trees, layered painterly sky and wind streaks. The house squashes, stretches and settles in elastic drawings that change 12 times a second. It then cuts to the optional film-leader countdown, 3, 2, 1: precise concentric rings and crosshairs, a large pale sans-serif numeral and a darker rotating clock-wipe sector on a photographic plate with grain, scratches, dust and gate weave. The house and sequence are sample content, not requirements."
   }
 ]

@@ -1929,13 +1929,15 @@
   color: var(--room-text);
   gap: 8px;
 }
-.room-onboarding > .ant-sender {
+.room-onboarding > .ant-sender,
+.room-onboarding .style-prompt-input .ant-sender {
   background: var(--room-inset);
   border: 1px solid var(--room-borderStrong);
   border-radius: 14px;
   overflow: hidden;
 }
-.room-onboarding > .ant-sender:focus-within {
+.room-onboarding > .ant-sender:focus-within,
+.room-onboarding .style-prompt-input .ant-sender:focus-within {
   border-color: var(--room-focus);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--room-focus) 15%, transparent);
 }
@@ -2032,4 +2034,51 @@
 }
 .room-website-items > .ant-btn {
   justify-self: start;
+}
+
+/* The divider is the reply editor's top edge, reachable even with a long idea. */
+.room-idea-splitter {
+  flex: 1;
+  min-height: 0;
+}
+.room-idea-splitter > .ant-splitter-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.room-idea-splitter .style-prompt-input,
+.room-idea-splitter .ant-suggestion,
+.room-idea-splitter .ant-sender {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+}
+.room-onboarding .room-idea-splitter .ant-sender-content {
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+.room-onboarding .room-idea-splitter .style-prompt-input .ant-sender-input {
+  height: auto;
+  align-self: stretch;
+  min-height: 0;
+  max-height: none;
+  resize: none;
+}
+.room-idea-splitter .ant-splitter-bar {
+  flex-shrink: 0;
+}
+.room-idea-splitter .ant-splitter-bar-dragger {
+  background: var(--room-raised);
+  color: var(--room-muted);
+}
+
+.room-onboarding .room-idea-splitter .ant-sender-input:focus,
+.room-onboarding .room-idea-splitter .ant-sender-input:focus-visible {
+  outline: none;
+}
+.room-onboarding .room-idea-splitter .room-reply-label,
+.room-onboarding .room-idea-splitter .ant-sender-footer {
+  flex: none;
 }

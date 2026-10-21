@@ -1,4 +1,5 @@
 import { uiLanguage, translateUi, useUiLanguage } from "../i18n";
+import { PromptText } from "../components/style-mention";
 import { useEffect, useState } from "react";
 import { Modal, Tree, Collapse, Alert, type TreeDataNode } from "antd";
 import {
@@ -140,13 +141,17 @@ export function ModelPromptBrowser({
               )}
               <h3>{translateUi("System instructions")}</h3>
               <pre>
-                {record.system || translateUi("Not recorded for this historical invocation.")}
+                <PromptText>
+                  {record.system || translateUi("Not recorded for this historical invocation.")}
+                </PromptText>
               </pre>
               <h3>{translateUi("User prompt")}</h3>
               <pre>
-                {record.user
-                  ? formatModelPrompt(record.user)
-                  : translateUi("The original prompt is unavailable.")}
+                <PromptText>
+                  {record.user
+                    ? formatModelPrompt(record.user)
+                    : translateUi("The original prompt is unavailable.")}
+                </PromptText>
               </pre>
               {record.outputSchema != null && (
                 <Collapse

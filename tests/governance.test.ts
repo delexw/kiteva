@@ -16,6 +16,83 @@ const event = (
   data: unknown,
   time = "2026-10-11T00:00:10Z",
 ): AgentProgressEvent => ({ id, runId: run.id, type, data, time, message: "" });
+
+it("attributes saved visual authoring choices to the matching job and JEV model without duplicating usage", () => {
+  const job: Run["jobs"][number] = {
+    id: "preview",
+    runId: run.id,
+    candidateId: "direction",
+    kind: "preview",
+    phase: "failed",
+    duration: 3,
+    workspace: "/tmp/fixture",
+    model: "claude-opus-5-5",
+    authoringResources: {
+      source: "jev",
+      model: "jev-1.14.0",
+      selectedIds: ["local_code"],
+      decisions: [
+        { id: "local_code", use: true, probability: 0.82 },
+        { id: "react_bits", use: false, probability: 0.16 },
+      ],
+    },
+  };
+  const project: Run = {
+    ...run,
+    jobs: [job],
+    candidates: [
+      {
+        id: "direction",
+        displayTitle: "A clear idea",
+        primaryStyleId: "style-001",
+        supportingStyleIds: [],
+        sceneRoles: [],
+        rationale: "Clarity",
+        feasible: true,
+        missingAssets: [],
+        score: 0,
+        confidence: 0,
+        dimensions: {},
+      },
+    ],
+  };
+  const data = {
+    model: "jev-1.14.0",
+    provider: "jev",
+    purpose: "Authoring resource selection",
+    invocationId: "selection",
+  };
+  const events = [
+    { ...event(1, "invocation", data), jobId: job.id },
+    { ...event(2, "usage", { ...data, input_tokens: 100, output_tokens: 10 }), jobId: job.id },
+  ];
+  const row = projectGovernance(project, events).activity[0];
+  expect(row.calls).toBe(1);
+  expect(row.inputTokens).toBe(100);
+  expect(row.visualAuthoringSelections).toHaveLength(1);
+  expect(row.visualAuthoringSelections?.[0]).toMatchObject({
+    jobId: "preview",
+    kind: "preview",
+    direction: "A clear idea",
+    resources: expect.arrayContaining([
+      {
+        id: "local_code",
+        name: "Existing local code and libraries",
+        selected: true,
+        probability: 0.82,
+      },
+    ]),
+  });
+  expect(
+    projectGovernance(project, [
+      { ...event(3, "usage", { ...data, model: "another-model" }), jobId: job.id },
+    ]).activity[0].visualAuthoringSelections,
+  ).toBeUndefined();
+  expect(
+    projectGovernance({ ...project, jobs: [{ ...job, authoringResources: undefined }] }, events)
+      .activity[0].visualAuthoringSelections,
+  ).toBeUndefined();
+});
 it("counts tools once across stream updates and tokens once per invocation", () => {
   const d = {
     provider: "codex",

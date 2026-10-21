@@ -9,6 +9,7 @@ import {
   terminalPhases,
 } from "../../shared/contracts";
 import { projectOverview } from "../lib/project-overview";
+import { PromptText } from "../components/style-mention";
 import { ProjectResultPending } from "../components/project-result-pending";
 import { api } from "../lib/api";
 import { scopedAssetQuestions } from "../../shared/asset-question-scopes";
@@ -107,7 +108,7 @@ export function RoomProject({
                   <Bubble
                     placement="end"
                     className="room-bubble-user"
-                    content={run.request.instructions}
+                    content={<PromptText>{run.request.instructions}</PromptText>}
                   />
                   {run.request.requirements &&
                     Object.entries(run.request.requirements).map(
@@ -118,7 +119,7 @@ export function RoomProject({
                             placement="end"
                             className="room-bubble-user"
                             header={sectionLabels[label] || label}
-                            content={value.instructions}
+                            content={<PromptText>{value.instructions}</PromptText>}
                           />
                         ),
                     )}
@@ -127,7 +128,7 @@ export function RoomProject({
                       <Bubble
                         placement="start"
                         header={roomQuestionScope(run, q.jobId)}
-                        content={q.question}
+                        content={<PromptText>{q.question}</PromptText>}
                         footer={
                           q.state === "open" ? (
                             <Button size="small" onClick={() => onQuestion(q.id)}>
@@ -140,7 +141,7 @@ export function RoomProject({
                         <Bubble
                           placement="end"
                           className="room-bubble-user"
-                          content={q.answer || q.fallback}
+                          content={<PromptText>{q.answer || q.fallback}</PromptText>}
                         />
                       )}
                     </div>

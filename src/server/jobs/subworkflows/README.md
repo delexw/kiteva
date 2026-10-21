@@ -9,6 +9,8 @@ subworkflows/
 │   ├── preparation.ts    # Full brief prompt and handoff assembly
 │   ├── asset-review.ts   # Independent source alignment review
 │   └── correction.ts     # Apply and validate focused corrections
+├── explicit-style-preview/
+│   └── workflow.ts       # Main-model preview executions of fixed user styles; no JEV style ranking
 ├── title-brief/
 │   └── workflow.ts       # Text-only project title extraction for direct builds
 ├── shared/
@@ -19,8 +21,169 @@ subworkflows/
 └── video-localization.ts
 ```
 
-Full brief is used for direction exploration. Title brief is used for direct builds with selected Motion Graphics and returns only `subject`; it does not inspect sources or plan production.
+Full brief is used for automatic style exploration. Title brief is used with Motion Graphics selected in Settings and returns only `subject`; it does not inspect sources or plan production. With previews enabled, explicit-style-preview uses the main model to plan exactly the requested number of creative executions of those fixed styles, preserving original act/scene assignments. With zero previews, the route builds the full project directly. Neither explicit-style route proposes or ranks style combinations. Audio and visual-authoring capability decisions remain separate.
 
 Both brief variants use the existing `brief` checkpoint. Title-only output carries `variant: "title-only"`; full output carries its asset-review revision, so an incompatible cached result is not reused. The complete original request remains available to the main planner and builder in both routes.
 
 Website reference, website capture, result review and localization remain separate subworkflows. MCP tool definitions and server entry points remain in their existing tool modules, outside this folder.
+
+Routing and selection limits use only `request.selectedStyleIds` from Settings. Names, IDs, exclusions and descriptive references inside the original idea remain prose for the model to interpret; no string matcher converts them into selections.
+
+## Subworkflow diagrams
+
+Current implementation: 2026-10-21. The [generation and prompt-route diagrams](../../../../docs/architecture.md#video-generation-routes)
+show where these tasks fit in the overall video flow. Arrows below show calls or handoffs, not
+filesystem nesting. Browser tools are callable capabilities, not mandatory standalone model stages.
+
+### Ownership and calls
+
+```mermaid
+flowchart TD
+  WF["jobs/workflow.ts: routing, checkpoints and job state"] --> Full["full-brief/workflow.ts"]
+  WF --> Title["title-brief/workflow.ts"]
+  WF --> Explicit["explicit-style-preview/workflow.ts"]
+  Full --> Assembly["full-brief/preparation.ts: prompt and brief assembly"]
+  Full --> Review["full-brief/asset-review.ts"]
+  Review --> Repair["full-brief/correction.ts via the workflow's repair callback"]
+  Assembly --> Shared["shared/brief-title-guidance.ts: shared prompt text"]
+  Title --> Shared
+  WF --> Video["domains/video/workflow.ts: shared job execution"]
+  Video --> Plan["domains/video/build-plan.ts: main-model plan before implementation"]
+  Video --> Localize["video-localization.ts when delivery copy needs localization"]
+  Video --> Result["result-review.ts after render and validation"]
+  Browser["reference_browser capability used by model turns"] --> Reference["website-reference.ts: browser inspection and interaction"]
+  Reference --> Capture["website-capture.ts: recording lifecycle and native editor"]
+```
+
+`shared/brief-title-guidance.ts` is prompt text reused by both brief variants; it is not an agent
+call. The full-brief folder owns its review and correction modules; title-only preparation does
+not run those modules.
+
+### Full brief, asset review and focused correction
+
+```mermaid
+flowchart TD
+  Inputs["Original request + uploaded sources + website references"] --> Prepare["Prepare image and attachment indexes; reset reference manifest"]
+  Prepare --> Interpret["Small-model read-only source interpretation"]
+  Interpret --> Assemble["Assemble brief from request, interpretation and captured evidence"]
+  Assemble --> Review["Independent asset alignment review"]
+  Review --> Result{"Review outcome"}
+  Result -->|Passed| Output["Return validated brief, asset plan, session and screenshots"]
+  Result -->|Focused repair needed| Repair["Continue preparation session; return typed leaf edits"]
+  Repair --> Validate["Apply guarded edits atomically and validate complete brief"]
+  Validate -->|Valid| Review
+  Validate -->|Invalid edits| Retry["Retry the focused correction with validation feedback"]
+  Retry --> Repair
+  Result -->|Repair policy exhausted| Fail["Fail preparation with unresolved issues"]
+```
+
+`asset-review.ts` can also correct malformed review output before acting on its findings.
+`correction.ts` owns validation/retry of leaf edits; it does not replace the whole brief.
+Repair loops follow their existing bounded review/correction policies.
+
+### Title-only preparation
+
+```mermaid
+flowchart TD
+  Idea["Original idea as source text"] --> Guidance["Shared title guidance + title-only instruction"]
+  Guidance --> Model["Small-model text-only call"]
+  Model --> Validate["Validate nonempty subject"]
+  Validate --> Output["Return title-only checkpoint; original request stays unchanged"]
+```
+
+This workflow does not browse, inspect attachments, select styles or plan production.
+
+### Explicit-style preview concepts
+
+```mermaid
+flowchart TD
+  Input["Original request + Settings style IDs + previous directions"] --> Fixed["Create fixed-style base direction"]
+  Fixed --> Model["Read-only main-model call; inspect sources as needed"]
+  Model --> Concepts["Choose shared preview beat and exactly the requested number of variations"]
+  Concepts --> Validate["Validate output and attach fixed style IDs to every candidate"]
+  Validate --> Jobs["Return candidates to workflow.ts to create preview jobs"]
+  Jobs --> Plan["Each job separately uses the shared main-model plan-before-build step"]
+```
+
+This extra preparation call currently exists. It does not use JEV, rank styles, build previews or
+provide the per-job validated production plan.
+
+### Website inspection and recording
+
+```mermaid
+flowchart TD
+  Tools["Model calls reference_browser tools"] --> Session["website-reference.ts: isolated browser session"]
+  Session --> Inspect["Navigate, inspect and operate actual page controls"]
+  Inspect --> Evidence["Return observed page state or screenshot evidence"]
+  Session --> Start["capture_video start: website-capture.ts starts OpenScreen"]
+  Start --> Actions["Record actual interactions on the same page"]
+  Actions --> Stop["Stop recording and expose native editing operations"]
+  Stop --> Edit["Review, trim and apply deliberate focus or zoom regions"]
+  Edit --> Export["Export and probe video; save recording metadata and assets"]
+  Export --> Build["Return recording to the implementation for renderer integration"]
+```
+
+Recording is an implementation capability, unavailable during read-only planning. The screenshot
+and recording branches are different artifacts, not interchangeable demo fallbacks.
+
+### Video copy localization
+
+```mermaid
+flowchart TD
+  Request["Video request with delivery language and supplied lyrics or narration"] --> Need{"Localization needed?"}
+  Need -->|No| Keep["Return request unchanged"]
+  Need -->|Yes| Cache{"Saved translation available?"}
+  Cache -->|Yes| Reuse["Reuse the existing language version or cached text"]
+  Cache -->|No| Translate["Small-model text-only translation"]
+  Translate --> Save["Validate and atomically cache translated text"]
+  Save --> Output["Return delivery copy while retaining originals"]
+  Reuse --> Output
+```
+
+### Finished-result review
+
+```mermaid
+flowchart TD
+  Evidence["Completed full-film job + request + candidate"] --> Review["result-review.ts reads saved validation report, storyboard and QA evidence"]
+  Review --> Model["Separate read-only call using the selected main model"]
+  Model --> Output["Structured finished-result review returned to the video workflow"]
+```
+
+This runs for full jobs, not previews; it does not replace build planning or renderer validation.
+
+### Preparation checkpoints and retries
+
+```mermaid
+flowchart TD
+  Step["workflow.ts enters a preparation step"] --> Cache{"Completed checkpoint with valid output and artifacts?"}
+  Cache -->|Yes| Reuse["Reuse output without rerunning its model call"]
+  Cache -->|No| Invalidate["Invalidate this step and dependent checkpoints"]
+  Invalidate --> Run["Mark running and execute the subworkflow"]
+  Run --> Validate["Validate output and required artifacts"]
+  Validate -->|Success| Save["Save completed checkpoint and output"]
+  Run -->|Error| Error["Save failed or interrupted checkpoint"]
+  Validate -->|Error| Error
+```
+
+The wrapper lives in `../preparation-checkpoints.ts`. Request fingerprints govern reuse across
+preparation runs. A retry can reuse valid earlier checkpoints; it must not claim an interrupted
+step completed. The separate job build-plan checkpoint belongs to its model and session.
+
+### Shared video build-plan validation and correction
+
+```mermaid
+flowchart TD
+  Plan["Main-model read-only planning turn"] --> Validate{"Application schema and relationship checks pass?"}
+  Validate -->|Yes| Save["Atomically save VIDEO_BUILD_PLAN.json"]
+  Save --> Notice["Report plan validated and saved"]
+  Notice --> Build["Implement in the validated plan's session"]
+  Validate -->|No| Retry{"Owning session available and correction attempts remain?"}
+  Retry -->|Yes| Correct["Return exact issues and rejected output to the same model session"]
+  Correct --> Plan
+  Retry -->|No| Fail["Fail without starting implementation"]
+```
+
+The shared step allows three total planning attempts. Only structured-output validation failures
+enter this correction path; cancellation and unrelated provider failures propagate immediately.
+The SDK response retains its session ID even when application validation rejects it. Reading a
+model response successfully is not evidence that its plan has been validated or saved.

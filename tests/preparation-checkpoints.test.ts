@@ -403,9 +403,8 @@ it("manual styles use only title preparation before the full build", async () =>
     const context = JSON.parse(
       await readFile(path.join(job.workspace, "style-context.json"), "utf8"),
     );
-    expect(context.styles).toEqual(
-      workflow.catalog.styles.filter((style) => ["style-108", "style-018"].includes(style.id)),
-    );
+    expect(context).not.toHaveProperty("styles");
+    expect(context.request.selectedStyleIds).toEqual(["style-108", "style-018"]);
     expect(context.candidate).toMatchObject({
       primaryStyleId: "style-108",
       supportingStyleIds: ["style-018"],
@@ -422,7 +421,8 @@ it("manual styles use only title preparation before the full build", async () =>
     });
     expect(context.brief.subject).toBe("A product story");
     expect(context.production_policy).toEqual(workflow.catalog.production_policy);
-    expect(context.motions).toEqual(workflow.catalog.motions);
+    expect(context).not.toHaveProperty("motions");
+    expect(context.motionIds).toEqual(workflow.catalog.motions.map((motion) => motion.id));
     job.phase = "ready";
   });
   try {
@@ -555,7 +555,7 @@ it("regenerates the chosen count in fresh sessions and extends the selected roun
   }
 });
 
-it("refuses regeneration during active work or for manual styles", async () => {
+it("refuses regeneration during active work or for direct builds", async () => {
   const workflow = new Workflow(new Store(":memory:"), await loadCatalog());
   const run = newRun();
   run.phase = "generating";
@@ -566,7 +566,9 @@ it("refuses regeneration during active work or for manual styles", async () => {
     candidateCount: 0,
     selectedStyleIds: ["style-018"],
   });
-  expect(() => workflow.regenerateDirections(run)).toThrow("Manual Motion Graphics");
+  expect(() => workflow.regenerateDirections(run)).toThrow(
+    "Direct builds do not use preview directions",
+  );
   expect(agentTurn).not.toHaveBeenCalled();
 });
 

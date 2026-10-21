@@ -5547,5 +5547,18 @@
     "motionRevision": 2,
     "visibleChangeRatio": 0.023993055555555556,
     "model": "claude-opus-5-5"
+  },
+  {
+    "styleId": "style-140",
+    "catalogHash": "47986dee13db123f64da21d49db6ffd16f97b11114ca38d074eb13269dd1c322",
+    "sourceHash": "77e124b6e087424e92d40d66e0a89e5896d84d35a5d4f662817b8d5f9959a4ec",
+    "video": "style-140.webm",
+    "duration": 3,
+    "generatedAt": "2026-10-21T08:37:52.410Z",
+    "renderMs": 22529,
+    "reviewed": true,
+    "motionRevision": 2,
+    "visibleChangeRatio": 0.7130034722222223,
+    "model": "claude-opus-5-5"
   }
 ]

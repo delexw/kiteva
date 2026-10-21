@@ -14,7 +14,7 @@ import {
   jobDirectionRound,
 } from "../../shared/direction-rounds";
 import {
-  preparationStepNames,
+  preparationStepLabel,
   preparationSteps,
   type PreparationCheckpoint,
   type PreparationStep,
@@ -54,6 +54,7 @@ function jobStatus(phase: GenerationJob["phase"], waiting: boolean): StageStatus
 }
 function checkpointItems(
   checkpoints: Partial<Record<PreparationStep, PreparationCheckpoint>> = {},
+  run?: Run,
 ): ThoughtChainItemType[] {
   return preparationSteps.flatMap((step) => {
     const checkpoint = checkpoints[step];
@@ -66,7 +67,13 @@ function checkpointItems(
           : checkpoint.state === "interrupted"
             ? "abort"
             : "loading";
-    return [{ key: step, title: translateUi(preparationStepNames[step]), status }];
+    return [
+      {
+        key: step,
+        title: translateUi(preparationStepLabel(step, run?.request, run?.preparation)),
+        status,
+      },
+    ];
   });
 }
 function preparationStatus(
@@ -124,7 +131,7 @@ export function roomActivityContexts(
     projectEvents.set(round, [...(projectEvents.get(round) || []), event]);
   }
   for (const [round, roundEvents] of projectEvents)
-    byContext.set(preparationKey(round), activityItems(roundEvents));
+    byContext.set(preparationKey(round), activityItems(roundEvents, true, run));
   for (const item of activityItems(jobEvents)) {
     const key = run.jobs.some((job) => job.id === item.jobId) ? item.jobId! : "earlier";
     byContext.set(key, [...(byContext.get(key) || []), item]);
@@ -167,6 +174,7 @@ export function roomActivityContexts(
           return source?.[step] ? [[step, source[step]]] : [];
         }),
       ),
+      run,
     );
     const jobs = jobsOf(round);
     const status = current

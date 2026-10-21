@@ -309,9 +309,11 @@ it("collapses adjacent progress into stable groups without hiding customer messa
   expect(entries.map((entry) => entry.kind)).toEqual(["brief", "progress", "activity", "progress"]);
   const first = entries[1];
   if (first.kind !== "progress") throw Error("Expected progress group");
-  expect(first.items).toHaveLength(2);
-  expect(first.items[0].repetitions).toBe(2);
-  expect(first.items[0].text).not.toBe(first.items[1].text);
+  // The project is finished but these tools have no result events. Preserve their
+  // individual stopped outcomes rather than merging them into a successful step.
+  expect(first.items).toHaveLength(3);
+  expect(first.items.every((item) => item.status === "stopped")).toBe(true);
+  expect(first.items[0].text).not.toBe(first.items[2].text);
   const html = render(project, progress);
   expect(html).toContain('aria-expanded="false"');
   expect(html).toContain("Your brief is ready.");

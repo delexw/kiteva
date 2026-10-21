@@ -234,16 +234,18 @@ export async function generateVideo(input: {
       });
       Object.assign(job, artifacts);
       await validateStoryboardJson(job.workspace, job.duration);
-      job.resultReview = await reviewFinishedResult({
-        job,
-        request,
-        candidate,
-        signal,
-        onEvent,
-        emit,
-      });
-      const reviewFindings = resultReviewFindings(job.resultReview);
-      if (reviewFindings.length) throw new VideoQaError(reviewFindings);
+      if (job.kind === "full") {
+        job.resultReview = await reviewFinishedResult({
+          job,
+          request,
+          candidate,
+          signal,
+          onEvent,
+          emit,
+        });
+        const reviewFindings = resultReviewFindings(job.resultReview);
+        if (reviewFindings.length) throw new VideoQaError(reviewFindings);
+      }
       job.phase = "ready";
       job.error = undefined;
       job.errorCode = undefined;
@@ -255,7 +257,7 @@ export async function generateVideo(input: {
       if (error instanceof InputRequired) throw error;
       if (error instanceof CodedError && error.code.startsWith("SPEECH_")) throw error;
       signal.throwIfAborted();
-      if (error instanceof VideoQaReportError) throw error;
+      if (job.kind === "preview" || error instanceof VideoQaReportError) throw error;
       job.error = safeMessage(error);
       job.phase = "generating";
       update();

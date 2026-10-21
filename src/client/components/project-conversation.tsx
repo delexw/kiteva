@@ -1,5 +1,6 @@
 import { translateUi, useUiLanguage } from "../i18n";
 import { ProjectSettings } from "./project-settings";
+import { PromptText } from "./style-mention";
 import { VideoRefinement } from "./video-refinement";
 import { Button, Card } from "antd";
 import { Fragment, useMemo, useState, type ReactNode, type Ref } from "react";
@@ -168,9 +169,13 @@ export function ProjectConversation({
                       <MessageContent>
                         <div className="project-brief-section">
                           <h3>{translateUi("Main prompt")}</h3>
-                          <p>{run.request.instructions}</p>
+                          <p>
+                            <PromptText>{run.request.instructions}</PromptText>
+                          </p>
                           {run.request.requirements?.main.instructions && (
-                            <p>{run.request.requirements.main.instructions}</p>
+                            <p>
+                              <PromptText>{run.request.requirements.main.instructions}</PromptText>
+                            </p>
                           )}
                         </div>
                         {(
@@ -186,7 +191,9 @@ export function ProjectConversation({
                           instructions ? (
                             <div className="project-brief-section" key={label}>
                               <h3>{label}</h3>
-                              <p>{instructions}</p>
+                              <p>
+                                <PromptText>{instructions}</PromptText>
+                              </p>
                             </div>
                           ) : null,
                         )}

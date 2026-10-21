@@ -7,6 +7,29 @@ import {
   mergeProgressItems,
 } from "../src/client/agent-activity-model";
 import type { AgentProgressEvent } from "../src/shared/contracts";
+
+it("distinguishes receiving a model response from a validated and saved plan", () => {
+  const received = event(1, "tool", "StructuredOutput", "a", {
+    toolName: "StructuredOutput",
+    itemId: "output",
+    purpose: "Preview video planning",
+    state: "item.completed",
+  });
+  const items = activityItems([
+    received,
+    event(2, "plan_ready", "Preview plan validated and saved", "a", {
+      purpose: "Preview video planning",
+    }),
+  ]);
+  expect(items.map((item) => item.text)).toEqual([
+    "Receiving the preview plan…",
+    "Preview plan validated and saved",
+  ]);
+  expect(items[1].status).toBe("complete");
+  expect(activityItems([received]).some((item) => item.text.includes("validated and saved"))).toBe(
+    false,
+  );
+});
 function event(
   id: number,
   type: string,
@@ -455,8 +478,8 @@ it.each([
   ["Combination evaluation", "Comparing creative directions…", "Recording direction choices…"],
   ["Lyrics generation", "Writing your on-screen text…", "Saving your on-screen text…"],
   ["Video copy translation", "Translating your video text…", "Saving translated video text…"],
-  ["Preview video planning", "Planning your preview…", "Saving the preview plan…"],
-  ["Full video planning", "Planning your full video…", "Saving the full video plan…"],
+  ["Preview video planning", "Planning your preview…", "Receiving the preview plan…"],
+  ["Full video planning", "Planning your full video…", "Receiving the full video plan…"],
   ["preview video generation", "Building your video preview…", "Recording preview details…"],
   ["full video generation", "Building your full video…", "Recording video details…"],
   ["preview HTML generation", "Building your page preview…", "Recording page preview details…"],

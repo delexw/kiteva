@@ -11,7 +11,7 @@ const hash = (value: unknown) => createHash("sha256").update(JSON.stringify(valu
 // the orbit review's original hashes meaningful for all prior content.
 const laterMotionIds = ["motion-044", "motion-045", "motion-046", "motion-047", "motion-048"];
 // Motion Graphics authored after the orbit review were not part of it and must not claim motion-043.
-const laterStyleIds = ["style-137", "style-138", "style-139"];
+const laterStyleIds = ["style-137", "style-138", "style-139", "style-140"];
 // The user-directed Manga crew revision postdates the orbit review. Keep its
 // historical evidence unchanged and verify the revised metadata separately.
 const laterMetadataHashes: Record<string, string> = {

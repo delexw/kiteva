@@ -12,6 +12,12 @@ export interface ModelActivity {
   costLow: number | null;
   costHigh: number | null;
   costBasis: string;
+  visualAuthoringSelections?: {
+    jobId: string;
+    kind: "preview" | "full";
+    direction: string;
+    resources: { id: string; name: string; selected: boolean; probability: number | null }[];
+  }[];
 }
 export interface GovernanceProject {
   id: string;

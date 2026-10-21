@@ -42,7 +42,9 @@ export function roomActivityStep(item: DisplayActivityItem): ThoughtChainItemTyp
         items={item.children.map(roomActivityStep)}
       />
     ) : undefined,
-    description: item.children?.length ? undefined : (
+    description: item.children?.length ? (
+      <span aria-hidden="true">&nbsp;</span>
+    ) : (
       <time dateTime={item.time}>{clock(item.time)}</time>
     ),
     status: item.status ? stepStatus[item.status] : undefined,

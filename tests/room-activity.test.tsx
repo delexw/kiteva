@@ -137,7 +137,7 @@ it("shows timestamps on individual entries rather than their summary parents", (
     status: "complete",
     children: [earlier],
   });
-  expect(parent.description).toBeUndefined();
+  expect(renderToStaticMarkup(<>{parent.description}</>)).toContain('aria-hidden="true"');
   expect(parent.status).toBe("success");
   const child = roomActivityStep(earlier);
   expect(renderToStaticMarkup(<>{child.description}</>)).toContain(

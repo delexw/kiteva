@@ -232,3 +232,56 @@ it("places a later-updated capability after earlier capabilities", () => {
   ]);
   expect(shown.children?.at(-1)).toMatchObject({ status: "running", time: "2026-10-19T00:03:00Z" });
 });
+
+it.each(["Full video planning", "Preview video planning", "Brief preparation"])(
+  "consolidates recovered %s tools into one flat activity",
+  (purpose) => {
+    const source = [
+      item(1, { purpose, text: "Planning…", status: "complete" }),
+      item(2, { purpose, text: "Planning…", status: "failed" }),
+      item(3, { purpose, text: "Exploring…" }),
+      item(4, { purpose, text: "Planning…", status: "running" }),
+    ];
+    const before = JSON.stringify(source);
+    const pending = displayActivityItems(source);
+    expect(pending.filter((entry) => entry.text === "Planning…")).toHaveLength(1);
+    expect(pending[0]).toMatchObject({ status: "running" });
+    const recovered = displayActivityItems([
+      ...source.slice(0, 3),
+      item(4, { purpose, text: "Planning…", status: "complete" }),
+    ]);
+    expect(recovered).toHaveLength(2);
+    expect(recovered[0].status).toBe("complete");
+    expect(recovered.every((entry) => !entry.children)).toBe(true);
+    expect(JSON.stringify(source)).toBe(before);
+    const failed = displayActivityItems([
+      ...source.slice(0, 3),
+      item(4, { purpose, text: "Planning…", status: "failed" }),
+    ]);
+    expect(failed[0].status).toBe("failed");
+  },
+);
+
+it("moves a consolidated planning update below earlier website activities", () => {
+  const purpose = "Full video planning";
+  const source = [
+    item(1, {
+      purpose,
+      text: "Planning your full video…",
+      time: "2026-10-21T00:41:00Z",
+      status: "failed",
+    }),
+    item(2, { purpose, text: "Exploring your website reference…", time: "2026-10-21T00:43:00Z" }),
+    item(3, { purpose, text: "Capturing your website reference…", time: "2026-10-21T00:43:30Z" }),
+    item(4, { purpose, text: "Planning your full video…", time: "2026-10-21T00:44:00Z" }),
+  ];
+  const before = JSON.stringify(source);
+  const shown = displayActivityItems(source);
+  expect(shown.map(({ text }) => text)).toEqual([
+    "Exploring your website reference…",
+    "Capturing your website reference…",
+    "Planning your full video…",
+  ]);
+  expect(shown.at(-1)).toMatchObject({ status: "complete", time: "2026-10-21T00:44:00Z" });
+  expect(JSON.stringify(source)).toBe(before);
+});

@@ -401,8 +401,7 @@ Native Windows additions: [`@openai/codex`](https://github.com/openai/codex) (Ap
 
 ## Licenses
 
-- Kiteva's original code, catalogs and docs are under the [Kiteva Non-Commercial License](../LICENSE).
-  It's MIT-based with a no-commercial-use condition, so it's source-available and not OSI open source.
+- Kiteva's original code, catalogs and docs are under the [MIT License](../LICENSE).
 - Anatomy stays under its own MIT license, unchanged. Kiteva doesn't relicense it.
 - Every npm package keeps its own license. Pay particular attention to [Remotion's license](https://www.remotion.dev/license),
   the [GSAP Standard License](https://gsap.com/standard-license) and the Claude Agent SDK's terms.

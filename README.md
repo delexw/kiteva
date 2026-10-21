@@ -37,6 +37,20 @@ Dates below use New Zealand time. Merged updates are available on `main`; work a
 
 These codebase changes are on the development branch and have not been merged.
 
+- **Capture lifecycle:** remove local and remote browser-call, native-edit, screenshot, take-count, recording-duration and output-size budgets. Recordings stop explicitly or on cancellation.
+- **Camera planning:** the main model explores the live application before choosing component focus, zoom amount and timing. Automatic zoom generation stays disabled, cursor smoothing is 0.15, and exports preserve reviewed zooms and wide intervals.
+- **Browser capability coverage:** unify tool names, schemas and handlers; add file uploads and browser session, pointer, frame, dialog, network, diagnostics and capture operations. Local mock workflows use normal HTTP(S) requests; hosted access retains its proxy boundary.
+- **Multiplane shots:** inspect, verify and render independently loaded shots, then join their visual output and apply the full-film soundtrack once to avoid film-wide frame preloads.
+- **Activity display:** consolidate recovered tool retries, order updates chronologically, preserve spacing without timestamps and follow appended activity.
+- **Editable project downloads:** expose available sources and media even from failed builds, with an OTIO timeline, SRT lyrics, audio files and streaming ZIP delivery. See the [export guide](docs/editable-projects.md).
+
+</details>
+
+<details>
+<summary>2026-10-21 · merged — PR #5</summary>
+
+Merged [PR #5](https://github.com/delexw/kiteva/pull/5): video planning, native capture and JEV selection.
+
 - **JEV selection:** retain the original idea and section instructions; compare visual authoring options using textual advantages, disadvantages and constraints. Style combinations are evaluated in batches, then JEV Choice compares all survivors repeatedly until the requested number of directions is selected. Preliminary scores no longer determine the final order.
 - **Audio authoring:** add [Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) as a local capability, with independent JEV selection and renderer-owned audio contracts. Multiplane receives prepared audio assets before rendering; uploaded audio retains its own usage guidance.
 - **Planning and preparation:** separate full-brief and title-only workflows. Direct builds preserve the original idea and still receive a project title. Full videos use a main-model planning turn (Claude's native plan mode for Claude) and a prose plan before capture and implementation; renderer-specific demo routes preserve feature coverage, section titles and act-specific Motion Graphics.
@@ -92,6 +106,10 @@ Merged [PR #4](https://github.com/delexw/kiteva/pull/4): agent planning, capabil
 - Added automatic narration loudness matching and a volume control, simplified Speech / vocals settings, and registered bundled skills through the Claude SDK.
 
 </details>
+
+## Editable project downloads
+
+Full versions offer **Download editable project** whenever source or media files exist, including failed, cancelled and incomplete builds. The streamed ZIP contains renderer sources and assets, dependency manifests, an OpenTimelineIO timeline, SRT lyrics from the storyboard, and usable rendered media. Rendered scenes remain clips, with available music/narration tracks; the rendered audio mix is preserved as a reference or fallback. Burned-in graphics/captions stay flattened in clips; edit the included native renderer sources to change them. Editor import support varies. Missing renders are reported in `export.json`; a source-only export does not imply a successful build. See [editable project exports](docs/editable-projects.md) for the ZIP layout, timeline construction and editing limitations.
 
 ## Why this exists
 
@@ -278,6 +296,7 @@ your plan's allowance. I haven't tested subscription usage or remaining-percenta
 
 ## Docs
 
+- [Editable project exports](docs/editable-projects.md): OTIO, captions, audio tracks, source bundles and failed builds
 - [Architecture](docs/architecture.md): components, workflow, renderers, capture, skills, storage (Mermaid diagrams)
 - [Technology inventory](docs/technology-pool.md): all 92 pool entries, the startup-installed skill, renderers, TTS and every dependency
 - [Costs](docs/costs.md): how the governance numbers are computed

@@ -23,9 +23,9 @@ import multipart from "@fastify/multipart";
 import staticFiles from "@fastify/static";
 import { randomUUID } from "node:crypto";
 import { createReadStream, existsSync } from "node:fs";
-import { mkdir, writeFile, readFile, readdir, realpath, stat, rm } from "node:fs/promises";
+import { mkdir, writeFile, readFile, realpath, rm } from "node:fs/promises";
 import path from "node:path";
-import { zipSync } from "fflate";
+import { createProjectBundle, projectAvailable } from "./project-export/bundle";
 import { z } from "zod";
 import { apiErrorHandler } from "./runtime/api-errors";
 import sharp from "sharp";
@@ -628,34 +628,35 @@ export async function createApp(options: { store?: Store } = {}) {
     },
   );
   app.get<{ Params: { runId: string; jobId: string } }>(
+    "/api/projects/:runId/:jobId/availability",
+    async (req, reply) => {
+      const run = getRun(req.params.runId);
+      const job = run.jobs.find((item) => item.id === req.params.jobId);
+      if (!job) return reply.code(404).send({ available: false });
+      return { available: await projectAvailable(job.workspace) };
+    },
+  );
+  app.get<{ Params: { runId: string; jobId: string } }>(
     "/api/projects/:runId/:jobId",
     async (req, reply) => {
       const run = getRun(req.params.runId);
       const job = run.jobs.find((j) => j.id === req.params.jobId);
       if (!job) throw new CodedError("NOT_FOUND", "Job not found");
-      const files: Record<string, Uint8Array> = {};
-      let total = 0;
-      async function collect(folder: string) {
-        for (const entry of await readdir(folder, { withFileTypes: true })) {
-          if (
-            entry.isSymbolicLink() ||
-            ["node_modules", "renders", ".codex", ".claude"].includes(entry.name)
-          )
-            continue;
-          const full = path.join(folder, entry.name);
-          if (entry.isDirectory()) await collect(full);
-          else {
-            total += (await stat(full)).size;
-            if (total > 100_000_000) throw Error("Project exceeds ZIP size limit");
-            files[path.relative(job!.workspace, full)] = await readFile(full);
-          }
-        }
+      if (!(await projectAvailable(job.workspace)))
+        return reply.code(404).send({ error: "No project files available" });
+      const controller = new AbortController();
+      const abort = () => controller.abort();
+      reply.raw.once("close", abort);
+      try {
+        const stream = await createProjectBundle(job, controller.signal);
+        return reply
+          .header("Content-Disposition", "attachment; filename=editable-project.zip")
+          .type("application/zip")
+          .send(stream);
+      } catch (error) {
+        reply.raw.off("close", abort);
+        throw error;
       }
-      await collect(job.workspace);
-      return reply
-        .header("Content-Disposition", "attachment; filename=video-project.zip")
-        .type("application/zip")
-        .send(Buffer.from(zipSync(files)));
     },
   );
   await app.register(staticFiles, { root: path.join(appRoot, "dist/client"), wildcard: false });

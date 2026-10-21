@@ -2,6 +2,30 @@
 
 Notable changes to Kiteva. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] — 2026-10-22
+
+Kiteva adds style-driven previews, editable video exports and native demo capture, with shared planning and renderer policies. The catalog now contains **140 Motion Graphics and 48 motions**.
+
+### Added
+
+- **Selected-style preview directions and inline style mentions.** Keep previews enabled with fixed styles, insert `@` references in the idea editor, and inspect the same animated style preview across the editor, conversations and project board. [Preview workflows](https://github.com/delexw/kiteva/commit/43532cf).
+- **Editable project downloads.** Export renderer sources, available media, an OpenTimelineIO timeline and SRT lyrics whenever files exist, including incomplete or failed builds. [Editable exports](https://github.com/delexw/kiteva/commit/d6e9ae5).
+- **Expanded creative tools and catalog.** Add Particle Flow Network and Vintage Rubber Hose Animation, component-authoring integrations and uniform random creative directions. [Authoring capabilities](https://github.com/delexw/kiteva/commit/9c29942), [random directions](https://github.com/delexw/kiteva/commit/3034ac4), [catalog and authoring](https://github.com/delexw/kiteva/commit/d38e580), [rubber-hose style](https://github.com/delexw/kiteva/commit/43532cf).
+
+### Changed
+
+- **Shared plan-before-build workflow.** Both providers validate a main-model plan before a new preview or full build, preserving the SDK session and correcting rejected structured plans before implementation. [Planning](https://github.com/delexw/kiteva/commit/43532cf).
+- **Native OpenScreen demo capture.** Record a dedicated browser window with explicit model-planned zoom/focus regions, automatic zoom disabled and cursor smoothing at 0.15. Extend browser capabilities and remove application-imposed capture budgets. [Native capture](https://github.com/delexw/kiteva/commit/338e87a), [capture lifecycle](https://github.com/delexw/kiteva/commit/4c97e7b).
+- **Central renderer policy.** Prompts, execution and reproduction instructions share renderer-owned flags and stages. Previews skip QA and automatic repair loops; full films retain QA and runtime determinism verification. Multiplane inspect, verify and render use `--no-lint`. [Shared policies](https://github.com/delexw/kiteva/commit/233ceeb), [execution](https://github.com/delexw/kiteva/commit/43532cf).
+- **Standard MIT license.** Replace the custom non-commercial license with MIT; third-party components retain their own terms. [License](https://github.com/delexw/kiteva/commit/fa678e0).
+
+### Fixed
+
+- **Editor and project visibility.** Resize the idea editor from its top edge, reuse the full-width style picker, show route-appropriate activity, and inspect selected authoring resources and probabilities in Governance. [Editor and Governance](https://github.com/delexw/kiteva/commit/43532cf).
+- **Production reliability.** Improve guarded brief corrections, SDK execution policy, storage contention handling, independent Multiplane shot rendering and stale frontend asset responses. [Brief corrections](https://github.com/delexw/kiteva/commit/e07b55c), [execution policy](https://github.com/delexw/kiteva/commit/885af5b), [rendering and storage](https://github.com/delexw/kiteva/commit/541d6bb), [segmented shots](https://github.com/delexw/kiteva/commit/5b610b0), [frontend assets](https://github.com/delexw/kiteva/commit/43532cf).
+
+This is a GitHub source release, without desktop installers or npm publication. Windows remains experimental; native CI results describe the tested runner, not every Windows installation.
+
 ## [0.1.0] — 2026-10-18
 
 The first source release of Kiteva: a personal creative workspace that turns ideas and references into Motion Graphic films and interactive pages.
@@ -25,3 +49,4 @@ The first source release of Kiteva: a personal creative workspace that turns ide
 Kiteva uses the [MIT License](LICENSE). Third-party components retain their own licenses.
 
 [0.1.0]: https://github.com/delexw/kiteva/releases/tag/v0.1.0
+[0.2.0]: https://github.com/delexw/kiteva/releases/tag/v0.2.0

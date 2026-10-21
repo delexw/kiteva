@@ -207,9 +207,7 @@ flowchart TB
   implementation turns whenever Websites inputs exist. It works the same with or without narration,
   and with any Motion Graphic or renderer. One exception: Multiplane can't place video clips in a
   scene yet, so the agent has to say so rather than fake the UI.
-- Limits: navigation stays on the supplied origins, no login session is inherited, state-changing
-  requests are blocked, there are per-resource and per-session byte budgets, and you get six takes per
-  job, each up to 120 s and 150 MB.
+- Navigation stays on supplied origins and no login session is inherited. Local mock workflows can change their own state. Browser calls, native edits, screenshots and takes have no session-count budget; recording duration and output size have no Kiteva cap. Explicit stop and cancellation control the recording lifecycle.
 - Without a worker URL, OpenScreen records a dedicated visible browser on the current machine. A configured isolated worker keeps that window off the current desktop. Worker failures never silently switch to local recording. See [setup and verification status](openscreen-worker.md).
 
 ## Installed skill staging

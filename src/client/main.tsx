@@ -9,6 +9,7 @@ import {
   roomUtilities,
   type RoomUtilityPage,
 } from "./room/utility-windows";
+import { ProjectDownload } from "./components/project-download";
 import { ProjectResultPending } from "./components/project-result-pending";
 import { RoomProject } from "./room/room-project";
 import { styleTechnologyRecommendations } from "../shared/style-technology";
@@ -663,6 +664,9 @@ function App() {
     return (
       <div className="full-delivery">
         {candidateCard(job, activity)}
+        <div className="delivery-links">
+          <ProjectDownload runId={run.id} job={job} />
+        </div>
         {job.phase === "ready" && (
           <div className="delivery-links">
             <a

@@ -11,6 +11,7 @@ import { createApp } from "../src/server/app";
 import { Store } from "../src/server/jobs/store";
 import { api } from "../src/client/lib/api";
 import sharp from "sharp";
+import { unzipSync } from "fflate";
 let server: Awaited<ReturnType<typeof createApp>>;
 beforeAll(async () => {
   server = await createApp({ store: new Store(":memory:") });
@@ -300,6 +301,50 @@ describe("local application API", () => {
     } finally {
       full.mockRestore();
       server.store.delete(id);
+    }
+  });
+  it("offers project archives for failed jobs as soon as source files exist", async () => {
+    const id = randomUUID();
+    const jobId = randomUUID();
+    const workspace = await mkdtemp(path.join(dataRoot, "export-api-"));
+    const run: Run = {
+      id,
+      createdAt: new Date().toISOString(),
+      phase: "failed",
+      request: RequestSchema.parse({ instructions: "Explain a workflow" }),
+      candidates: [],
+      jobs: [
+        {
+          id: jobId,
+          runId: id,
+          candidateId: "candidate",
+          kind: "full",
+          phase: "failed",
+          model: "claude-opus-5-5",
+          createdAt: new Date().toISOString(),
+          workspace,
+          duration: 10,
+        },
+      ],
+    };
+    server.store.save(run);
+    const url = `/api/projects/${id}/${jobId}`;
+    try {
+      expect((await server.app.inject({ url: `${url}/availability`, headers })).json()).toEqual({
+        available: false,
+      });
+      expect((await server.app.inject({ url, headers })).statusCode).toBe(404);
+      await writeFile(path.join(workspace, "shot.html"), "<canvas></canvas>");
+      expect((await server.app.inject({ url: `${url}/availability`, headers })).json()).toEqual({
+        available: true,
+      });
+      const response = await server.app.inject({ url, headers });
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["content-type"]).toContain("application/zip");
+      expect(unzipSync(response.rawPayload)["source/shot.html"]).toBeDefined();
+    } finally {
+      server.store.delete(id);
+      await rm(workspace, { recursive: true, force: true });
     }
   });
   it("returns stable codes for missing projects and invalid requests", async () => {

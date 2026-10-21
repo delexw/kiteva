@@ -17,6 +17,7 @@ export interface RendererMetadata {
   pipeline: string;
   selectionPolicy: string;
   entryPoint: string;
+  execution: RendererExecutionPolicy;
   visuals: {
     frameContract: string;
     reactComponents: string;
@@ -33,4 +34,24 @@ export interface RendererMetadata {
     guidance: string;
   };
   limitations: string[];
+}
+
+export type RendererJobKind = "preview" | "full";
+export type RendererCommand = "check" | "inspect" | "verify" | "render";
+export type RenderContractInput = {
+  width: number;
+  height: number;
+  duration: number;
+  fps: number;
+  kind: RendererJobKind;
+};
+export interface RendererExecutionPolicy {
+  cliPath: string;
+  commonFlags: readonly string[];
+  outputArgument: string | null;
+  commandFlags: Partial<Record<RendererCommand, readonly string[]>>;
+  stages: Record<RendererJobKind, readonly RendererCommand[]>;
+  quality?: Record<RendererJobKind, string>;
+  format?: Record<RendererJobKind, string>;
+  compositionId?: string;
 }

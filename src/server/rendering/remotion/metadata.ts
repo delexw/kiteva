@@ -7,6 +7,14 @@ export const remotionMetadata = {
   selectionPolicy:
     "Fallback only when HyperFrames has a verified required-capability limitation and production.fallbackReason records it. Not a replacement for a user-selected Multiplane renderer.",
   entryPoint: "React composition entry exporting composition id Video",
+  execution: {
+    cliPath: "node_modules/@remotion/cli/remotion-cli.js",
+    outputArgument: null,
+    commonFlags: [],
+    commandFlags: { render: [] },
+    stages: { preview: ["render"], full: ["render"] },
+    compositionId: "Video",
+  },
   visuals: {
     frameContract:
       "React composition driven by frame number; requested dimensions, fps and durationInFrames must match the job.",

@@ -7,6 +7,14 @@ export const hyperframesMetadata = {
   selectionPolicy:
     "Default renderer. A Remotion fallback requires a verified required-capability limitation; never change a selected Multiplane route to HyperFrames.",
   entryPoint: "index.html",
+  execution: {
+    cliPath: "node_modules/hyperframes/bin/hyperframes.mjs",
+    outputArgument: "--output",
+    commonFlags: [],
+    commandFlags: { check: ["--json", "--snapshots"], render: [] },
+    stages: { preview: ["render"], full: ["check", "render"] },
+    quality: { preview: "draft", full: "delivery" },
+  },
   visuals: {
     frameContract:
       "Standalone HTML with a paused GSAP timeline registered at window.__timelines.video. Frames must derive from composition time and support direct/repeated/out-of-order seeks.",

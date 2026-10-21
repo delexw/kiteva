@@ -11,6 +11,19 @@ export const multiplaneMetadata = {
   selectionPolicy:
     "Experimental renderer explicitly chosen by the user. Preserve this selection; no HyperFrames or Remotion substitution.",
   entryPoint: "shot.html for a single shot; production.shots[0].sourceFile for a segmented film",
+  execution: {
+    cliPath: "node_modules/multiplane/bin/multiplane",
+    outputArgument: "--out",
+    commonFlags: ["--no-lint"],
+    commandFlags: {
+      inspect: ["--json"],
+      verify: ["--json", "--no-hosted"],
+      render: ["--json", "--no-hosted", "--overwrite"],
+    },
+    stages: { preview: ["render"], full: ["inspect", "verify", "render"] },
+    quality: { preview: "fast", full: "standard" },
+    format: { preview: "webm", full: "mp4" },
+  },
   visuals: {
     frameContract:
       "Shot.define with synchronous render(t). Load/decode assets in setup(); each frame is a deterministic function of t with no carried state or autonomous browser media playback.",

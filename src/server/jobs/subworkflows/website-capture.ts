@@ -1,4 +1,4 @@
-import { mkdir, rm, rename, writeFile, stat, readFile, copyFile } from "node:fs/promises";
+import { mkdir, rm, rename, writeFile, readFile, copyFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { z } from "zod";
@@ -19,15 +19,11 @@ import {
   type CapturePresentationInput,
 } from "../../capture/presentation";
 
-export const websiteCaptureLimits = { seconds: 120, bytes: 150_000_000, recordings: 6 };
 export const WebsiteRecordingSchema = z.object({
   assetPath: z.string().regex(/^assets\/website-video-[0-9a-f-]{36}\.webm$/),
   cursorPath: z.string().regex(/^assets\/website-video-[0-9a-f-]{36}\.cursor\.json$/),
   url: z.string().url(),
-  duration: z
-    .number()
-    .positive()
-    .max(websiteCaptureLimits.seconds + 2),
+  duration: z.number().finite().positive(),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
   // Preserve previously saved 30 fps recordings while new captures use 60 fps.
@@ -37,7 +33,7 @@ export const WebsiteRecordingSchema = z.object({
     .object({
       engine: z.literal("OpenScreen"),
       cursorRendered: z.literal(true),
-      autoZoom: z.literal(true),
+      autoZoom: z.boolean(),
       idleGapsTrimmed: z.boolean(),
       sourceDuration: z.number().positive(),
       settings: AppliedCapturePresentationSchema.optional(),
@@ -137,13 +133,7 @@ export async function startWebsiteCapture(
   };
   signal.addEventListener("abort", abort, { once: true });
   if (signal.aborted) abort();
-  const timer = setTimeout(() => {
-    failure = Error("Website recording exceeded 120 seconds; capture shorter takes");
-    void stop().catch(() => {});
-  }, websiteCaptureLimits.seconds * 1000);
-  timer.unref();
   async function finish() {
-    clearTimeout(timer);
     signal.removeEventListener("abort", abort);
     const result = await stop();
     if (failure) throw failure;
@@ -215,8 +205,6 @@ export async function startWebsiteCapture(
   }): Promise<WebsiteRecording> {
     signal.throwIfAborted();
     if (failure) throw failure;
-    if ((await stat(temporary)).size > websiteCaptureLimits.bytes)
-      throw Error("Recording too large");
     // FFmpeg's streaming WebM omits seek indexes and duration. Finalize the
     // container before exposing it as a seekable composition input.
     await command(
@@ -228,12 +216,7 @@ export async function startWebsiteCapture(
     const probe = await probeVideo(finalized, signal);
     const stream = probe.streams.find((item) => item.codec_type === "video");
     const duration = Number(probe.format.duration);
-    if (
-      !stream ||
-      !Number.isFinite(duration) ||
-      duration <= 0 ||
-      duration > websiteCaptureLimits.seconds + 2
-    )
+    if (!stream || !Number.isFinite(duration) || duration <= 0)
       throw Error("Website recording has no valid video stream or duration");
     await command(
       "ffmpeg",
@@ -276,7 +259,7 @@ export async function startWebsiteCapture(
       presentation: {
         engine: "OpenScreen",
         cursorRendered: true,
-        autoZoom: true,
+        autoZoom: false,
         idleGapsTrimmed: trims.length > 0,
         sourceDuration,
         settings,
@@ -341,7 +324,6 @@ export async function startWebsiteCapture(
       return finalize(preparedStream);
     },
     async close() {
-      clearTimeout(timer);
       signal.removeEventListener("abort", abort);
       await editor?.close();
       try {

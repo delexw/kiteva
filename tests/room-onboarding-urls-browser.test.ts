@@ -7,7 +7,7 @@ import { createServer } from "vite";
 import { expect, it } from "vitest";
 import { browserExecutablePath } from "../src/server/runtime/browser";
 import { appRoot } from "../src/server/runtime/config";
-import { browserAliases } from "../vite.resolve";
+import { browserAliases, browserDependencyScan } from "../vite.resolve";
 
 it.skipIf(!browserExecutablePath())(
   "edits website URLs in their section independently from the reply",
@@ -17,6 +17,7 @@ it.skipIf(!browserExecutablePath())(
       configFile: false,
       cacheDir,
       root: appRoot,
+      optimizeDeps: browserDependencyScan,
       resolve: { alias: browserAliases },
       server: { host: "127.0.0.1", port: 0, watch: { ignored: ["**/.data/**"] } },
       plugins: [

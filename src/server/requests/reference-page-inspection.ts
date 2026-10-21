@@ -4,7 +4,10 @@ export function inspectReferenceDocument() {
       'a,button,input:not([type="hidden"]),textarea,select,[role="button"],[role="tab"],summary',
     ),
   )
-    .filter((element) => element.getBoundingClientRect().width > 0)
+    .filter(
+      (element) =>
+        element.matches('input[type="file"]') || element.getBoundingClientRect().width > 0,
+    )
     .slice(0, 80)
     .map((element, index) => {
       const id = String(index + 1);
@@ -21,6 +24,9 @@ export function inspectReferenceDocument() {
           .trim()
           .slice(0, 180),
         role: element.getAttribute("role") || element.tagName.toLowerCase(),
+        ...(element instanceof HTMLInputElement && element.type === "file"
+          ? { type: "file" as const, accept: element.accept, multiple: element.multiple }
+          : {}),
         url: element instanceof HTMLAnchorElement ? element.href : undefined,
       };
     });
@@ -64,3 +70,7 @@ export function referencePageHasContent() {
     }),
   );
 }
+
+export type ReferencePageInspection = ReturnType<typeof inspectReferenceDocument> & {
+  dialog?: { type: string; message: string };
+};

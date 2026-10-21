@@ -1,8 +1,7 @@
-import { videoRenderTimeoutMs } from "../rendering/timeouts";
 import Fastify from "fastify";
 import { timingSafeEqual, randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { mkdtemp, mkdir, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { z } from "zod";
@@ -23,8 +22,6 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
     controller: AbortController;
     workspace: string;
     queue: WorkQueue;
-    timer: NodeJS.Timeout;
-    calls: number;
   };
   const sessions = new Map<string, Session>();
   let starting = false;
@@ -33,7 +30,6 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
     const session = sessions.get(id);
     if (!session) return;
     sessions.delete(id);
-    clearTimeout(session.timer);
     session.controller.abort();
     try {
       await session.browser.close();
@@ -59,17 +55,11 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
       await mkdir(path.join(workspace, "assets"));
       const browser = await createBrowser(input.urls, controller.signal, input.mode);
       const id = randomUUID();
-      const timer = setTimeout(() => {
-        void close(id).catch(() => {});
-      }, videoRenderTimeoutMs + 180000);
-      timer.unref();
       sessions.set(id, {
         browser,
         controller,
         workspace,
         queue: new WorkQueue(1),
-        timer,
-        calls: 0,
       });
       return { id };
     } catch (error) {
@@ -80,23 +70,44 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
       starting = false;
     }
   });
-  app.post("/sessions/:id/actions", async (request, reply) => {
+  app.post("/sessions/:id/actions", { bodyLimit: 112 * 1024 * 1024 }, async (request, reply) => {
     const { id } = sessionSchema.parse(request.params);
     const session = sessions.get(id);
     if (!session) return reply.code(404).send({ error: "Capture session expired" });
     const action = CaptureActionSchema.parse(request.body);
-    session.timer.refresh();
     return session.queue.run(async () => {
-      if (++session.calls > 80 && !["prepare", "edit", "export"].includes(action.action))
-        throw Error("Capture session call limit reached");
       const browser = session.browser;
       switch (action.action) {
+        case "browser":
+          return browser.perform(
+            action.request as import("../requests/reference-tool-registry").BrowserCapabilityRequest,
+            session.workspace,
+          );
         case "inspect":
           return browser.inspect(action.url);
         case "click":
           return browser.click(action.controlId);
         case "fill":
           return browser.fill(action.controlId, action.value);
+        case "upload": {
+          const directory = await mkdtemp(path.join(session.workspace, "upload-"));
+          try {
+            const files = await Promise.all(
+              action.files.map(async (file, index) => {
+                const folder = path.join(directory, String(index));
+                await mkdir(folder);
+                const destination = path.join(folder, file.name);
+                const bytes = Buffer.from(file.base64, "base64");
+                if (bytes.length > 10 * 1024 * 1024) throw Error("Upload exceeds 10 MiB");
+                await writeFile(destination, bytes);
+                return destination;
+              }),
+            );
+            return await browser.upload(action.controlId, files);
+          } finally {
+            await rm(directory, { recursive: true, force: true });
+          }
+        }
         case "scroll":
           return browser.scroll(action.deltaY);
         case "wait":

@@ -90,3 +90,15 @@ it("refuses to select a substitute recorder when OpenScreen is not configured", 
   ).rejects.toThrow("OPENSCREEN_EXECUTABLE");
   expect(spawn).not.toHaveBeenCalled();
 });
+
+it("does not expire or kill an active recording after the former duration caps", async () => {
+  vi.useFakeTimers();
+  const child = processFixture();
+  const pending = startOpenScreen("Example", new AbortController().signal);
+  await vi.advanceTimersByTimeAsync(0);
+  const recorder = await pending;
+  await vi.advanceTimersByTimeAsync(600000);
+  expect(stopProcessTree).not.toHaveBeenCalled();
+  expect(child.stdin.writableEnded).toBe(false);
+  await recorder.stop();
+});

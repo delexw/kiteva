@@ -1,3 +1,4 @@
+import { browserDependencyScan } from "../vite.resolve";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -21,6 +22,7 @@ it.skipIf(!browserExecutablePath())(
       configFile: false,
       cacheDir,
       root: appRoot,
+      optimizeDeps: browserDependencyScan,
       resolve: { alias: { "@": path.join(appRoot, "src/client") } },
       server: {
         host: "127.0.0.1",

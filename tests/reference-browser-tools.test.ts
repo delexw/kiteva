@@ -1,8 +1,9 @@
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile, symlink, realpath, truncate } from "node:fs/promises";
 import os from "node:os";
 import sharp from "sharp";
 import path from "node:path";
 import { expect, it, vi } from "vitest";
+import { browserCapabilities } from "../src/server/requests/reference-tool-registry";
 import { captureCursorThemes } from "../src/server/capture/presentation";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -34,12 +35,18 @@ it.each([64, 3000])(
       sections: [{ heading: "Settings", selector: "#settings" }],
     };
     const session = {
+      perform: vi.fn(async () => ({
+        kind: "browser_action" as const,
+        operation: "browser_diagnostics" as const,
+        data: [],
+      })),
       inspect: vi.fn().mockResolvedValue(inspection),
       click: vi.fn().mockResolvedValue(inspection),
       capture: vi.fn(async (file: string) => {
         await writeFile(file, png);
         return { title: inspection.title, url: inspection.url, text: inspection.text };
       }),
+      upload: vi.fn().mockResolvedValue(inspection),
       fill: vi.fn().mockResolvedValue(inspection),
       wait: vi.fn(async () => {}),
       scroll: vi.fn().mockResolvedValue(inspection),
@@ -67,7 +74,21 @@ it.each([64, 3000])(
         "click_control",
         "capture_screenshot",
         "scroll_page",
+        ...Object.entries(browserCapabilities)
+          .filter(([, definition]) => definition.readOnly)
+          .map(([name]) => name),
       ]);
+      const diagnostic = await client.callTool({
+        name: "browser_diagnostics",
+        arguments: { action: "console" },
+      });
+      expect(diagnostic).toMatchObject({
+        structuredContent: { kind: "browser_action", operation: "browser_diagnostics" },
+      });
+      expect(session.perform).toHaveBeenCalledWith(
+        { operation: "browser_diagnostics", action: "console" },
+        workspace,
+      );
       expect(session.capture).not.toHaveBeenCalled();
       const state = await client.callTool({
         name: "inspect_page",
@@ -110,6 +131,11 @@ it.each([64, 3000])(
         structuredContent: { kind: "error", message: "Section not found" },
       });
       expect(await readReferenceScreenshots(workspace)).toHaveLength(1);
+      for (let index = 0; index < 12; index++)
+        expect(await client.callTool({ name: "capture_screenshot", arguments: {} })).toMatchObject({
+          structuredContent: { kind: "screenshot" },
+        });
+      expect(await readReferenceScreenshots(workspace)).toHaveLength(13);
     } finally {
       await client.close();
       await tools.close();
@@ -119,7 +145,7 @@ it.each([64, 3000])(
   },
 );
 
-it("keeps stop available after the interaction budget and preserves earlier recording inventory", async () => {
+it("continues browsing, editing and taking recordings beyond former budgets while preserving inventory", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "capture-tools-"));
   const workspace = root;
   const id = "00000000-0000-4000-8000-000000000001";
@@ -147,8 +173,14 @@ it("keeps stop available after the interaction budget and preserves earlier reco
     sections: [],
   };
   const session = {
+    perform: vi.fn(async () => ({
+      kind: "browser_action" as const,
+      operation: "browser_diagnostics" as const,
+      data: [],
+    })),
     inspect: vi.fn().mockResolvedValue(inspection),
     click: vi.fn(),
+    upload: vi.fn().mockResolvedValue(inspection),
     fill: vi.fn(),
     wait: vi.fn(async () => {}),
     scroll: vi.fn(),
@@ -181,6 +213,55 @@ it("keeps stop available after the interaction budget and preserves earlier reco
   try {
     await tools.server.connect(serverTransport);
     await client.connect(clientTransport);
+    const published = (await client.listTools()).tools;
+    for (const [name, definition] of Object.entries(browserCapabilities)) {
+      expect(published.find((tool) => tool.name === name)).toMatchObject({
+        description: definition.description,
+        inputSchema: { type: "object" },
+      });
+    }
+    const pointerResult = await client.callTool({
+      name: "browser_pointer",
+      arguments: { action: "click", x: 10, y: 20 },
+    });
+    expect(pointerResult.isError).not.toBe(true);
+    expect(session.perform).toHaveBeenCalledWith(
+      expect.objectContaining({
+        operation: "browser_pointer",
+        action: "click",
+        x: 10,
+        y: 20,
+        button: "left",
+        clickCount: 1,
+      }),
+      workspace,
+    );
+    const sample = path.join(workspace, "sample.png");
+    await writeFile(sample, "sample image");
+    const uploaded = await client.callTool({
+      name: "upload_files",
+      arguments: { controlId: "1", files: ["sample.png"] },
+    });
+    expect(uploaded).toMatchObject({ structuredContent: { kind: "inspection", page: inspection } });
+    expect(session.upload).toHaveBeenCalledWith("1", [await realpath(sample)]);
+    expect(session.click).not.toHaveBeenCalled();
+    const outside = `${root}-outside.png`;
+    await writeFile(outside, "outside");
+    await symlink(outside, path.join(workspace, "escape.png"));
+    for (const files of [[outside], ["escape.png"], []]) {
+      expect(
+        await client.callTool({ name: "upload_files", arguments: { controlId: "1", files } }),
+      ).toMatchObject({ isError: true });
+    }
+    await rm(outside);
+    await truncate(sample, 10 * 1024 * 1024 + 1);
+    expect(
+      await client.callTool({
+        name: "upload_files",
+        arguments: { controlId: "1", files: ["sample.png"] },
+      }),
+    ).toMatchObject({ isError: true });
+    expect(session.upload).toHaveBeenCalledTimes(1);
     const scroll = (await client.listTools()).tools.find((tool) => tool.name === "scroll_page")!;
     const videoTool = (await client.listTools()).tools.find(
       (tool) => tool.name === "capture_video",
@@ -214,10 +295,10 @@ it("keeps stop available after the interaction budget and preserves earlier reco
       workspace,
       expect.objectContaining({ cursorSize: 2.5, cursorTheme: "pixel-candy" }),
     );
-    for (let index = 0; index < 80; index++)
+    for (let index = 0; index < 100; index++)
       await client.callTool({ name: "inspect_page", arguments: {} });
     expect(await client.callTool({ name: "inspect_page", arguments: {} })).toMatchObject({
-      isError: true,
+      structuredContent: { kind: "inspection" },
     });
     expect(
       await client.callTool({
@@ -246,6 +327,27 @@ it("keeps stop available after the interaction budget and preserves earlier reco
       operation: "getFrames",
       arguments: { count: 6 },
     });
+    for (let index = 0; index < 100; index++)
+      expect(
+        await client.callTool({
+          name: "capture_video",
+          arguments: {
+            action: "edit",
+            recordingId: id,
+            native: { operation: "getCurrentDocument", arguments: {} },
+          },
+        }),
+      ).toMatchObject({ structuredContent: { kind: "native_capture" } });
+    for (let index = 0; index < 8; index++) {
+      expect(
+        await client.callTool({ name: "capture_video", arguments: { action: "start" } }),
+      ).toMatchObject({ structuredContent: { kind: "recording_started" } });
+      await client.callTool({
+        name: "capture_video",
+        arguments: { action: "stop", recordingId: id },
+      });
+    }
+
     await client.callTool({
       name: "capture_video",
       arguments: { action: "export", recordingId: id },

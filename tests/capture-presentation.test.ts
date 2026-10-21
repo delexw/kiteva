@@ -6,8 +6,12 @@ import {
   AppliedCapturePresentationSchema,
 } from "../src/server/capture/presentation";
 
-it("leaves omitted cursor timing and effect settings to OpenScreen", () => {
-  expect(CapturePresentationSchema.parse({})).toEqual({ zoomRegions: [], cursorTheme: "default" });
+it("fixes cursor smoothing at 0.15 while leaving optional effects to OpenScreen", () => {
+  expect(CapturePresentationSchema.parse({})).toEqual({
+    zoomRegions: [],
+    cursorTheme: "default",
+    cursorSmoothing: 0.15,
+  });
 });
 
 it("defaults custom zooms to cursor following without requiring fixed coordinates", () => {
@@ -41,6 +45,8 @@ it.each([
   { cursorAlwaysArrow: true },
   { cursorSize: 0 },
   { cursorSmoothing: 2 },
+  { cursorSmoothing: 0 },
+  { cursorSmoothing: 0.6 },
   { cursorMotionBlur: -1 },
   { cursorClickBounce: 2.5 },
   { cursorClickBounce: 3 },
@@ -82,4 +88,18 @@ it("uses the native MCP bounce limit for new takes while reading historical meta
     minimum: 0,
     maximum: 2,
   });
+});
+
+it("keeps historical smoothing values without changing new capture policy", () => {
+  expect(AppliedCapturePresentationSchema.parse({ cursorSmoothing: 0 }).cursorSmoothing).toBe(0);
+  expect(CapturePresentationSchema.parse({ cursorSmoothing: 0.15 }).cursorSmoothing).toBe(0.15);
+});
+
+it("allows focus regions beyond two minutes and more than twenty regions", () => {
+  const zoomRegions = Array.from({ length: 25 }, (_, i) => ({
+    startSeconds: 600 + i * 3,
+    endSeconds: 602 + i * 3,
+    depth: 1,
+  }));
+  expect(CapturePresentationSchema.parse({ zoomRegions }).zoomRegions).toHaveLength(25);
 });

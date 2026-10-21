@@ -12,8 +12,8 @@ export const captureCursorThemes = [
 
 const ZoomRegionSchema = z
   .object({
-    startSeconds: z.number().min(0).max(120),
-    endSeconds: z.number().positive().max(120),
+    startSeconds: z.number().finite().min(0),
+    endSeconds: z.number().finite().positive(),
     depth: z.number().int().min(1).max(6).describe("1=1.25x, 2=1.5x, 3=1.8x, 4=2.2x, 5=3.5x, 6=5x"),
     focusMode: z
       .enum(["auto", "manual"])
@@ -47,7 +47,6 @@ export const CapturePresentationSchema = z
       ),
     zoomRegions: z
       .array(ZoomRegionSchema)
-      .max(20)
       .refine(
         (regions) =>
           regions.every(
@@ -57,7 +56,7 @@ export const CapturePresentationSchema = z
       )
       .default([])
       .describe(
-        "Optional zoom regions in ORIGINAL recording seconds, before idle cuts. Focus follows the cursor by default. Manual focus must be explicit; its coordinates are normalized to the full recorded window. Native auto-zoom avoids these regions.",
+        "Optional zoom regions in ORIGINAL recording seconds, before idle cuts. Focus follows the cursor by default. Manual focus must be explicit; its coordinates are normalized to the full recorded window. Automatic zoom generation is disabled.",
       ),
     cursorTheme: z
       .enum(captureCursorThemes)
@@ -66,7 +65,7 @@ export const CapturePresentationSchema = z
         "Choose a 2D cursor theme to complement the idea's primary Motion Graphic, palette and tone while remaining visible over the app. Keep the same theme across related takes. Omission uses OpenScreen's default theme; 3D is disabled.",
       ),
     cursorSize: z.number().min(1.5).max(6).optional(),
-    cursorSmoothing: z.number().min(0).max(1).optional(),
+    cursorSmoothing: z.literal(0.15).default(0.15).describe("Fixed cursor smoothing: always 0.15."),
     cursorMotionBlur: z.number().min(0).max(1).optional(),
     cursorClickBounce: z.number().min(0).max(2).optional(),
     cursorClickImpact: z
@@ -88,6 +87,8 @@ export const captureCursorAppearance = {
 
 /** Recording provenance also accepts the appearances used by earlier saved takes. */
 export const AppliedCapturePresentationSchema = CapturePresentationSchema.extend({
+  // Preserve the actual settings of older takes; new captures always use 0.15.
+  cursorSmoothing: z.number().min(0).max(1).optional(),
   // The previous CLI export path accepted 2.5; retain saved recording metadata.
   cursorClickBounce: z.number().min(0).max(2.5).optional(),
   // Earlier saved custom regions were exported as manual before focusMode was exposed.

@@ -2,6 +2,13 @@
   <img src="public/kiteva-mark.svg" width="88" alt="Kiteva 标志：一只由蓝紫色块面组成的风筝">
 </p>
 
+<p align="center">
+  <a href="https://releaseszn.com/p/kiteva"><img src="https://releaseszn.com/badge/kiteva.svg" alt="releaseszn"></a>
+  <a href="https://github.com/delexw/kiteva/releases/latest"><img src="https://img.shields.io/github/v/release/delexw/kiteva" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/delexw/kiteva" alt="MIT license"></a>
+  <a href="https://github.com/delexw/kiteva/actions/workflows/native-windows.yml"><img src="https://github.com/delexw/kiteva/actions/workflows/native-windows.yml/badge.svg" alt="Native Windows CI"></a>
+</p>
+
 <h1 align="center">kiteva</h1>
 
 <p align="center">
@@ -29,6 +36,10 @@
 
 <details>
 <summary>2026-10-22</summary>
+
+- **README 徽章：**在标志下方添加 releaseszn、最新版本、MIT 许可和 Native Windows CI 徽章。
+
+- **Governance 创作详情：**视觉和音频 Jev 选择共用详情展示，显示已保存项目的所选资源及可展开的概率比较。
 
 - **v0.2.0：**包含 140 种 Motion Graphic、48 种动作、指定风格预览、共享规划、可编辑项目导出、原生录屏与 MIT 许可。详见[发布说明](CHANGELOG.md#020--2026-10-22)。
 

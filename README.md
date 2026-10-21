@@ -2,6 +2,13 @@
   <img src="public/kiteva-mark.svg" width="88" alt="Kiteva logo: a faceted blue and violet kite">
 </p>
 
+<p align="center">
+  <a href="https://releaseszn.com/p/kiteva"><img src="https://releaseszn.com/badge/kiteva.svg" alt="releaseszn"></a>
+  <a href="https://github.com/delexw/kiteva/releases/latest"><img src="https://img.shields.io/github/v/release/delexw/kiteva" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/delexw/kiteva" alt="MIT license"></a>
+  <a href="https://github.com/delexw/kiteva/actions/workflows/native-windows.yml"><img src="https://github.com/delexw/kiteva/actions/workflows/native-windows.yml/badge.svg" alt="Native Windows CI"></a>
+</p>
+
 <h1 align="center">kiteva</h1>
 
 <p align="center">
@@ -29,6 +36,10 @@ Dates below use New Zealand time.
 
 <details>
 <summary>2026-10-22</summary>
+
+- **README badges:** added releaseszn, latest release, MIT license and Native Windows CI badges beneath the logo.
+
+- **Governance authoring details:** visual and audio Jev choices share one details display, including selected resources and expandable probabilities for saved projects.
 
 - **v0.2.0:** release with 140 Motion Graphics and 48 motions, style-driven previews, shared planning, editable project exports, native capture and the MIT license. See the [release notes](CHANGELOG.md#020--2026-10-22).
 

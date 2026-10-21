@@ -450,3 +450,104 @@ it("requires WAV generation before the full Multiplane handoff without changing 
     "MULTIPLANE AUDIO-FIRST HANDOFF",
   );
 });
+
+it.each(["preview", "full"] as const)(
+  "renders independent %s shots and joins once with film-level audio",
+  async (kind) => {
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "multiplane-shots-"));
+    const manifest = {
+      ...production("Multiplane"),
+      sourceFile: "shots/01.html",
+      shots: [
+        { sourceFile: "shots/01.html", duration: 1 },
+        { sourceFile: "shots/02.html", duration: 2 },
+      ],
+      audioFile: "score.wav",
+    };
+    vi.mocked(isolatedCommand).mockImplementation(
+      async (_exe, args, _cwd, _signal, _output, _timeout, stdout) => {
+        if (args[1] === "inspect")
+          stdout?.(
+            result("inspect", true, {
+              stage: { width: 1280, height: 720 },
+              duration: args[2] === "shots/01.html" ? 1 : 2,
+              fps: 30,
+            }),
+          );
+        else stdout?.(result(args[1], true));
+        return "";
+      },
+    );
+    vi.mocked(command).mockImplementation(async (exe) =>
+      exe === "ffprobe" ? ffprobe(kind === "preview" ? "vp9" : "h264") : "",
+    );
+    await renderJob(job(workspace, kind), manifest, new AbortController().signal, vi.fn());
+    expect(vi.mocked(isolatedCommand).mock.calls.map((call) => call[1][1])).toEqual([
+      "inspect",
+      "verify",
+      "render",
+      "inspect",
+      "verify",
+      "render",
+    ]);
+    const renders = vi.mocked(isolatedCommand).mock.calls.filter((call) => call[1][1] === "render");
+    for (const call of renders) expect(call[1]).not.toContain("--audio");
+    const concat = vi.mocked(command).mock.calls.find((call) => call[1].includes("concat"))!;
+    expect(concat[1]).toEqual(expect.arrayContaining(["-c:v", "copy", "-t", "3"]));
+    if (kind === "full") expect(concat[1]).toContain(path.join(workspace, "score.wav"));
+    else {
+      expect(concat[1]).not.toContain(path.join(workspace, "score.wav"));
+      expect(concat[1]).toContain("-an");
+    }
+    const ext = kind === "preview" ? "webm" : "mp4";
+    expect(await readFile(path.join(workspace, "renders/shots/shots.ffconcat"), "utf8")).toBe(
+      `file 'shot-0.${ext}'\nfile 'shot-1.${ext}'\n`,
+    );
+  },
+);
+
+it("stops before rendering or assembling when any individual shot fails verification", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "multiplane-shot-failure-"));
+  const manifest = {
+    ...production("Multiplane"),
+    sourceFile: "shots/01.html",
+    shots: [
+      { sourceFile: "shots/01.html", duration: 1 },
+      { sourceFile: "shots/02.html", duration: 2 },
+    ],
+  };
+  vi.mocked(isolatedCommand).mockImplementation(
+    async (_exe, args, _cwd, _signal, _output, _timeout, stdout) => {
+      if (args[1] === "inspect")
+        stdout?.(
+          result("inspect", true, {
+            stage: { width: 1280, height: 720 },
+            duration: args[2] === "shots/01.html" ? 1 : 2,
+            fps: 30,
+          }),
+        );
+      else if (args[1] === "verify" && args[2] === "shots/02.html")
+        stdout?.(
+          result(
+            "verify",
+            false,
+            {},
+            { code: "ready_timeout", message: "Shot readiness timed out." },
+          ),
+        );
+      else stdout?.(result(args[1], true));
+      return "";
+    },
+  );
+  await expect(
+    renderJob(job(workspace), manifest, new AbortController().signal, vi.fn()),
+  ).rejects.toThrow("Shot readiness timed out");
+  expect(vi.mocked(isolatedCommand).mock.calls.map((call) => call[1][1])).toEqual([
+    "inspect",
+    "verify",
+    "render",
+    "inspect",
+    "verify",
+  ]);
+  expect(command).not.toHaveBeenCalled();
+});

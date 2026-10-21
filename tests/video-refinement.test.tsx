@@ -127,7 +127,9 @@ it.each(["claude", "codex"] as const)(
       });
       expect(prompt).toContain("REVISION SCOPE");
       expect(prompt).toContain("Make captions larger");
-      expect(prompt).toContain("Read the existing index.html, production.json and STORYBOARD.json");
+      expect(prompt).toContain(
+        "Read production.json and STORYBOARD.json first, then the existing index.html",
+      );
     } finally {
       await rm(workspace, { recursive: true, force: true });
       await rm(path.join(dataRoot, "runs", run.id), { recursive: true, force: true });

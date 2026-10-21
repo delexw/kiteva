@@ -1,4 +1,5 @@
 import { creativeApproaches } from "../../shared/creative-approach";
+import { PromptText } from "../components/style-mention";
 import { uiLanguage, translateUi, useUiLanguage } from "../i18n";
 import { PageTemplate } from "../components/page-template";
 import { Button, Card, Collapse, Select, Statistic, Table, Tag, Alert } from "antd";
@@ -231,7 +232,9 @@ export function GovernancePage() {
                 children: (
                   <div className="governance-subsection-body">
                     <h3>{translateUi("Instructions")}</h3>
-                    <p className="governance-copy">{project.request.instructions}</p>
+                    <p className="governance-copy">
+                      <PromptText>{project.request.instructions}</PromptText>
+                    </p>
                     {project.request.requirements && (
                       <>
                         <h3>{translateUi("Music / instrumental requirements")}</h3>

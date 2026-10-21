@@ -659,9 +659,9 @@ export async function createApp(options: { store?: Store } = {}) {
       }
     },
   );
-  await app.register(staticFiles, { root: path.join(appRoot, "dist/client"), wildcard: false });
+  await app.register(staticFiles, { root: path.join(appRoot, "dist/client"), wildcard: true });
   app.setNotFoundHandler((req, reply) =>
-    req.url.startsWith("/api/")
+    req.url.startsWith("/api/") || req.url.startsWith("/assets/")
       ? reply.code(404).send({ code: "NOT_FOUND", error: "Not found" })
       : reply.sendFile("index.html"),
   );

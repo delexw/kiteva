@@ -9,6 +9,11 @@ import { InputRequired } from "../src/shared/input-checkpoint";
 import { loadCatalog } from "../src/server/catalog/catalog";
 vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
 vi.mock("../src/server/rendering/render", () => ({ renderJob: vi.fn() }));
+// Exercise questions returned during implementation; planning/session handoff is
+// covered separately in video-build-plan.test.ts for both providers and all routes.
+vi.mock("../src/server/domains/video/build-plan", () => ({
+  prepareVideoBuildPlan: async (input: { prompt: string }) => input.prompt,
+}));
 import { agentTurn } from "../src/server/agents/providers";
 import { renderJob } from "../src/server/rendering/render";
 import { generateVideo } from "../src/server/domains/video/workflow";

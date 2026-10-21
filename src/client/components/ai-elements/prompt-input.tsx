@@ -1,5 +1,7 @@
 "use client";
 
+import { StylePromptInput } from "../style-prompt-input";
+
 import { translateUi, useUiLanguage } from "../../i18n";
 
 import {
@@ -1313,3 +1315,11 @@ export const PromptInputCommandSeparator = ({
   className,
   ...props
 }: PromptInputCommandSeparatorProps) => <CommandSeparator className={cn(className)} {...props} />;
+
+/** Keep the composer attachment flow when using the native Ant Design X mention editor. */
+export const PromptInputStyleMentions = (props: ComponentProps<typeof StylePromptInput>) => {
+  const attachments = usePromptInputAttachments();
+  return (
+    <StylePromptInput {...props} onPasteFile={(files) => attachments.add(Array.from(files))} />
+  );
+};

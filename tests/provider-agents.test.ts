@@ -123,6 +123,51 @@ vi.mock("@openai/codex-sdk", () => ({
 import { claudeAgent } from "../src/server/agents/claude-agent";
 import { codexAgent } from "../src/server/agents/codex-agent";
 import { agentTurn } from "../src/server/agents/providers";
+import { StructuredOutputError } from "../src/server/agents/structured-output-error";
+
+it.each(["claude", "codex"] as const)(
+  "preserves the %s response and session when application validation rejects structured output",
+  async (provider) => {
+    const output = { message: "done" };
+    sdk.query.mockImplementation(async function* () {
+      yield {
+        type: "result",
+        subtype: "success",
+        is_error: false,
+        structured_output: output,
+        session_id: "rejected-session",
+        usage: {},
+        modelUsage: {},
+      };
+    });
+    sdk.codexEvents.mockImplementation(async function* () {
+      yield { type: "thread.started", thread_id: "rejected-session" };
+      yield {
+        type: "item.completed",
+        item: { id: "answer", type: "agent_message", text: JSON.stringify(output) },
+      };
+      yield { type: "turn.completed", usage: {} };
+    });
+    const result = agentTurn({
+      ...capacityAttemptOptions(),
+      provider,
+      schema: z.object({ message: z.string() }).superRefine((_value, ctx) =>
+        ctx.addIssue({
+          code: "custom",
+          path: ["message"],
+          message: "Application relationship is invalid",
+        }),
+      ),
+    });
+    await expect(result).rejects.toBeInstanceOf(z.ZodError);
+    await expect(result).rejects.toBeInstanceOf(StructuredOutputError);
+    await expect(result).rejects.toMatchObject({
+      output,
+      sessionId: "rejected-session",
+      issues: [expect.objectContaining({ message: "Application relationship is invalid" })],
+    });
+  },
+);
 import type { Agent, ProviderEvent } from "../src/server/agents/agent";
 
 it.each([claudeAgent, codexAgent] satisfies Agent[])(
@@ -974,7 +1019,7 @@ it.each(["claude", "codex"] as const)(
       provider === "claude"
         ? sdk.query.mock.calls.at(-1)![0].options.systemPrompt
         : sdk.stream.mock.calls.at(-1)![0];
-    expect(guidance).toContain("FIRST STEP FOR EVERY VIDEO TASK");
+    expect(guidance).toContain("FIRST STEP FOR EVERY AUTHORING TASK");
     expect(guidance).toContain("creative_pool.search_pool");
     expect(guidance).toContain("creative_pool.read_pool_entry");
     expect(guidance).toContain("Before planning, writing code or making implementation choices");

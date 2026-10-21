@@ -1,3 +1,4 @@
+import { requestedStyleScopeGuidance } from "../src/shared/style-combinations";
 import { expect, it } from "vitest";
 import {
   videoModelGuidance,
@@ -189,6 +190,7 @@ it.each(["preview", "full", "refinement"] as const)(
     }
     expect(musicResult).not.toContain("continuous musical groove");
     const prompt = buildVideoPrompt(input);
+    expect(prompt.split(requestedStyleScopeGuidance)).toHaveLength(2);
     expect(prompt).toContain(
       `ORIGINAL USER IDEA (verbatim source text):\n${input.request.instructions}\nEND ORIGINAL USER IDEA`,
     );
@@ -201,6 +203,7 @@ it.each(["preview", "full", "refinement"] as const)(
             ...input.request,
             provider,
             selectedStyleIds: ["style-018"],
+            candidateCount: 0,
             instructions:
               "Use the selected style for Acts 1–2 and another named Motion Graphic for Act 3.",
           },

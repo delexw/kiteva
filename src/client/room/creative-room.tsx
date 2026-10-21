@@ -1,4 +1,5 @@
 import { UiLanguageSwitch, uiLanguages, uiLanguage } from "../i18n";
+import { PromptText } from "../components/style-mention";
 import { translateUi, useUiLanguage } from "../i18n";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Attachments, XProvider } from "@ant-design/x";
@@ -738,7 +739,7 @@ export function CreativeRoom({
           </Dropdown>
         </div>
         <p className="room-widget-description">
-          {project.brief?.objective || project.request.instructions}
+          <PromptText>{project.brief?.objective || project.request.instructions}</PromptText>
         </p>
       </div>
     );

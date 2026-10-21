@@ -221,7 +221,7 @@ describe("catalog integration", () => {
     expect(catalog.motions.map((motion) => motion.id)).toEqual(
       Array.from({ length: 48 }, (_, i) => `motion-${String(i + 1).padStart(3, "0")}`),
     );
-    expect(catalog.styles).toHaveLength(139);
+    expect(catalog.styles).toHaveLength(140);
     const template = Object.keys(raw.patterns.find((p: { id: string }) => p.id === "motion-041"));
     for (const id of ["motion-044", "motion-045", "motion-046"]) {
       const entry = raw.patterns.find((p: { id: string }) => p.id === id);

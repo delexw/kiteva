@@ -3,6 +3,10 @@ import { Select } from "antd";
 import { Layers } from "lucide-react";
 import type { StyleExample } from "../../shared/contracts";
 import { StyleExampleMedia } from "../style-card";
+import { createContext, useContext } from "react";
+
+/** The application's already-loaded preview metadata; no per-mention fetches. */
+export const StyleExamplesContext = createContext<readonly StyleExample[]>([]);
 
 type PickerStyle = { id: string; name_en: string };
 export function StylePickerPreview({
@@ -15,6 +19,8 @@ export function StylePickerPreview({
   compact?: boolean;
 }) {
   useUiLanguage();
+  const examples = useContext(StyleExamplesContext);
+  const preview = example ?? examples.find((entry) => entry.styleId === style.id);
   return (
     <div className={compact ? "style-picker-option" : "style-picker-preview"}>
       {compact ? (
@@ -22,10 +28,10 @@ export function StylePickerPreview({
       ) : (
         <StyleExampleMedia
           styleId={style.id}
-          version={example?.generatedAt}
-          video={example?.video}
-          videoVersion={example?.videoGeneratedAt}
-          motionStatus={example?.motionStatus}
+          version={preview?.generatedAt}
+          video={preview?.video}
+          videoVersion={preview?.videoGeneratedAt}
+          motionStatus={preview?.motionStatus}
         />
       )}
       <span>{translateUi(style.name_en)}</span>

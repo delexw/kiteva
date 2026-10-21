@@ -38,6 +38,7 @@ export function projectConversationEntries(run: Run, events: AgentProgressEvent[
     ...activityItems(
       events.filter((event) => !run.jobs.some((job) => job.id === event.jobId)),
       false,
+      run,
     ).map((item): ProjectConversationEntry => ({
       id: `activity-${item.id}`,
       kind: "activity",

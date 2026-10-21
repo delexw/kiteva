@@ -14,8 +14,8 @@ it("returns readable selection validation instead of a raw issue array", async (
       url: "/request",
       payload: {
         instructions: "A visual story",
-        candidateCount: 2,
-        selectedStyleIds: ["style-056"],
+        candidateCount: 0,
+        selectedStyleIds: [],
       },
     });
     expect(response.statusCode).toBe(400);

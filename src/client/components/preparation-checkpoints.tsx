@@ -1,7 +1,7 @@
 import { translateUi, useUiLanguage } from "../i18n";
 import { CheckCircle2 } from "lucide-react";
 import type { PreparationState } from "../../shared/preparation";
-import { preparationSteps, preparationStepNames } from "../../shared/preparation";
+import { preparationSteps, preparationStepLabel } from "../../shared/preparation";
 
 const stateNames = {
   completed: "Complete",
@@ -19,7 +19,8 @@ export function PreparationCheckpoints({ preparation }: { preparation: Preparati
         return (
           <li key={step} data-state={checkpoint.state}>
             {checkpoint.state === "completed" && <CheckCircle2 size={14} aria-hidden="true" />}
-            {preparationStepNames[step]} · {stateNames[checkpoint.state]}
+            {translateUi(preparationStepLabel(step, undefined, preparation))} ·{" "}
+            {translateUi(stateNames[checkpoint.state])}
           </li>
         );
       })}

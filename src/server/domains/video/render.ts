@@ -1,3 +1,12 @@
+import { hyperframesMetadata } from "../../rendering/hyperframes/metadata";
+import { multiplaneMetadata } from "../../rendering/multiplane/metadata";
+import { remotionMetadata } from "../../rendering/remotion/metadata";
+import {
+  rendererCliPath,
+  rendererCommandFlags,
+  rendererUsesStage,
+  rendererReproductionCommand,
+} from "../../rendering/execution";
 import { videoRenderTimeoutMs } from "../../rendering/timeouts";
 import { type Production } from "../../../shared/agents/schemas/video";
 import { withContentReveal } from "../../motion/content-reveal";
@@ -8,7 +17,6 @@ import type { SpeechTrack } from "../../../shared/speech";
 import { mixSpeech } from "../../audio/speech";
 import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { command, isolatedCommand } from "../../runtime/process.js";
-import { appRoot } from "../../runtime/config.js";
 import { probeVideo } from "../../rendering/video-probe";
 import { previewVideoFile, transcodePreviewToWebm } from "../../rendering/webm-video";
 import {
@@ -32,7 +40,7 @@ import { multiplaneShotPlan, assembleMultiplaneShots } from "../../rendering/mul
 
 import { redactSecrets, safeMessage } from "../../runtime/config";
 import { VideoQaError, VideoQaReportError, VideoQaReportSchema, videoQaFindings } from "./qa";
-export const hyperframesCli = path.join(appRoot, "node_modules/hyperframes/bin/hyperframes.mjs");
+export const hyperframesCli = rendererCliPath(hyperframesMetadata);
 export function hasRemoteResources(html: string) {
   // SVG labels can display URLs without loading resources. Keep attribute and script URLs checked.
   const resources = html
@@ -58,76 +66,84 @@ async function renderHyperFrames(
     throw Error(
       "Composition contains a remote URL. Localize assets and dependencies before rendering.",
     );
-  emit("validation", "Checking composition, seekable motion, layout, and contrast");
-  let qaOutput = "";
-  let checkError: unknown;
-  try {
-    await isolatedCommand(
-      process.execPath,
-      [hyperframesCli, "check", job.workspace, "--json", "--snapshots"],
-      job.workspace,
-      signal,
-      () => {},
-      180000,
-      (text) => {
-        qaOutput += text;
-      },
+  if (rendererUsesStage(hyperframesMetadata, job.kind, "check")) {
+    emit("validation", "Checking composition, seekable motion, layout, and contrast");
+    let qaOutput = "";
+    let checkError: unknown;
+    try {
+      await isolatedCommand(
+        process.execPath,
+        [
+          hyperframesCli,
+          "check",
+          job.workspace,
+          ...rendererCommandFlags(hyperframesMetadata, "check"),
+        ],
+        job.workspace,
+        signal,
+        () => {},
+        180000,
+        (text) => {
+          qaOutput += text;
+        },
+      );
+    } catch (error) {
+      signal.throwIfAborted();
+      checkError = error;
+    }
+    await writeFile(path.join(out, "qa-stdout.txt"), redactSecrets(qaOutput));
+    let report: unknown;
+    let parseError: string | undefined;
+    try {
+      report = JSON.parse(qaOutput);
+    } catch (error) {
+      parseError = safeMessage(error);
+    }
+    const parsed = VideoQaReportSchema.safeParse(report);
+    if (!parsed.success) {
+      const diagnostics = {
+        issue: parseError
+          ? `QA stdout is not valid JSON: ${parseError}`
+          : "QA JSON does not match the required report schema",
+        expectedFix:
+          "Repair the QA command or report reader using the saved output and parsing/schema diagnostics. Do not modify the video without evidence of a composition failure.",
+        evidence: {
+          stdoutFile: "renders/qa-stdout.txt",
+          parseError,
+          schemaIssues: parsed.error.issues,
+          commandError: checkError ? safeMessage(checkError) : undefined,
+        },
+      };
+      await writeFile(path.join(out, "qa-report-error.json"), JSON.stringify(diagnostics, null, 2));
+      throw new VideoQaReportError(diagnostics);
+    }
+    await writeFile(
+      path.join(out, "qa-report.json"),
+      JSON.stringify(
+        parsed.data,
+        (_key, value) => (typeof value === "string" ? redactSecrets(value) : value),
+        2,
+      ),
     );
-  } catch (error) {
-    signal.throwIfAborted();
-    checkError = error;
+    const findings = videoQaFindings(parsed.data);
+    if (findings.length) throw new VideoQaError(findings);
+    if (checkError) throw checkError;
+    emit("validation", "Composition, layout, motion, and contrast checks passed");
   }
-  await writeFile(path.join(out, "qa-stdout.txt"), redactSecrets(qaOutput));
-  let report: unknown;
-  let parseError: string | undefined;
-  try {
-    report = JSON.parse(qaOutput);
-  } catch (error) {
-    parseError = safeMessage(error);
-  }
-  const parsed = VideoQaReportSchema.safeParse(report);
-  if (!parsed.success) {
-    const diagnostics = {
-      issue: parseError
-        ? `QA stdout is not valid JSON: ${parseError}`
-        : "QA JSON does not match the required report schema",
-      expectedFix:
-        "Repair the QA command or report reader using the saved output and parsing/schema diagnostics. Do not modify the video without evidence of a composition failure.",
-      evidence: {
-        stdoutFile: "renders/qa-stdout.txt",
-        parseError,
-        schemaIssues: parsed.error.issues,
-        commandError: checkError ? safeMessage(checkError) : undefined,
-      },
-    };
-    await writeFile(path.join(out, "qa-report-error.json"), JSON.stringify(diagnostics, null, 2));
-    throw new VideoQaReportError(diagnostics);
-  }
-  await writeFile(
-    path.join(out, "qa-report.json"),
-    JSON.stringify(
-      parsed.data,
-      (_key, value) => (typeof value === "string" ? redactSecrets(value) : value),
-      2,
-    ),
-  );
-  const findings = videoQaFindings(parsed.data);
-  if (findings.length) throw new VideoQaError(findings);
-  if (checkError) throw checkError;
-  emit("validation", "Composition, layout, motion, and contrast checks passed");
-  emit("phase", "Rendering validated composition");
+  emit("phase", job.kind === "preview" ? "Rendering preview" : "Rendering validated composition");
   await isolatedCommand(
     process.execPath,
     [
       hyperframesCli,
       "render",
       job.workspace,
-      "--output",
+      ...rendererCommandFlags(hyperframesMetadata, "render"),
+      hyperframesMetadata.execution.outputArgument,
       video,
       "--fps",
       String(fps),
       "--quality",
-      job.kind === "preview" ? "draft" : "delivery",
+      hyperframesMetadata.execution.quality[job.kind],
     ],
     job.workspace,
     signal,
@@ -148,11 +164,12 @@ async function renderRemotion(
   await isolatedCommand(
     process.execPath,
     [
-      path.join(appRoot, "node_modules/@remotion/cli/remotion-cli.js"),
+      rendererCliPath(remotionMetadata),
       "render",
       production.sourceFile,
-      "Video",
+      remotionMetadata.execution.compositionId,
       video,
+      ...rendererCommandFlags(remotionMetadata, "render"),
       "--fps",
       String(fps),
       "--width",
@@ -183,37 +200,41 @@ async function renderMultiplane(
   const parts: string[] = [];
   for (const [index, shot] of shots.entries()) {
     const label = segmented ? ` (${index + 1}/${shots.length}: ${shot.sourceFile})` : "";
-    emit(
-      "validation",
-      `Checking the Multiplane shot: lint, stage size, duration and frame rate${label}`,
-    );
-    const inspected = await runMultiplane(
-      "inspect",
-      multiplaneInspectArgs(shot.sourceFile),
-      job.workspace,
-      signal,
-      () => {},
-      180000,
-    );
-    const problems = multiplaneShotProblems(inspected.data, {
-      width: production.width,
-      height: production.height,
-      duration: shot.duration,
-      fps,
-    });
-    if (problems.length)
-      throw Error(
-        `Multiplane shot ${shot.sourceFile} does not match the requested output: ${problems.join("; ")}`,
+    if (rendererUsesStage(multiplaneMetadata, job.kind, "inspect")) {
+      emit(
+        "validation",
+        `Checking the Multiplane shot: stage size, duration and frame rate${label}`,
       );
-    emit("validation", `Checking that every frame depends only on time${label}`);
-    await runMultiplane(
-      "verify",
-      multiplaneVerifyArgs(shot.sourceFile, fps),
-      job.workspace,
-      signal,
-    );
+      const inspected = await runMultiplane(
+        "inspect",
+        multiplaneInspectArgs(shot.sourceFile),
+        job.workspace,
+        signal,
+        () => {},
+        180000,
+      );
+      const problems = multiplaneShotProblems(inspected.data, {
+        width: production.width,
+        height: production.height,
+        duration: shot.duration,
+        fps,
+      });
+      if (problems.length)
+        throw Error(
+          `Multiplane shot ${shot.sourceFile} does not match the requested output: ${problems.join("; ")}`,
+        );
+    }
+    if (rendererUsesStage(multiplaneMetadata, job.kind, "verify")) {
+      emit("validation", `Checking that every frame depends only on time${label}`);
+      await runMultiplane(
+        "verify",
+        multiplaneVerifyArgs(shot.sourceFile, fps),
+        job.workspace,
+        signal,
+      );
+    }
     emit("phase", `Rendering the Multiplane shot${label}`);
-    const part = `shot-${index}.${job.kind === "preview" ? "webm" : "mp4"}`;
+    const part = `shot-${index}.${multiplaneMetadata.execution.format[job.kind]}`;
     const output = segmented ? path.join(directory, part) : video;
     await runMultiplane(
       "render",
@@ -326,7 +347,7 @@ export async function renderJob(
   );
   await writeFile(
     path.join(job.workspace, "VALIDATION.md"),
-    `# Render validation\n\nVerified by the application: ${job.duration}s, ${production.width}×${production.height}, ${fps} fps; full video decode passed. ${job.kind === "preview" ? "No audio track (silent preview). The preview is a VP9 WebM, checked against the validated render for size, frame rate, duration, frame count and picture similarity." : "Audio presence is recorded in renders/validation.json."}\n\nInspect renders/contact-sheet.jpg and the decoded ${path.relative(job.workspace, video)} for appearance and movement. Agent-side limitations about pending rendering are superseded only for the checks listed here.\n\nReproduce with: ${production.pipeline === "Multiplane" && (production.shots?.length ?? 0) > 1 ? "Render each production.shots entry in order, concatenate the silent parts, then mux production.audioFile once for the complete film." : production.pipeline === "Multiplane" ? `node_modules/.bin/multiplane render ${production.sourceFile} --fps ${fps} --out renders/output.${job.kind === "preview" ? "webm" : "mp4"}` : `node_modules/.bin/hyperframes render . --fps ${fps} --output renders/output.mp4`}\n`,
+    `# Render validation\n\nVerified by the application: ${job.duration}s, ${production.width}×${production.height}, ${fps} fps; full video decode passed. ${job.kind === "preview" ? "No audio track (silent preview). The preview is a VP9 WebM, checked against the validated render for size, frame rate, duration, frame count and picture similarity." : "Audio presence is recorded in renders/validation.json."}\n\nInspect renders/contact-sheet.jpg and the decoded ${path.relative(job.workspace, video)} for appearance and movement. Agent-side limitations about pending rendering are superseded only for the checks listed here.\n\nReproduce with: ${production.pipeline === "Multiplane" && (production.shots?.length ?? 0) > 1 ? `Render each production.shots entry in order with ${multiplaneMetadata.execution.commonFlags.join(" ")}, concatenate the silent parts, then mux production.audioFile once for the complete film.` : production.pipeline === "Multiplane" ? rendererReproductionCommand(multiplaneMetadata, production.sourceFile, fps, job.kind) : rendererReproductionCommand(production.pipeline === "Remotion" ? remotionMetadata : hyperframesMetadata, production.pipeline === "Remotion" ? production.sourceFile : ".", fps, job.kind)}\n`,
   );
   await writeFile(
     path.join(out, "validation.json"),

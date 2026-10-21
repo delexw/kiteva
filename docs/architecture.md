@@ -118,14 +118,18 @@ sequenceDiagram
   WF->>Main: Propose 12+ Motion Graphic combinations
   WF->>JEV: Score proposals, pick N directions
   loop Each direction (up to 5)
-    WF->>Main: Build a 3-second silent preview
+    WF->>Main: Plan a 3-second silent preview in its own session
+    Main-->>WF: Validated plan + session ID
+    WF->>Main: Build the preview in that same session
     Main->>R: Composition + STORYBOARD.json
     R-->>WF: Validated WebM preview
   end
   You->>Room: Pick a preview, add feedback
   Room->>WF: POST /api/runs/:id/full
   WF->>WF: Local narration (Kokoro / Pocket TTS) if enabled
-  WF->>Main: Extend the same session into the full film
+  WF->>Main: Plan the full film in the selected preview session
+  Main-->>WF: Validated full-film plan
+  WF->>Main: Build the full film in that same session
   Main->>R: Composition + full storyboard
   R->>R: Check, render, mix audio, probe, decode
   alt HyperFrames check findings (Multiplane runs lint and verify instead)
@@ -137,22 +141,191 @@ sequenceDiagram
   WF-->>Room: Film, Storyboard, playback copies
 ```
 
-If you pick Motion Graphics yourself (`selectedStyleIds`), the proposal, JEV and preview steps are
-skipped and the build goes straight to a full film. Questions that come up during preparation or
-building are labelled with their scope. Optional ones never pause work. Blocking ones pause only the
-work they belong to, at a saved checkpoint.
+If you pick Motion Graphics in Settings (`selectedStyleIds`), the proposal and JEV steps are skipped.
+With previews enabled, Kiteva builds previews using those styles; with zero previews, it builds the
+full film directly. Questions that come up during preparation or building are labelled with their
+scope. Optional ones never pause work. Blocking ones pause only the work they belong to, at a saved
+checkpoint.
+
+### Video generation routes
+
+These three routes reflect the implementation on 2026-10-21. The complete original prompt, settings
+and references remain available to every main-model job. Routing uses Settings-selected style IDs
+and the preview count; embedded style mentions stay in the prompt for the model to interpret.
+
+#### 1. Automatic styles with previews
+
+```mermaid
+flowchart TD
+  Input["Full prompt + settings + references"] --> Brief["Full brief + evidence review"]
+  Brief --> Proposals["Propose style combinations"]
+  Proposals --> JEV["JEV evaluates and selects directions"]
+  JEV --> Sessions["Separate main-model session for each direction"]
+  Sessions --> Plan["Plan and validate the 3-second preview"]
+  Plan --> Preview["Build silent preview in the same session"]
+  Preview --> QA["Render and check preview"]
+  QA --> Select["You select a completed preview"]
+  Select --> Resume["Copy working files and resume selected session"]
+  Resume --> FullPlan["Plan and validate the full film"]
+  FullPlan --> Full["Build full film with configured music and speech"]
+  Full --> Output["Render, check and deliver"]
+```
+
+#### 2. Selected styles with previews
+
+```mermaid
+flowchart TD
+  Input["Full prompt + selected styles + settings + references"] --> Title["Extract project title"]
+  Title --> Concepts["Extra preparation call: shared preview beat and variations"]
+  Concepts --> Sessions["Separate main-model session for each variation"]
+  Sessions --> Plan["Plan and validate the 3-second preview"]
+  Plan --> Preview["Build silent preview using your styles in the same session"]
+  Preview --> QA["Render and check preview"]
+  QA --> Select["You select a completed preview"]
+  Select --> Resume["Copy working files and resume selected session"]
+  Resume --> FullPlan["Plan and validate the full film"]
+  FullPlan --> Full["Build full film with configured music and speech"]
+  Full --> Output["Render, check and deliver"]
+```
+
+The extra concept-planning call still exists in
+`src/server/jobs/subworkflows/explicit-style-preview/workflow.ts`. It describes variations of the
+fixed styles before preview jobs are created; it does not replace each job's validated build plan.
+This route does not propose or rank style combinations through JEV.
+
+#### 3. Selected styles with direct full build
+
+```mermaid
+flowchart TD
+  Input["Full prompt + selected styles + settings + references"] --> Title["Extract project title"]
+  Title --> Session["Start main-model session"]
+  Session --> Plan["Plan and validate the full film"]
+  Plan --> Full["Build full film in the same session with configured music and speech"]
+  Full --> Output["Render, check and deliver"]
+```
+
+All three routes reuse `prepareVideoBuildPlan` in `src/server/domains/video/build-plan.ts`, called
+before implementation by `src/server/domains/video/workflow.ts`. Opus and GPT both use this step;
+Claude uses native plan mode. A rejected structured plan returns its exact validation issues and
+response to the same model session for correction, with up to three total planning attempts.
+Cancellation and unrelated provider failures propagate without correction. An unresolved invalid
+plan prevents its build from starting. The log distinguishes receiving a response from successful
+validation and saving. Validated plans are
+saved as `VIDEO_BUILD_PLAN.json` and reused on retries in their owning model session. Focused
+refinements retain their repair flow instead of restarting planning.
+
+Previews are silent. Full films use the configured music and speech requirements; neither is
+automatically required. Selecting a preview copies its working files and session ID through
+`Workflow.full` in `src/server/jobs/workflow.ts`.
+
+### Prompt routes
+
+The generation routes above decide preparation and preview selection. The prompt routes below
+decide the content of a film or section inside the shared main-model plan/build step. They are
+instructions in `src/server/domains/video/route-prompts/index.ts`, not additional model calls.
+The main model selects them from the requested output; a supplied URL alone does not select Route A.
+Explicit user direction takes precedence. The saved renderer setting controls footage integration.
+
+```mermaid
+flowchart TD
+  Request["Requested output + current task scope"] --> Model["Main model selects prompt route"]
+  Model --> A["A: Actual application usage"]
+  Model --> B["B: Static screen presentation"]
+  Model --> C["C: Concept film or Motion Graphic"]
+  Model --> D["D: Mixed film"]
+  D --> Sections["Assign A, B or C per act or section"]
+  A --> Shared["Shared main-model plan, then implementation"]
+  B --> Shared
+  C --> Shared
+  Sections --> Shared
+```
+
+#### A. Application demonstration
+
+Source: `route-prompts/application-demo.ts`, `openscreen-demo.md` and the renderer-specific
+`application-demo-hyperframes.ts` / `application-demo-multiplane.ts` files.
+
+```mermaid
+flowchart TD
+  Explore["Explore live app workflows, pages and resulting states"] --> Plan["Plan selected features, connected story, chapters, focus and timing"]
+  Plan --> Record["During implementation: record actual interactions with OpenScreen"]
+  Record --> Review["Review footage, apply planned native edits and export"]
+  Review --> Renderer{"Saved renderer"}
+  Renderer -->|HyperFrames| Video["Integrate recorded video with deterministic seeking"]
+  Renderer -->|Multiplane| Frames["Extract recorded frames and preload only each short shot's frames"]
+  Video --> Fit["Contain the whole captured frame without assembly crop or extra zoom"]
+  Frames --> Fit
+  Fit --> Check["Verify coverage, visible results and forward/backward/direct seeking"]
+```
+
+Unsupported controls are skipped and reported without substituting stills or invented results.
+If recording, export or footage integration itself is unavailable, a blocking question stops the
+affected work. Preview scope stays concise and silent; it does not become a full walkthrough.
+
+#### B. Static screen presentation
+
+Source: `route-prompts/screen-presentation.ts`.
+
+```mermaid
+flowchart TD
+  Inspect["Inspect supplied source and capture relevant static views"] --> Plan["Plan evidence-based selection, sequence, framing and timing"]
+  Plan --> Build["Present captured screens with appropriate transitions and Motion Graphics"]
+  Build --> Check["Verify readable framing and accurate source representation"]
+```
+
+This route presents still screens honestly. It cannot silently replace requested recorded usage.
+
+#### C. Concept film or Motion Graphic
+
+Source: `route-prompts/concept-film.ts`.
+
+```mermaid
+flowchart TD
+  Idea["Original idea + selected styles + relevant reference evidence"] --> Plan["Plan story beats, visual cause and effect, motion and timing"]
+  Plan --> Build["Build narrative scenes, metaphors and Motion Graphics"]
+  Build --> Check["Verify story, style fidelity and implementation"]
+```
+
+References can establish facts, branding and visual direction without introducing a demo merely
+because a URL exists.
+
+#### D. Mixed film
+
+Source: `route-prompts/mixed-film.ts`.
+
+```mermaid
+flowchart TD
+  Brief["Original act boundaries, requirements and style assignments"] --> Plan["Plan one coherent film and assign a route per section"]
+  Plan --> A["A sections: discover and record actual app usage"]
+  Plan --> B["B sections: capture and present static views"]
+  Plan --> C["C sections: build narrative Motion Graphics"]
+  A --> Assemble["Connect sections and reconcile timing with actual footage"]
+  B --> Assemble
+  C --> Assemble
+  Assemble --> Check["Verify all acts, requested features and scoped style assignments"]
+```
+
+Demo requirements stay within demo sections. The implementation must not silently drop required
+features or stretch footage to preserve an earlier timing estimate.
+
+### Subworkflow diagrams
+
+See the [subworkflow dependency and execution diagrams](../src/server/jobs/subworkflows/README.md#subworkflow-diagrams)
+for full brief/review/repair, title-only preparation, explicit-style preview concepts, browser
+inspection/capture, localization, result review and checkpoint reuse. Those diagrams distinguish
+executable workflows from the shared title-prompt helper and callable browser capabilities.
 
 ### Which model does what
 
-| Step                                                                | Claude projects     | Codex projects      | Why                                                              |
-| ------------------------------------------------------------------- | ------------------- | ------------------- | ---------------------------------------------------------------- |
-| Brief, attachment review, summaries, lyrics, eligible small repairs | `claude-haiku-5-5`  | `gpt-6-luna`        | Simple preparation and checking. Cheap and fast enough           |
-| Combination proposals                                               | `claude-opus-5-5`   | `gpt-6.1-sol`       | The main creative judgement                                      |
-| Preview planning                                                    | not used            | `gpt-6.1-sol`       | GPT-6.1 previews get a read-only plan first, in the same session |
-| Previews, full film, pacing/style repairs                           | selected main model | selected main model | Creative implementation                                          |
-| Choosing directions                                                 | JEV                 | JEV                 | A separate evaluator, not the model that proposed the options    |
+| Step                                                                | Claude projects     | Codex projects      | Why                                                                                        |
+| ------------------------------------------------------------------- | ------------------- | ------------------- | ------------------------------------------------------------------------------------------ |
+| Brief, attachment review, summaries, lyrics, eligible small repairs | `claude-haiku-5-5`  | `gpt-6-luna`        | Simple preparation and checking. Cheap and fast enough                                     |
+| Combination proposals                                               | `claude-opus-5-5`   | `gpt-6.1-sol`       | The main creative judgement                                                                |
+| Preview and full-film planning                                      | selected main model | selected main model | Validated read-only plan before building in the same session; Claude uses native plan mode |
+| Previews, full film, pacing/style repairs                           | selected main model | selected main model | Creative implementation                                                                    |
+| Choosing directions                                                 | JEV                 | JEV                 | A separate evaluator, not the model that proposed the options                              |
 
-Finished-result review uses the same selected main model that built the job, using the provider’s default reasoning effort. It runs as a separate read-only invocation with the existing QA evidence and Governance tracking.
+Full-film finished-result review uses the same selected main model that built the job, using the provider’s default reasoning effort. It runs as a separate read-only invocation with the existing QA evidence and Governance tracking.
 
 The default main models come from `src/shared/model-display-name.ts` and can be overridden with
 `VIDEO_CLAUDE_MODEL` / `VIDEO_CODEX_MODEL`.
@@ -174,14 +347,16 @@ These responsibilities are kept separate in the code and in the prompts:
 
 ### Renderers and their limits
 
-| Renderer                                                         | Selectable            | Pipeline in the code                                                                                              | Current limits                                                                                                                                                         |
-| ---------------------------------------------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [HyperFrames](https://github.com/heygen-com/hyperframes) 0.8.144 | Yes, the default      | `npx hyperframes check --json --snapshots`, then render. Layout, contrast and technical findings go to correctors | Previews are 3 s, silent and 720p. Full films go up to 300 s                                                                                                           |
-| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.10        | Yes, labelled "trial" | `multiplane lint/inspect/verify/render` on a `shot.html` driven by `render(t)`                                    | One sound file only. No video clips inside scenes. No automatic layout or contrast checks (frame consistency is still verified). Previews use a faster quality setting |
-| [Remotion](https://www.remotion.dev) 4.0.534                     | No                    | Used only when the production records a verified `fallbackReason`                                                 | Separate license terms. Some companies need a company license                                                                                                          |
+| Renderer                                                         | Selectable            | Pipeline in the code                                                                                                           | Current limits                                                                                                                                                             |
+| ---------------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [HyperFrames](https://github.com/heygen-com/hyperframes) 0.8.144 | Yes, the default      | Preview: render directly. Full film: `hyperframes check --json --snapshots`, then render; findings go to correctors            | Previews are 3 s, silent and 720p. Full films go up to 300 s                                                                                                               |
+| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.10        | Yes, labelled "trial" | Preview: `multiplane render`. Full film: inspect, verify, render (all with `--no-lint`) on a `shot.html` driven by `render(t)` | One sound file only. No video clips inside scenes. No automatic layout or contrast checks (full-film frame consistency is verified). Previews use a faster quality setting |
+| [Remotion](https://www.remotion.dev) 4.0.534                     | No                    | Used only when the production records a verified `fallbackReason`                                                              | Separate license terms. Some companies need a company license                                                                                                              |
 
-Layout and contrast checks belong to HyperFrames (`hyperframes check`). Multiplane renders don't get
-them. Instead Multiplane's `lint` and `verify` check determinism and frame consistency. Remotion
+Previews go from the validated main-model plan to build and render, without QA commands, finished-result review or automatic correction loops. A render failure is reported directly. Full films retain these checks and repairs.
+
+For full films, layout and contrast checks belong to HyperFrames (`hyperframes check`). Multiplane renders don't get
+them. Multiplane skips built-in lint with `--no-lint`; full-film `verify` still checks runtime determinism and frame consistency. Remotion
 fallback renders get neither set of checks. After that, every render, whatever the pipeline, is probed
 with `ffprobe` for codec, size, frame rate and duration (within 0.15 s). Previews must have no audio track. The whole file has to decode with FFmpeg,
 and a poster and a contact sheet are extracted. Generated code renders inside an OS-specific sandbox (macOS Seatbelt or the experimental native Windows executor) with a

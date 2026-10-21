@@ -4,7 +4,7 @@ import { mkdtemp, writeFile, rm, mkdir, access } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import type { Run } from "../src/shared/contracts";
 import path from "node:path";
-import { dataRoot, webPort } from "../src/server/runtime/config";
+import { appRoot, dataRoot, webPort } from "../src/server/runtime/config";
 import { RequestSchema } from "../src/shared/contracts";
 import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import { createApp } from "../src/server/app";
@@ -21,6 +21,30 @@ afterAll(async () => {
 });
 const headers = { host: "127.0.0.1:4317" };
 describe("local application API", () => {
+  it("serves frontend assets created after startup and never substitutes HTML for missing assets", async () => {
+    await server.app.ready();
+    const filename = `late-frontend-${randomUUID()}.js`;
+    const directory = path.join(appRoot, "dist/client/assets");
+    const file = path.join(directory, filename);
+    await mkdir(directory, { recursive: true });
+    const source = 'console.log("rebuilt frontend");';
+    try {
+      await writeFile(file, source);
+      const response = await server.app.inject({ url: `/assets/${filename}`, headers });
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["content-type"]).toMatch(/javascript/);
+      expect(response.body).toBe(source);
+    } finally {
+      await rm(file, { force: true });
+    }
+    const missing = await server.app.inject({ url: `/assets/${filename}`, headers });
+    expect(missing.statusCode).toBe(404);
+    expect(missing.headers["content-type"]).toContain("application/json");
+    expect(missing.json().code).toBe("NOT_FOUND");
+    const page = await server.app.inject({ url: "/projects", headers });
+    expect(page.statusCode).toBe(200);
+    expect(page.headers["content-type"]).toContain("text/html");
+  });
   it("rejects project attachment limits even when the frontend is bypassed", async () => {
     const assetIds = Array.from({ length: 9 }, () => randomUUID());
     for (const id of assetIds)
@@ -470,7 +494,7 @@ describe("local application API", () => {
   it("serves all styles and full metadata without leaking credentials", async () => {
     const response = await server.app.inject({ url: "/api/styles", headers });
     expect(response.statusCode).toBe(200);
-    expect(response.json().styles).toHaveLength(139);
+    expect(response.json().styles).toHaveLength(140);
     const details = await server.app.inject({ url: "/api/styles/style-108", headers });
     expect(details.json().tech.style_renderer.recommended_stack_refs).toContain("Three.js");
     const setup = await server.app.inject({ url: "/api/setup", headers });

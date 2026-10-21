@@ -20,8 +20,10 @@ import {
   type RoomGeometry,
 } from "../src/client/room/window-layout";
 import {
+  emptyRoomDraft,
   initialRoomRequest,
   roomDraftFromProject,
+  roomDraftRequest,
   roomStepMaterialCounts,
   roomSubmission,
   switchRoomOutputType,
@@ -310,7 +312,7 @@ it("keeps materials that are not on the shelf visible and counted when editing a
     [offShelf, { id: "b", originalName: "other.pdf", kind: "", bytes: 10 }],
   );
   expect(draft.assets).toEqual([offShelf]);
-  expect(draft.request.candidateCount).toBe(5);
+  expect(draft.request.candidateCount).toBe(0);
   let next = draft;
   for (const id of ["c", "d"])
     next = toggleRoomDraftAsset(next, { id, originalName: `${id}.pdf`, kind: "", bytes: 10 });
@@ -430,4 +432,34 @@ it("round-trips the new narration step through the room API after a legacy draft
     await app.close();
     store.close();
   }
+});
+
+it("retains preview count independently of selected styles through saving and submission", () => {
+  const request = VideoRequestSchema.parse({
+    instructions: "An original product film",
+    selectedStyleIds: ["style-001"],
+    candidateCount: 3,
+  });
+  const restored = roomDraftRequest(roomDraftFromProject(request, []));
+  expect(restored.candidateCount).toBe(3);
+  expect(roomSubmission(restored)).toMatchObject({
+    candidateCount: 3,
+    selectedStyleIds: ["style-001"],
+  });
+});
+
+it("restores skipped previews for Settings-selected styles without inferring prompt names", () => {
+  const draft = emptyRoomDraft();
+  draft.request = {
+    ...draft.request,
+    instructions: "Act 1 uses Vintage Rubber Hose Animation (style-140); no Mosaic.",
+    selectedStyleIds: ["style-056", "style-098", "style-093"],
+    candidateCount: 0,
+    duration: 180,
+  };
+  expect(roomDraftRequest(draft)).toMatchObject({
+    candidateCount: 0,
+    selectedStyleIds: ["style-056", "style-098", "style-093"],
+    instructions: draft.request.instructions,
+  });
 });

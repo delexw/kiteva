@@ -15,7 +15,7 @@ import { RoomProject } from "./room/room-project";
 import { styleTechnologyRecommendations } from "../shared/style-technology";
 import { replayPreviewVideos } from "./lib/replay-preview-videos";
 import { ProjectStatus } from "./components/project-status";
-import { StylePicker } from "./components/style-picker";
+import { StylePicker, StyleExamplesContext } from "./components/style-picker";
 import { manualStyleLimit, trimStylesForDuration } from "../shared/style-selection";
 import { validateAssetLimits } from "../shared/asset-limits";
 import { PageTemplate } from "./components/page-template";
@@ -41,7 +41,7 @@ import { customerErrorMessage } from "./customer-messages";
 import {
   PromptInput,
   PromptInputBody,
-  PromptInputTextarea,
+  PromptInputStyleMentions,
   PromptInputFooter,
   PromptInputTools,
   PromptInputSubmit,
@@ -512,7 +512,7 @@ function App() {
           .filter(Boolean),
         preference,
         provider,
-        candidateCount: manual ? 0 : count,
+        candidateCount: manual ? count : count || 5,
         selectedStyleIds,
         ...(outputType === "page"
           ? { outputType: "page" as const, viewport }
@@ -1126,7 +1126,9 @@ function App() {
     );
   }
   if (page === "create" || page === "history" || isRoomUtilityPage(page))
-    return (
+    return React.createElement(
+      StyleExamplesContext,
+      { value: examples },
       <MotionConfig reducedMotion="user">
         <CreativeRoom
           projects={history}
@@ -1191,9 +1193,11 @@ function App() {
             )
           }
         />
-      </MotionConfig>
+      </MotionConfig>,
     );
-  return (
+  return React.createElement(
+    StyleExamplesContext,
+    { value: examples },
     <MotionConfig reducedMotion="user">
       <div className="app-shell">
         <aside className="sidebar">
@@ -1474,7 +1478,10 @@ function App() {
                       <BriefRequirements
                         instructions={sectionInstructions}
                         onChange={(section, value) =>
-                          setSectionInstructions((previous) => ({ ...previous, [section]: value }))
+                          setSectionInstructions((previous) => ({
+                            ...previous,
+                            [section]: value,
+                          }))
                         }
                         assets={assets}
                         onRemove={(id) =>
@@ -1485,14 +1492,17 @@ function App() {
                         urls={urls}
                         onUrlsChange={setUrls}
                       >
-                        <PromptInputTextarea
+                        <PromptInputStyleMentions
+                          styles={styles}
+                          name="message"
+                          suffix={false}
                           aria-label={translateUi("Project instructions")}
                           className="brief-input"
                           placeholder={translateUi(
                             "Describe your idea, your audience, and what you want to make…",
                           )}
                           value={instructions}
-                          onChange={(event) => setInstructions(event.target.value)}
+                          onChange={setInstructions}
                         />
                         <ComposerAttachments />
                       </BriefRequirements>
@@ -1509,13 +1519,13 @@ function App() {
                           onChange={(ids) => {
                             setSelectedStyleIds(ids);
                             if (ids.length && preference === "random") setPreference("context");
-                            setCount(ids.length ? 0 : 5);
+                            if (!ids.length && !count) setCount(5);
                           }}
                         />
                         <span>
                           {manual
                             ? translateUi(
-                                "First Motion Graphic is primary. Builds the full video directly; no direction proposals or ranking.",
+                                "Preview your chosen Motion Graphics, or select zero directions to build directly. No style proposals or ranking.",
                               )
                             : duration === "auto"
                               ? translateUi(
@@ -1588,11 +1598,10 @@ function App() {
                         <div className="composer-control">
                           <StudioSelect
                             aria-label={translateUi("Preview options")}
-                            value={manual ? 0 : count}
-                            disabled={manual}
+                            value={manual ? count : count || 5}
                             onValueChange={(value) => setCount(Number(value))}
                           >
-                            {(manual ? [0] : [1, 2, 3, 4, 5]).map((n) => (
+                            {(manual ? [0, 1, 2, 3, 4, 5] : [1, 2, 3, 4, 5]).map((n) => (
                               <StudioSelectOption key={n} value={n}>
                                 {n} {n === 1 ? translateUi("direction") : translateUi("directions")}
                               </StudioSelectOption>
@@ -1756,7 +1765,7 @@ function App() {
                         <PromptInputSubmit
                           className="primary composer-generate"
                           aria-label={
-                            manual
+                            manual && count === 0
                               ? translateUi("Build full video")
                               : translateUi("Explore directions")
                           }
@@ -1786,7 +1795,7 @@ function App() {
                         ? translateUi("Up to {{value0}} interactive page previews", {
                             value0: count,
                           })
-                        : manual
+                        : manual && count === 0
                           ? translateUi("Full video using your selected Motion Graphics")
                           : translateUi("Up to {{value0}} silent, 3-second previews", {
                               value0: count,
@@ -1797,7 +1806,7 @@ function App() {
                   <p id="creative-approach-help" className="creative-approach-help">
                     {manual
                       ? translateUi(
-                          "Build directly with your chosen Motion Graphics. No direction proposals or ranking calls.",
+                          "Use your chosen Motion Graphics for previews or a direct build. No style proposals or ranking calls.",
                         )
                       : translateUi(creativeApproaches[preference].description)}
                   </p>
@@ -1881,11 +1890,10 @@ function App() {
         styleDetailDialog(detail, () => {
           setSelectedStyleIds([detail.id]);
           if (preference === "random") setPreference("context");
-          setCount(0);
           setDetail(undefined);
           newRequest(true);
         })}
-    </MotionConfig>
+    </MotionConfig>,
   );
 }
 createRoot(document.getElementById("root")!).render(

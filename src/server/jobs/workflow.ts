@@ -1,3 +1,7 @@
+import {
+  ExplicitStylePreviewsSchema,
+  runExplicitStylePreviewWorkflow,
+} from "./subworkflows/explicit-style-preview/workflow";
 import { selectAudioAuthoring } from "../jev/strategies/audio-authoring";
 import { selectAuthoringResources } from "../jev/strategies/visual-authoring";
 import { linkWorkspaceDirectory } from "../runtime/workspace-links";
@@ -12,7 +16,6 @@ import { validateAssetLimits } from "../../shared/asset-limits";
 import { RequestSchema } from "../../shared/contracts";
 import { AssetQuestionAnswerSchema } from "../../shared/agents/schemas/asset-needs";
 import { acceptsBriefAttachment } from "../../shared/brief-sections";
-import { withMotionGraphicVariantPolicy } from "../../shared/catalog-variants";
 import {
   assetQuestionBuildScope,
   assetIdsForQuestionScope,
@@ -38,7 +41,6 @@ import { CodedError, errorCode } from "../../shared/errors";
 import { prepareLyrics, resolvedLyricsRequest } from "../domains/video/prepare-lyrics";
 import { resolveVideoDuration, videoStyleCountRange } from "../../shared/domains/video";
 import { generateVideo } from "../domains/video/workflow";
-import { pageStyleContext } from "../domains/page/prompts";
 
 import { generatePage } from "../domains/page/workflow";
 import { randomUUID } from "node:crypto";
@@ -405,11 +407,36 @@ export class Workflow {
               request: preparedRequest,
               workspace,
               signal: controller.signal,
-              onEvent: this.providerEvent(run),
+              onEvent: this.providerEvent(run, undefined, "Project title extraction"),
             }),
           ),
         );
         run.brief = directBuildContext(run.request, inputs.descriptions, title.value.subject);
+        if (run.request.candidateCount > 0) {
+          const selection = await checkpoint(
+            "selection",
+            ExplicitStylePreviewsSchema.extend({ previewBeat: z.string().min(1) }),
+            () =>
+              this.agents.run(() =>
+                runExplicitStylePreviewWorkflow({
+                  request: preparedRequest,
+                  styles: this.catalog.styles,
+                  workspace,
+                  signal: controller.signal,
+                  previousDirections: run.candidates,
+                  onEvent: this.providerEvent(run, undefined, "Explicit-style preview planning"),
+                }),
+              ),
+          );
+          run.brief.previewBeat = selection.previewBeat;
+          run.rankingModel = undefined;
+          const candidates = selection.candidates.map((candidate) => ({
+            ...candidate,
+            id: directionCandidateId(run.directionRound || 0, candidate.id),
+          }));
+          await this.generatePreviews(run, candidates, controller.signal);
+          return;
+        }
         const candidate = manualDirection(run.request, this.catalog.styles);
         run.candidates = [candidate];
         run.winnerId = candidate.id;
@@ -645,33 +672,7 @@ export class Workflow {
           id: directionCandidateId(run.directionRound || 0, candidate.id),
         }));
       }
-      run.candidates = [
-        ...run.candidates.filter(
-          (candidate) => !selectedCandidates.some((selected) => selected.id === candidate.id),
-        ),
-        ...selectedCandidates,
-      ];
-      run.phase = "generating";
-      this.update(run);
-      controller.signal.throwIfAborted();
-      for (const candidate of selectedCandidates) {
-        if (run.jobs.some((job) => job.candidateId === candidate.id && job.phase === "ready"))
-          continue;
-        const job = this.newJob(run, candidate, "preview", 3);
-        run.jobs.push(job);
-        this.recordAssetNeeds(run, [candidate], job.id);
-      }
-      this.update(run);
-      await Promise.all(
-        run.jobs
-          .filter((job) => job.kind === "preview" && job.phase === "queued")
-          .map((job) => this.generate(run, job)),
-      );
-      if (run.winnerId || run.inputWaits?.length) return;
-      controller.signal.throwIfAborted();
-      if (run.jobs.some((j) => j.phase === "ready")) run.phase = "ready";
-      else run.phase = "failed";
-      this.update(run);
+      await this.generatePreviews(run, selectedCandidates, controller.signal);
     } catch (error) {
       if (error instanceof InputRequired) return;
       run.phase = controller.signal.aborted ? "cancelled" : "failed";
@@ -683,6 +684,39 @@ export class Workflow {
       task.finish();
       this.resumeInputs(run);
     }
+  }
+  private async generatePreviews(
+    run: Run,
+    selectedCandidates: StyleCandidate[],
+    signal: AbortSignal,
+  ) {
+    run.candidates = [
+      ...run.candidates.filter(
+        (candidate) => !selectedCandidates.some((selected) => selected.id === candidate.id),
+      ),
+      ...selectedCandidates,
+    ];
+    run.phase = "generating";
+    this.update(run);
+    signal.throwIfAborted();
+    for (const candidate of selectedCandidates) {
+      if (run.jobs.some((job) => job.candidateId === candidate.id && job.phase === "ready"))
+        continue;
+      const job = this.newJob(run, candidate, "preview", 3);
+      run.jobs.push(job);
+      this.recordAssetNeeds(run, [candidate], job.id);
+    }
+    this.update(run);
+    await Promise.all(
+      run.jobs
+        .filter((job) => job.kind === "preview" && job.phase === "queued")
+        .map((job) => this.generate(run, job)),
+    );
+    if (run.winnerId || run.inputWaits?.length) return;
+    signal.throwIfAborted();
+    if (run.jobs.some((j) => j.phase === "ready")) run.phase = "ready";
+    else run.phase = "failed";
+    this.update(run);
   }
   private newJob(
     run: Run,
@@ -806,25 +840,7 @@ export class Workflow {
             run.request.outputType === "page"
               ? "Responsive user-driven interactions; no video timeline or composition framework"
               : this.catalog.production_policy,
-          styles: this.catalog.styles
-            .filter((s) => {
-              const c = run.candidates.find((c) => c.id === job.candidateId)!;
-              return [c.primaryStyleId, ...c.supportingStyleIds].includes(s.id);
-            })
-            .map((style) =>
-              run.request.outputType === "page"
-                ? pageStyleContext(style)
-                : withMotionGraphicVariantPolicy(style),
-            ),
-          motions:
-            run.request.outputType === "page"
-              ? this.catalog.motions.map((m) => ({
-                  id: m.id,
-                  name: m.name,
-                  description: m.description,
-                  motion_sequence: m.motion_sequence,
-                }))
-              : this.catalog.motions,
+          motionIds: this.catalog.motions.map((motion) => motion.id),
         },
         null,
         2,
@@ -1078,11 +1094,8 @@ export class Workflow {
       run.jobs.some((job) => !terminalPhases.has(job.phase))
     )
       throw new CodedError("PROJECT_ACTIVE", "Wait for the current work to finish", 409);
-    if (run.request.candidateCount === 0 || run.request.selectedStyleIds?.length)
-      throw new CodedError(
-        "INVALID_REQUEST",
-        "Manual Motion Graphics do not use generated directions",
-      );
+    if (run.request.candidateCount === 0)
+      throw new CodedError("INVALID_REQUEST", "Direct builds do not use preview directions");
     if (!run.brief) throw new CodedError("INVALID_REQUEST", "Prepare the brief first");
     const round = (run.directionRound || 0) + 1;
     const checkpoints = run.preparation?.checkpoints || {};

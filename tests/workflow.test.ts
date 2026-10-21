@@ -1,3 +1,6 @@
+vi.mock("../src/server/domains/video/build-plan", () => ({
+  prepareVideoBuildPlan: vi.fn(async ({ prompt }: { prompt: string }) => prompt),
+}));
 vi.mock("../src/server/jev/strategies/visual-authoring", () => ({
   selectAuthoringResources: async () => ({
     source: "jev",

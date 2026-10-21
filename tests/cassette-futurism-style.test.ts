@@ -24,7 +24,7 @@ const stepTime = (step: number) => step / 12;
 describe("Cassette Futurism catalog entry", () => {
   it("adds an authored style-137 with separate renderer, motion and pipeline roles", async () => {
     const catalog = await loadCatalog();
-    expect(catalog.styles).toHaveLength(139);
+    expect(catalog.styles).toHaveLength(140);
     const style = catalog.styles.find((s) => s.id === "style-137")!;
     expect(style.name_en).toBe("Cassette Futurism");
     expect(style.provenance).toBe("authored");

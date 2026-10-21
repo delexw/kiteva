@@ -51,7 +51,7 @@ it("retains structured failing stdout independently of stderr and a failed proce
       id: "job",
       runId: "project",
       candidateId: "direction",
-      kind: "preview",
+      kind: "full",
       duration: 3,
       phase: "validating",
       model: "main",
@@ -107,7 +107,7 @@ it("does not accept incomplete QA or hide a process failure behind a passing rep
       id: "job",
       runId: "project",
       candidateId: "direction",
-      kind: "preview",
+      kind: "full",
       duration: 3,
       phase: "validating",
       model: "main",
@@ -161,7 +161,7 @@ it.each(["broken JSON", JSON.stringify({ ok: true })])(
         id: "job",
         runId: "project",
         candidateId: "direction",
-        kind: "preview",
+        kind: "full",
         duration: 3,
         phase: "validating",
         model: "main",
@@ -193,3 +193,46 @@ it.each(["broken JSON", JSON.stringify({ ok: true })])(
     }
   },
 );
+
+it("renders a preview directly without running QA", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "preview-no-qa-"));
+  try {
+    await writeFile(path.join(workspace, "index.html"), '<div data-composition-id="video"></div>');
+    const renderFailure = new Error("Render failed");
+    vi.mocked(isolatedCommand).mockRejectedValueOnce(renderFailure);
+    const emit = vi.fn();
+    await expect(
+      renderJob(
+        {
+          id: "preview",
+          runId: "project",
+          candidateId: "direction",
+          kind: "preview",
+          duration: 3,
+          phase: "rendering",
+          model: "main",
+          workspace,
+        },
+        {
+          pipeline: "HyperFrames",
+          fallbackReason: null,
+          styleRenderer: ["SVG"],
+          motionEngine: ["GSAP"],
+          sourceFile: "index.html",
+          duration: 3,
+          width: 1280,
+          height: 720,
+          audioDescription: "Silent",
+          limitations: [],
+        },
+        new AbortController().signal,
+        emit,
+      ),
+    ).rejects.toBe(renderFailure);
+    expect(isolatedCommand).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(isolatedCommand).mock.calls[0][1]).toContain("render");
+    expect(emit).not.toHaveBeenCalledWith("validation", expect.anything());
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
+  }
+});

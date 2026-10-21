@@ -1,0 +1,32 @@
+.prompt-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.style-prompt-mention {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  padding: 0.05em 0.4em;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 0.4em;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  color: var(--ant-color-primary, #ed9c54);
+  font-weight: 600;
+  cursor: help;
+}
+.style-prompt-mention small {
+  opacity: 0.7;
+  font-size: 0.75em;
+  font-weight: 400;
+}
+.style-prompt-mention:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.style-mention-preview {
+  width: 300px;
+  max-width: 70vw;
+}
+.style-mention-preview .style-picker-preview {
+  width: 100%;
+}

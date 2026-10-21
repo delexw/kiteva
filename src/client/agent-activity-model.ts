@@ -1,4 +1,5 @@
-import type { AgentProgressEvent } from "../shared/contracts";
+import { usesTitleOnlyPreparation } from "../shared/preparation";
+import { terminalPhases, type AgentProgressEvent, type Run } from "../shared/contracts";
 export interface ActivityItem {
   id: number;
   scope: string;
@@ -15,6 +16,14 @@ export interface ActivityItem {
   status?: "running" | "complete" | "failed" | "stopped";
 }
 export const taskActivityLabels: Record<string, { working: string; saving: string }> = {
+  "Project title extraction": {
+    working: "Extracting your project title…",
+    saving: "Saving the project title…",
+  },
+  "Explicit-style preview planning": {
+    working: "Planning your requested previews…",
+    saving: "Saving the preview directions…",
+  },
   "Brief preparation": { working: "Preparing your brief…", saving: "Saving the draft brief…" },
   "Brief asset self-review": {
     working: "Checking references against your story…",
@@ -46,11 +55,11 @@ export const taskActivityLabels: Record<string, { working: string; saving: strin
   },
   "Full video planning": {
     working: "Planning your full video…",
-    saving: "Saving the full video plan…",
+    saving: "Receiving the full video plan…",
   },
   "Preview video planning": {
     working: "Planning your preview…",
-    saving: "Saving the preview plan…",
+    saving: "Receiving the preview plan…",
   },
   "preview video generation": {
     working: "Building your video preview…",
@@ -103,7 +112,9 @@ export function customerToolActivity(name: string, type: string, purpose?: strin
   if (
     /inspect_page|click_control|fill_control|upload_files|scroll_page|(?:^|__)browser_/.test(name)
   )
-    return "Exploring your website reference…";
+    return purpose === "Explicit-style preview planning"
+      ? "Exploring your website for preview planning…"
+      : "Exploring your website reference…";
   const task = purpose ? taskActivityLabels[purpose] : undefined;
   if (task) return /structuredoutput/i.test(name) ? task.saving : task.working;
   if (type === "file_change" || /write|edit|patch/i.test(name)) return "Updating the design…";
@@ -143,6 +154,7 @@ export function mergeProgressItems(
 export function activityItems(
   events: AgentProgressEvent[],
   groupConsecutive = true,
+  run?: Pick<Run, "request" | "preparation" | "phase">,
 ): ActivityItem[] {
   const items: ActivityItem[] = [];
   const streams = new Map<string, ActivityItem>();
@@ -150,7 +162,7 @@ export function activityItems(
   for (const event of events) {
     if (seen.has(event.id)) continue;
     seen.add(event.id);
-    const data = (event.data || {}) as {
+    const data = { ...(event.data as object | undefined) } as {
       itemId?: string;
       audience?: "customer" | "internal";
       state?: string;
@@ -159,6 +171,14 @@ export function activityItems(
       invocationId?: string;
       results?: { itemId: string; failed: boolean; output: string }[];
     };
+    // Older title-only invocations were emitted with the full-brief default purpose.
+    if (
+      !event.jobId &&
+      data.purpose === "Brief preparation" &&
+      usesTitleOnlyPreparation(run?.request, run?.preparation)
+    ) {
+      data.purpose = "Project title extraction";
+    }
     // Raw SDK narration and legacy unlabelled text are internal by default.
     // Only explicitly customer-authored messages can enter the streamed text view.
     if (
@@ -329,6 +349,10 @@ export function activityItems(
       input: "Reading your reference material…",
       reference_capture: "Capturing your website reference…",
       reference_ready: "Website screenshot ready",
+      plan_ready:
+        event.message === "Preview plan validated and saved"
+          ? "Preview plan validated and saved"
+          : "Full-film plan validated and saved",
       ranking: "Finding visual Motion Graphics for your idea…",
       validation: playbackCopy
         ? "Viewing copies checked"
@@ -350,11 +374,20 @@ export function activityItems(
     const notice = notices[event.type];
     if (notice) {
       const item = add("notice", notice);
+      if (event.type === "plan_ready") item.status = "complete";
       if (
         event.type === "render_progress" ||
         (event.type === "phase" && (rendering || playbackCopy))
       )
         item.progressStage = playbackCopy ? "playback-copy" : "render";
+    }
+  }
+  // A terminal project cannot still have active preparation tools or text streams.
+  if (run && terminalPhases.has(run.phase)) {
+    for (const item of items) {
+      if (item.jobId) continue;
+      if (item.status === "running") item.status = "stopped";
+      if (item.streaming) item.streaming = false;
     }
   }
   const visibleItems = items.filter((item) => item.text.trim());

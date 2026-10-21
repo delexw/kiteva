@@ -24,7 +24,7 @@ const review = { styles: [{ style_id: "style-001", suggested_combinations: combi
 describe("style combination recommendations", () => {
   it("includes combination guidance for every catalog style", async () => {
     const catalog = await loadCatalog();
-    expect(catalog.styles).toHaveLength(139);
+    expect(catalog.styles).toHaveLength(140);
     for (const style of catalog.styles) {
       expect(style.suggested_combinations?.selection_guidance).toBeTruthy();
       expect(style.suggested_combinations?.suggestions.length).toBeLessThanOrEqual(3);

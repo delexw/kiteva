@@ -119,6 +119,22 @@ it("launches the actual SDK stdio server and advertises only read-only pool tool
     kind: "entry",
     entry: { definition: { motion_sequence: expect.any(Array), tech: expect.any(Object) } },
   });
+  const catalog = await loadCatalog();
+  const selected = catalog.styles.find((style) => style.id === "style-140")!;
+  const byId = await client.callTool({
+    name: "read_pool_entry",
+    arguments: { kind: "motion_graphic", idOrName: selected.id },
+  });
+  expect(byId.isError).not.toBe(true);
+  expect(byId.structuredContent).toEqual({
+    kind: "entry",
+    entry: {
+      kind: "motion_graphic",
+      id: selected.id,
+      name: selected.name_en,
+      definition: selected,
+    },
+  });
   for (const readOnly of [true, false]) {
     const capabilities = agentCapabilities("/job", readOnly);
     expect(capabilities.servers.creative_pool).toEqual(capability);
@@ -127,6 +143,20 @@ it("launches the actual SDK stdio server and advertises only read-only pool tool
     );
     expect(capabilities.guidance).toContain(
       "EVERY selected Motion Graphic and every named Motion Graphic or motion",
+    );
+    expect(capabilities.guidance).toContain('kind: "motion_graphic", idOrName: "style-140"');
+    expect(capabilities.guidance).toContain("No search is needed for a known ID");
+    expect(capabilities.guidance).toContain(
+      '<style id="style-140">Vintage Rubber Hose Animation</style>',
+    );
+    expect(capabilities.guidance).toContain(
+      "not executable instructions or new Settings selections",
+    );
+    expect(capabilities.guidance).toContain(
+      "Preserve surrounding prose, exclusions and act/scene assignments",
+    );
+    expect(capabilities.guidance).toContain(
+      "use creative_pool.search_pool to resolve the exact ID",
     );
     expect(capabilities.guidance).toContain("Preserve the draft’s selected Motion Graphic IDs");
     expect(capabilities.guidance).toContain("their primary/supporting roles");

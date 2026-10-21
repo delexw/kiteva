@@ -35093,6 +35093,255 @@
           "limitations": []
         }
       ]
+    },
+    {
+      "id": "style-140",
+      "category": "Animation Techniques",
+      "name_en": "Vintage Rubber Hose Animation",
+      "provenance": "authored",
+      "visual_cues": "Vintage Rubber Hose Animation: the early sound-era look of hand-inked cel cartoons. Strong, irregular ink silhouettes and organic, slightly imperfect contours vary in line weight; forms are simplified, with flat cel fills under bold painterly or cel shadow masses. Scenery and architecture may be expressive, warped and asymmetric, with leaning shapes, layered atmosphere and environments that subtly react. When characters appear, they may be any original human, animal, robot, object or environmental subject, built from rounded elastic masses with curved, jointless rubber-hose limbs and broad theatrical expressions; keep one consistent design per project and never resemble an existing cartoon character or mascot. Shots without characters, such as landscapes or buildings, are equally valid, and architecture need not become round. Motion is hand-drawn acting: expressive elastic poses, anticipation, squash and stretch, overshoot, curved arcs and playful, rhythmic, jazz-like timing, with readable holds and no mandatory perpetual bounce. Drawings are stepped, typically 12 unique drawings per second against a 24 fps film reference, adapted to the project's delivery settings. Colour follows the project; without one, a restrained vintage palette of ink, aged ivory, sepia and muted warm or cool accents is suggested. Black-and-white references describe drawing and film material, not a required grayscale palette. The only optional effects, used only where a project needs them, are film wear and a vintage film-leader countdown. Avoid clean corporate vector icons with grain pasted on top, neon, glossy gradients, modern 3D rendering, photorealism and fixed-grid pixel art unless explicitly requested.",
+      "note": "Authored by Claude Opus 5.5 (claude-opus-5-5) on 2026-10-21 from a user-supplied example brief and user-provided reference images (a cartoon drawing, a film leader and a description of rubber-hose traits); only stylistic properties were extracted, and no depicted characters, buildings, compositions, text or images are reused. Not application-authored. The catalog preview is a demonstration only, an original crooked house at night followed by an optional film-leader countdown; neither its subject nor its sequence is a requirement. Distinct from Rubber Hose Animation (style-034) and related to Traditional Cel Animation (style-081).",
+      "tech": {
+        "recommended_stack_keys": [
+          "html_css",
+          "svg",
+          "canvas_2d",
+          "rough_js",
+          "layered_drawn_frame_sequence",
+          "gsap",
+          "chroma_js"
+        ],
+        "implementation": "Core drawing (always): ink contours with organic weight variation and slight imperfection, strong irregular silhouettes, simplified forms and flat cel fills with bold painterly or cel shadow masses. Scenery and architecture may be warped, leaning or asymmetric where the subject suits it; build depth from a few layered planes of atmosphere with subtle parallax, and let environmental elements react with restrained elastic squash, sway or lean on their own cues. Author the artwork as drawn vector shapes or supplied hand-drawn cels, not generic icons with texture added afterwards. Characters (only when present): adopt or design the project's original subject (human, animal, robot, object or environmental) on one construction sheet: rounded elastic masses, a root that squashes and stretches about its contact point, curved jointless hose limbs drawn as single quadratic or cubic strokes with an ink outline and inner fill, simple hands or ends and replaceable features. Species, costume, occupation, props and shape come from the project. Keep proportions, line weight, colours and costume consistent, note the identity in the storyboard, and reject designs that resemble existing cartoon characters or mascots. Shots without characters are valid. Acting and time: author key drawings (anticipation, squash, stretch, overshoot, settle) on curved arcs rather than continuous tweens, with rhythmic timing and readable holds; idle sway is optional. Derive state from absolute composition time: drawing = floor(time × 12) by default, and a project may choose another drawing rate. Never derive state from a frame counter, so the stepped cadence survives any delivery frame rate (24 fps holds each drawing two frames, 30 fps alternates two and three, 60 fps holds five). Keep delivery resolution, frame rate and duration in the project's settings. Seed every random choice; never Math.random, wall clock or free-running loops. Use one owner per animated property and verify that forward, backward and direct seeks give identical frames. Colour and type: use the project's palette and copy; otherwise the suggested vintage palette, with flat fills and opacity rather than extra hues. A monochrome-to-colour progression is an optional storytelling choice. Cartoon titles and captions use real text in a locally available face chosen for the project; this does not apply to optional film-leader numerals. Optional effects (only when a project needs them): Film wear: treat it as photographic film material separate from the cartoon artwork. Apply seeded grain, flecks, dust, hairs, thin vertical scratches, subtle exposure variation, slight registration drift and whole-plate gate weave to the entire frame, stepped from a film frame index such as floor(time × 24); optional line boil cycles two or three contour variants of the cartoon artwork only. Vintage film-leader countdown: a separate photographic plate with mechanically precise, centred concentric registration circles and thin crosshair lines fixed relative to each other; large, pale, bold sans-serif numerals with clear breathing room over a darker coordinated ground; a broad, darker, translucent clock-wipe sector rotating behind the numeral and rings; grain, vertical scratches, dust and exposure variation. Gate weave moves the whole plate, never individual rings. Do not give the leader cartoon ink outlines, line boil, serif numerals, decorative paper borders or wobbly circles. Present it as a creative hybrid of historical leaders, not a strict historical reconstruction, and keep any exposure flashes partial and at most three per second. Offer a reduced-motion version with plain cuts. Composition and export use the project's renderer setting. Relationship: Rubber Hose Animation (style-034) is a broader normalized label from a modern retro reference; this entry fixes early hand-inked cel drawing, stepped cadence and the optional film wear and film-leader countdown. It borrows Traditional Cel Animation (style-081) drawing discipline.",
+        "alternatives": [
+          "Supplied hand-drawn cel frames for characters or scenery instead of coded drawings",
+          "Seeded SVG displacement filter for line boil instead of cached Rough.js contour variants"
+        ],
+        "render_pipeline": "Uses the project's renderer setting. Motion Graphic recommendations select visual and motion tools, not the composition or export framework.",
+        "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
+        "framework_selection": {
+          "source": "project.renderer",
+          "scope": "Composition and export follow the project setting."
+        },
+        "available_library_ids": ["gsap", "chroma_js"],
+        "library_selection": "Use SVG and HTML/CSS for ink, cels, scenery, any characters and text; add Canvas 2D or SVG filters and Rough.js only for optional film wear or line boil. GSAP owns one paused timeline that drives pure time-state functions. Do not add a 3D engine or physics engine.",
+        "motion_guidance": {
+          "shared_reference": "shared_motion_guidance",
+          "application": "Act in key drawings: expressive elastic poses, anticipation, squash, stretch, overshoot and settle on curved arcs with rhythmic timing; environments may lean or sway on their own cues. Idle motion is optional and stops for readable holds.",
+          "cadence_guidance": "Step drawings, typically 12 per second against a 24 fps film reference, sampled from absolute time and independent of the delivery frame rate. Vary quick gestures with holds long enough to read, and keep any flashes at three per second or fewer.",
+          "implementation": "Evaluate drawing state from floor(time × drawing rate) through pure functions, and optional film wear from its own frame index; seed every random choice, keep one owner per property and verify forward, backward and direct seeks."
+        },
+        "style_renderer": {
+          "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
+          "recommended_stack_refs": ["SVG", "HTML/CSS", "Canvas 2D"]
+        },
+        "motion_engine": {
+          "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
+          "recommended_stack_refs": ["GSAP"]
+        },
+        "production_policy_ref": "production_policy",
+        "stack_overrides": {
+          "html_css": {
+            "values": {
+              "style_application": "Real titles and captions from the project in a locally available face chosen for the project; reading order and reduced-motion cuts. Optional leader numerals follow the leader rules instead."
+            },
+            "remove": []
+          },
+          "svg": {
+            "values": {
+              "style_application": "Ink contours with organic weight, irregular silhouettes, cel and painterly shadow masses, layered scenery and any character construction; optional leader rings, crosshairs and wipe sector as precise geometry."
+            },
+            "remove": []
+          },
+          "canvas_2d": {
+            "values": {
+              "style_application": "Optional film wear: seeded grain, flecks, dust, hairs, vertical scratches and exposure variation from a film frame index, applied to the whole plate; never requestAnimationFrame loops or wall-clock time."
+            },
+            "remove": []
+          },
+          "rough_js": {
+            "values": {
+              "style_application": "Optional cached contour variants with fixed seeds, cycled per drawing for line boil on cartoon artwork only; keep roughness low so outlines read as inked, not sketched."
+            },
+            "remove": []
+          },
+          "layered_drawn_frame_sequence": {
+            "values": {
+              "style_application": "Optional supplied hand-drawn cels of the project's characters or scenery, one drawing per step, composited with matching ink weight."
+            },
+            "remove": []
+          },
+          "gsap": {
+            "values": {
+              "style_application": "One paused, seekable timeline advances the clock; pure time-state functions return each stepped drawing and, when used, each film-wear frame."
+            },
+            "remove": []
+          },
+          "chroma_js": {
+            "values": {
+              "style_application": "Check titles, captions and any leader numerals against their composited backgrounds and keep fills within the resolved project or suggested palette."
+            },
+            "remove": []
+          }
+        },
+        "stack_property_order": {}
+      },
+      "executable_prompt_template": "Create an original Vintage Rubber Hose Animation video about {{subject}} for {{audience_and_objective}}, using {{assets_and_exact_copy}}. Duration {{duration_seconds}}, aspect ratio {{aspect_ratio}}, resolution {{resolution}}, frame rate {{frame_rate}}. Honor {{audio_or_rhythm_requirements}}. Save to {{output_directory}}. Use {{render_pipeline}} for composition/export; the project renderer setting remains binding. Take subjects, any characters, story, copy and palette from the project; when an original character is needed and none is given, design one and record its identity. Add the only optional effects, film wear and a vintage film-leader countdown, only where the project needs them. Write structured STORYBOARD.json with the subject or character identity, key drawings, timed scenes, any chosen optional effects, exact copy and assets.\nVisual rules: Vintage Rubber Hose Animation: the early sound-era look of hand-inked cel cartoons. Strong, irregular ink silhouettes and organic, slightly imperfect contours vary in line weight; forms are simplified, with flat cel fills under bold painterly or cel shadow masses. Scenery and architecture may be expressive, warped and asymmetric, with leaning shapes, layered atmosphere and environments that subtly react. When characters appear, they may be any original human, animal, robot, object or environmental subject, built from rounded elastic masses with curved, jointless rubber-hose limbs and broad theatrical expressions; keep one consistent design per project and never resemble an existing cartoon character or mascot. Shots without characters, such as landscapes or buildings, are equally valid, and architecture need not become round. Motion is hand-drawn acting: expressive elastic poses, anticipation, squash and stretch, overshoot, curved arcs and playful, rhythmic, jazz-like timing, with readable holds and no mandatory perpetual bounce. Drawings are stepped, typically 12 unique drawings per second against a 24 fps film reference, adapted to the project's delivery settings. Colour follows the project; without one, a restrained vintage palette of ink, aged ivory, sepia and muted warm or cool accents is suggested. Black-and-white references describe drawing and film material, not a required grayscale palette. The only optional effects, used only where a project needs them, are film wear and a vintage film-leader countdown. Avoid clean corporate vector icons with grain pasted on top, neon, glossy gradients, modern 3D rendering, photorealism and fixed-grid pixel art unless explicitly requested.\nImplementation: Core drawing (always): ink contours with organic weight variation and slight imperfection, strong irregular silhouettes, simplified forms and flat cel fills with bold painterly or cel shadow masses. Scenery and architecture may be warped, leaning or asymmetric where the subject suits it; build depth from a few layered planes of atmosphere with subtle parallax, and let environmental elements react with restrained elastic squash, sway or lean on their own cues. Author the artwork as drawn vector shapes or supplied hand-drawn cels, not generic icons with texture added afterwards. Characters (only when present): adopt or design the project's original subject (human, animal, robot, object or environmental) on one construction sheet: rounded elastic masses, a root that squashes and stretches about its contact point, curved jointless hose limbs drawn as single quadratic or cubic strokes with an ink outline and inner fill, simple hands or ends and replaceable features. Species, costume, occupation, props and shape come from the project. Keep proportions, line weight, colours and costume consistent, note the identity in the storyboard, and reject designs that resemble existing cartoon characters or mascots. Shots without characters are valid. Acting and time: author key drawings (anticipation, squash, stretch, overshoot, settle) on curved arcs rather than continuous tweens, with rhythmic timing and readable holds; idle sway is optional. Derive state from absolute composition time: drawing = floor(time × 12) by default, and a project may choose another drawing rate. Never derive state from a frame counter, so the stepped cadence survives any delivery frame rate (24 fps holds each drawing two frames, 30 fps alternates two and three, 60 fps holds five). Keep delivery resolution, frame rate and duration in the project's settings. Seed every random choice; never Math.random, wall clock or free-running loops. Use one owner per animated property and verify that forward, backward and direct seeks give identical frames. Colour and type: use the project's palette and copy; otherwise the suggested vintage palette, with flat fills and opacity rather than extra hues. A monochrome-to-colour progression is an optional storytelling choice. Cartoon titles and captions use real text in a locally available face chosen for the project; this does not apply to optional film-leader numerals. Optional effects (only when a project needs them): Film wear: treat it as photographic film material separate from the cartoon artwork. Apply seeded grain, flecks, dust, hairs, thin vertical scratches, subtle exposure variation, slight registration drift and whole-plate gate weave to the entire frame, stepped from a film frame index such as floor(time × 24); optional line boil cycles two or three contour variants of the cartoon artwork only. Vintage film-leader countdown: a separate photographic plate with mechanically precise, centred concentric registration circles and thin crosshair lines fixed relative to each other; large, pale, bold sans-serif numerals with clear breathing room over a darker coordinated ground; a broad, darker, translucent clock-wipe sector rotating behind the numeral and rings; grain, vertical scratches, dust and exposure variation. Gate weave moves the whole plate, never individual rings. Do not give the leader cartoon ink outlines, line boil, serif numerals, decorative paper borders or wobbly circles. Present it as a creative hybrid of historical leaders, not a strict historical reconstruction, and keep any exposure flashes partial and at most three per second. Offer a reduced-motion version with plain cuts. Composition and export use the project's renderer setting. Relationship: Rubber Hose Animation (style-034) is a broader normalized label from a modern retro reference; this entry fixes early hand-inked cel drawing, stepped cadence and the optional film wear and film-leader countdown. It borrows Traditional Cel Animation (style-081) drawing discipline.\nRead the selected palette and tool guidance. Validate the storyboard schema, consistent construction of any characters, stepped drawing sampling from absolute time, readable holds, flash rate, forward/backward/direct seeks and rendered frames; preserve exact copy.",
+      "palette": {
+        "background_policy": "scene_dependent",
+        "status": "style_compatible_suggestion",
+        "scope": "new_artwork_when_no_approved_palette_is_supplied",
+        "direction": "Suggested restrained vintage palette for projects without their own colours: ink black, aged ivory, sepia brown and dusty grey as the base, with muted rust, vintage gold, faded teal and pale sky blue as warm or cool accents. Black-and-white references inform drawing and film treatment, not a required grayscale palette.",
+        "generator": {
+          "library": "chroma-js",
+          "version": "3.2.0",
+          "operations": ["chroma.valid", "chroma(color).hex()", "chroma.contrast"]
+        },
+        "tokens": {
+          "background": "#F1E3C6",
+          "foreground": "#25221F",
+          "ink_black": "#25221F",
+          "aged_ivory": "#F1E3C6",
+          "sepia_brown": "#856548",
+          "dusty_grey": "#77736D",
+          "muted_rust": "#B5523A",
+          "vintage_gold": "#E8B65B",
+          "faded_teal": "#7EA9A3",
+          "pale_sky_blue": "#B9D8D2"
+        },
+        "base_colors": [
+          "#25221F",
+          "#F1E3C6",
+          "#856548",
+          "#77736D",
+          "#B5523A",
+          "#E8B65B",
+          "#7EA9A3",
+          "#B9D8D2"
+        ],
+        "base_color_count": 8,
+        "constraints": [
+          "A task-provided or approved project palette takes precedence; these eight colours are a suggested default, and #F1E3C6 is an illustrative scene background.",
+          "Keep ink contours dark and fills flat; shade with cel or painterly shadow masses and opacity rather than extra hues.",
+          "A monochrome-to-warm colour progression is one optional storytelling device, not a requirement.",
+          "If an optional film leader is chosen, use pale numerals and rings over a darker coordinated ground rather than clean digital white.",
+          "Avoid neon, glossy gradients and heavy saturation unless the project explicitly asks for them.",
+          "Keep any exposure flashes partial and at no more than three per second."
+        ],
+        "gradient": {
+          "enabled": false,
+          "instruction": "No decorative gradients. Allow only an optional radial projector vignette and soft light shapes made from flat translucent fills."
+        },
+        "contrast_checks": {
+          "background": "opaque_sRGB",
+          "normal_text_target": 4.5,
+          "foreground_on_background": 12.46,
+          "suggested_text_pairs": [
+            {
+              "background_token": "aged_ivory",
+              "foreground_token": "ink_black",
+              "contrast_ratio": 12.46,
+              "meets_normal_text_target": true,
+              "use": "Titles, captions and labels on light grounds."
+            },
+            {
+              "background_token": "sepia_brown",
+              "foreground_token": "aged_ivory",
+              "contrast_ratio": 4.19,
+              "meets_normal_text_target": false,
+              "use": "Large pale leader numerals or titles on a darker sepia ground; large-text 3:1 target only."
+            },
+            {
+              "background_token": "vintage_gold",
+              "foreground_token": "ink_black",
+              "contrast_ratio": 8.49,
+              "meets_normal_text_target": true,
+              "use": "Ink outline and text on gold fills."
+            },
+            {
+              "background_token": "pale_sky_blue",
+              "foreground_token": "ink_black",
+              "contrast_ratio": 10.41,
+              "meets_normal_text_target": true,
+              "use": "Text over a light sky."
+            },
+            {
+              "background_token": "muted_rust",
+              "foreground_token": "aged_ivory",
+              "contrast_ratio": 3.91,
+              "meets_normal_text_target": false,
+              "use": "Bold text of at least 24px on rust; large-text 3:1 target only."
+            }
+          ],
+          "limitation": "Two-color checks only. Not a guarantee of complete accessibility or readability over images, textures, glass, video, outlines or animated lighting. Recheck every actual foreground/background pairing in representative frames."
+        },
+        "composition_guidance": "Stage subjects on a clear ground line with strong readable silhouettes, a few layered planes of scenery and generous space for gestures; keep titles and dialogue inside safe margins. Adapt framing to the project's aspect ratio.",
+        "agent_instruction": "Resolve colors in this order: task-provided exact palette, established brand or approved source palette, existing semantic color mappings, then this optional example. Read visual_cues and palette.constraints. Preserve approved anchor values, color families, ink counts and asset colors. Use chroma-js for validation, equivalent normalization and contrast assessment; evaluate gradients only when enabled and appropriate. Select readable token pairs from contrast_checks, otherwise move text onto an existing contrasting backing. Record the resolved tokens and inspect actual composited frames before rendering."
+      },
+      "audio_direction": {
+        "prompt": "Optional ideas, governed by the project's audio settings: rhythmic jazz percussion, upright bass, muted brass, playful woodwinds and cartoon sound effects timed to visible actions; mono projector noise or light vinyl hiss with optional film wear; projector clicks and short tones with an optional leader countdown. Do not override the project's audio settings, and do not invent narration or music when audio is disabled. The catalog preview is silent.",
+        "suggestion_dimensions": [
+          "Whether background music is useful, and its suggested mood, texture, energy, tempo range, and progression.",
+          "Whether voiceover helps explain the topic, and its suggested language, tone, pace, and placement.",
+          "Whether sung vocals support the topic or distract from narration and essential text.",
+          "Whether sound effects, ambience, or silence clarify key actions, transitions, and reading holds.",
+          "How audio changes across scenes, supports motion cadence, and leaves space for speech and comprehension."
+        ],
+        "selection_guidance": "Treat these as task-specific suggestions, not requirements to include every audio layer. Honor explicit user audio choices and supplied assets. When inputs are absent, propose a coherent direction and state assumptions; do not silently default to instrumental music or invent available audio assets.",
+        "integration_guidance": "Select or create authorized audio assets separately from visual construction and motion design. Use render_pipeline to assemble, synchronize, mix, and export audio with picture. Keep speech intelligible, avoid clipping and competing vocals, and inspect the delivered audio and picture together."
+      },
+      "motion_references": {
+        "catalog_file": "motion-pattern-catalog.json",
+        "required": false,
+        "selection_policy": "Optional candidates are screened for natural style compatibility. Before selection, inspect the actual scene illustration, assets, geometry and narrative beat. Keep only references whose defining action is supported by that scene. Choosing no reference is valid. Do not infer motion from a similar label; do not replace the existing style motion direction.",
+        "candidates": [
+          {
+            "motion_id": "motion-027",
+            "usage_guidance": "Landings: a character, prop or reacting piece of scenery drops onto the ground line, squashes on contact and rebounds with decreasing height on the stepped drawing cadence, keeping its shadow and identity consistent.",
+            "review_evidence": "Authored compatibility screening by claude-opus-5-5, 2026-10-21; no separate review file."
+          }
+        ],
+        "agent_instruction": "Read each complete motion definition before use. The style's own hand-drawn acting stays primary; use this reference only where the scene contains a landing. Selecting none is valid."
+      },
+      "suggested_combinations": {
+        "selection_guidance": "Vintage Rubber Hose Animation is complete on its own. Add a supporting style only for drawn cel frames or an explanatory beat, keeping ink contours, hand-drawn acting and stepped drawings dominant.",
+        "suggestions": [
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-081",
+                "role": "Hand-drawn cel frames for the project's characters or scenery"
+              }
+            ],
+            "rationale": "Traditional cel discipline keeps linework and flat fills consistent across drawn frames.",
+            "best_for": "Pieces where supplied or drawn cels replace coded drawings.",
+            "video_application": "Composite one cel drawing per step over the coded scene, matching ink weight and palette.",
+            "html_application": "Swap cel images from the same drawing index on a seekable timeline, with a static pose for reduced motion.",
+            "consistency_rules": [
+              "Keep one construction sheet per character.",
+              "Keep one stepped drawing index."
+            ],
+            "avoid": ["Smooth tweened character motion.", "Characters resembling existing mascots."]
+          },
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-097",
+                "role": "Explanatory diagrams drawn in the same ink and palette"
+              }
+            ],
+            "rationale": "Data storytelling adds step-by-step diagrams when a piece needs to explain something.",
+            "best_for": "Educational or product pieces that pair cartoon drawing with explanation.",
+            "video_application": "Present one inked diagram at a time, drawn in the same palette and cadence.",
+            "html_application": "Scroll steps that reveal one annotated diagram per step, with a static fallback.",
+            "consistency_rules": [
+              "Explain one idea at a time.",
+              "Mark invented values as illustrative."
+            ],
+            "avoid": ["Modern flat dashboard chrome.", "Unsourced precise figures."]
+          }
+        ]
+      },
+      "combination_guidance_provenance": "authored_compatibility_guidance_2026-10-21"
     }
   ],
   "library_options": [

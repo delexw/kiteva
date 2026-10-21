@@ -12,6 +12,7 @@ import type { VideoGenerationJob } from "../src/shared/domains/video";
 vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
 import { prepareVideoBuildPlan, needsVideoBuildPlan } from "../src/server/domains/video/build-plan";
+import { StructuredOutputError } from "../src/server/agents/structured-output-error";
 
 const size = { duration: 3, width: 1920, height: 1080, fps: 60 };
 function validPlan() {
@@ -171,6 +172,9 @@ it("reuses the validated checkpoint on retries without spending another planning
   options.job = JSON.parse(JSON.stringify(options.job));
   await prepareVideoBuildPlan(options);
   expect(agentTurn).toHaveBeenCalledTimes(1);
+  expect(options.onEvent.mock.calls.filter(([event]) => event.type === "plan_ready")).toHaveLength(
+    1,
+  );
 });
 it("rejects a cached plan from another model session", async () => {
   const options = await input();
@@ -180,27 +184,106 @@ it("rejects a cached plan from another model session", async () => {
   await expect(prepareVideoBuildPlan(options)).rejects.toThrow("does not belong");
   expect(agentTurn).toHaveBeenCalledTimes(1);
 });
-it.each(["claude", "otherModel", "refinement"])("leaves %s on the existing path", async (kind) => {
-  const options = await input();
-  if (kind === "otherModel") options.job.model = "gpt-6-astra";
-  if (kind === "refinement") options.job.refinementPrompt = "Larger captions";
-  const provider = kind === "claude" ? ("claude" as const) : options.provider;
-  expect(needsVideoBuildPlan(options.job, provider)).toBe(false);
-  const prompt = await prepareVideoBuildPlan({ ...options, provider });
-  expect(prompt).toBe(options.prompt);
-  expect(agentTurn).not.toHaveBeenCalled();
-});
+it.each(["claude", "codex"] as const)(
+  "keeps %s refinements on their focused repair path",
+  async (provider) => {
+    const options = await input();
+    options.job.refinementPrompt = "Larger captions";
+    expect(needsVideoBuildPlan(options.job)).toBe(false);
+    const prompt = await prepareVideoBuildPlan({ ...options, provider });
+    expect(prompt).toBe(options.prompt);
+    expect(agentTurn).not.toHaveBeenCalled();
+  },
+);
 it("does not hand off malformed plans or a missing session", async () => {
   const options = await input();
-  vi.mocked(agentTurn).mockResolvedValueOnce({ value: {}, sessionId: "session" });
+  vi.mocked(agentTurn).mockResolvedValue({ value: {}, sessionId: "session" });
   await expect(prepareVideoBuildPlan(options)).rejects.toThrow();
   expect(options.job.buildPlan).toBeUndefined();
   vi.mocked(agentTurn).mockResolvedValueOnce({ value: validPlan() });
   await expect(prepareVideoBuildPlan(options)).rejects.toThrow("disconnected build");
 });
 
+it.each(["claude", "codex"] as const)(
+  "corrects rejected layer references and timing in the same %s session before saving",
+  async (provider) => {
+    const options = await input();
+    options.job.model = provider === "claude" ? "claude-opus-5-5" : "gpt-6.1-sol";
+    options.job.sessionId = undefined;
+    const invalid = validPlan();
+    invalid.sceneGuidance[0].readingHolds[0].textLayerIds = ["missing-title"];
+    invalid.sceneGuidance[0].motions[0].endSeconds = 4;
+    const validation = videoBuildPlanSchemaFor(size).safeParse(invalid);
+    if (validation.success) throw Error("Expected invalid fixture");
+    vi.mocked(agentTurn)
+      .mockRejectedValueOnce(new StructuredOutputError(validation.error, invalid, "owning-session"))
+      .mockResolvedValueOnce({ value: validPlan(), sessionId: "owning-session" });
+    const prompt = await prepareVideoBuildPlan({ ...options, provider });
+    expect(agentTurn).toHaveBeenCalledTimes(2);
+    const correction = vi.mocked(agentTurn).mock.calls[1][0];
+    expect(correction).toMatchObject({
+      sessionId: "owning-session",
+      provider,
+      model: options.job.model,
+      readOnly: true,
+      planMode: provider === "claude",
+    });
+    expect(correction.prompt).toContain("Reading holds must refer to declared layers");
+    expect(correction.prompt).toContain("Timing must lie within its scene");
+    expect(correction.prompt).toContain("missing-title");
+    expect(prompt).toContain("IMPLEMENT THE SAVED VIDEO BUILD PLAN");
+    expect(options.job.buildPlan?.sessionId).toBe("owning-session");
+    expect(
+      JSON.parse(await readFile(path.join(options.job.workspace, "VIDEO_BUILD_PLAN.json"), "utf8")),
+    ).toEqual(validPlan());
+    expect(
+      options.onEvent.mock.calls.filter(([event]) => event.type === "plan_ready"),
+    ).toHaveLength(1);
+  },
+);
+
+it("never saves or hands off a repeatedly invalid plan", async () => {
+  const options = await input();
+  const invalid = {};
+  const validation = videoBuildPlanSchemaFor(size).safeParse(invalid);
+  if (validation.success) throw Error("Expected invalid fixture");
+  vi.mocked(agentTurn).mockRejectedValue(
+    new StructuredOutputError(validation.error, invalid, "owning-session"),
+  );
+  await expect(prepareVideoBuildPlan(options)).rejects.toBeInstanceOf(StructuredOutputError);
+  expect(agentTurn).toHaveBeenCalledTimes(3);
+  expect(options.job.buildPlan).toBeUndefined();
+  await expect(
+    readFile(path.join(options.job.workspace, "VIDEO_BUILD_PLAN.json")),
+  ).rejects.toMatchObject({ code: "ENOENT" });
+  expect(options.onEvent.mock.calls.some(([event]) => event.type === "plan_ready")).toBe(false);
+});
+
+it("does not retry cancellation or unrelated provider failures as plan corrections", async () => {
+  const options = await input();
+  const error = new Error("Provider unavailable");
+  vi.mocked(agentTurn).mockRejectedValueOnce(error);
+  await expect(prepareVideoBuildPlan(options)).rejects.toBe(error);
+  expect(agentTurn).toHaveBeenCalledOnce();
+  vi.mocked(agentTurn).mockReset();
+  const controller = new AbortController();
+  vi.mocked(agentTurn).mockImplementationOnce(async () => {
+    controller.abort(new Error("User stopped work"));
+    throw error;
+  });
+  await expect(prepareVideoBuildPlan({ ...options, signal: controller.signal })).rejects.toThrow(
+    "User stopped work",
+  );
+  expect(agentTurn).toHaveBeenCalledOnce();
+});
+
 it.each([
   ["codex", "preview"],
+  ["claude", "preview"],
+  ["codex", "selected-preview"],
+  ["claude", "selected-preview"],
+  ["codex", "direct"],
+  ["claude", "direct"],
   ["codex", "full"],
   ["claude", "full"],
   ["codex", "automatic"],
@@ -209,7 +292,7 @@ it.each([
   "runs %s %s planning then implementation in one selected session before rendering",
   async (provider, mode) => {
     const automatic = mode === "automatic";
-    const kind = automatic ? "full" : mode;
+    const kind = mode === "preview" || mode === "selected-preview" ? "preview" : "full";
     const duration = automatic ? 90 : 3;
     const { generateVideo } = await import("../src/server/domains/video/workflow");
     const { loadCatalog } = await import("../src/server/catalog/catalog");
@@ -217,8 +300,8 @@ it.each([
     const options = await input();
     const controller = new AbortController();
     options.job.kind = kind;
-    if (automatic) {
-      options.job.duration = 15;
+    if (automatic || mode === "direct" || kind === "preview") {
+      if (automatic) options.job.duration = 15;
       options.job.sessionId = undefined;
     }
     options.job.model = provider === "claude" ? "claude-opus-5-5" : "gpt-6.1-sol";
@@ -245,6 +328,7 @@ it.each([
     vi.mocked(agentTurn)
       .mockImplementationOnce(async (call) => {
         expect(call.readOnly).toBe(true);
+        expect(call.planMode).toBe(provider === "claude");
         expect(call.referenceUrls).toEqual(["https://example.com/app"]);
         expect(call.model).toBe(options.job.model);
         return { value: previewPlan, sessionId: "planning-session" };
@@ -268,7 +352,12 @@ it.each([
           urls: ["https://example.com/app"],
           frameRate: 60,
           duration: automatic ? "auto" : duration,
-          ...(automatic ? { selectedStyleIds: ["style-018"], candidateCount: 0 } : {}),
+          ...(automatic || mode === "direct" || mode === "selected-preview"
+            ? {
+                selectedStyleIds: ["style-018"],
+                candidateCount: mode === "selected-preview" ? 2 : 0,
+              }
+            : {}),
         }),
         brief: {
           subject: "An idea",
@@ -370,9 +459,21 @@ it.each(["claude", "codex"] as const)(
 it("ignores retired style-contract metadata when resuming a saved Claude job", async () => {
   const options = await input();
   Object.assign(options.job, { styleContract: { fingerprint: "retired-policy", value: {} } });
-  expect(needsVideoBuildPlan(options.job, "claude")).toBe(false);
-  expect(await prepareVideoBuildPlan({ ...options, provider: "claude" })).toBe(options.prompt);
-  expect(agentTurn).not.toHaveBeenCalled();
+  options.job.model = "claude-opus-5-5";
+  vi.mocked(agentTurn).mockResolvedValueOnce({ value: validPlan(), sessionId: "preview-plan" });
+  expect(needsVideoBuildPlan(options.job)).toBe(true);
+  expect(await prepareVideoBuildPlan({ ...options, provider: "claude" })).toContain(
+    "IMPLEMENT THE SAVED VIDEO BUILD PLAN",
+  );
+  expect(agentTurn).toHaveBeenCalledOnce();
+});
+
+it("does not restrict preview planning to an allowlist of model names", async () => {
+  const options = await input();
+  options.job.model = "gpt-6-astra";
+  vi.mocked(agentTurn).mockResolvedValueOnce({ value: validPlan(), sessionId: "preview-plan" });
+  await prepareVideoBuildPlan(options);
+  expect(agentTurn).toHaveBeenCalledWith(expect.objectContaining({ model: "gpt-6-astra" }));
 });
 
 it("uses a narrative full-film plan without premature scene-local choreography validation", () => {

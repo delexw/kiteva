@@ -1,6 +1,7 @@
 import { agentCapabilities } from "./capabilities/registry";
 import { styleBackgroundGuidance } from "../../shared/style-palette";
 import { ModelCapacityError } from "./capacity-error";
+import { StructuredOutputError } from "./structured-output-error";
 import { setTimeout as delay } from "node:timers/promises";
 import { assetRequirementsPolicy } from "../../shared/asset-requirements-policy";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -214,5 +215,8 @@ async function agentTurnAttempt<T>(
     onEvent,
   });
   signal.throwIfAborted();
-  return { value: schema.parse(execution.result), sessionId: execution.sessionId };
+  const parsed = schema.safeParse(execution.result);
+  if (!parsed.success)
+    throw new StructuredOutputError(parsed.error, execution.result, execution.sessionId);
+  return { value: parsed.data, sessionId: execution.sessionId };
 }

@@ -20,6 +20,8 @@ import { transcodePreviewToWebm } from "../src/server/rendering/webm-video";
 import {
   multiplaneProgress,
   multiplaneRenderArgs,
+  multiplaneInspectArgs,
+  multiplaneVerifyArgs,
   multiplaneResult,
   multiplaneShotProblems,
   multiplaneDiagnostics,
@@ -177,6 +179,7 @@ it("builds Multiplane commands for silent WebM previews and MP4 films with one a
     value(preview, "--quality"),
     value(preview, "--fps"),
   ]).toEqual(["webm", "fast", "60"]);
+  expect(preview).toContain("--no-lint");
   expect(preview).not.toContain("--audio");
   expect(preview).not.toContain("--draft");
   const full = multiplaneRenderArgs({
@@ -186,6 +189,7 @@ it("builds Multiplane commands for silent WebM previews and MP4 films with one a
     kind: "full",
     audioFile: "assets/mix.wav",
   });
+  expect(full).toContain("--no-lint");
   expect([value(full, "--format"), value(full, "--quality"), value(full, "--audio")]).toEqual([
     "mp4",
     "standard",
@@ -285,7 +289,7 @@ it("pins Multiplane in the app package and shares the app's single Three.js", as
   expect(existsSync(path.join(root, "renderers"))).toBe(false);
 });
 
-it("checks, verifies and renders a Multiplane preview straight to WebM inside the sandbox", async () => {
+it("renders a Multiplane preview directly to WebM without inspection or verification", async () => {
   const workspace = await mkdtemp(path.join(os.tmpdir(), "multiplane-render-"));
   vi.mocked(isolatedCommand).mockImplementation(
     async (_exe, args, _cwd, _signal, _output, _timeout, stdout, env) => {
@@ -311,12 +315,9 @@ it("checks, verifies and renders a Multiplane preview straight to WebM inside th
     (_type, message) => events.push(message),
   );
   expect(output.video).toBe("renders/preview.webm");
-  expect(vi.mocked(isolatedCommand).mock.calls.map((call) => call[1][1])).toEqual([
-    "inspect",
-    "verify",
-    "render",
-  ]);
-  const renderArgs = vi.mocked(isolatedCommand).mock.calls[2][1];
+  expect(vi.mocked(isolatedCommand).mock.calls.map((call) => call[1][1])).toEqual(["render"]);
+  const renderArgs = vi.mocked(isolatedCommand).mock.calls[0][1];
+  expect(renderArgs).toContain("--no-lint");
   expect(renderArgs[renderArgs.indexOf("--out") + 1]).toBe("renders/preview.webm");
   expect(transcodePreviewToWebm).not.toHaveBeenCalled();
   expect(events).toContain("capture: 90/90 frames");
@@ -336,7 +337,12 @@ it("refuses a Multiplane shot whose stage or timing differs from the project set
     },
   );
   await expect(
-    renderJob(job(workspace), production("Multiplane"), new AbortController().signal, () => {}),
+    renderJob(
+      job(workspace, "full"),
+      production("Multiplane"),
+      new AbortController().signal,
+      () => {},
+    ),
   ).rejects.toThrow("1280×720");
   expect(vi.mocked(isolatedCommand)).toHaveBeenCalledTimes(1);
 });
@@ -482,15 +488,14 @@ it.each(["preview", "full"] as const)(
       exe === "ffprobe" ? ffprobe(kind === "preview" ? "vp9" : "h264") : "",
     );
     await renderJob(job(workspace, kind), manifest, new AbortController().signal, vi.fn());
-    expect(vi.mocked(isolatedCommand).mock.calls.map((call) => call[1][1])).toEqual([
-      "inspect",
-      "verify",
-      "render",
-      "inspect",
-      "verify",
-      "render",
-    ]);
+    expect(vi.mocked(isolatedCommand).mock.calls.map((call) => call[1][1])).toEqual(
+      kind === "preview"
+        ? ["render", "render"]
+        : ["inspect", "verify", "render", "inspect", "verify", "render"],
+    );
     const renders = vi.mocked(isolatedCommand).mock.calls.filter((call) => call[1][1] === "render");
+    for (const call of vi.mocked(isolatedCommand).mock.calls)
+      expect(call[1]).toContain("--no-lint");
     for (const call of renders) expect(call[1]).not.toContain("--audio");
     const concat = vi.mocked(command).mock.calls.find((call) => call[1].includes("concat"))!;
     expect(concat[1]).toEqual(expect.arrayContaining(["-c:v", "copy", "-t", "3"]));
@@ -540,7 +545,7 @@ it("stops before rendering or assembling when any individual shot fails verifica
     },
   );
   await expect(
-    renderJob(job(workspace), manifest, new AbortController().signal, vi.fn()),
+    renderJob(job(workspace, "full"), manifest, new AbortController().signal, vi.fn()),
   ).rejects.toThrow("Shot readiness timed out");
   expect(vi.mocked(isolatedCommand).mock.calls.map((call) => call[1][1])).toEqual([
     "inspect",
@@ -550,4 +555,31 @@ it("stops before rendering or assembling when any individual shot fails verifica
     "verify",
   ]);
   expect(command).not.toHaveBeenCalled();
+});
+
+it.each(["hyperframes", "multiplane"] as const)(
+  "%s preview handoff explicitly skips QA",
+  (renderer) => {
+    const settings = { width: 1280, height: 720, duration: 3, fps: 30 };
+    const preview = renderContract(renderer, { ...settings, kind: "preview" });
+    expect(preview).toContain("renders previews directly");
+    if (renderer === "multiplane") {
+      expect(preview).toContain("multiplane render --no-lint");
+      expect(preview).toContain("mandatory for every preview render");
+    }
+    const full = renderContract(renderer, { ...settings, kind: "full" });
+    if (renderer === "multiplane") expect(full).toContain("--no-lint");
+    else expect(full).not.toContain("--no-lint");
+    expect(full).not.toContain("renders previews directly");
+    expect(full).toContain(
+      renderer === "multiplane"
+        ? "inspect --no-lint, verify --no-lint and render --no-lint"
+        : "validation and rendering",
+    );
+  },
+);
+
+it("disables built-in lint for full-film inspection and verification too", () => {
+  expect(multiplaneInspectArgs("shot.html")).toContain("--no-lint");
+  expect(multiplaneVerifyArgs("shot.html", 30)).toContain("--no-lint");
 });

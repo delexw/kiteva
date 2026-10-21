@@ -69,7 +69,7 @@ it.each(["hyperframes", "multiplane"] as const)(
       "continuous action within each task",
       "unexplained state resets",
       "does not require extra narration",
-      "record missing actions before assembly",
+      "record missing supported actions before assembly",
       "section title centered",
       "actual supplied or application-derived product logo",
       "bottom-left or bottom-right corner",
@@ -80,7 +80,7 @@ it.each(["hyperframes", "multiplane"] as const)(
     ])
       expect(route).toContain(requirement);
     // Route A owns story/coverage; the copied skill owns the capture/edit procedure.
-    expect(route.trim().split(/\s+/).length).toBeLessThanOrEqual(550);
+    expect(route.trim().split(/\s+/).length).toBeLessThanOrEqual(650);
     expect(route).not.toMatch(/getFrames|addTrims|addSpeed|action: "(?:start|stop|edit|export)"/);
     expect(route).toContain(
       "Follow the OpenScreen skill below for recording, review, editing and export",
@@ -303,14 +303,73 @@ it.each(["hyperframes", "multiplane"] as const)(
   (renderer) => {
     const prompt = buildApplicationDemoRoutePrompt(renderer);
     expect(prompt).toContain('actual input[type="file"]');
-    expect(prompt).toContain("Puppeteer uploadFile or Playwright setInputFiles");
+    expect(prompt).toContain("using reference_browser upload_files");
     expect(prompt).toContain(
       "Do not click the attachment button or open or operate the native file-picker window",
     );
     expect(prompt).toContain("verify the filename, thumbnail or resulting app state");
     expect(prompt).toContain(
-      "If registered tools cannot assign files, report that capability limitation",
+      "If registered tools cannot assign files, follow UNSUPPORTED INTERACTIONS",
     );
     expect(prompt).toContain("This does not apply to date or other in-page selection controls");
+  },
+);
+
+it.each(["hyperframes", "multiplane"] as const)(
+  "skips unsupported demo interactions without substituting stills for %s",
+  (renderer) => {
+    const prompt = buildVideoWorkflowRoutingPrompt(renderer);
+    for (const requirement of [
+      "If any component cannot be operated with available tools",
+      "report the limitation and skip only that interaction without a blocking question",
+      "Continue supported features using actual OpenScreen footage",
+      "Never substitute screenshots, stills or recreated UI for demo footage",
+      "invent success or fabricate dependent states",
+      "Record omissions in the storyboard and final report",
+      "bridge to the next reachable task coherently",
+      "Only if recording, export or footage integration itself is unavailable",
+      "never assemble a substitute demo while awaiting an answer",
+      "Route D's demo sections also follow Route A",
+    ]) {
+      expect(prompt).toContain(requirement);
+    }
+    expect(prompt).not.toContain(
+      "if a required feature or capture is inaccessible, stop with a blocking assetNeeds question",
+    );
+  },
+);
+
+it.each(["hyperframes", "multiplane"] as const)(
+  "plans minimal unclipped component focus after exploration for %s",
+  (renderer) => {
+    const prompt = buildApplicationDemoRoutePrompt(renderer);
+    expect(prompt.indexOf("FOCUS PLAN:")).toBeGreaterThan(prompt.indexOf("DISCOVER:"));
+    expect(prompt).toContain(
+      "After thoroughly understanding the URL’s workflows and states through exploration",
+    );
+    expect(prompt).toContain(
+      "the main planner must storyboard each target component, context, zoom amount and timing",
+    );
+    expect(prompt).toContain("Automatic zoom generation is always disabled");
+    expect(prompt).toContain("minimal enlargement without cropping components or labels");
+    expect(prompt).toContain("stay wide for navigation, scrolling and broad results");
+    expect(prompt).toContain("If a useful zoom cannot fit those, stay wide");
+    expect(prompt).toContain("Prefer fixed manual focus");
+    expect(prompt).toContain("Export does not add zooms or refill deliberately wide intervals");
+    expect(prompt).toContain("Smoothing is fixed at 0.15");
+    expect(prompt).toContain(
+      "Measure the live layout at the actual recording viewport and scroll position",
+    );
+    expect(prompt).toContain("including resulting states that resize or reveal content");
+    expect(prompt).toContain("A whole story may remain wide; zoom is optional");
+    expect(prompt).toContain(
+      "Keep relevant neighbouring panels, their borders and controls visible",
+    );
+    expect(prompt).toContain("on both sides of trims");
+    expect(prompt).toContain(
+      "reduce the scale, adjust focus or remove the zoom, then review again",
+    );
+    expect(prompt).toContain("describe simulated behaviour as simulated");
+    expect(prompt).not.toMatch(/TeamTube|API integration guide|0\.4547|0\.5174/);
   },
 );

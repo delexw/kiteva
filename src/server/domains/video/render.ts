@@ -28,6 +28,8 @@ import {
   runMultiplane,
 } from "../../rendering/multiplane";
 
+import { multiplaneShotPlan, assembleMultiplaneShots } from "../../rendering/multiplane/shots";
+
 import { redactSecrets, safeMessage } from "../../runtime/config";
 import { VideoQaError, VideoQaReportError, VideoQaReportSchema, videoQaFindings } from "./qa";
 export const hyperframesCli = path.join(appRoot, "node_modules/hyperframes/bin/hyperframes.mjs");
@@ -174,46 +176,74 @@ async function renderMultiplane(
   signal: AbortSignal,
   emit: (type: string, message: string) => void,
 ) {
-  if (!/^[\w./-]+\.html$/.test(production.sourceFile) || production.sourceFile.includes(".."))
-    throw Error("Multiplane shot must be an HTML file inside the project");
-  emit("validation", "Checking the Multiplane shot: lint, stage size, duration and frame rate");
-  const inspected = await runMultiplane(
-    "inspect",
-    multiplaneInspectArgs(production.sourceFile),
-    job.workspace,
-    signal,
-    () => {},
-    180000,
-  );
-  const problems = multiplaneShotProblems(inspected.data, {
-    width: production.width,
-    height: production.height,
-    duration: job.duration,
-    fps,
-  });
-  if (problems.length)
-    throw Error(`Multiplane shot does not match the requested output: ${problems.join("; ")}`);
-  emit("validation", "Checking that every frame depends only on time");
-  await runMultiplane(
-    "verify",
-    multiplaneVerifyArgs(production.sourceFile, fps),
-    job.workspace,
-    signal,
-  );
-  emit("phase", "Rendering the Multiplane shot");
-  await runMultiplane(
-    "render",
-    multiplaneRenderArgs({
-      shot: production.sourceFile,
-      output: path.relative(job.workspace, video),
+  const shots = multiplaneShotPlan(production, job.duration, fps);
+  const segmented = shots.length > 1;
+  const directory = path.join(job.workspace, "renders", "shots");
+  if (segmented) await mkdir(directory, { recursive: true });
+  const parts: string[] = [];
+  for (const [index, shot] of shots.entries()) {
+    const label = segmented ? ` (${index + 1}/${shots.length}: ${shot.sourceFile})` : "";
+    emit(
+      "validation",
+      `Checking the Multiplane shot: lint, stage size, duration and frame rate${label}`,
+    );
+    const inspected = await runMultiplane(
+      "inspect",
+      multiplaneInspectArgs(shot.sourceFile),
+      job.workspace,
+      signal,
+      () => {},
+      180000,
+    );
+    const problems = multiplaneShotProblems(inspected.data, {
+      width: production.width,
+      height: production.height,
+      duration: shot.duration,
       fps,
-      kind: job.kind,
-      audioFile: production.audioFile,
-    }),
-    job.workspace,
-    signal,
-    (text) => emit("render_progress", text),
-  );
+    });
+    if (problems.length)
+      throw Error(
+        `Multiplane shot ${shot.sourceFile} does not match the requested output: ${problems.join("; ")}`,
+      );
+    emit("validation", `Checking that every frame depends only on time${label}`);
+    await runMultiplane(
+      "verify",
+      multiplaneVerifyArgs(shot.sourceFile, fps),
+      job.workspace,
+      signal,
+    );
+    emit("phase", `Rendering the Multiplane shot${label}`);
+    const part = `shot-${index}.${job.kind === "preview" ? "webm" : "mp4"}`;
+    const output = segmented ? path.join(directory, part) : video;
+    await runMultiplane(
+      "render",
+      multiplaneRenderArgs({
+        shot: shot.sourceFile,
+        output: path.relative(job.workspace, output),
+        fps,
+        kind: job.kind,
+        audioFile: segmented ? null : production.audioFile,
+      }),
+      job.workspace,
+      signal,
+      (text) => emit("render_progress", text),
+    );
+    if (segmented) parts.push(part);
+  }
+  if (segmented) {
+    emit("phase", "Joining the Multiplane shots and continuous soundtrack");
+    await assembleMultiplaneShots({
+      directory,
+      parts,
+      output: video,
+      duration: job.duration,
+      audioFile:
+        job.kind === "full" && production.audioFile
+          ? path.resolve(job.workspace, production.audioFile)
+          : null,
+      signal,
+    });
+  }
 }
 export async function renderJob(
   job: VideoGenerationJob,
@@ -296,7 +326,7 @@ export async function renderJob(
   );
   await writeFile(
     path.join(job.workspace, "VALIDATION.md"),
-    `# Render validation\n\nVerified by the application: ${job.duration}s, ${production.width}×${production.height}, ${fps} fps; full video decode passed. ${job.kind === "preview" ? "No audio track (silent preview). The preview is a VP9 WebM, checked against the validated render for size, frame rate, duration, frame count and picture similarity." : "Audio presence is recorded in renders/validation.json."}\n\nInspect renders/contact-sheet.jpg and the decoded ${path.relative(job.workspace, video)} for appearance and movement. Agent-side limitations about pending rendering are superseded only for the checks listed here.\n\nReproduce with: ${production.pipeline === "Multiplane" ? `node_modules/.bin/multiplane render ${production.sourceFile} --fps ${fps} --out renders/output.${job.kind === "preview" ? "webm" : "mp4"}` : `node_modules/.bin/hyperframes render . --fps ${fps} --output renders/output.mp4`}\n`,
+    `# Render validation\n\nVerified by the application: ${job.duration}s, ${production.width}×${production.height}, ${fps} fps; full video decode passed. ${job.kind === "preview" ? "No audio track (silent preview). The preview is a VP9 WebM, checked against the validated render for size, frame rate, duration, frame count and picture similarity." : "Audio presence is recorded in renders/validation.json."}\n\nInspect renders/contact-sheet.jpg and the decoded ${path.relative(job.workspace, video)} for appearance and movement. Agent-side limitations about pending rendering are superseded only for the checks listed here.\n\nReproduce with: ${production.pipeline === "Multiplane" && (production.shots?.length ?? 0) > 1 ? "Render each production.shots entry in order, concatenate the silent parts, then mux production.audioFile once for the complete film." : production.pipeline === "Multiplane" ? `node_modules/.bin/multiplane render ${production.sourceFile} --fps ${fps} --out renders/output.${job.kind === "preview" ? "webm" : "mp4"}` : `node_modules/.bin/hyperframes render . --fps ${fps} --output renders/output.mp4`}\n`,
   );
   await writeFile(
     path.join(out, "validation.json"),

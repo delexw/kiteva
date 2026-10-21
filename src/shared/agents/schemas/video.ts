@@ -12,6 +12,14 @@ export const ProductionSchema = z.object({
   styleRenderer: z.array(z.string()).min(1),
   motionEngine: z.array(z.string()).min(1),
   sourceFile: z.string(),
+  shots: z
+    .array(z.object({ sourceFile: z.string(), duration: z.number().positive() }))
+    .min(1)
+    .max(120)
+    .optional()
+    .describe(
+      "Multiplane only: ordered independently loadable HTML shots. Each duration is in seconds, aligned to output frames; durations sum to the full film. sourceFile is the first shot. Omit for a single shot.",
+    ),
   duration: z.number().positive(),
   width: z.number().int().positive(),
   height: z.number().int().positive(),

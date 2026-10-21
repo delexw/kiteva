@@ -37,7 +37,7 @@ export function GovernanceUsageTable({
             </div>
           )}
           {byFunction &&
-            row.visualAuthoringSelections?.map((selection) => (
+            row.authoringSelections?.map((selection) => (
               <div key={selection.jobId} className="governance-table-detail">
                 <div>
                   {translateUi(selection.kind === "preview" ? "Preview" : "Full film")}
@@ -119,14 +119,11 @@ export function GovernanceUsageTable({
       expandable={
         byFunction
           ? {
-              rowExpandable: (row) => Boolean(row.visualAuthoringSelections?.length),
+              rowExpandable: (row) => Boolean(row.authoringSelections?.length),
               expandedRowRender: (row) => (
                 <div>
-                  {row.visualAuthoringSelections?.map((selection) => (
-                    <section
-                      key={selection.jobId}
-                      aria-label={translateUi("Visual authoring comparison")}
-                    >
+                  {row.authoringSelections?.map((selection) => (
+                    <section key={selection.jobId} aria-label={translateUi("Authoring comparison")}>
                       <strong>
                         {translateUi(selection.kind === "preview" ? "Preview" : "Full film")}
                         {selection.direction && ` · ${selection.direction}`}

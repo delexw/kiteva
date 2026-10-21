@@ -1,7 +1,7 @@
 import type { AgentProgressEvent, Run } from "../../shared/contracts";
 import { isRunSettled } from "../../shared/contracts";
 import { projectName } from "../../shared/project-name";
-import { authoringResources } from "../jev/strategies/visual-authoring";
+import { jobAuthoringSelection } from "./authoring-selections";
 import {
   correctionActivityPurpose,
   type GovernanceProject,
@@ -161,32 +161,9 @@ export function projectGovernance(
           : "Historical activity · function unrecorded");
     if (!d.invocationId && event.type !== "summary_cache") incompleteHistory = true;
     const row = rowFor(model, purpose);
-    const selection = job?.authoringResources;
-    if (
-      purpose === "Authoring resource selection" &&
-      job &&
-      selection?.source === "jev" &&
-      selection.model === model &&
-      !row.visualAuthoringSelections?.some((entry) => entry.jobId === job.id)
-    ) {
-      (row.visualAuthoringSelections ||= []).push({
-        jobId: job.id,
-        kind: job.kind,
-        direction:
-          run.candidates.find((candidate) => candidate.id === job.candidateId)?.displayTitle || "",
-        resources: [
-          ...new Set([
-            ...selection.selectedIds,
-            ...selection.decisions.map((decision) => decision.id),
-          ]),
-        ].map((id) => ({
-          id,
-          name: authoringResources.find((resource) => resource.id === id)?.name || id,
-          selected: selection.selectedIds.includes(id),
-          probability:
-            selection.decisions.find((decision) => decision.id === id)?.probability ?? null,
-        })),
-      });
+    if (job && !row.authoringSelections?.some((entry) => entry.jobId === job.id)) {
+      const selection = jobAuthoringSelection(run, job, purpose, model);
+      if (selection) (row.authoringSelections ||= []).push(selection);
     }
     if (event.type === "summary_cache") {
       row.cacheHits++;

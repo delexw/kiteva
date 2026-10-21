@@ -16,7 +16,7 @@ it("shows which visual resource was selected for each job without confusing a pr
     costLow: 0.01,
     costHigh: 0.01,
     costBasis: "SDK estimate",
-    visualAuthoringSelections: [
+    authoringSelections: [
       {
         jobId: "preview",
         kind: "preview",
@@ -39,11 +39,11 @@ it("shows which visual resource was selected for each job without confusing a pr
   expect(html).toContain("Preview · A clear idea");
   expect(html).toContain("ant-table-row-expand-icon");
   const missing = structuredClone(row);
-  missing.visualAuthoringSelections![0].resources[0].probability = null;
+  missing.authoringSelections![0].resources[0].probability = null;
   expect(renderToStaticMarkup(<GovernanceUsageTable rows={[missing]} byFunction />)).toContain(
     "Existing local code and libraries (Not recorded)",
   );
-  missing.visualAuthoringSelections![0].resources[0].probability = 0;
+  missing.authoringSelections![0].resources[0].probability = 0;
   expect(renderToStaticMarkup(<GovernanceUsageTable rows={[missing]} byFunction />)).toContain(
     "Existing local code and libraries (0%)",
   );

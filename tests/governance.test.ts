@@ -69,8 +69,8 @@ it("attributes saved visual authoring choices to the matching job and JEV model 
   const row = projectGovernance(project, events).activity[0];
   expect(row.calls).toBe(1);
   expect(row.inputTokens).toBe(100);
-  expect(row.visualAuthoringSelections).toHaveLength(1);
-  expect(row.visualAuthoringSelections?.[0]).toMatchObject({
+  expect(row.authoringSelections).toHaveLength(1);
+  expect(row.authoringSelections?.[0]).toMatchObject({
     jobId: "preview",
     kind: "preview",
     direction: "A clear idea",
@@ -86,11 +86,71 @@ it("attributes saved visual authoring choices to the matching job and JEV model 
   expect(
     projectGovernance(project, [
       { ...event(3, "usage", { ...data, model: "another-model" }), jobId: job.id },
-    ]).activity[0].visualAuthoringSelections,
+    ]).activity[0].authoringSelections,
   ).toBeUndefined();
   expect(
     projectGovernance({ ...project, jobs: [{ ...job, authoringResources: undefined }] }, events)
-      .activity[0].visualAuthoringSelections,
+      .activity[0].authoringSelections,
+  ).toBeUndefined();
+});
+it("shows saved audio choices through the same authoring details without duplicating invocation and usage events", () => {
+  const job: Run["jobs"][number] = {
+    id: "full",
+    runId: run.id,
+    candidateId: "direction",
+    kind: "full",
+    phase: "generating",
+    duration: 180,
+    workspace: "/tmp/fixture",
+    model: "claude-opus-5-5",
+    audioAuthoring: {
+      source: "jev",
+      model: "jev-1.14.0",
+      selectedId: "audio_studio",
+      decisions: [
+        { id: "audio_studio", use: true, probability: 0.98 },
+        { id: "local_audio", use: false, probability: 0.02 },
+      ],
+    },
+  };
+  const data = { model: "jev-1.14.0", purpose: "Audio authoring selection", invocationId: "audio" };
+  const events = [
+    { ...event(1, "invocation", data), jobId: job.id },
+    { ...event(2, "usage", { ...data, input_tokens: 9869, output_tokens: 36 }), jobId: job.id },
+  ];
+  const project = { ...run, jobs: [job] };
+  const row = projectGovernance(project, events).activity[0];
+  expect(row).toMatchObject({ calls: 1, inputTokens: 9869, outputTokens: 36 });
+  expect(row.authoringSelections).toEqual([
+    {
+      jobId: "full",
+      kind: "full",
+      direction: "",
+      resources: [
+        { id: "audio_studio", name: "Audio Studio", selected: true, probability: 0.98 },
+        { id: "local_audio", name: "Local audio tools", selected: false, probability: 0.02 },
+      ],
+    },
+  ]);
+  for (const source of ["uploads", "skipped", "unavailable"] as const) {
+    expect(
+      projectGovernance(
+        { ...run, jobs: [{ ...job, audioAuthoring: { source, decisions: [] } }] },
+        events,
+      ).activity[0].authoringSelections,
+    ).toBeUndefined();
+  }
+  expect(
+    projectGovernance(project, [{ ...events[0], data: { ...data, model: "different-model" } }])
+      .activity[0].authoringSelections,
+  ).toBeUndefined();
+  expect(
+    projectGovernance(project, [{ ...events[0], jobId: undefined }]).activity[0]
+      .authoringSelections,
+  ).toBeUndefined();
+  expect(
+    projectGovernance(project, [{ ...events[0], data: { ...data, purpose: "Other selection" } }])
+      .activity[0].authoringSelections,
   ).toBeUndefined();
 });
 it("counts tools once across stream updates and tokens once per invocation", () => {

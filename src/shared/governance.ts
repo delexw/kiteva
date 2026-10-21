@@ -12,7 +12,7 @@ export interface ModelActivity {
   costLow: number | null;
   costHigh: number | null;
   costBasis: string;
-  visualAuthoringSelections?: {
+  authoringSelections?: {
     jobId: string;
     kind: "preview" | "full";
     direction: string;

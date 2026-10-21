@@ -21,7 +21,8 @@ it.skipIf(!browserExecutablePath())(
       root: appRoot,
       optimizeDeps: browserDependencyScan,
       resolve: { alias: { "@": path.join(appRoot, "src/client") } },
-      server: { host: "127.0.0.1", port: 0 },
+      // Generated project HTML must not reload this isolated UI fixture.
+      server: { host: "127.0.0.1", port: 0, watch: null },
       plugins: [
         react(),
         {

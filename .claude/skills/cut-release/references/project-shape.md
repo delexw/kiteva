@@ -2,16 +2,16 @@
 
 Re-read the live files before every release; these are pointers rather than fixed version numbers.
 
-| Owner                | Source of truth                                                                             |
-| -------------------- | ------------------------------------------------------------------------------------------- |
-| Version              | Root `package.json` `.version`                                                              |
-| Lockfile version     | `package-lock.json` `.version` and `.packages[""].version`                                  |
-| Runtime and commands | `package.json`, `.tool-versions`, `CONTRIBUTING.md`                                         |
-| License              | `LICENSE` and both READMEs: a custom MIT-based non-commercial license, not standard MIT     |
-| Release notes        | `CHANGELOG.md` when present; dated collapsible updates in `README.md` and `README.zh-CN.md` |
-| CI                   | Actual files under `.github/workflows/`, currently `native-windows.yml`                     |
-| PR body              | `.github/PULL_REQUEST_TEMPLATE.md`                                                          |
-| Scope and exclusions | Repository instructions and `.gitignore`                                                    |
+| Owner                | Source of truth                                                                                     |
+| -------------------- | --------------------------------------------------------------------------------------------------- |
+| Version              | Root `package.json` `.version`                                                                      |
+| Lockfile version     | `package-lock.json` `.version` and `.packages[""].version`                                          |
+| Runtime and commands | `package.json`, `.tool-versions`, `CONTRIBUTING.md`                                                 |
+| License              | `LICENSE` and both READMEs: the standard MIT license; third-party components retain their own terms |
+| Release notes        | `CHANGELOG.md` when present; dated collapsible updates in `README.md` and `README.zh-CN.md`         |
+| CI                   | Actual files under `.github/workflows/`, currently `native-windows.yml`                             |
+| PR body              | `.github/PULL_REQUEST_TEMPLATE.md`                                                                  |
+| Scope and exclusions | Repository instructions and `.gitignore`                                                            |
 
 Only the root npm manifest and lockfile own the application version. Do not change dependency versions, third-party manifests, Python package versions, or model revisions to match it. `npm version VERSION --no-git-tag-version --ignore-scripts --allow-same-version` updates the npm version fields without publishing or running release hooks. Check the resulting diff.
 

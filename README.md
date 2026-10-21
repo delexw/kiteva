@@ -27,8 +27,10 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 
 Dates below use New Zealand time.
 
-<details open>
+<details>
 <summary>2026-10-22</summary>
+
+- **v0.2.0:** release with 140 Motion Graphics and 48 motions, style-driven previews, shared planning, editable project exports, native capture and the MIT license. See the [release notes](CHANGELOG.md#020--2026-10-22).
 
 - **MIT license:** switched to standard MIT, removed the top license reminder and simplified the license section.
 

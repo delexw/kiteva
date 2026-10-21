@@ -29,6 +29,8 @@ import {
   unusedHeavyCopies,
 } from "../src/server/rendering/playback-copy-migration";
 
+// These integration cases encode and inspect real media; the unit-test timeout is too short.
+const realMediaTestTimeoutMs = 60_000;
 const folders: string[] = [];
 afterEach(async () => {
   await Promise.all(
@@ -203,96 +205,116 @@ it("rejects a viewing copy that changes the shape, frames, sound or timing", () 
   ).toContain("audio");
 });
 
-it("makes a real 720p30 viewing copy with stereo sound and leaves the master untouched", async () => {
-  const workspace = await folder();
-  const source = path.join(workspace, "full.mp4");
-  master(source, 2, true);
-  const before = await sha(source);
-  const target = path.join(workspace, "view-720p30.webm");
-  const signal = new AbortController().signal;
-  const progress: number[] = [];
-  const result = await makeViewingWebm(source, target, signal, (fraction) =>
-    progress.push(fraction),
-  );
-  expect(result.similarity).toBeGreaterThan(0.94);
-  expect(progress.length).toBeGreaterThan(0);
-  expect(progress.every((value, index) => value <= 1 && value >= (progress[index - 1] ?? 0))).toBe(
-    true,
-  );
-  expect(await sha(source)).toBe(before);
-  expect(existsSync(`${target}.partial`)).toBe(false);
-  const webm = await probeVideo(target, signal);
-  expect(webm.streams.map((stream) => stream.codec_name)).toEqual(["vp9", "opus"]);
-  expect(webm.streams[0]).toMatchObject({ width: 1280, height: 720, avg_frame_rate: "30/1" });
-  expect(webm.streams[1].channels).toBe(2);
-});
+it(
+  "makes a real 720p30 viewing copy with stereo sound and leaves the master untouched",
+  async () => {
+    const workspace = await folder();
+    const source = path.join(workspace, "full.mp4");
+    master(source, 2, true);
+    const before = await sha(source);
+    const target = path.join(workspace, "view-720p30.webm");
+    const signal = new AbortController().signal;
+    const progress: number[] = [];
+    const result = await makeViewingWebm(source, target, signal, (fraction) =>
+      progress.push(fraction),
+    );
+    expect(result.similarity).toBeGreaterThan(0.94);
+    expect(progress.length).toBeGreaterThan(0);
+    expect(
+      progress.every((value, index) => value <= 1 && value >= (progress[index - 1] ?? 0)),
+    ).toBe(true);
+    expect(await sha(source)).toBe(before);
+    expect(existsSync(`${target}.partial`)).toBe(false);
+    const webm = await probeVideo(target, signal);
+    expect(webm.streams.map((stream) => stream.codec_name)).toEqual(["vp9", "opus"]);
+    expect(webm.streams[0]).toMatchObject({ width: 1280, height: 720, avg_frame_rate: "30/1" });
+    expect(webm.streams[1].channels).toBe(2);
+  },
+  realMediaTestTimeoutMs,
+);
 
-it("keeps a silent film silent and cuts a silent three-second card clip", async () => {
-  const workspace = await folder();
-  const source = path.join(workspace, "full.mp4");
-  master(source, 5, false, "1280x720", 30);
-  const signal = new AbortController().signal;
-  await makeViewingWebm(source, path.join(workspace, "view.webm"), signal);
-  expect(
-    (await probeVideo(path.join(workspace, "view.webm"), signal)).streams.map((s) => s.codec_name),
-  ).toEqual(["vp9"]);
-  const card = path.join(workspace, "card.webm");
-  await makeCardClip(source, card, 1, signal);
-  const clip = await probeVideo(card, signal);
-  expect(clip.streams.map((stream) => stream.codec_name)).toEqual(["vp9"]);
-  expect(Number(clip.format.duration)).toBeCloseTo(3, 1);
-});
+it(
+  "keeps a silent film silent and cuts a silent three-second card clip",
+  async () => {
+    const workspace = await folder();
+    const source = path.join(workspace, "full.mp4");
+    master(source, 5, false, "1280x720", 30);
+    const signal = new AbortController().signal;
+    await makeViewingWebm(source, path.join(workspace, "view.webm"), signal);
+    expect(
+      (await probeVideo(path.join(workspace, "view.webm"), signal)).streams.map(
+        (s) => s.codec_name,
+      ),
+    ).toEqual(["vp9"]);
+    const card = path.join(workspace, "card.webm");
+    await makeCardClip(source, card, 1, signal);
+    const clip = await probeVideo(card, signal);
+    expect(clip.streams.map((stream) => stream.codec_name)).toEqual(["vp9"]);
+    expect(Number(clip.format.duration)).toBeCloseTo(3, 1);
+  },
+  realMediaTestTimeoutMs,
+);
 
-it("stops cleanly when cancelled and leaves no partial file", async () => {
-  const workspace = await folder();
-  const source = path.join(workspace, "full.mp4");
-  master(source, 8, true, "1920x1080", 30);
-  const controller = new AbortController();
-  await expect(
-    makeViewingWebm(source, path.join(workspace, "view.webm"), controller.signal, () =>
-      controller.abort(),
-    ),
-  ).rejects.toThrow("Cancelled");
-  expect(await readdir(workspace)).toEqual(["full.mp4"]);
-});
+it(
+  "stops cleanly when cancelled and leaves no partial file",
+  async () => {
+    const workspace = await folder();
+    const source = path.join(workspace, "full.mp4");
+    master(source, 8, true, "1920x1080", 30);
+    const controller = new AbortController();
+    await expect(
+      makeViewingWebm(source, path.join(workspace, "view.webm"), controller.signal, () =>
+        controller.abort(),
+      ),
+    ).rejects.toThrow("Cancelled");
+    expect(await readdir(workspace)).toEqual(["full.mp4"]);
+  },
+  realMediaTestTimeoutMs,
+);
 
-it("records ready copies, or keeps the MP4 playing when a copy fails or stops", async () => {
-  const workspace = await folder();
-  await mkdir(path.join(workspace, "renders"));
-  master(path.join(workspace, "renders", "full.mp4"), 4, true, "1280x720", 30);
-  const job = {
-    id: "full",
-    kind: "full",
-    video: "renders/full.mp4",
-    duration: 4,
-    workspace,
-  } as VideoGenerationJob;
-  const events: string[] = [];
-  const emit = (type: string, message: string) => events.push(`${type}: ${message}`);
-  const made = await makePlaybackCopies(job, new AbortController().signal, emit);
-  expect(made).toMatchObject({
-    viewingVideo: "renders/view-720p30.webm",
-    cardClip: "renders/card-3s.webm",
-    playbackCopies: { profile: playbackCopyProfile, status: "ready" },
-  });
-  expect(events.some((event) => event.startsWith("render_progress: 720p viewing copy"))).toBe(true);
-  await writeFile(path.join(workspace, "renders", "broken.mp4"), "not a video");
-  const broken = await makePlaybackCopies(
-    { ...job, video: "renders/broken.mp4" },
-    new AbortController().signal,
-    emit,
-  );
-  expect(broken).toMatchObject({ playbackCopies: { status: "failed" } });
-  expect(broken.viewingVideo).toBeUndefined();
-  expect(events.at(-1)).toMatch(
-    /^warning: The 720p viewing copy isn't ready [\s\S]*the MP4 plays instead\.$/,
-  );
-  const stopped = new AbortController();
-  stopped.abort();
-  expect(await makePlaybackCopies(job, stopped.signal, emit)).toMatchObject({
-    playbackCopies: { status: "failed", error: "Stopped before it finished" },
-  });
-});
+it(
+  "records ready copies, or keeps the MP4 playing when a copy fails or stops",
+  async () => {
+    const workspace = await folder();
+    await mkdir(path.join(workspace, "renders"));
+    master(path.join(workspace, "renders", "full.mp4"), 4, true, "1280x720", 30);
+    const job = {
+      id: "full",
+      kind: "full",
+      video: "renders/full.mp4",
+      duration: 4,
+      workspace,
+    } as VideoGenerationJob;
+    const events: string[] = [];
+    const emit = (type: string, message: string) => events.push(`${type}: ${message}`);
+    const made = await makePlaybackCopies(job, new AbortController().signal, emit);
+    expect(made).toMatchObject({
+      viewingVideo: "renders/view-720p30.webm",
+      cardClip: "renders/card-3s.webm",
+      playbackCopies: { profile: playbackCopyProfile, status: "ready" },
+    });
+    expect(events.some((event) => event.startsWith("render_progress: 720p viewing copy"))).toBe(
+      true,
+    );
+    await writeFile(path.join(workspace, "renders", "broken.mp4"), "not a video");
+    const broken = await makePlaybackCopies(
+      { ...job, video: "renders/broken.mp4" },
+      new AbortController().signal,
+      emit,
+    );
+    expect(broken).toMatchObject({ playbackCopies: { status: "failed" } });
+    expect(broken.viewingVideo).toBeUndefined();
+    expect(events.at(-1)).toMatch(
+      /^warning: The 720p viewing copy isn't ready [\s\S]*the MP4 plays instead\.$/,
+    );
+    const stopped = new AbortController();
+    stopped.abort();
+    expect(await makePlaybackCopies(job, stopped.signal, emit)).toMatchObject({
+      playbackCopies: { status: "failed", error: "Stopped before it finished" },
+    });
+  },
+  realMediaTestTimeoutMs,
+);
 
 it("chooses the viewing copy and card clip with MP4 fallbacks", () => {
   expect(

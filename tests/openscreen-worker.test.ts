@@ -23,8 +23,14 @@ function fixtureBrowser() {
   const recordingId = randomUUID();
   const name = `website-video-${randomUUID()}`;
   const browser: Awaited<ReturnType<typeof createLocalReferenceBrowser>> = {
+    perform: vi.fn(async () => ({
+      kind: "browser_action" as const,
+      operation: "browser_diagnostics" as const,
+      data: [],
+    })),
     inspect: vi.fn(async () => inspection),
     click: vi.fn(async () => inspection),
+    upload: vi.fn().mockResolvedValue(inspection),
     fill: vi.fn(async () => inspection),
     wait: vi.fn(async () => {}),
     scroll: vi.fn(async () => inspection),
@@ -153,6 +159,35 @@ it("transfers worker artifacts over HTTP and keeps interaction and recording in 
       }),
     );
     await client.fill("1", "sample");
+    const uploadFile = path.join(workspace, "sample.png");
+    await writeFile(uploadFile, "sample image bytes");
+    vi.mocked(browser.upload).mockImplementationOnce(async (_control, files) => {
+      expect(path.basename(files[0])).toBe("sample.png");
+      expect(await readFile(files[0], "utf8")).toBe("sample image bytes");
+      expect(files[0]).not.toBe(uploadFile);
+      return browser.inspect();
+    });
+    await client.upload("2", [uploadFile]);
+    const stagedUpload = vi.mocked(browser.upload).mock.calls[0][1][0];
+    await expect(readFile(stagedUpload)).rejects.toThrow();
+    vi.mocked(browser.perform).mockImplementationOnce(async (request, destination) => {
+      expect(request).toMatchObject({ operation: "browser_capture", format: "pdf" });
+      const name = `browser-${randomUUID()}.pdf`;
+      await writeFile(path.join(destination, "assets", name), "%PDF-test");
+      return {
+        kind: "browser_action",
+        operation: "browser_capture",
+        data: { ok: true },
+        artifact: { name, mimeType: "application/pdf" },
+      };
+    });
+    const document = await client.perform(
+      { operation: "browser_capture", format: "pdf", fullPage: false },
+      workspace,
+    );
+    expect(await readFile(path.join(workspace, "assets", document.artifact!.name), "utf8")).toBe(
+      "%PDF-test",
+    );
     await client.click("2");
     const take = await client.prepareRecording(id);
     expect(take).toMatchObject({ kind: "editable_capture", recordingId: id });
@@ -212,6 +247,35 @@ it("reserves worker capacity while the desktop browser is starting", async () =>
     expect((await first).statusCode).toBe(200);
   } finally {
     release?.();
+    await app.close();
+  }
+});
+
+it("keeps remote browser sessions usable beyond the former 80-action budget", async () => {
+  const browser = fixtureBrowser();
+  const app = createCaptureWorker(token, async () => browser);
+  const headers = { authorization: `Bearer ${token}` };
+  try {
+    const created = await app.inject({
+      method: "POST",
+      url: "/sessions",
+      headers,
+      payload: { urls: ["https://example.com"], mode: "local" },
+    });
+    const { id } = created.json();
+    for (let index = 0; index < 100; index++)
+      expect(
+        (
+          await app.inject({
+            method: "POST",
+            url: `/sessions/${id}/actions`,
+            headers,
+            payload: { action: "inspect" },
+          })
+        ).statusCode,
+      ).toBe(200);
+    expect(browser.inspect).toHaveBeenCalledTimes(100);
+  } finally {
     await app.close();
   }
 });

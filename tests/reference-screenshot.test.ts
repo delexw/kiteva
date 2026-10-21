@@ -75,17 +75,21 @@ it("never launches the capture browser for hosted localhost references", async (
   ).rejects.toMatchObject({ code: "LOCAL_URL_REQUIRES_LOCAL_AGENT" });
   expect(puppeteer.launch).not.toHaveBeenCalled();
 });
-it("uses a fresh proxied browser, waits for the rendered page, and closes it after failure", async () => {
+it("uses a fresh native local browser and closes it after navigation failure", async () => {
   vi.mocked(lookup).mockResolvedValue([{ address: "127.0.0.1", family: 4 }] as never);
   const page = {
+    browser: () => browser,
+    createCDPSession: vi.fn(async () => ({ on: vi.fn(), send: vi.fn(async () => {}) })),
     setDefaultTimeout: vi.fn(),
     setViewport: vi.fn(),
     setBypassServiceWorker: vi.fn(),
+    setCacheEnabled: vi.fn(),
     setRequestInterception: vi.fn(),
     on: vi.fn(),
     goto: vi.fn().mockRejectedValue(Error("Navigation failed")),
   };
   const browser = {
+    on: vi.fn(),
     newPage: vi.fn().mockResolvedValue(page),
     defaultBrowserContext: () => ({ setPermission: vi.fn() }),
     close: vi.fn(),
@@ -103,7 +107,7 @@ it("uses a fresh proxied browser, waits for the rendered page, and closes it aft
     expect.objectContaining({
       executablePath: "/browser",
       headless: "shell",
-      args: expect.arrayContaining(["--proxy-bypass-list=<-loopback>"]),
+      args: expect.not.arrayContaining(["--proxy-bypass-list=<-loopback>"]),
     }),
   );
   expect(page.setRequestInterception).toHaveBeenCalledWith(true);
@@ -186,9 +190,12 @@ it.each([
 it("rejects blank captures with useful JavaScript diagnostics and closes the browser", async () => {
   vi.mocked(lookup).mockResolvedValue([{ address: "127.0.0.1", family: 4 }] as never);
   const page = {
+    browser: () => browser,
+    createCDPSession: vi.fn(async () => ({ on: vi.fn(), send: vi.fn(async () => {}) })),
     setDefaultTimeout: vi.fn(),
     setViewport: vi.fn(),
     setBypassServiceWorker: vi.fn(),
+    setCacheEnabled: vi.fn(),
     setRequestInterception: vi.fn(),
     on: vi.fn((name, callback) => {
       if (name === "pageerror") callback(Error("Application module failed to load"));
@@ -203,6 +210,7 @@ it("rejects blank captures with useful JavaScript diagnostics and closes the bro
     screenshot: vi.fn(),
   };
   const browser = {
+    on: vi.fn(),
     newPage: vi.fn().mockResolvedValue(page),
     defaultBrowserContext: () => ({ setPermission: vi.fn() }),
     close: vi.fn(),

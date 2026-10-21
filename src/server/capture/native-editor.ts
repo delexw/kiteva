@@ -4,7 +4,7 @@ import { z } from "zod";
 import { openScreenExecutable } from "./openscreen";
 import { systemEnvironment } from "../runtime/platform";
 import { videoRenderTimeoutMs } from "../rendering/timeouts";
-import type { CapturePresentationInput } from "./presentation";
+import { CapturePresentationSchema, type CapturePresentationInput } from "./presentation";
 import type { OpenScreenZoomRegion } from "./native-project";
 
 // Only document operations: no desktop recording, other projects, imports or arbitrary file writes.
@@ -20,7 +20,6 @@ export const nativeCaptureOperations = [
   "addZooms",
   "setZoom",
   "removeModifier",
-  "addAutoZooms",
   "addAnnotation",
   "setAnnotation",
   "createCheckpoint",
@@ -65,6 +64,9 @@ export async function createNativeCaptureEditor(
   presentation: CapturePresentationInput,
   zooms: OpenScreenZoomRegion[],
 ) {
+  const cursorSmoothing = CapturePresentationSchema.shape.cursorSmoothing.parse(
+    presentation.cursorSmoothing,
+  );
   const client = new Client({ name: "kiteva-capture", version: "1" });
   const transport = new StdioClientTransport({
     command: await openScreenExecutable(),
@@ -125,12 +127,14 @@ export async function createNativeCaptureEditor(
     const appearance = await invoke("setEditorSettings", {
       ...presentation.framing,
       ...(presentation.framing?.aspectRatio === "native" ? { aspectRatio: "auto" } : {}),
+      autoFocusAll: false,
+      formatFollowCursor: false,
       cursor: {
         theme: presentation.cursorTheme,
         model3d: false,
         asArrow: ["text"],
         size: presentation.cursorSize,
-        smoothing: presentation.cursorSmoothing,
+        smoothing: cursorSmoothing,
         motionBlur: presentation.cursorMotionBlur,
         clickBounce: presentation.cursorClickBounce,
         clickImpact: presentation.cursorClickImpact,
@@ -139,9 +143,10 @@ export async function createNativeCaptureEditor(
     });
     if (appearance.isError)
       throw Error(`OpenScreen presentation failed: ${JSON.stringify(appearance.data)}`);
-    // Apply only zoom regions explicitly supplied by the caller.
-    if (zooms.length) {
+    // New projects can inherit click-planned zooms. Start wide so the agent owns every focus decision.
+    {
       const document = await invoke("getCurrentDocument", { projectId });
+      if (document.isError) throw Error("Cannot read initial OpenScreen zooms");
       const snapshot = z
         .object({
           zoomRanges: z.array(
@@ -150,17 +155,12 @@ export async function createNativeCaptureEditor(
         })
         .parse(document.data);
       for (const existing of snapshot.zoomRanges) {
-        if (
-          !zooms.some(
-            (zoom) =>
-              zoom.startMs < existing.endSec * 1000 && zoom.endMs > existing.startSec * 1000,
-          )
-        )
-          continue;
         const removed = await invoke("removeModifier", { projectId, id: existing.id });
         if (removed.isError)
           throw Error(`OpenScreen focus replacement failed: ${JSON.stringify(removed.data)}`);
       }
+    }
+    if (zooms.length) {
       const result = await invoke("addZooms", {
         projectId,
         regions: zooms.map((zoom) => ({
@@ -211,10 +211,7 @@ export async function createNativeCaptureEditor(
         return invoke(input.operation, { ...input.arguments, projectId });
       },
       async export() {
-        // The native planner fills uncovered click beats after edits; it does not choose cuts.
-        const zooms = await invoke("addAutoZooms", { projectId });
-        if (zooms.isError)
-          throw Error(`OpenScreen auto zoom failed: ${JSON.stringify(zooms.data)}`);
+        // Export the reviewed native document without filling deliberately wide sections with zooms.
         const result = await invoke("exportVideo", {
           projectId,
           path: output,

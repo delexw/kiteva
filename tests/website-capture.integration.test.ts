@@ -53,6 +53,7 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1" || !browserExecutable
         presentation: {
           cursorTheme: "studio-ink",
           cursorSize: 2.4,
+          cursorSmoothing: 0.15,
           cursorClickBounce: 2,
           framing: { padding: 20, borderRadius: 16, shadowIntensity: 0.4, aspectRatio: "native" },
         },
@@ -84,9 +85,10 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1" || !browserExecutable
           "getFrames",
           "addTrims",
           "addSpeed",
-          "addAutoZooms",
+          "addZooms",
         ]),
       );
+      expect(take.tools.some((tool) => tool.name === "addAutoZooms")).toBe(false);
       const edit = (operation: string, args: Record<string, unknown> = {}) =>
         call("capture_video", {
           action: "edit",
@@ -94,7 +96,14 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1" || !browserExecutable
           native: { operation, arguments: args },
         });
       const document = await edit("getCurrentDocument");
-      expect(document).toMatchObject({ kind: "native_capture", isError: false });
+      expect(document).toMatchObject({
+        kind: "native_capture",
+        isError: false,
+        data: {
+          zoomRanges: [],
+          settings: { autoFocusAll: false, formatFollowCursor: false, cursor: { smoothing: 0.15 } },
+        },
+      });
       const review = await edit("getFrames", { count: 3 });
       if (review.kind !== "native_capture") throw Error(JSON.stringify(review));
       expect(review.isError).toBe(false);
@@ -145,17 +154,19 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1" || !browserExecutable
       ).toBeGreaterThan(12);
       expect(stopped.recording.presentation).toMatchObject({
         engine: "OpenScreen",
-        autoZoom: true,
+        autoZoom: false,
         cursorRendered: true,
         idleGapsTrimmed: true,
         settings: {
           cursorTheme: "studio-ink",
           cursorModel3d: false,
           cursorSize: 2.4,
+          cursorSmoothing: 0.15,
           cursorClickBounce: 2,
           zoomRegions: [],
         },
       });
+      expect(await edit("getCurrentDocument")).toMatchObject({ data: { zoomRanges: [] } });
       const finalReview = await edit("getFrames", { count: 3 });
       if (finalReview.kind !== "native_capture") throw Error(JSON.stringify(finalReview));
       expect(finalReview.isError).toBe(false);

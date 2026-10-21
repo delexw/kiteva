@@ -101,12 +101,22 @@ it.each(["claude", "codex"] as const)(
         "click_control",
         "capture_screenshot",
         "scroll_page",
+        "browser_navigate",
+        "browser_frames",
+        "browser_wait",
+        "browser_diagnostics",
+        "browser_capture",
       ]);
       expect(server.tools).toEqual({
         inspect_page: { approval_mode: "approve" },
         click_control: { approval_mode: "approve" },
         capture_screenshot: { approval_mode: "approve" },
         scroll_page: { approval_mode: "approve" },
+        browser_navigate: { approval_mode: "approve" },
+        browser_frames: { approval_mode: "approve" },
+        browser_wait: { approval_mode: "approve" },
+        browser_diagnostics: { approval_mode: "approve" },
+        browser_capture: { approval_mode: "approve" },
       });
     }
     if (provider === "claude") {

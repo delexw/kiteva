@@ -62,14 +62,7 @@ export async function startOpenScreen(windowTitle: string, signal: AbortSignal) 
     () => fail(Error("OpenScreen did not start recording within 30 seconds")),
     30000,
   );
-  const maximumTimer = setTimeout(
-    () => fail(Error("OpenScreen recording exceeded 120 seconds")),
-    120000,
-  );
-  const killTimer = setTimeout(() => stopProcessTree(child.pid), 150000);
   startupTimer.unref();
-  maximumTimer.unref();
-  killTimer.unref();
   lines.on("line", (line) => {
     try {
       const event = JSON.parse(line);
@@ -97,8 +90,6 @@ export async function startOpenScreen(windowTitle: string, signal: AbortSignal) 
     closed = true;
     clearTimeout(stopTimer);
     clearTimeout(startupTimer);
-    clearTimeout(maximumTimer);
-    clearTimeout(killTimer);
     signal.removeEventListener("abort", abort);
     lines.close();
     if (code !== 0 || !result) fail(Error("OpenScreen exited without a valid recording"));

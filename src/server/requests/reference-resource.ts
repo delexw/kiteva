@@ -27,6 +27,20 @@ export async function referenceResource(
         signal,
         timeout: 10000,
         headers: {
+          ...Object.fromEntries(
+            Object.entries(headers).filter(
+              ([name]) =>
+                ![
+                  "host",
+                  "connection",
+                  "content-length",
+                  "transfer-encoding",
+                  "accept-encoding",
+                  "authorization",
+                  "proxy-authorization",
+                ].includes(name.toLowerCase()),
+            ),
+          ),
           accept: headers.accept || "*/*",
           "accept-encoding": "identity",
           ...(headers["user-agent"] ? { "user-agent": headers["user-agent"] } : {}),

@@ -1,17 +1,18 @@
+import { BrowserCapabilityResultSchema } from "../requests/reference-tool-registry";
 import {
   EditableCaptureSchema,
   NativeCaptureReplySchema,
   NativeCaptureRequestSchema,
 } from "./native-editor";
 import { videoRenderTimeoutMs } from "../rendering/timeouts";
-import { mkdir, rename, rm } from "node:fs/promises";
+import { mkdir, rename, rm, readFile } from "node:fs/promises";
 import { createWriteStream } from "node:fs";
-import { Readable, Transform } from "node:stream";
+import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import path from "node:path";
 import { z } from "zod";
 import type { createLocalReferenceBrowser } from "../jobs/subworkflows/website-reference";
-import { WebsiteRecordingSchema, websiteCaptureLimits } from "../jobs/subworkflows/website-capture";
+import { WebsiteRecordingSchema } from "../jobs/subworkflows/website-capture";
 import { WorkerAssetNameSchema, type CaptureAction } from "./worker-contract";
 import { CapturePresentationSchema } from "./presentation";
 
@@ -21,10 +22,19 @@ const InspectionSchema = z.object({
   url: z.string().url(),
   controls: z.array(
     z
-      .object({ id: z.string(), name: z.string(), role: z.string(), url: z.string().optional() })
+      .object({
+        id: z.string(),
+        name: z.string(),
+        role: z.string(),
+        url: z.string().optional(),
+        type: z.literal("file").optional(),
+        accept: z.string().optional(),
+        multiple: z.boolean().optional(),
+      })
       .transform((control) => ({ ...control, url: control.url })),
   ),
   sections: z.array(z.object({ heading: z.string(), selector: z.string() })),
+  dialog: z.object({ type: z.string(), message: z.string() }).optional(),
 });
 const ScreenshotSchema = z.object({
   name: WorkerAssetNameSchema,
@@ -105,20 +115,10 @@ export async function createRemoteReferenceBrowser(
           : 180000,
       )
     ).json();
-  async function download(name: string, destination: string, maximum: number) {
+  async function download(name: string, destination: string) {
     WorkerAssetNameSchema.parse(name);
     const response = await request(`${route}/assets/${name}`, "GET");
     if (!response.body) throw Error("Capture worker returned no asset data");
-    let bytes = 0;
-    const limit = new Transform({
-      transform(chunk: Buffer, _encoding, callback) {
-        bytes += chunk.length;
-        callback(
-          bytes > maximum ? Error("Capture worker asset exceeded its size limit") : null,
-          chunk,
-        );
-      },
-    });
     const temporary = `${destination}.partial`;
     await mkdir(path.dirname(destination), { recursive: true });
     try {
@@ -138,7 +138,6 @@ export async function createRemoteReferenceBrowser(
             }
           })(),
         ),
-        limit,
         createWriteStream(temporary),
         {
           signal,
@@ -155,8 +154,8 @@ export async function createRemoteReferenceBrowser(
     const video = path.join(workspace, recording.assetPath);
     const cursor = path.join(workspace, recording.cursorPath);
     try {
-      await download(path.basename(recording.assetPath), video, websiteCaptureLimits.bytes);
-      await download(path.basename(recording.cursorPath), cursor, 2_000_000);
+      await download(path.basename(recording.assetPath), video);
+      await download(path.basename(recording.cursorPath), cursor);
     } catch (error) {
       await rm(video, { force: true });
       await rm(cursor, { force: true });
@@ -166,18 +165,42 @@ export async function createRemoteReferenceBrowser(
   }
   let workspace: string | undefined;
   return {
+    async perform(request, destination) {
+      const result = BrowserCapabilityResultSchema.parse(
+        await action({ action: "browser", request }),
+      );
+      if (result.artifact)
+        await download(
+          result.artifact.name,
+          path.join(destination, "assets", result.artifact.name),
+        );
+      return result;
+    },
     inspect: async (url) => InspectionSchema.parse(await action({ action: "inspect", url })),
     click: async (controlId) =>
       InspectionSchema.parse(await action({ action: "click", controlId })),
     fill: async (controlId, value) =>
       InspectionSchema.parse(await action({ action: "fill", controlId, value })),
+    upload: async (controlId, files) =>
+      InspectionSchema.parse(
+        await action({
+          action: "upload",
+          controlId,
+          files: await Promise.all(
+            files.map(async (file) => ({
+              name: path.basename(file),
+              base64: (await readFile(file)).toString("base64"),
+            })),
+          ),
+        }),
+      ),
     scroll: async (deltaY) => InspectionSchema.parse(await action({ action: "scroll", deltaY })),
     async wait(milliseconds) {
       await action({ action: "wait", milliseconds });
     },
     async capture(destination, selector) {
       const result = ScreenshotSchema.parse(await action({ action: "capture", selector }));
-      await download(result.name, destination, 30_000_000);
+      await download(result.name, destination);
       return { title: result.title, text: result.text, url: result.url };
     },
     async startRecording(destination, presentation) {

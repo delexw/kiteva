@@ -9,7 +9,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MessageResponse } from "../src/client/components/ai-elements/message";
 import { browserExecutablePath } from "../src/server/runtime/browser";
 import { appRoot } from "../src/server/runtime/config";
-import { browserAliases } from "../vite.resolve";
+import { browserAliases, browserDependencyScan } from "../vite.resolve";
 
 it("keeps message text and basic formatting visible during server rendering", () => {
   const html = renderToStaticMarkup(<MessageResponse>{"**An original idea**"}</MessageResponse>);
@@ -24,6 +24,7 @@ it.skipIf(!browserExecutablePath())(
       configFile: false,
       cacheDir,
       root: appRoot,
+      optimizeDeps: browserDependencyScan,
       resolve: { alias: browserAliases },
       server: { host: "127.0.0.1", port: 0, watch: { ignored: ["**/.data/**"] } },
       plugins: [

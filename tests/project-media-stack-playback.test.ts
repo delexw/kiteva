@@ -1,3 +1,4 @@
+import { browserDependencyScan } from "../vite.resolve";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import puppeteer from "puppeteer-core";
@@ -13,6 +14,7 @@ it.skipIf(!browserExecutablePath())(
     const server = await createServer({
       configFile: false,
       root: appRoot,
+      optimizeDeps: browserDependencyScan,
       resolve: { alias: { "@": path.join(appRoot, "src/client") } },
       server: { host: "127.0.0.1", port: 0 },
       plugins: [

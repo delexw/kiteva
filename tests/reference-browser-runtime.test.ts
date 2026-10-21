@@ -13,6 +13,9 @@ it.skipIf(!browserExecutablePath())(
     );
     expect(JSON.parse(stdout)).toMatchObject({
       fill: "passed",
+      hiddenFileUpload: "passed",
+      nativeRequests: "passed",
+      binaryMultipartUpload: "passed",
       click: "passed",
       explicitScrollBeforeTyping: true,
       visibleBeforeTyping: true,

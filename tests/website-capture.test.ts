@@ -108,7 +108,7 @@ it("stops for native review without selecting cuts or exporting, then re-exports
       silent: true,
       fps: 60,
       duration: 2.5,
-      presentation: { engine: "OpenScreen", autoZoom: true, idleGapsTrimmed: true },
+      presentation: { engine: "OpenScreen", autoZoom: false, idleGapsTrimmed: true },
     });
     expect((await f.capture.export()).assetPath).toBe(first.assetPath);
     expect(f.native.export).toHaveBeenCalledTimes(2);
@@ -200,12 +200,35 @@ it("rejects input zooms beyond the observed source duration", async () => {
     await f.cleanup();
   }
 });
-it("stops an overlong take and rejects it instead of publishing footage", async () => {
+it("keeps a take active beyond the old wall-clock cap and exports when explicitly stopped", async () => {
   vi.useFakeTimers();
   const f = await fixture();
   try {
-    await vi.advanceTimersByTimeAsync(120000);
-    await expect(f.capture.prepare()).rejects.toThrow("exceeded 120 seconds");
+    await vi.advanceTimersByTimeAsync(600000);
+    expect(f.stop).not.toHaveBeenCalled();
+    f.stop.mockResolvedValueOnce({
+      event: "done",
+      success: true,
+      screenVideoPath: path.join(f.workspace, "raw.mp4"),
+      durationMs: 600000,
+    });
+    vi.mocked(probeVideo).mockResolvedValue({
+      format: { duration: "600" },
+      streams: [
+        {
+          codec_type: "video",
+          width: 1440,
+          height: 900,
+          avg_frame_rate: "60/1",
+          codec_name: "vp9",
+        },
+      ],
+    });
+    await expect(f.capture.prepare()).resolves.toMatchObject({
+      kind: "editable_capture",
+      duration: 600,
+    });
+    await expect(f.capture.export()).resolves.toMatchObject({ duration: 600 });
     expect(f.stop).toHaveBeenCalledOnce();
   } finally {
     await f.capture.close();

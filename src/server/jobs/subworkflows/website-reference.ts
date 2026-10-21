@@ -1,16 +1,23 @@
+import {
+  createBrowserCapabilities,
+  runWithBrowserDialog,
+} from "../../requests/browser-capabilities-runtime";
+import type { BrowserCapabilityRequest } from "../../requests/reference-tool-registry";
 import type { NativeCaptureRequest } from "../../capture/native-editor";
 import { configureReferencePermissions } from "../../requests/reference-browser-permissions";
 import { setTimeout as delay } from "node:timers/promises";
-import type { ElementHandle } from "puppeteer-core";
+import type { ElementHandle, Frame, Page } from "puppeteer-core";
 import { createRemoteReferenceBrowser } from "../../capture/worker-client";
 import puppeteer from "puppeteer-core";
 import { startWebsiteCapture } from "./website-capture";
 import type { CapturePresentationInput } from "../../capture/presentation";
 import {
   inspectReferenceDocument,
+  type ReferencePageInspection,
   referencePageHasContent,
 } from "../../requests/reference-page-inspection";
-import { referenceResource, referenceResourceLimits } from "../../requests/reference-resource";
+import { createReferenceNetwork } from "../../requests/reference-network";
+import { referenceResourceLimits } from "../../requests/reference-resource";
 import { validateReferenceUrl } from "../../requests/reference-url";
 import { CodedError } from "../../../shared/errors";
 import { agentMode } from "../../runtime/config";
@@ -47,8 +54,9 @@ export async function createLocalReferenceBrowser(
         ...(desktop
           ? ["--app=data:text/html,<title>Capture</title>", "--window-size=1440,1000"]
           : []),
-        "--proxy-server=http://127.0.0.1:9",
-        "--proxy-bypass-list=<-loopback>",
+        ...(mode === "hosted"
+          ? ["--proxy-server=http://127.0.0.1:9", "--proxy-bypass-list=<-loopback>"]
+          : []),
         "--disable-quic",
         "--disable-background-networking",
       ],
@@ -70,69 +78,101 @@ export async function createLocalReferenceBrowser(
   signal.addEventListener("abort", stop, { once: true });
   let requests = 0;
   let bytes = 0;
+  const network = createReferenceNetwork({
+    mode,
+    signal,
+    consumeBytes: (chunkBytes) => {
+      bytes += chunkBytes;
+      if (bytes > referenceResourceLimits.sessionBytes)
+        throw Error(
+          `Reference session exceeds ${referenceResourceLimits.sessionBytes / 1_000_000} MB`,
+        );
+    },
+  });
   let navigationError: unknown;
   const loadingErrors: string[] = [];
   try {
     signal.throwIfAborted();
     await configureReferencePermissions(browser.defaultBrowserContext(), origins, mode);
     signal.throwIfAborted();
-    const page = desktop
+    let page = desktop
       ? ((await browser.pages())[0] ?? (await browser.newPage()))
       : await browser.newPage();
-    page.setDefaultTimeout(10000);
-    page.on("pageerror", (error) => {
-      loadingErrors.push(error instanceof Error ? error.message : String(error));
-      if (loadingErrors.length > 5) loadingErrors.shift();
-    });
-    if (!desktop) await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
-    await page.setBypassServiceWorker(true);
-    await page.setRequestInterception(true);
-    page.on("request", (request) => {
-      void (async () => {
-        if (request.isInterceptResolutionHandled()) return;
-        if (request.url().startsWith("data:") || request.url().startsWith("blob:")) {
-          await request.continue();
-          return;
-        }
-        try {
-          if (
-            ++requests > referenceResourceLimits.requests ||
-            !["GET", "HEAD"].includes(request.method())
-          )
-            throw Error("Read-only browser request rejected");
-          if (
-            request.isNavigationRequest() &&
-            request.frame() === page.mainFrame() &&
-            !allowedOrigins.has(new URL(request.url()).origin)
-          )
-            throw new CodedError(
-              "PUBLIC_URL_REQUIRED",
-              "Navigation must stay on supplied website origins",
-            );
-          const response = await referenceResource(
-            request.url(),
-            signal,
-            mode,
-            request.headers(),
-            (chunkBytes) => {
-              bytes += chunkBytes;
-              if (bytes > referenceResourceLimits.sessionBytes)
-                throw Error(
-                  `Reference session exceeds ${referenceResourceLimits.sessionBytes / 1_000_000} MB`,
-                );
-            },
-          );
-          await request.respond(response);
-        } catch (error) {
-          loadingErrors.push(
-            `${request.resourceType()} ${new URL(request.url()).pathname}: ${error instanceof Error ? error.message : String(error)}`,
-          );
+    let selectedFrame: Frame | undefined;
+    const currentFrame = () =>
+      selectedFrame && !selectedFrame.detached ? selectedFrame : page.mainFrame();
+    const configuredPages = new WeakMap<Page, Promise<void>>();
+    async function configurePage(targetPage: Page) {
+      const configured = configuredPages.get(targetPage);
+      if (configured) return configured;
+      const setup = (async () => {
+        targetPage.setDefaultTimeout(10000);
+        targetPage.on("pageerror", (error) => {
+          loadingErrors.push(error instanceof Error ? error.message : String(error));
           if (loadingErrors.length > 5) loadingErrors.shift();
-          if (request.isNavigationRequest() && request.frame() === page.mainFrame())
-            navigationError = error;
-          if (!request.isInterceptResolutionHandled()) await request.abort().catch(() => {});
-        }
-      })().catch(() => {});
+        });
+        if (!desktop)
+          await targetPage.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+        await targetPage.setBypassServiceWorker(true);
+        await targetPage.setCacheEnabled(false);
+        await targetPage.setRequestInterception(true);
+        targetPage.on("request", (request) => {
+          void (async () => {
+            if (request.isInterceptResolutionHandled()) return;
+            if (request.url().startsWith("data:") || request.url().startsWith("blob:")) {
+              await request.continue();
+              return;
+            }
+            try {
+              if (
+                request.isNavigationRequest() &&
+                request.frame() === targetPage.mainFrame() &&
+                !allowedOrigins.has(new URL(request.url()).origin)
+              )
+                throw new CodedError(
+                  "PUBLIC_URL_REQUIRED",
+                  "Navigation must stay on supplied website origins",
+                );
+              if (mode === "local") {
+                network.checkRequest(targetPage, request.url());
+                await validateReferenceUrl(request.url(), mode);
+                await request.continue();
+                return;
+              }
+              if (
+                ++requests > referenceResourceLimits.requests ||
+                !["GET", "HEAD"].includes(request.method())
+              )
+                throw Error("Hosted read-only browser request rejected");
+              const response = await network.resource(targetPage, request);
+              await request.respond(response);
+            } catch (error) {
+              loadingErrors.push(
+                `${request.resourceType()} ${new URL(request.url()).pathname}: ${error instanceof Error ? error.message : String(error)}`,
+              );
+              if (loadingErrors.length > 5) loadingErrors.shift();
+              if (
+                targetPage === page &&
+                request.isNavigationRequest() &&
+                request.frame() === targetPage.mainFrame()
+              )
+                navigationError = error;
+              if (!request.isInterceptResolutionHandled()) await request.abort().catch(() => {});
+            }
+          })().catch(() => {});
+        });
+      })();
+      configuredPages.set(targetPage, setup);
+      return setup;
+    }
+    await configurePage(page);
+    page.browser().on("targetcreated", (target) => {
+      void target
+        .page()
+        .then(async (tab) => {
+          if (tab) await configurePage(tab);
+        })
+        .catch(() => {});
     });
     async function settle() {
       signal.throwIfAborted();
@@ -156,8 +196,12 @@ export async function createLocalReferenceBrowser(
         );
       }
     }
-    async function inspect(url?: string) {
+    let lastInspection: ReferencePageInspection | undefined;
+    async function inspect(url?: string): Promise<ReferencePageInspection> {
+      const dialog = capabilities.pendingDialog();
+      if (dialog && lastInspection) return { ...lastInspection, dialog };
       if (url) {
+        selectedFrame = undefined;
         if (!allowedOrigins.has(new URL(url).origin))
           throw new CodedError(
             "PUBLIC_URL_REQUIRED",
@@ -171,10 +215,31 @@ export async function createLocalReferenceBrowser(
           throw Error("Reference page could not be opened");
       }
       await settle();
-      return page.evaluate(inspectReferenceDocument);
+      lastInspection = await currentFrame().evaluate(inspectReferenceDocument);
+      return lastInspection;
     }
     let pointer = { x: 20, y: 20 };
-    async function pointAndClick(target: ElementHandle<Element>) {
+    async function movePointer(
+      x: number,
+      y: number,
+      cursorType: "arrow" | "pointer" | "text" = "arrow",
+    ) {
+      const destination = { x, y };
+      const origin = pointer;
+      for (let step = 1; step <= 12; step++) {
+        const x = origin.x + ((destination.x - origin.x) * step) / 12;
+        const y = origin.y + ((destination.y - origin.y) * step) / 12;
+        await page.mouse.move(x, y);
+        recording?.cursor(x, y, "move", step === 12 ? cursorType : "arrow");
+        if (recording) await delay(16, undefined, { signal });
+      }
+      pointer = destination;
+    }
+    async function pointAndClick(
+      target: ElementHandle<Element>,
+      button: "left" | "right" | "middle" = "left",
+      clickCount = 1,
+    ) {
       if (!(await target.isIntersectingViewport({ threshold: 1 })))
         throw Error(
           "Control is outside the visible viewport; use scroll_page explicitly before interacting",
@@ -191,30 +256,61 @@ export async function createLocalReferenceBrowser(
           return "pointer";
         return "arrow";
       });
-      const origin = pointer;
-      for (let step = 1; step <= 12; step++) {
-        const x = origin.x + ((destination.x - origin.x) * step) / 12;
-        const y = origin.y + ((destination.y - origin.y) * step) / 12;
-        await page.mouse.move(x, y);
-        recording?.cursor(x, y, "move", step === 12 ? cursorType : "arrow");
-        if (recording) await delay(16, undefined, { signal });
-      }
-      pointer = destination;
-      await page.mouse.click(pointer.x, pointer.y);
+      await movePointer(destination.x, destination.y, cursorType);
+      await runWithBrowserDialog(
+        page,
+        () => page.mouse.click(pointer.x, pointer.y, { button, count: clickCount }),
+        () => undefined,
+      );
       recording?.cursor(pointer.x, pointer.y, "click", cursorType);
     }
+    const capabilities = createBrowserCapabilities({
+      page: () => page,
+      frame: currentFrame,
+      selectFrame: (frame) => {
+        lastInspection = undefined;
+        selectedFrame = frame;
+      },
+      selectPage: async (tab) => {
+        lastInspection = undefined;
+        navigationError = undefined;
+        page = tab;
+        selectedFrame = undefined;
+        pointer = { x: 20, y: 20 };
+        await tab.bringToFront();
+      },
+      configurePage,
+      inspect,
+      prepareNavigation: () => {
+        selectedFrame = undefined;
+        navigationError = undefined;
+        lastInspection = undefined;
+      },
+      recording: () => Boolean(recording),
+      move: movePointer,
+      click: pointAndClick,
+      cursor: (x, y, kind) => {
+        recording?.cursor(x, y, kind, "pointer");
+      },
+      configureNetwork: network.configure,
+      origins: allowedOrigins,
+      signal,
+    });
+    await capabilities.ready();
     return {
+      perform: (request: BrowserCapabilityRequest, workspace: string) =>
+        capabilities.perform(request, workspace),
       inspect,
       async click(controlId: string) {
         if (!/^\d+$/.test(controlId)) throw Error("Use a control ID from the latest inspection");
-        const target = await page.$(`[data-reference-control="${controlId}"]`);
+        const target = await currentFrame().$(`[data-reference-control="${controlId}"]`);
         if (!target) throw Error("Control was not found; inspect again");
         await pointAndClick(target);
         return inspect();
       },
       async fill(controlId: string, value: string) {
         if (!/^\d+$/.test(controlId)) throw Error("Use a control ID from the latest inspection");
-        const target = await page.$(`[data-reference-control="${controlId}"]`);
+        const target = await currentFrame().$(`[data-reference-control="${controlId}"]`);
         if (
           !target ||
           !(await target.evaluate(
@@ -232,6 +328,23 @@ export async function createLocalReferenceBrowser(
           (element as HTMLInputElement | HTMLTextAreaElement).select();
         });
         await page.keyboard.type(value, { delay: 15 });
+        return inspect();
+      },
+      async upload(controlId: string, files: string[]) {
+        if (!/^\d+$/.test(controlId)) throw Error("Use a control ID from the latest inspection");
+        const handle = await currentFrame().$(
+          `input[type="file"][data-reference-control="${controlId}"]`,
+        );
+        if (!handle) throw Error("File input was not found; inspect again");
+        const target = await handle.toElement("input");
+        if (
+          await target.evaluate(
+            (element, count) => element.disabled || (!element.multiple && count > 1),
+            files.length,
+          )
+        )
+          throw Error("File input is disabled or does not accept multiple files");
+        await target.uploadFile(...files);
         return inspect();
       },
       async scroll(deltaY: number) {

@@ -21,11 +21,6 @@
   <sub>这部短片由 Kiteva 真实运行一次做出：28 秒，带本地 Kokoro 旁白，背景音乐是成片 agent 用代码写出来的。上面是从中段截取的 14 秒无声循环，点击可打开带声音的完整 MP4。<a href="docs/intro-video.md">制作过程</a>。</sub>
 </p>
 
-> [!IMPORTANT]
-> **非商业许可。** Kiteva 的源码以 [Kiteva 非商业许可（Kiteva Non-Commercial License）](LICENSE) 公开。
-> 它以 MIT 为基础，但增加了禁止商业使用的条件，因此属于“源码可见（source-available）”，**不是**
-> OSI 认可的开源许可。第三方组件保留各自的许可，见文末 [许可](#许可)。
-
 通过 **EN / 中文** 即时切换界面，详见[界面语言](docs/ui-language.md)。视频语言仍是独立的项目设置。
 
 ## 最近更新
@@ -33,10 +28,56 @@
 以下日期采用新西兰时间。已合并的更新可在 `main` 使用；尚未合并的工作会明确标注。
 
 <details open>
+<summary>2026-10-22 · 开发中</summary>
+
+- **MIT 许可：**改用标准 MIT 许可，移除顶部许可提醒，并简化许可章节。
+
+- **统一渲染器策略：**每个渲染器在 `src/server/rendering/<renderer>/metadata.ts` 集中定义 CLI 参数、预览/完整视频步骤、输出设置及音频规则，执行命令、提示词和复现说明共同读取；创作契约放在对应渲染器目录。回归测试验证一处参数修改会传递到全部使用方。
+
+- **Multiplane 完整视频跳过内置 lint：**完整视频的 inspect、verify、render 命令均固定传入 `--no-lint`，模型提示词及复现说明同步要求此参数；运行时确定性验证及完整视频 QA 继续执行。
+
+- **Multiplane 预览跳过内置 lint：**预览路线提示词明确要求 `multiplane render --no-lint`，应用导出预览时固定传入该参数，避免渲染器内置 lint 因 GSAP 等依赖而阻止导出；完整视频也按上述说明跳过 lint。
+
+- **预览跳过 QA：**所有预览路线先规划、再制作并直接渲染，不运行设计/播放 QA、成片评审或自动修复循环。保留基本文件和输出检查；完整视频继续执行 QA 和修复。
+
+- **Governance 视觉创作选择详情：**JEV 创作资源选择行显示对应预览或完整视频所选资源及概率。展开可查看全部比较选项及概率；历史记录缺少的选择不会被推测补全。
+
+- **提示词统一显示风格引用：**Assistant 回复、项目对话和看板摘要，以及 Governance 提示词视图，使用与编辑器相同的 `@` 标签显示明确的风格引用。鼠标悬停或键盘聚焦时，复用 Settings 中的同一个动态 `StylePickerPreview` 组件及应用已加载的预览元数据；保存的提示词及发给模型的 XML 保持不变。
+
+</details>
+
+<details open>
 <summary>2026-10-21 · 开发中</summary>
+
+- **计划验证修复：**视频计划被拒绝时保留原始响应与 SDK 会话，由同一主模型针对图层引用和时间错误修正，再验证后制作（最多三次计划尝试）。取消和无关的提供商错误不会触发修正。活动日志区分接收计划与验证通过并保存。
+
+- **工作流图：**说明[三种视频生成路线](docs/architecture.md#video-generation-routes)、[提示词路线 A–D](docs/architecture.md#prompt-routes)以及[子工作流调用和检查点](src/server/jobs/subworkflows/README.md#subworkflow-diagrams)。包含共享规划、预览会话延续、音频行为，并标明已选风格预览中仍存在的额外创意规划调用。
+
+- **共享主模型规划步骤：**自动风格预览、已选风格预览和直接完整制作均复用先验证计划再实施的步骤。Opus 预览现在使用 Claude 原生规划模式，实施继续使用规划返回的同一会话；不再通过模型白名单决定是否规划。定向微调保留原有修复流程。
+
+- **按实际路线显示准备进度：**已选风格路线显示“项目标题”和“预览规划”，不再误显示为完整简报或方向选择。标题提取和预览规划使用独立活动标签，历史仅标题运行也能正确显示。项目结束或中断后，未完成的准备步骤停止转圈，也不会被误标为成功。
+
+- **全宽引用搜索结果：**风格预览行铺满 `@` 下拉列表，ID 对齐到行末。
+
+- **统一向导操作：**移除引导回复框中重复的发送箭头，保留“继续”作为前往下一步的可见操作。
+
+- **复用风格搜索预览：**`@` 建议列表直接复用设置选择器已有的 `StylePickerPreview` 行组件及缩略图来源，不再单独显示仅文字的风格列表。
+
+- **从顶部调整编辑器高度：**创意回复框使用 Ant Design 纵向 Splitter；向上拖动顶部边界可展开编辑器，向下拖动可缩小，并保持操作按钮可见。
+
+- **前端重建恢复：**重建后动态提供新的前端资源，不再保留启动时的文件名快照。缺失资源返回 404，而不是 HTML 应用页面，避免出现返回 200 却显示空白的情况。
+
+- **行内风格引用：**在创意编辑器中输入 `@`，通过 Ant Design X Suggestion 按名称或 ID 搜索 Motion Graphic。Sender 将所选条目显示为行内标签；保存的想法使用 `<style id="style-140">Vintage Rubber Hose Animation</style>`。两个提供方均通过 creative-pool MCP 读取引用 ID，保留对应幕或场景的范围，不改变设置中的选择。
+
+- 恢复已在设置中选择风格的草稿时保留“跳过预览”；提交时保持已选 ID 和原始想法不变。
+
+- **通过 MCP 读取风格：**创作交接只传递已选 Motion Graphic 的 ID 和角色；共享系统指引要求在规划或构建前通过 `creative_pool.read_pool_entry` 按 ID 读取完整定义。原始想法中的名称由模型通过 MCP 搜索解析，不在宿主代码中提取。
+
+- **指定风格预览：**在设置中选择的风格，可直接生成指定数量的预览方向，跳过 JEV 风格组合提案与排名。预览数量与风格选择独立，零个方向仍直接构建完整作品；保留已保存设置、重新生成及幕/场景的风格分配。 预览与完整构建共用原有的幕/场景风格范围指引。 移除创意文本中的名称匹配：只有设置中选择的风格参与路由和数量限制，原始创意完整交给模型理解。
 
 以下代码变更位于开发分支，尚未合并。
 
+- **复古橡皮管动画（Vintage Rubber Hose Animation）：**新增一种早期手工上墨卡通风格的 Motion Graphic：强烈而不规则的墨色剪影、绘画感阴影色块、富有表现力的扭曲场景，以及每秒 12 张画稿的弹性步进表演，并适配项目的输出设置。可使用任何原创主体，有无角色均可；项目的配色、故事、渲染器和音频设置始终优先。仅有的可选效果是胶片磨损和精确的复古胶片片头倒计时。已渲染的预览是 Claude 编写的示例：一座夜晚的歪斜房屋，随后是 3-2-1 片头。现在共 **140 种 Motion Graphic**。
 - **录屏生命周期：**移除本地与远程录屏的浏览调用、原生编辑、截图、录制次数、录制时长及输出大小预算；录制由显式停止或项目取消结束。
 - **镜头规划：**主模型先探索真实应用，再决定组件焦点、缩放幅度和时间。关闭自动缩放生成，光标平滑固定为 0.15，导出保留审阅后的缩放区间和全景区间。
 - **浏览器能力覆盖：**统一工具名称、参数模式及处理程序；补齐文件上传、浏览器会话、指针、框架、对话框、网络、诊断和捕获操作。本地原型使用正常 HTTP(S) 请求；托管模式保留代理边界。
@@ -94,7 +135,7 @@
 - 新增**实验性的原生 Windows 后端**、适配平台的安装流程和渲染验证命令。实际 Windows 10/11 测试仍待完成；Windows 上须先通过验证，才能创建项目。见 [Windows 安装指南](docs/windows.md)。
 
 - 发布中英文 README、由 Kiteva 自己制作的介绍短片、桌面与 Storyboard 截图、架构图，以及技术清单和费用说明。
-- 补充贡献指南和[非商业许可](LICENSE)。
+- 补充贡献指南和[项目许可](LICENSE)。
 
 </details>
 
@@ -116,7 +157,7 @@
 本人并不是专业设计师，在内容和创作领域做全栈工程师，接触了一些些 creative 的 idea。正好发现
 [Opus 5.5](https://platform.claude.com/docs/en/about-claude/models/overview) 很有灵性，最近公司内部又在准备 Hackathon，自己也觉得这些动效很有意思，于是开始搜集一些很有感觉的动效，
 以及它们可以用什么技术实现。搜集得越来越多，就写了一个 agent 去利用这些内容和 Opus 5.5 的能力，想看看到底能做成什么样。
-结果效果挺出人意料的，于是把这个 agent 的源码分享出来，采用非商业许可。
+结果效果挺出人意料的，于是把这个 agent 的源码分享出来，采用 MIT 许可。
 
 搜集了这么多，有非常炫的材料，也有可能有不对的，反正先都收集了 😄
 
@@ -135,7 +176,7 @@
   音乐与歌词、设置，旁边还有素材架和每个项目的小组件。按下 **Create** 之前不会调用任何模型。
 - **从参考资料生成简报。** 小模型读取你的文件。如果你提供了网站，它会在全新的无头 [Chromium](https://www.chromium.org) 浏览器里打开并截图，
   然后写出结构化简报，再自查一遍。
-- **Motion Graphic 组合。** 主模型阅读全部 138 种 Motion Graphic 的摘要，提出十几个甚至更多方向，
+- **Motion Graphic 组合。** 主模型阅读全部 140 种 Motion Graphic 的摘要，提出十几个甚至更多方向，
   每个方向由一个主 Motion Graphic 搭配若干辅助 Motion Graphic 组成。随后由独立的评估器（[Typesafe](https://docs.typesafe.ai) 的 [JEV](https://docs.typesafe.ai/models)）
   打分，保留你要求的方向数（1–5 个）。
 - **3 秒无声预览。** 每个方向都演绎同一个故事节拍，方便对比。
@@ -175,7 +216,7 @@ Storyboard 页面把它回放成一段小小的“幕后排练”：一位火柴
 
 |                      |                                                                                                                                                                                |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Motion Graphic       | **138** 种（`assets/catalog/video-style-catalog.json`）                                                                                                                        |
+| Motion Graphic       | **140** 种（`assets/catalog/video-style-catalog.json`）                                                                                                                        |
 | 动作（motions）      | **46** 种（`assets/catalog/motion-pattern-catalog.json`）                                                                                                                      |
 | 技术池条目           | **92** 条推荐，涵盖视觉构建、运动、渲染和辅助工具                                                                                                                              |
 | 启动时安装的创作技能 | **1** 个（[Anatomy](https://github.com/wheresryan22/anatomy)）                                                                                                                 |
@@ -230,7 +271,7 @@ Anatomy 在服务启动时自动安装或更新。首次启动需要网络，通
 
 [Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) 为两种提供商提供本地音乐和音效生成能力。完整视频有 Music 提示词且未上传音乐时，独立的 JEV Choice 策略选择 Audio Studio 或本地代码音频创作。上传音频沿用现有使用指导，方向预览保持静音。Multiplane 路线指导主模型先生成并验证 WAV，再通过 `production.audioFile` 将路径交给 `--audio`。参见 [Audio Studio 配置与集成](src/server/agents/capabilities/README.md#audio-studio-mcp)和 [JEV 策略目录](src/server/jev/README.md)。
 
-目录、审阅过的插画和 139 段预览短片都随仓库提供，浏览不花钱。你的项目、上传文件、房间布局、数据库和凭据
+目录、审阅过的插画和 140 段预览短片都随仓库提供，浏览不花钱。你的项目、上传文件、房间布局、数据库和凭据
 都保存在本机被 Git 忽略的目录里。
 
 ## 随仓库提供的，和需要自己安装的
@@ -278,7 +319,8 @@ Haiku 的准备和审阅只花了几美分，JEV 排序不到一美分。最贵�
 ## 文档
 
 - [可编辑项目导出](docs/editable-projects.md)：OTIO、字幕、音轨、源文件包和失败构建（英文）
-- [架构](docs/architecture.md)：组件、流程、渲染器、录屏、技能、存储（Mermaid 图）
+- [架构](docs/architecture.md)：组件、[三种视频生成路线](docs/architecture.md#video-generation-routes)、渲染器、录屏、技能、存储（Mermaid 图）
+- [提示词路线 A–D](docs/architecture.md#prompt-routes) · [子工作流图](src/server/jobs/subworkflows/README.md#subworkflow-diagrams)
 - [技术清单](docs/technology-pool.md)：全部 92 条技术池条目、内置技能、渲染器、TTS 和所有依赖
 - [花费](docs/costs.md)：治理数字是怎么算出来的
 - [介绍短片的来历](docs/intro-video.md)：上面那段短片是怎样在 Kiteva 里做出来的
@@ -294,14 +336,6 @@ Haiku 的准备和审阅只花了几美分，JEV 排序不到一美分。最贵�
 
 ## 许可
 
-Kiteva 自己的代码、目录和文档 © 2026 Yang Liu（[@delexw](https://github.com/delexw)），采用
-[Kiteva 非商业许可](LICENSE)。简单来说：在保留许可声明的前提下，你可以出于非商业目的使用、复制、修改和分享它，
-例如个人项目、学习、研究和评估。组织内部的非生产性评估（比如在内部 Hackathon 里试用）也算非商业用途。
-售卖、作为付费服务提供、用于有偿的客户工作，或把用它做出的东西投入商业生产，需要另外获得许可，
-可以在 issue 里询问。以上摘要不是法律意见，以 LICENSE 原文为准。
-
-内置和依赖的软件保留各自的许可：[Anatomy](https://github.com/wheresryan22/anatomy)（MIT）、[HyperFrames](https://github.com/heygen-com/hyperframes) 和 [Multiplane](https://github.com/LBEILC/Multiplane)（Apache-2.0）、
-[Remotion](https://www.remotion.dev/license)（Remotion License）、[GSAP](https://gsap.com/standard-license)（GSAP Standard License），
-其余见 [docs/technology-pool.md](docs/technology-pool.md)。模型提供方、语音模型和其他服务另有各自的条款。
+[MIT](LICENSE) © 2026 Yang Liu。第三方组件保留各自的许可，详见[依赖许可](docs/technology-pool.md#licenses)。
 
 网站录制默认使用当前机器上的 [OpenScreen](docs/openscreen-worker.md)，打开独立可见的浏览器窗口；也可选择配置独立桌面工作节点。

@@ -3,10 +3,7 @@
 Thanks for looking. Kiteva is a personal project I tinker on in my spare time, so replies may be slow.
 Small, focused contributions are the easiest for me to review.
 
-Before you start, please read the license: Kiteva is published under the
-[Kiteva Non-Commercial License](LICENSE). It's MIT-based with a no-commercial-use condition,
-which makes it source-available and not OSI open source. If you contribute, you agree that your
-contribution is licensed under those same terms.
+Contributions are licensed under the project’s [MIT license](LICENSE).
 
 ## Issues
 

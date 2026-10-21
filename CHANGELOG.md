@@ -22,6 +22,6 @@ The first source release of Kiteva: a personal creative workspace that turns ide
 
 ### License
 
-Kiteva uses the [Kiteva Non-Commercial License](LICENSE), an MIT-based custom license with a non-commercial condition, not standard MIT or an OSI-approved open-source license. Third-party components retain their own terms.
+Kiteva uses the [MIT License](LICENSE). Third-party components retain their own licenses.
 
 [0.1.0]: https://github.com/delexw/kiteva/releases/tag/v0.1.0

@@ -21,11 +21,6 @@
   <sub>This film was made in Kiteva, from one real run: 28 seconds with local Kokoro narration and a music bed the film agent wrote in code. Above is a silent 14-second loop from the middle; click it for the full MP4 with sound. <a href="docs/intro-video.md">How it was made</a>.</sub>
 </p>
 
-> [!IMPORTANT]
-> **Non-commercial license.** Kiteva's source is shared under the [Kiteva Non-Commercial License](LICENSE).
-> It's based on MIT but adds a no-commercial-use condition, so it's source-available and **not** an
-> OSI-approved open source license. Third-party parts keep their own licenses. See [License](#license).
-
 Switch the interface instantly with **EN / 中文**; see [interface language](docs/ui-language.md). Video language remains a separate project setting.
 
 ## Recent updates
@@ -33,10 +28,56 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 Dates below use New Zealand time. Merged updates are available on `main`; work awaiting merge is labelled.
 
 <details open>
+<summary>2026-10-22 · in progress</summary>
+
+- **MIT license:** switched to standard MIT, removed the top license reminder and simplified the license section.
+
+- **Shared renderer policy:** each renderer owns its CLI flags, preview/full stages, output settings and audio guidance in `src/server/rendering/<renderer>/metadata.ts`. Execution, prompts and reproduction instructions consume those definitions; renderer authoring contracts live alongside them. A regression test verifies that changing one policy flag reaches all consumers.
+
+- **Multiplane full-film lint bypass:** full-film inspect, verify and render commands now also hardcode `--no-lint`, with the same requirement in the model prompt and reproduction instructions. Runtime determinism verification and full-film QA remain enabled.
+
+- **Multiplane preview lint bypass:** the preview route prompt explicitly requires `multiplane render --no-lint`, and the application always passes that flag for preview exports. This also skips the renderer’s built-in lint of bundled libraries such as GSAP; full films also skip lint as described above.
+
+- **Previews skip QA:** all preview routes plan, build and render without design/playback QA, finished-result review or automatic repair loops. Basic file/output checks remain; full films keep QA and repairs.
+
+- **Visual authoring details in Governance:** each JEV authoring-selection row shows the selected resource and probability for its preview/full-film job. Expand the row to inspect all compared resources and their probabilities; missing historical choices remain unreported rather than inferred.
+
+- **Style mentions throughout prompt displays:** Assistant replies, project conversations and board summaries, and Governance prompt views render explicit style references as the same `@` chips used by the editor. Hover or keyboard focus opens the same animated `StylePickerPreview` component used in Settings, sharing the application's already-loaded preview metadata. Stored prompts and model-facing XML remain unchanged.
+
+</details>
+
+<details open>
 <summary>2026-10-21 · in progress</summary>
+
+- **Plan validation recovery:** rejected video plans retain their response and SDK session so the same main model can correct exact layer-reference and timing errors before building (up to three total plan attempts). Cancellation and unrelated provider failures do not trigger correction. Activity distinguishes receiving a plan from validation and successful saving.
+
+- **Workflow diagrams:** document the [three video generation routes](docs/architecture.md#video-generation-routes), [prompt routes A–D](docs/architecture.md#prompt-routes) and [subworkflow calls and checkpoints](src/server/jobs/subworkflows/README.md#subworkflow-diagrams). Include shared planning, preview session continuation, audio behavior and the extra concept-planning call still present in selected-style previews.
+
+- **Shared main-model planning:** automatic-style previews, selected-style previews and direct full builds use the same validated plan-before-build step. Opus previews now plan in native Claude plan mode, with implementation continuing in the returned session; planning no longer depends on a model allowlist. Focused refinements keep their existing repair flow.
+
+- **Route-aware preparation activity:** selected-style routes display Project title and Preview planning rather than full Brief / Direction selection. Title-only and preview-planning calls have distinct activity labels, including historical title-only runs. Finished or interrupted projects stop unfinished preparation indicators without marking them successful.
+
+- **Full-width mention results:** style preview rows fill the `@` dropdown width, with IDs aligned to the trailing edge.
+
+- **One wizard action:** removed the redundant send arrow from onboarding replies; Continue remains the visible way to advance each step.
+
+- **Shared style-search previews:** the `@` suggestion list reuses the Settings picker’s existing `StylePickerPreview` row component and thumbnail source instead of rendering a separate text-only style list.
+
+- **Top-edge editor resize:** the idea reply box uses an Ant Design vertical Splitter; drag its top divider upward to expand the editor or downward to shrink it while keeping controls visible.
+
+- **Frontend rebuild recovery:** serve new frontend assets dynamically after a rebuild instead of retaining a startup filename snapshot. Missing asset requests return 404 rather than the HTML app shell, preventing blank pages from misleading 200 responses.
+
+- **Inline style mentions:** Type `@` in the idea editor to search Motion Graphics by name or ID with Ant Design X Suggestion. Sender renders the selected entry as an inline tag; the saved idea carries `<style id="style-140">Vintage Rubber Hose Animation</style>`. Both providers read embedded IDs through the creative-pool MCP. Mentions preserve local act/scene scope and do not change Settings selections.
+
+- Preserve “Skip previews” when restoring a draft with Settings-selected styles; submission keeps the exact selected IDs and original idea.
+
+- **Style lookup through MCP:** Authoring handoffs pass selected Motion Graphic IDs and roles; shared system guidance requires reading full canonical definitions by ID through `creative_pool.read_pool_entry` before planning or building. Names in the original idea are resolved through MCP search, without host-side extraction.
+
+- **Explicit-style previews:** styles selected in Settings can produce the requested preview directions without JEV style-combination proposals or ranking. Preview count is independent of style selection; zero directions keeps direct build. Saved settings, regeneration and act/scene style assignments are preserved. The original act/scene style rule is shared by preview and full-build prompts. Removed prompt-name matching: only Settings selections enter routing and count limits; the original idea goes unchanged to the model.
 
 These codebase changes are on the development branch and have not been merged.
 
+- **Vintage Rubber Hose Animation:** a new Motion Graphic for early hand-inked cartoon drawing: strong irregular ink silhouettes, painterly shadow masses, expressive warped scenery and elastic, stepped acting at 12 drawings a second, adapted to the project's output settings. Any original subject works, with or without characters; the project's colours, story, renderer and audio settings stay in charge. Its only optional effects are film wear and a precise vintage film-leader countdown. The rendered preview is a Claude-authored sample, a crooked house at night followed by a 3-2-1 leader. The collection now has **140 Motion Graphics**.
 - **Capture lifecycle:** remove local and remote browser-call, native-edit, screenshot, take-count, recording-duration and output-size budgets. Recordings stop explicitly or on cancellation.
 - **Camera planning:** the main model explores the live application before choosing component focus, zoom amount and timing. Automatic zoom generation stays disabled, cursor smoothing is 0.15, and exports preserve reviewed zooms and wide intervals.
 - **Browser capability coverage:** unify tool names, schemas and handlers; add file uploads and browser session, pointer, frame, dialog, network, diagnostics and capture operations. Local mock workflows use normal HTTP(S) requests; hosted access retains its proxy boundary.
@@ -93,7 +134,7 @@ Merged [PR #4](https://github.com/delexw/kiteva/pull/4): agent planning, capabil
 - Added an **experimental native Windows backend**, platform-aware setup and a render verification command. Actual Windows 10/11 testing is still pending; project creation on Windows requires a successful verification first. See the [Windows setup guide](docs/windows.md).
 
 - Published English and Chinese READMEs, a Kiteva-made introduction film, desktop and Storyboard screenshots, architecture diagrams, and technology and cost documentation.
-- Added contribution guidance and the [non-commercial license](LICENSE).
+- Added contribution guidance and the [project license](LICENSE).
 
 </details>
 
@@ -119,7 +160,7 @@ kind of work. There's an internal hackathon coming up at my company, and I just 
 effects fun, so I started collecting motion pieces that had that certain something, along with notes
 on what technology could make each one. The pile got big. So I built an agent to put that collection
 and Opus 5.5 to work, to see how far it could go. The results surprised me, so I'm sharing the agent's
-source here, under non-commercial terms.
+source here, under the MIT license.
 
 I collected a lot. Some of it is dazzling, and some of it is probably wrong. I kept it all anyway 😄
 
@@ -140,7 +181,7 @@ and I'm trying it out for fun. You choose the provider per project.
   shelf and one widget per project. Nothing calls a model until you press **Create**.
 - **A brief from your references.** A small model reads your files and, if you add websites, opens
   them in a fresh headless [Chromium](https://www.chromium.org) browser to take screenshots. It writes a structured brief and then checks it.
-- **Motion Graphic combinations.** The main model reads summaries of all 138 Motion Graphics and
+- **Motion Graphic combinations.** The main model reads summaries of all 140 Motion Graphics and
   proposes a dozen or more directions. Each pairs one primary Motion Graphic with supporting ones. A
   separate evaluator, [Typesafe](https://docs.typesafe.ai)'s [JEV](https://docs.typesafe.ai/models), scores them and keeps the number of directions you asked for (1–5).
 - **Silent 3-second previews** of the same story beat, one per direction, so you can compare.
@@ -184,7 +225,7 @@ And it has nothing to do with the UI-component tool called [Storybook](https://s
 
 |                                   |                                                                                                                                                                                      |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Motion Graphics                   | **136** (`assets/catalog/video-style-catalog.json`)                                                                                                                                  |
+| Motion Graphics                   | **140** (`assets/catalog/video-style-catalog.json`)                                                                                                                                  |
 | Motions                           | **46** (`assets/catalog/motion-pattern-catalog.json`)                                                                                                                                |
 | Technology pool entries           | **92** recommendations across visual construction, motion, rendering and supporting tools                                                                                            |
 | Startup-installed authoring skill | **1** ([Anatomy](https://github.com/wheresryan22/anatomy))                                                                                                                           |
@@ -247,7 +288,7 @@ Anatomy installs or updates automatically on server launch. Connect to the inter
 
 [Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) adds local music and sound-effect generation for both providers. A separate JEV Choice strategy selects Audio Studio or local code-based audio authoring when a full video has a Music prompt and no uploaded music. Uploaded audio retains its existing guidance; previews remain silent. For Multiplane, the agent is instructed to generate and verify a WAV first, then supply its path through `production.audioFile` for `--audio`. See [Audio Studio setup and integration](src/server/agents/capabilities/README.md#audio-studio-mcp) and the [JEV strategies](src/server/jev/README.md).
 
-The catalogs, reviewed artwork and 139 preview clips ship with the repo, so browsing costs nothing.
+The catalogs, reviewed artwork and 140 preview clips ship with the repo, so browsing costs nothing.
 Your projects, uploads, room layout, databases and credentials stay in Git-ignored folders on your machine.
 
 ## What ships, and what you install
@@ -297,7 +338,8 @@ your plan's allowance. I haven't tested subscription usage or remaining-percenta
 ## Docs
 
 - [Editable project exports](docs/editable-projects.md): OTIO, captions, audio tracks, source bundles and failed builds
-- [Architecture](docs/architecture.md): components, workflow, renderers, capture, skills, storage (Mermaid diagrams)
+- [Architecture](docs/architecture.md): components, [three video generation routes](docs/architecture.md#video-generation-routes), renderers, capture, skills, storage (Mermaid diagrams)
+- [Prompt routes A–D](docs/architecture.md#prompt-routes) · [Subworkflow diagrams](src/server/jobs/subworkflows/README.md#subworkflow-diagrams)
 - [Technology inventory](docs/technology-pool.md): all 92 pool entries, the startup-installed skill, renderers, TTS and every dependency
 - [Costs](docs/costs.md): how the governance numbers are computed
 - [Intro film provenance](docs/intro-video.md): how the film above was made in Kiteva
@@ -312,17 +354,6 @@ for setup, the checks to run (`npm run lint`, `npm test`, `npm run build`), the 
 
 ## License
 
-Kiteva's own code, catalogs and docs are © 2026 Yang Liu ([@delexw](https://github.com/delexw)),
-licensed under the [Kiteva Non-Commercial License](LICENSE). In short: you may use, copy, modify and
-share it for non-commercial purposes, such as personal projects, learning, research and evaluation,
-with the notice kept. Internal, non-production evaluation inside an organisation, like trying it at an
-internal hackathon, counts as non-commercial. Selling it, offering it as a paid service, using it for paid
-client work, or putting what you make with it into commercial production needs separate permission. Ask in an issue. This summary isn't legal advice, and the
-LICENSE text is what applies.
-
-Bundled and dependent software keeps its own license: [Anatomy](https://github.com/wheresryan22/anatomy) (MIT), [HyperFrames](https://github.com/heygen-com/hyperframes) and [Multiplane](https://github.com/LBEILC/Multiplane)
-(Apache-2.0), [Remotion](https://www.remotion.dev/license) (Remotion License), [GSAP](https://gsap.com/standard-license)
-(GSAP Standard License) and the rest as listed in [docs/technology-pool.md](docs/technology-pool.md).
-Model providers, speech models and other services have their own terms.
+[MIT](LICENSE) © 2026 Yang Liu. Third-party components retain their own licenses; see [dependency licenses](docs/technology-pool.md#licenses).
 
 Website video recording uses [OpenScreen](docs/openscreen-worker.md) locally by default, in a dedicated visible browser window. An isolated desktop worker is optional.

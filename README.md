@@ -37,6 +37,8 @@ Dates below use New Zealand time.
 <details>
 <summary>2026-10-23</summary>
 
+- **v0.3.0:** chapter-based demos, timed narration, native cursor action logs, renderer reuse and grouped activity. See the [release notes](CHANGELOG.md#030--2026-10-23).
+
 - **Chapter-based application demos:** the main model saves a validated storyboard before recording. Fresh chapter sessions capture the planned interactions, and narration and assembly use the accepted footage and measured durations.
 
 - **Chapter timing recovery:** native OpenScreen speed regions fit complete action sequences to chapter budgets. Timing conflicts allow up to ten local retries while retaining accepted chapters and the approved film plan.

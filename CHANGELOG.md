@@ -2,6 +2,31 @@
 
 Notable changes to Kiteva. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] — 2026-10-23
+
+Kiteva adds chapter-based application demos, timed narration and renderer-owned reuse, with clearer production activity.
+
+### Added
+
+- **Chapter-based demo capture.** Save a validated storyboard before recording, use fresh chapter sessions, and hand measured, accepted footage to narration and assembly.
+- **Timed script items.** Configure separate narration windows, scripts or generation instructions, captions and voices. Reuse a persistent local Pocket TTS worker.
+- **Render reuse and refinement checkpoints.** Cache verified Multiplane shots, retain source context for revisions and validate dependencies and media before reuse.
+- **Motion clip mentions and visual-stage contracts.** Use shared mention previews and explicit, seekable calculation and application stages.
+
+### Changed
+
+- **Native OpenScreen cursor logging.** Pass timestamped browser action events unchanged to `setPointerTrack` after recording. Native fullscreen capture aligns page and window coordinates without toolbar-offset calculations; OpenScreen owns cursor rendering.
+- **Claude native planning.** Use SDK plan mode with an automatic structured handoff, followed by code-owned validation and stage-specific tool controls.
+- **Capture presentation.** Fix cursor size at 1.5, disable smoothing and use consistent framing across chapters.
+
+### Fixed
+
+- **Chapter timing recovery.** Fit complete action sequences with native speed regions and allow up to ten chapter-local retries, preserving approved budgets and accepted captures.
+- **Production activity.** Group chapter work and renderer progress, show measured timing and retry counts, and reduce duplicate activity rows.
+- **Settings and authoring visibility.** Clarify attached materials, selected resources and probabilities, and keep README history collapsed by default.
+
+This is a GitHub source release, without desktop installers or npm publication. Native Windows CI passed for the included code changes; Windows support remains experimental.
+
 ## [0.2.0] — 2026-10-22
 
 Kiteva adds style-driven previews, editable video exports and native demo capture, with shared planning and renderer policies. The catalog now contains **140 Motion Graphics and 48 motions**.
@@ -50,3 +75,4 @@ Kiteva uses the [MIT License](LICENSE). Third-party components retain their own 
 
 [0.1.0]: https://github.com/delexw/kiteva/releases/tag/v0.1.0
 [0.2.0]: https://github.com/delexw/kiteva/releases/tag/v0.2.0
+[0.3.0]: https://github.com/delexw/kiteva/releases/tag/v0.3.0

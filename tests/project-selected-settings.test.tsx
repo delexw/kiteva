@@ -93,3 +93,46 @@ it("hides model-suggested styles even after a direction is selected", () => {
   expect(html).not.toContain("Watercolor");
   expect(html).not.toContain("Preview Watercolor");
 });
+
+it.each([
+  { showLyrics: true, mode: "off", expected: "Lyrics on" },
+  { showLyrics: false, mode: "write", expected: "No lyrics" },
+])(
+  "uses timed-item text visibility instead of legacy lyrics: %j",
+  ({ showLyrics, mode, expected }) => {
+    const request = RequestSchema.parse({
+      instructions: "Tell a visual story",
+      lyrics: mode === "off" ? { mode: "off" } : { mode: "write" },
+      scriptItems: [
+        {
+          id: "opening",
+          startSeconds: 0,
+          endSeconds: 10,
+          text: "Read this",
+          showLyrics,
+          speech: { mode: "off" },
+        },
+      ],
+    });
+    const html = renderToStaticMarkup(<ProjectSettings run={{ ...run, request }} />);
+    expect(html).toContain(expected);
+    expect(html).not.toContain(expected === "Lyrics on" ? "No lyrics" : "Lyrics on");
+  },
+);
+
+it("shows selected Motion Graphics instead of an inactive creative preference", () => {
+  const request = RequestSchema.parse({
+    instructions: "Tell a visual story",
+    preference: "creative",
+    candidateCount: 2,
+    selectedStyleIds: ["style-001"],
+  });
+  const html = renderToStaticMarkup(<ProjectSettings run={{ ...run, request }} />);
+  expect(html).toContain("Selected Motion Graphics");
+  expect(html).toContain("2 directions");
+  expect(html).not.toContain("Explore creative ideas");
+  const automatic = renderToStaticMarkup(
+    <ProjectSettings run={{ ...run, request: { ...request, selectedStyleIds: undefined } }} />,
+  );
+  expect(automatic).toContain("Explore creative ideas");
+});

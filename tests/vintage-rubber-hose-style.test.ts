@@ -66,7 +66,7 @@ describe("Vintage Rubber Hose Animation metadata contract", () => {
   it("keeps generation guidance free of sample narratives, removed effects and mandatory subjects", async () => {
     const style = await styleOf();
     for (const text of generationText(style)) expect(text).not.toMatch(sampleOrRemoved);
-    expect(style.note).toContain("demonstration only");
+    expect(style.note).toContain("source of truth for visual identity and motion");
     expect(style.note).toContain("neither its subject nor its sequence is a requirement");
   });
 
@@ -78,7 +78,7 @@ describe("Vintage Rubber Hose Animation metadata contract", () => {
       "organic, slightly imperfect contours vary in line weight",
       "bold painterly or cel shadow masses",
       "expressive, warped and asymmetric",
-      "layered atmosphere and environments that subtly react",
+      "Environmental acting is mandatory wherever scenery is present",
       "any original human, animal, robot, object or environmental subject",
       "curved, jointless rubber-hose limbs",
       "never resemble an existing cartoon character or mascot",
@@ -130,16 +130,16 @@ describe("Vintage Rubber Hose Animation metadata contract", () => {
     expect(implementation).not.toMatch(/serif or period-like/);
   });
 
-  it("keeps project colours, delivery, renderer and audio settings authoritative", async () => {
+  it("uses preview colours by default while respecting scoped overrides, delivery, renderer and audio settings", async () => {
     const catalog = await loadCatalog();
     const style = await styleOf();
     expect(style.palette.background_policy).toBe("scene_dependent");
     expect(style.palette.tokens).toEqual(rubberHoseColors);
     expect(style.palette.constraints[0]).toContain(
-      "A task-provided or approved project palette takes precedence",
+      "The catalog preview's tonal palette takes precedence by default",
     );
     expect(style.palette.constraints.join(" ")).toContain("one optional storytelling device");
-    expect(String(style.palette.direction)).toContain("not a required grayscale palette");
+    expect(String(style.palette.direction)).toContain("Recolour only when explicitly requested");
     expect(style.visual_cues).toContain(
       "typically 12 unique drawings per second against a 24 fps film reference, adapted to the project's delivery settings",
     );
@@ -163,6 +163,47 @@ describe("Vintage Rubber Hose Animation metadata contract", () => {
     expect(style.audio_direction.prompt).toContain(
       "do not invent narration or music when audio is disabled",
     );
+  });
+
+  it("carries preview authority through the canonical generation instructions and summary", async () => {
+    const style = await styleOf();
+    expect(style.visual_cues).toContain("catalog preview is the source of truth");
+    expect(style.executable_prompt_template).toContain(style.visual_cues);
+    expect(style.executable_prompt_template).toContain(style.tech.implementation);
+    expect(style.tech.implementation).toContain("assets/style-previews/style-140.webm");
+    expect(style.tech.implementation).toContain(
+      "Compare representative rendered frames and motion over time",
+    );
+    expect(style.palette.agent_instruction).toContain(
+      "do not inherit palettes assigned to other scenes",
+    );
+    expect(rubberHoseSummary.visualIdentity).toContain("catalog preview is the source of truth");
+    for (const text of [
+      style.visual_cues,
+      style.tech.implementation,
+      rubberHoseSummary.visualIdentity,
+    ]) {
+      expect(text).toContain("Environmental acting is mandatory wherever scenery is present");
+      expect(text).toMatch(/architectur/i);
+      expect(text).toMatch(/branches.*independently/);
+      expect(text).not.toMatch(/Scenery and architecture may/);
+    }
+    expect(style.tech.motion_guidance).toMatchObject({
+      application: expect.stringContaining("environmental acting is mandatory"),
+    });
+    expect(JSON.stringify(style.tech.motion_guidance)).not.toContain(
+      "environments may lean or sway",
+    );
+
+    expect(rubberHoseSummary.palette).toContain(
+      "palettes assigned to other scenes must not bleed in",
+    );
+    for (const text of generationText(style))
+      expect(text).not.toMatch(
+        /Colour follows the project|project palette takes precedence|project's palette and copy/,
+      );
+    expect(zh[style.visual_cues]).not.toContain("色彩以项目为准");
+    expect(zh[style.tech.implementation]).not.toContain("使用项目的调色板和文案");
   });
 
   it("references only the core landing motion and no mosaic-related style or motion", async () => {

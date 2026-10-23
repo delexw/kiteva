@@ -1,3 +1,5 @@
+import { multiplaneProgress } from "./multiplane/progress";
+export { multiplaneProgress } from "./multiplane/progress";
 import { rendererCliPath, rendererCommandFlags } from "./execution";
 import { multiplaneMetadata } from "./multiplane/metadata";
 import { videoRenderTimeoutMs } from "./timeouts";
@@ -144,22 +146,6 @@ export function multiplaneResult(stdout: string): MultiplaneResult | undefined {
     }
   }
   return undefined;
-}
-export function multiplaneProgress(line: string) {
-  try {
-    const event = JSON.parse(line) as {
-      type?: string;
-      phase?: string;
-      done?: number;
-      total?: number | null;
-    };
-    if (event.type !== "progress" || typeof event.done !== "number") return undefined;
-    return event.total
-      ? `${event.phase}: ${event.done}/${event.total} frames`
-      : `${event.phase}: ${event.done} frames`;
-  } catch {
-    return undefined;
-  }
 }
 export function multiplaneFailure(
   command: string,

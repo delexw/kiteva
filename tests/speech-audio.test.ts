@@ -1,3 +1,4 @@
+import { SpeechSettingsSchema } from "../src/shared/speech";
 import { afterEach, expect, it, vi } from "vitest";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -244,4 +245,188 @@ it("prepares a provided narration track while on-screen lyrics are off", async (
     { text: "An independent spoken story", startSeconds: 0, endSeconds: 0.25 },
   ]);
   expect(synthesize).toHaveBeenCalledTimes(1);
+});
+
+it("adds real opening silence and shifts caption cues with the narration start time", async () => {
+  const options = await input();
+  options.request.speech = SpeechSettingsSchema.parse({ mode: "narration", startSeconds: 1 });
+  const synthesize = vi.fn(async (_text: string, file: string) => {
+    await tone(file);
+    return 0.25;
+  });
+  const track = (await prepareSpeech(options, { synthesize }))!;
+  expect(track.cues).toEqual([
+    { text: "First line", startSeconds: 1, endSeconds: 1.25 },
+    { text: "Second line", startSeconds: 1.25, endSeconds: 1.5 },
+  ]);
+  expect(track.durationSeconds).toBe(1.5);
+  const pcm = path.join(options.workspace, "speech.pcm");
+  await command(
+    "ffmpeg",
+    [
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      path.join(options.workspace, track.file),
+      "-f",
+      "s16le",
+      "-ar",
+      "8000",
+      "-ac",
+      "1",
+      pcm,
+    ],
+    options.workspace,
+    signal(),
+  );
+  const bytes = await readFile(pcm);
+  expect(bytes.subarray(0, 14400).every((byte) => byte === 0)).toBe(true);
+  expect(bytes.subarray(16000, 19200).some((byte) => byte !== 0)).toBe(true);
+  expect(await prepareSpeech(options, { synthesize })).toEqual(track);
+  expect(synthesize).toHaveBeenCalledTimes(2);
+  options.request.speech = SpeechSettingsSchema.parse({ mode: "narration", startSeconds: 4 });
+  await expect(prepareSpeech(options, { synthesize })).rejects.toThrow("start before");
+});
+
+it("renders timed voices with independent providers, measured cues and real silent gaps", async () => {
+  const options = await input();
+  options.request.scriptItems = [
+    {
+      id: "opener",
+      startSeconds: 0,
+      endSeconds: 1,
+      text: "Silent opening caption",
+      showLyrics: true,
+      speech: { mode: "off" },
+    },
+    {
+      id: "english",
+      startSeconds: 1,
+      endSeconds: 1.5,
+      text: "Hello",
+      showLyrics: false,
+      speech: { mode: "narration", engine: "kokoro", voice: "af_heart", speed: 1, volume: 0.7 },
+    },
+    {
+      id: "chinese",
+      startSeconds: 2,
+      endSeconds: 2.5,
+      text: "你好",
+      showLyrics: true,
+      speech: {
+        mode: "narration",
+        engine: "pocket-tts",
+        voice: "pocket_zh_xiaobei",
+        language: "zh",
+        speed: 1.1,
+      },
+    },
+  ];
+  const synthesize = vi.fn(async (_text: string, file: string) => {
+    await tone(file, 0.2);
+    return 0.2;
+  });
+  const track = await prepareSpeech(options, { synthesize });
+  expect(synthesize).toHaveBeenCalledTimes(2);
+  expect(synthesize.mock.calls[0].slice(0, 1)).toEqual(["Hello"]);
+  expect(synthesize).toHaveBeenNthCalledWith(
+    1,
+    "Hello",
+    expect.any(String),
+    "af_heart",
+    1,
+    expect.any(AbortSignal),
+    "kokoro",
+    undefined,
+    0.7,
+  );
+  expect(synthesize).toHaveBeenNthCalledWith(
+    2,
+    "你好",
+    expect.any(String),
+    "pocket_zh_xiaobei",
+    1.1,
+    expect.any(AbortSignal),
+    "pocket-tts",
+    "zh",
+    1,
+  );
+  expect(track?.cues).toEqual([
+    { text: "Hello", startSeconds: 1, endSeconds: 1.2, scriptItemId: "english", showLyrics: false },
+    { text: "你好", startSeconds: 2, endSeconds: 2.2, scriptItemId: "chinese", showLyrics: true },
+  ]);
+  const raw = path.join(options.workspace, "voice.pcm");
+  await command(
+    "ffmpeg",
+    [
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      path.join(options.workspace, track!.file),
+      "-ar",
+      "8000",
+      "-ac",
+      "1",
+      "-f",
+      "s16le",
+      raw,
+    ],
+    options.workspace,
+    options.signal,
+  );
+  const samples = await readFile(raw);
+  const energy = (start: number, end: number) => {
+    let total = 0,
+      count = 0;
+    for (let n = Math.floor(start * 8000); n < Math.floor(end * 8000); n++) {
+      total += Math.abs(samples.readInt16LE(n * 2));
+      count++;
+    }
+    return total / count;
+  };
+  expect(energy(0.2, 0.8)).toBeLessThan(1);
+  expect(energy(1.02, 1.15)).toBeGreaterThan(500);
+  expect(energy(1.4, 1.8)).toBeLessThan(1);
+  expect(energy(2.02, 2.15)).toBeGreaterThan(500);
+  await prepareSpeech(options, { synthesize });
+  expect(synthesize).toHaveBeenCalledTimes(2);
+  options.request.scriptItems![2].text = "Changed only this item.";
+  await prepareSpeech(options, { synthesize });
+  expect(synthesize).toHaveBeenCalledTimes(3);
+});
+it("refuses a spoken item that exceeds its own window instead of truncating it", async () => {
+  const options = await input();
+  options.request.scriptItems = [
+    {
+      id: "short",
+      startSeconds: 1,
+      endSeconds: 1.5,
+      text: "Too much speech",
+      showLyrics: true,
+      speech: { mode: "narration", voice: "af_heart", speed: 1 },
+    },
+  ];
+  const synthesize = vi.fn(async (_text: string, file: string) => {
+    await tone(file, 0.6);
+    return 0.6;
+  });
+  await expect(prepareSpeech(options, { synthesize })).rejects.toThrow(/exceeds the 0.5s/);
+});
+it("does not synthesize a lyric-only timeline even when legacy narration remains stored", async () => {
+  const options = await input();
+  const synthesize = vi.fn();
+  options.request.scriptItems = [
+    {
+      id: "silent",
+      startSeconds: 0,
+      endSeconds: 4,
+      text: "Read this without speech",
+      showLyrics: true,
+      speech: { mode: "off" },
+    },
+  ];
+  expect(await prepareSpeech(options, { synthesize })).toBeUndefined();
+  expect(synthesize).not.toHaveBeenCalled();
 });

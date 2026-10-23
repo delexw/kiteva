@@ -37,6 +37,26 @@ Dates below use New Zealand time.
 <details>
 <summary>2026-10-22</summary>
 
+- **Fine-tune checkpoints:** revisions resume the completed video session with verified source-artifact context, retained authoring selections and inherited renderer-owned cache; conservative hash and byte validation still controls reuse.
+
+- **Capture cursor size:** new OpenScreen takes use a fixed cursor size of 1.5; historical recordings retain their saved sizes.
+
+- **Vintage Rubber Hose metadata:** the existing preview defines visual identity and motion, including mandatory environmental acting wherever scenery is present; project subjects stay flexible and colour overrides stay scoped to their scenes.
+
+- **Motion clip mentions:** the shared `@` picker, chips and hover previews now support motion clips alongside Motion Graphics; references retain explicit XML IDs for Creative Pool lookup.
+
+- **Explicit visual stages:** a shared, renderer-independent authoring helper separates calculate, decide, apply and commit; each renderer supplies its own calculation and application behaviour. Reuse is disabled by default; any input revision or visual-state change rebuilds the owned part. Browser tests cover backward and fresh direct seeking.
+
+- **Multiplane reuse trial:** provider-owned validated shot caching with conservative project-wide invalidation, checksum checks and an isolated real-render verification script.
+
+- **Clear attachment states:** material steps distinguish attached files from the asset pool with explicit labels, visible Add actions and green Attached badges.
+
+- **Narration start time:** set an explicit opening silence in Speech settings; synthesized audio and caption cues share the offset, and older workers are blocked from silently dropping it.
+
+- **Grouped rendering progress:** repeated code-driven shot checks and frame logs share one Ant Design X activity group with a measured progress bar; HyperFrames, Multiplane and the Remotion fallback share the same progress display, and viewing-copy exports also show their percentage. Completed measured operations show a green success icon at 100%, preserving failed/stopped states. Progress bars sit inline to the right of each parent label, followed by the percentage. Parent work nodes relay their current measured stage and omit duplicate rendering child rows. Each renderer owns its progress adapter; shared code only dispatches normalized progress to the common display.
+
+- **Lean Creative Pool responses:** omit source-review and provenance metadata; fixed-style previews and selected-direction planning, builds and repairs hide variants and suggested combinations through a shared MCP flag. Automatic style exploration retains those alternatives.
+
 - **README badges:** added releaseszn, latest release, MIT license and Native Windows CI badges beneath the logo.
 
 - **Governance authoring details:** visual and audio Jev choices share one details display, including selected resources and expandable probabilities for saved projects.
@@ -238,7 +258,7 @@ And it has nothing to do with the UI-component tool called [Storybook](https://s
 | Renderers                         | [HyperFrames](https://github.com/heygen-com/hyperframes) (default), [Multiplane](https://github.com/LBEILC/Multiplane) (trial), [Remotion](https://www.remotion.dev) (fallback only) |
 
 Combinations are where it gets interesting. A direction can mix one primary Motion Graphic with
-supporting ones (1–3 in total for films under 30 seconds, up to 6 for films over three minutes), and the
+supporting ones (at least 2 in generated combinations: 2–3 under 30 seconds, 2–4 at 30–59 seconds, 2–5 at 60–179 seconds and 2–6 at 180–300 seconds), and the
 model picks motions and technologies to suit. That gives far more starting points than any single
 style. It doesn't promise that every combination works. Some won't, which is why there are previews,
 an evaluator and repairs.

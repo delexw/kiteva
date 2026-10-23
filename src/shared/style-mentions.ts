@@ -1,24 +1,30 @@
 import { XMLBuilder, XMLParser, XMLValidator } from "fast-xml-parser";
 
+export type MentionVariant = "style" | "motion";
+
 export type StyleMentionPart =
   | { type: "text"; text: string }
-  | { type: "style"; id: string; name: string; xml: string };
+  | { type: MentionVariant; id: string; name: string; xml: string };
 
 const builder = new XMLBuilder({ ignoreAttributes: false });
 const parser = new XMLParser({ ignoreAttributes: false, parseTagValue: false });
 
-export function styleMentionXml(style: { id: string; name_en: string }): string {
-  return builder.build({ style: { "@_id": style.id, "#text": style.name_en } });
+export function styleMentionXml(
+  style: { id: string; name_en: string },
+  variant: MentionVariant = "style",
+): string {
+  return builder.build({ [variant]: { "@_id": style.id, "#text": style.name_en } });
 }
 
 /** Read explicit mention markup only. Ordinary style names in prose remain untouched. */
 export function parseStyleMentions(prompt: string): StyleMentionPart[] {
   const parts: StyleMentionPart[] = [];
   let offset = 0;
-  for (const match of prompt.matchAll(/<style\b[^>]*>[\s\S]*?<\/style>/g)) {
+  for (const match of prompt.matchAll(/<(style|motion)\b[^>]*>[\s\S]*?<\/\1>/g)) {
     const xml = match[0];
     if (XMLValidator.validate(xml) !== true) continue;
-    const entry = parser.parse(xml).style;
+    const variant = match[1] as MentionVariant;
+    const entry = parser.parse(xml)[variant];
     if (
       !entry ||
       typeof entry["@_id"] !== "string" ||
@@ -30,7 +36,7 @@ export function parseStyleMentions(prompt: string): StyleMentionPart[] {
       continue;
     const start = match.index!;
     if (start > offset) parts.push({ type: "text", text: prompt.slice(offset, start) });
-    parts.push({ type: "style", id: entry["@_id"], name: entry["#text"], xml });
+    parts.push({ type: variant, id: entry["@_id"], name: entry["#text"], xml });
     offset = start + xml.length;
   }
   if (offset < prompt.length) parts.push({ type: "text", text: prompt.slice(offset) });

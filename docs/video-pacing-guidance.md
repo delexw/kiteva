@@ -24,4 +24,10 @@ Final-review calibration includes justified suspense, varied beat lengths, dense
 
 ## Shared default
 
+The energetic default applies only outside captured footage. `capture_video` calls and all captured footage are excluded, regardless of subject or purpose. Preserve captured action order, natural playback and sufficient observation time; explicit footage-specific editing instructions still apply. Slower captured footage alone is not a pacing repair finding.
+
 Each film maintains coherent typography, palette roles, motion character and transition logic across its selected Motion Graphics. The default favors fast bursts with purposeful breathing room, not constant rapid cuts or a single aesthetic imposed on every film. Natural narration, readable text, essential demo actions and their visible results remain protected. Tighten discretionary timing instead of accelerating the finished film, changing export FPS or filling the requested duration with repeated motion. Provider instructions, planning, generation, repair and review consume this same policy; it does not retroactively change existing renders.
+
+## Story timing boundaries
+
+Each scene must earn its duration while preserving the user's explicit act/scene boundaries, narration start and required holds. Keep effective preview action timings when compatible with the story and explicit audio cues. Add grounded developments, visible results or justified reading/emotional holds inside the remaining interval instead of slowing a reveal or padding the gap. Planning, generation, pacing repair and final review consume this same shared policy; this is model guidance, not automatic retiming or proof of pacing quality.

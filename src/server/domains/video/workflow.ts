@@ -4,7 +4,11 @@ import { InputRequired } from "../../../shared/input-checkpoint";
 import { CodedError } from "../../../shared/errors";
 import { prepareSpeech } from "../../audio/speech";
 import { RendererDiagnosticError, rendererCorrectionEvidence } from "../../rendering/diagnostics";
+import { prepareScriptItems } from "./prepare-script-items";
+import { StoryboardSchema } from "../../../shared/agents/schemas/storyboard";
 import { prepareVideoBuildPlan } from "./build-plan";
+import { captureWithTimingRetries } from "../../jobs/subworkflows/chapter-capture/planning";
+import { capturedChaptersArtifact } from "../../jobs/subworkflows/chapter-capture/workflow";
 import {
   BriefSchema,
   videoGenerationOutputSchemaForDuration,
@@ -12,7 +16,7 @@ import {
 } from "../../../shared/agents/schemas/video";
 import { CandidateCopySchema } from "../../../shared/agents/schemas/candidate-copy";
 import path from "node:path";
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { dimensions, type Style, type StyleCandidate } from "../../../shared/contracts";
 import type { VideoRequest, VideoGenerationJob } from "../../../shared/domains/video";
 import { agentTurn, type ProviderEvent } from "../../agents/providers";
@@ -61,6 +65,7 @@ export async function generateVideo(input: {
   );
   request = { ...request, speech: deliverySpeech(request) };
   if (
+    request.scriptItems === undefined &&
     request.speech?.mode === "narration" &&
     request.speech.source === "lyrics" &&
     request.lyrics?.mode === "provided" &&
@@ -84,25 +89,74 @@ export async function generateVideo(input: {
     request.aspectRatio,
     job.kind === "preview" ? 720 : request.resolution === "1440p" ? 1440 : 1080,
   );
-  if (
-    job.kind === "full" &&
-    request.selectedStyleIds?.length &&
-    request.duration === "auto" &&
-    !job.buildPlan &&
-    !job.production &&
-    !job.refinementPrompt
-  ) {
-    await prepareVideoBuildPlan({
+  if (job.kind === "full" && !job.production && !job.refinementPrompt) {
+    const planningInput = {
       job,
       provider: request.provider,
-      prompt: buildVideoPrompt({ job, candidate, styles, brief, request, ...size, feedback }),
+      prompt: buildVideoPrompt({
+        job,
+        candidate,
+        styles,
+        brief,
+        request,
+        ...size,
+        feedback,
+        applicationDemoStage: "planning",
+      }),
       referenceUrls: request.urls,
-      automaticDuration: true,
+      automaticDuration: Boolean(
+        request.selectedStyleIds?.length &&
+        request.duration === "auto" &&
+        request.scriptItems === undefined,
+      ),
       ...size,
       fps,
       signal,
       onEvent,
       update,
+    };
+    await prepareVideoBuildPlan(planningInput);
+    const planned = job.buildPlan?.value;
+    if (planned?.version === 2 && planned.capturePlan) {
+      await captureWithTimingRetries({ job, request, signal, onEvent, update });
+    }
+  }
+  if (job.kind === "full" && request.scriptItems?.some((item) => item.source === "write")) {
+    await prepareVideoBuildPlan({
+      job,
+      provider: request.provider,
+      prompt: buildVideoPrompt({
+        job,
+        candidate,
+        styles,
+        brief,
+        request,
+        ...size,
+        feedback,
+        applicationDemoStage: "planning",
+      }),
+      referenceUrls: request.urls,
+      ...size,
+      fps,
+      signal,
+      onEvent,
+      update,
+    });
+    const plan =
+      job.buildPlan?.value ||
+      StoryboardSchema.parse(
+        JSON.parse(await readFile(path.join(job.workspace, "STORYBOARD.json"), "utf8")),
+      );
+    if (!job.sessionId) throw Error("Script writing requires the main planning session.");
+    emit("state", "Writing narration…");
+    request = await prepareScriptItems({
+      request,
+      brief,
+      plan,
+      sessionId: job.sessionId,
+      workspace: job.workspace,
+      signal,
+      onEvent,
     });
   }
   job.speechTrack =
@@ -140,10 +194,17 @@ export async function generateVideo(input: {
   const buildTurn = async (prompt: string) => {
     const generationStarted = Date.now();
     const turn = await agentTurn({
+      includeCreativeAlternatives: false,
       provider: request.provider,
       model: job.model,
       workspace: job.workspace,
       referenceUrls: request.urls,
+      enableVideoCapture:
+        job.kind === "full" &&
+        job.buildPlan?.value.version === 2 &&
+        job.buildPlan.value.capturePlan !== undefined
+          ? false
+          : undefined,
       signal,
       sessionId: job.sessionId,
       schema:
@@ -176,9 +237,13 @@ export async function generateVideo(input: {
       onEvent,
       update,
     });
-    if (implementationPrompt !== prompt)
-      await writeFile(path.join(job.workspace, "EXECUTABLE_PROMPT.md"), implementationPrompt);
-    await buildTurn(implementationPrompt);
+    const captured = job.buildPlan?.value.version === 2 && job.buildPlan.value.capturePlan;
+    const assemblyPrompt = captured
+      ? `${implementationPrompt}\nCAPTURE HANDOFF: Code has completed the planned chapter captures. Read ${capturedChaptersArtifact} and use its reviewed exported assets and observed results. Reconcile actual durations with the storyboard and chapter cards. Do not record the chapters again; capture tools are unavailable during assembly.`
+      : implementationPrompt;
+    if (assemblyPrompt !== prompt)
+      await writeFile(path.join(job.workspace, "EXECUTABLE_PROMPT.md"), assemblyPrompt);
+    await buildTurn(assemblyPrompt);
   } else if (decisions) {
     emit("state", "Applying your decision…");
     await buildTurn(

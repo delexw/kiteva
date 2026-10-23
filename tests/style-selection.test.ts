@@ -122,3 +122,18 @@ it("keeps prompt names, IDs and exclusions as original text without changing Set
   expect(request.instructions).toBe(instructions);
   expect(request.selectedStyleIds).toEqual(selectedStyleIds);
 });
+
+it("allows additional prompt-assigned styles beyond the generated-combination limit", () => {
+  const selectedStyleIds = ["style-056", "style-098", "style-093"];
+  const instructions =
+    'Opening: <style id="style-140">Vintage Rubber Hose Animation</style>. Ending: <style id="style-136">Manga Production Theatre</style>.';
+  const request = RequestSchema.parse({
+    instructions,
+    duration: 15,
+    selectedStyleIds,
+    candidateCount: 2,
+  });
+  expect(request.instructions).toBe(instructions);
+  expect(request.selectedStyleIds).toEqual(selectedStyleIds);
+  expect(request.candidateCount).toBe(2);
+});

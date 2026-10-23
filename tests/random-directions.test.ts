@@ -7,6 +7,7 @@ import { randomInt } from "node:crypto";
 import { randomDirections } from "../src/server/jobs/random-directions";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { RequestSchema } from "../src/shared/contracts";
+import { videoStyleCountRange } from "../src/shared/style-selection";
 import { projectSettingsDraft } from "../src/client/lib/project-settings";
 
 afterEach(() => vi.resetAllMocks());
@@ -55,3 +56,16 @@ it("rejects invalid draws and conflicting explicit selections, and preserves the
     ).toBe(false);
   }
 });
+
+it.each([3, 29, 30, 59, 60, 179, 180, 300])(
+  "draws at least two video styles at the %is duration boundary",
+  async (duration) => {
+    const { styles } = await loadCatalog();
+    vi.mocked(randomInt).mockImplementation(((min: number, max?: number) =>
+      max === undefined ? 0 : min) as typeof randomInt);
+    const draw = randomDirections(styles, 1, videoStyleCountRange(duration));
+    expect(draw.candidates[0].supportingStyleIds).toHaveLength(1);
+    expect(draw.candidates[0].supportingStyleIds).not.toContain(draw.candidates[0].primaryStyleId);
+    expect(randomInt).toHaveBeenCalledWith(2, videoStyleCountRange(duration).max + 1);
+  },
+);

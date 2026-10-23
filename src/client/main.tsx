@@ -1,3 +1,5 @@
+import { ScriptItems } from "./components/script-items";
+import { legacyScriptItems, type ScriptItem } from "../shared/script-items";
 import { creativeApproaches, type CreativeApproach } from "../shared/creative-approach";
 import { UiLanguageProvider } from "./i18n";
 import { uiLanguage, translateUi, useUiLanguage } from "./i18n";
@@ -15,7 +17,7 @@ import { RoomProject } from "./room/room-project";
 import { styleTechnologyRecommendations } from "../shared/style-technology";
 import { replayPreviewVideos } from "./lib/replay-preview-videos";
 import { ProjectStatus } from "./components/project-status";
-import { StylePicker, StyleExamplesContext } from "./components/style-picker";
+import { StylePicker, CatalogPreviewProvider } from "./components/style-picker";
 import { manualStyleLimit, trimStylesForDuration } from "../shared/style-selection";
 import { validateAssetLimits } from "../shared/asset-limits";
 import { PageTemplate } from "./components/page-template";
@@ -28,6 +30,7 @@ import { GenerationTime } from "./components/generation-time";
 import { RunningProjects } from "./components/running-projects";
 import { projectName } from "../shared/project-name";
 import { api } from "./lib/api";
+import { loadMotionCatalog } from "./motion-catalog";
 import { appRoute } from "./lib/app-route";
 import { projectSettingsDraft } from "./lib/project-settings";
 import { SpeechSettings } from "./components/speech-settings";
@@ -142,11 +145,23 @@ function App() {
   }
   const [playDemos, setPlayDemos] = useState(true);
   const [motionCount, setMotionCount] = useState(0);
+  const [motionMentions, setMotionMentions] = useState<{ id: string; name_en: string }[]>([]);
   const [styles, setStyles] = useState<StyleSummary[]>([]);
   const [examples, setExamples] = useState<StyleExample[]>([]);
 
   const [setup, setSetup] = useState<Setup>();
   const [error, setError] = useState("");
+  useEffect(() => {
+    const controller = new AbortController();
+    void loadMotionCatalog(controller.signal)
+      .then((motions) =>
+        setMotionMentions(motions.map((motion) => ({ id: motion.id, name_en: motion.name }))),
+      )
+      .catch((error) => {
+        if (!controller.signal.aborted) setError(errorCode(error));
+      });
+    return () => controller.abort();
+  }, []);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All Motion Graphics");
   const [detail, setDetail] = useState<Style>();
@@ -173,6 +188,7 @@ function App() {
   const [aspect, setAspect] = useState<"16:9" | "9:16" | "1:1">("16:9");
   const [lyricsEnabled, setLyricsEnabled] = useState(false);
   const [lyricsText, setLyricsText] = useState("");
+  const [scriptItems, setScriptItems] = useState<ScriptItem[]>();
   const [speech, setSpeech] = useState<SpeechConfiguration>();
   const [urls, setUrls] = useState("");
   const [sectionInstructions, setSectionInstructions] = useState({
@@ -308,6 +324,7 @@ function App() {
               setLyricsEnabled(draft.lyricsEnabled);
               setLyricsText(draft.lyricsText);
               setSpeech(draft.speech);
+              setScriptItems(draft.scriptItems);
               setUrls(draft.urls);
               setSectionInstructions(draft.sectionInstructions);
               setAssets(
@@ -524,6 +541,7 @@ function App() {
               frameRate,
               lyrics: lyricsFromInput(lyricsEnabled, lyricsText),
               speech,
+              scriptItems,
             }),
       };
       if (request.outputType === "video") await ensureSpeechGenerationReady(request);
@@ -595,6 +613,7 @@ function App() {
       setLyricsEnabled(false);
       setLyricsText("");
       setSpeech(undefined);
+      setScriptItems(undefined);
       setError("");
       setRestoredSettingsId(undefined);
     }
@@ -1127,8 +1146,9 @@ function App() {
   }
   if (page === "create" || page === "history" || isRoomUtilityPage(page))
     return React.createElement(
-      StyleExamplesContext,
-      { value: examples },
+      CatalogPreviewProvider,
+      { examples, motions: motionMentions },
+
       <MotionConfig reducedMotion="user">
         <CreativeRoom
           projects={history}
@@ -1176,6 +1196,8 @@ function App() {
               <RoomProject
                 key={run.id}
                 run={run}
+                styles={styles}
+                examples={examples}
                 view={view}
                 onView={onView}
                 events={events}
@@ -1188,7 +1210,7 @@ function App() {
                 onUpdated={setRun}
                 onEdit={() => navigate(`/?settingsFrom=${run.id}`)}
                 onCancel={() => void action("cancel")}
-                onRetry={() => void action("retry")}
+                onRetry={(jobId) => action("retry", jobId)}
               />
             )
           }
@@ -1196,8 +1218,9 @@ function App() {
       </MotionConfig>,
     );
   return React.createElement(
-    StyleExamplesContext,
-    { value: examples },
+    CatalogPreviewProvider,
+    { examples, motions: motionMentions },
+
     <MotionConfig reducedMotion="user">
       <div className="app-shell">
         <aside className="sidebar">
@@ -1535,7 +1558,33 @@ function App() {
                               : translateUi("Leave empty to generate directions.")}
                         </span>
                       </label>
-                      {outputType === "video" && lyricsEnabled && (
+                      {outputType === "video" &&
+                        (scriptItems !== undefined ? (
+                          <ScriptItems
+                            items={scriptItems}
+                            duration={duration}
+                            onChange={setScriptItems}
+                          />
+                        ) : (
+                          <Button
+                            disabled={speech?.mode === "uploaded"}
+                            onClick={() =>
+                              setScriptItems(
+                                legacyScriptItems({
+                                  duration,
+                                  speech,
+                                  lyrics: {
+                                    mode: lyricsEnabled ? "provided" : "off",
+                                    text: lyricsText,
+                                  },
+                                }),
+                              )
+                            }
+                          >
+                            {translateUi("Use timed script items")}
+                          </Button>
+                        ))}
+                      {outputType === "video" && scriptItems === undefined && lyricsEnabled && (
                         <label className="field-label composer-lyrics-input">
                           {translateUi("Your lyrics")}
                           <Textarea
@@ -1555,7 +1604,7 @@ function App() {
                           </span>
                         </label>
                       )}
-                      {outputType === "video" && lyricsEnabled && (
+                      {outputType === "video" && scriptItems === undefined && lyricsEnabled && (
                         <SpeechSettings
                           value={speech}
                           onChange={setSpeech}

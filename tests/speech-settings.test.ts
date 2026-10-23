@@ -280,3 +280,11 @@ it("keeps Mandarin checkpoint voices separate from official Pocket embeddings", 
     }),
   ).toMatchObject({ voice: "pocket_zh_xiaobei" });
 });
+
+it("preserves a narration start time and rejects negative or non-finite offsets", () => {
+  expect(SpeechSettingsSchema.parse({ mode: "narration", startSeconds: 17 })).toMatchObject({
+    startSeconds: 17,
+  });
+  for (const startSeconds of [-1, 301, Infinity, NaN])
+    expect(SpeechSettingsSchema.safeParse({ mode: "narration", startSeconds }).success).toBe(false);
+});

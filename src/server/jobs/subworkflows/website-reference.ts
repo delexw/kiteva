@@ -51,9 +51,7 @@ export async function createLocalReferenceBrowser(
         : {}),
       timeout: 10000,
       args: [
-        ...(desktop
-          ? ["--app=data:text/html,<title>Capture</title>", "--window-size=1440,1000"]
-          : []),
+        ...(desktop ? ["--app=data:text/html,<title>Capture</title>", "--start-fullscreen"] : []),
         ...(mode === "hosted"
           ? ["--proxy-server=http://127.0.0.1:9", "--proxy-bypass-list=<-loopback>"]
           : []),
@@ -222,19 +220,12 @@ export async function createLocalReferenceBrowser(
     async function movePointer(
       x: number,
       y: number,
-      cursorType: "arrow" | "pointer" | "text" = "arrow",
+      _cursorType: "arrow" | "pointer" | "text" = "arrow",
     ) {
-      const destination = { x, y };
-      const origin = pointer;
-      for (let step = 1; step <= 12; step++) {
-        const x = origin.x + ((destination.x - origin.x) * step) / 12;
-        const y = origin.y + ((destination.y - origin.y) * step) / 12;
-        await page.mouse.move(x, y);
-        recording?.cursor(x, y, "move", step === 12 ? cursorType : "arrow");
-        if (recording) await delay(16, undefined, { signal });
-      }
-      pointer = destination;
+      await page.mouse.move(x, y);
+      pointer = { x, y };
     }
+
     async function pointAndClick(
       target: ElementHandle<Element>,
       button: "left" | "right" | "middle" = "left",
@@ -262,9 +253,9 @@ export async function createLocalReferenceBrowser(
         () => page.mouse.click(pointer.x, pointer.y, { button, count: clickCount }),
         () => undefined,
       );
-      recording?.cursor(pointer.x, pointer.y, "click", cursorType);
     }
     const capabilities = createBrowserCapabilities({
+      desktop,
       page: () => page,
       frame: currentFrame,
       selectFrame: (frame) => {
@@ -289,9 +280,6 @@ export async function createLocalReferenceBrowser(
       recording: () => Boolean(recording),
       move: movePointer,
       click: pointAndClick,
-      cursor: (x, y, kind) => {
-        recording?.cursor(x, y, kind, "pointer");
-      },
       configureNetwork: network.configure,
       origins: allowedOrigins,
       signal,
@@ -361,6 +349,23 @@ export async function createLocalReferenceBrowser(
         if (recording) throw Error("Stop the current recording before starting another");
         if (!allowedOrigins.has(new URL(page.url()).origin))
           throw Error("Inspect a supplied website first");
+        if (desktop) {
+          const captureClient = await page.createCDPSession();
+          try {
+            const { windowId } = await captureClient.send("Browser.getWindowForTarget");
+            await captureClient.send("Browser.setWindowBounds", {
+              windowId,
+              bounds: { windowState: "fullscreen" },
+            });
+            await page.setViewport(null);
+            await page.waitForFunction(
+              () => outerWidth === innerWidth && outerHeight === innerHeight,
+              { timeout: 5000 },
+            );
+          } finally {
+            await captureClient.detach();
+          }
+        }
         await settle();
         recording = await startWebsiteCapture(page, workspace, signal, desktop, presentation);
         return recording.id;

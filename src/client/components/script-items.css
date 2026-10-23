@@ -1,0 +1,55 @@
+.script-items {
+  --script-item-gap: 16px;
+  container-type: inline-size;
+}
+
+.script-items-list {
+  width: 100%;
+}
+
+.script-item .ant-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--script-item-gap);
+}
+
+.script-item .ant-card-head-wrapper {
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-block: 12px;
+}
+
+.script-item-timing {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--script-item-gap);
+}
+
+.script-item-timing label,
+.script-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.script-item-lyrics {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.script-item .speech-settings {
+  border-top: 1px solid var(--ant-color-border-secondary);
+  padding-top: var(--script-item-gap);
+}
+
+@container (max-width: 440px) {
+  .script-item .ant-card-body {
+    padding: 16px;
+  }
+
+  .script-item .ant-card-head {
+    padding-inline: 16px;
+  }
+}

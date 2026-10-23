@@ -1,6 +1,7 @@
+import { ActivityWorkTitle } from "../components/activity-progress";
 import { translateUi, useUiLanguage } from "../i18n";
 import { Bubble, ThoughtChain, type ThoughtChainItemType } from "@ant-design/x";
-import { useCallback, useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { useStickToBottom } from "use-stick-to-bottom";
 import { Button, Collapse } from "antd";
 import {
@@ -10,9 +11,16 @@ import {
   CirclePause,
   Hourglass,
   LoaderCircle,
+  RotateCcw,
 } from "lucide-react";
 import type { AgentProgressEvent, Run } from "../../shared/contracts";
-import { displayActivityItems, type DisplayActivityItem } from "../activity-display";
+import {
+  activityProgressPercent,
+  activityText,
+  latestActivityProgress,
+  displayActivityItems,
+  type DisplayActivityItem,
+} from "../activity-display";
 import type { ActivityItem } from "../agent-activity-model";
 import { MessageResponse } from "../components/ai-elements/message";
 import { StoryboardCrew } from "../storyboard-crew";
@@ -31,35 +39,77 @@ const stepStatus: Record<NonNullable<ActivityItem["status"]>, ThoughtChainItemTy
 function clock(time: string) {
   return new Date(time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
-export function roomActivityStep(item: DisplayActivityItem): ThoughtChainItemType {
+function ActivityRowTime({ time }: { time?: string }) {
+  return time ? <time dateTime={time}>{clock(time)}</time> : <span aria-hidden="true">&nbsp;</span>;
+}
+type ActivityRetry = { itemId: number; action: () => void | Promise<void> };
+function ActivityRetryButton({ action }: { action: ActivityRetry["action"] }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <Button
+      type="text"
+      size="small"
+      shape="circle"
+      className="room-activity-retry"
+      aria-label={translateUi("Retry")}
+      title={translateUi("Retry")}
+      loading={busy}
+      icon={<RotateCcw size={14} />}
+      disabled={busy}
+      onClick={async (event) => {
+        event.stopPropagation();
+        setBusy(true);
+        try {
+          await action();
+        } finally {
+          setBusy(false);
+        }
+      }}
+    />
+  );
+}
+export function roomActivityStep(
+  item: DisplayActivityItem,
+  retry?: ActivityRetry,
+): ThoughtChainItemType {
   return {
     key: String(item.id),
-    title: translateUi(item.text),
+    title:
+      activityProgressPercent(item) === undefined ? (
+        activityText(item)
+      ) : (
+        <ActivityWorkTitle item={item} />
+      ),
     content: item.children?.length ? (
       <ThoughtChain
         line="dashed"
         className="room-activity-steps"
-        items={item.children.map(roomActivityStep)}
+        items={item.children.map((child) => roomActivityStep(child, retry))}
       />
     ) : undefined,
-    description: item.children?.length ? (
-      <span aria-hidden="true">&nbsp;</span>
-    ) : (
-      <time dateTime={item.time}>{clock(item.time)}</time>
-    ),
+    description: <ActivityRowTime time={item.children?.length ? undefined : item.time} />,
     status: item.status ? stepStatus[item.status] : undefined,
-    icon: item.status ? undefined : (
-      <span
-        role="img"
-        aria-label={translateUi("Progress update")}
-        title={translateUi("Progress update — no separate outcome recorded")}
-      >
-        <CircleDot size={14} />
-      </span>
-    ),
+    icon:
+      retry?.itemId === item.id ? (
+        <ActivityRetryButton action={retry.action} />
+      ) : item.status ? undefined : (
+        <span
+          role="img"
+          aria-label={translateUi("Progress update")}
+          title={translateUi("Progress update — no separate outcome recorded")}
+        >
+          <CircleDot size={14} />
+        </span>
+      ),
   };
 }
-function ContextDetail({ context }: { context: RoomActivityContext }) {
+function ContextDetail({
+  context,
+  retry,
+}: {
+  context: RoomActivityContext;
+  retry?: ActivityRetry;
+}) {
   useUiLanguage();
   const runs: Array<DisplayActivityItem | DisplayActivityItem[]> = [];
   for (const item of displayActivityItems(context.items)) {
@@ -76,6 +126,7 @@ function ContextDetail({ context }: { context: RoomActivityContext }) {
           items={context.checkpoints.map((item) => ({
             ...item,
             title: typeof item.title === "string" ? translateUi(item.title) : item.title,
+            description: item.description ?? <ActivityRowTime />,
           }))}
         />
       )}
@@ -85,7 +136,7 @@ function ContextDetail({ context }: { context: RoomActivityContext }) {
             key={entry[0].id}
             line="dashed"
             className="room-activity-steps"
-            items={entry.map(roomActivityStep)}
+            items={entry.map((item) => roomActivityStep(item, retry))}
           />
         ) : (
           <Bubble
@@ -177,12 +228,13 @@ export function RoomActivityNow({
   const contexts = useMemo(() => roomActivityContexts(run, events), [run, events, language]);
   const working = contexts.filter((context) => context.status === "loading");
   if (!isRoomActivityLive(run) || !working.length) return null;
+  const progress = latestActivityProgress(working[0].items);
   return (
     <div className="room-activity-now" role="status">
       <CrewOnSet />
       <span className="room-activity-now-text">
         <strong>{working[0].label}</strong>
-        <span>{working[0].summary}</span>
+        <ActivityWorkTitle item={progress} label={progress ? undefined : working[0].summary} />
       </span>
       {working.length > 1 && (
         <span className="room-hint">
@@ -197,7 +249,15 @@ export function RoomActivityNow({
   );
 }
 
-export function RoomActivity({ run, events }: { run: Run; events: AgentProgressEvent[] }) {
+export function RoomActivity({
+  run,
+  events,
+  onRetry,
+}: {
+  run: Run;
+  events: AgentProgressEvent[];
+  onRetry?: (jobId?: string) => void | Promise<void>;
+}) {
   const { language } = useUiLanguage();
   const contexts = useMemo(() => roomActivityContexts(run, events), [run, events, language]);
   const { scrollRef, contentRef } = useStickToBottom({ initial: "smooth", resize: "smooth" });
@@ -224,20 +284,39 @@ export function RoomActivity({ run, events }: { run: Run; events: AgentProgressE
         className="room-activity-list"
         items={contexts.map((context) => {
           const empty = !context.items.length && !context.checkpoints.length;
+          const interrupted = context.items.filter((item) => item.retryable).at(-1);
+          const phase = interrupted?.jobId
+            ? run.jobs.find((job) => job.id === interrupted.jobId)?.phase
+            : run.phase;
+          const retry =
+            interrupted &&
+            onRetry &&
+            phase &&
+            ["failed", "interrupted", "cancelled"].includes(phase)
+              ? { itemId: interrupted.id, action: () => onRetry(interrupted.jobId) }
+              : undefined;
           const latest = context.items.at(-1);
+          const progress = latestActivityProgress(context.items);
           return {
             key: context.key,
             collapsible: empty ? ("disabled" as const) : undefined,
             showArrow: !empty,
             label: (
-              <span className="room-activity-line">
-                <ContextStatus context={context} />
-                <strong>{context.label}</strong>
-                <span className="room-activity-summary">{context.summary}</span>
+              <span className="room-activity-heading">
+                <span className="room-activity-line">
+                  <ContextStatus context={context} />
+                  <strong>{context.label}</strong>
+                  <span className="room-activity-summary">
+                    <ActivityWorkTitle
+                      item={progress}
+                      label={progress ? undefined : context.summary}
+                    />
+                  </span>
+                </span>
               </span>
             ),
             extra: latest && <time dateTime={latest.time}>{clock(latest.time)}</time>,
-            children: <ContextDetail context={context} />,
+            children: <ContextDetail context={context} retry={retry} />,
           };
         })}
       />

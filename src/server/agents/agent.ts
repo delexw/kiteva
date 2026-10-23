@@ -17,12 +17,16 @@ export interface AgentTurnOptions<T> {
   signal: AbortSignal;
   sessionId?: string;
   onEvent: (event: ProviderEvent) => void;
+  includeCreativeAlternatives?: boolean;
   readOnly?: boolean;
   planMode?: boolean;
   model?: string;
   textOnly?: boolean;
   reasoningEffort?: "low" | "medium";
   referenceUrls?: string[];
+  enableVideoCapture?: boolean;
+  captureChapterId?: string;
+  captureChapterDurationSeconds?: number;
   exploreBriefSections?: boolean;
   images?: string[];
 }

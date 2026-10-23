@@ -147,15 +147,13 @@ it("transfers worker artifacts over HTTP and keeps interaction and recording in 
     expect((await client.inspect("https://example.com")).title).toBe("Example");
     const id = await client.startRecording(workspace, {
       cursorTheme: "glass-lens",
-      cursorSize: 1.8,
-      framing: { padding: 30, aspectRatio: "16:9" },
+      framing: { shadowIntensity: 0.5, motionBlurAmount: 0.3 },
     });
     expect(browser.startRecording).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         cursorTheme: "glass-lens",
-        cursorSize: 1.8,
-        framing: { padding: 30, aspectRatio: "16:9" },
+        framing: { shadowIntensity: 0.5, motionBlurAmount: 0.3 },
       }),
     );
     await client.fill("1", "sample");

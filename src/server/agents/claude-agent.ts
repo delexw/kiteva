@@ -207,21 +207,30 @@ export const claudeAgent: Agent = {
             : {}),
           tools: options.textOnly
             ? []
-            : options.readOnly
+            : options.readOnly && !options.planMode
               ? [
                   "Read",
                   "Glob",
                   "Grep",
                   "Skill",
-                  ...(options.planMode ? ["ExitPlanMode"] : []),
                   ...(options.exploreBriefSections ? ["Agent"] : []),
                 ]
-              : ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "Skill"],
+              : [
+                  "Read",
+                  "Write",
+                  "Edit",
+                  "Glob",
+                  "Grep",
+                  "Bash",
+                  "Skill",
+                  ...(options.planMode ? ["ExitPlanMode"] : []),
+                  ...(options.planMode && options.exploreBriefSections ? ["Agent"] : []),
+                ],
           permissionMode: options.planMode ? "plan" : "acceptEdits",
           ...(options.planMode
             ? {
                 planModeInstructions:
-                  "Plan the supplied task before implementation, following its domain-specific discovery and story guidance. This turn is read-only: do not record, implement, install or write files, including a separate plan file. Use the requested structured output for the plan. Call ExitPlanMode when the plan is ready; Kiteva automatically accepts this planning handoff, not unresolved user decisions. Do not ask the user to approve the plan or start implementation in this turn. Return the requested structured plan after the handoff. Report missing facts or capabilities honestly; never treat planned assets as already captured.",
+                  "Plan the supplied task, following its domain-specific discovery and story guidance. Return the plan in the requested structured output; Kiteva validates and saves it before starting implementation in a separate turn. Call ExitPlanMode when the plan is ready; Kiteva automatically accepts this planning handoff, not unresolved user decisions. Do not ask the user to approve the plan or start implementation in this turn. Return the requested structured plan after the handoff. Report missing facts or capabilities honestly; never treat planned assets as already captured.",
               }
             : {}),
           hooks: {
@@ -229,6 +238,23 @@ export const claudeAgent: Agent = {
               { matcher: "^(Agent|Task)$", hooks: [requireForegroundSubagent] },
               { matcher: "^Bash$", hooks: [async (input) => sdkToolHook(input)] },
             ],
+            ...(options.planMode
+              ? {
+                  PostToolUse: [
+                    {
+                      matcher: "^ExitPlanMode$",
+                      hooks: [
+                        async () => {
+                          // The SDK owns permissions; implementation begins in a separate turn.
+                          if (!stream) throw Error("Native planning session unavailable");
+                          await stream.setPermissionMode("plan");
+                          return {};
+                        },
+                      ],
+                    },
+                  ],
+                }
+              : {}),
           },
           canUseTool: async (name, input) => {
             if (name === "ExitPlanMode")
@@ -243,7 +269,7 @@ export const claudeAgent: Agent = {
               )
                 return { behavior: "deny", message: "Capability tool unavailable in this stage" };
             }
-            if (options.readOnly && ["Write", "Edit", "Bash"].includes(name))
+            if (options.readOnly && !options.planMode && ["Write", "Edit", "Bash"].includes(name))
               return { behavior: "deny", message: "Read-only brief phase" };
             const file =
               (input as { file_path?: string; path?: string }).file_path ||
@@ -256,6 +282,11 @@ export const claudeAgent: Agent = {
                   message: "Tool access is restricted to this job workspace",
                 };
             }
+            if (options.planMode && !name.startsWith("mcp__"))
+              return {
+                behavior: "deny",
+                message: "Native plan-mode permission requests are not approved during planning",
+              };
             return { behavior: "allow", updatedInput: input };
           },
           sandbox: {

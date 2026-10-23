@@ -42,3 +42,11 @@
   width: 100%;
   max-width: none;
 }
+
+.style-picker-option[data-preview-variant="motion"] > div {
+  width: 96px;
+  flex-shrink: 0;
+}
+.style-picker-option[data-preview-variant="motion"] .motion-label {
+  display: none;
+}

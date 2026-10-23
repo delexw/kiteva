@@ -13,7 +13,6 @@ import {
 
 const recording = vi.hoisted(() => ({
   id: "00000000-0000-4000-8000-000000000001",
-  cursor: vi.fn((_x: number, _y: number, _kind: string, _shape?: string) => {}),
   close: vi.fn(async () => {}),
   prepare: vi.fn(async () => ({
     kind: "editable_capture",
@@ -482,10 +481,7 @@ it.skipIf(!browserExecutablePath())(
         destination: "#drop",
       });
       await perform({ operation: "browser_pointer", action: "tap", target: "#double" });
-      expect(recording.cursor.mock.calls.some((call) => call[2] === "click")).toBe(true);
-      expect(
-        recording.cursor.mock.calls.filter((call) => call[2] === "move").length,
-      ).toBeGreaterThan(12);
+      expect(recording).not.toHaveProperty("cursor");
       for (const request of [
         { operation: "browser_tabs", action: "new", url: url + "/other" },
         { operation: "browser_emulate", action: "viewport", width: 1200, height: 800 },

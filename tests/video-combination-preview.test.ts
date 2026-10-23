@@ -83,7 +83,19 @@ it("requires all combination styles to appear within the same three-second previ
     expect(fullPrompt).not.toContain("Avoid repeated bell, chime, plink");
     expect(fullPrompt).not.toContain("continuous musical groove");
     expect(fullPrompt).toContain("do not claim a visual pass");
+    expect(fullPrompt).toContain(videoPacingPolicy.scope);
+    expect(fullPrompt).toContain("Exclude capture_video calls and all captured footage");
+    expect(fullPrompt).toContain("apply only outside captured footage");
     expect(fullPrompt).toContain(videoPacingPolicy.editorial);
+    expect(fullPrompt).toContain(videoPacingPolicy.action);
+    expect(fullPrompt).toContain("Make each scene earn its duration");
+    expect(fullPrompt).toContain(
+      "preserve explicit act and scene start/end times, narration starts and required holds",
+    );
+    expect(fullPrompt).toContain(
+      "Keep successful preview action timings where compatible with the story and explicit audio cues",
+    );
+    expect(fullPrompt).toContain("rather than slowing a reveal or padding a gap");
     expect(fullPrompt).toContain(videoPacingPolicy.reading);
     expect(fullPrompt).toContain(videoPacingPolicy.coherence);
     expect(fullPrompt).toContain("By default, favor brisk, energetic pacing");

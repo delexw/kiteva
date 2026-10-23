@@ -1,5 +1,5 @@
 import { expect, it, vi } from "vitest";
-import { isValidElement, type ReactElement } from "react";
+import { Children, isValidElement, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FileCard } from "@ant-design/x";
 import { RoomChosenFile, RoomFilePick } from "../src/client/room/room-file-card";
@@ -59,10 +59,14 @@ it("picks image, audio and document shelf files exactly once per click or key pr
     }) as ReactElement<{
       onClick: () => void;
       onKeyDown: (event: { key: string; preventDefault: () => void }) => void;
-      children: ReactElement<Record<string, unknown>>;
+      children: ReactElement<Record<string, unknown>>[];
     }>;
-    const card = pick.props.children;
-    expect(isValidElement(card) && card.type).toBe(FileCard);
+    const card = Children.toArray(pick.props.children).find(
+      (child): child is ReactElement<Record<string, unknown>> =>
+        isValidElement(child) && child.type === FileCard,
+    );
+    expect(card).toBeDefined();
+    if (!card) throw Error("Shelf pick must contain a FileCard");
     expect(card.props).not.toHaveProperty("onClick");
     expect(card.props).not.toHaveProperty("role");
     pick.props.onClick();

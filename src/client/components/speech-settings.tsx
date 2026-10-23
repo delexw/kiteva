@@ -3,7 +3,17 @@ import { translateUi, useUiLanguage } from "../i18n";
 import { CheckCircle2, Info, Mic } from "lucide-react";
 import { SettingsSectionHeading } from "./settings-section-heading";
 import { useEffect, useRef, useState } from "react";
-import { Alert, Button, Input, Select, Slider, Space, Tooltip, Typography } from "antd";
+import {
+  Alert,
+  Button,
+  Input,
+  InputNumber,
+  Select,
+  Slider,
+  Space,
+  Tooltip,
+  Typography,
+} from "antd";
 import {
   speechVoices,
   speechEngines,
@@ -38,12 +48,14 @@ export function SpeechSettings({
   audioAssets,
   videoLanguage,
   sharedScript = false,
+  timedItem = false,
 }: {
   value?: Settings;
   onChange: (settings: Settings) => void;
   audioAssets: Array<{ id: string; name: string }>;
   videoLanguage?: VideoLanguage;
   sharedScript?: boolean;
+  timedItem?: boolean;
 }) {
   useUiLanguage();
   const [status, setStatus] = useState<SpeechReadiness>();
@@ -58,6 +70,7 @@ export function SpeechSettings({
   useEffect(() => {
     const controller = new AbortController();
     setStatus(undefined);
+    if (value?.mode !== "narration") return;
     void api<SpeechReadiness>(
       `/api/speech/status?engine=${engine}${selectedVoice ? `&voice=${selectedVoice}` : ""}${selectedLanguage ? `&language=${selectedLanguage}` : ""}`,
       { signal: controller.signal },
@@ -75,7 +88,7 @@ export function SpeechSettings({
       controller.abort();
       revision.current++;
     };
-  }, [engine, selectedVoice, selectedLanguage]);
+  }, [engine, selectedVoice, selectedLanguage, value?.mode]);
   const selectedSpeed = value?.mode === "narration" ? value.speed : 1;
   const selectedVolume = value?.mode === "narration" ? (value.volume ?? 1) : 1;
   useEffect(() => {
@@ -119,7 +132,11 @@ export function SpeechSettings({
     <section aria-label={translateUi("Speech and vocals")} className="speech-settings">
       <SettingsSectionHeading
         title={translateUi("Speech / vocals")}
-        description={translateUi("Choose a narrator or use your own vocal recording.")}
+        description={translateUi(
+          timedItem
+            ? "Choose a narrator for this item."
+            : "Choose a narrator or use your own vocal recording.",
+        )}
         icon={<Mic size={18} />}
       />
       <Select
@@ -128,12 +145,12 @@ export function SpeechSettings({
         style={{ width: "100%" }}
         value={value?.mode || "off"}
         options={[
-          { value: "off", label: translateUi("Off · on-screen words only") },
+          { value: "off", label: translateUi(timedItem ? "Off" : "Off · on-screen words only") },
           { value: "narration", label: translateUi("Narration · local voice") },
           {
             value: "uploaded",
             label: translateUi("Uploaded speech or singing"),
-            disabled: !audioAssets.length,
+            disabled: timedItem || !audioAssets.length,
           },
           {
             value: "singing",
@@ -324,6 +341,21 @@ export function SpeechSettings({
               onChange={(speed) => onChange({ ...value, speed })}
             />
           </div>
+          {!timedItem && (
+            <label className="speech-control-half speech-adjustment">
+              <span className="speech-control-label">
+                {translateUi("Narration starts at (seconds)")}
+              </span>
+              <InputNumber
+                min={0}
+                max={300}
+                step={0.1}
+                value={value.startSeconds ?? 0}
+                aria-label={translateUi("Narration starts at (seconds)")}
+                onChange={(startSeconds) => onChange({ ...value, startSeconds: startSeconds ?? 0 })}
+              />
+            </label>
+          )}
           {!sharedScript && (
             <>
               <Typography.Text className="speech-script-label">

@@ -267,12 +267,20 @@ it("continues browsing, editing and taking recordings beyond former budgets whil
       (tool) => tool.name === "capture_video",
     )!;
     expect(videoTool.inputSchema.properties?.presentation).toMatchObject({
-      properties: { cursorTheme: { enum: [...captureCursorThemes] } },
+      properties: {
+        cursorTheme: { enum: [...captureCursorThemes] },
+      },
     });
     expect(videoTool.inputSchema.properties?.action).toMatchObject({
       enum: ["start", "stop", "edit", "export"],
     });
     expect(videoTool.inputSchema.properties?.trimRegions).toBeUndefined();
+    expect(videoTool.inputSchema.properties?.presentation).not.toHaveProperty(
+      "properties.cursorSmoothing",
+    );
+    expect(videoTool.inputSchema.properties?.presentation).not.toHaveProperty(
+      "properties.cursorSize",
+    );
     expect(videoTool.description).toContain("Stop returns an editable take");
 
     expect(scroll.description).toContain("-1800 to +1800 pixels per call");
@@ -282,18 +290,26 @@ it("continues browsing, editing and taking recordings beyond former budgets whil
       maximum: 1800,
       description: expect.stringContaining("Negative scrolls up; positive scrolls down"),
     });
+    const startsBeforeInvalidSize = vi.mocked(session.startRecording).mock.calls.length;
+    expect(
+      await client.callTool({
+        name: "capture_video",
+        arguments: { action: "start", presentation: { cursorSize: 2.5 } },
+      }),
+    ).toMatchObject({ isError: true });
+    expect(session.startRecording).toHaveBeenCalledTimes(startsBeforeInvalidSize);
     expect(
       await client.callTool({
         name: "capture_video",
         arguments: {
           action: "start",
-          presentation: { cursorSize: 2.5, cursorTheme: "pixel-candy" },
+          presentation: { cursorTheme: "pixel-candy" },
         },
       }),
     ).toMatchObject({ structuredContent: { kind: "recording_started", recordingId: id } });
     expect(session.startRecording).toHaveBeenCalledWith(
       workspace,
-      expect.objectContaining({ cursorSize: 2.5, cursorTheme: "pixel-candy" }),
+      expect.objectContaining({ cursorTheme: "pixel-candy" }),
     );
     for (let index = 0; index < 100; index++)
       await client.callTool({ name: "inspect_page", arguments: {} });
@@ -365,5 +381,111 @@ it("continues browsing, editing and taking recordings beyond former budgets whil
     await client.close();
     await tools.close();
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+it("requires document and image review after each edit before exporting a chapter take", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "chapter-review-tools-"));
+  const recordingId = "11111111-1111-4111-8111-111111111111";
+  const recording = {
+    assetPath: `assets/website-video-${recordingId}.webm`,
+    cursorPath: `assets/website-video-${recordingId}.cursor.json`,
+    url: "https://example.com",
+    duration: 5,
+    width: 1280,
+    height: 720,
+    fps: 60 as const,
+    silent: true as const,
+  };
+  let images = false;
+  const inspection = {
+    title: "Example",
+    url: "https://example.com",
+    text: "Example",
+    controls: [],
+    sections: [],
+  };
+  const browser = {
+    perform: vi.fn(),
+    inspect: vi.fn().mockResolvedValue(inspection),
+    click: vi.fn(),
+    capture: vi.fn(),
+    upload: vi.fn(),
+    fill: vi.fn(),
+    wait: vi.fn(),
+    scroll: vi.fn(),
+    startRecording: vi.fn().mockResolvedValue(recordingId),
+    prepareRecording: vi
+      .fn()
+      .mockResolvedValue({ kind: "editable_capture", recordingId, duration: 5, tools: [] }),
+    editRecording: vi.fn(async (_id, request) => ({
+      kind: "native_capture" as const,
+      data: {},
+      isError: false,
+      content:
+        request.operation === "getFrames" && images
+          ? [{ type: "image" as const, mimeType: "image/png", data: "aW1hZ2U=" }]
+          : [{ type: "text" as const, text: "{}" }],
+    })),
+    exportRecording: vi.fn().mockResolvedValue(recording),
+    close: vi.fn(),
+  };
+  vi.mocked(createReferenceBrowser).mockResolvedValue(browser);
+  const tools = createReferenceTools({
+    workspace,
+    urls: ["https://example.com"],
+    mode: "local",
+    signal: new AbortController().signal,
+    enableVideoCapture: true,
+    captureChapterId: "create",
+    captureChapterDurationSeconds: 5,
+  });
+  const client = new Client({ name: "chapter-review", version: "1" });
+  const [a, b] = InMemoryTransport.createLinkedPair();
+  try {
+    await tools.server.connect(b);
+    await client.connect(a);
+    const call = (
+      action: string,
+      native?: { operation: string; arguments: Record<string, unknown> },
+    ) =>
+      client.callTool({
+        name: "capture_video",
+        arguments: {
+          action,
+          ...(action === "start" ? {} : { recordingId }),
+          ...(native ? { native } : {}),
+        },
+      });
+    const edit = (operation: string) => call("edit", { operation, arguments: {} });
+    await call("start");
+    await call("stop");
+    expect((await call("export")).isError).toBe(true);
+    expect((await edit("getFrames")).isError).toBe(true);
+    await edit("getCurrentDocument");
+    expect((await edit("addTrims")).isError).toBe(true);
+    expect((await edit("setTrim")).isError).toBe(true);
+    await edit("getFrames");
+    expect((await call("export")).isError).toBe(true);
+    images = true;
+    await edit("getFrames");
+    expect(await edit("setZoom")).toMatchObject({ structuredContent: { operation: "setZoom" } });
+    expect((await call("export")).isError).toBe(true);
+    expect(browser.exportRecording).not.toHaveBeenCalled();
+    await edit("getFrames");
+    recording.duration = 6;
+    expect((await call("export")).isError).toBe(true);
+    await expect(readFile(path.join(workspace, "capture-chapters/create.json"))).rejects.toThrow();
+    recording.duration = 5;
+    expect((await call("export")).isError).not.toBe(true);
+    expect(browser.exportRecording).toHaveBeenCalledTimes(2);
+    expect(
+      JSON.parse(await readFile(path.join(workspace, "capture-chapters/create.json"), "utf8")),
+    ).toMatchObject({ chapterId: "create", documentReviewed: true, frameReviews: 1, recording });
+    expect((await call("start")).isError).toBe(true);
+  } finally {
+    await client.close();
+    await tools.close();
+    await rm(workspace, { recursive: true, force: true });
   }
 });

@@ -74,7 +74,11 @@ it("allows five GPT-6.1 full-video repair rounds, charges once per round and reu
     await coordinator.correctRound(findings);
   expect(agentTurn).toHaveBeenCalledTimes(10);
   for (const [call] of vi.mocked(agentTurn).mock.calls) {
-    expect(call).toMatchObject({ model: "gpt-6.1-sol", sessionId: "generation-session" });
+    expect(call).toMatchObject({
+      model: "gpt-6.1-sol",
+      sessionId: "generation-session",
+      includeCreativeAlternatives: false,
+    });
     expect(call.prompt).toContain("rerun checks only after every issue in this round");
     expect(call.prompt).toContain("GPT-6.1 VIDEO PRODUCTION PRINCIPLES");
     expect(call.prompt).toContain("CAPTURED FOOTAGE FRAMING:");

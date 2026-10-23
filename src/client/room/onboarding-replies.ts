@@ -1,4 +1,4 @@
-import { creativeApproaches } from "../../shared/creative-approach";
+import { creativeApproachLabel } from "../../shared/creative-approach";
 import { translateUi } from "../i18n/service";
 import { deliverySpeech, videoLanguageLabel } from "../../shared/video-language";
 import type { CreativeRequest } from "../../shared/contracts";
@@ -110,7 +110,7 @@ export function roomSettingsReply(request: CreativeRequest, styles: ReplyStyle[]
           }),
         ]),
     translateUi("Creative approach: {{value0}}", {
-      value0: translateUi(creativeApproaches[request.preference].label),
+      value0: translateUi(creativeApproachLabel(request)),
     }),
     styleNames.length
       ? translateUi(
@@ -136,6 +136,39 @@ export function roomOnboardingReplies(
     if (index === 5) {
       if (request.outputType !== "video")
         return { text: translateUi("Not used for interactive pages"), skipped: true };
+      if (request.scriptItems !== undefined)
+        return {
+          text: request.scriptItems
+            .map((item, index) =>
+              [
+                `${translateUi("Script item {{value0}}", { value0: index + 1 })} · ${item.startSeconds}–${item.endSeconds}s`,
+                item.source === "write"
+                  ? `${translateUi("Script instructions")}: ${item.text}`
+                  : item.text,
+                translateUi(item.showLyrics ? "Lyrics on screen: On" : "Lyrics on screen: Off"),
+                ...speechReply(
+                  {
+                    ...request,
+                    scriptItems: undefined,
+                    lyrics: { mode: "off" },
+                    speech:
+                      item.speech.mode === "narration"
+                        ? {
+                            ...item.speech,
+                            source: item.source || "provided",
+                            text: "",
+                            instructions: "",
+                            followVideoLanguage: false,
+                          }
+                        : item.speech,
+                  },
+                  selected,
+                ),
+              ].join("\n"),
+            )
+            .join("\n\n"),
+          skipped: false,
+        };
       const text = [
         request.lyrics?.mode === "provided"
           ? translateUi("Lyrics on screen:\n{{value0}}", { value0: request.lyrics.text })

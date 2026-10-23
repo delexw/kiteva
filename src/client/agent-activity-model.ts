@@ -1,3 +1,13 @@
+import {
+  CaptureChapterProgressSchema,
+  CaptureChapterTimingSchema,
+  type CaptureChapterTiming,
+} from "../shared/capture-chapters";
+import {
+  renderProgressUpdate,
+  isRendererProgressEvent,
+  type RenderProgress,
+} from "./render-progress";
 import { usesTitleOnlyPreparation } from "../shared/preparation";
 import { terminalPhases, type AgentProgressEvent, type Run } from "../shared/contracts";
 export interface ActivityItem {
@@ -11,11 +21,18 @@ export interface ActivityItem {
   purpose?: string;
   invocationId?: string;
   streaming?: boolean;
+  retryable?: boolean;
   repetitions?: number;
-  progressStage?: "render" | "playback-copy";
+  progressPercent?: number;
+  progressStage?: "render" | "playback-copy" | "capture";
+  captureChapterId?: string;
+  captureChapterTitle?: string;
+  captureChapterIndex?: number;
+  captureTiming?: CaptureChapterTiming;
   status?: "running" | "complete" | "failed" | "stopped";
 }
 export const taskActivityLabels: Record<string, { working: string; saving: string }> = {
+  "Footage chapter capture": { working: "Capturing footage…", saving: "Saving captured chapter…" },
   "Project title extraction": {
     working: "Extracting your project title…",
     saving: "Saving the project title…",
@@ -129,6 +146,8 @@ export function mergeProgressItems(
   item: ActivityItem,
 ): ActivityItem | undefined {
   if (
+    previous.captureTiming ||
+    item.captureTiming ||
     previous.scope !== item.scope ||
     previous.purpose !== item.purpose ||
     previous.invocationId !== item.invocationId ||
@@ -145,10 +164,16 @@ export function mergeProgressItems(
   return {
     ...previous,
     time: item.time,
+    progressPercent: item.progressPercent ?? previous.progressPercent,
     repetitions: previous.progressStage
       ? undefined
       : (previous.repetitions || 1) + (item.repetitions || 1),
-    status: previous.status === "running" || item.status === "running" ? "running" : item.status,
+    status:
+      item.progressStage === "capture"
+        ? item.status
+        : previous.status === "running" || item.status === "running"
+          ? "running"
+          : item.status,
   };
 }
 export function activityItems(
@@ -157,6 +182,7 @@ export function activityItems(
   run?: Pick<Run, "request" | "preparation" | "phase">,
 ): ActivityItem[] {
   const items: ActivityItem[] = [];
+  const renderProgress = new Map<string, RenderProgress>();
   const streams = new Map<string, ActivityItem>();
   const seen = new Set<number>();
   for (const event of events) {
@@ -169,6 +195,9 @@ export function activityItems(
       toolName?: string;
       purpose?: string;
       invocationId?: string;
+      captureProgress?: unknown;
+      captureTiming?: unknown;
+      captureChapter?: { chapterId: string; title: string; index: number; total: number };
       results?: { itemId: string; failed: boolean; output: string }[];
     };
     // Older title-only invocations were emitted with the full-brief default purpose.
@@ -213,6 +242,9 @@ export function activityItems(
         itemId: data.itemId,
         purpose: data.purpose,
         invocationId: data.invocationId,
+        captureChapterId: data.captureChapter?.chapterId,
+        captureChapterTitle: data.captureChapter?.title,
+        captureChapterIndex: data.captureChapter?.index,
       };
       items.push(item);
       return item;
@@ -323,6 +355,44 @@ export function activityItems(
       }
       continue;
     }
+    if (event.type === "capture_timing") {
+      const parsed = CaptureChapterTimingSchema.safeParse(data.captureTiming);
+      if (parsed.success) {
+        const timing = parsed.data;
+        const labels: Record<CaptureChapterTiming["phase"], string> = {
+          recording: "Recording footage…",
+          speed: "Speed adjusted to fit {{target}}s",
+          review: "Reviewing playback…",
+          validation: "Checking chapter duration…",
+          accepted: "Capture accepted · {{actual}}s / {{target}}s",
+          conflict: "Timing conflict · needs {{actual}}s / budget {{target}}s",
+          replanning: "Revising timing with main planner… · attempt {{revision}}/2",
+          revised: "Revised budget · {{target}}s",
+          retry: "Retrying chapter capture… · attempt {{revision}}/{{limit}}",
+        };
+        const item = add("notice", labels[timing.phase]);
+        item.captureTiming = timing;
+        item.captureChapterId = timing.chapterId;
+        item.captureChapterTitle = timing.title;
+        item.captureChapterIndex = timing.index;
+        item.status = timing.status;
+      }
+      continue;
+    }
+    if (event.type === "capture_progress") {
+      const parsed = CaptureChapterProgressSchema.safeParse(data.captureProgress);
+      if (parsed.success) {
+        const progress = parsed.data;
+        const item = add("notice", `${progress.index}/${progress.total} · ${progress.title}`);
+        item.progressStage = "capture";
+        item.captureChapterId = progress.chapterId;
+        item.captureChapterTitle = progress.title;
+        item.captureChapterIndex = progress.index;
+        item.progressPercent = (progress.completed / progress.total) * 100;
+        item.status = progress.status;
+      }
+      continue;
+    }
     if (event.type === "state" || event.type === "session") continue;
     if (event.type === "usage") {
       finishText();
@@ -334,9 +404,7 @@ export function activityItems(
     const playbackCopy =
       event.message.startsWith("720p viewing copy") ||
       event.message === "Making the 720p viewing copy and card clip; the MP4 download is ready";
-    const rendering =
-      event.type === "render_progress" ||
-      ["Rendering validated composition", "Rendering the Multiplane shot"].includes(event.message);
+    const rendering = isRendererProgressEvent(event);
     const phaseLabel = playbackCopy
       ? "Preparing viewing copies…"
       : rendering
@@ -352,7 +420,9 @@ export function activityItems(
       plan_ready:
         event.message === "Preview plan validated and saved"
           ? "Preview plan validated and saved"
-          : "Full-film plan validated and saved",
+          : event.message === "Full-film storyboard validated and saved before capture"
+            ? "Storyboard ready"
+            : "Full-film plan validated and saved",
       ranking: "Finding visual Motion Graphics for your idea…",
       validation: playbackCopy
         ? "Viewing copies checked"
@@ -374,6 +444,19 @@ export function activityItems(
     const notice = notices[event.type];
     if (notice) {
       const item = add("notice", notice);
+      if (event.type === "error") item.retryable = true;
+      if (playbackCopy) {
+        const percent = event.message.match(/^720p viewing copy (\d+)%$/);
+        if (percent) item.progressPercent = Math.min(100, Number(percent[1]));
+      }
+      if (rendering && !playbackCopy) {
+        const progress = renderProgressUpdate(event, renderProgress.get(item.scope));
+        if (progress) {
+          renderProgress.set(item.scope, progress);
+          item.progressPercent = progress.percent;
+        }
+        item.progressStage = "render";
+      }
       if (event.type === "plan_ready") item.status = "complete";
       if (
         event.type === "render_progress" ||

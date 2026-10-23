@@ -53,8 +53,8 @@ const brief = {
 };
 const proposal = {
   primaryStyleId: "style-108",
-  supportingStyleIds: [],
-  sceneRoles: ["Primary identity"],
+  supportingStyleIds: ["style-018"],
+  sceneRoles: ["Primary identity", "Supporting motion"],
   rationale: "A clear direction",
   displayTitle: "First Flight",
   displayDescription: "A clear journey follows an idea as it grows into a finished creation.",

@@ -35,3 +35,15 @@ it("does not show a selected preview gallery before choosing styles", () => {
   expect(html).toContain("lucide-layers");
   expect(html).toContain('aria-hidden="true"');
 });
+
+it("uses the existing motion clip player for the preview's motion variant", () => {
+  const html = renderToStaticMarkup(
+    <StylePickerPreview
+      variant="motion"
+      style={{ id: "motion-036", name_en: "Glitch Type Build" }}
+    />,
+  );
+  expect(html).toContain('data-motion-id="motion-036"');
+  expect(html).toContain("<canvas");
+  expect(html).not.toContain("/api/examples/");
+});

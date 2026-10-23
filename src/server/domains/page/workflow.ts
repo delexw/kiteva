@@ -38,6 +38,7 @@ export async function generatePage(input: {
       reuse && !input.decisions
         ? { value: job.pageProduction!, sessionId: job.sessionId }
         : await agentTurn({
+            includeCreativeAlternatives: false,
             provider: input.request.provider,
             workspace: job.workspace,
             signal,

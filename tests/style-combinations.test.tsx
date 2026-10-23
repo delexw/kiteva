@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { validateCombinationReview } from "../src/shared/style-combinations";
+import {
+  requestedStyleScopeGuidance,
+  suggestedCombinationGuidance,
+  validateCombinationReview,
+} from "../src/shared/style-combinations";
 import { SuggestedCombinations } from "../src/client/style-combinations";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { pageStyleContext } from "../src/server/domains/page/prompts";
@@ -162,4 +166,14 @@ it("identifies application-authored recommendations without claiming a model rev
   );
   expect(html).toContain("Application-authored compatibility guidance");
   expect(html).not.toContain("analyzed by Claude");
+});
+
+it("keeps the generated-combination quota in automatic-route guidance only", () => {
+  expect(suggestedCombinationGuidance).toContain(
+    "additional styles explicitly assigned in the prompt are outside that range",
+  );
+  expect(requestedStyleScopeGuidance).not.toContain("duration-derived range");
+  expect(requestedStyleScopeGuidance).toContain(
+    "Every Motion Graphic explicitly named in the requested idea is required",
+  );
 });

@@ -133,7 +133,18 @@ it("repairs a stretched pacing plan before marking a full video ready", async ()
       "0–120s storyboard contains six stretched scenes",
     );
     expect(vi.mocked(agentTurn).mock.calls[1][0].prompt).toContain("DURATION AND PACING RULES:");
+    expect(vi.mocked(agentTurn).mock.calls[1][0].prompt).toContain(
+      "preserve explicit act and scene start/end times, narration starts and required holds",
+    );
+    expect(vi.mocked(agentTurn).mock.calls[1][0].prompt).toContain(
+      "Keep successful preview action timings",
+    );
     for (const call of vi.mocked(agentTurn).mock.calls.slice(1)) {
+      expect(call[0].prompt).toContain("apply only outside captured footage");
+      expect(call[0].prompt).toContain("Exclude capture_video calls and all captured footage");
+      expect(call[0].prompt).toContain(
+        "Do not flag captured footage for pacing repair merely because it is slower",
+      );
       expect(call[0].prompt).toContain("By default, favor brisk, energetic pacing");
       expect(call[0].prompt).toContain("Maintain a coherent visual and motion language");
       expect(call[0].prompt).toContain("Explicit user direction takes precedence");

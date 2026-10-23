@@ -1,29 +1,143 @@
+import { captureChapterRetryLimit } from "../shared/capture-chapters";
+import { translateUi } from "./i18n/service";
 import { type ActivityItem } from "./agent-activity-model";
 
 export interface DisplayActivityItem extends ActivityItem {
   children?: DisplayActivityItem[];
 }
 
+function appendActivityOutcome(target: DisplayActivityItem[], item: DisplayActivityItem) {
+  if (item.captureTiming) {
+    if (item.captureTiming.phase === "accepted") {
+      for (const child of target)
+        if (child.captureTiming && child.status === "running") child.status = "complete";
+      const conflict = target.find((child) => child.captureTiming?.phase === "conflict");
+      if (conflict) {
+        conflict.status = "complete";
+        conflict.text = "Timing conflict resolved";
+      }
+    }
+    const prior = target.find((child) => child.captureTiming?.phase === item.captureTiming?.phase);
+    if (prior) Object.assign(prior, item, { id: prior.id });
+    else target.push(item);
+    return;
+  }
+  const prior =
+    item.kind !== "message" &&
+    target.find(
+      (child) =>
+        child.text === item.text &&
+        child.kind === item.kind &&
+        child.scope === item.scope &&
+        child.purpose === item.purpose &&
+        child.captureChapterId === item.captureChapterId &&
+        (Boolean(item.captureChapterId) || child.invocationId === item.invocationId),
+    );
+  if (!prior) target.push(item);
+  else {
+    // Preserve genuinely pending actions; otherwise show the latest attempt's outcome.
+    prior.status =
+      prior.status === "running" || item.status === "running" ? "running" : item.status;
+    prior.time = item.time;
+  }
+}
+
 /** Present known capabilities within a single model task without exposing its internal actions. */
 export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem[] {
   const display: DisplayActivityItem[] = [];
-  let group: DisplayActivityItem | undefined;
+  let renderGroup: DisplayActivityItem | undefined;
+  const captureGroups = new Map<string, DisplayActivityItem>();
+  const fullVideoGroups = new Map<string, DisplayActivityItem>();
   for (const item of items) {
     const visible = { ...item, repetitions: undefined };
+    if (item.progressStage === "capture" || item.captureChapterId) {
+      renderGroup = undefined;
+      let capture = captureGroups.get(item.scope);
+      if (!capture) {
+        capture = {
+          ...visible,
+          kind: "notice",
+          text: "Capturing footage…",
+          captureChapterId: undefined,
+          captureChapterTitle: undefined,
+          captureChapterIndex: undefined,
+          progressStage: "capture",
+          children: [],
+          progressPercent: 0,
+          status: "running",
+        };
+        captureGroups.set(item.scope, capture);
+        display.push(capture);
+      }
+      capture.time = item.time;
+      let chapter = capture.children!.find(
+        (child) => child.captureChapterId === item.captureChapterId,
+      );
+      if (!chapter) {
+        chapter = {
+          ...visible,
+          kind: "notice",
+          text: `${item.captureChapterIndex} · ${item.captureChapterTitle}`,
+          progressPercent: undefined,
+          progressStage: undefined,
+          children: [],
+        };
+        capture.children!.push(chapter);
+      }
+      if (item.progressStage === "capture") {
+        capture.progressPercent = item.progressPercent;
+        capture.status =
+          item.status === "stopped"
+            ? "stopped"
+            : item.status === "failed"
+              ? "failed"
+              : item.progressPercent === 100
+                ? "complete"
+                : "running";
+        chapter.status = item.status;
+        chapter.time = item.time;
+        if (item.status === "failed" || item.status === "stopped")
+          for (const child of chapter.children ?? [])
+            if (child.captureTiming && child.status === "running") child.status = item.status;
+      } else {
+        chapter.time = item.time;
+        if (item.captureTiming?.status === "running") {
+          chapter.status = "running";
+          capture.status = "running";
+        }
+        appendActivityOutcome(chapter.children!, { ...visible, progressPercent: undefined });
+      }
+      continue;
+    }
+    if (item.progressStage === "render") {
+      if (!renderGroup || renderGroup.scope !== item.scope) {
+        renderGroup = { ...visible, text: "Rendering your video…", children: [] };
+        display.push(renderGroup);
+      }
+      renderGroup.time = item.time;
+      renderGroup.progressPercent = item.progressPercent ?? renderGroup.progressPercent;
+      if (item.text === renderGroup.text) continue;
+      const prior = renderGroup.children!.find((child) => child.text === item.text);
+      if (prior) {
+        prior.time = item.time;
+        prior.progressPercent = undefined;
+      } else renderGroup.children!.push({ ...visible, progressPercent: undefined });
+      continue;
+    }
+    renderGroup = undefined;
     if (item.kind === "message" || !item.invocationId) {
-      group = undefined;
       display.push(visible);
       continue;
     }
     let target = display;
     if (item.purpose !== "full video generation") {
-      group = undefined;
       if (item.kind !== "tool") {
         display.push(visible);
         continue;
       }
     } else {
-      if (!group || group.scope !== item.scope || group.invocationId !== item.invocationId) {
+      let group = fullVideoGroups.get(item.scope);
+      if (!group) {
         group = {
           ...visible,
           kind: "notice",
@@ -31,6 +145,7 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
           status: undefined,
           children: [],
         };
+        fullVideoGroups.set(item.scope, group);
         display.push(group);
       }
       group.time = item.time;
@@ -38,26 +153,60 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
       if (item.status === "running") group.status = "running";
       target = group.children!;
     }
-    const prior = target.find(
-      (child) =>
-        child.text === item.text &&
-        child.kind === item.kind &&
-        child.scope === item.scope &&
-        child.invocationId === item.invocationId &&
-        child.purpose === item.purpose,
-    );
-    if (!prior) target.push(visible);
-    else {
-      // Pending actions still matter; otherwise the latest attempt is the outcome.
-      prior.status =
-        prior.status === "running" || item.status === "running" ? "running" : item.status;
-      prior.time = item.time;
-    }
+    appendActivityOutcome(target, visible);
   }
   const chronological = (left: ActivityItem, right: ActivityItem) =>
     left.time.localeCompare(right.time) || left.id - right.id;
   for (const item of display) {
-    item.children?.sort(chronological);
+    // Completion belongs to this measured operation, not to a parent relaying a child stage.
+    if (
+      item.progressPercent !== undefined &&
+      item.progressPercent >= 100 &&
+      item.status !== "failed" &&
+      item.status !== "stopped"
+    )
+      item.status = "complete";
+    item.children?.sort(
+      item.progressStage === "capture"
+        ? (left, right) => (left.captureChapterIndex ?? 0) - (right.captureChapterIndex ?? 0)
+        : chronological,
+    );
+    if (item.progressStage === "capture")
+      for (const chapter of item.children ?? []) chapter.children?.sort(chronological);
   }
   return display.sort(chronological);
+}
+
+/** One label for progress in the room, conversation and activity panel. */
+export function activityLabel(item: ActivityItem): string {
+  const label = activityText(item);
+  const percent = activityProgressPercent(item);
+  return percent === undefined ? label : `${label} · ${Math.floor(percent)}%`;
+}
+
+export function activityText(item: ActivityItem): string {
+  const timing = item.captureTiming;
+  return timing
+    ? translateUi(item.text, {
+        target: String(Number(timing.targetDurationSeconds.toFixed(2))),
+        actual:
+          timing.actualDurationSeconds === undefined
+            ? ""
+            : String(Number(timing.actualDurationSeconds.toFixed(2))),
+        revision: String(timing.revision ?? 1),
+        limit: String(captureChapterRetryLimit),
+      })
+    : translateUi(item.text);
+}
+
+/** A parent may relay its current child's measured work, but never average unrelated stages. */
+export function activityProgressPercent(item: DisplayActivityItem): number | undefined {
+  if (item.progressPercent !== undefined) return item.progressPercent;
+  const current = item.children?.at(-1);
+  return current ? activityProgressPercent(current) : undefined;
+}
+
+export function latestActivityProgress(items: ActivityItem[]): DisplayActivityItem | undefined {
+  const current = displayActivityItems(items).at(-1);
+  return current && activityProgressPercent(current) !== undefined ? current : undefined;
 }

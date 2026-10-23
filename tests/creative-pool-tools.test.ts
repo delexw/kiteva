@@ -12,9 +12,9 @@ const cleanup: (() => Promise<unknown>)[] = [];
 afterEach(async () => {
   for (const close of cleanup.splice(0).reverse()) await close();
 });
-async function connect() {
+async function connect(includeAlternatives = true) {
   const controller = new AbortController();
-  const server = createCreativePoolTools(controller.signal);
+  const server = createCreativePoolTools(controller.signal, includeAlternatives);
   const client = new Client({ name: "pool-test", version: "1" });
   const [a, b] = InMemoryTransport.createLinkedPair();
   await server.connect(b);
@@ -64,7 +64,10 @@ it("reads full Motion Graphic and technology definitions, rejects unknown IDs an
     name: "read_pool_entry",
     arguments: { kind: "motion_graphic", idOrName: style.id },
   });
-  expect(result.structuredContent).toMatchObject({ kind: "entry", entry: { definition: style } });
+  expect(result.structuredContent).toMatchObject({
+    kind: "entry",
+    entry: { definition: { id: style.id, visual_cues: style.visual_cues } },
+  });
   const tech = await client.callTool({
     name: "read_pool_entry",
     arguments: { kind: "technology", idOrName: "gsap" },
@@ -104,6 +107,7 @@ it("launches the actual SDK stdio server and advertises only read-only pool tool
       command: capability.command,
       args: capability.args,
       stderr: "pipe",
+      env: { ...process.env, ...capability.env } as Record<string, string>,
     }),
   );
   cleanup.push(() => client.close());
@@ -132,7 +136,7 @@ it("launches the actual SDK stdio server and advertises only read-only pool tool
       kind: "motion_graphic",
       id: selected.id,
       name: selected.name_en,
-      definition: selected,
+      definition: expect.objectContaining({ id: selected.id, visual_cues: selected.visual_cues }),
     },
   });
   for (const readOnly of [true, false]) {
@@ -167,4 +171,72 @@ it("launches the actual SDK stdio server and advertises only read-only pool tool
     );
   }
   expect(agentCapabilities("/job", false, true)).toEqual({ servers: {}, guidance: "" });
+});
+
+it.each([true, false])(
+  "filters research metadata and respects the workflow alternatives flag (%s)",
+  async (includeAlternatives) => {
+    const { client } = await connect(includeAlternatives);
+    const catalog = await loadCatalog();
+    const style = catalog.styles.find(
+      (entry) =>
+        entry.palette.source_frame_review &&
+        entry.motion_graphic_variants?.length &&
+        entry.suggested_combinations,
+    )!;
+    expect(style).toBeDefined();
+    const before = structuredClone(style);
+    const result = await client.callTool({
+      name: "read_pool_entry",
+      arguments: { kind: "motion_graphic", idOrName: style.id },
+    });
+    const definition = (
+      result.structuredContent as { entry: { definition: Record<string, unknown> } }
+    ).entry.definition;
+    expect(definition).not.toHaveProperty("provenance");
+    expect(definition).not.toHaveProperty("combination_guidance_provenance");
+    expect(definition.palette).not.toHaveProperty("source_frame_review");
+    expect(definition.palette).not.toHaveProperty("background_evidence");
+    expect(JSON.stringify(definition)).not.toContain('"review_evidence":');
+    expect(definition.visual_cues).toEqual(style.visual_cues);
+    expect(definition.executable_prompt_template).toEqual(style.executable_prompt_template);
+    expect((definition.palette as Record<string, unknown>).constraints).toEqual(
+      style.palette.constraints,
+    );
+    for (const key of ["motion_graphic_variants", "suggested_combinations"] as const) {
+      if (includeAlternatives) expect(definition[key]).toEqual(style[key]);
+      else expect(definition).not.toHaveProperty(key);
+    }
+    expect(JSON.parse((result.content as { text: string }[])[0].text)).toEqual(
+      result.structuredContent,
+    );
+    expect(style).toEqual(before);
+  },
+);
+
+it("passes the alternatives flag to the actual MCP process", async () => {
+  const capability = agentCapabilities("/job", true, false, false).servers.creative_pool;
+  expect(capability.env.KITEVA_POOL_INCLUDE_ALTERNATIVES).toBe("false");
+  const client = new Client({ name: "pool-filter-runtime-test", version: "1" });
+  await client.connect(
+    new StdioClientTransport({
+      command: capability.command,
+      args: capability.args,
+      env: { ...process.env, ...capability.env } as Record<string, string>,
+      stderr: "pipe",
+    }),
+  );
+  cleanup.push(() => client.close());
+  const result = await client.callTool({
+    name: "read_pool_entry",
+    arguments: { kind: "motion_graphic", idOrName: "style-003" },
+  });
+  expect(result.isError).not.toBe(true);
+  const definition = (
+    result.structuredContent as { entry: { definition: Record<string, unknown> } }
+  ).entry.definition;
+  expect(definition).not.toHaveProperty("suggested_combinations");
+  expect(definition).not.toHaveProperty("motion_graphic_variants");
+  expect(definition).not.toHaveProperty("provenance");
+  expect(definition.palette).not.toHaveProperty("source_frame_review");
 });

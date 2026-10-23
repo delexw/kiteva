@@ -1,3 +1,4 @@
+import { ScriptItemDraftSchema } from "../../shared/script-items";
 import type { z } from "zod";
 import {
   deliverySpeech,
@@ -100,7 +101,7 @@ export function emptyRoomDraft(): RoomDraft {
   return {
     step: 0,
     stepLayout: "separate-speech",
-    request: { instructions: "", outputLanguage: "en" },
+    request: { instructions: "", outputLanguage: "en", scriptItems: [] },
     assets: [],
   };
 }
@@ -136,6 +137,7 @@ export function roomDraftRequest(draft: Partial<RoomDraft>): CreativeRequest {
   const requirements = BriefRequirementsSchema.safeParse(saved.requirements);
   const parsed = RequestSchema.safeParse({
     ...merged,
+    scriptItems: undefined,
     outputLanguage: saved.outputLanguage,
     instructions: initialRoomRequest().instructions,
     urls: [],
@@ -162,6 +164,9 @@ export function roomDraftRequest(draft: Partial<RoomDraft>): CreativeRequest {
     base.lyrics = { mode: "provided", text: draftLyricsText };
   return {
     ...base,
+    ...(base.outputType === "video" && Array.isArray(saved.scriptItems)
+      ? { scriptItems: saved.scriptItems.map((item) => ScriptItemDraftSchema.parse(item)) }
+      : {}),
     instructions: typeof saved.instructions === "string" ? saved.instructions : "",
     urls: strings(saved.urls),
     assetIds: strings(saved.assetIds),
@@ -336,7 +341,7 @@ export function roomDraftFromProject(
   };
 }
 export function roomSubmission(request: CreativeRequest): CreativeRequest {
-  if (request.outputType === "video")
+  if (request.outputType === "video" && request.scriptItems === undefined)
     request = editSharedVideoScript(request, sharedVideoScript(request));
   if (request.outputType === "video") {
     const problem = speechConfigurationProblem({ ...request, speech: deliverySpeech(request) });

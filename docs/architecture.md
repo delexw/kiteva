@@ -248,9 +248,13 @@ Source: `route-prompts/application-demo.ts`, `openscreen-demo.md` and the render
 ```mermaid
 flowchart TD
   Explore["Explore live app workflows, pages and resulting states"] --> Plan["Plan selected features, connected story, chapters, focus and timing"]
-  Plan --> Record["During implementation: record actual interactions with OpenScreen"]
-  Record --> Review["Review footage, apply planned native edits and export"]
-  Review --> Renderer{"Saved renderer"}
+  Plan --> JSON["Structured capturePlan: scope, story, ordered chapters"]
+  JSON --> Loop["chapter-capture/workflow.ts: code loops chapters in order"]
+  Loop --> Record["New model session per chapter: explicit context and separate OpenScreen take"]
+  Record --> Review["Read document, inspect frames, edit, review again, export"]
+  Review --> Checkpoint["Save verified asset and checksum; update completed/total progress"]
+  Checkpoint -->|More chapters| Loop
+  Checkpoint -->|All complete| Renderer{"Saved renderer"}
   Renderer -->|HyperFrames| Video["Integrate recorded video with deterministic seeking"]
   Renderer -->|Multiplane| Frames["Extract recorded frames and preload only each short shot's frames"]
   Video --> Fit["Contain the whole captured frame without assembly crop or extra zoom"]

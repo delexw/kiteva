@@ -1,29 +1,57 @@
 import { translateUi, useUiLanguage } from "../i18n";
 import { Select } from "antd";
 import { Layers } from "lucide-react";
+import type { MentionVariant } from "../../shared/style-mentions";
+import { MotionPreview } from "../motion-preview";
 import type { StyleExample } from "../../shared/contracts";
 import { StyleExampleMedia } from "../style-card";
-import { createContext, useContext } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 
 /** The application's already-loaded preview metadata; no per-mention fetches. */
 export const StyleExamplesContext = createContext<readonly StyleExample[]>([]);
+
+export const MotionMentionsContext = createContext<readonly { id: string; name_en: string }[]>([]);
+
+/** One catalog provider for every prompt editor and saved mention surface. */
+export function CatalogPreviewProvider({
+  examples,
+  motions,
+  children,
+}: {
+  examples: readonly StyleExample[];
+  motions: readonly { id: string; name_en: string }[];
+  children?: ReactNode;
+}) {
+  return (
+    <StyleExamplesContext value={examples}>
+      <MotionMentionsContext value={motions}>{children}</MotionMentionsContext>
+    </StyleExamplesContext>
+  );
+}
 
 type PickerStyle = { id: string; name_en: string };
 export function StylePickerPreview({
   style,
   example,
   compact = false,
+  variant = "style",
 }: {
   style: PickerStyle;
   example?: StyleExample;
   compact?: boolean;
+  variant?: MentionVariant;
 }) {
   useUiLanguage();
   const examples = useContext(StyleExamplesContext);
   const preview = example ?? examples.find((entry) => entry.styleId === style.id);
   return (
-    <div className={compact ? "style-picker-option" : "style-picker-preview"}>
-      {compact ? (
+    <div
+      className={compact ? "style-picker-option" : "style-picker-preview"}
+      data-preview-variant={variant}
+    >
+      {variant === "motion" ? (
+        <MotionPreview motionId={style.id} name={style.name_en} playbackEnabled={!compact} />
+      ) : compact ? (
         <img src={`/api/examples/${style.id}`} alt="" loading="lazy" />
       ) : (
         <StyleExampleMedia

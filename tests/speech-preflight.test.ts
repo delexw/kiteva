@@ -50,3 +50,81 @@ it("checks only the chosen speech engine", async () => {
   });
   expect(api).toHaveBeenLastCalledWith("/api/speech/status?engine=pocket-tts&voice=pocket_alba");
 });
+
+it("blocks a worker that would drop narration timing and accepts an offset-capable worker", async () => {
+  const delayed = { ...request, speech: { ...request.speech, startSeconds: 17 } };
+  vi.mocked(api).mockResolvedValueOnce({ speechSupported: true });
+  await expect(ensureSpeechGenerationReady(delayed)).rejects.toThrow("start-time support");
+  vi.mocked(api)
+    .mockResolvedValueOnce({ speechSupported: true, speechStartSupported: true })
+    .mockResolvedValueOnce({ available: true });
+  await expect(ensureSpeechGenerationReady(delayed)).resolves.toBeUndefined();
+});
+
+it("requires an updated worker and checks each timed item's selected voice independently", async () => {
+  const items = [
+    {
+      id: "english",
+      startSeconds: 0,
+      endSeconds: 2,
+      text: "Hello",
+      showLyrics: true,
+      speech: {
+        mode: "narration" as const,
+        engine: "kokoro" as const,
+        voice: "af_heart",
+        speed: 1,
+      },
+    },
+    {
+      id: "chinese",
+      startSeconds: 2,
+      endSeconds: 4,
+      text: "你好",
+      showLyrics: false,
+      speech: {
+        mode: "narration" as const,
+        engine: "pocket-tts" as const,
+        voice: "pocket_zh_xiaobei",
+        language: "zh",
+        speed: 1,
+      },
+    },
+  ];
+  vi.mocked(api).mockResolvedValueOnce({});
+  await expect(ensureSpeechGenerationReady({ scriptItems: items })).rejects.toThrow(
+    /timed script items/,
+  );
+  vi.mocked(api)
+    .mockResolvedValueOnce({ scriptItemsSupported: true })
+    .mockResolvedValueOnce({ available: true })
+    .mockResolvedValueOnce({ available: true });
+  await ensureSpeechGenerationReady({ scriptItems: items });
+  expect(api).toHaveBeenCalledWith("/api/speech/status?engine=kokoro&voice=af_heart");
+  expect(api).toHaveBeenCalledWith(
+    "/api/speech/status?engine=pocket-tts&voice=pocket_zh_xiaobei&language=zh",
+  );
+});
+
+it("blocks generated items on workers that only support fixed scripts", async () => {
+  const scriptItems = [
+    {
+      id: "demo",
+      source: "write" as const,
+      startSeconds: 0,
+      endSeconds: 10,
+      text: "Explain the planned result",
+      showLyrics: true,
+      speech: { mode: "off" as const },
+    },
+  ];
+  vi.mocked(api).mockResolvedValueOnce({ scriptItemsSupported: true });
+  await expect(ensureSpeechGenerationReady({ scriptItems })).rejects.toThrow(
+    "generated script items",
+  );
+  vi.mocked(api).mockResolvedValueOnce({
+    scriptItemsSupported: true,
+    generatedScriptItemsSupported: true,
+  });
+  await expect(ensureSpeechGenerationReady({ scriptItems })).resolves.toBeUndefined();
+});

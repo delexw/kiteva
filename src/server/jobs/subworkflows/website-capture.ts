@@ -1,21 +1,21 @@
-import { mkdir, rm, rename, writeFile, readFile, copyFile } from "node:fs/promises";
+import { mkdir, rm, rename, writeFile, readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { z } from "zod";
 import type { Page } from "puppeteer-core";
 import { command } from "../../runtime/process";
-import { startOpenScreen, openScreenExportFrameRate } from "../../capture/openscreen";
+import { openScreenExportFrameRate } from "../../capture/openscreen";
 import { probeVideo } from "../../rendering/video-probe";
-import type { OpenScreenTrimRegion, OpenScreenZoomRegion } from "../../capture/native-project";
+import type { OpenScreenTrimRegion } from "../../capture/native-project";
 import {
-  createNativeCaptureEditor,
+  startNativeCaptureRecording,
   type NativeCaptureRequest,
   type EditableCapture,
 } from "../../capture/native-editor";
 import {
   CapturePresentationSchema,
   AppliedCapturePresentationSchema,
-  captureCursorAppearance,
+  resolveCapturePresentation,
   type CapturePresentationInput,
 } from "../../capture/presentation";
 
@@ -41,6 +41,12 @@ export const WebsiteRecordingSchema = z.object({
     .optional(),
 });
 export type WebsiteRecording = z.infer<typeof WebsiteRecordingSchema>;
+export const ChapterCaptureExportSchema = z.object({
+  chapterId: z.string().min(1),
+  recording: WebsiteRecordingSchema,
+  documentReviewed: z.literal(true),
+  frameReviews: z.number().int().positive(),
+});
 export async function readWebsiteRecordings(workspace: string) {
   const raw = await readFile(path.join(workspace, "reference-videos.json"), "utf8").catch(
     (error) => {
@@ -50,14 +56,6 @@ export async function readWebsiteRecordings(workspace: string) {
   );
   return z.array(WebsiteRecordingSchema).parse(JSON.parse(raw));
 }
-export interface CursorEvent {
-  time: number;
-  x: number;
-  y: number;
-  kind: "move" | "click";
-  cursorType?: "arrow" | "pointer" | "text";
-}
-
 /** Owns one bounded recording of an already validated, isolated browser page. */
 export async function startWebsiteCapture(
   page: Page,
@@ -67,10 +65,7 @@ export async function startWebsiteCapture(
   presentation?: CapturePresentationInput,
 ) {
   signal.throwIfAborted();
-  const settings = {
-    ...CapturePresentationSchema.parse(presentation ?? {}),
-    ...captureCursorAppearance,
-  };
+  const settings = resolveCapturePresentation(CapturePresentationSchema.parse(presentation ?? {}));
   const id = randomUUID();
   const assets = path.join(workspace, "assets");
   await mkdir(assets, { recursive: true });
@@ -79,11 +74,10 @@ export async function startWebsiteCapture(
   const name = `website-video-${id}.webm`;
   const cursorName = `website-video-${id}.cursor.json`;
   const url = page.url();
-  const events: CursorEvent[] = [];
+  let nativeCursorData: Record<string, unknown> | undefined;
   const editDirectory = path.join(assets, `.website-edit-${id}`);
-  let editor: Awaited<ReturnType<typeof createNativeCaptureEditor>> | undefined;
+  let editor: Awaited<ReturnType<typeof startNativeCaptureRecording>> | undefined;
   let preparedStream: { width: number; height: number } | undefined;
-  let nativeZooms: OpenScreenZoomRegion[] = [];
   let sourceDuration = 0;
   let trims: OpenScreenTrimRegion[] = [];
   if (!desktop)
@@ -91,31 +85,18 @@ export async function startWebsiteCapture(
       "OpenScreen needs a dedicated desktop browser; headless browser recording is not supported",
     );
   const originalTitle = await page.title();
-  const frame = z
-    .object({
-      width: z.number().positive(),
-      height: z.number().positive(),
-      left: z.number().nonnegative(),
-      top: z.number().nonnegative(),
-    })
-    .parse(
-      await page.evaluate(() => {
-        const left = Math.max(0, (window.outerWidth - window.innerWidth) / 2);
-        return {
-          width: window.outerWidth,
-          height: window.outerHeight,
-          left,
-          top: Math.max(0, window.outerHeight - window.innerHeight - left),
-        };
-      }),
-    );
   const title = `Kiteva capture ${id}`;
   await page.evaluate((value) => {
     document.title = value;
   }, title);
-  let recorder: Awaited<ReturnType<typeof startOpenScreen>>;
   try {
-    recorder = await startOpenScreen(title, signal);
+    await mkdir(editDirectory, { recursive: true });
+    editor = await startNativeCaptureRecording(
+      title,
+      path.join(editDirectory, "edited.mp4"),
+      signal,
+      settings,
+    );
   } finally {
     await page
       .evaluate((value) => {
@@ -123,57 +104,15 @@ export async function startWebsiteCapture(
       }, originalTitle.trim() || "Application demo")
       .catch(() => {});
   }
-  let failure: Error | undefined;
-  let stopping: ReturnType<typeof recorder.stop> | undefined;
-  const stop = () => (stopping ??= recorder.stop());
-  const started = performance.now();
-  const abort = () => {
-    failure = Error("Website recording cancelled");
-    void stop().catch(() => {});
-  };
-  signal.addEventListener("abort", abort, { once: true });
-  if (signal.aborted) abort();
+  let stopping: ReturnType<typeof editor.stopRecording> | undefined;
+  const stop = () => (stopping ??= editor!.stopRecording());
   async function finish() {
-    signal.removeEventListener("abort", abort);
+    signal.throwIfAborted();
     const result = await stop();
-    if (failure) throw failure;
-    await mkdir(editDirectory, { recursive: true });
-    const source = path.join(editDirectory, "source.mp4");
-    await copyFile(result.screenVideoPath, source);
-    const sourceStream = (await probeVideo(source, signal)).streams.find(
-      (stream) => stream.codec_type === "video",
-    );
+    const probe = await probeVideo(result.videoPath, signal);
+    const sourceStream = probe.streams.find((stream) => stream.codec_type === "video");
     if (!sourceStream) throw Error("Website source recording has no video stream");
-    sourceDuration = result.durationMs / 1000;
-    if (settings.zoomRegions.some((region) => region.endSeconds > sourceDuration))
-      throw Error(
-        "A requested zoom extends beyond the recording; capture a longer take or correct its timing",
-      );
-    const samples = events.map((event) => ({
-      timeMs: event.time * 1000,
-      cx: (event.x + frame.left) / frame.width,
-      cy: (event.y + frame.top) / frame.height,
-      visible: true,
-      cursorType: event.cursorType ?? "arrow",
-      interactionType: event.kind,
-    }));
-    const lastSample = samples.at(-1);
-    if (lastSample)
-      samples.push({ ...lastSample, timeMs: result.durationMs, interactionType: "move" });
-    await writeFile(
-      `${source}.cursor.json`,
-      JSON.stringify({ version: 2, provider: "none", assets: [], samples }),
-    );
-    const requestedZooms = settings.zoomRegions.map((region, index) => ({
-      id: `agent-focus-${index}`,
-      startMs: Math.round(region.startSeconds * 1000),
-      endMs: Math.round(region.endSeconds * 1000),
-      depth: region.depth,
-      focus: { cx: region.focusX, cy: region.focusY },
-      focusMode: region.focusMode,
-      source: "manual" as const,
-    }));
-    nativeZooms = requestedZooms;
+    sourceDuration = Number(probe.format.duration);
     return sourceStream;
   }
   async function convertExport() {
@@ -199,12 +138,8 @@ export async function startWebsiteCapture(
       signal,
     );
   }
-  async function finalize(sourceStream: {
-    width: number;
-    height: number;
-  }): Promise<WebsiteRecording> {
+  async function finalize(): Promise<WebsiteRecording> {
     signal.throwIfAborted();
-    if (failure) throw failure;
     // FFmpeg's streaming WebM omits seek indexes and duration. Finalize the
     // container before exposing it as a seekable composition input.
     await command(
@@ -228,18 +163,8 @@ export async function startWebsiteCapture(
       path.join(assets, cursorName),
       JSON.stringify(
         {
-          version: 1,
-          coordinateSpace: "source-window-before-zoom",
-          rendered: true,
-          timeSpace: "source-recording",
+          ...nativeCursorData,
           nativeTrimRegions: trims,
-          width: sourceStream.width,
-          height: sourceStream.height,
-          events: events.map((event) => ({
-            ...event,
-            x: ((event.x + frame.left) * sourceStream.width) / frame.width,
-            y: ((event.y + frame.top) * sourceStream.height) / frame.height,
-          })),
         },
         null,
         2,
@@ -268,30 +193,16 @@ export async function startWebsiteCapture(
   }
   return {
     id,
-    cursor(
-      x: number,
-      y: number,
-      kind: CursorEvent["kind"],
-      cursorType: NonNullable<CursorEvent["cursorType"]> = "arrow",
-    ) {
-      if (!stopping && events.length < 10000)
-        events.push({ time: (performance.now() - started) / 1000, x, y, kind, cursorType });
-    },
     async prepare(): Promise<EditableCapture> {
       try {
         preparedStream = await finish();
-        editor = await createNativeCaptureEditor(
-          path.join(editDirectory, "source.mp4"),
-          path.join(editDirectory, "edited.mp4"),
-          signal,
-          settings,
-          nativeZooms,
-        );
+
         return {
           kind: "editable_capture",
           recordingId: id,
           duration: sourceDuration,
-          tools: editor.tools,
+          tools: editor!.tools,
+          recordingStartedAt: editor!.recordingStartedAt,
         };
       } catch (error) {
         await rm(editDirectory, { recursive: true, force: true });
@@ -319,21 +230,17 @@ export async function startWebsiteCapture(
         startMs: range.startSec * 1000,
         endMs: range.endSec * 1000,
       }));
+      const track = await editor.call({ operation: "getCursorTrack" });
+      if (track.isError) throw Error("Cannot read native cursor track before export");
+      nativeCursorData = z.record(z.string(), z.unknown()).parse(track.data);
       await editor.export();
       await convertExport();
-      return finalize(preparedStream);
+      return finalize();
     },
     async close() {
-      signal.removeEventListener("abort", abort);
       await editor?.close();
-      try {
-        await stop();
-      } finally {
-        // Native projects keep referencing the take for later review; retain their source.
-        if (!editor) await rm(editDirectory, { recursive: true, force: true });
-        await rm(temporary, { force: true });
-        await rm(finalized, { force: true });
-      }
+      await rm(temporary, { force: true });
+      await rm(finalized, { force: true });
     },
   };
 }

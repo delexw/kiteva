@@ -375,3 +375,16 @@ it("submits legacy duplicated text through the shared script source", () => {
     text: "Displayed script",
   });
 });
+
+it("distinguishes available pool files from attached idea materials", () => {
+  const image = asset(1, "reference.png");
+  const available = render(draftAt(2), [image]);
+  expect(available).toContain("No files attached to this idea");
+  expect(available).toContain("Asset pool — not attached. Select Add to use in this idea.");
+  expect(available).toContain('aria-pressed="false"');
+  expect(available).toContain('class="room-file-action">Add');
+  const attached = render(toggleRoomDraftAsset(draftAt(2), image), [image]);
+  expect(attached).toContain("Attached to this idea");
+  expect(attached).toContain(">Attached</span>");
+  expect(attached).not.toContain("Asset pool — not attached");
+});

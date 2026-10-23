@@ -1,6 +1,8 @@
+import { ScriptItems } from "../components/script-items";
+import { legacyScriptItems } from "../../shared/script-items";
 import { StylePromptInput } from "../components/style-prompt-input";
 import { PromptText } from "../components/style-mention";
-import { creativeApproaches } from "../../shared/creative-approach";
+import { creativeApproaches, creativeApproachLabel } from "../../shared/creative-approach";
 import { translateUi, useUiLanguage } from "../i18n";
 import {
   deliverySpeech,
@@ -349,6 +351,11 @@ export function RoomOnboarding({
                 )
               }
             />
+            <span className="room-attachment-status">
+              {translateUi(
+                sectionSelected.length ? "Attached to this idea" : "No files attached to this idea",
+              )}
+            </span>
             {sectionSelected.length > 0 && (
               <div className="room-chosen-files" aria-label={translateUi("Chosen for this step")}>
                 {sectionSelected.map((asset) => (
@@ -365,7 +372,9 @@ export function RoomOnboarding({
             )}
             {shelf.length > 0 ? (
               <div className="room-shelf-picks">
-                <span>{translateUi("On your shelf — choose to add")}</span>
+                <span>
+                  {translateUi("Asset pool — not attached. Select Add to use in this idea.")}
+                </span>
                 <div>
                   {shelf.map((asset) => (
                     <RoomFilePick
@@ -457,8 +466,27 @@ export function RoomOnboarding({
             </div>
           </section>
         )}
-        {step === 5 && request.outputType === "video" && (
+        {step === 5 && request.outputType === "video" && request.scriptItems !== undefined && (
+          <ScriptItems
+            items={request.scriptItems}
+            duration={request.duration}
+            onChange={(scriptItems) => patch({ scriptItems })}
+          />
+        )}
+        {step === 5 && request.outputType === "video" && request.scriptItems === undefined && (
           <div className="room-inline-field room-materials">
+            <Button
+              disabled={request.speech?.mode === "uploaded"}
+              onClick={() =>
+                patch({
+                  scriptItems: legacyScriptItems(request),
+                  lyrics: { mode: "off" },
+                  speech: { mode: "off" },
+                })
+              }
+            >
+              {translateUi("Use timed script items")}
+            </Button>
             <SettingsSectionHeading
               title={translateUi("Shared script")}
               description={translateUi("Use one script for narration and on-screen text.")}
@@ -575,10 +603,15 @@ export function RoomOnboarding({
               {translateUi("Creative approach")}
               <Select
                 aria-label={translateUi("Creative approach")}
+                disabled={Boolean(request.selectedStyleIds?.length)}
                 value={request.preference}
                 options={Object.entries(creativeApproaches).map(([value, approach]) => ({
                   value,
-                  label: translateUi(approach.label),
+                  label: translateUi(
+                    request.selectedStyleIds?.length
+                      ? creativeApproachLabel(request)
+                      : approach.label,
+                  ),
                 }))}
                 onChange={(preference) =>
                   patch({
@@ -593,7 +626,13 @@ export function RoomOnboarding({
                   })
                 }
               />
-              <small>{translateUi(creativeApproaches[request.preference].description)}</small>
+              <small>
+                {translateUi(
+                  request.selectedStyleIds?.length
+                    ? "Use your chosen Motion Graphics for previews or a direct build. No style proposals or ranking calls."
+                    : creativeApproaches[request.preference].description,
+                )}
+              </small>
             </label>
             {request.outputType === "video" ? (
               <>

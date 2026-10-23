@@ -29,12 +29,14 @@ it.skipIf(!browserExecutablePath())(
               if (req.url !== "/style-mention-test") return next();
               const html = await server.transformIndexHtml(
                 req.url,
-                `<!doctype html><div id="root"></div><script type="module">
+                `<!doctype html><style>output { display: none; }</style><div id="root"></div><script type="module">
+import '/src/client/style.css';
 import React,{useState}from'react';import{createRoot}from'react-dom/client';
 import{StylePromptInput}from'/src/client/components/style-prompt-input.tsx';
+import{MotionMentionsContext}from'/src/client/components/style-picker.tsx';
 const styles=[{id:'style-140',name_en:'Vintage Rubber Hose Animation'},{id:'style-136',name_en:'Manga Production Theatre'},{id:'style-056',name_en:'Mosaic'}];
 function App(){const[value,setValue]=useState('Act 1: ');const[saved,setSaved]=useState('');const[version,setVersion]=useState(0);const[submitted,setSubmitted]=useState('');return React.createElement(React.Fragment,null,
-React.createElement(StylePromptInput,{key:version,'aria-label':'Idea',value,onChange:setValue,styles,onSubmit:setSubmitted}),
+React.createElement(MotionMentionsContext,{value:[{id:'motion-036',name_en:'Glitch Type Build'}]},React.createElement(StylePromptInput,{key:version,'aria-label':'Idea',value,onChange:setValue,styles,onSubmit:setSubmitted})),
 React.createElement('button',{id:'save',onClick:()=>setSaved(value)},'Save'),
 React.createElement('button',{id:'restore',onClick:()=>{setValue(saved);setVersion(v=>v+1)}},'Restore'),
 React.createElement('button',{id:'external',onClick:()=>setValue('External <style id="style-136">Manga Production Theatre</style> end')},'External update'),
@@ -241,6 +243,43 @@ createRoot(document.getElementById('root')).render(React.createElement(App));</s
       const pasted = await page.$eval("#state", (el) => el.textContent!);
       expect(pasted.match(/<style id="style-140">/g)).toHaveLength(2);
       expect(pasted).toContain('<style id="style-136">Manga Production Theatre</style> end');
+      await page.focus(editor);
+      await page.keyboard.down("Control");
+      await page.keyboard.press("End");
+      await page.keyboard.up("Control");
+      await page.keyboard.type(" @glitch");
+      await page.waitForSelector('.style-picker-option[data-preview-variant="motion"] canvas');
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("Enter");
+      await page.waitForFunction(() =>
+        document
+          .querySelector("#state")
+          ?.textContent?.includes('<motion id="motion-036">Glitch Type Build</motion>'),
+      );
+      const motionChip = '.style-prompt-mention[data-mention-variant="motion"]';
+      await page.hover(motionChip);
+      await page.waitForSelector('.style-mention-preview [data-motion-id="motion-036"]', {
+        visible: true,
+      });
+      await page.waitForFunction(() => {
+        const popup = document.querySelector(".style-mention-preview");
+        const media = popup?.querySelector("canvas");
+        return (
+          popup &&
+          media &&
+          media.getBoundingClientRect().width > 100 &&
+          media.getBoundingClientRect().height > 100 &&
+          media.getBoundingClientRect().width <= popup.getBoundingClientRect().width + 1 &&
+          getComputedStyle(popup.closest(".ant-popover")!).opacity === "1" &&
+          popup.textContent?.includes("Playing")
+        );
+      });
+      await page.screenshot({ path: "/tmp/kiteva-motion-mention-preview.png" });
+      const mixed = await page.$eval("#state", (el) => el.textContent);
+      await page.click("#save");
+      await page.click("#restore");
+      await page.waitForSelector(motionChip);
+      expect(await page.$eval("#state", (el) => el.textContent)).toBe(mixed);
       expect(errors).toEqual([]);
     } finally {
       await browser.close();

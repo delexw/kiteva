@@ -1,3 +1,4 @@
+import { ScriptItemsSchema, scriptItemsProblem } from "../script-items";
 import type { VideoBuildPlan } from "../agents/schemas/video-build-plan";
 import { validateStyleSelection } from "../style-selection";
 import { z } from "zod";
@@ -38,22 +39,48 @@ export const VideoRequestSchema = SharedRequestSchema.extend({
   renderer: z.enum(videoRendererIds).optional(),
   lyrics: LyricsSchema.optional(),
   speech: SpeechSettingsSchema.optional(),
+  scriptItems: ScriptItemsSchema.optional(),
   outputLanguage: VideoLanguageSchema.optional(),
   translations: VideoTranslationsSchema.optional(),
-}).superRefine(validateStyleSelection);
+})
+  .superRefine(validateStyleSelection)
+  .superRefine((request, context) => {
+    const problem = scriptItemsProblem(request.scriptItems, request.duration);
+    if (problem) context.addIssue({ code: "custom", path: ["scriptItems"], message: problem });
+  });
 export type VideoRequest = z.infer<typeof VideoRequestSchema>;
 export const MIN_AUTO_VIDEO_DURATION = 15;
 export function resolveVideoDuration(
   duration: VideoRequest["duration"],
   suggestedDuration: number,
+  scriptItems?: { endSeconds: number }[],
 ) {
   return Math.min(
     MAX_VIDEO_DURATION,
-    duration === "auto" ? Math.max(MIN_AUTO_VIDEO_DURATION, suggestedDuration) : duration,
+    duration === "auto"
+      ? Math.max(
+          MIN_AUTO_VIDEO_DURATION,
+          suggestedDuration,
+          ...(scriptItems || []).map((item) => item.endSeconds),
+        )
+      : duration,
   );
 }
 export { videoStyleCountRange } from "../style-selection";
+export type VideoRefinementCheckpoint = {
+  sourceJobId: string;
+  sourceWorkspace: string;
+  sourceSessionId: string;
+  sourcePhase: "ready";
+  sourceFinishedAt?: string;
+  workspace: string;
+  requestedChanges: string;
+  files: { path: string; available: boolean; sha256?: string; bytes?: number }[];
+  inheritedCacheDirectories: string[];
+};
+
 export interface VideoGenerationJob extends JobState {
+  refinementCheckpoint?: VideoRefinementCheckpoint;
   speechTrack?: SpeechTrack;
   outputType?: "video";
   page?: never;
@@ -65,6 +92,7 @@ export interface VideoGenerationJob extends JobState {
   playbackCopies?: PlaybackCopies;
   poster?: string;
   production?: Production;
+  storyboardReady?: boolean;
   buildPlan?: { model: string; sessionId: string; value: VideoBuildPlan };
   correctionSession?: { model: string; sessionId: string };
 }

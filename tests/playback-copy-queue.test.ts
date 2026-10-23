@@ -1,4 +1,5 @@
-vi.mock("../src/server/jev/strategies/visual-authoring", () => ({
+vi.mock("../src/server/jev/strategies/visual-authoring", async (original) => ({
+  ...(await original<typeof import("../src/server/jev/strategies/visual-authoring")>()),
   selectAuthoringResources: async () => ({
     source: "jev",
     model: "jev-test",

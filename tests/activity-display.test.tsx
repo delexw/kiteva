@@ -54,7 +54,7 @@ it("preserves running and failed capability statuses without claiming video comp
     shown.children?.find((child) => child.text === "Recording your website reference…")?.status,
   ).toBe("failed");
 });
-it("does not merge different jobs, model invocations, or review and repair tasks", () => {
+it("groups resumed model calls by film while keeping jobs, review and repair tasks separate", () => {
   const shown = displayActivityItems([
     item(1),
     item(2, { invocationId: "second" }),
@@ -62,11 +62,38 @@ it("does not merge different jobs, model invocations, or review and repair tasks
     item(4, { purpose: "Result quality review", text: "Reviewing your finished result…" }),
     item(5, { purpose: "technical correction", text: "Fixing playback issues…" }),
   ]);
-  expect(shown).toHaveLength(5);
-  expect(shown.slice(3).map((i) => i.text)).toEqual([
+  expect(shown).toHaveLength(4);
+  expect(shown[0].children?.map((child) => child.invocationId)).toEqual(["call", "second"]);
+  expect(shown.slice(2).map((i) => i.text)).toEqual([
     "Reviewing your finished result…",
     "Fixing playback issues…",
   ]);
+});
+it("retains one film parent across intervening messages and capture stages", () => {
+  const source = [
+    item(1, { text: "Recording video details…" }),
+    item(2, { kind: "message", text: "Continuing the film" }),
+    item(3, {
+      progressStage: "capture",
+      captureChapterId: "chapter",
+      captureChapterTitle: "Main task",
+      captureChapterIndex: 1,
+      progressPercent: 100,
+    }),
+    item(4, { invocationId: "resumed", status: "running" }),
+  ];
+  const before = JSON.stringify(source);
+  const shown = displayActivityItems(source);
+  const films = shown.filter((entry) => entry.text === "Creating your video…");
+  expect(films).toHaveLength(1);
+  expect(films[0]).toMatchObject({ status: "running" });
+  expect(films[0].children?.map((child) => child.text)).toEqual([
+    "Recording video details…",
+    "Building your full video…",
+  ]);
+  expect(shown.some((entry) => entry.text === "Capturing footage…")).toBe(true);
+  expect(shown.some((entry) => entry.text === "Continuing the film")).toBe(true);
+  expect(JSON.stringify(source)).toBe(before);
 });
 it("keeps legacy labels, customer messages and preview tasks, while hiding action counts", () => {
   const shown = displayActivityItems([
@@ -285,3 +312,306 @@ it("moves a consolidated planning update below earlier website activities", () =
   expect(shown.at(-1)).toMatchObject({ status: "complete", time: "2026-10-21T00:44:00Z" });
   expect(JSON.stringify(source)).toBe(before);
 });
+
+it("shows a green success node when its own measured work reaches 100%, preserving failures and stops", () => {
+  const progress = item(1, {
+    kind: "notice",
+    purpose: undefined,
+    invocationId: undefined,
+    progressStage: "render",
+    progressPercent: 100,
+    status: undefined,
+  });
+  const complete = displayActivityItems([progress])[0];
+  expect(roomActivityStep(complete).status).toBe("success");
+  expect(roomActivityStep(complete).icon).toBeUndefined();
+  for (const [status, expected] of [
+    ["failed", "error"],
+    ["stopped", "abort"],
+  ] as const) {
+    const shown = displayActivityItems([{ ...progress, status }])[0];
+    expect(roomActivityStep(shown).status).toBe(expected);
+  }
+  expect(displayActivityItems([{ ...progress, progressPercent: 99 }])[0].status).toBeUndefined();
+  const parent = displayActivityItems([item(1, { progressPercent: undefined })])[0];
+  parent.children = [complete];
+  expect(roomActivityStep(parent).status).not.toBe("success");
+});
+
+it("groups chapter captures under one measured parent progress bar", () => {
+  const events = [
+    { completed: 0, index: 1, chapterId: "create", title: "Create", status: "running" },
+    { completed: 1, index: 1, chapterId: "create", title: "Create", status: "complete" },
+    { completed: 1, index: 2, chapterId: "review", title: "Review", status: "running" },
+  ].map((progress, index) => ({
+    id: index + 1,
+    runId: "example",
+    jobId: "job",
+    type: "capture_progress",
+    time: `2026-01-01T00:00:0${index}Z`,
+    message: "Capturing footage…",
+    data: { captureProgress: { ...progress, total: 2 } },
+  }));
+  const display = displayActivityItems(activityItems(events));
+  expect(display).toHaveLength(1);
+  expect(display[0]).toMatchObject({
+    text: "Capturing footage…",
+    progressPercent: 50,
+    status: "running",
+  });
+  expect(
+    display[0].children?.map((child) => ({ id: child.captureChapterId, status: child.status })),
+  ).toEqual([
+    { id: "create", status: "complete" },
+    { id: "review", status: "running" },
+  ]);
+  const complete = {
+    ...events[2],
+    id: 4,
+    data: {
+      captureProgress: {
+        completed: 2,
+        total: 2,
+        index: 2,
+        chapterId: "review",
+        title: "Review",
+        status: "complete",
+      },
+    },
+  };
+  const finished = displayActivityItems(activityItems([...events, complete]));
+  expect(finished[0]).toMatchObject({ progressPercent: 100, status: "complete" });
+  const failed = {
+    ...events[2],
+    id: 4,
+    data: {
+      captureProgress: {
+        completed: 1,
+        total: 2,
+        index: 2,
+        chapterId: "review",
+        title: "Review",
+        status: "failed",
+      },
+    },
+  };
+  expect(displayActivityItems(activityItems([...events, failed]))[0]).toMatchObject({
+    progressPercent: 50,
+    status: "failed",
+  });
+});
+
+it("shows each chapter as the parent and consolidates recovered operations to their final result", () => {
+  const chapter = {
+    captureChapterId: "discover",
+    captureChapterTitle: "Find the knowledge",
+    captureChapterIndex: 2,
+    purpose: "Footage chapter capture",
+  };
+  const source = [
+    item(1, {
+      ...chapter,
+      kind: "notice",
+      progressStage: "capture",
+      progressPercent: 25,
+      status: "running",
+    }),
+    item(2, { ...chapter, text: "Exploring your website reference…", status: "complete" }),
+    item(3, { ...chapter, text: "Exploring your website reference…", status: "failed" }),
+    item(4, { ...chapter, text: "Recording your website reference…", status: "complete" }),
+    item(5, {
+      ...chapter,
+      text: "Exploring your website reference…",
+      status: "complete",
+      invocationId: "retry",
+      time: "2026-10-19T00:03:00Z",
+    }),
+    item(6, {
+      ...chapter,
+      kind: "notice",
+      progressStage: "capture",
+      progressPercent: 50,
+      status: "complete",
+    }),
+  ];
+  const before = JSON.stringify(source);
+  const [capture] = displayActivityItems(source);
+  expect(capture.children).toHaveLength(1);
+  const parent = capture.children![0];
+  expect(parent).toMatchObject({ text: "2 · Find the knowledge", status: "complete" });
+  expect(parent.children).toHaveLength(2);
+  expect(
+    parent.children?.find((child) => child.text === "Exploring your website reference…"),
+  ).toMatchObject({ status: "complete", time: "2026-10-19T00:03:00Z" });
+  expect(roomActivityStep(parent).status).toBe("success");
+  expect(renderToStaticMarkup(<>{roomActivityStep(parent).content}</>)).not.toContain(
+    "status-error",
+  );
+  expect(JSON.stringify(source)).toBe(before);
+});
+it.each(["failed", "running"] as const)(
+  "preserves an unresolved chapter operation's final %s state without duplicate rows",
+  (status) => {
+    const chapter = {
+      captureChapterId: "discover",
+      captureChapterTitle: "Discover",
+      captureChapterIndex: 1,
+      purpose: "Footage chapter capture",
+      text: "Exploring your website reference…",
+    };
+    const [capture] = displayActivityItems([
+      item(1, { ...chapter, status: "complete" }),
+      item(2, { ...chapter, status: "failed" }),
+      item(3, { ...chapter, status }),
+    ]);
+    expect(capture.children![0].children).toHaveLength(1);
+    expect(capture.children![0].children![0].status).toBe(status);
+  },
+);
+it("never merges identical operation labels from different capture chapters or jobs", () => {
+  const chapter = {
+    captureChapterTitle: "Discover",
+    captureChapterIndex: 1,
+    purpose: "Footage chapter capture",
+    text: "Exploring your website reference…",
+  };
+  const shown = displayActivityItems([
+    item(1, { ...chapter, captureChapterId: "first", status: "failed" }),
+    item(2, { ...chapter, captureChapterId: "second", captureChapterIndex: 2, status: "complete" }),
+    item(3, { ...chapter, captureChapterId: "first", scope: "other-job", status: "complete" }),
+  ]);
+  expect(shown).toHaveLength(2);
+  expect(shown[0].children?.map((parent) => parent.children![0].status)).toEqual([
+    "failed",
+    "complete",
+  ]);
+  expect(shown[1].children![0].children![0].status).toBe("complete");
+});
+
+it("nests timing outcomes under the chapter, resolves recovered conflicts and preserves measured progress", () => {
+  const timing = (id: number, phase: string, status: string, actualDurationSeconds?: number) => ({
+    id,
+    runId: "run",
+    jobId: "job",
+    type: "capture_timing",
+    message: "Internal timing details",
+    time: `2026-01-01T10:00:${String(id).padStart(2, "0")}Z`,
+    data: {
+      captureTiming: {
+        chapterId: "create",
+        title: "Create",
+        index: 1,
+        total: 2,
+        phase,
+        status,
+        targetDurationSeconds: 10,
+        actualDurationSeconds,
+        revision: 1,
+      },
+    },
+  });
+  const progress = {
+    id: 1,
+    runId: "run",
+    jobId: "job",
+    type: "capture_progress",
+    message: "",
+    time: "2026-01-01T10:00:01Z",
+    data: {
+      captureProgress: {
+        chapterId: "create",
+        title: "Create",
+        index: 1,
+        total: 2,
+        completed: 0,
+        status: "running",
+      },
+    },
+  };
+  const events = [
+    progress,
+    timing(2, "conflict", "failed", 13),
+    timing(3, "replanning", "running"),
+    timing(4, "replanning", "complete"),
+    timing(5, "speed", "complete"),
+    timing(6, "review", "running"),
+    timing(7, "review", "complete"),
+    timing(8, "accepted", "complete", 9.9),
+    {
+      ...progress,
+      id: 9,
+      data: {
+        captureProgress: { ...progress.data.captureProgress, completed: 1, status: "complete" },
+      },
+      time: "2026-01-01T10:00:09Z",
+    },
+  ];
+  const before = JSON.stringify(events);
+  const [capture] = displayActivityItems(activityItems(events));
+  expect(capture.progressPercent).toBe(50);
+  const chapter = capture.children![0];
+  expect(chapter.text).toBe("1 · Create");
+  expect(
+    chapter.children?.filter((child) => child.captureTiming?.phase === "replanning"),
+  ).toHaveLength(1);
+  expect(chapter.children?.filter((child) => child.captureTiming?.phase === "review")).toHaveLength(
+    1,
+  );
+  expect(chapter.children?.every((child) => child.status === "complete")).toBe(true);
+  expect(chapter.children?.find((child) => child.captureTiming?.phase === "conflict")?.text).toBe(
+    "Timing conflict resolved",
+  );
+  const accepted = chapter.children!.find((child) => child.captureTiming?.phase === "accepted")!;
+  expect(roomActivityStep(accepted).title).toBe("Capture accepted · 9.9s / 10s");
+  expect(JSON.stringify(events)).toBe(before);
+  expect(
+    activityItems([
+      { ...timing(10, "accepted", "complete"), data: { captureTiming: { phase: "accepted" } } },
+    ]),
+  ).toEqual([]);
+});
+
+it.each(["failed", "stopped"] as const)(
+  "settles pending chapter timing rows when capture is %s",
+  (status) => {
+    const timing = {
+      id: 1,
+      runId: "run",
+      jobId: "job",
+      time: "2026-01-01T00:00:01Z",
+      type: "capture_timing",
+      message: "",
+      data: {
+        captureTiming: {
+          chapterId: "create",
+          title: "Create",
+          index: 1,
+          total: 1,
+          phase: "review",
+          status: "running",
+          targetDurationSeconds: 10,
+        },
+      },
+    };
+    const end = {
+      id: 2,
+      runId: "run",
+      jobId: "job",
+      time: "2026-01-01T00:00:02Z",
+      type: "capture_progress",
+      message: "",
+      data: {
+        captureProgress: {
+          chapterId: "create",
+          title: "Create",
+          index: 1,
+          total: 1,
+          completed: 0,
+          status,
+        },
+      },
+    };
+    const [capture] = displayActivityItems(activityItems([timing, end]));
+    expect(capture.children![0].children![0].status).toBe(status);
+  },
+);

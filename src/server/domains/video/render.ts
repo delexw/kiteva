@@ -13,6 +13,7 @@ import { withContentReveal } from "../../motion/content-reveal";
 import { withArrowDrawing } from "../../motion/arrow-drawing";
 import type { VideoGenerationJob } from "../../../shared/domains/video";
 import path from "node:path";
+import { existsSync } from "node:fs";
 import type { SpeechTrack } from "../../../shared/speech";
 import { mixSpeech } from "../../audio/speech";
 import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
@@ -35,6 +36,13 @@ import {
   multiplaneVerifyArgs,
   runMultiplane,
 } from "../../rendering/multiplane";
+
+import {
+  multiplaneInputFingerprint,
+  multiplaneCacheKey,
+  restoreMultiplaneShot,
+  storeMultiplaneShot,
+} from "../../rendering/multiplane/cache";
 
 import { multiplaneShotPlan, assembleMultiplaneShots } from "../../rendering/multiplane/shots";
 
@@ -161,6 +169,7 @@ async function renderRemotion(
 ) {
   if (!production.fallbackReason?.trim())
     throw Error("Remotion fallback requires a verified reason");
+  emit("phase", job.kind === "preview" ? "Rendering preview" : "Rendering validated composition");
   await isolatedCommand(
     process.execPath,
     [
@@ -199,7 +208,46 @@ async function renderMultiplane(
   if (segmented) await mkdir(directory, { recursive: true });
   const parts: string[] = [];
   for (const [index, shot] of shots.entries()) {
+    const scope = {
+      sourceFile: shot.sourceFile,
+      shotSources: shots.map((item) => item.sourceFile),
+      additionalFiles: !segmented && production.audioFile ? [production.audioFile] : [],
+    };
+    const fingerprint =
+      shots.every((item) => !item.sourceFile.startsWith("renders/")) &&
+      existsSync(path.join(job.workspace, shot.sourceFile))
+        ? await multiplaneInputFingerprint(job.workspace, signal, scope)
+        : undefined;
     const label = segmented ? ` (${index + 1}/${shots.length}: ${shot.sourceFile})` : "";
+    const part = `shot-${index}.${multiplaneMetadata.execution.format[job.kind]}`;
+    const output = segmented ? path.join(directory, part) : video;
+    const key = fingerprint
+      ? multiplaneCacheKey(fingerprint, {
+          shot,
+          fps,
+          width: production.width,
+          height: production.height,
+          kind: job.kind,
+          policy: multiplaneMetadata.execution,
+          audioFile: segmented ? null : production.audioFile,
+        })
+      : undefined;
+    if (
+      key &&
+      fingerprint &&
+      (await restoreMultiplaneShot({
+        workspace: job.workspace,
+        key,
+        output,
+        fingerprint,
+        signal,
+        scope,
+      }))
+    ) {
+      emit("phase", `Reusing the validated Multiplane shot${label}`);
+      if (segmented) parts.push(part);
+      continue;
+    }
     if (rendererUsesStage(multiplaneMetadata, job.kind, "inspect")) {
       emit(
         "validation",
@@ -234,8 +282,6 @@ async function renderMultiplane(
       );
     }
     emit("phase", `Rendering the Multiplane shot${label}`);
-    const part = `shot-${index}.${multiplaneMetadata.execution.format[job.kind]}`;
-    const output = segmented ? path.join(directory, part) : video;
     await runMultiplane(
       "render",
       multiplaneRenderArgs({
@@ -249,6 +295,15 @@ async function renderMultiplane(
       signal,
       (text) => emit("render_progress", text),
     );
+    if (key && fingerprint)
+      await storeMultiplaneShot({
+        workspace: job.workspace,
+        key,
+        output,
+        fingerprint,
+        signal,
+        scope,
+      });
     if (segmented) parts.push(part);
   }
   if (segmented) {
@@ -286,6 +341,7 @@ export async function renderJob(
   else if (production.pipeline === "Multiplane")
     await renderMultiplane(job, production, rendered, fps, signal, emit);
   else await renderRemotion(job, production, rendered, fps, signal, emit);
+  emit("render_progress", "Render complete");
   if (job.kind === "full" && speechTrack) {
     emit("phase", "Mixing voice and music…");
     await mixSpeech(rendered, speechTrack, job.duration, signal);

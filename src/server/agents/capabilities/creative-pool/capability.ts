@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 import { appRoot } from "../../../runtime/config";
 import type { AgentMcpCapability } from "../shared/types";
 
-export function creativePoolCapability(): AgentMcpCapability {
+export function creativePoolCapability(includeAlternatives = true): AgentMcpCapability {
   return {
     command: process.execPath,
     args: [
@@ -11,7 +11,7 @@ export function creativePoolCapability(): AgentMcpCapability {
       pathToFileURL(path.join(appRoot, "node_modules/tsx/dist/loader.mjs")).href,
       path.join(appRoot, "src/server/agents/capabilities/creative-pool/server.ts"),
     ],
-    env: {},
+    env: { KITEVA_POOL_INCLUDE_ALTERNATIVES: String(includeAlternatives) },
     enabledTools: ["search_pool", "read_pool_entry"],
   };
 }

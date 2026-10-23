@@ -90,3 +90,25 @@ it("restores manual styles with zero directions", () => {
     duration: 60,
   });
 });
+
+it("restores timed-item lyrics independently of the old global setting", () => {
+  const request = RequestSchema.parse({
+    instructions: "Tell a visual story",
+    lyrics: { mode: "off" },
+    scriptItems: [
+      {
+        id: "opening",
+        startSeconds: 0,
+        endSeconds: 10,
+        text: "Read this",
+        showLyrics: true,
+        speech: { mode: "off" },
+      },
+    ],
+  });
+  expect(projectSettingsDraft(request).lyricsEnabled).toBe(true);
+  if (request.outputType !== "video") throw Error("Expected video");
+  expect(
+    projectSettingsDraft({ ...request, scriptItems: [], lyrics: { mode: "write" } }).lyricsEnabled,
+  ).toBe(false);
+});

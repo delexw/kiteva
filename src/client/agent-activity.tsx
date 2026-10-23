@@ -1,3 +1,4 @@
+import { ActivityWorkTitle } from "./components/activity-progress";
 import { translateUi, useUiLanguage } from "./i18n";
 import {
   ChainOfThought,
@@ -148,11 +149,13 @@ function ProgressStep({ item }: { item: DisplayActivityItem }) {
         item.status === "running" ? LoaderCircle : item.status === "complete" ? Check : undefined
       }
       status={item.status === "running" ? "active" : "complete"}
-      label={translateUi(item.text)}
+      label={<ActivityWorkTitle item={item} />}
       description={
-        <time dateTime={item.time}>
-          {new Date(item.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-        </time>
+        <div>
+          <time dateTime={item.time}>
+            {new Date(item.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          </time>
+        </div>
       }
     >
       {item.children?.map((child) => (
@@ -221,7 +224,11 @@ export function ActivityRow({
             <span className="activity-target">{target.label}</span>
           ))}
         {item.kind !== "message" ? (
-          <p>{translateUi(item.text)}</p>
+          <div>
+            <p>
+              <ActivityWorkTitle item={item} />
+            </p>
+          </div>
         ) : (
           <MessageResponse isAnimating={Boolean(item.streaming)} controls={false}>
             {item.text}

@@ -938,6 +938,9 @@
   outline-offset: 2px;
 }
 .room-shelf-pick {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   cursor: pointer;
   border-radius: 10px;
   outline: 1px dashed var(--room-borderStrong);
@@ -1276,6 +1279,14 @@
   gap: 12px;
   max-width: 760px;
 }
+.room-project-conversation .project-selected-settings {
+  padding: 0;
+  border: 0;
+  color: var(--room-text);
+}
+.room-project-conversation .project-setting-values > span {
+  background: var(--room-raised);
+}
 .room-preview-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
@@ -1332,7 +1343,10 @@
   border-top: 1px solid var(--room-hairline);
 }
 
-/* Activity */
+/* Activity: one vertical gap for checkpoints, log rows and message groups. */
+.room-activity {
+  --activity-row-gap: 8px;
+}
 .room-project-tabs > .ant-tabs-nav {
   padding-inline: 12px;
   position: sticky;
@@ -1365,6 +1379,11 @@
 }
 .room-activity-list .ant-collapse-header {
   align-items: center !important;
+}
+.room-activity-heading {
+  display: block;
+  min-width: 0;
+  width: 100%;
 }
 .room-activity-line {
   display: flex;
@@ -1437,9 +1456,20 @@
 .room-activity-detail {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--activity-row-gap);
   padding: 4px 0 6px;
   padding-inline-start: 28px;
+}
+.room-activity-steps {
+  row-gap: var(--activity-row-gap);
+}
+.room-activity-steps .ant-thought-chain-node-description,
+.room-activity-steps .ant-thought-chain-node-content-box,
+.room-activity-steps .ant-thought-chain-node-footer {
+  margin-block-end: 0;
+}
+.room-activity-steps .ant-thought-chain-node-content-box {
+  padding-block-start: var(--activity-row-gap);
 }
 .room-activity-steps time,
 .room-activity-message time {
@@ -2081,4 +2111,21 @@
 .room-onboarding .room-idea-splitter .room-reply-label,
 .room-onboarding .room-idea-splitter .ant-sender-footer {
   flex: none;
+}
+
+.room-shelf-pick > .ant-file-card {
+  flex: 1;
+  min-width: 0;
+}
+.room-file-action {
+  flex-shrink: 0;
+  margin-right: 12px;
+  padding: 4px 12px;
+  border: 1px solid var(--room-borderStrong);
+  border-radius: 6px;
+  color: var(--room-text);
+}
+.room-attachment-status {
+  font-size: 12px;
+  font-weight: 650;
 }

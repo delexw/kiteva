@@ -26,75 +26,79 @@ const ZoomRegionSchema = z
   })
   .refine((region) => region.endSeconds > region.startSeconds, "Zoom end must follow start");
 
-/** Shared tool, local recorder and worker contract; only native OpenScreen presentation controls. */
+const CaptureFramingSchema = z
+  .object({
+    shadowIntensity: z.number().min(0).max(1).optional(),
+    motionBlurAmount: z.number().min(0).max(1).optional(),
+  })
+  .strict();
+
+/** Controls available to the model; fixed presentation policy is applied separately. */
 export const CapturePresentationSchema = z
   .object({
-    framing: z
-      .object({
-        padding: z.number().min(0).max(100).optional(),
-        borderRadius: z.number().min(0).max(64).optional(),
-        shadowIntensity: z.number().min(0).max(1).optional(),
-        backgroundBlur: z.number().min(0).max(1).optional(),
-        motionBlurAmount: z.number().min(0).max(1).optional(),
-        aspectRatio: z
-          .enum(["native", "auto", "16:9", "9:16", "1:1", "4:3", "4:5", "16:10", "10:16"])
-          .optional(),
-      })
-      .strict()
-      .optional()
-      .describe(
-        "Choose the recording's framing for this project: padding 0 for edge-to-edge, or positive padding with roundness/shadow for an inset frame. Omitted fields use OpenScreen defaults; Kiteva does not force full-size framing.",
-      ),
-    zoomRegions: z
-      .array(ZoomRegionSchema)
-      .refine(
-        (regions) =>
-          regions.every(
-            (region, index) => index === 0 || region.startSeconds >= regions[index - 1].endSeconds,
-          ),
-        "Zoom regions must be in time order without overlaps",
-      )
-      .default([])
-      .describe(
-        "Optional zoom regions in ORIGINAL recording seconds, before idle cuts. Focus follows the cursor by default. Manual focus must be explicit; its coordinates are normalized to the full recorded window. Automatic zoom generation is disabled.",
-      ),
+    framing: CaptureFramingSchema.optional().describe(
+      "Optional shadow and screen-motion blur. Other framing settings are fixed by Kiteva.",
+    ),
     cursorTheme: z
       .enum(captureCursorThemes)
       .default("default")
       .describe(
         "Choose a 2D cursor theme to complement the idea's primary Motion Graphic, palette and tone while remaining visible over the app. Keep the same theme across related takes. Omission uses OpenScreen's default theme; 3D is disabled.",
       ),
-    cursorSize: z.number().min(1.5).max(6).optional(),
-    cursorSmoothing: z.literal(0.15).default(0.15).describe("Fixed cursor smoothing: always 0.15."),
     cursorMotionBlur: z.number().min(0).max(1).optional(),
-    cursorClickBounce: z.number().min(0).max(2).optional(),
-    cursorClickImpact: z
-      .boolean()
-      .optional()
-      .describe(
-        "Also push the recorded screen back on each click; choose deliberately for the project's motion language.",
-      ),
   })
   .strict();
 export type CapturePresentationInput = z.input<typeof CapturePresentationSchema>;
 
 /** Shared 2D cursor behavior; theme selection belongs to the capture tool caller. */
 export const captureCursorAppearance = {
+  cursorClickBounce: 2,
+  cursorClickImpact: false,
+  cursorSize: 1.5,
+  cursorSmoothing: 0,
   cursorModel3d: false,
   cursorAlwaysArrow: false,
   cursorAsArrow: ["text"] as Array<"text">,
 } as const;
 
+/** Fixed frame appearance, shared by local capture, workers and provenance. */
+export const captureFramingAppearance = {
+  padding: 24,
+  borderRadius: 0,
+  backgroundBlur: 1,
+  aspectRatio: "16:9",
+} as const;
+
+export function resolveCapturePresentation(input: CapturePresentationInput = {}) {
+  return {
+    ...input,
+    cursorTheme: input.cursorTheme ?? captureCursorThemes[0],
+    ...captureCursorAppearance,
+    framing: { ...input.framing, ...captureFramingAppearance },
+  };
+}
+
 /** Recording provenance also accepts the appearances used by earlier saved takes. */
 export const AppliedCapturePresentationSchema = CapturePresentationSchema.extend({
-  // Preserve the actual settings of older takes; new captures always use 0.15.
+  framing: CaptureFramingSchema.extend({
+    padding: z.number().min(0).max(100).optional(),
+    borderRadius: z.number().min(0).max(64).optional(),
+    backgroundBlur: z.number().min(0).max(1).optional(),
+    aspectRatio: z
+      .enum(["native", "auto", "16:9", "9:16", "1:1", "4:3", "4:5", "16:10", "10:16"])
+      .optional(),
+  }).optional(),
+  cursorClickImpact: z.boolean().optional(),
+  // Older takes may contain the previous native cursor size range.
+  cursorSize: z.number().min(1.5).max(6).optional(),
+  // Preserve the actual settings of older takes; new captures always disable smoothing.
   cursorSmoothing: z.number().min(0).max(1).optional(),
   // The previous CLI export path accepted 2.5; retain saved recording metadata.
   cursorClickBounce: z.number().min(0).max(2.5).optional(),
   // Earlier saved custom regions were exported as manual before focusMode was exposed.
   zoomRegions: z
     .array(ZoomRegionSchema.safeExtend({ focusMode: z.enum(["auto", "manual"]).default("manual") }))
-    .default([]),
+    .optional(),
   cursorModel3d: z.boolean().default(false),
   cursorAlwaysArrow: z.boolean().default(true),
   cursorAsArrow: z.array(z.literal("text")).optional(),

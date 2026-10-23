@@ -68,6 +68,7 @@ export const SpeechSettingsSchema = z
       voice: z.enum(speechVoices.map((voice) => voice.id)).default("af_heart"),
       volume: z.number().min(0).max(2).optional(),
       speed: z.number().min(0.75).max(1.5).default(1),
+      startSeconds: z.number().finite().min(0).max(300).optional(),
       source: z.enum(["lyrics", "write", "provided"]).default("lyrics"),
       text: z.string().max(8000).default(""),
       instructions: z.string().max(2000).default(""),
@@ -100,7 +101,15 @@ export const SpeechTrackSchema = z.object({
   file: z.string(),
   durationSeconds: z.number().positive(),
   source: z.enum(["narration", "uploaded"]),
-  cues: z.array(z.object({ text: z.string(), startSeconds: z.number(), endSeconds: z.number() })),
+  cues: z.array(
+    z.object({
+      text: z.string(),
+      startSeconds: z.number(),
+      endSeconds: z.number(),
+      scriptItemId: z.string().optional(),
+      showLyrics: z.boolean().optional(),
+    }),
+  ),
 });
 export type SpeechTrack = z.infer<typeof SpeechTrackSchema>;
 export type SpeechReadiness = { available: boolean; detail: string };
@@ -109,7 +118,9 @@ export type SpeechReadiness = { available: boolean; detail: string };
 export function activeSpeech(request: {
   lyrics?: { mode: string };
   speech?: SpeechSettings;
+  scriptItems?: unknown[];
 }): Exclude<SpeechSettings, { mode: "off" }> | undefined {
+  if (request.scriptItems !== undefined) return undefined;
   const speech = request.speech;
   if (!speech || speech.mode === "off") return undefined;
   if (

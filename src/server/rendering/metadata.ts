@@ -18,6 +18,8 @@ export interface RendererMetadata {
   selectionPolicy: string;
   entryPoint: string;
   execution: RendererExecutionPolicy;
+  /** Provider-owned cache directories that may be inherited, never trusted without validation. */
+  refinement?: { cacheDirectories: readonly string[] };
   visuals: {
     frameContract: string;
     reactComponents: string;

@@ -39,13 +39,13 @@ export function createBrowserCapabilities(context: {
   inspect: () => Promise<unknown>;
   prepareNavigation: () => void;
   recording: () => boolean;
+  desktop?: boolean;
   move: (x: number, y: number, type?: "arrow" | "pointer" | "text") => Promise<void>;
   click: (
     target: ElementHandle<Element>,
     button?: "left" | "right" | "middle",
     count?: number,
   ) => Promise<void>;
-  cursor: (x: number, y: number, kind: "click" | "move") => void;
   configureNetwork: (
     page: Page,
     input: Extract<BrowserCapabilityRequest, { operation: "browser_network" }>,
@@ -394,8 +394,25 @@ export function createBrowserCapabilities(context: {
         }
         if (p.x === undefined || p.y === undefined) throw Error("Provide target or x and y");
         await context.move(p.x, p.y, input.target ? "pointer" : "arrow");
+        data = {
+          ok: true,
+          ...(context.recording() && context.desktop
+            ? {
+                pointer: await page.evaluate(
+                  ({ x, y, click }) => {
+                    if (outerWidth !== innerWidth || outerHeight !== innerHeight)
+                      throw Error(
+                        "Capture window and page coordinates must match; use the native fullscreen window",
+                      );
+                    return { at: Date.now(), x: x / innerWidth, y: y / innerHeight, click };
+                  },
+                  { x: p.x, y: p.y, click: input.action === "click" || input.action === "tap" },
+                ),
+              }
+            : {}),
+        };
+
         if (input.action === "click") {
-          context.cursor(p.x, p.y, "click");
           await page.mouse.click(p.x, p.y, {
             button: input.button,
             count: input.clickCount,
@@ -404,7 +421,6 @@ export function createBrowserCapabilities(context: {
         if (input.action === "down") await page.mouse.down({ button: input.button });
         if (input.action === "up") await page.mouse.up({ button: input.button });
         if (input.action === "tap") {
-          context.cursor(p.x, p.y, "click");
           await page.touchscreen.tap(p.x, p.y);
         }
         if (input.action === "drag") {
@@ -596,6 +612,10 @@ export function createBrowserCapabilities(context: {
         if (input.action === "viewport") {
           noRecording();
           if (!input.width || !input.height) throw Error("Provide width and height");
+          if (context.desktop)
+            throw Error(
+              "Recording uses the native fullscreen window with matching page coordinates; viewport emulation is unavailable",
+            );
           await page.setViewport({
             width: input.width,
             height: input.height,

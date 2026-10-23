@@ -87,6 +87,7 @@ export async function reviewFinishedResult(input: {
           production: job.pageProduction,
         };
     const turn = await agentTurn({
+      includeCreativeAlternatives: false,
       provider: input.request.provider,
       model: job.model,
       workspace: job.workspace,

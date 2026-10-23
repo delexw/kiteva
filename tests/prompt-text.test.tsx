@@ -38,3 +38,12 @@ it("renders decoded mention labels as text, not executable HTML", () => {
   expect(html).toContain("@A &amp; B &lt;img");
   expect(html).not.toContain("<img");
 });
+
+it("renders motion XML as the same mention chip with its motion variant", () => {
+  const html = renderToStaticMarkup(
+    <PromptText>{'Use <motion id="motion-036">Glitch Type Build</motion> here.'}</PromptText>,
+  );
+  expect(html).toContain('data-mention-variant="motion"');
+  expect(html).toContain("Glitch Type Build");
+  expect(html).not.toContain("&lt;motion");
+});

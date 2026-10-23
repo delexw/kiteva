@@ -1,4 +1,5 @@
-import { creativeApproaches } from "../../shared/creative-approach";
+import { hasOnScreenLyrics } from "../../shared/script-items";
+import { creativeApproachLabel } from "../../shared/creative-approach";
 import { PromptText } from "../components/style-mention";
 import { uiLanguage, translateUi, useUiLanguage } from "../i18n";
 import { PageTemplate } from "../components/page-template";
@@ -266,11 +267,7 @@ export function GovernancePage() {
                       </div>
                       <div>
                         <dt>{translateUi("Creative approach")}</dt>
-                        <dd>
-                          {project.request.pinnedStyleId
-                            ? translateUi("Using selected Motion Graphic")
-                            : translateUi(creativeApproaches[project.request.preference].label)}
-                        </dd>
+                        <dd>{translateUi(creativeApproachLabel(project.request))}</dd>
                       </div>
                       <div>
                         <dt>{translateUi("Preview options")}</dt>
@@ -302,11 +299,17 @@ export function GovernancePage() {
                           <div>
                             <dt>{translateUi("Lyrics")}</dt>
                             <dd>
-                              {project.request.lyrics?.mode === "provided"
-                                ? translateUi("User supplied")
-                                : project.request.lyrics?.mode === "write"
-                                  ? translateUi("Generate")
-                                  : translateUi("Off")}
+                              {project.request.scriptItems !== undefined
+                                ? translateUi(
+                                    hasOnScreenLyrics(project.request)
+                                      ? "Timed script items"
+                                      : "Off",
+                                  )
+                                : project.request.lyrics?.mode === "provided"
+                                  ? translateUi("User supplied")
+                                  : project.request.lyrics?.mode === "write"
+                                    ? translateUi("Generate")
+                                    : translateUi("Off")}
                             </dd>
                           </div>
                         </>

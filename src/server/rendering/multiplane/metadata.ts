@@ -2,7 +2,10 @@ import { sharedRendererAudioPolicy, type RendererMetadata } from "../metadata";
 
 export const multiplaneShotGuidance = `MULTIPLANE SHOT LOADING: Readiness has a fixed 30-second limit. For a long film with recorded footage, author independently loadable short HTML shots, normally one per feature/scene (split further when its asset budget requires it). Each shot preloads only its own required frames in setup()/ready; never import a film-wide preload manifest into every shot. Estimate both compressed bytes and decoded memory (unique frames × width × height × 4); packing files reduces request count but not decoded memory. Keep the requested resolution, frame rate and real cursor/zoom footage. Do not use async render(t), lazy loading during render, or autonomous video playback.
 Declare production.shots as an ordered array of { sourceFile, duration }, for example [{"sourceFile":"shots/01.html","duration":5},{"sourceFile":"shots/02.html","duration":7}]. Durations are seconds, must align to output frames and sum exactly to the requested film duration. Set production.sourceFile to the first shot path. Each Shot.define duration equals that shot's duration; render(t) receives shot-local time. Keep the storyboard and soundtrack on the full-film timeline; explicitly map shot-local time to original source/film time for footage, captions and motion. At adjacent shot boundaries preserve the intended visual continuity or chapter transition; splitting a load is not permission to insert a new cut. Kiteva inspects, verifies and renders each shot independently, concatenates silent outputs in order without re-encoding their video, then applies production.audioFile once across the complete film and mixes prepared narration afterward. Do not restart the soundtrack or duplicate narration in each shot.
+RENDER INPUT BOUNDARY: Keep every authored source and asset inside the project input tree. renders/ and VALIDATION.md are application-generated outputs, never input assets; do not load them from a shot. Do not rely on resources outside the project tree except the installed Multiplane runtime.
 For a short single shot, omit shots and keep sourceFile as shot.html. Validate actual setup readiness for every shot and run verify before treating it as complete; split or reduce redundant asset loading when ready_timeout occurs, rather than merely repacking all frames or requesting a longer timeout.`;
+
+export const multiplaneCacheDirectory = "renders/multiplane-cache";
 
 export const multiplaneMetadata = {
   id: "multiplane",
@@ -11,6 +14,7 @@ export const multiplaneMetadata = {
   selectionPolicy:
     "Experimental renderer explicitly chosen by the user. Preserve this selection; no HyperFrames or Remotion substitution.",
   entryPoint: "shot.html for a single shot; production.shots[0].sourceFile for a segmented film",
+  refinement: { cacheDirectories: [multiplaneCacheDirectory] },
   execution: {
     cliPath: "node_modules/multiplane/bin/multiplane",
     outputArgument: "--out",

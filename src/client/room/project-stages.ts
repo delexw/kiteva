@@ -20,7 +20,7 @@ import {
   type PreparationStep,
 } from "../../shared/preparation";
 import { activityItems, type ActivityItem } from "../agent-activity-model";
-import { displayActivityItems } from "../activity-display";
+import { activityLabel, displayActivityItems } from "../activity-display";
 import { roomQuestionScope } from "./question-scope";
 
 type StageStatus = ThoughtChainItemType["status"];
@@ -98,7 +98,8 @@ function duration(items: ActivityItem[]) {
 }
 function summary(status: StageStatus, items: ActivityItem[], fallback: string) {
   const steps = displayActivityItems(items.filter((item) => item.kind !== "message"));
-  if (status === "loading") return translateUi(steps.at(-1)?.text || fallback);
+  if (status === "loading")
+    return steps.length ? activityLabel(steps.at(-1)!) : translateUi(fallback);
   if (status === undefined && fallback) return fallback;
   if (!items.length) return fallback;
   const took = duration(items);
@@ -225,7 +226,7 @@ export function roomActivityContexts(
       const phase = translateUi(phaseLabels[job.phase] || job.phase);
       const jobContext = context(
         job.id,
-        `${roomQuestionScope(run, job.id)}${round ? translateUi(" · round {{round}}", { round: round + 1 }) : ""}`,
+        `${roomQuestionScope(run, job.id)}${job.kind === "preview" && round ? translateUi(" · round {{round}}", { round: round + 1 }) : ""}`,
         status,
         waiting
           ? "Waiting for your decision"

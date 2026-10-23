@@ -109,12 +109,13 @@ export const codexAgent: Agent = {
             ? {
                 reference_browser: {
                   ...referenceServer,
-                  enabled_tools: enabledReferenceTools(options.readOnly),
+                  enabled_tools: enabledReferenceTools(
+                    options.readOnly || options.enableVideoCapture === false,
+                  ),
                   tools: Object.fromEntries(
-                    enabledReferenceTools(options.readOnly).map((name) => [
-                      name,
-                      { approval_mode: "approve" },
-                    ]),
+                    enabledReferenceTools(
+                      options.readOnly || options.enableVideoCapture === false,
+                    ).map((name) => [name, { approval_mode: "approve" }]),
                   ),
                   tool_timeout_sec: 180,
                 },

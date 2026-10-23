@@ -1,0 +1,16 @@
+export const storyContinuityGuidance = `Use context → action → result with one consistent non-sensitive scenario and the same created item. Follow natural navigation and dependencies, respecting explicit user ordering. Preserve continuous action within each task; avoid unrelated page jumps, backtracking and unexplained state resets. Bridge necessary branches with context. This structure does not require extra narration. Reconcile captured coverage with the plan and record missing supported actions before assembly.`;
+
+export const unsupportedInteractionsGuidance = `UNSUPPORTED INTERACTIONS: If any component cannot be operated with available tools, report the limitation and skip only that interaction without a blocking question. Continue supported features using actual OpenScreen footage. Never substitute screenshots, stills or recreated UI for demo footage, invent success or fabricate dependent states. Record omissions in the storyboard and final report; bridge to the next reachable task coherently. Only if recording, export or footage integration itself is unavailable, stop with a blocking assetNeeds question; never assemble a substitute demo while awaiting an answer.`;
+
+export const chapterCardsGuidance = `CHAPTERS: Group major functionalities into named chapters, not individual controls. At each major feature boundary, use a brief transition card: section title centered, actual supplied or application-derived product logo in the bottom-left or bottom-right corner. Keep one consistent corner, logo proportions, safe padding and title separation. Match typography, palette and motion to the selected Motion Graphics and act-specific direction. Allow a readable title beat, then continue the real recorded task. A chapter card must not conceal a state reset or replace feature coverage. Include chapter names, boundaries, card treatment and timing in the storyboard. Explicit user presentation instructions take precedence.`;
+
+export const filePickerGuidance = `FILE PICKERS: For image, document, audio and other file uploads, assign permitted local files directly to the actual input[type="file"] using reference_browser upload_files (backed by Puppeteer uploadFile; Playwright equivalent: setInputFiles). Do not click the attachment button or open or operate the native file-picker window. Respect accepted types, multiple-file support and application limits; verify the filename, thumbnail or resulting app state before continuing. OpenScreen records the application response. If registered tools cannot assign files, follow UNSUPPORTED INTERACTIONS; do not bypass tool restrictions. This does not apply to date or other in-page selection controls.`;
+
+/** Inject this complete block into every chapter call, including retries. */
+export const captureInteractionGuidance = [
+  storyContinuityGuidance,
+  unsupportedInteractionsGuidance,
+  filePickerGuidance,
+].join("\n\n");
+
+export const footagePlacementGuidance = `FOOTAGE PLACEMENT: Scale exported footage proportionally to contain the entire captured frame inside the film's demo area. Preserve every edge; use padding or a matching background for aspect-ratio differences. Never use cover, stretching, overflow clipping or extra assembly zoom. Apply the same fit to extracted frames. Verify all edges at final resolution; OpenScreen's rendered zoom remains part of the source.`;

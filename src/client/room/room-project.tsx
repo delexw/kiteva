@@ -4,12 +4,15 @@ import { Alert, Button, Select, Tabs } from "antd";
 import { useState, type ReactNode } from "react";
 import {
   type Run,
+  type Style,
+  type StyleExample,
   type GenerationJob,
   type AgentProgressEvent,
   terminalPhases,
 } from "../../shared/contracts";
 import { projectOverview } from "../lib/project-overview";
 import { PromptText } from "../components/style-mention";
+import { ProjectSettings } from "../components/project-settings";
 import { ProjectResultPending } from "../components/project-result-pending";
 import { api } from "../lib/api";
 import { scopedAssetQuestions } from "../../shared/asset-question-scopes";
@@ -25,6 +28,8 @@ const sectionLabels: Record<string, string> = {
 };
 export function RoomProject({
   run,
+  styles = [],
+  examples = [],
   events,
   renderPreview,
   renderFull,
@@ -38,6 +43,8 @@ export function RoomProject({
   onView,
 }: {
   run: Run;
+  styles?: Pick<Style, "id" | "name_en">[];
+  examples?: StyleExample[];
   events: AgentProgressEvent[];
   renderPreview: (job: GenerationJob) => ReactNode;
   renderFull: (job: GenerationJob) => ReactNode;
@@ -46,7 +53,7 @@ export function RoomProject({
   onUpdated: (run: Run) => void;
   onEdit: () => void;
   onCancel: () => void;
-  onRetry: () => void;
+  onRetry: (jobId?: string) => void | Promise<void>;
   view: RoomProjectView;
   onView: (view: RoomProjectView) => void;
 }) {
@@ -66,7 +73,9 @@ export function RoomProject({
   const refineId = completed.some((job) => job.id === view.refineJobId)
     ? view.refineJobId
     : completed.at(-1)?.id;
-  const storyboards = full.filter((job) => job.phase === "ready" && job.outputType !== "page");
+  const storyboards = full.filter(
+    (job) => job.outputType !== "page" && (job.storyboardReady || job.phase === "ready"),
+  );
   const questions = scopedAssetQuestions(run);
   const open = questions.filter((q) => q.state === "open");
   const pending = (jobId?: string) =>
@@ -88,7 +97,7 @@ export function RoomProject({
           </Button>
         ) : (
           ["failed", "interrupted", "cancelled"].includes(run.phase) && (
-            <Button onClick={onRetry}>{translateUi("Retry")}</Button>
+            <Button onClick={() => void onRetry()}>{translateUi("Retry")}</Button>
           )
         )}
         {pending()}
@@ -105,6 +114,12 @@ export function RoomProject({
               label: translateUi("Conversation"),
               children: (
                 <div className="room-project-conversation">
+                  <Bubble
+                    placement="end"
+                    className="room-bubble-user"
+                    header={translateUi("Settings")}
+                    content={<ProjectSettings run={run} styles={styles} examples={examples} />}
+                  />
                   <Bubble
                     placement="end"
                     className="room-bubble-user"
@@ -217,7 +232,9 @@ export function RoomProject({
                       </ul>
                     ) : (
                       <p className="room-hint">
-                        {translateUi("The storyboard appears when a full film is ready.")}
+                        {translateUi(
+                          "The storyboard appears when planning is complete, before recording begins.",
+                        )}
                       </p>
                     ),
                   },
@@ -225,7 +242,7 @@ export function RoomProject({
             {
               key: "activity",
               label: <RoomActivityTab run={run} />,
-              children: <RoomActivity run={run} events={events} />,
+              children: <RoomActivity run={run} events={events} onRetry={onRetry} />,
             },
           ]}
         />

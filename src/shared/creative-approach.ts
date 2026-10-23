@@ -17,3 +17,13 @@ export const creativeApproaches = {
       "Draw Motion Graphics uniformly from the full pool. No scores, weights or preference history. Build around your brief and the random draw.",
   },
 } satisfies Record<CreativeApproach, { label: string; description: string }>;
+
+/** Explicit selections bypass automatic creative exploration. */
+export function creativeApproachLabel(request: {
+  preference: CreativeApproach;
+  selectedStyleIds?: string[];
+}) {
+  return request.selectedStyleIds?.length
+    ? "Selected Motion Graphics"
+    : creativeApproaches[request.preference].label;
+}

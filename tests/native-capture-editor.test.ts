@@ -19,7 +19,9 @@ vi.mock("../src/server/capture/openscreen", () => ({
 }));
 import {
   createNativeCaptureEditor,
+  startNativeCaptureRecording,
   nativeCaptureOperations,
+  NativeCaptureRequestSchema,
 } from "../src/server/capture/native-editor";
 
 const reply = (data: unknown, isError = false) => ({
@@ -30,20 +32,25 @@ beforeEach(() => {
   vi.clearAllMocks();
   native.close.mockResolvedValue(undefined);
   native.listTools.mockResolvedValue({
-    tools: ["createProject", "setEditorSettings", "exportVideo", ...nativeCaptureOperations].map(
-      (name) => ({
-        name,
-        description: `Native ${name}`,
-        inputSchema: {
-          type: "object",
-          properties: {
-            projectId: { type: "string" },
-            path: { type: "string" },
-            count: { type: "integer", minimum: 1, maximum: 12 },
-          },
+    tools: [
+      "createProject",
+      "startRecording",
+      "stopRecording",
+      "setEditorSettings",
+      "exportVideo",
+      ...nativeCaptureOperations,
+    ].map((name) => ({
+      name,
+      description: `Native ${name}`,
+      inputSchema: {
+        type: "object",
+        properties: {
+          projectId: { type: "string" },
+          path: { type: "string" },
+          count: { type: "integer", minimum: 1, maximum: 12 },
         },
-      }),
-    ),
+      },
+    })),
   });
   native.callTool.mockImplementation(async ({ name }) =>
     name === "createProject"
@@ -54,13 +61,10 @@ beforeEach(() => {
   );
 });
 const editor = () =>
-  createNativeCaptureEditor(
-    "/take/source.mp4",
-    "/take/export.mp4",
-    new AbortController().signal,
-    { cursorTheme: "studio-ink", framing: { padding: 5 } },
-    [],
-  );
+  createNativeCaptureEditor("/take/source.mp4", "/take/export.mp4", new AbortController().signal, {
+    cursorTheme: "studio-ink",
+    framing: { shadowIntensity: 0.5 },
+  });
 
 it("uses live schemas and binds review/edit/export to the take without selecting cuts", async () => {
   const take = await editor();
@@ -117,8 +121,7 @@ it("rejects other projects, file paths and unavailable operations before forward
         take.call({ operation: "getFrames", arguments: { [key]: "outside" } }),
       ).rejects.toThrow("cannot override");
     await expect(take.call(JSON.parse('{"operation":"listProjects"}'))).rejects.toThrow();
-    expect(take.tools.some((tool) => tool.name === "addAutoZooms")).toBe(false);
-    await expect(take.call(JSON.parse('{"operation":"addAutoZooms"}'))).rejects.toThrow();
+    expect(take.tools.some((tool) => tool.name === "addAutoZooms")).toBe(true);
   } finally {
     await take.close();
   }
@@ -152,179 +155,100 @@ it("closes the native connection when setup fails", async () => {
   expect(native.close).toHaveBeenCalledOnce();
 });
 
-it("applies only caller-requested zooms and reports partial native refusals", async () => {
-  native.callTool.mockImplementation(async ({ name }) => {
-    if (name === "createProject") return reply({ projectId: "take-project" });
-    if (name === "getCurrentDocument")
-      return reply({ zoomRanges: [{ id: "old-focus", startSec: 1, endSec: 3 }] });
-    if (name === "addZooms") return reply({ appliedCount: 0, refusedCount: 1 });
-    return reply({ applied: true });
-  });
-  await expect(
-    createNativeCaptureEditor(
-      "/take/source.mp4",
-      "/take/export.mp4",
-      new AbortController().signal,
-      {},
-      [
-        {
-          id: "field",
-          startMs: 1500,
-          endMs: 2500,
-          depth: 3,
-          customScale: 1.1,
-          focus: { cx: 0.5, cy: 0.6 },
-          focusMode: "manual",
-          source: "manual",
-        },
-      ],
-    ),
-  ).rejects.toThrow("requested zoom failed");
-  expect(native.callTool).toHaveBeenCalledWith(
-    { name: "removeModifier", arguments: { projectId: "take-project", id: "old-focus" } },
-    undefined,
-    expect.any(Object),
-  );
-  expect(native.callTool).toHaveBeenLastCalledWith(
-    {
-      name: "addZooms",
-      arguments: {
-        projectId: "take-project",
-        regions: [
-          {
-            startSec: 1.5,
-            endSec: 2.5,
-            depth: 3,
-            focus: { cx: 0.5, cy: 0.6 },
-            focusMode: "manual",
-          },
-        ],
-      },
-    },
-    undefined,
-    expect.any(Object),
-  );
-  expect(native.close).toHaveBeenCalledOnce();
-});
-
-it("passes an explicitly requested scale using native zoom operations without conflicting defaults", async () => {
-  native.callTool.mockImplementation(async ({ name, arguments: args }) => {
-    if (name === "createProject") return reply({ projectId: "take-project" });
-    if (name === "getCurrentDocument") return reply({ zoomRanges: [] });
-    if (name === "addZooms") {
-      if (args.regions.some((region: Record<string, unknown>) => "customScale" in region))
-        return reply({ error: "Pass depth or customScale, not both" }, true);
-      return reply({
-        appliedCount: 1,
-        refusedCount: 0,
-        applied: [{ index: 0, zoomId: "field-zoom" }],
-      });
-    }
-    return reply({ applied: true });
-  });
-  const take = await createNativeCaptureEditor(
-    "/take/source.mp4",
-    "/take/export.mp4",
-    new AbortController().signal,
-    {},
-    [
-      {
-        id: "field",
-        startMs: 1500,
-        endMs: 2500,
-        depth: 3,
-        customScale: 1.1,
-        focus: { cx: 0.5, cy: 0.6 },
-        focusMode: "manual",
-        source: "manual",
-      },
-    ],
-  );
+it("preserves native camera settings and forwards the model's zoom edits unchanged", async () => {
+  const take = await editor();
   try {
-    expect(native.callTool).toHaveBeenCalledWith(
+    const setup = native.callTool.mock.calls.map(([request]) => request);
+    expect(setup.map((request) => request.name)).toEqual(["createProject", "setEditorSettings"]);
+    expect(setup[1].arguments).not.toHaveProperty("autoFocusAll");
+    expect(setup[1].arguments).not.toHaveProperty("formatFollowCursor");
+    expect(setup[1].arguments.cursor).toMatchObject({
+      size: 1.5,
+      smoothing: 0,
+      clickBounce: 2,
+      clickImpact: false,
+    });
+    expect(setup[1].arguments).toMatchObject({
+      padding: 24,
+      borderRadius: 0,
+      backgroundBlur: 1,
+      aspectRatio: "16:9",
+      shadowIntensity: 0.5,
+    });
+    const regions = [
       {
-        name: "addZooms",
-        arguments: {
-          projectId: "take-project",
-          regions: [
-            {
-              startSec: 1.5,
-              endSec: 2.5,
-              depth: 3,
-              focus: { cx: 0.5, cy: 0.6 },
-              focusMode: "manual",
-            },
-          ],
-        },
+        startSec: 4,
+        endSec: 6,
+        customScale: 1.1,
+        focusMode: "manual",
+        focus: { cx: 0.3, cy: 0.4 },
       },
-      undefined,
-      expect.any(Object),
-    );
-    expect(native.callTool).toHaveBeenLastCalledWith(
-      {
-        name: "setZoom",
-        arguments: { projectId: "take-project", zoomId: "field-zoom", customScale: 1.1 },
-      },
-      undefined,
-      expect.any(Object),
-    );
+    ];
+    await take.call({ operation: "addZooms", arguments: { regions } });
+    expect(native.callTool.mock.calls.at(-1)?.[0]).toEqual({
+      name: "addZooms",
+      arguments: { projectId: "take-project", regions },
+    });
+    await take.call({ operation: "addAutoZooms" });
+    expect(native.callTool.mock.calls.at(-1)?.[0]).toEqual({
+      name: "addAutoZooms",
+      arguments: { projectId: "take-project" },
+    });
+    const count = native.callTool.mock.calls.length;
+    await take.export();
+    expect(native.callTool.mock.calls.slice(count).map(([r]) => r.name)).toEqual(["exportVideo"]);
   } finally {
     await take.close();
   }
 });
 
-it("starts wide, clears every inherited zoom and prevents global cursor-follow overrides", async () => {
+it("uses native recording and pointer-track tools on the same connection without modifying event coordinates", async () => {
   native.callTool.mockImplementation(async ({ name }) => {
-    if (name === "createProject") return reply({ projectId: "take-project" });
-    if (name === "getCurrentDocument")
-      return reply({
-        zoomRanges: [
-          { id: "navigation-auto", startSec: 1, endSec: 2 },
-          { id: "field-auto", startSec: 4, endSec: 6 },
+    if (name === "startRecording")
+      return {
+        content: [
+          {
+            type: "text",
+            text: '{"recording":true,"startedAt":1000}\nRecording. Drive the app now.',
+          },
         ],
+      };
+    if (name === "stopRecording")
+      return reply({
+        projectId: "native-take",
+        videoPath: "/native/source.mp4",
+        durationSec: 2,
+        recordingStartedAt: 1000,
       });
     return reply({ applied: true });
   });
-  const take = await editor();
+  const take = await startNativeCaptureRecording(
+    "Isolated app",
+    "/take/export.mp4",
+    new AbortController().signal,
+    {},
+  );
   try {
-    expect(native.callTool).toHaveBeenCalledWith(
-      {
-        name: "setEditorSettings",
-        arguments: expect.objectContaining({
-          autoFocusAll: false,
-          formatFollowCursor: false,
-          cursor: expect.objectContaining({ smoothing: 0.15 }),
-        }),
-      },
+    expect(take.recordingStartedAt).toBe(1000);
+    await expect(take.call({ operation: "getCurrentDocument" })).rejects.toThrow(
+      "Stop the native recording",
+    );
+    await take.stopRecording();
+    expect(take.tools.some((tool) => tool.name === "setPointerTrack")).toBe(true);
+    const events = [{ at: 1100, x: 0.2, y: 0.3, click: true }];
+    expect(
+      NativeCaptureRequestSchema.safeParse({ operation: "setPointerTrack", arguments: { events } })
+        .success,
+    ).toBe(true);
+    await take.call({ operation: "setPointerTrack", arguments: { events } });
+    expect(native.callTool).toHaveBeenLastCalledWith(
+      { name: "setPointerTrack", arguments: { events, projectId: "native-take" } },
       undefined,
       expect.any(Object),
     );
-    expect(
-      native.callTool.mock.calls
-        .filter(([r]) => r.name === "removeModifier")
-        .map(([r]) => r.arguments.id),
-    ).toEqual(["navigation-auto", "field-auto"]);
-    await take.call({
-      operation: "addZooms",
-      arguments: {
-        regions: [
-          {
-            startSec: 4,
-            endSec: 6,
-            customScale: 1.1,
-            focusMode: "manual",
-            focus: { cx: 0.3, cy: 0.4 },
-          },
-        ],
-      },
-    });
-    const calls = native.callTool.mock.calls.length;
-    await take.export();
-    await take.export();
-    expect(native.callTool.mock.calls.slice(calls).map(([r]) => r.name)).toEqual([
-      "exportVideo",
-      "exportVideo",
-    ]);
+    expect(native.callTool.mock.calls.some(([request]) => request.name === "createProject")).toBe(
+      false,
+    );
   } finally {
     await take.close();
   }

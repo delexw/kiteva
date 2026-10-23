@@ -1,5 +1,8 @@
 # Job subworkflows
 
+Chapter planning, speed adjustment, duration acceptance and intact assembly follow
+[the chapter capture timing flow](../../../../docs/chapter-capture-timing.md).
+
 `../workflow.ts` selects the route and owns checkpoints and job state. Each subworkflow owns its task's execution.
 
 ```text
@@ -11,6 +14,10 @@ subworkflows/
 │   └── correction.ts     # Apply and validate focused corrections
 ├── explicit-style-preview/
 │   └── workflow.ts       # Main-model preview executions of fixed user styles; no JEV style ranking
+├── chapter-capture/
+│   ├── workflow.ts       # Sequential chapter model calls, verified export checkpoints and progress
+│   ├── prompt.ts         # Explicit context and shared rules for each fresh chapter session
+│   └── handoff.ts        # Validated capture results shared with narration and assembly
 ├── title-brief/
 │   └── workflow.ts       # Text-only project title extraction for direct builds
 ├── shared/
@@ -24,6 +31,8 @@ subworkflows/
 Full brief is used for automatic style exploration. Title brief is used with Motion Graphics selected in Settings and returns only `subject`; it does not inspect sources or plan production. With previews enabled, explicit-style-preview uses the main model to plan exactly the requested number of creative executions of those fixed styles, preserving original act/scene assignments. With zero previews, the route builds the full project directly. Neither explicit-style route proposes or ranks style combinations. Audio and visual-authoring capability decisions remain separate.
 
 Both brief variants use the existing `brief` checkpoint. Title-only output carries `variant: "title-only"`; full output carries its asset-review revision, so an incompatible cached result is not reused. The complete original request remains available to the main planner and builder in both routes.
+
+Chapter capture owns its per-call prompt in `chapter-capture/prompt.ts` and the planned chapter loop: one fresh selected-model session per chapter, with explicit scope/story, chapter instructions, source requirements and previous-result context, native export evidence validation, video-and-cursor checksum validation, checkpoint persistence and measured progress. Saving progress preserves unvisited checkpoints for later validation, including across failure or cancellation; it does not count them as completed. Checkpoints without a cursor checksum require one fresh capture before reuse. It runs sequentially before narration and film assembly; chapter session IDs are saved for audit and cannot replace the main planning session. Narration reads the completed capture handoff explicitly, and its cache includes that evidence. Route A guidance is stage-specific: `domains/video/route-prompts/application-demo/planning.ts` owns discovery and scope/story, `capture.ts` owns recording/review rules, and `assembly.ts` owns footage fitting and renderer integration. `shared.ts` owns the continuity, unsupported-interaction, file-picker and footage-placement rules. The placement rule is reused by every assembly route and remains separate from OpenScreen capture framing. Its combined capture rules are injected into every chapter call and retry; they do not depend on earlier session messages. Each stage embeds a Mermaid flowchart for ordering, decisions and review loops, with short rules for required constraints. New planning and assembly calls do not receive the native recording procedure. Shared chapter plan/progress schemas stay in `src/shared/capture-chapters.ts` because the planner, server and activity UI consume them.
 
 Website reference, website capture, result review and localization remain separate subworkflows. MCP tool definitions and server entry points remain in their existing tool modules, outside this folder.
 
@@ -49,6 +58,7 @@ flowchart TD
   Title --> Shared
   WF --> Video["domains/video/workflow.ts: shared job execution"]
   Video --> Plan["domains/video/build-plan.ts: main-model plan before implementation"]
+  Video --> Chapters["chapter-capture/workflow.ts: planned chapter calls, checkpoints and progress"]
   Video --> Localize["video-localization.ts when delivery copy needs localization"]
   Video --> Result["result-review.ts after render and validation"]
   Browser["reference_browser capability used by model turns"] --> Reference["website-reference.ts: browser inspection and interaction"]

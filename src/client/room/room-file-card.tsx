@@ -1,6 +1,6 @@
 import { translateUi, useUiLanguage } from "../i18n";
 import { FileCard } from "@ant-design/x";
-import { Button, Image } from "antd";
+import { Button, Image, Tag } from "antd";
 import { Trash2 } from "lucide-react";
 import type { RoomLibraryAsset } from "../../shared/room";
 import { roomMaterialSection } from "./onboarding";
@@ -64,6 +64,7 @@ export function RoomFilePick({
       }}
     >
       <FileCard {...cardProps(asset)} />
+      <span className="room-file-action">{translateUi(picked ? "Remove" : "Add")}</span>
     </div>
   );
   return onDelete ? (
@@ -98,6 +99,7 @@ export function RoomChosenFile({
   useUiLanguage();
   return (
     <div className="room-chosen-file">
+      <Tag color="success">{translateUi("Attached")}</Tag>
       <FileCard {...cardProps(asset)} />
       {onRemove && (
         <Button

@@ -54,10 +54,10 @@ import{StyleExamplesContext}from'/src/client/components/style-picker.tsx';
 import{RequestSchema}from'/src/shared/contracts.ts';
 const idea='Act 1: <style id="style-140">Vintage Rubber Hose Animation</style>. Act 3: <style id="style-136">Manga Production Theatre</style>.';
 const styles=[{id:'style-140',name_en:'Vintage Rubber Hose Animation'},{id:'style-136',name_en:'Manga Production Theatre'}];
-const run={id:'fixture',createdAt:'2026-01-01T00:00:00Z',phase:'ready',request:RequestSchema.parse({instructions:idea}),candidates:[],jobs:[]};
+const run={id:'fixture',createdAt:'2026-01-01T00:00:00Z',phase:'ready',request:RequestSchema.parse({instructions:idea,duration:180,resolution:"1440p",frameRate:60,renderer:"multiplane",provider:"claude",candidateCount:0,selectedStyleIds:["style-140"]}),candidates:[],jobs:[]};
 function App(){const[value,setValue]=useState(idea);const[draft,setDraft]=useState({...emptyRoomDraft(),step:1,request:run.request});const[view,setView]=useState({tab:'conversation'});return React.createElement(React.Fragment,null,
 React.createElement('section',{id:'assistant'},React.createElement(RoomOnboarding,{draft,onChange:setDraft,materials:[],styles,examples:[],onCreated(){},onUpload:async()=>[]})),
-React.createElement('section',{id:'project'},React.createElement(RoomProject,{run,events:[],renderPreview:()=>null,renderFull:()=>null,controls:null,onQuestion(){},onUpdated(){},onEdit(){},onCancel(){},onRetry(){},view,onView:setView})),
+React.createElement('section',{id:'project'},React.createElement(RoomProject,{run,styles,examples:[],events:[],renderPreview:()=>null,renderFull:()=>null,controls:null,onQuestion(){},onUpdated(){},onEdit(){},onCancel(){},onRetry(){},view,onView:setView})),
 React.createElement('section',{id:'editor'},React.createElement(StylePromptInput,{value,onChange:setValue,styles})),
 React.createElement('output',{id:'stored',hidden:true},value));}
 createRoot(document.getElementById('root')).render(React.createElement(StyleExamplesContext,{value:styles.map(style=>({styleId:style.id,video:'fixture.webm',videoGeneratedAt:'fixture',status:'ready',catalogHash:'fixture',thumbnail:'fixture.png'}))},React.createElement(App)));</script>`,
@@ -81,6 +81,28 @@ createRoot(document.getElementById('root')).render(React.createElement(StyleExam
       const errors: string[] = [];
       page.on("pageerror", (e) => errors.push(String(e)));
       await page.goto(`${server.resolvedUrls!.local[0]}prompt-text-test`);
+      await page.waitForSelector('#project [aria-label="Selected project settings"]');
+      const settings = await page.$eval(
+        '#project [aria-label="Selected project settings"]',
+        (element) => element.textContent,
+      );
+      for (const value of [
+        "Claude Opus 5.5",
+        "180s",
+        "2K · 1440p",
+        "60 fps",
+        "Multiplane",
+        "Vintage Rubber Hose Animation",
+      ])
+        expect(settings).toContain(value);
+      expect(await page.$$('#project [aria-label="Selected project settings"]')).toHaveLength(1);
+      const settingsBeforeIdea = await page.$eval(
+        "#project .room-project-conversation",
+        (element) => element.firstElementChild!.textContent,
+      );
+      expect(settingsBeforeIdea).toContain("Settings");
+      expect(settingsBeforeIdea).toContain("180s");
+
       for (const section of ["assistant", "project", "editor"]) {
         const selector = `#${section} .style-prompt-mention`;
         await page.waitForSelector(selector);

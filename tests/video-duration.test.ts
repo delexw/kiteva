@@ -29,12 +29,12 @@ it("caps explicit and automatic durations at five minutes, including older sugge
   ).toBe(true);
 });
 it.each([
-  [3, 1, 3],
-  [29, 1, 3],
-  [30, 1, 4],
-  [59, 1, 4],
-  [60, 1, 5],
-  [179, 1, 5],
+  [3, 2, 3],
+  [29, 2, 3],
+  [30, 2, 4],
+  [59, 2, 4],
+  [60, 2, 5],
+  [179, 2, 5],
   [180, 2, 6],
   [300, 2, 6],
 ])("uses the full %ss duration for the %s–%s Motion Graphic range", (duration, min, max) => {

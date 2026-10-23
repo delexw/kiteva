@@ -86,7 +86,12 @@ it.each([
         ]),
       ).toEqual(Array(2).fill([catalog.styles[0].id, catalog.styles[1].id]));
       const planning = vi.mocked(agentTurn).mock.calls[1][0];
-      expect(planning).toMatchObject({ provider, model: run.jobs[0].model, readOnly: true });
+      expect(planning).toMatchObject({
+        provider,
+        model: run.jobs[0].model,
+        readOnly: true,
+        includeCreativeAlternatives: false,
+      });
       expect(planning.promptContext).toMatchObject({
         request: originalRequest,
         candidate: {
@@ -97,6 +102,7 @@ it.each([
       expect(planning.promptContext).not.toHaveProperty("styles");
       expect(JSON.stringify(planning.promptContext)).not.toContain("executable_prompt_template");
       expect(planning.prompt).toContain(requestedStyleScopeGuidance);
+      expect(planning.prompt).not.toContain("The duration-derived range limits");
       if (outputType === "video") {
         const prompt = buildVideoPrompt({
           job: run.jobs[0] as VideoGenerationJob,

@@ -1,5 +1,6 @@
+import { StoryboardSchema } from "../src/shared/agents/schemas/storyboard";
 import { afterEach, expect, it, vi } from "vitest";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { z } from "zod";
@@ -68,6 +69,8 @@ function validPlan() {
 function fullPlan(duration = 3, width = size.width, height = size.height) {
   return {
     version: 2 as const,
+    storyboard: validStoryboard(duration),
+    capturePlan: null,
     width,
     height,
     fps: size.fps,
@@ -142,6 +145,7 @@ it("plans in the selected preview session, persists it and hands off in the retu
   });
   const prompt = await prepareVideoBuildPlan(options);
   const call = vi.mocked(agentTurn).mock.calls[0][0];
+  expect(call.includeCreativeAlternatives).toBe(false);
   expect(call).toMatchObject({
     model: "gpt-6.1-sol",
     readOnly: true,
@@ -506,3 +510,179 @@ it.each(["claude", "codex"] as const)(
     expect(agentTurn).toHaveBeenCalledOnce();
   },
 );
+
+it("requires a complete full-film storyboard before handing off a new build", async () => {
+  const options = await input();
+  options.job.kind = "full";
+  const incomplete = fullPlan();
+  const { storyboard: _storyboard, ...withoutStoryboard } = incomplete;
+  vi.mocked(agentTurn).mockResolvedValue({ value: withoutStoryboard, sessionId: "main" });
+  await expect(prepareVideoBuildPlan(options)).rejects.toBeInstanceOf(StructuredOutputError);
+  await expect(readFile(path.join(options.job.workspace, "STORYBOARD.json"))).rejects.toMatchObject(
+    { code: "ENOENT" },
+  );
+  expect(options.onEvent.mock.calls.some(([event]) => event.type === "plan_ready")).toBe(false);
+});
+it("saves the validated storyboard before announcing readiness and preserves it on retries", async () => {
+  const options = await input();
+  options.job.kind = "full";
+  const plan = fullPlan();
+  vi.mocked(agentTurn).mockResolvedValue({ value: plan, sessionId: "main" });
+  await prepareVideoBuildPlan(options);
+  expect(options.job.storyboardReady).toBe(true);
+  expect(
+    JSON.parse(await readFile(path.join(options.job.workspace, "STORYBOARD.json"), "utf8")),
+  ).toEqual(plan.storyboard);
+  await prepareVideoBuildPlan(options);
+  expect(agentTurn).toHaveBeenCalledOnce();
+  expect(options.onEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      type: "plan_ready",
+      message: "Full-film storyboard validated and saved before capture",
+    }),
+  );
+});
+it("rejects a storyboard whose duration differs from the full-film plan", () => {
+  expect(
+    fullVideoPlanSchemaFor(size, true).safeParse({ ...fullPlan(), storyboard: validStoryboard(4) })
+      .success,
+  ).toBe(false);
+});
+it("upgrades historical full-film plans before new capture work", async () => {
+  const options = await input();
+  options.job.kind = "full";
+  const { storyboard: _storyboard, ...oldPlan } = fullPlan();
+  options.job.buildPlan = {
+    model: options.job.model,
+    sessionId: options.job.sessionId!,
+    value: oldPlan,
+  };
+  vi.mocked(agentTurn).mockResolvedValue({ value: fullPlan(), sessionId: options.job.sessionId });
+  await prepareVideoBuildPlan(options);
+  expect(agentTurn).toHaveBeenCalledOnce();
+  expect(
+    JSON.parse(await readFile(path.join(options.job.workspace, "STORYBOARD.json"), "utf8")),
+  ).toEqual(fullPlan().storyboard);
+});
+
+it("links every capture chapter to the storyboard before recording", () => {
+  const plan = {
+    ...fullPlan(),
+    storyboard: StoryboardSchema.parse(fullPlan().storyboard),
+    capturePlan: {
+      scope: "Show playback",
+      story: "Watch an example",
+      chapters: [
+        {
+          id: "watch",
+          title: "Watch",
+          purpose: "See the result",
+          startingState: "Result page",
+          actions: ["Play"],
+          expectedResults: ["Playback"],
+          nextChapterContext: "End",
+          estimatedDurationSeconds: 3,
+        },
+      ],
+    },
+  };
+  const schema = fullVideoPlanSchemaFor(size, true);
+  expect(schema.safeParse(plan).success).toBe(false);
+  plan.storyboard.scenes[0].assets = ["capture:watch"];
+  expect(schema.safeParse(plan).success).toBe(true);
+  plan.storyboard.scenes[0].assets = ["capture:missing"];
+  expect(schema.safeParse(plan).success).toBe(false);
+});
+
+it("preserves the reconciled production storyboard when resuming narration for an assembled film", async () => {
+  const options = await input();
+  options.job.kind = "full";
+  const plan = fullPlan();
+  options.job.buildPlan = {
+    model: options.job.model,
+    sessionId: options.job.sessionId!,
+    value: plan,
+  };
+  options.job.production = {
+    pipeline: "HyperFrames",
+    fallbackReason: null,
+    styleRenderer: ["HTML/CSS"],
+    motionEngine: ["GSAP"],
+    sourceFile: "index.html",
+    duration: 3,
+    width: 1920,
+    height: 1080,
+    fps: 60,
+    displayTitle: "A result",
+    displayDescription: "A result appears",
+    audioDescription: "Silent",
+    limitations: [],
+  };
+  const reconciled = { ...validStoryboard(3), title: "Reconciled with actual footage and speech" };
+  await writeFile(path.join(options.job.workspace, "STORYBOARD.json"), JSON.stringify(reconciled));
+  await prepareVideoBuildPlan(options);
+  expect(agentTurn).not.toHaveBeenCalled();
+  expect(
+    JSON.parse(await readFile(path.join(options.job.workspace, "STORYBOARD.json"), "utf8")),
+  ).toEqual(reconciled);
+});
+
+it("revises a saved capture budget in the same main session and saves the new storyboard before retry", async () => {
+  const options = await input();
+  options.job.kind = "full";
+  const approved = {
+    ...fullPlan(),
+    storyboard: StoryboardSchema.parse(validStoryboard()),
+    capturePlan: {
+      scope: "Create",
+      story: "Show creation",
+      chapters: [
+        {
+          id: "create",
+          title: "Create",
+          purpose: "Create",
+          startingState: "Home",
+          actions: ["Type"],
+          expectedResults: ["Result"],
+          nextChapterContext: "End",
+          estimatedDurationSeconds: 1,
+        },
+      ],
+    },
+  };
+  approved.storyboard.scenes[0].assets = ["capture:create"];
+  options.job.buildPlan = {
+    model: options.job.model,
+    sessionId: options.job.sessionId!,
+    value: approved,
+  };
+  const revised = structuredClone(approved);
+  revised.capturePlan.chapters[0].estimatedDurationSeconds = 2;
+  vi.mocked(agentTurn).mockImplementationOnce(async (call) => {
+    expect(call.sessionId).toBe(options.job.sessionId);
+    expect(call.readOnly).toBe(true);
+    expect(call.model).toBe(options.job.model);
+    expect(call.prompt).toContain("REVISE CAPTURE TIMING");
+    const missingCoverage = structuredClone(revised);
+    missingCoverage.capturePlan.chapters[0].actions = ["Skip typing"];
+    expect(call.schema.safeParse(missingCoverage).success).toBe(false);
+    const oversized = structuredClone(revised);
+    oversized.capturePlan.chapters[0].estimatedDurationSeconds = 4;
+    expect(call.schema.safeParse(oversized).success).toBe(false);
+    return { value: revised, sessionId: options.job.sessionId };
+  });
+  await prepareVideoBuildPlan({
+    ...options,
+    captureTimingConflict: {
+      chapterId: "create",
+      targetDurationSeconds: 1,
+      requiredDurationSeconds: 2,
+      reason: "Need readable typing",
+    },
+  });
+  expect(options.job.buildPlan.value).toEqual(revised);
+  expect(
+    JSON.parse(await readFile(path.join(options.job.workspace, "STORYBOARD.json"), "utf8")),
+  ).toEqual(revised.storyboard);
+  expect(options.onEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "plan_ready" }));
+});

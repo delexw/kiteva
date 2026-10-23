@@ -1,3 +1,4 @@
+import { stopPocketTtsWorker } from "./audio/providers/pocket-tts";
 import { jevModel } from "./jev/client";
 import { assertWindowsRenderReady } from "./rendering/sandbox/readiness";
 import { userHome } from "./runtime/platform";
@@ -104,6 +105,9 @@ export async function createApp(options: { store?: Store } = {}) {
   await registerRoomRoutes(app, store);
   app.get("/api/setup", async () => ({
     speechSupported: true,
+    speechStartSupported: true,
+    scriptItemsSupported: true,
+    generatedScriptItemsSupported: true,
     videoLanguageSupported: true,
     agentMode,
     models,
@@ -667,6 +671,7 @@ export async function createApp(options: { store?: Store } = {}) {
   );
   app.addHook("onClose", async () => {
     await workflow.shutdown();
+    stopPocketTtsWorker();
     store.close();
   });
   return { app, store, workflow, catalog };

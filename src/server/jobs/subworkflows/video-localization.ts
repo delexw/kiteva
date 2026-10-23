@@ -21,7 +21,7 @@ export async function localizeVideoRequest(
   onEvent: (event: ProviderEvent) => void,
   generate: typeof agentTurn = agentTurn,
 ): Promise<VideoRequest> {
-  if (!request.outputLanguage) return request;
+  if (request.scriptItems !== undefined || !request.outputLanguage) return request;
   const original: VideoCopy = {
     ...request.translations?.original,
     ...(request.lyrics?.mode === "provided" && request.translations?.original.lyrics === undefined

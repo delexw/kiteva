@@ -4,13 +4,15 @@ import { z } from "zod";
 import { openScreenExecutable } from "./openscreen";
 import { systemEnvironment } from "../runtime/platform";
 import { videoRenderTimeoutMs } from "../rendering/timeouts";
-import { CapturePresentationSchema, type CapturePresentationInput } from "./presentation";
-import type { OpenScreenZoomRegion } from "./native-project";
+import { resolveCapturePresentation, type CapturePresentationInput } from "./presentation";
 
-// Only document operations: no desktop recording, other projects, imports or arbitrary file writes.
+export const nativeCapturePolicy = "openscreen-native-action-log-v2";
+
+// Native take operations; project identity and recording lifecycle remain bound by the adapter.
 export const nativeCaptureOperations = [
   "getCurrentDocument",
   "getCursorTrack",
+  "setPointerTrack",
   "getFrames",
   "addTrims",
   "setTrim",
@@ -18,6 +20,7 @@ export const nativeCaptureOperations = [
   "addSpeed",
   "setSpeed",
   "addZooms",
+  "addAutoZooms",
   "setZoom",
   "removeModifier",
   "addAnnotation",
@@ -37,6 +40,7 @@ const ImageSchema = z.object({ type: z.literal("image"), data: z.string(), mimeT
 const TextSchema = z.object({ type: z.literal("text"), text: z.string() });
 export const NativeCaptureReplySchema = z.object({
   kind: z.literal("native_capture"),
+  operation: NativeCaptureOperationSchema.optional(),
   content: z.array(z.union([TextSchema, ImageSchema])),
   data: z.unknown(),
   isError: z.boolean().optional(),
@@ -46,6 +50,7 @@ export const EditableCaptureSchema = z.object({
   kind: z.literal("editable_capture"),
   recordingId: z.string().uuid(),
   duration: z.number().positive(),
+  recordingStartedAt: z.number().optional(),
   tools: z.array(
     z.object({
       name: z.string(),
@@ -57,16 +62,12 @@ export const EditableCaptureSchema = z.object({
 export type EditableCapture = z.infer<typeof EditableCaptureSchema>;
 
 /** A native MCP connection scoped to one take. OpenScreen owns every edit and its time mapping. */
-export async function createNativeCaptureEditor(
-  source: string,
+async function openNativeCapture(
+  source: string | { window: string },
   output: string,
   signal: AbortSignal,
   presentation: CapturePresentationInput,
-  zooms: OpenScreenZoomRegion[],
 ) {
-  const cursorSmoothing = CapturePresentationSchema.shape.cursorSmoothing.parse(
-    presentation.cursorSmoothing,
-  );
   const client = new Client({ name: "kiteva-capture", version: "1" });
   const transport = new StdioClientTransport({
     command: await openScreenExecutable(),
@@ -95,7 +96,11 @@ export async function createNativeCaptureEditor(
       try {
         data = JSON.parse(text);
       } catch {
-        data = text;
+        try {
+          data = JSON.parse(text.split("\n", 1)[0]);
+        } catch {
+          data = text;
+        }
       }
     }
     return { kind: "native_capture" as const, content, data, isError: result.isError === true };
@@ -110,100 +115,96 @@ export async function createNativeCaptureEditor(
       nativeCaptureOperations.some((name) => name === tool.name),
     );
     for (const name of [
-      "createProject",
+      ...(typeof source === "string" ? ["createProject"] : ["startRecording", "stopRecording"]),
       "setEditorSettings",
       "exportVideo",
       ...nativeCaptureOperations,
     ])
       if (!tools.some((tool) => tool.name === name))
         throw Error(`OpenScreen is missing native tool ${name}; update OpenScreen`);
-    const created = await invoke("createProject", {
-      videoPath: source,
-      title: "Kiteva demonstration take",
-    });
-    if (created.isError)
-      throw Error(`OpenScreen createProject failed: ${JSON.stringify(created.data)}`);
-    const { projectId } = z.object({ projectId: z.string().min(1) }).parse(created.data);
-    const appearance = await invoke("setEditorSettings", {
-      ...presentation.framing,
-      ...(presentation.framing?.aspectRatio === "native" ? { aspectRatio: "auto" } : {}),
-      autoFocusAll: false,
-      formatFollowCursor: false,
-      cursor: {
-        theme: presentation.cursorTheme,
-        model3d: false,
-        asArrow: ["text"],
-        size: presentation.cursorSize,
-        smoothing: cursorSmoothing,
-        motionBlur: presentation.cursorMotionBlur,
-        clickBounce: presentation.cursorClickBounce,
-        clickImpact: presentation.cursorClickImpact,
-      },
-      projectId,
-    });
-    if (appearance.isError)
-      throw Error(`OpenScreen presentation failed: ${JSON.stringify(appearance.data)}`);
-    // New projects can inherit click-planned zooms. Start wide so the agent owns every focus decision.
-    {
-      const document = await invoke("getCurrentDocument", { projectId });
-      if (document.isError) throw Error("Cannot read initial OpenScreen zooms");
-      const snapshot = z
-        .object({
-          zoomRanges: z.array(
-            z.object({ id: z.string(), startSec: z.number(), endSec: z.number() }),
-          ),
-        })
-        .parse(document.data);
-      for (const existing of snapshot.zoomRanges) {
-        const removed = await invoke("removeModifier", { projectId, id: existing.id });
-        if (removed.isError)
-          throw Error(`OpenScreen focus replacement failed: ${JSON.stringify(removed.data)}`);
-      }
-    }
-    if (zooms.length) {
-      const result = await invoke("addZooms", {
+    let projectId: string | undefined;
+    let recordingStartedAt: number | undefined;
+    let recording = false;
+    let stopped: { projectId: string; videoPath: string } | undefined;
+    const applyPresentation = async () => {
+      const settings = resolveCapturePresentation(presentation);
+      const appearance = await invoke("setEditorSettings", {
+        ...settings.framing,
+        cursor: {
+          theme: settings.cursorTheme,
+          model3d: false,
+          asArrow: ["text"],
+          size: settings.cursorSize,
+          smoothing: settings.cursorSmoothing,
+          motionBlur: presentation.cursorMotionBlur,
+          clickBounce: settings.cursorClickBounce,
+          clickImpact: settings.cursorClickImpact,
+        },
         projectId,
-        regions: zooms.map((zoom) => ({
-          startSec: zoom.startMs / 1000,
-          endSec: zoom.endMs / 1000,
-          depth: zoom.depth,
-          focus: zoom.focus,
-          focusMode: zoom.focusMode,
-        })),
       });
-      const outcome = z
-        .object({
-          refusedCount: z.number(),
-          applied: z.array(z.object({ index: z.number().int().nonnegative(), zoomId: z.string() })),
-        })
-        .safeParse(result.data);
-      if (result.isError || !outcome.success || outcome.data.refusedCount > 0)
-        throw Error(`OpenScreen requested zoom failed: ${JSON.stringify(result.data)}`);
-      // addZooms defaults depth even with customScale; setZoom accepts the scale without that default.
-      for (const added of outcome.data.applied) {
-        const customScale = zooms[added.index]?.customScale;
-        if (customScale === undefined) continue;
-        const resized = await invoke("setZoom", { projectId, zoomId: added.zoomId, customScale });
-        if (resized.isError)
-          throw Error(`OpenScreen requested zoom scale failed: ${JSON.stringify(resized.data)}`);
-      }
+      if (appearance.isError)
+        throw Error(`OpenScreen presentation failed: ${JSON.stringify(appearance.data)}`);
+    };
+    if (typeof source === "string") {
+      const created = await invoke("createProject", {
+        videoPath: source,
+        title: "Kiteva demonstration take",
+      });
+      if (created.isError)
+        throw Error(`OpenScreen createProject failed: ${JSON.stringify(created.data)}`);
+      projectId = z.object({ projectId: z.string().min(1) }).parse(created.data).projectId;
+      await applyPresentation();
+    } else {
+      const started = await invoke("startRecording", {
+        window: source.window,
+        cursor: "editable-overlay",
+        systemAudio: false,
+        microphone: false,
+        camera: false,
+      });
+      if (started.isError)
+        throw Error(`OpenScreen startRecording failed: ${JSON.stringify(started.data)}`);
+      recording = true;
+      const metadata = z.object({ startedAt: z.number() }).parse(started.data);
+      recordingStartedAt = metadata.startedAt;
     }
-    const descriptions = supported.map(({ name, description, inputSchema }) => ({
-      name,
-      description,
-      inputSchema: {
-        ...inputSchema,
-        properties: Object.fromEntries(
-          Object.entries(inputSchema.properties ?? {}).filter(
-            ([key]) => !["projectId", "path"].includes(key),
+    const descriptions = supported
+      .filter((tool) => typeof source !== "string" || tool.name !== "setPointerTrack")
+      .map(({ name, description, inputSchema }) => ({
+        name,
+        description,
+        inputSchema: {
+          ...inputSchema,
+          required: inputSchema.required?.filter((key) => !["projectId", "path"].includes(key)),
+          properties: Object.fromEntries(
+            Object.entries(inputSchema.properties ?? {}).filter(
+              ([key]) => !["projectId", "path"].includes(key),
+            ),
           ),
-        ),
-      },
-    }));
+        },
+      }));
     return {
       tools: descriptions,
+      recordingStartedAt,
+      async stopRecording() {
+        if (stopped) return stopped;
+        if (!recording) throw Error("This native session has no active recording");
+        const result = await invoke("stopRecording", { title: "Kiteva demonstration take" });
+        if (result.isError)
+          throw Error(`OpenScreen stopRecording failed: ${JSON.stringify(result.data)}`);
+        stopped = z
+          .object({ projectId: z.string().min(1), videoPath: z.string().min(1) })
+          .parse(result.data);
+        recording = false;
+        projectId = stopped.projectId;
+        await applyPresentation();
+        return stopped;
+      },
       async call(request: NativeCaptureRequest): Promise<NativeCaptureReply> {
+        if (!projectId) throw Error("Stop the native recording before editing");
         const input = NativeCaptureRequestSchema.parse(request);
+        if (input.operation === "setPointerTrack" && typeof source === "string")
+          throw Error("setPointerTrack requires a take recorded on this native connection");
         // These fields would escape the take or read arbitrary files. Never forward them.
         for (const key of ["projectId", "path", "videoPath", "outputPath"])
           if (key in input.arguments)
@@ -211,6 +212,7 @@ export async function createNativeCaptureEditor(
         return invoke(input.operation, { ...input.arguments, projectId });
       },
       async export() {
+        if (!projectId) throw Error("Stop the native recording before exporting");
         // Export the reviewed native document without filling deliberately wide sections with zooms.
         const result = await invoke("exportVideo", {
           projectId,
@@ -222,7 +224,13 @@ export async function createNativeCaptureEditor(
       },
       async close() {
         signal.removeEventListener("abort", abort);
-        await close();
+        try {
+          if (recording && !signal.aborted)
+            await invoke("stopRecording", { title: "Interrupted Kiteva take" });
+        } finally {
+          recording = false;
+          await close();
+        }
       },
     };
   } catch (error) {
@@ -230,4 +238,25 @@ export async function createNativeCaptureEditor(
     await close().catch(() => {});
     throw error;
   }
+}
+
+/** Imports an existing take for native review; used by saved recordings. */
+export async function createNativeCaptureEditor(
+  source: string,
+  output: string,
+  signal: AbortSignal,
+  presentation: CapturePresentationInput,
+) {
+  const editor = await openNativeCapture(source, output, signal, presentation);
+  return { tools: editor.tools, call: editor.call, export: editor.export, close: editor.close };
+}
+
+/** Records and edits on the same native MCP connection, for native review and export. */
+export function startNativeCaptureRecording(
+  window: string,
+  output: string,
+  signal: AbortSignal,
+  presentation: CapturePresentationInput,
+) {
+  return openNativeCapture({ window }, output, signal, presentation);
 }

@@ -1,3 +1,4 @@
+import { scriptItemsProblem } from "../../shared/script-items";
 import { createHash, randomUUID } from "node:crypto";
 import { access, mkdir, readFile, realpath, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -58,6 +59,7 @@ export async function prepareSpeech(
   dependencies: { generate?: typeof agentTurn; synthesize?: typeof synthesizeSpeech } = {},
 ): Promise<SpeechTrack | undefined> {
   const { request, brief, workspace, duration, signal, onEvent, emit } = input;
+  if (request.scriptItems !== undefined) return prepareScriptItemsSpeech(input, dependencies);
   const settings = activeSpeech(request);
   if (!settings) return undefined;
   signal.throwIfAborted();
@@ -102,6 +104,10 @@ export async function prepareSpeech(
       cues: [],
     };
   } else {
+    const startSeconds = settings.startSeconds ?? 0;
+    const speakingDuration = duration - startSeconds;
+    if (speakingDuration <= 0)
+      throw new CodedError("SPEECH_TOO_LONG", "Narration must start before the film ends.");
     let text =
       settings.source === "provided"
         ? settings.text.trim()
@@ -123,7 +129,7 @@ export async function prepareSpeech(
           instructions: request.instructions,
           brief,
           delivery: settings.instructions,
-          duration,
+          duration: speakingDuration,
           language: speechLanguage(settings.voice, settings.engine, settings.language),
         };
         const result = await (dependencies.generate || agentTurn)({
@@ -135,7 +141,7 @@ export async function prepareSpeech(
           onEvent,
           readOnly: true,
           schema: ScriptSchema,
-          prompt: `Write original faceless narration for this concept. Read the supplied context. Preserve facts and exact required copy; no invented claims. Return spoken text only in the schema, with one short sentence per line. The language field is authoritative even when the idea or brief uses another language. Write natural native wording. Aim to leave breathing space and musical pauses inside ${duration} seconds at ${settings.speed}x speaking speed; for Chinese use at most ${Math.floor(duration * 3.5 * settings.speed)} Chinese characters, and for English at most ${Math.floor(duration * 1.8 * settings.speed)} words. Do not write scene instructions or synthesize audio.\nSOURCE DATA:\n${JSON.stringify(scriptContext)}`,
+          prompt: `Write original faceless narration for this concept. Read the supplied context. Preserve facts and exact required copy; no invented claims. Return spoken text only in the schema, with one short sentence per line. The language field is authoritative even when the idea or brief uses another language. Write natural native wording. Aim to leave breathing space and musical pauses inside ${speakingDuration} seconds at ${settings.speed}x speaking speed; for Chinese use at most ${Math.floor(speakingDuration * 3.5 * settings.speed)} Chinese characters, and for English at most ${Math.floor(speakingDuration * 1.8 * settings.speed)} words. Do not write scene instructions or synthesize audio.\nSOURCE DATA:\n${JSON.stringify(scriptContext)}`,
         });
         text = ScriptSchema.parse(result.value).text;
         await writeFile(scriptFile, JSON.stringify({ text }));
@@ -149,7 +155,7 @@ export async function prepareSpeech(
     if (lines.length > 80) throw Error("Use at most 80 narration lines.");
     const cues: SpeechTrack["cues"] = [];
     const files: string[] = [];
-    let elapsed = 0;
+    let elapsed = startSeconds;
     for (const [index, line] of lines.entries()) {
       signal.throwIfAborted();
       emit("state", `Preparing narration ${index + 1}/${lines.length}…`);
@@ -186,6 +192,7 @@ export async function prepareSpeech(
         "1",
         "-i",
         list,
+        ...(startSeconds > 0 ? ["-af", `adelay=${startSeconds * 1000}:all=1`] : []),
         "-ar",
         "48000",
         "-ac",
@@ -212,6 +219,103 @@ export async function prepareSpeech(
   await writeFile(temporary, JSON.stringify(track, null, 2));
   await rename(temporary, checkpoint);
   return track;
+}
+
+/** Synthesize separately, enforce each window, then let FFmpeg place the measured tracks. */
+async function prepareScriptItemsSpeech(
+  input: Parameters<typeof prepareSpeech>[0],
+  dependencies: Parameters<typeof prepareSpeech>[1],
+): Promise<SpeechTrack | undefined> {
+  const items = input.request.scriptItems!;
+  if (items.some((item) => item.source === "write"))
+    throw new CodedError(
+      "INVALID_REQUEST",
+      "Generate script items from the film plan before preparing speech.",
+    );
+  const problem = scriptItemsProblem(items, input.duration);
+  if (problem) throw new CodedError("INVALID_REQUEST", problem);
+  const hash = createHash("sha256")
+    .update(JSON.stringify({ items, revision: narrationAudioRevision }))
+    .digest("hex");
+  const folder = path.join(input.workspace, "audio", "items", hash);
+  await mkdir(folder, { recursive: true });
+  const tracks: { file: string; start: number }[] = [];
+  const cues: SpeechTrack["cues"] = [];
+  let end = 0;
+  for (const item of items) {
+    if (item.speech.mode !== "narration") continue;
+    const itemHash = createHash("sha256")
+      .update(JSON.stringify({ item, revision: narrationAudioRevision }))
+      .digest("hex");
+    const workspace = path.join(input.workspace, "audio", "items", itemHash);
+    const track = await prepareSpeech(
+      {
+        ...input,
+        workspace,
+        duration: item.endSeconds - item.startSeconds,
+        request: {
+          ...input.request,
+          scriptItems: undefined,
+          lyrics: { mode: "off" },
+          speech: {
+            ...item.speech,
+            source: "provided",
+            text: item.text,
+            startSeconds: 0,
+            followVideoLanguage: false,
+            instructions: "",
+          },
+        },
+      },
+      dependencies,
+    );
+    if (!track) throw Error("Spoken item returned no audio.");
+    tracks.push({ file: path.join(workspace, track.file), start: item.startSeconds });
+    end = Math.max(end, item.startSeconds + track.durationSeconds);
+    cues.push(
+      ...track.cues.map((cue) => ({
+        ...cue,
+        startSeconds: cue.startSeconds + item.startSeconds,
+        endSeconds: cue.endSeconds + item.startSeconds,
+        scriptItemId: item.id,
+        showLyrics: item.showLyrics,
+      })),
+    );
+  }
+  if (!tracks.length) return undefined;
+  const file = path.join(folder, "speech.wav");
+  const filters = tracks.map(
+    (track, index) => `[${index}:a]adelay=${track.start * 1000}:all=1[v${index}]`,
+  );
+  filters.push(
+    `${tracks.map((_, index) => `[v${index}]`).join("")}amix=inputs=${tracks.length}:duration=longest:normalize=0[out]`,
+  );
+  await command(
+    "ffmpeg",
+    [
+      "-y",
+      "-v",
+      "error",
+      ...tracks.flatMap((track) => ["-i", track.file]),
+      "-filter_complex",
+      filters.join(";"),
+      "-map",
+      "[out]",
+      "-ar",
+      "48000",
+      "-ac",
+      "2",
+      file,
+    ],
+    folder,
+    input.signal,
+  );
+  return {
+    file: path.relative(input.workspace, file),
+    durationSeconds: end,
+    source: "narration",
+    cues: cues.sort((a, b) => a.startSeconds - b.startSeconds),
+  };
 }
 
 /** Mix once after any renderer, ducking the existing soundtrack beneath the voice. */

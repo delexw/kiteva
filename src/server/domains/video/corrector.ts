@@ -140,6 +140,7 @@ export class VideoCorrectionCoordinator {
     const started = Date.now();
     try {
       const turn = await agentTurn({
+        includeCreativeAlternatives: false,
         provider,
         model,
         workspace: job.workspace,

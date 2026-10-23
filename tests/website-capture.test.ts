@@ -5,11 +5,9 @@ import type { Page } from "puppeteer-core";
 import { afterEach, expect, it, vi } from "vitest";
 vi.mock("../src/server/capture/openscreen", () => ({
   openScreenExportFrameRate: 60,
-  startOpenScreen: vi.fn(),
 }));
-import { startOpenScreen } from "../src/server/capture/openscreen";
-vi.mock("../src/server/capture/native-editor", () => ({ createNativeCaptureEditor: vi.fn() }));
-import { createNativeCaptureEditor } from "../src/server/capture/native-editor";
+vi.mock("../src/server/capture/native-editor", () => ({ startNativeCaptureRecording: vi.fn() }));
+import { startNativeCaptureRecording } from "../src/server/capture/native-editor";
 vi.mock("../src/server/rendering/video-probe", () => ({ probeVideo: vi.fn() }));
 vi.mock("../src/server/runtime/process", () => ({ command: vi.fn() }));
 import { probeVideo } from "../src/server/rendering/video-probe";
@@ -37,13 +35,17 @@ async function fixture(
   const workspace = await mkdtemp(path.join(os.tmpdir(), "website-capture-"));
   vi.stubEnv("KITEVA_CAPTURE_DESKTOP", "1");
   await writeFile(path.join(workspace, "raw.mp4"), "raw-recording");
+  const nativeCursor = {
+    version: 2,
+    provider: "native",
+    assets: [],
+    samples: [{ timeMs: 1000, cx: 0.25, cy: 0.75, visible: true }],
+  };
+  await writeFile(path.join(workspace, "raw.cursor.json"), JSON.stringify(nativeCursor));
   const stop = vi.fn(async () => ({
-    event: "done" as const,
-    success: true as const,
-    screenVideoPath: path.join(workspace, "raw.mp4"),
-    durationMs: 2500,
+    projectId: "native-take",
+    videoPath: path.join(workspace, "raw.mp4"),
   }));
-  vi.mocked(startOpenScreen).mockResolvedValue({ stop });
   const page = {
     evaluate: vi.fn().mockResolvedValue(frame),
     title: async () => title,
@@ -62,15 +64,20 @@ async function fixture(
   const controller = new AbortController();
   const native = {
     tools: [],
+    recordingStartedAt: 1000,
+    stopRecording: stop,
     call: vi.fn(async () => ({
       kind: "native_capture" as const,
       content: [],
-      data: { trimRanges: [] as Array<{ id: string; startSec: number; endSec: number }> },
+      data: {
+        ...nativeCursor,
+        trimRanges: [] as Array<{ id: string; startSec: number; endSec: number }>,
+      },
     })),
     export: vi.fn(async () => {}),
     close: vi.fn(async () => {}),
   };
-  vi.mocked(createNativeCaptureEditor).mockResolvedValue(native);
+  vi.mocked(startNativeCaptureRecording).mockResolvedValue(native);
   const capture = await startWebsiteCapture(page, workspace, controller.signal, true, presentation);
   return {
     workspace,
@@ -84,11 +91,8 @@ async function fixture(
 }
 
 it("stops for native review without selecting cuts or exporting, then re-exports the same asset", async () => {
-  const clock = vi.spyOn(performance, "now").mockReturnValue(0);
   const f = await fixture();
   try {
-    clock.mockReturnValue(1000);
-    f.capture.cursor(100, 150, "click", "pointer");
     const take = await f.capture.prepare();
     expect(take).toMatchObject({ kind: "editable_capture", recordingId: f.capture.id });
     expect(f.native.export).not.toHaveBeenCalled();
@@ -101,7 +105,13 @@ it("stops for native review without selecting cuts or exporting, then re-exports
     f.native.call.mockResolvedValue({
       kind: "native_capture",
       content: [],
-      data: { trimRanges: [{ id: "cut", startSec: 0.5, endSec: 0.8 }] },
+      data: {
+        version: 2,
+        provider: "native",
+        assets: [],
+        samples: [{ timeMs: 1000, cx: 0.25, cy: 0.75, visible: true }],
+        trimRanges: [{ id: "cut", startSec: 0.5, endSec: 0.8 }],
+      },
     });
     const first = await f.capture.export();
     expect(first).toMatchObject({
@@ -114,9 +124,8 @@ it("stops for native review without selecting cuts or exporting, then re-exports
     expect(f.native.export).toHaveBeenCalledTimes(2);
     const cursor = JSON.parse(await readFile(path.join(f.workspace, first.cursorPath), "utf8"));
     expect(cursor).toMatchObject({
-      timeSpace: "source-recording",
       nativeTrimRegions: [{ id: "cut", startMs: 500, endMs: 800 }],
-      events: [{ time: 1, kind: "click" }],
+      samples: [{ timeMs: 1000, cx: 0.25, cy: 0.75, visible: true }],
     });
     expect(command).toHaveBeenCalledWith(
       "ffmpeg",
@@ -133,15 +142,26 @@ it("stops for native review without selecting cuts or exporting, then re-exports
 it.each(captureCursorThemes)(
   "passes %s presentation through native settings with 3D disabled",
   async (cursorTheme) => {
-    const f = await fixture(undefined, { cursorTheme, framing: { padding: 10 } });
+    const f = await fixture(undefined, { cursorTheme, framing: { shadowIntensity: 0.5 } });
     try {
       await f.capture.prepare();
-      expect(createNativeCaptureEditor).toHaveBeenCalledWith(
-        expect.stringContaining("source.mp4"),
+      expect(startNativeCaptureRecording).toHaveBeenCalledWith(
+        expect.stringContaining("Kiteva capture"),
         expect.stringContaining("edited.mp4"),
         expect.any(AbortSignal),
-        expect.objectContaining({ cursorTheme, cursorModel3d: false, framing: { padding: 10 } }),
-        [],
+        expect.objectContaining({
+          cursorTheme,
+          cursorModel3d: false,
+          cursorClickBounce: 2,
+          cursorClickImpact: false,
+          framing: {
+            shadowIntensity: 0.5,
+            padding: 24,
+            borderRadius: 0,
+            backgroundBlur: 1,
+            aspectRatio: "16:9",
+          },
+        }),
       );
     } finally {
       await f.capture.close();
@@ -149,52 +169,22 @@ it.each(captureCursorThemes)(
     }
   },
 );
-it("keeps source pointer coordinates and passes only caller-requested native zooms", async () => {
-  vi.spyOn(performance, "now").mockReturnValue(0);
-  const f = await fixture(
-    { width: 1500, height: 1000, left: 30, top: 80 },
-    { zoomRegions: [{ startSeconds: 0, endSeconds: 2, depth: 4 }] },
-  );
+it("uses the native recording project and records its clock for the model", async () => {
+  const f = await fixture();
   try {
-    f.capture.cursor(100, 150, "click", "text");
-    await f.capture.prepare();
-    expect(createNativeCaptureEditor).toHaveBeenLastCalledWith(
-      expect.any(String),
-      expect.any(String),
+    const take = await f.capture.prepare();
+    expect(take.recordingStartedAt).toBe(1000);
+    expect(f.stop).toHaveBeenCalledOnce();
+    expect(startNativeCaptureRecording).toHaveBeenCalledWith(
+      expect.stringContaining("Kiteva capture"),
+      expect.stringContaining("edited.mp4"),
       expect.any(AbortSignal),
       expect.any(Object),
-      [
-        expect.objectContaining({
-          id: "agent-focus-0",
-          depth: 4,
-          focusMode: "auto",
-          startMs: 0,
-          endMs: 2000,
-        }),
-      ],
     );
-    const source = vi.mocked(createNativeCaptureEditor).mock.calls.at(-1)![0];
-    const nativeCursor = JSON.parse(await readFile(`${source}.cursor.json`, "utf8"));
-    expect(nativeCursor.samples[0]).toMatchObject({
-      cx: 130 / 1500,
-      cy: 230 / 1000,
-      cursorType: "text",
-    });
     const result = await f.capture.export();
     const cursor = JSON.parse(await readFile(path.join(f.workspace, result.cursorPath), "utf8"));
-    expect(cursor.events[0]).toMatchObject({ x: (130 * 1440) / 1500, y: (230 * 900) / 1000 });
-  } finally {
-    await f.capture.close();
-    await f.cleanup();
-  }
-});
-it("rejects input zooms beyond the observed source duration", async () => {
-  const f = await fixture(undefined, {
-    zoomRegions: [{ startSeconds: 1, endSeconds: 4, depth: 2 }],
-  });
-  try {
-    await expect(f.capture.prepare()).rejects.toThrow("extends beyond");
-    expect(createNativeCaptureEditor).not.toHaveBeenCalled();
+    expect(cursor.samples).toEqual([{ timeMs: 1000, cx: 0.25, cy: 0.75, visible: true }]);
+    expect(cursor).not.toHaveProperty("events");
   } finally {
     await f.capture.close();
     await f.cleanup();
@@ -207,10 +197,8 @@ it("keeps a take active beyond the old wall-clock cap and exports when explicitl
     await vi.advanceTimersByTimeAsync(600000);
     expect(f.stop).not.toHaveBeenCalled();
     f.stop.mockResolvedValueOnce({
-      event: "done",
-      success: true,
-      screenVideoPath: path.join(f.workspace, "raw.mp4"),
-      durationMs: 600000,
+      projectId: "native-take",
+      videoPath: path.join(f.workspace, "raw.mp4"),
     });
     vi.mocked(probeVideo).mockResolvedValue({
       format: { duration: "600" },
@@ -239,7 +227,7 @@ it("cancels capture and refuses further preparation", async () => {
   const f = await fixture();
   try {
     f.controller.abort();
-    await expect(f.capture.prepare()).rejects.toThrow("cancelled");
+    await expect(f.capture.prepare()).rejects.toThrow(/abort/i);
   } finally {
     await f.capture.close();
     await f.cleanup();

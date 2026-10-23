@@ -151,6 +151,24 @@ const regenerationEvents = [say(6, 30), say(7, 31), say(8, 33, "p1")];
 const labels = (contexts: ReturnType<typeof roomActivityContexts>) =>
   contexts.map((context) => [context.key, context.label, context.status]);
 
+it("keeps direction rounds on previews and only version numbers on full films", () => {
+  const project = regenerated();
+  project.jobs.push(
+    roundJob("f1", "full", "ready", "round-1-candidate", 34),
+    roundJob("f2", "full", "generating", "round-1-candidate", 35),
+  );
+  const contexts = roomActivityContexts(project, [...originalEvents, ...regenerationEvents]);
+  expect(contexts.find((context) => context.key === "p1")?.label).toBe(
+    "Preview · Glass tide · round 2",
+  );
+  expect(contexts.find((context) => context.key === "f1")?.label).toBe(
+    "Full film · Glass tide · version 1",
+  );
+  expect(contexts.find((context) => context.key === "f2")?.label).toBe(
+    "Full film · Glass tide · version 2",
+  );
+});
+
 it("appends a regeneration after the original preparation, previews and full films", () => {
   const contexts = roomActivityContexts(regenerated(), [...originalEvents, ...regenerationEvents]);
   expect(labels(contexts)).toEqual([

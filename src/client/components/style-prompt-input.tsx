@@ -1,25 +1,32 @@
 import { nanoid } from "nanoid";
 import { Sender, Suggestion, type SenderProps } from "@ant-design/x";
 import type { SenderRef, SlotConfigType } from "@ant-design/x/es/sender/interface";
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   parseStyleMentions,
   styleMentionQuery,
   styleMentionXml,
+  type MentionVariant,
 } from "../../shared/style-mentions";
 import { translateUi, useUiLanguage } from "../i18n";
-import { StylePickerPreview } from "./style-picker";
+import { StylePickerPreview, MotionMentionsContext } from "./style-picker";
 import { StyleMention } from "./style-mention";
 import "./style-prompt-input.css";
 
 type MentionStyle = { id: string; name_en: string };
 
-function mentionSlot(id: string, name: string, xml: string, key: string): SlotConfigType {
+function mentionSlot(
+  id: string,
+  name: string,
+  xml: string,
+  key: string,
+  variant: MentionVariant = "style",
+): SlotConfigType {
   return {
     type: "tag",
     key,
     props: {
-      label: <StyleMention id={id} name={name} />,
+      label: <StyleMention id={id} name={name} variant={variant} />,
       value: xml,
     },
     formatResult: () => xml,
@@ -30,7 +37,7 @@ function promptSlots(value: string): SlotConfigType[] {
   return parseStyleMentions(value).map((part) =>
     part.type === "text"
       ? { type: "text", value: part.text }
-      : mentionSlot(part.id, part.name, part.xml, nanoid()),
+      : mentionSlot(part.id, part.name, part.xml, nanoid(), part.type),
   );
 }
 
@@ -48,6 +55,14 @@ export function StylePromptInput({
   "aria-label"?: string;
 }) {
   const { language } = useUiLanguage();
+  const motions = useContext(MotionMentionsContext);
+  const entries = useMemo(
+    () => [
+      ...styles.map((style) => ({ ...style, variant: "style" as const })),
+      ...motions.map((motion) => ({ ...motion, variant: "motion" as const })),
+    ],
+    [styles, motions],
+  );
   const sender = useRef<SenderRef>(null);
   const lastValue = useRef(value);
   const [slots, setSlots] = useState(() => promptSlots(value));
@@ -61,20 +76,25 @@ export function StylePromptInput({
   }, [value]);
   const matches = useMemo(() => {
     const words = (query || "").trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
-    return styles.filter((style) =>
+    return entries.filter((style) =>
       words.every((word) =>
         `${style.id} ${style.name_en} ${translateUi(style.name_en)}`
           .toLocaleLowerCase()
           .includes(word),
       ),
     );
-  }, [styles, query, language]);
+  }, [entries, query, language]);
   const items = useMemo(
     () =>
       matches.map((style) => ({
         value: style.id,
-        label: <StylePickerPreview compact style={style} />,
-        extra: <small>{style.id}</small>,
+        label: <StylePickerPreview compact style={style} variant={style.variant} />,
+        extra: (
+          <small>
+            {translateUi(style.variant === "motion" ? "Motion clip" : "Motion Graphic")} ·{" "}
+            {style.id}
+          </small>
+        ),
       })),
     [matches],
   );
@@ -95,7 +115,7 @@ export function StylePromptInput({
   };
 
   const readQuery = () => {
-    if (!styles.length) {
+    if (!entries.length) {
       setQuery(undefined);
       return;
     }
@@ -122,7 +142,7 @@ export function StylePromptInput({
       className="style-prompt-input"
       onPasteCapture={(event) => {
         const text = event.clipboardData.getData("text/plain");
-        if (parseStyleMentions(text).some((part) => part.type === "style")) {
+        if (parseStyleMentions(text).some((part) => part.type !== "text")) {
           event.preventDefault();
           event.stopPropagation();
           insertSlots(promptSlots(text));
@@ -138,13 +158,19 @@ export function StylePromptInput({
         onOpenChange={(open) => {
           if (!open) setQuery(undefined);
         }}
-        notFoundContent={translateUi("No matching Motion Graphics")}
+        notFoundContent={translateUi("No matching Motion Graphics or motion clips")}
         onSelect={(id) => {
-          const style = styles.find((item) => item.id === id);
+          const style = entries.find((item) => item.id === id);
           if (!style || query === undefined) return;
           insertSlots(
             [
-              mentionSlot(style.id, style.name_en, styleMentionXml(style), nanoid()),
+              mentionSlot(
+                style.id,
+                style.name_en,
+                styleMentionXml(style, style.variant),
+                nanoid(),
+                style.variant,
+              ),
               { type: "text", value: " " },
             ],
             `@${query}`,
@@ -192,8 +218,10 @@ export function StylePromptInput({
           />
         )}
       </Suggestion>
-      {styles.length > 0 && (
-        <div className="style-prompt-hint">{translateUi("Type @ to mention a Motion Graphic")}</div>
+      {entries.length > 0 && (
+        <div className="style-prompt-hint">
+          {translateUi("Type @ to mention a Motion Graphic or motion clip")}
+        </div>
       )}
     </div>
   );

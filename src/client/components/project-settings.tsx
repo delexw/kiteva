@@ -1,4 +1,5 @@
-import { creativeApproaches } from "../../shared/creative-approach";
+import { hasOnScreenLyrics } from "../../shared/script-items";
+import { creativeApproachLabel } from "../../shared/creative-approach";
 import { translateUi, useUiLanguage } from "../i18n";
 import { videoLanguageLabel } from "../../shared/video-language";
 import { Popover } from "antd";
@@ -34,13 +35,13 @@ export function ProjectSettings({
           request.resolution === "1440p" ? "2K · 1440p" : "1080p",
           translateUi("{{value0}} fps", { value0: request.frameRate || 30 }),
           videoRenderers[videoRendererOf(request)].label,
-          request.lyrics && request.lyrics.mode !== "off" ? "Lyrics on" : "No lyrics",
+          hasOnScreenLyrics(request) ? "Lyrics on" : "No lyrics",
         ]
       : [request.viewport === "mobile" ? "Mobile layout" : "Desktop layout"]),
     request.candidateCount === 0
       ? "Manual Motion Graphics"
       : translateUi("{{count}} directions", { count: request.candidateCount }),
-    ...(request.candidateCount > 0 ? [creativeApproaches[request.preference].label] : []),
+    ...(request.candidateCount > 0 ? [creativeApproachLabel(request)] : []),
   ];
   return (
     <div

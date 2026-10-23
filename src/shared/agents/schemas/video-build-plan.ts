@@ -1,3 +1,4 @@
+import { CaptureChapterPlanSchema } from "../../capture-chapters";
 import { z } from "zod";
 import { StoryboardSchema } from "./storyboard";
 const text = z.string().trim().min(1);
@@ -50,6 +51,9 @@ const PlanSchema = z.object({
   acceptanceChecks: z.array(text).min(1),
 });
 const FullVideoPlanSchema = z.object({
+  // Optional only when reading historical plans; new planning requires both fields.
+  storyboard: StoryboardSchema.optional(),
+  capturePlan: CaptureChapterPlanSchema.nullable().optional(),
   version: z.literal(2),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
@@ -61,13 +65,16 @@ const FullVideoPlanSchema = z.object({
 });
 export type FullVideoPlan = z.infer<typeof FullVideoPlanSchema>;
 export type VideoBuildPlan = z.infer<typeof PlanSchema> | FullVideoPlan;
-export function fullVideoPlanSchemaFor(expected: {
-  duration?: number;
-  width: number;
-  height: number;
-  fps: number;
-}) {
-  return FullVideoPlanSchema.extend({
+export function fullVideoPlanSchemaFor(
+  expected: {
+    duration?: number;
+    width: number;
+    height: number;
+    fps: number;
+  },
+  requireStoryboard = false,
+) {
+  const schema = FullVideoPlanSchema.extend({
     width: z.literal(expected.width),
     height: z.literal(expected.height),
     fps: z.literal(expected.fps),
@@ -75,6 +82,37 @@ export function fullVideoPlanSchemaFor(expected: {
       expected.duration === undefined
         ? z.number().int().min(15).max(300)
         : z.literal(expected.duration),
+  });
+  return (
+    requireStoryboard ? schema.required({ storyboard: true, capturePlan: true }) : schema
+  ).superRefine((plan, context) => {
+    if (plan.storyboard && plan.capturePlan) {
+      const references = plan.storyboard.scenes
+        .flatMap((scene) => scene.assets)
+        .filter((asset) => asset.startsWith("capture:"));
+      const chapterIds = new Set(plan.capturePlan.chapters.map((chapter) => chapter.id));
+      for (const [index, chapter] of plan.capturePlan.chapters.entries()) {
+        if (!references.includes(`capture:${chapter.id}`))
+          context.addIssue({
+            code: "custom",
+            path: ["capturePlan", "chapters", index, "id"],
+            message:
+              "Each capture chapter must be referenced by a storyboard scene as capture:<chapter-id>",
+          });
+      }
+      if (references.some((reference) => !chapterIds.has(reference.slice("capture:".length))))
+        context.addIssue({
+          code: "custom",
+          path: ["storyboard", "scenes"],
+          message: "Storyboard capture references must identify planned chapters",
+        });
+    }
+    if (plan.storyboard && plan.storyboard.durationSeconds !== plan.durationSeconds)
+      context.addIssue({
+        code: "custom",
+        path: ["storyboard", "durationSeconds"],
+        message: "Storyboard duration must match the full-film plan",
+      });
   });
 }
 export function videoBuildPlanSchemaFor(expected: {

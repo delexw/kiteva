@@ -9,14 +9,19 @@ import { reactBitsGuidance } from "./react-bits/prompt";
 import type { AgentMcpCapability } from "./shared/types";
 
 // Add each capability's registration and guidance in its own files, separate from skills.
-export function agentCapabilities(workspace: string, readOnly = false, textOnly = false) {
+export function agentCapabilities(
+  workspace: string,
+  readOnly = false,
+  textOnly = false,
+  includeCreativeAlternatives = true,
+) {
   const audioStudio = !readOnly && !textOnly ? audioStudioCapability(workspace) : undefined;
   const servers: Record<string, AgentMcpCapability> = textOnly
     ? {}
     : {
         react_bits: reactBitsCapability(workspace, readOnly),
         animate_ui: animateUiCapability(workspace, readOnly),
-        creative_pool: creativePoolCapability(),
+        creative_pool: creativePoolCapability(includeCreativeAlternatives),
         ...(audioStudio ? { audio_studio: audioStudio } : {}),
       };
   return {

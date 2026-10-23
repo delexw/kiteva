@@ -1,4 +1,6 @@
 """Pocket TTS adapter. Downloads occur only with --setup; synthesis is offline."""
+import contextlib
+import sys
 import argparse
 import importlib.metadata
 import json
@@ -13,6 +15,7 @@ parser.add_argument("--models", required=True)
 parser.add_argument("--language", choices=languages, default="english")
 parser.add_argument("--setup", action="store_true")
 parser.add_argument("--check", action="store_true")
+parser.add_argument("--serve", action="store_true")
 parser.add_argument("--voice")
 parser.add_argument("--text-file")
 parser.add_argument("--output")
@@ -107,12 +110,34 @@ else:
     if args.check:
         print("ready")
     else:
-        if not args.text_file or not args.output:
+        if not args.serve and (not args.text_file or not args.output):
             parser.error("--text-file and --output are required for synthesis")
-        from pocket_tts import TTSModel
-        import scipy.io.wavfile
-        os.chdir(root)
-        model = TTSModel.load_model(config=str(folder / "config.yaml"))
-        voice = model.get_state_for_audio_prompt(str(folder / "voices" / f"{selected_voice}.safetensors"))
-        audio = model.generate_audio(voice, Path(args.text_file).read_text())
-        scipy.io.wavfile.write(args.output, model.sample_rate, audio.detach().cpu().numpy())
+        with contextlib.redirect_stdout(sys.stderr):
+            from pocket_tts import TTSModel
+            import scipy.io.wavfile
+            os.chdir(root)
+            model = TTSModel.load_model(config=str(folder / "config.yaml"))
+        voice_states = {}
+
+        def synthesize(voice_name, text_file, output):
+            if voice_name not in voices:
+                raise ValueError("Choose an official Pocket TTS voice")
+            if voice_name not in voice_states:
+                voice_states[voice_name] = model.get_state_for_audio_prompt(
+                    str(folder / "voices" / f"{voice_name}.safetensors"))
+            # Native copy_state prevents a previous utterance mutating the cached voice.
+            audio = model.generate_audio(voice_states[voice_name], Path(text_file).read_text(), copy_state=True)
+            scipy.io.wavfile.write(output, model.sample_rate, audio.detach().cpu().numpy())
+
+        if args.serve:
+            for line in sys.stdin:
+                request = json.loads(line)
+                try:
+                    with contextlib.redirect_stdout(sys.stderr):
+                        synthesize(request["voice"], request["textFile"], request["output"])
+                    response = {"id": request["id"], "ok": True}
+                except Exception as error:
+                    response = {"id": request["id"], "ok": False, "error": str(error)}
+                print(json.dumps(response), flush=True)
+        else:
+            synthesize(selected_voice, args.text_file, args.output)

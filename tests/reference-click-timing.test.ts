@@ -15,14 +15,10 @@ import { startWebsiteCapture } from "../src/server/jobs/subworkflows/website-cap
 import { createLocalReferenceBrowser } from "../src/server/jobs/subworkflows/website-reference";
 
 it.skipIf(!browserExecutablePath())(
-  "clicks after pointer arrival without adding a fixed dwell",
+  "clicks directly without synthesizing cursor movement or adding a fixed dwell",
   async () => {
-    const events: Array<{ kind: string; time: number }> = [];
     vi.mocked(startWebsiteCapture).mockResolvedValue({
       id: randomUUID(),
-      cursor: (_x, _y, kind) => {
-        events.push({ kind, time: performance.now() });
-      },
       prepare: vi.fn(),
       edit: vi.fn(),
       export: vi.fn(),
@@ -51,13 +47,7 @@ it.skipIf(!browserExecutablePath())(
       expect(
         (await browser.click(page.controls.find((control) => control.name === "Next")!.id)).text,
       ).toContain("Clicked");
-      const click = events.find((event) => event.kind === "click")!;
-      const arrival = events.filter((event) => event.kind === "move").at(-1)!;
-      expect(click.time).toBeGreaterThanOrEqual(arrival.time);
-      expect(events.map((event) => event.kind)).toEqual([...Array(12).fill("move"), "click"]);
-      expect(vi.mocked(delay).mock.calls.map(([milliseconds]) => milliseconds)).toEqual(
-        Array(12).fill(16),
-      );
+      expect(vi.mocked(delay).mock.calls).toEqual([]);
     } finally {
       await browser.close();
       await new Promise<void>((resolve) => web.close(() => resolve()));

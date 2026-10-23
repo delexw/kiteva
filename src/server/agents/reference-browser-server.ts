@@ -6,6 +6,11 @@ const config = z
   .object({
     workspace: z.string(),
     enableVideoCapture: z.boolean().default(false),
+    captureChapterDurationSeconds: z.number().finite().positive().optional(),
+    captureChapterId: z
+      .string()
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+      .optional(),
     urls: z.array(z.string().url()).min(1),
     mode: z.enum(["local", "hosted"]),
   })

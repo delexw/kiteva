@@ -1,7 +1,8 @@
 vi.mock("../src/server/domains/video/build-plan", () => ({
   prepareVideoBuildPlan: vi.fn(async ({ prompt }: { prompt: string }) => prompt),
 }));
-vi.mock("../src/server/jev/strategies/visual-authoring", () => ({
+vi.mock("../src/server/jev/strategies/visual-authoring", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../src/server/jev/strategies/visual-authoring")>()),
   selectAuthoringResources: async () => ({
     source: "jev",
     model: "jev-test",
@@ -395,7 +396,7 @@ it.each(["failed", "interrupted", "cancelled"] as const)(
   },
 );
 
-it("records correction governance without replacing the main generation session", async () => {
+it("records correction and capture governance without replacing the main generation session", async () => {
   const store = new Store(":memory:");
   const workflow = new Workflow(store, await loadCatalog());
   const run: Run = {
@@ -427,6 +428,19 @@ it("records correction governance without replacing the main generation session"
   run.jobs.push(job);
   store.save(run);
   const callback = workflow["providerEvent"](run, job);
+  callback({
+    type: "session",
+    message: "Chapter opened",
+    data: {
+      sessionId: "chapter-session",
+      captureChapter: { chapterId: "example" },
+    },
+  });
+  expect(store.get(run.id)?.jobs[0].sessionId).toBe("main-session");
+  expect(store.allEvents(run.id).at(-1)?.data).toMatchObject({
+    purpose: "Footage chapter capture",
+    sessionId: "chapter-session",
+  });
   callback({
     type: "session",
     message: "Opened",

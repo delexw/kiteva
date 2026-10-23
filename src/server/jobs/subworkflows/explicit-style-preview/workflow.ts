@@ -45,6 +45,7 @@ export async function runExplicitStylePreviewWorkflow(input: {
       .length(request.candidateCount),
   });
   const result = await agentTurn({
+    includeCreativeAlternatives: false,
     provider: request.provider,
     model: request.mainModel || models[request.provider],
     workspace,

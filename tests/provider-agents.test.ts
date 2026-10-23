@@ -370,7 +370,19 @@ it.each([
       return;
     }
     expect(system).toContain(videoPacingSystemGuidance);
+    expect(system).toContain(videoPacingPolicy.scope);
+    expect(system).toContain("Exclude capture_video calls and all captured footage");
+    expect(system).toContain("apply only outside captured footage");
     expect(system).toContain(videoPacingPolicy.editorial);
+    expect(system).toContain(videoPacingPolicy.action);
+    expect(system).toContain("Make each scene earn its duration");
+    expect(system).toContain(
+      "preserve explicit act and scene start/end times, narration starts and required holds",
+    );
+    expect(system).toContain(
+      "Keep successful preview action timings where compatible with the story and explicit audio cues",
+    );
+    expect(system).toContain("rather than slowing a reveal or padding a gap");
     expect(system).toContain(videoPacingPolicy.reading);
     expect(system).toContain(videoPacingPolicy.coherence);
     expect(system).toContain("By default, favor brisk, energetic pacing");
@@ -1044,40 +1056,170 @@ it.each(["claude", "codex"] as const)(
   },
 );
 
-it("uses Claude native Plan Mode and automatically accepts only its exit handoff", async () => {
+it("delegates Claude planning permissions to native Plan Mode and preserves its implementation handoff", async () => {
   sdk.query.mockReset().mockImplementation(claudeRecoveredTurn);
   const options = {
     ...capacityAttemptOptions(),
     provider: "claude" as const,
     model: "claude-opus-5-5",
   };
-  await agentTurn({ ...options, readOnly: true, planMode: true });
+  await agentTurn({
+    ...options,
+    readOnly: true,
+    planMode: true,
+    referenceUrls: ["https://example.com"],
+  });
   const planning = sdk.query.mock.calls.at(-1)![0].options;
   expect(planning.permissionMode).toBe("plan");
   expect(planning.planModeInstructions).toContain(
     "Kiteva automatically accepts this planning handoff",
   );
   expect(planning.tools).toContain("ExitPlanMode");
-  expect(planning.tools).not.toEqual(expect.arrayContaining(["Write", "Edit", "Bash"]));
+  expect(planning.tools).toEqual(expect.arrayContaining(["Write", "Edit", "Bash"]));
   expect(await planning.canUseTool("ExitPlanMode", {})).toMatchObject({ behavior: "allow" });
-  for (const tool of ["Write", "Edit", "Bash"])
-    expect(await planning.canUseTool(tool, {})).toMatchObject({ behavior: "deny" });
+  for (const tool of ["Write", "Edit", "Bash", "NotebookEdit"])
+    expect(await planning.canUseTool(tool, {})).toMatchObject({
+      behavior: "deny",
+      message: "Native plan-mode permission requests are not approved during planning",
+    });
+  expect(await planning.canUseTool("Write", { file_path: "/outside-job/plan.json" })).toMatchObject(
+    { behavior: "deny" },
+  );
+  expect(JSON.parse(planning.mcpServers.reference_browser.args.at(-1))).toMatchObject({
+    enableVideoCapture: false,
+  });
+  for (const server of ["react_bits", "animate_ui"]) {
+    expect(await planning.canUseTool(`mcp__${server}__install_component`, {})).toMatchObject({
+      behavior: "deny",
+    });
+    expect(await planning.canUseTool(`mcp__${server}__read_component`, {})).toMatchObject({
+      behavior: "allow",
+    });
+  }
   await agentTurn({ ...options, sessionId: "claude-direction" });
   const implementation = sdk.query.mock.calls.at(-1)![0].options;
   expect(implementation.resume).toBe("claude-direction");
   expect(implementation.permissionMode).toBe("acceptEdits");
   expect(implementation.planModeInstructions).toBeUndefined();
+  expect(implementation.hooks.PostToolUse).toBeUndefined();
   expect(implementation.tools).not.toContain("ExitPlanMode");
   expect(await implementation.canUseTool("ExitPlanMode", {})).toMatchObject({ behavior: "deny" });
+});
+
+it("keeps the native SDK in plan mode after its exit handoff until the structured plan is returned", async () => {
+  const setPermissionMode = vi.fn().mockResolvedValue(undefined);
+  sdk.query.mockReset().mockImplementation((call) => {
+    async function* events() {
+      const exit = call.options.hooks.PostToolUse[0];
+      expect(exit.matcher).toBe("^ExitPlanMode$");
+      await exit.hooks[0]();
+      expect(setPermissionMode).toHaveBeenCalledWith("plan");
+      yield* claudeRecoveredTurn();
+    }
+    return Object.assign(events(), { setPermissionMode });
+  });
+  await agentTurn({
+    ...capacityAttemptOptions(),
+    provider: "claude",
+    readOnly: true,
+    planMode: true,
+  });
+  expect(setPermissionMode).toHaveBeenCalledOnce();
 });
 
 it("keeps ordinary read-only Claude calls outside native planning and rejects writable planning", async () => {
   sdk.query.mockReset().mockImplementation(claudeRecoveredTurn);
   const options = { ...capacityAttemptOptions(), provider: "claude" as const };
   await agentTurn({ ...options, readOnly: true });
-  expect(sdk.query.mock.calls.at(-1)![0].options.permissionMode).toBe("acceptEdits");
+  const inspection = sdk.query.mock.calls.at(-1)![0].options;
+  expect(inspection.permissionMode).toBe("acceptEdits");
+  for (const tool of ["Write", "Edit", "Bash"]) {
+    expect(inspection.tools).not.toContain(tool);
+    expect(await inspection.canUseTool(tool, {})).toMatchObject({ behavior: "deny" });
+  }
   await expect(agentTurn({ ...options, planMode: true })).rejects.toThrow(
     "requires a read-only turn",
   );
   expect(sdk.query).toHaveBeenCalledOnce();
 });
+
+it.each(["claude", "codex"] as const)(
+  "scopes %s capture calls to one chapter and disables capture during assembly",
+  async (provider) => {
+    sdk.query.mockReset().mockImplementation(claudeRecoveredTurn);
+    sdk.codexEvents.mockReset().mockImplementation(async function* () {
+      yield { type: "thread.started", thread_id: "chapter-session" };
+      yield {
+        type: "item.completed",
+        item: { id: "answer", type: "agent_message", text: '{"message":"done"}' },
+      };
+      yield { type: "turn.completed", usage: {} };
+    });
+    for (const enabled of [true, false]) {
+      await agentTurn({
+        ...capacityAttemptOptions(),
+        provider,
+        referenceUrls: ["https://example.com"],
+        enableVideoCapture: enabled,
+        ...(enabled ? { captureChapterId: "create" } : {}),
+      });
+      const server =
+        provider === "claude"
+          ? sdk.query.mock.calls.at(-1)![0].options.mcpServers.reference_browser
+          : sdk.construct.mock.calls.at(-1)![0].config.mcp_servers.reference_browser;
+      const config = JSON.parse(server.args.at(-1));
+      expect(config.enableVideoCapture).toBe(enabled);
+      expect(config.captureChapterId).toBe(enabled ? "create" : undefined);
+      if (provider === "codex")
+        expect(server.enabled_tools.includes("capture_video")).toBe(enabled);
+    }
+  },
+);
+
+it.each(["claude", "codex"] as const)(
+  "starts a fresh %s SDK session for each unresumed chapter call",
+  async (provider) => {
+    let sequence = 0;
+    sdk.query.mockImplementation(async function* () {
+      const session = `chapter-${++sequence}`;
+      yield {
+        type: "system",
+        subtype: "init",
+        session_id: session,
+        skills: ["bundled-authoring:anatomy"],
+      };
+      yield {
+        type: "result",
+        subtype: "success",
+        is_error: false,
+        structured_output: { message: "done" },
+        session_id: session,
+        usage: {},
+        modelUsage: {},
+      };
+    });
+    sdk.codexEvents.mockImplementation(async function* () {
+      yield { type: "thread.started", thread_id: `chapter-${++sequence}` };
+      yield {
+        type: "item.completed",
+        item: { id: "answer", type: "agent_message", text: '{"message":"done"}' },
+      };
+      yield { type: "turn.completed", usage: {} };
+    });
+    sdk.resume.mockClear();
+    const sessions: (string | undefined)[] = [];
+    for (const chapterId of ["create", "review"]) {
+      const result = await agentTurn({
+        ...capacityAttemptOptions(),
+        provider,
+        captureChapterId: chapterId,
+        includeCreativeAlternatives: false,
+      });
+      sessions.push(result.sessionId);
+      if (provider === "claude")
+        expect(sdk.query.mock.calls.at(-1)![0].options.resume).toBeUndefined();
+    }
+    expect(sessions).toEqual(["chapter-1", "chapter-2"]);
+    if (provider === "codex") expect(sdk.resume).not.toHaveBeenCalled();
+  },
+);

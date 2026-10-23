@@ -1,7 +1,21 @@
-import { afterEach, expect, it, vi } from "vitest";
+import { beforeEach, afterEach, expect, it, vi } from "vitest";
 import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
+const workerMock = vi.hoisted(() => ({ create: vi.fn(), synthesize: vi.fn(), stop: vi.fn() }));
+vi.mock("../src/server/audio/providers/pocket-worker", () => ({
+  PocketTtsWorker: class {
+    constructor(...args: unknown[]) {
+      workerMock.create(...args);
+    }
+    synthesize(...args: unknown[]) {
+      return workerMock.synthesize(...args);
+    }
+    stop() {
+      workerMock.stop();
+    }
+  },
+}));
 vi.mock("../src/server/runtime/process", () => ({ command: vi.fn(async () => "ready") }));
 vi.mock("../src/server/rendering/video-probe", () => ({
   probeVideo: vi.fn(async () => ({
@@ -12,11 +26,15 @@ vi.mock("../src/server/rendering/video-probe", () => ({
 vi.mock("node:fs/promises", async (original) => ({
   ...(await original<typeof import("node:fs/promises")>()),
   access: vi.fn(async () => {}),
+  stat: vi.fn(async () => ({ mtimeMs: 1 })),
 }));
 import { command } from "../src/server/runtime/process";
 import { access } from "node:fs/promises";
 import { probeVideo } from "../src/server/rendering/video-probe";
-import { pocketTtsSpeechProvider } from "../src/server/audio/providers/pocket-tts";
+import {
+  pocketTtsSpeechProvider,
+  stopPocketTtsWorker,
+} from "../src/server/audio/providers/pocket-tts";
 import { speechProvider } from "../src/server/audio/providers";
 import { kokoroSpeechProvider } from "../src/server/audio/providers/kokoro";
 import { speechModelDirectory } from "../src/server/audio/providers/paths";
@@ -24,7 +42,13 @@ import { pocketVoices } from "../src/shared/speech";
 import { pocketZhVoiceReference } from "../src/server/audio/providers/pocket-tts-zh";
 import { appRoot } from "../src/server/runtime/config";
 const folders: string[] = [];
+beforeEach(() => {
+  workerMock.synthesize.mockImplementation(async ({ output }: { output: string }) => {
+    await writeFile(output, "natural audio");
+  });
+});
 afterEach(async () => {
+  stopPocketTtsWorker();
   await Promise.all(
     folders.splice(0).map((folder) => rm(folder, { recursive: true, force: true })),
   );
@@ -143,13 +167,14 @@ it("uses Pocket's own voice and local model path, with pitch-preserving tempo an
       new AbortController().signal,
     ),
   ).toBe(0.5);
-  expect(command).toHaveBeenCalledWith(
+  expect(workerMock.create).toHaveBeenCalledWith(
     expect.any(String),
-    expect.arrayContaining(["--voice", "alba", "--models", speechModelDirectory("pocket-tts")]),
+    expect.arrayContaining(["--serve", "--models", speechModelDirectory("pocket-tts")]),
     expect.any(String),
+  );
+  expect(workerMock.synthesize).toHaveBeenCalledWith(
+    expect.objectContaining({ voice: "alba" }),
     expect.any(AbortSignal),
-    expect.any(Function),
-    300000,
   );
   expect(command).toHaveBeenCalledWith(
     "ffmpeg",
@@ -227,8 +252,14 @@ it("routes non-English speech to its own model and language readiness", async ()
   );
   for (const [, args] of vi.mocked(command).mock.calls)
     expect(args).toEqual(expect.arrayContaining(["--language", "italian"]));
-  expect(vi.mocked(command).mock.calls[1][1]).toEqual(
-    expect.arrayContaining(["--voice", "giovanni"]),
+  expect(workerMock.create).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.arrayContaining(["--language", "italian"]),
+    expect.any(String),
+  );
+  expect(workerMock.synthesize).toHaveBeenCalledWith(
+    expect.objectContaining({ voice: "giovanni" }),
+    expect.any(AbortSignal),
   );
 });
 
@@ -250,7 +281,15 @@ it("uses the explicit speaking language without restricting voices to their refe
   );
   for (const [, args] of vi.mocked(command).mock.calls)
     expect(args).toEqual(expect.arrayContaining(["--language", "french"]));
-  expect(vi.mocked(command).mock.calls[1][1]).toEqual(expect.arrayContaining(["--voice", "alba"]));
+  expect(workerMock.create).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.arrayContaining(["--language", "french"]),
+    expect.any(String),
+  );
+  expect(workerMock.synthesize).toHaveBeenCalledWith(
+    expect.objectContaining({ voice: "alba" }),
+    expect.any(AbortSignal),
+  );
 });
 
 it.each(pocketVoices.filter((voice) => voice.language === "zh"))(

@@ -25,7 +25,7 @@ export async function prepareLyrics(
   generate: typeof agentTurn = agentTurn,
 ): Promise<GeneratedLyrics | undefined> {
   const { request, brief, workspace, signal, onEvent } = input;
-  if (request.lyrics?.mode !== "write") return undefined;
+  if (request.scriptItems !== undefined || request.lyrics?.mode !== "write") return undefined;
   signal.throwIfAborted();
   const model = textModels[request.provider];
   // A project checkpoint survives retries and restarts, even if the brief is rewritten.
@@ -68,7 +68,7 @@ export function resolvedLyricsRequest(
   request: VideoRequest,
   lyrics?: GeneratedLyrics,
 ): VideoRequest {
-  if (request.lyrics?.mode !== "write") return request;
+  if (request.scriptItems !== undefined || request.lyrics?.mode !== "write") return request;
   if (!lyrics) throw Error("Lyrics must be prepared before creating a video.");
   return { ...request, lyrics: { mode: "provided", text: lyrics.text } };
 }

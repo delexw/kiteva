@@ -17,19 +17,20 @@ import { multiplaneDemoRoutePrompt } from "../src/server/domains/video/route-pro
 import { websiteCaptureInstructions } from "../src/server/requests/reference-browser-instructions";
 
 it.each(["hyperframes", "multiplane"] as const)(
-  "includes the attributed OpenScreen steps 2–7 once in the %s demo route",
+  "includes the adapted OpenScreen capture workflow once in the %s demo route",
   (renderer) => {
     const prompt = buildVideoWorkflowRoutingPrompt(renderer);
     expect(prompt).toContain(
       "https://github.com/getopenscreen/openscreen/blob/main/plugin/skills/openscreen-demo/SKILL.md",
     );
     for (const heading of [
-      "## 2. Plan before recording",
-      "## 3. Set the stage",
-      "## 4. Record",
-      "## 5. Check the take",
-      "## 6. Edit",
-      "## 7. Export and review",
+      "## 1. Prepare the take",
+      "## 2. Record through capture_video",
+      "## 3. Read the native document",
+      "## 4. Inspect frames before export",
+      "## 5. Correct and review again",
+      "## 6. Export the reviewed take",
+      "## 7. Reconcile and hand off",
     ]) {
       expect(prompt.split(heading)).toHaveLength(2);
     }
@@ -41,7 +42,7 @@ it.each(["hyperframes", "multiplane"] as const)(
     expect(prompt).toContain("live descriptions and argument schemas");
     expect(prompt).toContain("getCurrentDocument");
     expect(prompt).toContain("getFrames");
-    expect(prompt).toContain("Native trims apply the agent's decisions");
+    expect(prompt).toContain("Never add trims, skip actions or cut out waiting/typing");
     expect(prompt).not.toContain("choose any native trimRegions yourself at capture_video stop");
     expect(websiteCaptureInstructions).not.toContain("## 6. Edit");
   },
@@ -51,7 +52,7 @@ it.each(["hyperframes", "multiplane"] as const)(
   "plans a connected, complete demo journey before capture for %s",
   (renderer) => {
     const guidance = buildApplicationDemoRoutePrompt(renderer);
-    const route = guidance.slice(0, guidance.indexOf("# OpenScreen demo workflow"));
+    const route = guidance.slice(0, guidance.indexOf("# OpenScreen capture workflow"));
     for (const requirement of [
       "main model planner owns feature selection",
       "verify them against the live application",
@@ -80,14 +81,14 @@ it.each(["hyperframes", "multiplane"] as const)(
       "chapter names, boundaries, card treatment and timing",
     ])
       expect(route).toContain(requirement);
-    // Route A owns story/coverage; the copied skill owns the capture/edit procedure.
-    expect(route.trim().split(/\s+/).length).toBeLessThanOrEqual(650);
+    // Route A owns story/coverage; the capture workflow owns the capture/edit procedure.
+    expect(route.trim().split(/\s+/).length).toBeLessThanOrEqual(750);
     expect(route).not.toMatch(/getFrames|addTrims|addSpeed|action: "(?:start|stop|edit|export)"/);
     expect(route).toContain(
-      "Follow the OpenScreen skill below for recording, review, editing and export",
+      "Follow the OpenScreen workflow below for recording, review, editing and export",
     );
     expect(route.indexOf("SCOPE AND STORY")).toBeLessThan(
-      route.indexOf("Follow the OpenScreen skill"),
+      route.indexOf("Follow the OpenScreen workflow"),
     );
   },
 );
@@ -163,6 +164,30 @@ it.each(["preview", "full", "refinement"] as const)(
         dimensions: {},
       },
     };
+    const timedPrompt = buildVideoPrompt({
+      ...input,
+      request: VideoRequestSchema.parse({
+        ...input.request,
+        scriptItems: [
+          {
+            id: "opening",
+            startSeconds: 0,
+            endSeconds: 10,
+            text: "Knowledge everywhere.",
+            showLyrics: true,
+            speech: { mode: "off" },
+          },
+        ],
+        lyrics: { mode: "provided", text: "Legacy text must not appear" },
+      }),
+    });
+    expect(timedPrompt).toContain("TIMED SCRIPT ITEMS (authoritative");
+    expect(timedPrompt).toContain('"startSeconds":0,"endSeconds":10');
+    expect(timedPrompt).toContain('"text":"Knowledge everywhere."');
+    expect(timedPrompt).not.toContain("Legacy text must not appear");
+    expect(timedPrompt).toContain(
+      kind === "preview" ? "Direction previews stay silent" : "STORYBOARD.json",
+    );
     const musicPrompt = "Sparse drums, warm bass. Keep my exact phrasing.";
     const musicRequest = VideoRequestSchema.parse({
       ...input.request,
@@ -191,6 +216,7 @@ it.each(["preview", "full", "refinement"] as const)(
     expect(musicResult).not.toContain("continuous musical groove");
     const prompt = buildVideoPrompt(input);
     expect(prompt.split(requestedStyleScopeGuidance)).toHaveLength(2);
+    expect(prompt).not.toContain("The duration-derived range limits");
     expect(prompt).toContain(
       `ORIGINAL USER IDEA (verbatim source text):\n${input.request.instructions}\nEND ORIGINAL USER IDEA`,
     );
@@ -353,26 +379,56 @@ it.each(["hyperframes", "multiplane"] as const)(
     expect(prompt).toContain(
       "the main planner must storyboard each target component, context, zoom amount and timing",
     );
-    expect(prompt).toContain("Automatic zoom generation is always disabled");
+    expect(prompt).toContain("Use addAutoZooms for native click-based suggestions");
+    expect(prompt).not.toContain("Automatic zoom generation is always disabled");
     expect(prompt).toContain("minimal enlargement without cropping components or labels");
     expect(prompt).toContain("stay wide for navigation, scrolling and broad results");
-    expect(prompt).toContain("If a useful zoom cannot fit those, stay wide");
-    expect(prompt).toContain("Prefer fixed manual focus");
+    expect(prompt).toContain(
+      "OpenScreen owns camera animation, cursor following and edit-time mapping",
+    );
+    expect(prompt).toContain("Native zooms and camera defaults are preserved");
     expect(prompt).toContain("Export does not add zooms or refill deliberately wide intervals");
-    expect(prompt).toContain("Smoothing is fixed at 0.15");
-    expect(prompt).toContain(
-      "Measure the live layout at the actual recording viewport and scroll position",
-    );
-    expect(prompt).toContain("including resulting states that resize or reveal content");
-    expect(prompt).toContain("A whole story may remain wide; zoom is optional");
-    expect(prompt).toContain(
-      "Keep relevant neighbouring panels, their borders and controls visible",
-    );
-    expect(prompt).toContain("on both sides of trims");
+    expect(prompt).toContain("Cursor smoothing is disabled (0)");
+    expect(prompt).toContain("Review the complete active control, label and result");
+    expect(prompt).toContain("at both boundaries of speed regions");
     expect(prompt).toContain(
       "reduce the scale, adjust focus or remove the zoom, then review again",
     );
     expect(prompt).toContain("describe simulated behaviour as simulated");
     expect(prompt).not.toMatch(/TeamTube|API integration guide|0\.4547|0\.5174/);
+  },
+);
+
+it.each(["hyperframes", "multiplane"] as const)(
+  "keeps required capture review explicit without incompatible upstream commands for %s",
+  (renderer) => {
+    const prompt = buildApplicationDemoRoutePrompt(renderer);
+    const workflow = prompt.slice(prompt.indexOf("# OpenScreen capture workflow"));
+    expect(workflow).toContain("does not require a separate skill invocation");
+    expect(workflow).toContain(
+      "A document read, cursor-track read or contact sheet alone does not replace this native frame review",
+    );
+    expect(workflow).toContain("After any edit, inspect the affected frames again");
+    expect(workflow).toContain(
+      "Do not proceed to export with known clipping or unresolved required framing checks",
+    );
+    expect(workflow.indexOf("## 3. Read the native document")).toBeLessThan(
+      workflow.indexOf("## 4. Inspect frames before export"),
+    );
+    expect(workflow.indexOf("## 5. Correct and review again")).toBeLessThan(
+      workflow.indexOf("## 6. Export the reviewed take"),
+    );
+    expect(workflow).toContain("Omit projectId and paths");
+    expect(workflow).toContain(
+      "Use the returned live schemas rather than guessing operation arguments",
+    );
+    expect(workflow).toContain("captured footage is excluded from the energetic pacing default");
+    expect(workflow).not.toMatch(
+      /listSources|createProject|exportVideo|importMedia|transcribe|openscreen:\/\/effects/,
+    );
+    expect(workflow).toContain("pass the events unchanged to native setPointerTrack");
+    expect(workflow).toContain("same page and window coordinate space");
+    expect(workflow).not.toMatch(/Launch demo:|Pull request video:|Post on X|1600×1000/);
+    expect(prompt.split(/\s+/).length).toBeLessThan(1800);
   },
 );

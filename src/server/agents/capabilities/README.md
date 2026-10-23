@@ -65,9 +65,14 @@ reduced-motion behavior.
 
 The internal `creative_pool` server provides `search_pool` and `read_pool_entry` to both SDKs during
 planning, building and repairs. It reads the application's current Motion Graphic, motion and
-technology catalogs locally. Search returns matching IDs and names; reading returns the full
-definition, including sequences, constraints and implementation guidance, in both text and typed
-structured content. It writes no files and makes no network requests. Guidance requires reading named
+technology catalogs locally. Search returns matching IDs and names; reading returns authoring definitions, including sequences,
+constraints and implementation guidance, in both text and typed structured content. Source-review
+and provenance fields are omitted without changing the catalogs. `includeCreativeAlternatives`
+on the agent turn is passed through the shared capability registration to the MCP server as
+`KITEVA_POOL_INCLUDE_ALTERNATIVES`. Automatic exploration defaults to true. Fixed-style preview
+direction planning, selected-direction video planning, builds, repairs and result reviews pass false
+to omit `motion_graphic_variants` and `suggested_combinations`. The model cannot override this
+workflow-controlled filter with a tool argument. It writes no files and makes no network requests. Guidance requires reading named
 definitions before implementation while preserving explicit user refinements and supplied assets.
 Tool availability and instructions do not by themselves prove that the rendered motion is faithful;
 the finished composition still needs visual verification.
@@ -145,3 +150,5 @@ is saved inline as `<style id="style-140">Vintage Rubber Hose Animation</style>`
 idea string. Shared system guidance resolves its ID through `read_pool_entry` before authoring,
 preserves adjacent act/scene scope and exclusions, and treats the label as reference data. Mentions
 do not become Settings selections or enter host-side routing/count validation.
+
+Motion clips use the same explicit mention path as Motion Graphics. The shared editor, picker preview and mention chip accept a `style` or `motion` variant; motion previews delegate to the existing MotionPreview player. The root loads the motion catalog once for editor consumers. Selecting a clip stores `<motion id="motion-036">Glitch Type Build</motion>`; the model reads that ID with `creative_pool.read_pool_entry` using `kind: "motion"`. Existing `<style>` references continue to use `kind: "motion_graphic"`. Neither variant extracts ordinary names from prose or adds Settings selections. Saved prompts across Assistant, project boards and governance use the same variant-aware PromptText renderer and hover preview.

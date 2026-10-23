@@ -66,6 +66,12 @@ it.each(["claude", "codex"] as const)(
     const run = project(workspace);
     run.request.provider = provider;
     run.jobs[0].model = `${provider}-full-model`;
+    run.jobs[0].authoringResources = {
+      source: "jev",
+      selectedIds: ["existing-capability"],
+      decisions: [],
+    };
+    run.jobs[0].audioAuthoring = { source: "skipped", decisions: [] };
     const originalVideo = run.jobs[0];
     if (originalVideo.outputType === "page") throw Error("Expected video");
     run.jobs.push({
@@ -82,9 +88,19 @@ it.each(["claude", "codex"] as const)(
       .mockImplementation(async (_run, job, feedback) => {
         expect(feedback).toBe(job.refinementPrompt);
         expect(job.production).toBeUndefined();
+        if (job.outputType === "page") throw Error("Expected video");
+        expect(job.refinementCheckpoint).toMatchObject({
+          sourceJobId: "full-original",
+          sourceSessionId: "full-session",
+          sourcePhase: "ready",
+          workspace: job.workspace,
+        });
         expect(job.sessionId).toBe("full-session");
         expect(job.sessionId).not.toBe("preview-only-session");
         expect(job.model).toBe(`${provider}-full-model`);
+        expect(job.authoringResources).toEqual(originalVideo.authoringResources);
+        expect(job.audioAuthoring).toEqual(originalVideo.audioAuthoring);
+        expect(job.authoringResources).not.toBe(originalVideo.authoringResources);
         await writeFile(path.join(job.workspace, "index.html"), "refined composition");
         job.phase = "ready";
       });
@@ -113,8 +129,7 @@ it.each(["claude", "codex"] as const)(
       );
       expect(generate).toHaveBeenCalledTimes(1);
       expect(revised.outputType).not.toBe("page");
-      if (run.request.outputType !== "video" || !run.brief || revised.outputType === "page")
-        throw Error("video expected");
+      if (run.request.outputType !== "video" || !run.brief) throw Error("video expected");
       const prompt = buildVideoPrompt({
         job: revised,
         request: run.request,
@@ -126,9 +141,27 @@ it.each(["claude", "codex"] as const)(
         feedback: revised.refinementPrompt,
       });
       expect(prompt).toContain("REVISION SCOPE");
+      expect(prompt).toContain("SAVED REVISION CHECKPOINT");
+      const checkpointPrompt = prompt.split("REVISION SCOPE:")[0];
+      expect(checkpointPrompt).toContain(revised.workspace);
+      expect(checkpointPrompt).toContain(source.workspace);
+      expect(checkpointPrompt).toContain('"path":"renders/full.mp4","available":true');
+      for (const detail of [
+        "sha256",
+        "sourceSessionId",
+        "inheritedCacheDirectories",
+        "cache",
+        "runtime identity",
+        "refinement-checkpoint.json",
+      ])
+        expect(checkpointPrompt).not.toContain(detail);
       expect(prompt).toContain("Make captions larger");
+      const revisionScope = prompt.split("REVISION SCOPE:")[1].split("\n")[0];
+      expect(revisionScope).not.toMatch(/saved session|schema-constrained|three-second preview/);
+      expect(revisionScope).toContain("preserving unaffected content");
+      expect(revisionScope).toContain("complete updated manifest and storyboard");
       expect(prompt).toContain(
-        "Read production.json and STORYBOARD.json first, then the existing index.html",
+        "Read production.json and STORYBOARD.json, then inspect only files relevant to the requested edit",
       );
     } finally {
       await rm(workspace, { recursive: true, force: true });

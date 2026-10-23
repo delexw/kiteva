@@ -4,6 +4,7 @@ import {
   BrowserCapabilityRequestSchema,
   type BrowserCapabilityRequest,
 } from "./reference-tool-registry";
+import { captureChapterDirectory, CaptureChapterSchema } from "../../shared/capture-chapters";
 import { readWebsiteRecordings } from "../jobs/subworkflows/website-capture";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
@@ -15,6 +16,7 @@ import { prepareBriefImage } from "./brief-images";
 import { createReferenceBrowser } from "../jobs/subworkflows/website-reference";
 import { type ReferenceToolResult } from "./reference-browser-contracts";
 import { WorkQueue } from "../jobs/queue";
+import { validateChapterTiming } from "../capture/chapter-timing";
 
 export const referenceManifest = "reference-screenshots.json";
 export async function readReferenceScreenshots(workspace: string) {
@@ -31,9 +33,17 @@ export function createReferenceTools(options: {
   mode: "local" | "hosted";
   signal: AbortSignal;
   enableVideoCapture?: boolean;
+  captureChapterId?: string;
+  captureChapterDurationSeconds?: number;
 }) {
   const server = new McpServer({ name: "reference-browser", version: "1.0.0" });
   const queue = new WorkQueue(1);
+  const chapterId =
+    options.captureChapterId === undefined
+      ? undefined
+      : CaptureChapterSchema.shape.id.parse(options.captureChapterId);
+  const reviews = new Map<string, { document: boolean; frames: number }>();
+  let chapterExported = false;
   let session: ReturnType<typeof createReferenceBrowser> | undefined;
   const browser = () =>
     (session ??= createReferenceBrowser(
@@ -127,7 +137,12 @@ export function createReferenceTools(options: {
     run(async () => {
       if (action === "start") {
         if (native || recordingId) throw Error("Start accepts presentation only");
+        if (chapterId && chapterExported)
+          throw Error(
+            "This chapter already has an exported take. Return its result; code starts the next chapter.",
+          );
         const id = await (await browser()).startRecording(options.workspace, presentation);
+        reviews.set(id, { document: false, frames: 0 });
         return {
           result: {
             kind: "recording_started",
@@ -142,9 +157,55 @@ export function createReferenceTools(options: {
         return { result: await (await browser()).prepareRecording(recordingId) };
       if (action === "edit") {
         if (!native) throw Error("Edit requires a native operation and its arguments");
-        return { result: await (await browser()).editRecording(recordingId, native) };
+        if (chapterId && ["addTrims", "setTrim"].includes(native.operation))
+          throw Error(
+            "Chapter capture cannot cut footage. Use native speed regions on slow portions instead.",
+          );
+        const review = reviews.get(recordingId);
+        if (chapterId && !review) throw Error("Use the recording started in this chapter call");
+        if (
+          chapterId &&
+          !["getCurrentDocument", "getCursorTrack", "createCheckpoint"].includes(
+            native.operation,
+          ) &&
+          !review?.document
+        )
+          throw Error("Read getCurrentDocument before editing or reviewing native frames");
+        if (
+          review &&
+          !["getCurrentDocument", "getCursorTrack", "getFrames", "createCheckpoint"].includes(
+            native.operation,
+          )
+        )
+          review.frames = 0;
+        const result = await (await browser()).editRecording(recordingId, native);
+        if (!result.isError && review) {
+          if (native.operation === "getCurrentDocument") review.document = true;
+          if (
+            native.operation === "getFrames" &&
+            result.content.some((item) => item.type === "image")
+          )
+            review.frames++;
+        }
+        return { result: { ...result, operation: native.operation } };
       }
+      const review = reviews.get(recordingId);
+      if (chapterId && (!review?.document || !review.frames))
+        throw Error(
+          "Before export, read getCurrentDocument and review getFrames after the latest edit",
+        );
       const recording = await (await browser()).exportRecording(recordingId);
+      if (chapterId) {
+        if (recording.presentation?.idleGapsTrimmed)
+          throw Error("Chapter capture contains cuts. Remove all trims before export.");
+        if (options.captureChapterDurationSeconds !== undefined)
+          validateChapterTiming(
+            recording.duration,
+            options.captureChapterDurationSeconds,
+            false,
+            chapterId,
+          );
+      }
       const recordings = await readWebsiteRecordings(options.workspace);
       await writeFile(
         path.join(options.workspace, "reference-videos.json"),
@@ -154,6 +215,24 @@ export function createReferenceTools(options: {
           2,
         ),
       );
+      if (chapterId) {
+        const directory = path.join(options.workspace, captureChapterDirectory);
+        await mkdir(directory, { recursive: true });
+        await writeFile(
+          path.join(directory, `${chapterId}.json`),
+          JSON.stringify(
+            {
+              chapterId,
+              recording,
+              documentReviewed: true,
+              frameReviews: review!.frames,
+            },
+            null,
+            2,
+          ),
+        );
+        chapterExported = true;
+      }
       return { result: { kind: "video", recording } };
     }),
   );

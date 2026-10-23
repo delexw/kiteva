@@ -51,3 +51,19 @@ it.each([
 ])("detects the active query before the caret: %s", (text, expected) => {
   expect(styleMentionQuery(text!)).toBe(expected);
 });
+
+it("round-trips mixed explicit style and motion references without changing prose", () => {
+  const motion = styleMentionXml({ id: "motion-036", name_en: "Glitch Type Build" }, "motion");
+  expect(motion).toBe('<motion id="motion-036">Glitch Type Build</motion>');
+  const prompt = `Reveal ${motion}, then <style id="style-056">Mosaic</style>.`;
+  const parts = parseStyleMentions(prompt);
+  expect(parts.filter((p) => p.type !== "text").map((p) => p.type)).toEqual(["motion", "style"]);
+  expect(parts.map((p) => (p.type === "text" ? p.text : p.xml)).join("")).toBe(prompt);
+});
+it.each([
+  '<motion id="motion-036"><script>nested</script></motion>',
+  '<motion id="">Missing</motion>',
+  '<motion id="motion-036">Broken</style>',
+])("preserves invalid motion markup as text: %s", (prompt) => {
+  expect(parseStyleMentions(prompt)).toEqual([{ type: "text", text: prompt }]);
+});

@@ -13,10 +13,11 @@ export function normalizeStyleSelection<
 }
 
 export function videoStyleCountRange(duration: number) {
-  if (duration < 30) return { min: 1, max: 3 };
-  if (duration < 60) return { min: 1, max: 4 };
-  if (duration < 180) return { min: 1, max: 5 };
-  return { min: 2, max: 6 };
+  const min = 2;
+  if (duration < 30) return { min, max: 3 };
+  if (duration < 60) return { min, max: 4 };
+  if (duration < 180) return { min, max: 5 };
+  return { min, max: 6 };
 }
 export const MAX_VIDEO_STYLE_COUNT = videoStyleCountRange(Number.POSITIVE_INFINITY).max;
 

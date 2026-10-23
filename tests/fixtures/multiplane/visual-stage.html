@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <body style="margin: 0; background: #18324a">
+    <canvas id="scene" width="320" height="180"></canvas>
+    <div id="caption" style="color: white; font: 20px sans-serif"></div>
+    <script type="module">
+      import { createVisualStage } from "/src/shared/visual-stage.ts";
+      const canvas = document.getElementById("scene");
+      const context = canvas.getContext("2d");
+      const caption = document.getElementById("caption");
+      const counts = { canvas: 0, caption: 0 };
+      const scene = createVisualStage({
+        reuse: true,
+        calculate(t) {
+          return {
+            inputRevision: "example-scene-v1",
+            x: Math.round(Math.min(1, Math.max(0, t)) * 200),
+            color: "#fff",
+          };
+        },
+        apply(state) {
+          context.clearRect(0, 0, 320, 180);
+          context.fillStyle = state.color;
+          context.fillRect(state.x, 60, 40, 40);
+          counts.canvas++;
+        },
+      });
+      const subtitles = createVisualStage({
+        reuse: true,
+        calculate(t) {
+          return {
+            inputRevision: "example-caption-v1",
+            text: t < 1 ? "Introduction" : "Demonstration",
+            opacity: 1,
+          };
+        },
+        apply(state) {
+          caption.textContent = state.text;
+          caption.style.opacity = String(state.opacity);
+          counts.caption++;
+        },
+      });
+      window.seekVisualStage = (t) => {
+        scene.render(t);
+        subtitles.render(t);
+        return { ...counts };
+      };
+    </script>
+  </body>
+</html>

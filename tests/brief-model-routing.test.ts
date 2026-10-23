@@ -98,7 +98,7 @@ it.each([
       feasible: true,
       missingAssets: [],
     };
-    const single: Proposal = {
+    const minimalDirection: Proposal = {
       ...combination,
       supportingStyleIds: duration === 300 ? ["style-107"] : [],
     };
@@ -226,7 +226,7 @@ it.each([
             options: [
               combination,
               { ...combination, supportingStyleIds: [...combination.supportingStyleIds].reverse() },
-              single,
+              minimalDirection,
               otherCombination,
               { ...combination, primaryStyleId: "unknown-style" },
               ...(pinnedStyleId ? [{ ...combination, primaryStyleId: "style-046" }] : []),
@@ -284,7 +284,9 @@ it.each([
       );
       expect(rankOptions).toHaveBeenLastCalledWith(
         expect.objectContaining({ ...brief, assetDescriptions: run.brief?.assetDescriptions }),
-        [combination, single, otherCombination],
+        outputType === "page" || duration === 300
+          ? [combination, minimalDirection, otherCombination]
+          : [combination, otherCombination],
         catalog.styles,
         run.request,
         expect.any(AbortSignal),
@@ -301,9 +303,7 @@ it.each([
       if (outputType === "video") {
         const proposalCall = vi.mocked(agentTurn).mock.calls[2][0];
         expect(proposalCall.prompt).toContain(
-          duration === 300
-            ? "2–6 total distinct Motion Graphics"
-            : "1–5 total distinct Motion Graphics",
+          duration === 300 ? "2–6 distinct Motion Graphics" : "2–5 distinct Motion Graphics",
         );
         expect(proposalCall.prompt).toContain("full video duration, not the 3-second preview");
       }

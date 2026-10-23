@@ -6,7 +6,7 @@ export const ReviewCorrectionSchema = z.object({
   expectedFix: z.string().min(10),
   acceptanceCriteria: z.string().min(10),
   evidence: z.object({
-    source: z.enum(["storyboard", "finalQa", "compositionQa", "visualAssessment"]),
+    source: z.enum(["storyboard", "finalQa", "compositionQa", "visualAssessment", "visualSamples"]),
     observation: z.string().min(10),
     timestamps: z.array(z.number().nonnegative()),
     selectors: z.array(z.string()),

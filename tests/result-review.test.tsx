@@ -7,7 +7,9 @@ import { ResultSummary } from "../src/client/components/result-summary";
 import { ResultReviewSchema } from "../src/shared/result-review";
 import { RequestSchema, type GenerationJob, type StyleCandidate } from "../src/shared/contracts";
 vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
+vi.mock("../src/server/rendering/review-frames", () => ({ prepareReviewFrames: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
+import { prepareReviewFrames } from "../src/server/rendering/review-frames";
 import { reviewFinishedResult } from "../src/server/jobs/subworkflows/result-review";
 const request = RequestSchema.parse({
   instructions: "A folded shape takes flight",
@@ -264,7 +266,8 @@ it("includes pacing calibration cases and explicit evidence boundaries in review
   ).toMatchObject({ pacingPlan: "balanced" });
   expect(videoResultReviewGuidance).toContain("Read calibrationTestCases");
   expect(videoResultReviewGuidance).not.toContain(JSON.stringify(videoReviewTestCases));
-  expect(videoResultReviewGuidance).toContain("You are not seeing video frames");
+  expect(videoResultReviewGuidance).toContain("Inspect every attached sample");
+  expect(videoResultReviewGuidance).not.toContain("You are not seeing video frames");
   expect(videoResultReviewGuidance).toContain("Missing evidence is not a correction");
   const { visualReadabilityRules } = await import("../src/server/agents/visual-readability");
   expect(videoResultReviewGuidance).toContain(visualReadabilityRules);
@@ -413,6 +416,101 @@ it("leaves review effort at the provider default and removes duplicate productio
     expect(JSON.stringify(call.promptContext)).toContain("verified-date");
     expect(JSON.stringify(call.promptContext)).not.toContain("unneeded-renderer-details");
     expect(JSON.stringify(call.promptContext)).not.toContain("Advisory-only metadata");
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
+  }
+});
+
+it.each([false, true])(
+  "attaches final-export samples and validates visual evidence timestamps (invented=%s)",
+  async (invented) => {
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "visual-result-review-"));
+    try {
+      await mkdir(path.join(workspace, "renders"));
+      const filename = path.join(workspace, "renders/full.mp4");
+      await writeFile(
+        path.join(workspace, "renders/validation.json"),
+        JSON.stringify({
+          probe: { format: { filename, duration: "15" }, streams: [{ codec_type: "video" }] },
+        }),
+      );
+      const frames = [{ timestamp: 0.5, path: path.join(workspace, "sample.png") }];
+      vi.mocked(prepareReviewFrames).mockResolvedValue(frames);
+      const value = {
+        ...review,
+        styleMatch: "needs_review",
+        pacingPlan: "not_verified",
+        corrections: [
+          {
+            focus: "style",
+            issue: "The focal artwork lacks the required layered construction.",
+            expectedFix: "Restore the documented structural detail and depth in the opening.",
+            acceptanceCriteria:
+              "The sampled opening shows layered forms and readable shadow masses.",
+            evidence: {
+              source: "visualSamples",
+              observation:
+                "The attached frame shows one flat silhouette without the required layered structure.",
+              timestamps: [invented ? 2 : 0.5],
+              selectors: [],
+            },
+          },
+        ],
+      };
+      vi.mocked(agentTurn).mockResolvedValue({ value });
+      const onEvent = vi.fn();
+      const result = await reviewFinishedResult({
+        job: { ...job, workspace },
+        request,
+        candidate,
+        signal: new AbortController().signal,
+        emit: vi.fn(),
+        onEvent,
+      });
+      expect(vi.mocked(agentTurn).mock.calls[0][0]).toMatchObject({
+        images: [frames[0].path],
+        readOnly: true,
+        model: job.model,
+        promptContext: { visualSamples: frames },
+      });
+      if (invented) {
+        expect(result).toBeUndefined();
+        expect(onEvent).toHaveBeenCalledWith(
+          expect.objectContaining({
+            message: expect.stringContaining("without an attached visual sample"),
+          }),
+        );
+      } else expect(result).toEqual(value);
+    } finally {
+      await rm(workspace, { recursive: true, force: true });
+    }
+  },
+);
+
+it("retains the technical review and reports a limitation when visual extraction fails", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "visual-review-failure-"));
+  try {
+    await mkdir(path.join(workspace, "renders"));
+    await writeFile(
+      path.join(workspace, "renders/validation.json"),
+      JSON.stringify({ probe: { format: { filename: "renders/full.mp4", duration: "15" } } }),
+    );
+    vi.mocked(prepareReviewFrames).mockRejectedValue(Error("Frame decode failed"));
+    vi.mocked(agentTurn).mockResolvedValue({
+      value: { ...review, pacingPlan: "not_verified", corrections: [] },
+    });
+    await reviewFinishedResult({
+      job: { ...job, workspace },
+      request,
+      candidate,
+      signal: new AbortController().signal,
+      emit: vi.fn(),
+      onEvent: vi.fn(),
+    });
+    expect(vi.mocked(agentTurn).mock.calls[0][0]).toMatchObject({
+      images: undefined,
+      promptContext: { visualSamplingLimitation: "Frame decode failed" },
+    });
   } finally {
     await rm(workspace, { recursive: true, force: true });
   }

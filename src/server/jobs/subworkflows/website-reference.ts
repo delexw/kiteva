@@ -51,7 +51,9 @@ export async function createLocalReferenceBrowser(
         : {}),
       timeout: 10000,
       args: [
-        ...(desktop ? ["--app=data:text/html,<title>Capture</title>", "--start-fullscreen"] : []),
+        ...(desktop
+          ? ["--app=data:text/html,<title>Capture</title>", "--window-size=1440,1000"]
+          : []),
         ...(mode === "hosted"
           ? ["--proxy-server=http://127.0.0.1:9", "--proxy-bypass-list=<-loopback>"]
           : []),
@@ -255,7 +257,6 @@ export async function createLocalReferenceBrowser(
       );
     }
     const capabilities = createBrowserCapabilities({
-      desktop,
       page: () => page,
       frame: currentFrame,
       selectFrame: (frame) => {
@@ -349,23 +350,6 @@ export async function createLocalReferenceBrowser(
         if (recording) throw Error("Stop the current recording before starting another");
         if (!allowedOrigins.has(new URL(page.url()).origin))
           throw Error("Inspect a supplied website first");
-        if (desktop) {
-          const captureClient = await page.createCDPSession();
-          try {
-            const { windowId } = await captureClient.send("Browser.getWindowForTarget");
-            await captureClient.send("Browser.setWindowBounds", {
-              windowId,
-              bounds: { windowState: "fullscreen" },
-            });
-            await page.setViewport(null);
-            await page.waitForFunction(
-              () => outerWidth === innerWidth && outerHeight === innerHeight,
-              { timeout: 5000 },
-            );
-          } finally {
-            await captureClient.detach();
-          }
-        }
         await settle();
         recording = await startWebsiteCapture(page, workspace, signal, desktop, presentation);
         return recording.id;

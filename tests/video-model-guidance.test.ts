@@ -426,8 +426,7 @@ it.each(["hyperframes", "multiplane"] as const)(
     expect(workflow).not.toMatch(
       /listSources|createProject|exportVideo|importMedia|transcribe|openscreen:\/\/effects/,
     );
-    expect(workflow).toContain("pass the events unchanged to native setPointerTrack");
-    expect(workflow).toContain("same page and window coordinate space");
+    expect(workflow).toContain("native setPointerTrack");
     expect(workflow).not.toMatch(/Launch demo:|Pull request video:|Post on X|1600×1000/);
     expect(prompt.split(/\s+/).length).toBeLessThan(1800);
   },

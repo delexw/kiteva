@@ -7,6 +7,7 @@ import { command } from "../../runtime/process";
 import { openScreenExportFrameRate } from "../../capture/openscreen";
 import { probeVideo } from "../../rendering/video-probe";
 import type { OpenScreenTrimRegion } from "../../capture/native-project";
+import { collectBrowserPointerTrack } from "../../capture/browser-pointer-track";
 import {
   startNativeCaptureRecording,
   type NativeCaptureRequest,
@@ -85,6 +86,8 @@ export async function startWebsiteCapture(
       "OpenScreen needs a dedicated desktop browser; headless browser recording is not supported",
     );
   const originalTitle = await page.title();
+  await page.setViewport(null);
+  const pointerTrack = await collectBrowserPointerTrack(page);
   const title = `Kiteva capture ${id}`;
   await page.evaluate((value) => {
     document.title = value;
@@ -97,6 +100,10 @@ export async function startWebsiteCapture(
       signal,
       settings,
     );
+    pointerTrack.start(editor.recordingStartedAt!);
+  } catch (error) {
+    await pointerTrack.stop();
+    throw error;
   } finally {
     await page
       .evaluate((value) => {
@@ -105,7 +112,15 @@ export async function startWebsiteCapture(
       .catch(() => {});
   }
   let stopping: ReturnType<typeof editor.stopRecording> | undefined;
-  const stop = () => (stopping ??= editor!.stopRecording());
+  let pointerTrackStopped = false;
+  const stop = () =>
+    (stopping ??= (async () => {
+      const result = await editor!.stopRecording();
+      const events = await pointerTrack.stop();
+      pointerTrackStopped = true;
+      await editor!.setPointerTrack(events);
+      return result;
+    })());
   async function finish() {
     signal.throwIfAborted();
     const result = await stop();
@@ -238,6 +253,7 @@ export async function startWebsiteCapture(
       return finalize();
     },
     async close() {
+      if (!pointerTrackStopped) await pointerTrack.stop().catch(() => {});
       await editor?.close();
       await rm(temporary, { force: true });
       await rm(finalized, { force: true });

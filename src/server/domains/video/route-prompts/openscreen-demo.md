@@ -27,7 +27,7 @@ flowchart TD
 ## 2. Record through capture_video
 
 - `reference_browser/capture_video`: `action: "start"` with supported 2D cursor theme/framing -> planned interactions in the same browser -> `action: "stop", recordingId`.
-- Use browser_pointer for recorded actions and retain each returned pointer event. After stopping, pass the events unchanged to native setPointerTrack. The native fullscreen capture uses the same page and window coordinate space. OpenScreen owns cursor rendering and click effects. Review native frames for cursor visibility and click alignment.
+- The capture adapter passes actual browser action positions to OpenScreen's native setPointerTrack after recording stops. Review native frames for cursor visibility and click alignment.
 - Stop stops recording without exporting; it returns live descriptions and argument schemas for supported native operations. Retain recordingId. Preserve action order and readable results; captured footage is excluded from the energetic pacing default.
 - Native zooms and camera defaults are preserved; never assume zooms were generated or reviewed. Cursor smoothing is disabled (0).
 
@@ -60,7 +60,8 @@ flowchart TD
 
 ## Native cursor data
 
-On the same native connection, pass actual browser action events unchanged to
-`setPointerTrack` after stopping. OpenScreen owns cursor rendering. Events already
-follow its input schema. Review `getCursorTrack` and native frames before export;
-report observed cursor limitations accurately.
+OpenScreen owns cursor rendering, interpolation, themes and click effects. The
+capture adapter collects trusted browser mouse events in the windowed browser and
+passes their measured positions to native `setPointerTrack` after stopping. Browser
+screen coordinates are relative to the recorded window; the adapter converts them
+to fractions automatically. Review `getCursorTrack` and native frames before export.

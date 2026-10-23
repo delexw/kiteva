@@ -48,6 +48,12 @@ async function fixture(
   }));
   const page = {
     evaluate: vi.fn().mockResolvedValue(frame),
+    setViewport: vi.fn(),
+    exposeFunction: vi.fn(),
+    evaluateOnNewDocument: vi.fn().mockResolvedValue({ identifier: "pointer-listener" }),
+    removeScriptToEvaluateOnNewDocument: vi.fn(),
+    removeExposedFunction: vi.fn(),
+    frames: () => [],
     title: async () => title,
     url: () => "https://example.com/",
   } as unknown as Page;
@@ -66,6 +72,7 @@ async function fixture(
     tools: [],
     recordingStartedAt: 1000,
     stopRecording: stop,
+    setPointerTrack: vi.fn(async () => {}),
     call: vi.fn(async () => ({
       kind: "native_capture" as const,
       content: [],

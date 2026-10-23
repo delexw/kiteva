@@ -74,15 +74,18 @@ The adapter reads the installed OpenScreen MCP schemas instead of maintaining du
 
 ## Native cursor ownership
 
-The capture adapter uses OpenScreen MCP `startRecording` and `stopRecording` on the
-same connection as native review and export. Browser actions in the dedicated
-native fullscreen window return timestamped pointer events in OpenScreen's schema.
-The page and recorded window share the same origin and dimensions; viewport
-emulation is unavailable for desktop capture. Coordinates are only normalized to
-fractions, with no browser-toolbar offsets. A mismatched coordinate space fails
-before a recorded action instead of estimating a correction.
+The capture adapter uses OpenScreen MCP `startRecording`, `stopRecording` and
+`setPointerTrack` on the same connection as native review and export. The browser
+stays windowed, with viewport emulation cleared before recording. Trusted browser
+mouse events supply actual screen positions and epoch timestamps. Each position
+is normalized relative to the browser window using `(event.screenX - window.screenX)
+/ outerWidth` and the corresponding Y values. This includes Chrome's measured
+window decorations without estimating toolbar offsets. The model supplies no
+coordinate calculations. Every browser interaction path uses the same event log,
+including clicks, drags, navigation and child frames.
 
-After stopping, pass the action events unchanged to native `setPointerTrack`.
-OpenScreen owns the cursor track, animation, click effects and rendering. Review
-`getCursorTrack` and native frames before export. Previous recording policies are
-invalidated in the chapter cache.
+After stopping, the adapter passes the log to native `setPointerTrack`. OpenScreen
+owns cursor interpolation, rendering, themes and click effects. Pointer replacement
+is internal to capture, outside the model's editing operations. Review native frames
+and exported click alignment before accepting a take. This policy invalidates older
+capture caches; existing recordings retain their original cursor tracks.

@@ -38,6 +38,7 @@ beforeEach(() => {
       "stopRecording",
       "setEditorSettings",
       "exportVideo",
+      "setPointerTrack",
       ...nativeCaptureOperations,
     ].map((name) => ({
       name,
@@ -234,18 +235,20 @@ it("uses native recording and pointer-track tools on the same connection without
       "Stop the native recording",
     );
     await take.stopRecording();
-    expect(take.tools.some((tool) => tool.name === "setPointerTrack")).toBe(true);
-    const events = [{ at: 1100, x: 0.2, y: 0.3, click: true }];
-    expect(
-      NativeCaptureRequestSchema.safeParse({ operation: "setPointerTrack", arguments: { events } })
-        .success,
-    ).toBe(true);
-    await take.call({ operation: "setPointerTrack", arguments: { events } });
+    const events = [{ at: 1200, x: 0.25, y: 0.4, click: true }];
+    await take.setPointerTrack(events);
     expect(native.callTool).toHaveBeenLastCalledWith(
-      { name: "setPointerTrack", arguments: { events, projectId: "native-take" } },
+      { name: "setPointerTrack", arguments: { projectId: "native-take", events } },
       undefined,
       expect.any(Object),
     );
+    expect(take.tools.some((tool) => tool.name === "setPointerTrack")).toBe(false);
+    expect(
+      NativeCaptureRequestSchema.safeParse({
+        operation: "setPointerTrack",
+        arguments: { events: [] },
+      }).success,
+    ).toBe(false);
     expect(native.callTool.mock.calls.some(([request]) => request.name === "createProject")).toBe(
       false,
     );

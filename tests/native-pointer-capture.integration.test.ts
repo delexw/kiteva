@@ -5,18 +5,24 @@ import os from "node:os";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { expect, it } from "vitest";
+import { z } from "zod";
 import { createReferenceTools } from "../src/server/requests/reference-browser-tools";
 import type { ReferenceToolResult } from "../src/server/requests/reference-browser-contracts";
 
 it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1")(
-  "renders the native cursor from actual browser action receipts",
+  "renders browser action positions through the native pointer track in a windowed recording",
   async () => {
     const workspace = await mkdtemp(path.join(os.tmpdir(), "native-pointer-"));
     const web = createServer((_req, res) => {
       res.setHeader("content-type", "text/html");
-      res.end(
-        '<body style="background:#f2eadb;font:36px sans-serif;padding:100px"><h1>Native cursor test</h1><button id="next" style="font:36px sans-serif;padding:32px" onclick="this.textContent=\'Clicked\'">Click here</button></body>',
-      );
+      res.end(`<!doctype html><style>
+        body { background:#f2eadb; font:28px sans-serif; margin:0 }
+        button { position:absolute; width:180px; height:90px; font:24px sans-serif }
+        #first { left:10%; top:15% } #middle { left:43%; top:43% } #last { left:75%; top:75% }
+      </style><h1>Windowed native cursor alignment</h1>
+      <button id="first" onclick="this.textContent='First clicked'">First target</button>
+      <button id="middle" onclick="this.textContent='Middle clicked'">Middle target</button>
+      <button id="last" onclick="this.textContent='Last clicked'">Last target</button>`);
     });
     await new Promise<void>((resolve) => web.listen(0, "127.0.0.1", resolve));
     const address = web.address();
@@ -43,31 +49,20 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1")(
       await tools.server.connect(b);
       await client.connect(a);
       expect((await call("inspect_page", { url })).kind).toBe("inspection");
-      expect(
-        await call("browser_emulate", { action: "viewport", width: 1440, height: 900 }),
-      ).toMatchObject({
-        kind: "error",
-        message: expect.stringContaining("viewport emulation is unavailable"),
-      });
       const start = await call("capture_video", {
         action: "start",
         presentation: { cursorTheme: "studio-ink" },
       });
       if (start.kind !== "recording_started") throw Error(JSON.stringify(start));
-      const origin = await call("browser_pointer", { action: "move", x: 50, y: 50 });
-      await call("wait_for_view", { milliseconds: 700 });
-      const click = await call("browser_pointer", { action: "click", target: "#next" });
-      if (click.kind !== "browser_action") throw Error(JSON.stringify(click));
-      const clickEvent = (
-        click.data as { pointer: { at: number; x: number; y: number; click: boolean } }
-      ).pointer;
-      expect(clickEvent.click).toBe(true);
-      await call("wait_for_view", { milliseconds: 1200 });
-      if (origin.kind !== "browser_action") throw Error(JSON.stringify(origin));
-      const originEvent = (origin.data as { pointer: typeof clickEvent }).pointer;
+      await call("wait_for_view", { milliseconds: 500 });
+      for (const target of ["#first", "#middle", "#last"]) {
+        const click = await call("browser_pointer", { action: "click", target });
+        expect(click).toMatchObject({ kind: "browser_action", data: { ok: true } });
+        await call("wait_for_view", { milliseconds: 1600 });
+      }
       const take = await call("capture_video", { action: "stop", recordingId: start.recordingId });
       if (take.kind !== "editable_capture") throw Error(JSON.stringify(take));
-      expect(take.tools.some((tool) => tool.name === "setPointerTrack")).toBe(true);
+      expect(take.tools.some((tool) => tool.name === "setPointerTrack")).toBe(false);
       const edit = (operation: string, args: Record<string, unknown> = {}) =>
         call("capture_video", {
           action: "edit",
@@ -75,28 +70,37 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1")(
           native: { operation, arguments: args },
         });
       await edit("getCurrentDocument");
-      expect(await edit("setPointerTrack", { events: [originEvent, clickEvent] })).toMatchObject({
-        kind: "native_capture",
-        isError: false,
-      });
       const track = await edit("getCursorTrack");
       expect(track).toMatchObject({ kind: "native_capture", isError: false });
       if (track.kind !== "native_capture") throw Error(JSON.stringify(track));
-      expect(
-        (track.data as { points: Array<{ kind?: string; visible?: boolean }> }).points.some(
-          (point) => point.kind === "click" && point.visible !== false,
-        ),
-      ).toBe(true);
+      const points = z
+        .object({
+          points: z.array(
+            z.object({ cx: z.number(), cy: z.number(), kind: z.string().optional() }),
+          ),
+        })
+        .parse(track.data).points;
+      const clicks = points.filter((point) => point.kind === "click");
+      expect(clicks).toHaveLength(3);
+      for (const [index, expectedX] of [0.1625, 0.4925, 0.8125].entries())
+        expect(clicks[index].cx).toBeCloseTo(expectedX, 2);
+      expect(clicks[0].cy).toBeLessThan(clicks[1].cy);
+      expect(clicks[1].cy).toBeLessThan(clicks[2].cy);
       await edit("getCurrentDocument");
       const frames = await edit("getFrames", {
-        atSec: [(clickEvent.at - take.recordingStartedAt!) / 1000],
+        atSec: [1, 3, 5],
       });
       if (frames.kind !== "native_capture" || frames.isError) throw Error(JSON.stringify(frames));
       const out = "/tmp/kiteva-native-pointer-check";
       await mkdir(out, { recursive: true });
+      await writeFile(path.join(out, "track.json"), JSON.stringify(track.data, null, 2));
+      let index = 0;
       for (const part of frames.content)
         if (part.type === "image")
-          await writeFile(path.join(out, "native-click.png"), Buffer.from(part.data, "base64"));
+          await writeFile(
+            path.join(out, `native-click-${index++}.png`),
+            Buffer.from(part.data, "base64"),
+          );
       const exported = await call("capture_video", {
         action: "export",
         recordingId: start.recordingId,

@@ -5,14 +5,14 @@ import { openScreenExecutable } from "./openscreen";
 import { systemEnvironment } from "../runtime/platform";
 import { videoRenderTimeoutMs } from "../rendering/timeouts";
 import { resolveCapturePresentation, type CapturePresentationInput } from "./presentation";
+import type { NativePointerEvent } from "./browser-pointer-track";
 
-export const nativeCapturePolicy = "openscreen-native-action-log-v2";
+export const nativeCapturePolicy = "openscreen-window-event-cursor-v4";
 
 // Native take operations; project identity and recording lifecycle remain bound by the adapter.
 export const nativeCaptureOperations = [
   "getCurrentDocument",
   "getCursorTrack",
-  "setPointerTrack",
   "getFrames",
   "addTrims",
   "setTrim",
@@ -118,6 +118,7 @@ async function openNativeCapture(
       ...(typeof source === "string" ? ["createProject"] : ["startRecording", "stopRecording"]),
       "setEditorSettings",
       "exportVideo",
+      "setPointerTrack",
       ...nativeCaptureOperations,
     ])
       if (!tools.some((tool) => tool.name === name))
@@ -168,24 +169,29 @@ async function openNativeCapture(
       const metadata = z.object({ startedAt: z.number() }).parse(started.data);
       recordingStartedAt = metadata.startedAt;
     }
-    const descriptions = supported
-      .filter((tool) => typeof source !== "string" || tool.name !== "setPointerTrack")
-      .map(({ name, description, inputSchema }) => ({
-        name,
-        description,
-        inputSchema: {
-          ...inputSchema,
-          required: inputSchema.required?.filter((key) => !["projectId", "path"].includes(key)),
-          properties: Object.fromEntries(
-            Object.entries(inputSchema.properties ?? {}).filter(
-              ([key]) => !["projectId", "path"].includes(key),
-            ),
+    const descriptions = supported.map(({ name, description, inputSchema }) => ({
+      name,
+      description,
+      inputSchema: {
+        ...inputSchema,
+        required: inputSchema.required?.filter((key) => !["projectId", "path"].includes(key)),
+        properties: Object.fromEntries(
+          Object.entries(inputSchema.properties ?? {}).filter(
+            ([key]) => !["projectId", "path"].includes(key),
           ),
-        },
-      }));
+        ),
+      },
+    }));
     return {
       tools: descriptions,
       recordingStartedAt,
+      async setPointerTrack(events: NativePointerEvent[]) {
+        if (!projectId || recording) throw Error("Stop the native recording before editing");
+        if (events.length === 0) return;
+        const result = await invoke("setPointerTrack", { projectId, events });
+        if (result.isError)
+          throw Error(`OpenScreen pointer track failed: ${JSON.stringify(result.data)}`);
+      },
       async stopRecording() {
         if (stopped) return stopped;
         if (!recording) throw Error("This native session has no active recording");
@@ -203,8 +209,6 @@ async function openNativeCapture(
       async call(request: NativeCaptureRequest): Promise<NativeCaptureReply> {
         if (!projectId) throw Error("Stop the native recording before editing");
         const input = NativeCaptureRequestSchema.parse(request);
-        if (input.operation === "setPointerTrack" && typeof source === "string")
-          throw Error("setPointerTrack requires a take recorded on this native connection");
         // These fields would escape the take or read arbitrary files. Never forward them.
         for (const key of ["projectId", "path", "videoPath", "outputPath"])
           if (key in input.arguments)

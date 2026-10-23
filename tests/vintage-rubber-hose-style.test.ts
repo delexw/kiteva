@@ -66,8 +66,8 @@ describe("Vintage Rubber Hose Animation metadata contract", () => {
   it("keeps generation guidance free of sample narratives, removed effects and mandatory subjects", async () => {
     const style = await styleOf();
     for (const text of generationText(style)) expect(text).not.toMatch(sampleOrRemoved);
-    expect(style.note).toContain("source of truth for visual identity and motion");
-    expect(style.note).toContain("neither its subject nor its sequence is a requirement");
+    expect(style.note).toContain("Self-contained visual metadata");
+    expect(style.note).toContain("Sample subjects and sequences are optional examples");
   });
 
   it("describes the hand-inked drawing language for any subject, with characters only when present", async () => {
@@ -130,13 +130,13 @@ describe("Vintage Rubber Hose Animation metadata contract", () => {
     expect(implementation).not.toMatch(/serif or period-like/);
   });
 
-  it("uses preview colours by default while respecting scoped overrides, delivery, renderer and audio settings", async () => {
+  it("defines tonal relationships while respecting scoped overrides, delivery, renderer and audio settings", async () => {
     const catalog = await loadCatalog();
     const style = await styleOf();
     expect(style.palette.background_policy).toBe("scene_dependent");
     expect(style.palette.tokens).toEqual(rubberHoseColors);
     expect(style.palette.constraints[0]).toContain(
-      "The catalog preview's tonal palette takes precedence by default",
+      "The defined charcoal, muted midtone and ivory light/dark relationships apply by default",
     );
     expect(style.palette.constraints.join(" ")).toContain("one optional storytelling device");
     expect(String(style.palette.direction)).toContain("Recolour only when explicitly requested");
@@ -165,19 +165,30 @@ describe("Vintage Rubber Hose Animation metadata contract", () => {
     );
   });
 
-  it("carries preview authority through the canonical generation instructions and summary", async () => {
+  it("carries a self-contained drawing contract through generation instructions and summary", async () => {
     const style = await styleOf();
-    expect(style.visual_cues).toContain("catalog preview is the source of truth");
+    expect(style.visual_cues).toContain("Colour the hand-inked forms with flat cel fills");
     expect(style.executable_prompt_template).toContain(style.visual_cues);
     expect(style.executable_prompt_template).toContain(style.tech.implementation);
-    expect(style.tech.implementation).toContain("assets/style-previews/style-140.webm");
+    expect(JSON.stringify(style)).not.toMatch(/preview|simplified forms/i);
     expect(style.tech.implementation).toContain(
-      "Compare representative rendered frames and motion over time",
+      "Drawing acceptance: inspect representative rendered frames at delivery size",
     );
     expect(style.palette.agent_instruction).toContain(
-      "do not inherit palettes assigned to other scenes",
+      "keep palettes assigned to other scenes separate",
     );
-    expect(rubberHoseSummary.visualIdentity).toContain("catalog preview is the source of truth");
+    expect(rubberHoseSummary.visualIdentity).toContain("Self-contained identity");
+    expect(JSON.stringify(rubberHoseSummary)).not.toMatch(/preview|simplified forms/i);
+    for (const phrase of [
+      "interlocking asymmetrical drawn masses",
+      "overlapping forms",
+      "contact shadows",
+      "selective edge highlights",
+    ]) {
+      expect(style.visual_cues).toContain(phrase);
+      expect(style.tech.implementation).toContain(phrase);
+    }
+    expect(style.tech.implementation).toContain("optional surface effects disabled");
     for (const text of [
       style.visual_cues,
       style.tech.implementation,

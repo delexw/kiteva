@@ -34,7 +34,7 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 
 Dates below use New Zealand time.
 
-<details open>
+<details>
 <summary>2026-10-23</summary>
 
 - **Chapter-based application demos:** the main model saves a validated storyboard before recording. Fresh chapter sessions capture the planned interactions, and narration and assembly use the accepted footage and measured durations.
@@ -96,7 +96,7 @@ Dates below use New Zealand time.
 
 </details>
 
-<details open>
+<details>
 <summary>2026-10-21</summary>
 
 - **Plan validation recovery:** rejected video plans retain their response and SDK session so the same main model can correct exact layer-reference and timing errors before building (up to three total plan attempts). Cancellation and unrelated provider failures do not trigger correction. Activity distinguishes receiving a plan from validation and successful saving.

@@ -34,6 +34,23 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 
 Dates below use New Zealand time.
 
+<details open>
+<summary>2026-10-23</summary>
+
+- **Chapter-based application demos:** the main model saves a validated storyboard before recording. Fresh chapter sessions capture the planned interactions, and narration and assembly use the accepted footage and measured durations.
+
+- **Chapter timing recovery:** native OpenScreen speed regions fit complete action sequences to chapter budgets. Timing conflicts allow up to ten local retries while retaining accepted chapters and the approved film plan.
+
+- **Native cursor action logs:** browser actions supply timestamped events directly to OpenScreen’s `setPointerTrack` after recording stops. Fullscreen capture keeps page and window coordinates aligned without toolbar-offset calculations; OpenScreen renders the cursor and click effects.
+
+- **Timed narration:** script items have separate time windows, text or generation instructions, caption visibility and voice settings. Local Pocket TTS uses a persistent worker for repeated speech requests.
+
+- **Native Claude planning:** planning uses the SDK’s plan mode with an automatic handoff; structured validation and stage-specific tool controls remain in place before implementation.
+
+- **Chapter activity:** capture work is grouped under its chapter, with timing validation, retry counts and accepted export durations shown in the activity log.
+
+</details>
+
 <details>
 <summary>2026-10-22</summary>
 

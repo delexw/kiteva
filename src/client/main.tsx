@@ -1,3 +1,4 @@
+import { PromptText } from "./components/style-mention";
 import { ScriptItems } from "./components/script-items";
 import { legacyScriptItems, type ScriptItem } from "../shared/script-items";
 import { creativeApproaches, type CreativeApproach } from "../shared/creative-approach";
@@ -788,7 +789,7 @@ function App() {
               className="rationale candidate-description"
               aria-label={translateUi("Direction description")}
             >
-              {candidate.displayDescription}
+              <PromptText>{candidate.displayDescription}</PromptText>
             </p>
           )}
           <GenerationTime job={job} now={clock} />
@@ -966,15 +967,19 @@ function App() {
                   {examples.find((e) => e.styleId === detail.id)?.model}
                 </p>
                 <p>
-                  {translateUi(examples.find((e) => e.styleId === detail.id)?.designNotes || "")}
+                  <PromptText>
+                    {translateUi(examples.find((e) => e.styleId === detail.id)?.designNotes || "")}
+                  </PromptText>
                 </p>
                 {examples.find((e) => e.styleId === detail.id)?.motionDescription && (
                   <>
                     <h3>{translateUi("Why this motion fits the illustration")}</h3>
                     <p>
-                      {translateUi(
-                        examples.find((e) => e.styleId === detail.id)?.motionDescription || "",
-                      )}
+                      <PromptText>
+                        {translateUi(
+                          examples.find((e) => e.styleId === detail.id)?.motionDescription || "",
+                        )}
+                      </PromptText>
                     </p>
                     <p className="example-disclaimer">
                       {translateUi("Selected references:")}{" "}
@@ -1009,7 +1014,9 @@ function App() {
           <div>
             <p className="eyebrow">{translateUi(detail.category)}</p>
             <h3>{translateUi("Visual direction")}</h3>
-            <p>{translateUi(detail.visual_cues)}</p>
+            <p>
+              <PromptText>{translateUi(detail.visual_cues)}</PromptText>
+            </p>
             <h3>{translateUi("Production responsibilities")}</h3>
             <p>
               <strong>{translateUi("Visuals:")}</strong>{" "}
@@ -1030,11 +1037,15 @@ function App() {
             <h3>{translateUi("Palette constraints")}</h3>
             <ul>
               {detail.palette.constraints.map((c) => (
-                <li key={c}>{translateUi(c)}</li>
+                <li key={c}>
+                  <PromptText>{translateUi(c)}</PromptText>
+                </li>
               ))}
             </ul>
             <h3>{translateUi("Audio direction")}</h3>
-            <p>{translateUi(detail.audio_direction.prompt)}</p>
+            <p>
+              <PromptText>{translateUi(detail.audio_direction.prompt)}</PromptText>
+            </p>
             <MotionGraphicVariants variants={detail.motion_graphic_variants} />
             <SuggestedCombinations
               style={detail}
@@ -1085,7 +1096,9 @@ function App() {
                   label: translateUi("Original executable prompt"),
                   children: (
                     <>
-                      <pre>{detail.executable_prompt_template}</pre>
+                      <pre>
+                        <PromptText>{detail.executable_prompt_template}</PromptText>
+                      </pre>
                     </>
                   ),
                 },

@@ -241,7 +241,7 @@ export async function createApp(options: { store?: Store } = {}) {
   );
   app.get("/api/admin/governance", async (): Promise<GovernanceReport> => ({
     generatedAt: new Date().toISOString(),
-    pricingDate: "2026-10-13",
+    pricingDate: "2026-10-24",
     pricingSources: [
       { label: "OpenAI pricing", url: "https://developers.openai.com/api/docs/pricing" },
       {

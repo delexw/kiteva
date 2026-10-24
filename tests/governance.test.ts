@@ -205,9 +205,13 @@ it("differences cumulative Claude per-model snapshots across functions and conti
     event(1, "usage", usage("one", "Brief preparation", 10, 0.1)),
     event(2, "usage", usage("two", "Motion Graphic combinations", 15, 0.15)),
   ]);
-  expect(result.activity[0]).toMatchObject({ inputTokens: 130, outputTokens: 10, costLow: 0.1 });
+  expect(result.activity[0]).toMatchObject({
+    inputTokens: 130,
+    outputTokens: 10,
+    costLow: 0.00036,
+  });
   expect(result.activity[1].inputTokens).toBe(5);
-  expect(result.activity[1].costLow).toBeCloseTo(0.05);
+  expect(result.activity[1].costLow).toBeCloseTo(0.00012, 8);
 });
 it("retains unreported and unpriced usage without claiming zero cost", () => {
   const result = projectGovernance(run, [
@@ -372,7 +376,7 @@ it("does not count previously captured legacy Claude cost twice after upgrading 
     }),
   ]);
   expect(result.activity[1].inputTokens).toBe(10);
-  expect(result.activity[1].costLow).toBeCloseTo(0.05);
+  expect(result.activity[1].costLow).toBeCloseTo(0.000081, 8);
 });
 it("does not invent completion timing for an empty historical project", () => {
   expect(projectGovernance({ ...run, phase: "ready" }, []).durationMs).toBeNull();
@@ -629,4 +633,52 @@ it("shows the idea heading for existing direct-build placeholders", () => {
     },
   };
   expect(projectGovernance(selectedRun, [], Date.now()).name).toBe("MY PRODUCT — IDEAS IN MOTION");
+});
+
+it("reconstructs SDK cache writes and API costs by stage without counting continued sessions twice", async () => {
+  const { aggregateModels } = await import("../src/shared/governance");
+  const make = (id: number, purpose: string, multiple: number) =>
+    event(id, "usage", {
+      model: "claude-opus-5-5",
+      provider: "claude",
+      sessionId: "session",
+      invocationId: `usage-${id}`,
+      purpose,
+      usage: {
+        cache_creation_input_tokens: 300,
+        cache_creation: { ephemeral_5m_input_tokens: 100, ephemeral_1h_input_tokens: 200 },
+      },
+      modelUsage: {
+        "claude-opus-5-5": {
+          inputTokens: 10 * multiple,
+          outputTokens: 20 * multiple,
+          cacheReadInputTokens: 1000 * multiple,
+          cacheCreationInputTokens: 300 * multiple,
+          costUSD: 999,
+        },
+      },
+    });
+  const events = [make(1, "Planning", 1), make(2, "Build", 2)];
+  const rows = projectGovernance(run, [...events, events[1]]).activity;
+  for (const row of rows)
+    expect(row).toMatchObject({
+      inputTokens: 1310,
+      uncachedInputTokens: 10,
+      outputTokens: 20,
+      cachedTokens: 1000,
+      cacheWriteTokens: 300,
+      cacheWrite5mTokens: 100,
+      cacheWrite1hTokens: 200,
+      costBasis: "Standard API equivalent",
+      costLow: 0.00274,
+      costHigh: 0.00274,
+    });
+  expect(aggregateModels(rows)[0]).toMatchObject({
+    inputTokens: 2620,
+    cacheWriteTokens: 600,
+    cacheWrite5mTokens: 200,
+    cacheWrite1hTokens: 400,
+    costLow: 0.00548,
+    costHigh: 0.00548,
+  });
 });

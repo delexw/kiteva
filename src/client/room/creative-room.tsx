@@ -594,7 +594,7 @@ export function CreativeRoom({
             <span className="room-attention-dot" />
             <span>
               <small>{roomQuestionScope(current, q.jobId)}</small>
-              {q.question}
+              <PromptText>{q.question}</PromptText>
             </span>
           </button>
         ))}

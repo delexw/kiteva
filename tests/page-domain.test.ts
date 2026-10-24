@@ -12,6 +12,7 @@ import { buildPagePrompt } from "../src/server/domains/page/prompts";
 import { agentTurn } from "../src/server/agents/providers";
 import { validatePage } from "../src/server/domains/page/validation";
 import { loadCatalog } from "../src/server/catalog/catalog";
+import { selectedStyleWeightingGuidance } from "../src/shared/style-combinations";
 const brief = PageBriefSchema.parse({
   subject: "An idea",
   audience: "General",
@@ -81,6 +82,11 @@ describe("interactive page domain", () => {
     expect(prompt).toContain("motion-runtime.js");
     expect(prompt).not.toContain("data-composition-id");
     expect(prompt).not.toContain("{{");
+    expect(prompt).not.toContain(selectedStyleWeightingGuidance);
+    const selectedRequest = { ...request, selectedStyleIds: [candidate.primaryStyleId] };
+    expect(
+      buildPagePrompt({ job, request: selectedRequest, brief, candidate, styles: catalog.styles }),
+    ).toContain(selectedStyleWeightingGuidance);
   });
   it("continues the provider session for repair and caches the completed page production", async () => {
     const workspace = await mkdtemp(path.join(os.tmpdir(), "page-domain-"));
@@ -101,7 +107,12 @@ describe("interactive page domain", () => {
         model: "test",
         sessionId: "approved-session",
       };
-      vi.mocked(agentTurn).mockResolvedValue({ value: production, sessionId: "continued-session" });
+      vi.mocked(agentTurn)
+        .mockResolvedValueOnce({ value: production, sessionId: "continued-session" })
+        .mockResolvedValueOnce({
+          value: { title: "Repaired title" },
+          sessionId: "continued-session",
+        });
       vi.mocked(validatePage)
         .mockRejectedValueOnce(Error("Horizontal overflow"))
         .mockResolvedValue({ page: "index.html", poster: "renders/page.png" });
@@ -119,6 +130,7 @@ describe("interactive page domain", () => {
       await generatePage(input);
       expect(job.phase).toBe("ready");
       expect(job.page).toBe("index.html");
+      expect(job.pageProduction).toEqual({ ...production, title: "Repaired title" });
       expect(job).not.toHaveProperty("video");
       expect(vi.mocked(agentTurn).mock.calls.at(-1)?.[0]).toMatchObject({
         sessionId: "continued-session",

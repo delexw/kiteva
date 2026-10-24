@@ -8,6 +8,7 @@ They are separate from authoring skills (`../bundled-skills/`), Motion Graphics 
 | React Bits                                                              | [capability.ts](react-bits/capability.ts)    | [prompt.ts](react-bits/prompt.ts)    | [tools.ts](react-bits/tools.ts), [server.ts](react-bits/server.ts)                                          |
 | Animate UI                                                              | [capability.ts](animate-ui/capability.ts)    | [prompt.ts](animate-ui/prompt.ts)    | [tools.ts](animate-ui/tools.ts), [server.ts](animate-ui/server.ts)                                          |
 | Creative Pool                                                           | [capability.ts](creative-pool/capability.ts) | [prompt.ts](creative-pool/prompt.ts) | [tools.ts](creative-pool/tools.ts), [server.ts](creative-pool/server.ts)                                    |
+| Narration                                                               | [capability.ts](narration/capability.ts)     | [prompt.ts](narration/prompt.ts)     | [tools.ts](narration/tools.ts), [server.ts](narration/server.ts)                                            |
 | [Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) | [capability.ts](audio-studio/capability.ts)  | [prompt.ts](audio-studio/prompt.ts)  | [tools.ts](audio-studio/tools.ts), [server.ts](audio-studio/server.ts), [client.ts](audio-studio/client.ts) |
 
 `registry.ts` collects registrations and guidance. Text-only calls receive neither. Planning/review
@@ -28,6 +29,7 @@ capabilities/
 ├── react-bits/             # Same registration/prompt/server/tools layout
 ├── creative-pool/          # Same layout, plus capability-specific types.ts
 ├── audio-studio/           # Same layout, plus client.ts and types.ts
+├── narration/              # Registration/prompt/server/tools; shared audio types live in audio/
 └── shared/
     ├── types.ts
     └── component-registry-tools.ts
@@ -111,6 +113,22 @@ do not redistribute the component collection. No upstream component code is bund
 The provider adapters keep their existing event path. Tool events and usage carry the same invocation,
 model, session and task attribution into Workflow/Governance. The adapter makes no AI calls and adds no
 separate model billing path. Customer Activity shows only curated component-action labels.
+
+## Narration MCP
+
+Configured narration jobs expose `create_narration` and `edit_narration` during build and correction
+turns for both SDK providers. Planning, review and text-only turns receive no narration tools.
+The orchestrator registers voice profiles without generating audio. The model creates initial speech
+through `create_narration`, which saves `audio/narration.json`; subsequent edits read its cue IDs,
+measured durations and revision before editing. Timing changes reuse the recorded audio. Text changes
+use the existing speech provider to regenerate only the changed cue, retaining configured voices,
+language, speed and volume. Creation replaces the narration with a new set of cues.
+
+The audio service rejects stale revisions, overlapping measured cues, film overruns and paths outside
+the job workspace. Tools return readable text and typed structured content. Shared schemas belong to
+`audio/narration-types.ts`, alongside the service consumed by both MCP and orchestration. Before
+rendering, the workflow reloads the accepted narration track; Kiteva still owns final speech/music
+mixing and validation. The model must reconcile captions and visual timing with the returned cues.
 
 ## Audio Studio MCP
 

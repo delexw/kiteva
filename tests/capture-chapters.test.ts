@@ -535,3 +535,30 @@ it("keeps accepted retry captures reusable without the transient recovery feedba
   await prepareChapterCaptures(input, generate);
   expect(prompts).toHaveLength(2);
 });
+
+it("reports recorder failure without inventing an export or timing conflict", async () => {
+  const input = await fixture();
+  await expect(
+    prepareChapterCaptures(input, async <T>(options: AgentTurnOptions<T>) => ({
+      sessionId: randomUUID(),
+      value: options.schema.parse({
+        outcome: { captureFailure: { reason: "__name is not defined" } },
+      }),
+    })),
+  ).rejects.toThrow("Chapter capture failed: __name is not defined");
+  await expect(
+    readFile(path.join(input.job.workspace, capturedChaptersArtifact)),
+  ).rejects.toThrow();
+});
+
+it("rejects a worker timing conflict whose duration already fits the chapter budget", async () => {
+  const input = await fixture();
+  await expect(
+    prepareChapterCaptures(input, async <T>(options: AgentTurnOptions<T>) => ({
+      sessionId: randomUUID(),
+      value: options.schema.parse({
+        outcome: { timingConflict: { requiredDurationSeconds: 10, reason: "Recording failed" } },
+      }),
+    })),
+  ).rejects.toThrow("requires a measured duration exceeding its budget");
+});

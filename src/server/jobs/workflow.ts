@@ -1,3 +1,5 @@
+import { activityScope, activityEventData, bindActivityCallback } from "./activity-scope";
+import { preparationStepLabel } from "../../shared/preparation";
 import {
   ExplicitStylePreviewsSchema,
   runExplicitStylePreviewWorkflow,
@@ -20,6 +22,7 @@ import {
   assetQuestionBuildScope,
   assetIdsForQuestionScope,
   assetRequirementsPolicy,
+  matchesAssetQuestion,
 } from "../../shared/asset-requirements-policy";
 import { PageBriefSchema } from "../../shared/agents/schemas/page";
 import { BriefSchema } from "../../shared/agents/schemas/video";
@@ -81,6 +84,8 @@ import { WorkQueue } from "./queue.js";
 import { makePlaybackCopies } from "../rendering/render";
 import { playbackCopyProfile } from "../rendering/playback-copies";
 import { InputRequired, blockingQuestions } from "../../shared/input-checkpoint";
+type WorkflowTask = { controller: AbortController; finish: () => void };
+
 export class Workflow {
   private agents = new WorkQueue(5);
   private renders = new WorkQueue(1);
@@ -91,7 +96,7 @@ export class Workflow {
     string,
     { controller: AbortController; discard: boolean; done: Promise<void> }
   >();
-  private startTask(id: string) {
+  private startTask(id: string): WorkflowTask | undefined {
     if (this.stopping || this.controllers.has(id)) return;
     const controller = new AbortController();
     let settle!: () => void;
@@ -114,7 +119,7 @@ export class Workflow {
     readonly catalog: Catalog,
   ) {}
   private emit(run: Run, type: string, message: string, job?: GenerationJob, data?: unknown) {
-    this.store.emit(run.id, type, message, job?.id, data);
+    this.store.emit(run.id, type, message, job?.id, activityEventData(data));
   }
   answerAssetQuestion(run: Run, questionId: string, input: unknown) {
     const body = AssetQuestionAnswerSchema.parse(input);
@@ -226,11 +231,7 @@ export class Workflow {
     jobId?: string,
   ) {
     for (const need of assetRequirementsPolicy.collectNeeds(sources)) {
-      if (
-        run.assetQuestions?.some(
-          (question) => question.kind === need.kind && question.jobId === jobId,
-        )
-      )
+      if (run.assetQuestions?.some((question) => matchesAssetQuestion(question, need, jobId)))
         continue;
       (run.assetQuestions ||= []).push({
         ...need,
@@ -245,11 +246,7 @@ export class Workflow {
     for (const job of run.jobs) {
       const production = job.outputType === "page" ? job.pageProduction : job.production;
       for (const need of assetRequirementsPolicy.collectNeeds([production || {}])) {
-        if (
-          run.assetQuestions?.some(
-            (question) => question.kind === need.kind && question.jobId === job.id,
-          )
-        )
+        if (run.assetQuestions?.some((question) => matchesAssetQuestion(question, need, job.id)))
           continue;
         (run.assetQuestions ||= []).push({
           ...need,
@@ -269,7 +266,7 @@ export class Workflow {
       ? `${job.kind} ${job.outputType === "page" ? "HTML" : "video"} generation`
       : "Brief preparation",
   ) {
-    return (e: ProviderEvent) => {
+    return bindActivityCallback((e: ProviderEvent) => {
       const eventData = e.data as
         | {
             resultReview?: boolean;
@@ -311,11 +308,26 @@ export class Workflow {
                     : purpose,
         audience: "internal",
       });
-    };
+    });
   }
   async prepare(run: Run) {
     const task = this.startTask(run.id);
     if (!task) return;
+    return activityScope("Project preparation", () => this.prepareWork(run, task), {
+      signal: task.controller.signal,
+      completionState: () =>
+        run.inputWaits?.some((wait) => !wait.jobId)
+          ? "waiting"
+          : run.phase === "failed"
+            ? "failed"
+            : run.phase === "cancelled" || run.phase === "interrupted"
+              ? "stopped"
+              : "complete",
+      onScope: (scope) =>
+        this.store.emit(run.id, "activity_scope", scope.label, undefined, { activityScope: scope }),
+    });
+  }
+  private async prepareWork(run: Run, task: WorkflowTask) {
     const { controller } = task;
     try {
       if (!run.request.selectedStyleIds?.length && run.request.preference !== "random") jevClient();
@@ -344,15 +356,20 @@ export class Workflow {
         task: () => Promise<T>,
         validate?: (output: T) => Promise<void>,
       ) =>
-        preparationCheckpoint({
-          run,
-          step,
-          schema,
-          task,
-          validate,
-          signal: controller.signal,
-          save: () => this.update(run),
-        });
+        activityScope(
+          preparationStepLabel(step, run.request, run.preparation),
+          () =>
+            preparationCheckpoint({
+              run,
+              step,
+              schema,
+              task,
+              validate,
+              signal: controller.signal,
+              save: () => this.update(run),
+            }),
+          { signal: controller.signal },
+        );
       const validateReferences = async (screenshots: ReferenceScreenshot[]) => {
         for (const screenshot of screenshots)
           await access(path.join(dataRoot, "runs", run.id, "references", screenshot.name));
@@ -865,8 +882,34 @@ export class Workflow {
   async generate(run: Run, job: GenerationJob, feedback?: string, decisions?: string) {
     const task = this.startTask(job.id);
     if (!task) return;
+    return activityScope(
+      job.kind === "preview" ? "Creating your preview" : "Creating your full result",
+      () => this.generateWork(run, job, task, feedback, decisions),
+      {
+        signal: task.controller.signal,
+        completionState: () =>
+          run.inputWaits?.some((wait) => wait.jobId === job.id)
+            ? "waiting"
+            : job.phase === "failed"
+              ? "failed"
+              : job.phase === "cancelled" || job.phase === "interrupted"
+                ? "stopped"
+                : "complete",
+        onScope: (scope) =>
+          this.store.emit(run.id, "activity_scope", scope.label, job.id, { activityScope: scope }),
+      },
+    );
+  }
+  private async generateWork(
+    run: Run,
+    job: GenerationJob,
+    task: WorkflowTask,
+    feedback?: string,
+    decisions?: string,
+  ) {
     const { controller } = task;
     try {
+      this.update(run);
       this.inputCheckpoint(run, job);
       feedback = [
         feedback || job.refinementPrompt,

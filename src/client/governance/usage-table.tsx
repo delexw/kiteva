@@ -1,8 +1,8 @@
 import { translateUi, useUiLanguage } from "../i18n";
 import { Table, Typography, type TableColumnsType } from "antd";
 import type { ModelActivity } from "../../shared/governance";
-const tokens = (value: number | null) =>
-  value === null ? translateUi("Not recorded") : value.toLocaleString();
+const tokens = (value: number | null | undefined) =>
+  value == null ? translateUi("Not recorded") : value.toLocaleString();
 const probability = (value: number | null) =>
   value === null ? translateUi("Not recorded") : `${Math.round(value * 100)}%`;
 const money = (row: ModelActivity) =>
@@ -71,7 +71,7 @@ export function GovernanceUsageTable({
       sorter: (a, b) => a.tools - b.tools,
     },
     {
-      title: translateUi("Input tokens"),
+      title: translateUi("Total input tokens"),
       dataIndex: "inputTokens",
       key: "inputTokens",
       width: 110,
@@ -85,17 +85,33 @@ export function GovernanceUsageTable({
       render: tokens,
     },
     {
-      title: translateUi("Cached input"),
+      title: translateUi("Uncached input"),
+      dataIndex: "uncachedInputTokens",
+      key: "uncachedInputTokens",
+      width: 110,
+      render: tokens,
+    },
+    {
+      title: translateUi("Cache reads"),
       dataIndex: "cachedTokens",
       key: "cachedTokens",
       width: 110,
       render: tokens,
     },
     {
-      title: translateUi("Cached output"),
-      key: "cachedOutput",
-      width: 110,
-      render: () => translateUi("Not reported"),
+      title: translateUi("Cache writes"),
+      key: "cacheWriteTokens",
+      width: 150,
+      render: (_, row) => (
+        <>
+          {tokens(row.cacheWriteTokens)}
+          {(row.cacheWrite5mTokens != null || row.cacheWrite1hTokens != null) && (
+            <div className="governance-table-detail">
+              5m: {tokens(row.cacheWrite5mTokens)} · 1h: {tokens(row.cacheWrite1hTokens)}
+            </div>
+          )}
+        </>
+      ),
     },
     {
       title: translateUi("Estimated USD"),
@@ -149,7 +165,7 @@ export function GovernanceUsageTable({
       rowKey={(row) => `${row.model}|${row.purpose}`}
       pagination={false}
       tableLayout="fixed"
-      scroll={{ x: 1000 }}
+      scroll={{ x: 1300 }}
       size="small"
       locale={{ emptyText: translateUi("No model activity recorded.") }}
     />

@@ -1,3 +1,4 @@
+import { PromptText } from "./components/style-mention";
 import { translateUi, useUiLanguage } from "./i18n";
 import { Button, Card, Collapse } from "antd";
 import type { Style, StyleExample } from "../shared/contracts";
@@ -23,7 +24,9 @@ export function SuggestedCombinations({
       aria-label={translateUi("Suggested Motion Graphic combinations")}
     >
       <h3>{translateUi("Suggested combinations")}</h3>
-      <p>{translateUi(combinations.selection_guidance)}</p>
+      <p>
+        <PromptText>{translateUi(combinations.selection_guidance)}</PromptText>
+      </p>
       {!combinations.suggestions.length && (
         <p>{translateUi("This Motion Graphic works best on its own.")}</p>
       )}
@@ -91,22 +94,24 @@ export function SuggestedCombinations({
                               </Button>
                             )}
                             {" · "}
-                            {translateUi(supporting.role)}
+                            <PromptText>{translateUi(supporting.role)}</PromptText>
                           </p>
                         );
                       })}
-                      <p>{translateUi(suggestion.rationale)}</p>
+                      <p>
+                        <PromptText>{translateUi(suggestion.rationale)}</PromptText>
+                      </p>
                       <p>
                         <strong>{translateUi("Best for:")}</strong>{" "}
-                        {translateUi(suggestion.best_for)}
+                        <PromptText>{translateUi(suggestion.best_for)}</PromptText>
                       </p>
                       <p>
                         <strong>{translateUi("Video:")}</strong>{" "}
-                        {translateUi(suggestion.video_application)}
+                        <PromptText>{translateUi(suggestion.video_application)}</PromptText>
                       </p>
                       <p>
                         <strong>{translateUi("HTML:")}</strong>{" "}
-                        {translateUi(suggestion.html_application)}
+                        <PromptText>{translateUi(suggestion.html_application)}</PromptText>
                       </p>
                       <h4>{translateUi("Keep consistent")}</h4>
                       <ul>

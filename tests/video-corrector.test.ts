@@ -91,7 +91,6 @@ it("allows five GPT-6.1 full-video repair rounds, charges once per round and reu
 it.each([
   ["codex", "preview", "gpt-6.1-sol"],
   ["codex", "full", "gpt-6-astra"],
-  ["claude", "full", "claude-opus-5-5"],
 ] as const)("preserves the two main-round limit for %s %s %s", async (provider, kind, model) => {
   const { coordinator } = setup(provider, { kind, model });
   vi.mocked(agentTurn).mockResolvedValue({
@@ -106,10 +105,7 @@ it.each([
   await expect(coordinator.correctRound(findings)).rejects.toThrow("round limit");
   expect(agentTurn).toHaveBeenCalledTimes(2);
 });
-it.each([
-  ["claude", "claude-haiku-5-5"],
-  ["codex", "gpt-6-luna"],
-] as const)(
+it.each([["codex", "gpt-6-luna"]] as const)(
   "reuses a separate %s cheap session and escalates to the original main session",
   async (provider, model) => {
     const { job, coordinator } = setup(provider);
@@ -144,7 +140,7 @@ it.each([
 it.each(["pacing", "style"] as const)(
   "resumes the main generation session directly for %s",
   async (focus) => {
-    const { coordinator } = setup();
+    const { coordinator } = setup("codex");
     vi.mocked(agentTurn).mockResolvedValue({
       value: { ...production, storyboard: validStoryboard() },
       sessionId: "generation-session",
@@ -168,11 +164,6 @@ it("keeps the cheap session when it announces one before a failed turn and recor
       value: { ...production, storyboard: validStoryboard() },
       sessionId: "partial-cheap",
     });
-  await expect(
-    coordinator.correctRound([
-      { focus: "contrast", cheapEligible: true, evidence: { contrast: 2 } },
-    ]),
-  ).rejects.toThrow("Interrupted turn");
   await coordinator.correctRound([
     { focus: "contrast", cheapEligible: true, evidence: { contrast: 2 } },
   ]);
@@ -192,12 +183,12 @@ it("bounds failed corrections and never marks cancellation as another repair", a
       { focus: "technical", cheapEligible: true, evidence: { code: "runtime" } },
     ]),
   ).rejects.toThrow("Cannot repair");
-  expect(agentTurn).toHaveBeenCalledTimes(1);
+  expect(agentTurn).toHaveBeenCalledTimes(10);
   controller.abort();
   await expect(
     coordinator.correctRound([{ focus: "layout", cheapEligible: true, evidence: {} }]),
   ).rejects.toThrow();
-  expect(agentTurn).toHaveBeenCalledTimes(1);
+  expect(agentTurn).toHaveBeenCalledTimes(10);
 });
 it("routes structured QA categories and ignores advisory findings", () => {
   const pass = { ok: true, findings: [] };
@@ -251,7 +242,7 @@ it("routes structured QA categories and ignores advisory findings", () => {
   ).toEqual(["pacing", "style"]);
 });
 
-it("rejects a repair that changes selected settings without another call for the same issue", async () => {
+it("retries rejected settings within ten attempts while preserving the accepted manifest", async () => {
   const { coordinator, job } = setup();
   vi.mocked(agentTurn).mockResolvedValue({
     value: { ...production, duration: 5 },
@@ -263,7 +254,7 @@ it("rejects a repair that changes selected settings without another call for the
     ]),
   ).rejects.toThrow("Corrector changed");
   expect(job.production?.duration).toBe(3);
-  expect(agentTurn).toHaveBeenCalledTimes(1);
+  expect(agentTurn).toHaveBeenCalledTimes(10);
 });
 
 it.each(["claude", "codex"] as const)(
@@ -335,4 +326,250 @@ it("directs determinism repairs to frame evidence without weakening validation",
   expect(technicalCorrector.instructions).toContain(
     "Do not guess at unrelated code or weaken comparison thresholds",
   );
+});
+
+it("uses exactly three medium, three high and four xhigh Haiku rounds, including non-cheap findings", async () => {
+  const { coordinator, job } = setup("claude", { model: "claude-opus-5-5" });
+  vi.mocked(agentTurn).mockResolvedValue({
+    value: { ...production, storyboard: validStoryboard() },
+    sessionId: "haiku-session",
+  });
+  const findings = [{ focus: "style" as const, cheapEligible: false, evidence: "Style mismatch" }];
+  for (let attempt = 0; attempt < 10; attempt++) await coordinator.correctRound(findings);
+  await expect(coordinator.correctRound(findings)).rejects.toThrow("round limit");
+  const calls = vi.mocked(agentTurn).mock.calls.map(([call]) => call);
+  expect(calls).toHaveLength(10);
+  expect(calls.map((call) => call.reasoningEffort)).toEqual([
+    "medium",
+    "medium",
+    "medium",
+    "high",
+    "high",
+    "high",
+    "xhigh",
+    "xhigh",
+    "xhigh",
+    "xhigh",
+  ]);
+  expect(calls.every((call) => call.model === "claude-haiku-5-5")).toBe(true);
+  expect(calls.slice(1).every((call) => call.sessionId === "haiku-session")).toBe(true);
+  expect(job.sessionId).toBe("generation-session");
+});
+
+it("recovers a rejected manifest in its own session and supplies the previous failure", async () => {
+  const { coordinator, job } = setup();
+  vi.mocked(agentTurn)
+    .mockResolvedValueOnce({
+      value: { ...production, width: 640, storyboard: validStoryboard() },
+      sessionId: "repair-session",
+    })
+    .mockResolvedValueOnce({
+      value: { ...production, storyboard: validStoryboard() },
+      sessionId: "repair-session",
+    });
+  await coordinator.correctRound([{ focus: "layout", cheapEligible: true, evidence: "Clip" }]);
+  expect(agentTurn).toHaveBeenCalledTimes(2);
+  expect(vi.mocked(agentTurn).mock.calls[1][0]).toMatchObject({
+    sessionId: "repair-session",
+    reasoningEffort: "medium",
+    promptContext: { previousFailure: expect.stringContaining("Corrector changed") },
+  });
+  expect(job.production).toEqual(production);
+});
+
+it("retries only the failed issue and keeps previously accepted corrections", async () => {
+  const { coordinator } = setup();
+  const first = { ...production, limitations: ["First fixed"] };
+  vi.mocked(agentTurn)
+    .mockResolvedValueOnce({
+      value: { ...first, storyboard: validStoryboard() },
+      sessionId: "repair",
+    })
+    .mockRejectedValueOnce(Error("Invalid response"))
+    .mockResolvedValueOnce({
+      value: { ...production, storyboard: validStoryboard() },
+      sessionId: "repair",
+    });
+  await coordinator.correctRound([
+    { focus: "layout", cheapEligible: true, evidence: "First" },
+    { focus: "contrast", cheapEligible: true, evidence: "Second" },
+  ]);
+  const calls = vi.mocked(agentTurn).mock.calls.map(([call]) => call);
+  expect(calls).toHaveLength(3);
+  expect(calls[2].promptContext).toMatchObject({
+    currentManifest: first,
+    correctionTask: { evidence: "Second" },
+  });
+});
+
+it("stops immediately when a Haiku correction is cancelled", async () => {
+  const { coordinator, controller } = setup();
+  vi.mocked(agentTurn).mockImplementationOnce(async () => {
+    controller.abort();
+    throw Error("Cancelled");
+  });
+  await expect(
+    coordinator.correctRound([{ focus: "layout", cheapEligible: true, evidence: {} }]),
+  ).rejects.toThrow();
+  expect(agentTurn).toHaveBeenCalledTimes(1);
+});
+
+it("inherits an omitted frame rate from the accepted production rather than defaulting it to 30", async () => {
+  const { coordinator, job } = setup("claude", { production: { ...production, fps: 60 } });
+  vi.mocked(agentTurn).mockResolvedValue({
+    value: { ...production, storyboard: validStoryboard() },
+    sessionId: "repair",
+  });
+  await coordinator.correctRound([{ focus: "layout", cheapEligible: true, evidence: "Clip" }]);
+  expect(agentTurn).toHaveBeenCalledTimes(1);
+  expect(job.production?.fps).toBe(60);
+});
+
+it("stops retrying a blocking capability decision and preserves the accepted production", async () => {
+  const { coordinator, job } = setup("claude", { production: { ...production, fps: 60 } });
+  const need = {
+    mode: "blocking" as const,
+    kind: "voice" as const,
+    cause: "tool-capability" as const,
+    reason: "Required voice unavailable",
+    question: "Which available voice should be used?",
+    fallback: "Use another configured voice",
+  };
+  vi.mocked(agentTurn).mockResolvedValue({
+    value: { ...production, assetNeeds: [need], storyboard: validStoryboard() },
+    sessionId: "repair",
+  });
+  await expect(
+    coordinator.correctRound([{ focus: "pacing", cheapEligible: false, evidence: "Voice" }]),
+  ).rejects.toThrow("Waiting for a user decision");
+  expect(agentTurn).toHaveBeenCalledTimes(1);
+  expect(job.production).toMatchObject({ ...production, fps: 60, assetNeeds: [need] });
+});
+
+it.each(["claude", "codex"] as const)(
+  "retains a segmented film when a %s correction omits the unchanged shot list",
+  async (provider) => {
+    const shots = [
+      { sourceFile: "shots/first.html", duration: 1 },
+      { sourceFile: "shots/second.html", duration: 2 },
+    ];
+    const current = {
+      ...production,
+      pipeline: "Multiplane" as const,
+      sourceFile: shots[0].sourceFile,
+      shots,
+    };
+    const { coordinator, job } = setup(provider, { production: current });
+    const { shots: _shots, ...withoutShots } = current;
+    vi.mocked(agentTurn).mockResolvedValue({
+      value: { ...withoutShots, storyboard: validStoryboard() },
+    });
+    await coordinator.correctRound([
+      { focus: "layout", cheapEligible: true, evidence: "Fix one clipped heading" },
+    ]);
+    expect(job.production?.shots).toEqual(shots);
+    expect(job.production?.sourceFile).toBe(shots[0].sourceFile);
+  },
+);
+it("accepts an explicit valid shot revision without replacing it with the previous list", async () => {
+  const shots = [
+    { sourceFile: "shots/first.html", duration: 1 },
+    { sourceFile: "shots/second.html", duration: 2 },
+  ];
+  const current = {
+    ...production,
+    pipeline: "Multiplane" as const,
+    sourceFile: shots[0].sourceFile,
+    shots,
+  };
+  const { coordinator, job } = setup("claude", { production: current });
+  const revised = [
+    { ...shots[0], duration: 2 },
+    { ...shots[1], duration: 1 },
+  ];
+  vi.mocked(agentTurn).mockResolvedValue({
+    value: { ...current, shots: revised, storyboard: validStoryboard() },
+  });
+  await coordinator.correctRound([
+    { focus: "pacing", cheapEligible: true, evidence: "Rebalance the two shots" },
+  ]);
+  expect(job.production?.shots).toEqual(revised);
+});
+it("rejects invalid shot totals without replacing the accepted production", async () => {
+  const shots = [
+    { sourceFile: "shots/first.html", duration: 1 },
+    { sourceFile: "shots/second.html", duration: 2 },
+  ];
+  const current = {
+    ...production,
+    pipeline: "Multiplane" as const,
+    sourceFile: shots[0].sourceFile,
+    shots,
+  };
+  const { coordinator, job } = setup("codex", { production: current });
+  vi.mocked(agentTurn).mockResolvedValue({
+    value: { ...current, shots: [shots[0]], storyboard: validStoryboard() },
+  });
+  await expect(
+    coordinator.correctRound([
+      { focus: "technical", cheapEligible: true, evidence: "Fix initialization" },
+    ]),
+  ).rejects.toThrow("sum to the requested film duration");
+  expect(job.production).toEqual(current);
+});
+
+it.each(["claude", "codex"] as const)(
+  "merges %s corrections without dropping any omitted optional production fields",
+  async (provider) => {
+    const current = {
+      ...production,
+      fps: 60 as const,
+      audioFile: "audio/score.wav",
+      displayTitle: "Existing title",
+      displayDescription: "Existing description",
+    };
+    const { coordinator, job } = setup(provider, { production: current });
+    vi.mocked(agentTurn).mockResolvedValue({
+      value: { ...production, limitations: [], storyboard: validStoryboard() },
+    });
+    await coordinator.correctRound([
+      { focus: "layout", cheapEligible: true, evidence: "Fix clipped heading" },
+    ]);
+    expect(job.production).toMatchObject({
+      audioFile: "audio/score.wav",
+      fps: 60,
+      displayTitle: "Existing title",
+      displayDescription: "Existing description",
+      limitations: [],
+    });
+  },
+);
+it("honors explicit permitted audio removal rather than treating null as omission", async () => {
+  const { coordinator, job } = setup("claude", {
+    production: { ...production, audioFile: "audio/score.wav" },
+  });
+  vi.mocked(agentTurn).mockResolvedValue({
+    value: { ...production, audioFile: null, storyboard: validStoryboard() },
+  });
+  await coordinator.correctRound([
+    { focus: "technical", cheapEligible: true, evidence: "Remove incorrect audio" },
+  ]);
+  expect(job.production?.audioFile).toBeNull();
+});
+
+it("accepts a focused JSON correction that omits unchanged required manifest fields", async () => {
+  const { coordinator, job } = setup("claude", {
+    production: { ...production, audioFile: "audio/score.wav" },
+  });
+  vi.mocked(agentTurn).mockResolvedValue({
+    value: { limitations: ["Repaired"], storyboard: validStoryboard() },
+  });
+  await coordinator.correctRound([
+    { focus: "layout", cheapEligible: true, evidence: "Fix heading" },
+  ]);
+  expect(job.production).toEqual({
+    ...production,
+    audioFile: "audio/score.wav",
+    limitations: ["Repaired"],
+  });
 });

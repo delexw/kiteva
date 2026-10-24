@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 const trace = vi.hoisted(() => [] as string[]);
@@ -57,7 +57,7 @@ afterEach(async () => {
     folders.splice(0).map((folder) => rm(folder, { recursive: true, force: true })),
   );
 });
-it.each(["chapters", "retry", "exhausted", "none", "legacy"] as const)(
+it.each(["chapters", "retry", "exhausted", "none", "legacy", "narration"] as const)(
   "coordinates planning, %s capture and assembly without extra recording",
   async (mode) => {
     const hasChapters = ["chapters", "retry", "exhausted"].includes(mode);
@@ -105,6 +105,39 @@ it.each(["chapters", "retry", "exhausted", "none", "legacy"] as const)(
     };
     vi.mocked(agentTurn).mockImplementation(async () => {
       trace.push("assembly");
+      if (mode === "narration") {
+        // Simulate the model's MCP result; no narration exists before its build turn.
+        expect(
+          JSON.parse(await readFile(path.join(workspace, "audio/narration-config.json"), "utf8"))
+            .profiles.default.mode,
+        ).toBe("narration");
+        await expect(readFile(path.join(workspace, "audio/narration.json"))).rejects.toThrow();
+        expect(trace).not.toContain("speech");
+        await writeFile(path.join(workspace, "audio/model-created.wav"), "model tool output");
+        await writeFile(
+          path.join(workspace, "audio/narration.json"),
+          JSON.stringify({
+            revision: "model-created",
+            track: {
+              file: "audio/model-created.wav",
+              durationSeconds: 1,
+              source: "narration",
+              cues: [{ text: "Example", startSeconds: 0, endSeconds: 1 }],
+            },
+            segments: [
+              {
+                id: "first",
+                text: "Example",
+                startSeconds: 0,
+                showLyrics: true,
+                file: "audio/model-created.wav",
+                sourceStartSeconds: 0,
+                durationSeconds: 1,
+              },
+            ],
+          }),
+        );
+      }
       return {
         sessionId: "main-session",
         value: {
@@ -156,6 +189,9 @@ it.each(["chapters", "retry", "exhausted", "none", "legacy"] as const)(
         instructions: "Show the application",
         urls: ["https://example.com"],
         duration: 30,
+        ...(mode === "narration"
+          ? { speech: { mode: "narration", source: "provided", text: "Example" } }
+          : {}),
       }),
       brief: {
         subject: "Workflow",
@@ -187,6 +223,7 @@ it.each(["chapters", "retry", "exhausted", "none", "legacy"] as const)(
     }
     await generation;
     expect(job.phase).toBe("ready");
+    if (mode === "narration") expect(job.speechTrack?.file).toBe("audio/model-created.wav");
     const assembly = vi.mocked(agentTurn).mock.calls[0][0];
     expect(assembly.enableVideoCapture).toBe(mode === "legacy" ? undefined : false);
     expect(assembly.prompt).toContain(footagePlacementGuidance);
@@ -215,7 +252,7 @@ it.each(["chapters", "retry", "exhausted", "none", "legacy"] as const)(
           .mock.calls.every(([call]) => call.captureTimingConflict === undefined),
       ).toBe(true);
       expect(trace.lastIndexOf("chapters")).toBeLessThan(trace.indexOf("assembly"));
-      expect(trace.indexOf("chapters")).toBeLessThan(trace.indexOf("speech"));
+      expect(trace).not.toContain("speech");
       expect(trace.indexOf("chapters")).toBeLessThan(trace.indexOf("assembly"));
       expect(assembly.prompt).toContain("CAPTURED_CHAPTERS.json");
       expect(assembly.prompt).toContain("Do not record the chapters again");

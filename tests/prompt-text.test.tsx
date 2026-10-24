@@ -47,3 +47,12 @@ it("renders motion XML as the same mention chip with its motion variant", () => 
   expect(html).toContain("Glitch Type Build");
   expect(html).not.toContain("&lt;motion");
 });
+
+it("uses shared rectangular color swatches alongside style mentions without changing the prompt", () => {
+  const value = 'Use #87E64B and #fff with <style id="style-001">Example</style>.';
+  const html = renderToStaticMarkup(<PromptText>{value}</PromptText>);
+  expect(html.match(/class="prompt-color-swatch"/g)).toHaveLength(2);
+  expect(html).toContain("background-color:#87E64B");
+  expect(html).toContain("#87E64B");
+  expect(html).toContain("@Example");
+});

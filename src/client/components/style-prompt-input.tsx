@@ -1,9 +1,10 @@
+import { parsePromptParts } from "../../shared/prompt-parts";
+import { ColorChip } from "./color-chip";
 import { nanoid } from "nanoid";
 import { Sender, Suggestion, type SenderProps } from "@ant-design/x";
 import type { SenderRef, SlotConfigType } from "@ant-design/x/es/sender/interface";
 import { useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
-  parseStyleMentions,
   styleMentionQuery,
   styleMentionXml,
   type MentionVariant,
@@ -34,10 +35,24 @@ function mentionSlot(
 }
 
 function promptSlots(value: string): SlotConfigType[] {
-  return parseStyleMentions(value).map((part) =>
+  return parsePromptParts(value).map((part) =>
     part.type === "text"
       ? { type: "text", value: part.text }
-      : mentionSlot(part.id, part.name, part.xml, nanoid(), part.type),
+      : part.type === "color"
+        ? {
+            type: "custom",
+            key: nanoid(),
+            props: { defaultValue: part.value },
+            customRender: (color, onChange, props) => (
+              <ColorChip
+                value={color}
+                onChange={props.readOnly ? undefined : onChange}
+                disabled={props.disabled}
+              />
+            ),
+            formatResult: (color) => color,
+          }
+        : mentionSlot(part.id, part.name, part.xml, nanoid(), part.type),
   );
 }
 
@@ -142,7 +157,7 @@ export function StylePromptInput({
       className="style-prompt-input"
       onPasteCapture={(event) => {
         const text = event.clipboardData.getData("text/plain");
-        if (parseStyleMentions(text).some((part) => part.type !== "text")) {
+        if (parsePromptParts(text).some((part) => part.type !== "text")) {
           event.preventDefault();
           event.stopPropagation();
           insertSlots(promptSlots(text));

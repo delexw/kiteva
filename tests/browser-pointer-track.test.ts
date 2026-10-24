@@ -4,12 +4,12 @@ import { recordWindowPointer } from "../src/server/capture/browser-pointer-track
 afterEach(() => vi.unstubAllGlobals());
 
 function fixture() {
-  const handlers = new Map<string, (event: MouseEvent) => void>();
+  const handlers = new Map<string, { handleEvent(event: MouseEvent): void }>();
   const send = vi.fn();
   const window = {
     screenX: -1200,
     screenY: 140,
-    addEventListener: (type: string, handler: (event: MouseEvent) => void) =>
+    addEventListener: (type: string, handler: { handleEvent(event: MouseEvent): void }) =>
       handlers.set(type, handler),
   };
   vi.stubGlobal("window", window);
@@ -18,7 +18,7 @@ function fixture() {
   vi.stubGlobal("pointerTest", send);
   recordWindowPointer("pointerTest");
   const click = (values: Partial<MouseEvent> = {}) =>
-    handlers.get("mousedown")!({
+    handlers.get("mousedown")!.handleEvent({
       isTrusted: true,
       type: "mousedown",
       screenX: -950,

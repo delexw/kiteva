@@ -86,7 +86,8 @@ export async function startWebsiteCapture(
       "OpenScreen needs a dedicated desktop browser; headless browser recording is not supported",
     );
   const originalTitle = await page.title();
-  await page.setViewport(null);
+  const viewport = page.viewport();
+  if (viewport) await page.resize({ contentWidth: viewport.width, contentHeight: viewport.height });
   const pointerTrack = await collectBrowserPointerTrack(page);
   const title = `Kiteva capture ${id}`;
   await page.evaluate((value) => {

@@ -20,6 +20,7 @@ import {
   useState,
 } from "react";
 import { Streamdown } from "streamdown";
+import { promptMarkdownComponents } from "../prompt-markdown-components";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
   from: UIMessage["role"];
@@ -281,16 +282,28 @@ const RichMessageResponse = lazy(() => import("./rich-message-response"));
 const basicPlugins = { cjk };
 
 export const MessageResponse = memo(
-  ({ className, ...props }: MessageResponseProps) => {
+  ({ className, components, ...props }: MessageResponseProps) => {
+    const promptComponents = { ...promptMarkdownComponents, ...components };
     const responseClassName = cn(
       "size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
       className,
     );
     return (
       <Suspense
-        fallback={<Streamdown className={responseClassName} plugins={basicPlugins} {...props} />}
+        fallback={
+          <Streamdown
+            className={responseClassName}
+            plugins={basicPlugins}
+            {...props}
+            components={promptComponents}
+          />
+        }
       >
-        <RichMessageResponse className={responseClassName} {...props} />
+        <RichMessageResponse
+          className={responseClassName}
+          {...props}
+          components={promptComponents}
+        />
       </Suspense>
     );
   },

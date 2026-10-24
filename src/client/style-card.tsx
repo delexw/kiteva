@@ -1,3 +1,4 @@
+import { PromptText } from "./components/style-mention";
 import { translateUi, useUiLanguage } from "./i18n";
 import { Button, Card, Popover } from "antd";
 import { useViewportVisibility } from "./use-viewport-visibility";
@@ -257,7 +258,11 @@ export const StyleCard = memo(function StyleCard({
         <div className="style-card-content">
           {showCategory && <div className="style-category">{translateUi(style.category)}</div>}
           <h3>{translateUi(style.name_en)}</h3>
-          {showDescription && <p>{translateUi(style.visual_cues)}</p>}
+          {showDescription && (
+            <p>
+              <PromptText>{translateUi(style.visual_cues)}</PromptText>
+            </p>
+          )}
           <div className="style-footer">{showId && <span>{style.id}</span>}</div>
         </div>
       </motion.button>

@@ -31,9 +31,15 @@ function appendActivityOutcome(target: DisplayActivityItem[], item: DisplayActiv
         child.scope === item.scope &&
         child.purpose === item.purpose &&
         child.captureChapterId === item.captureChapterId &&
-        (Boolean(item.captureChapterId) || child.invocationId === item.invocationId),
+        ((Boolean(child.activityScopeId) && Boolean(item.activityScopeId)) ||
+          Boolean(item.captureChapterId) ||
+          child.invocationId === item.invocationId ||
+          (item.purpose === "full video generation" &&
+            child.status === "complete" &&
+            item.status === "complete")),
     );
   if (!prior) target.push(item);
+  else if (item.activityScopeId) Object.assign(prior, item, { id: prior.id });
   else {
     // Preserve genuinely pending actions; otherwise show the latest attempt's outcome.
     prior.status =
@@ -47,9 +53,86 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
   const display: DisplayActivityItem[] = [];
   let renderGroup: DisplayActivityItem | undefined;
   const captureGroups = new Map<string, DisplayActivityItem>();
+  const pacingGroups = new Map<string, DisplayActivityItem>();
+  const pacingInvocationGroups = new Map<string, DisplayActivityItem>();
+  const narrationGroups = new Map<string, DisplayActivityItem>();
   const fullVideoGroups = new Map<string, DisplayActivityItem>();
   for (const item of items) {
     const visible = { ...item, repetitions: undefined };
+    if (item.capability === "narration") {
+      renderGroup = undefined;
+      let narration = narrationGroups.get(item.scope);
+      if (!narration) {
+        narration = { ...visible, kind: "notice", text: "Narration", children: [] };
+        narrationGroups.set(item.scope, narration);
+        display.push(narration);
+      }
+      narration.time = item.time;
+      narration.children!.push(visible);
+      const statuses = narration.children!.map((child) => child.status);
+      narration.status = statuses.includes("running")
+        ? "running"
+        : statuses.includes("failed")
+          ? "failed"
+          : statuses.includes("stopped")
+            ? "stopped"
+            : "complete";
+      continue;
+    }
+    if (item.purpose === "pacing correction" && item.invocationId && item.kind !== "message") {
+      renderGroup = undefined;
+      const invocationKey = `${item.scope}:${item.invocationId}`;
+      let pacing = pacingInvocationGroups.get(invocationKey);
+      if (!pacing) {
+        pacing = pacingGroups.get(item.scope);
+        const previousAttempt = pacing?.children?.at(-1)?.correctionAttempt;
+        if (
+          item.correctionAttempt !== undefined &&
+          previousAttempt !== undefined &&
+          item.correctionAttempt < previousAttempt
+        )
+          pacing = undefined;
+      }
+      if (!pacing) {
+        pacing = {
+          ...visible,
+          kind: "notice",
+          text: "Refining story timing",
+          status: undefined,
+          children: [],
+        };
+        pacingGroups.set(item.scope, pacing);
+        display.push(pacing);
+      }
+      pacingInvocationGroups.set(invocationKey, pacing);
+      let attempt = pacing.children!.find((child) => child.invocationId === item.invocationId);
+      if (!attempt) {
+        attempt = {
+          ...visible,
+          kind: "notice",
+          text: "Timing correction attempt",
+          correctionAttempt: item.correctionAttempt ?? pacing.children!.length + 1,
+          status: undefined,
+          children: [],
+        };
+        pacing.children!.push(attempt);
+      }
+      appendActivityOutcome(attempt.children!, visible);
+      attempt.time = item.time;
+      // A completed model call does not establish that the timing repair passed review.
+      attempt.status = attempt.children!.some((child) => child.status === "running")
+        ? "running"
+        : attempt.children!.some((child) => child.status === "failed")
+          ? "failed"
+          : attempt.children!.some((child) => child.status === "stopped")
+            ? "stopped"
+            : undefined;
+      pacing.time = item.time;
+      pacing.status = pacing.children!.some((child) => child.status === "running")
+        ? "running"
+        : undefined;
+      continue;
+    }
     if (item.progressStage === "capture" || item.captureChapterId) {
       renderGroup = undefined;
       let capture = captureGroups.get(item.scope);
@@ -125,13 +208,13 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
       continue;
     }
     renderGroup = undefined;
-    if (item.kind === "message" || !item.invocationId) {
+    if (item.kind === "message" || (!item.invocationId && !item.activityScopeId)) {
       display.push(visible);
       continue;
     }
     let target = display;
     if (item.purpose !== "full video generation") {
-      if (item.kind !== "tool") {
+      if (item.kind !== "tool" && !item.activityScopeId) {
         display.push(visible);
         continue;
       }
@@ -185,6 +268,8 @@ export function activityLabel(item: ActivityItem): string {
 }
 
 export function activityText(item: ActivityItem): string {
+  if (item.text === "Timing correction attempt")
+    return translateUi("Attempt {{attempt}}", { attempt: String(item.correctionAttempt) });
   const timing = item.captureTiming;
   return timing
     ? translateUi(item.text, {

@@ -3,6 +3,8 @@ import {
   assetQuestionBuildScope,
   assetIdsForQuestionScope,
   assetRequirementsPolicy,
+  customerQuestionGuidance,
+  matchesAssetQuestion,
 } from "../src/shared/asset-requirements-policy";
 import { AssetNeedSchema } from "../src/shared/agents/schemas/asset-needs";
 
@@ -169,4 +171,38 @@ it("never treats an optional model question as permission to use its fallback", 
   expect(assetRequirementsPolicy.guidance).toContain(
     "never continue with a proposed fallback without explicit acceptance",
   );
+});
+
+it("supplies the same nontechnical question policy to model instructions and structured question fields", () => {
+  expect(assetRequirementsPolicy.guidance).toContain(customerQuestionGuidance);
+  expect(AssetNeedSchema.shape.question.description).toBe(customerQuestionGuidance);
+  expect(AssetNeedSchema.shape.reason.description).toContain(customerQuestionGuidance);
+  expect(AssetNeedSchema.shape.fallback.description).toContain(
+    "what the user will see or hear differently",
+  );
+  expect(customerQuestionGuidance).toContain("no knowledge of internal JSON");
+  expect(customerQuestionGuidance).toContain("Use the existing repair workflow");
+  expect(customerQuestionGuidance).toContain("not a customer decision");
+});
+
+it("deduplicates only the same scoped need, preserving answered decisions without hiding new issues", () => {
+  const need = AssetNeedSchema.parse({
+    kind: "reference",
+    cause: "tool-capability",
+    reason: "An export is unavailable",
+    question: "Use the preview instead?",
+    fallback: "Use the preview",
+  });
+  const answered = { ...need, id: "old", jobId: "film", state: "answered" as const };
+  expect(matchesAssetQuestion(answered, need, "film")).toBe(true);
+  expect(matchesAssetQuestion({ ...answered, state: "open" }, need, "film")).toBe(true);
+  expect(
+    matchesAssetQuestion(
+      answered,
+      { ...need, reason: "The recording is clipped", question: "Supply another recording?" },
+      "film",
+    ),
+  ).toBe(false);
+  expect(matchesAssetQuestion(answered, need, "another-film")).toBe(false);
+  expect(matchesAssetQuestion(answered, need)).toBe(false);
 });

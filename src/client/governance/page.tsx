@@ -240,15 +240,22 @@ export function GovernancePage() {
                       <>
                         <h3>{translateUi("Music / instrumental requirements")}</h3>
                         <p className="governance-copy">
-                          {project.request.requirements.music.instructions || translateUi("None")}
+                          <PromptText>
+                            {project.request.requirements.music.instructions || translateUi("None")}
+                          </PromptText>
                         </p>
                         <h3>{translateUi("Image requirements")}</h3>
                         <p className="governance-copy">
-                          {project.request.requirements.images.instructions || translateUi("None")}
+                          <PromptText>
+                            {project.request.requirements.images.instructions ||
+                              translateUi("None")}
+                          </PromptText>
                         </p>
                         <h3>{translateUi("URL requirements")}</h3>
                         <p className="governance-copy">
-                          {project.request.requirements.urls.instructions || translateUi("None")}
+                          <PromptText>
+                            {project.request.requirements.urls.instructions || translateUi("None")}
+                          </PromptText>
                         </p>
                       </>
                     )}
@@ -319,7 +326,9 @@ export function GovernancePage() {
                       project.request.lyrics?.mode === "provided" && (
                         <>
                           <h3>{translateUi("Supplied lyrics")}</h3>
-                          <p className="governance-copy">{project.request.lyrics.text}</p>
+                          <p className="governance-copy">
+                            <PromptText>{project.request.lyrics.text}</PromptText>
+                          </p>
                         </>
                       )}
                     <h3>{translateUi("URLs")}</h3>
@@ -381,12 +390,12 @@ export function GovernancePage() {
       <Card title={translateUi("Accounting notes")} className="governance-ant-card">
         <p>
           {translateUi(
-            "Duration is wall-clock time from project creation to the latest completed phase, including waits and retries. Input totals include cache reads/writes; cached input is a subset. Tool starts, updates and results count once per unique tool ID. Invocations are SDK turns, not individual API requests. Failed or cancelled invocations may lack a final usage report. The connected providers report cached input, but no separate cached-output token count. Cached output therefore appears as “Not reported”, rather than zero.",
+            "Duration is wall-clock time from project creation to the latest completed phase, including waits and retries. Input totals include cache reads/writes; cached input is a subset. Tool starts, updates and results count once per unique tool ID. Invocations are SDK turns, not individual API requests. Failed or cancelled invocations may lack a final usage report. Cache reads and cache writes are input tokens. Cache-write durations are shown when returned by the SDK; missing values remain unknown. Output tokens have no separate cache category.",
           )}
         </p>
         <p>
           {translateUi(
-            "Costs are estimates, not invoices. Claude SDK estimates and cumulative Codex token counters are differenced across continued sessions, so earlier turns are counted once. GPT costs show standard short/long-context API-equivalent bounds; subscriptions, fast tiers, discounts and infrastructure costs are excluded. Unpriced models remain unavailable. Cached summaries add no new model spend. Older extraction and ranking usage cannot be reconstructed. Totals include retained project records only, excluding deleted projects and separate catalog demo generation.",
+            "Costs are estimates, not invoices. SDK session token counters are differenced across continued sessions, so earlier turns are counted once. Supported Claude models use published API rates with cache-write durations; missing cache durations and Haiku request lengths produce cost ranges. Other models retain the reported SDK estimate. GPT costs show standard short/long-context API-equivalent bounds; subscriptions, fast tiers, discounts and infrastructure costs are excluded. Unpriced models remain unavailable. Cached summaries add no new model spend. Older extraction and ranking usage cannot be reconstructed. Totals include retained project records only, excluding deleted projects and separate catalog demo generation.",
           )}
         </p>
         <p>

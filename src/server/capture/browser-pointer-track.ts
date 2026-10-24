@@ -13,18 +13,20 @@ export type NativePointerEvent = z.infer<typeof PointerEventSchema>;
 /** Chrome supplies the screen position, including its real window decorations. */
 export function recordWindowPointer(binding: string) {
   const controller = new AbortController();
-  const report = (event: MouseEvent) => {
-    if (!event.isTrusted || outerWidth <= 0 || outerHeight <= 0) return;
-    const x = (event.screenX - window.screenX) / outerWidth;
-    const y = (event.screenY - window.screenY) / outerHeight;
-    if (x < 0 || x > 1 || y < 0 || y > 1) return;
-    const send = (globalThis as unknown as Record<string, (value: NativePointerEvent) => void>)[
-      binding
-    ];
-    void send({ at: Date.now(), x, y, click: event.type === "mousedown" });
+  const listener = {
+    handleEvent(event: MouseEvent) {
+      if (!event.isTrusted || outerWidth <= 0 || outerHeight <= 0) return;
+      const x = (event.screenX - window.screenX) / outerWidth;
+      const y = (event.screenY - window.screenY) / outerHeight;
+      if (x < 0 || x > 1 || y < 0 || y > 1) return;
+      const send = (globalThis as unknown as Record<string, (value: NativePointerEvent) => void>)[
+        binding
+      ];
+      void send({ at: Date.now(), x, y, click: event.type === "mousedown" });
+    },
   };
-  window.addEventListener("mousemove", report, { capture: true, signal: controller.signal });
-  window.addEventListener("mousedown", report, { capture: true, signal: controller.signal });
+  window.addEventListener("mousemove", listener, { capture: true, signal: controller.signal });
+  window.addEventListener("mousedown", listener, { capture: true, signal: controller.signal });
   (globalThis as unknown as Record<string, unknown>)[`${binding}_stop`] = () => controller.abort();
 }
 

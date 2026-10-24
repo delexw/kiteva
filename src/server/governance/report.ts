@@ -1,3 +1,4 @@
+import { claudeApiCost, type ClaudeTokenUsage } from "./claude-pricing";
 import type { AgentProgressEvent, Run } from "../../shared/contracts";
 import { isRunSettled } from "../../shared/contracts";
 import { projectName } from "../../shared/project-name";
@@ -9,7 +10,7 @@ import {
 } from "../../shared/governance";
 
 // Standard API-equivalent USD/1M rates. Astra checked 2026-10-13;
-// Sol/Luna checked 2026-10-11. SDK cost takes precedence.
+// Sol/Luna checked 2026-10-11. Claude pricing lives in claude-pricing.ts.
 // OpenAI reports aggregate turn usage, so show short/long-context bounds rather than
 // assuming that a turn's summed input is the length of any individual API request.
 const rates: Record<
@@ -102,6 +103,10 @@ export function projectGovernance(
         inputTokens: null,
         outputTokens: null,
         cachedTokens: null,
+        uncachedInputTokens: null,
+        cacheWriteTokens: null,
+        cacheWrite5mTokens: null,
+        cacheWrite1hTokens: null,
         costLow: null,
         costHigh: null,
         costBasis: "Not reported",
@@ -116,7 +121,17 @@ export function projectGovernance(
     low: number | null,
     high: number | null,
     basis: string,
+    details?: ClaudeTokenUsage,
   ) => {
+    if (details) {
+      for (const [field, count] of [
+        ["uncachedInputTokens", details.input],
+        ["cacheWriteTokens", details.writes],
+        ["cacheWrite5mTokens", details.writes5m],
+        ["cacheWrite1hTokens", details.writes1h],
+      ] as const)
+        if (count !== null) row[field] = (row[field] ?? 0) + count;
+    }
     if (input !== null) row.inputTokens = (row.inputTokens ?? 0) + input;
     if (output !== null) row.outputTokens = (row.outputTokens ?? 0) + output;
     if (cached !== null) row.cachedTokens = (row.cachedTokens ?? 0) + cached;
@@ -216,14 +231,27 @@ export function projectGovernance(
         const cached = increments.cacheReadInputTokens;
         const writes = increments.cacheCreationInputTokens;
         const cost = increments.costUSD;
+        const ttl = record(record(d.usage).cache_creation);
+        const matchesTurnWrites =
+          actualModel === model && numeric(record(d.usage).cache_creation_input_tokens) === writes;
+        const usage: ClaudeTokenUsage = {
+          input,
+          output,
+          reads: cached,
+          writes,
+          writes5m: matchesTurnWrites ? numeric(ttl.ephemeral_5m_input_tokens) : null,
+          writes1h: matchesTurnWrites ? numeric(ttl.ephemeral_1h_input_tokens) : null,
+        };
+        const priced = claudeApiCost(actualModel, usage);
         addUsage(
           actualRow,
           input === null ? null : input + (cached || 0) + (writes || 0),
           output,
           cached,
-          cost,
-          cost,
-          "SDK estimate · session increments",
+          priced?.low ?? cost,
+          priced?.high ?? cost,
+          priced?.basis ?? "SDK estimate · session increments",
+          usage,
         );
       }
       continue;
@@ -259,7 +287,25 @@ export function projectGovernance(
     let low: number | null = null;
     let high: number | null = null;
     let basis = "Usage unavailable or unpriced model";
-    if (claude && numeric(d.cost) !== null) {
+    const ttl = record(u.cache_creation);
+    const usage: ClaudeTokenUsage = {
+      input: claude
+        ? input
+        : input === null
+          ? null
+          : Math.max(0, input - (cached || 0) - (writes || 0)),
+      output,
+      reads: cached,
+      writes,
+      writes5m: numeric(ttl.ephemeral_5m_input_tokens),
+      writes1h: numeric(ttl.ephemeral_1h_input_tokens),
+    };
+    const priced = claude ? claudeApiCost(model, usage) : null;
+    if (priced) {
+      low = priced.low;
+      high = priced.high;
+      basis = priced.basis;
+    } else if (claude && numeric(d.cost) !== null) {
       const key = `${d.sessionId || sessions.get(scope) || scope}|legacy-cost`;
       const cost = numeric(d.cost)!;
       const previous = snapshots.get(key)?.cost || 0;
@@ -291,6 +337,7 @@ export function projectGovernance(
       low,
       high,
       basis,
+      usage,
     );
     if (claude) {
       const key = `${d.sessionId || sessions.get(scope) || scope}|${model}`;

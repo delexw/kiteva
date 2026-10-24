@@ -174,12 +174,15 @@ export const claudeAgent: Agent = {
           model: model,
           ...(options.reasoningEffort ? { effort: options.reasoningEffort } : {}),
           systemPrompt,
+          settings: { promptCacheTtl: "5m", subagentPromptCacheTtl: "5m" },
           env: {
             ...childEnvironment(),
             ...caveman?.env,
             ...(caveman
               ? { ANTHROPIC_BASE_URL: `${caveman.url}/w/claude`, ENABLE_TOOL_SEARCH: "auto" }
               : {}),
+            // Native override applies to main and helper requests, above inherited CLI settings.
+            FORCE_PROMPT_CACHING_5M: "1",
           },
           includePartialMessages: true,
           persistSession: true,

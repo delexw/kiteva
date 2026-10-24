@@ -5,11 +5,21 @@ export interface ChapterTimingConflict {
   reason: string;
 }
 
+const containerRoundingSeconds = 1 / 60;
+
 export class ChapterTimingConflictError extends Error {
   constructor(readonly conflict: ChapterTimingConflict) {
     super(
       `Chapter timing conflict: ${conflict.chapterId} requires ${conflict.requiredDurationSeconds}s within a ${conflict.targetDurationSeconds}s budget. ${conflict.reason}`,
     );
+    if (
+      !Number.isFinite(conflict.requiredDurationSeconds) ||
+      !Number.isFinite(conflict.targetDurationSeconds) ||
+      conflict.requiredDurationSeconds <= 0 ||
+      conflict.targetDurationSeconds <= 0 ||
+      conflict.requiredDurationSeconds <= conflict.targetDurationSeconds + containerRoundingSeconds
+    )
+      throw Error("A chapter timing conflict requires a measured duration exceeding its budget");
     this.name = "ChapterTimingConflictError";
   }
 }
@@ -27,7 +37,7 @@ export function validateChapterTiming(
     );
   if (!Number.isFinite(duration) || duration <= 0 || !Number.isFinite(target) || target <= 0)
     throw Error("Chapter timing requires positive measured and target durations");
-  if (duration > target + 1 / 60)
+  if (duration > target + containerRoundingSeconds)
     throw new ChapterTimingConflictError({
       chapterId,
       targetDurationSeconds: target,

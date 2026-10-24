@@ -9,6 +9,10 @@ export interface ModelActivity {
   inputTokens: number | null;
   outputTokens: number | null;
   cachedTokens: number | null;
+  uncachedInputTokens: number | null;
+  cacheWriteTokens: number | null;
+  cacheWrite5mTokens: number | null;
+  cacheWrite1hTokens: number | null;
   costLow: number | null;
   costHigh: number | null;
   costBasis: string;
@@ -55,6 +59,10 @@ export function aggregateModels(activity: ModelActivity[]): ModelActivity[] {
         inputTokens: null,
         outputTokens: null,
         cachedTokens: null,
+        uncachedInputTokens: null,
+        cacheWriteTokens: null,
+        cacheWrite5mTokens: null,
+        cacheWrite1hTokens: null,
         costLow: null,
         costHigh: null,
         costBasis: "Known usage subtotal",
@@ -68,10 +76,14 @@ export function aggregateModels(activity: ModelActivity[]): ModelActivity[] {
       "inputTokens",
       "outputTokens",
       "cachedTokens",
+      "uncachedInputTokens",
+      "cacheWriteTokens",
+      "cacheWrite5mTokens",
+      "cacheWrite1hTokens",
       "costLow",
       "costHigh",
     ] as const) {
-      if (source[key] !== null) row[key] = (row[key] ?? 0) + source[key];
+      if (source[key] != null) row[key] = (row[key] ?? 0) + source[key];
     }
   }
   return [...rows.values()];

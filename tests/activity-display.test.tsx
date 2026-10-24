@@ -63,7 +63,7 @@ it("groups resumed model calls by film while keeping jobs, review and repair tas
     item(5, { purpose: "technical correction", text: "Fixing playback issues…" }),
   ]);
   expect(shown).toHaveLength(4);
-  expect(shown[0].children?.map((child) => child.invocationId)).toEqual(["call", "second"]);
+  expect(shown[0].children?.map((child) => child.invocationId)).toEqual(["call"]);
   expect(shown.slice(2).map((i) => i.text)).toEqual([
     "Reviewing your finished result…",
     "Fixing playback issues…",
@@ -615,3 +615,183 @@ it.each(["failed", "stopped"] as const)(
     expect(capture.children![0].children![0].status).toBe(status);
   },
 );
+
+it("shows narration in a separate group across build and correction calls, preserving tool outcomes", () => {
+  const events = [
+    {
+      id: 1,
+      type: "tool",
+      message: "create",
+      time: "2026-10-24T00:00:01Z",
+      jobId: "job",
+      runId: "project",
+      data: {
+        toolName: "mcp__narration__create_narration",
+        itemId: "create",
+        invocationId: "build",
+        purpose: "full video generation",
+      },
+    },
+    {
+      id: 2,
+      type: "tool_result",
+      message: "created",
+      time: "2026-10-24T00:00:02Z",
+      jobId: "job",
+      runId: "project",
+      data: {
+        invocationId: "build",
+        purpose: "full video generation",
+        results: [{ itemId: "create", failed: false, output: "created" }],
+      },
+    },
+    {
+      id: 3,
+      type: "mcp_tool_call",
+      message: "edit",
+      time: "2026-10-24T00:00:03Z",
+      jobId: "job",
+      runId: "project",
+      data: {
+        toolName: "narration: edit_narration",
+        itemId: "edit",
+        invocationId: "repair",
+        purpose: "pacing correction",
+      },
+    },
+    {
+      id: 4,
+      type: "tool_result",
+      message: "failed",
+      time: "2026-10-24T00:00:04Z",
+      jobId: "job",
+      runId: "project",
+      data: {
+        invocationId: "repair",
+        purpose: "pacing correction",
+        results: [{ itemId: "edit", failed: true, output: "overrun" }],
+      },
+    },
+  ];
+  const source = activityItems(events);
+  const shown = displayActivityItems([item(0), ...source]);
+  expect(shown).toHaveLength(2);
+  const group = shown.find((entry) => entry.text === "Narration")!;
+  expect(group.status).toBe("failed");
+  expect(group.children).toMatchObject([
+    { text: "Creating narration…", status: "complete" },
+    { text: "Editing narration…", status: "failed" },
+  ]);
+  expect(shown[0].children?.some((entry) => entry.capability === "narration")).toBe(false);
+  const step = roomActivityStep(group);
+  expect(step.title).toBe("Narration");
+  expect(renderToStaticMarkup(<>{step.content}</>)).toContain("Editing narration");
+  const pending = displayActivityItems(activityItems(events.slice(0, 3)));
+  expect(pending[0].status).toBe("running");
+});
+
+it("groups historical pacing calls into attempts without claiming the timing passed", () => {
+  const source = [
+    item(1, {
+      purpose: "pacing correction",
+      invocationId: "first",
+      text: "Refining the story timing…",
+    }),
+    item(2, {
+      purpose: "pacing correction",
+      invocationId: "first",
+      text: "Recording timing changes…",
+    }),
+    item(3, {
+      purpose: "pacing correction",
+      invocationId: "second",
+      correctionAttempt: 2,
+      text: "Refining the story timing…",
+    }),
+    item(4, {
+      purpose: "pacing correction",
+      invocationId: "second",
+      correctionAttempt: 2,
+      text: "Recording timing changes…",
+    }),
+    item(5, {
+      purpose: "pacing correction",
+      invocationId: "second",
+      capability: "narration",
+      text: "Editing narration…",
+    }),
+    item(6, { scope: "other-job", purpose: "pacing correction" }),
+  ];
+  const before = JSON.stringify(source);
+  const shown = displayActivityItems(source);
+  const timing = shown.find(
+    (entry) => entry.scope === "job" && entry.text === "Refining story timing",
+  )!;
+  expect(timing.status).toBeUndefined();
+  expect(timing.children).toHaveLength(2);
+  expect(timing.children?.map((entry) => entry.correctionAttempt)).toEqual([1, 2]);
+  expect(timing.children?.every((entry) => entry.status === undefined)).toBe(true);
+  expect(timing.children?.[0].children?.map((entry) => entry.text)).toEqual([
+    "Refining the story timing…",
+    "Recording timing changes…",
+  ]);
+  expect(shown.find((entry) => entry.text === "Narration")?.children).toHaveLength(1);
+  expect(shown.filter((entry) => entry.text === "Refining story timing")).toHaveLength(2);
+  expect(JSON.stringify(source)).toBe(before);
+  const pending = displayActivityItems([{ ...source[0], status: "running" as const }]);
+  expect(pending[0].status).toBe("running");
+  expect(pending[0].children?.[0].status).toBe("running");
+  expect(roomActivityStep(timing.children![0]).title).toBe("Attempt 1");
+});
+
+it("consolidates completed build labels across calls without hiding separate failures or pending work", () => {
+  const shown = displayActivityItems([
+    item(1, {
+      text: "Recording video details…",
+      invocationId: "first",
+      time: "2026-10-24T00:00:01Z",
+    }),
+    item(2, {
+      text: "Recording video details…",
+      invocationId: "second",
+      time: "2026-10-24T00:00:02Z",
+    }),
+    item(3, { text: "Recording video details…", invocationId: "failed", status: "failed" }),
+    item(4, { text: "Recording video details…", invocationId: "pending", status: "running" }),
+  ]);
+  expect(shown).toHaveLength(1);
+  expect(shown[0].children).toHaveLength(3);
+  expect(shown[0].children?.map((child) => child.status)).toEqual([
+    "failed",
+    "running",
+    "complete",
+  ]);
+  expect(shown[0].children?.find((child) => child.status === "complete")?.time).toBe(
+    "2026-10-24T00:00:02Z",
+  );
+  expect(shown[0].status).toBe("running");
+});
+
+it("starts a fresh timing group when the retry counter resets and keeps late events with their original cycle", () => {
+  const pacing = (id: number, invocationId: string, correctionAttempt: number) =>
+    item(id, {
+      purpose: "pacing correction",
+      invocationId,
+      correctionAttempt,
+      time: `2026-10-24T00:00:${String(id).padStart(2, "0")}Z`,
+    });
+  const shown = displayActivityItems([
+    ...Array.from({ length: 10 }, (_, index) => pacing(index + 1, `old-${index}`, index + 1)),
+    pacing(11, "new-first", 1),
+    pacing(12, "old-9", 10),
+    pacing(13, "new-second", 2),
+  ]);
+  expect(shown).toHaveLength(2);
+  expect(shown.every((group) => group.text === "Refining story timing")).toBe(true);
+  expect(shown[0].children?.map((attempt) => attempt.correctionAttempt)).toEqual([
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+  ]);
+  expect(shown[1].children?.map((attempt) => attempt.correctionAttempt)).toEqual([1, 2]);
+  expect(shown[0].status).toBeUndefined();
+  expect(shown[1].status).toBeUndefined();
+});

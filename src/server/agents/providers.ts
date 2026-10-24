@@ -1,3 +1,4 @@
+import { activityEventData, bindActivityCallback } from "../jobs/activity-scope";
 import { agentCapabilities } from "./capabilities/registry";
 import { styleBackgroundGuidance } from "../../shared/style-palette";
 import { ModelCapacityError } from "./capacity-error";
@@ -37,6 +38,13 @@ const capacityRetryDelaysMs = [10_000, 30_000, 60_000] as const;
 export async function agentTurn<T>(
   options: AgentTurnOptions<T>,
 ): Promise<{ value: T; sessionId?: string }> {
+  const onEvent = options.onEvent;
+  options = {
+    ...options,
+    onEvent: bindActivityCallback((event: ProviderEvent) =>
+      onEvent({ ...event, data: activityEventData(event.data) }),
+    ),
+  };
   let sessionId = options.sessionId;
   const model = options.model || models[options.provider];
   for (let attempt = 0; ; attempt++) {

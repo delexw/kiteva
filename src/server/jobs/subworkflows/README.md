@@ -197,3 +197,11 @@ The shared step allows three total planning attempts. Only structured-output val
 enter this correction path; cancellation and unrelated provider failures propagate immediately.
 The SDK response retains its session ID even when application validation rejects it. Reading a
 model response successfully is not evidence that its plan has been validated or saved.
+
+### Activity ownership
+
+Execution tracing uses `activityScope(label, async () => { ... })`, from `jobs/activity-scope.ts`. Calls inside a scope inherit its ID as their tracing parent. Wrap each retry in a fresh child scope and await work that belongs to the scope. A scope's own lifecycle sets its tracing outcome; successful tool calls alone cannot complete the enclosing operation. These boundaries do not define customer-facing activity groups.
+
+Workflow roots supply the persistence callback and cancellation signal. `activityEventData` preserves the emitting operation's scope; `bindActivityCallback` retains it across SDK and MCP callback boundaries. WorkQueue uses Node's AsyncResource to preserve context when a queued task starts under a different worker. Persistence and event transport do not assign parents or own lifecycle tracking.
+
+Persisted `activity_scope` events carry the tracing ID, parent ID, label and lifecycle state. Leaf events carry `activityScopeId` for correlation. The customer activity model hides execution-scope records and groups actual events by their named work in `client/activity-display.ts`, using the same presentation for old and new records. Preparation checkpoints, chapter progress, timing-correction attempts, narration and rendering retain their event-based groups. Repeated named actions within a group show the latest result and timestamp; execution depth never adds UI nesting. Scope-engine tests cover tracing; activity-display and browser tests cover customer grouping.

@@ -241,3 +241,48 @@ it("keeps the completed brief when a project answer adds a new material", async 
   expect(run.preparation!.checkpoints.brief?.state).toBe("completed");
   store.close();
 });
+
+it("shows and pauses for a new need in an already answered category, without reopening the old decision", async () => {
+  const store = new Store(":memory:");
+  const run = fixture();
+  run.assetQuestions![0].state = "answered";
+  run.assetQuestions![0].answer = "Keep the original approach";
+  const job = run.jobs[0];
+  job.phase = "generating";
+  job.production = {
+    pipeline: "Multiplane",
+    fallbackReason: null,
+    sourceFile: "shot.html",
+    duration: 3,
+    width: 1280,
+    height: 720,
+    styleRenderer: ["HTML"],
+    motionEngine: ["GSAP"],
+    audioDescription: "Silent",
+    limitations: [],
+    assetNeeds: [
+      {
+        mode: "blocking",
+        kind: "reference",
+        cause: "tool-capability",
+        reason: "The recording is clipped",
+        question: "Supply another recording or retain this excerpt?",
+        fallback: "Keep the excerpt",
+      },
+    ],
+  };
+  const workflow = new Workflow(store, await loadCatalog());
+  // The public start path records pending production needs, then reaches its input checkpoint.
+  await workflow.generate(run, job);
+  expect(run.assetQuestions).toHaveLength(2);
+  expect(run.assetQuestions![0].state).toBe("answered");
+  expect(run.assetQuestions![1]).toMatchObject({
+    state: "open",
+    jobId: job.id,
+    reason: "The recording is clipped",
+  });
+  expect(run.inputWaits).toEqual([
+    { checkpoint: "generate", jobId: job.id, questionIds: [run.assetQuestions![1].id] },
+  ]);
+  expect(workflow.hasActiveTasks(run)).toBe(false);
+});

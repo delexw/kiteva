@@ -49,6 +49,8 @@ async function fixture(
   const page = {
     evaluate: vi.fn().mockResolvedValue(frame),
     setViewport: vi.fn(),
+    viewport: () => ({ width: frame.width, height: frame.height }),
+    resize: vi.fn(),
     exposeFunction: vi.fn(),
     evaluateOnNewDocument: vi.fn().mockResolvedValue({ identifier: "pointer-listener" }),
     removeScriptToEvaluateOnNewDocument: vi.fn(),
@@ -276,6 +278,20 @@ it("keeps an untitled app window from showing its address in the recording title
   const f = await fixture(undefined, undefined, "");
   try {
     expect(f.page.evaluate).toHaveBeenLastCalledWith(expect.any(Function), "Application demo");
+  } finally {
+    await f.capture.close();
+    await f.cleanup();
+  }
+});
+
+it("matches the native window to the prepared viewport before recording without resetting emulation", async () => {
+  const f = await fixture({ width: 1920, height: 1080, left: 0, top: 0 });
+  try {
+    expect(f.page.resize).toHaveBeenCalledWith({ contentWidth: 1920, contentHeight: 1080 });
+    expect(f.page.setViewport).not.toHaveBeenCalled();
+    expect(vi.mocked(f.page.resize).mock.invocationCallOrder[0]).toBeLessThan(
+      vi.mocked(startNativeCaptureRecording).mock.invocationCallOrder[0],
+    );
   } finally {
     await f.capture.close();
     await f.cleanup();

@@ -1,3 +1,4 @@
+import { PromptText } from "../components/style-mention";
 import { translateUi, useUiLanguage } from "../i18n";
 import { Bubble, Sender } from "@ant-design/x";
 import { RoomFilePick } from "./room-file-card";
@@ -91,8 +92,12 @@ export function RoomQuestion({
         <Bubble
           placement="start"
           avatar={<img className="room-avatar" src="/kiteva-mark.svg" alt="" />}
-          content={question.question}
-          footer={<span className="room-hint">{question.reason}</span>}
+          content={<PromptText>{question.question}</PromptText>}
+          footer={
+            <span className="room-hint">
+              <PromptText>{question.reason}</PromptText>
+            </span>
+          }
         />
         <p className="room-hint">
           {translateUi("This part is paused until you answer. Everything else keeps going.")}
@@ -122,7 +127,9 @@ export function RoomQuestion({
           <Button disabled={busy} onClick={() => void answer(question.fallback, [])}>
             {translateUi("Use the alternative")}
           </Button>
-          <small>{question.fallback}</small>
+          <small>
+            <PromptText>{question.fallback}</PromptText>
+          </small>
         </div>
         {error && <Alert type="error" showIcon title={error} />}
       </div>

@@ -1,3 +1,4 @@
+import { PromptText } from "./style-mention";
 import { translateUi, useUiLanguage } from "../i18n";
 import { scopedAssetQuestions } from "../../shared/asset-question-scopes";
 import { validateAssetLimits } from "../../shared/asset-limits";
@@ -57,10 +58,12 @@ export function AssetQuestionCard({
   return (
     <Message from="assistant" className="asset-question-card">
       <MessageContent>
-        <p>{question.question}</p>
+        <p>
+          <PromptText>{question.question}</PromptText>
+        </p>
         <p className="asset-question-fallback">
           {translateUi("Alternative:") + " "}
-          {question.fallback}
+          <PromptText>{question.fallback}</PromptText>
         </p>
         <p className="asset-question-note">
           {translateUi("This part is paused until you answer. Everything else keeps going.")}{" "}

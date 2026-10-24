@@ -1,4 +1,7 @@
-import { requestedStyleScopeGuidance } from "../src/shared/style-combinations";
+import {
+  requestedStyleScopeGuidance,
+  selectedStyleWeightingGuidance,
+} from "../src/shared/style-combinations";
 import { randomUUID } from "node:crypto";
 import { rm } from "node:fs/promises";
 import path from "node:path";
@@ -49,6 +52,11 @@ it.each([
     const originalRequest = structuredClone(run.request);
     vi.mocked(agentTurn).mockImplementation(async (input) => {
       if (input.textOnly) return { value: { subject: "Product story" } };
+      input.onEvent({
+        type: "tool",
+        message: "Read",
+        data: { itemId: "planning-read", state: "item.completed" },
+      });
       return {
         value: {
           previewBeat: "A product appears",
@@ -56,7 +64,9 @@ it.each([
             {
               displayTitle: "Opening Fold",
               displayDescription: "A folded reveal",
-              sceneRoles: ["Act 1 only; retain Act 3 for the ending"],
+              sceneRoles: [
+                "60% emphasis for the source journey; 40% for result clarity; Act 1 only; retain Act 3 for the ending",
+              ],
               rationale: "Reveal the product through a folded composition",
             },
             {
@@ -79,6 +89,27 @@ it.each([
       expect(run.jobs.map((job) => job.kind)).toEqual(["preview", "preview"]);
       expect(run.winnerId).toBeUndefined();
       expect(run.request).toEqual(originalRequest);
+      const recorded = store.events(run.id);
+      const scopeEvents = recorded.filter((event) => event.type === "activity_scope");
+      const scopes = scopeEvents.map(
+        (event) =>
+          (
+            event.data as {
+              activityScope: { id: string; parentId?: string; label: string; state: string };
+            }
+          ).activityScope,
+      );
+      const preparationRoot = scopes.find((scope) => scope.label === "Project preparation")!;
+      const planningScope = scopes.find((scope) => scope.label === "Preview planning")!;
+      expect(planningScope.parentId).toBe(preparationRoot.id);
+      const readEvent = recorded.find(
+        (event) => event.type === "tool" && event.message === "Read",
+      )!;
+      expect(readEvent.data).toMatchObject({ activityScopeId: planningScope.id });
+      expect(
+        scopes.find((scope) => scope.id === planningScope.id && scope.state === "complete"),
+      ).toBeDefined();
+
       expect(
         run.candidates.map((candidate) => [
           candidate.primaryStyleId,
@@ -102,6 +133,11 @@ it.each([
       expect(planning.promptContext).not.toHaveProperty("styles");
       expect(JSON.stringify(planning.promptContext)).not.toContain("executable_prompt_template");
       expect(planning.prompt).toContain(requestedStyleScopeGuidance);
+      expect(planning.prompt).toContain(selectedStyleWeightingGuidance);
+      expect(JSON.stringify(planning.promptContext)).not.toContain("Primary identity");
+      expect(run.candidates[0].sceneRoles).toEqual([
+        "60% emphasis for the source journey; 40% for result clarity; Act 1 only; retain Act 3 for the ending",
+      ]);
       expect(planning.prompt).not.toContain("The duration-derived range limits");
       if (outputType === "video") {
         const prompt = buildVideoPrompt({
@@ -114,6 +150,7 @@ it.each([
           height: 720,
         });
         expect(prompt.split(requestedStyleScopeGuidance)).toHaveLength(2);
+        expect(prompt).toContain(selectedStyleWeightingGuidance);
         expect(prompt).not.toContain("COMBINATION PREVIEW:");
         expect(prompt).toContain("creative_pool.read_pool_entry");
         expect(prompt).toContain(originalRequest.instructions);

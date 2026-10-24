@@ -49,11 +49,24 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1")(
       await tools.server.connect(b);
       await client.connect(a);
       expect((await call("inspect_page", { url })).kind).toBe("inspection");
+      await call("browser_emulate", {
+        action: "viewport",
+        width: 1920,
+        height: 1080,
+        deviceScaleFactor: 1,
+      });
+      const viewport = () =>
+        call("browser_evaluate", {
+          expression: "JSON.stringify({width:innerWidth,height:innerHeight,dpr:devicePixelRatio})",
+        });
+      const before = await viewport();
+      expect(before).toMatchObject({ kind: "browser_action" });
       const start = await call("capture_video", {
         action: "start",
         presentation: { cursorTheme: "studio-ink" },
       });
       if (start.kind !== "recording_started") throw Error(JSON.stringify(start));
+      expect(await viewport()).toEqual(before);
       await call("wait_for_view", { milliseconds: 500 });
       for (const target of ["#first", "#middle", "#last"]) {
         const click = await call("browser_pointer", { action: "click", target });
@@ -82,7 +95,7 @@ it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1")(
         .parse(track.data).points;
       const clicks = points.filter((point) => point.kind === "click");
       expect(clicks).toHaveLength(3);
-      for (const [index, expectedX] of [0.1625, 0.4925, 0.8125].entries())
+      for (const [index, expectedX] of [0.146875, 0.476875, 0.796875].entries())
         expect(clicks[index].cx).toBeCloseTo(expectedX, 2);
       expect(clicks[0].cy).toBeLessThan(clicks[1].cy);
       expect(clicks[1].cy).toBeLessThan(clicks[2].cy);

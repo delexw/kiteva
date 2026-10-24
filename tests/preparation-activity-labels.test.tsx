@@ -9,6 +9,7 @@ import { RequestSchema, type Run, type AgentProgressEvent } from "../src/shared/
 import { activityItems, customerToolActivity } from "../src/client/agent-activity-model";
 import { roomActivityContexts } from "../src/client/room/project-stages";
 import { PreparationCheckpoints } from "../src/client/components/preparation-checkpoints";
+import { roomPreparationSteps } from "../src/client/room/room-activity";
 
 const preparation: PreparationState = {
   fingerprint: "fixture",
@@ -109,6 +110,40 @@ it("renders saved title-only and preview-planning events accurately without rewr
   ]);
   expect(JSON.stringify(events)).toBe(beforeEvents);
   expect(JSON.stringify(run)).toBe(beforeRun);
+});
+
+it.each(["loading", "success", "error", "abort"] as const)(
+  "nests preview planning calls under their %s checkpoint without inferring the parent outcome",
+  (status) => {
+    const completed = events.map((event) => ({
+      ...event,
+      data: { ...(event.data as object), state: "item.completed" },
+    }));
+    const context = roomActivityContexts({ ...run, phase: "preparing" }, completed)[0];
+    context.checkpoints = context.checkpoints.map((checkpoint) =>
+      checkpoint.key === "selection" ? { ...checkpoint, status } : checkpoint,
+    );
+    const before = JSON.stringify(context);
+    const grouped = roomPreparationSteps(context);
+    const planning = grouped.checkpoints.find((checkpoint) => checkpoint.key === "selection")!;
+    const title = grouped.checkpoints.find((checkpoint) => checkpoint.key === "brief")!;
+    expect(planning.status).toBe(status);
+    const html = renderToStaticMarkup(<>{planning.content}</>);
+    expect(html).toContain("Planning your requested previews…");
+    expect(html).toContain("Exploring your website for preview planning…");
+    expect(html).not.toContain("Saving the project title…");
+    expect(renderToStaticMarkup(<>{title.content}</>)).toContain("Saving the project title…");
+    expect(grouped.remaining).toEqual([]);
+    expect(JSON.stringify(context)).toBe(before);
+  },
+);
+
+it("keeps activity without a matching checkpoint visible instead of dropping or misattributing it", () => {
+  const context = roomActivityContexts(run, events)[0];
+  context.checkpoints = [];
+  expect(roomPreparationSteps(context).remaining).toEqual(context.items);
+  const jobOwned = activityItems([{ ...events[1], jobId: "job" }], true, run)[0];
+  expect(jobOwned.preparationStep).toBeUndefined();
 });
 
 it("does not relabel full-brief runs or job-owned tools as title extraction", () => {

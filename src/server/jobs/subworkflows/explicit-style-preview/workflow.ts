@@ -1,4 +1,7 @@
-import { requestedStyleScopeGuidance } from "../../../../shared/style-combinations";
+import {
+  requestedStyleScopeGuidance,
+  selectedStyleWeightingGuidance,
+} from "../../../../shared/style-combinations";
 import { z } from "zod";
 import { CandidateCopySchema } from "../../../../shared/agents/schemas/candidate-copy";
 import { ProposalSchema } from "../../../../shared/agents/schemas/proposals";
@@ -8,7 +11,7 @@ import { models } from "../../../runtime/config";
 import { manualDirection } from "../../manual-direction";
 
 export const ExplicitStylePreviewsSchema = z.object({
-  policy: z.literal("explicit-style-previews-v1"),
+  policy: z.literal("explicit-style-previews-v2"),
   candidates: z
     .array(
       ProposalSchema.shape.options.element.extend({
@@ -59,11 +62,11 @@ export async function runExplicitStylePreviewWorkflow(input: {
       candidate: base,
       previousDirections: input.previousDirections,
     },
-    prompt: `EXPLICIT-STYLE PREVIEWS: The original request and supplied styles in the input JSON are authoritative. Inspect supplied sources as needed. Choose one representative previewBeat, then plan exactly ${request.candidateCount} distinct creative executions of that same beat using the Settings-selected Motion Graphics within their requested scopes. Vary composition, storytelling, typography or motion treatment meaningfully while preserving those styles. Do not propose, score, rank or choose alternative style combinations. ${requestedStyleScopeGuidance} Describe each execution and its style roles concretely for the builder. Keep the original idea unchanged. Read input.json and available attachments when relevant. Previous directions are context for fresh executions, not a request to change the styles.`,
+    prompt: `EXPLICIT-STYLE PREVIEWS: The original request and supplied styles in the input JSON are authoritative. Inspect supplied sources as needed. Choose one representative previewBeat, then plan exactly ${request.candidateCount} distinct creative executions of that same beat using the Settings-selected Motion Graphics within their requested scopes. Vary composition, storytelling, typography or motion treatment meaningfully while preserving those styles. Do not propose, score, rank or choose alternative style combinations. ${requestedStyleScopeGuidance} ${selectedStyleWeightingGuidance} Describe each execution and its style roles concretely for the builder. Keep the original idea unchanged. Read input.json and available attachments when relevant. Previous directions are context for fresh executions, not a request to change the styles.`,
   });
   const plan = schema.parse(result.value);
   return {
-    policy: "explicit-style-previews-v1" as const,
+    policy: "explicit-style-previews-v2" as const,
     previewBeat: plan.previewBeat,
     candidates: plan.directions.map((direction) => ({
       ...manualDirection(request, styles),

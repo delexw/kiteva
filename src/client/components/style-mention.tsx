@@ -1,6 +1,8 @@
+import { parsePromptParts } from "../../shared/prompt-parts";
+import { ColorChip } from "./color-chip";
 import { Fragment } from "react";
 import { Popover } from "antd";
-import { parseStyleMentions, type MentionVariant } from "../../shared/style-mentions";
+import { type MentionVariant } from "../../shared/style-mentions";
 import { translateUi, useUiLanguage } from "../i18n";
 import { StylePickerPreview } from "./style-picker";
 import "./style-mention.css";
@@ -47,14 +49,16 @@ export function StyleMention({
   );
 }
 
-/** Interpret explicit style markup for display only; never rewrite the stored prompt. */
+/** Display style/motion mentions and hex colors without rewriting the stored prompt. */
 export function PromptText({ children }: { children: string }) {
   return (
     <span className="prompt-text">
-      {parseStyleMentions(children).map((part, index) => (
+      {parsePromptParts(children).map((part, index) => (
         <Fragment key={index}>
           {part.type === "text" ? (
             part.text
+          ) : part.type === "color" ? (
+            <ColorChip value={part.value} />
           ) : (
             <StyleMention id={part.id} name={part.name} variant={part.type} />
           )}

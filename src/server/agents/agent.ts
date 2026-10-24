@@ -22,7 +22,7 @@ export interface AgentTurnOptions<T> {
   planMode?: boolean;
   model?: string;
   textOnly?: boolean;
-  reasoningEffort?: "low" | "medium";
+  reasoningEffort?: "low" | "medium" | "high" | "xhigh";
   referenceUrls?: string[];
   enableVideoCapture?: boolean;
   captureChapterId?: string;

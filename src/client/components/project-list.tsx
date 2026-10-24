@@ -1,3 +1,4 @@
+import { PromptText } from "./style-mention";
 import { translateUi, useUiLanguage } from "../i18n";
 import { Button, Card, Empty } from "antd";
 import { Trash2, SlidersHorizontal } from "lucide-react";
@@ -48,7 +49,9 @@ export function ProjectList({
                 </h2>
               </header>
               {project.brief?.objective && (
-                <p className="recent-project-description">{project.brief.objective}</p>
+                <p className="recent-project-description">
+                  <PromptText>{project.brief.objective}</PromptText>
+                </p>
               )}
               <div className="recent-project-meta">
                 <small>{new Date(project.createdAt).toLocaleDateString()}</small>

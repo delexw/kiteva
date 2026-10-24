@@ -105,3 +105,15 @@ it("does not reinterpret provider or cancellation failures as timing conflicts",
   await expect(captureWithTimingRetries(options, capture)).rejects.toThrow();
   expect(capture).not.toHaveBeenCalled();
 });
+
+it("stops on recorder failure without consuming timing retries", async () => {
+  const options = input();
+  const capture = vi.fn(async () => {
+    throw Error("Chapter capture failed: __name is not defined");
+  });
+  await expect(captureWithTimingRetries(options, capture)).rejects.toThrow(
+    "Chapter capture failed: __name is not defined",
+  );
+  expect(capture).toHaveBeenCalledTimes(1);
+  expect(options.onEvent).not.toHaveBeenCalled();
+});

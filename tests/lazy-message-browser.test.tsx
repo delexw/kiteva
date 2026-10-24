@@ -39,7 +39,7 @@ it.skipIf(!browserExecutablePath())(
                 `<!doctype html><div id="root"></div><script type="module">
 import React,{useState}from'react';import{createRoot}from'react-dom/client';
 import{MessageResponse}from'/src/client/components/ai-elements/message.tsx';
-const text=${JSON.stringify("**An original idea**\n\n```javascript\nconst greeting = 'hello';\n```\n\n$$\nx^2 + y^2\n$$\n\n```mermaid\ngraph TD; A[Idea]-->B[Film];\n```")};
+const text=${JSON.stringify("**An original idea**\n\nPalette #87E64B and **#191919**.\n\n```javascript\nconst greeting = 'hello';\n```\n\n$$\nx^2 + y^2\n$$\n\n```mermaid\ngraph TD; A[Idea]-->B[Film];\n```")};
 function App(){const[show,setShow]=useState(false);return React.createElement('main',null,React.createElement('button',{onClick:()=>setShow(true)},'Show message'),show&&React.createElement(MessageResponse,{isAnimating:false},text));}
 createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
               );
@@ -73,6 +73,11 @@ createRoot(document.getElementById('root')).render(React.createElement(App));</s
         "An original idea",
       );
       expect(requests.some((url) => url.includes("rich-message-response"))).toBe(true);
+      expect(await page.$$eval(".prompt-color-swatch", (nodes) => nodes.length)).toBe(2);
+      expect(
+        await page.$eval(".prompt-color-swatch", (node) => getComputedStyle(node).backgroundColor),
+      ).toBe("rgb(135, 230, 75)");
+      await page.screenshot({ path: "/tmp/kiteva-message-color-chips.png" });
       expect(errors).toEqual([]);
     } finally {
       await browser.close();

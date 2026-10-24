@@ -1223,3 +1223,144 @@ it.each(["claude", "codex"] as const)(
     if (provider === "codex") expect(sdk.resume).not.toHaveBeenCalled();
   },
 );
+
+it.each(["medium", "high", "xhigh"] as const)(
+  "passes %s correction effort directly to Claude's native SDK",
+  async (reasoningEffort) => {
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "correction-effort-"));
+    sdk.query.mockImplementation(async function* () {
+      yield {
+        type: "result",
+        subtype: "success",
+        is_error: false,
+        structured_output: { message: "done" },
+        session_id: "correction-session",
+        usage: {},
+        modelUsage: {},
+      };
+    });
+    try {
+      await agentTurn({
+        provider: "claude",
+        model: "claude-haiku-5-5",
+        reasoningEffort,
+        workspace,
+        prompt: "Repair the reported layout",
+        readOnly: true,
+        schema: z.object({ message: z.literal("done") }),
+        signal: new AbortController().signal,
+        onEvent: vi.fn(),
+      });
+      expect(sdk.query.mock.calls.at(-1)?.[0].options).toMatchObject({
+        model: "claude-haiku-5-5",
+        effort: reasoningEffort,
+      });
+    } finally {
+      await rm(workspace, { recursive: true, force: true });
+    }
+  },
+);
+
+it("preserves the SDK's raw cache-duration counters and cumulative per-model usage in logs", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "sdk-cache-usage-"));
+  const usage = {
+    input_tokens: 10,
+    output_tokens: 20,
+    cache_read_input_tokens: 1000,
+    cache_creation_input_tokens: 300,
+    cache_creation: { ephemeral_5m_input_tokens: 100, ephemeral_1h_input_tokens: 200 },
+  };
+  const modelUsage = {
+    "claude-opus-5-5": {
+      inputTokens: 50,
+      outputTokens: 80,
+      cacheReadInputTokens: 4000,
+      cacheCreationInputTokens: 900,
+      costUSD: 0.1,
+    },
+  };
+  sdk.query.mockImplementation(async function* () {
+    yield {
+      type: "result",
+      subtype: "success",
+      is_error: false,
+      structured_output: { message: "done" },
+      session_id: "usage-session",
+      usage,
+      modelUsage,
+      total_cost_usd: 0.1,
+    };
+  });
+  const onEvent = vi.fn();
+  try {
+    await agentTurn({
+      provider: "claude",
+      model: "claude-opus-5-5",
+      workspace,
+      prompt: "Report completion",
+      readOnly: true,
+      schema: z.object({ message: z.literal("done") }),
+      signal: new AbortController().signal,
+      onEvent,
+    });
+    expect(onEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "usage",
+        data: expect.objectContaining({ usage, modelUsage, cost: 0.1, sessionId: "usage-session" }),
+      }),
+    );
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
+  }
+});
+
+it("forces five-minute SDK caching above inherited one-hour CLI settings without changing the parent environment", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "sdk-cache-ttl-"));
+  const keys = [
+    "CLAUDE_CODE_PROMPT_CACHE_TTL",
+    "CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL",
+    "ENABLE_PROMPT_CACHING_1H",
+    "FORCE_PROMPT_CACHING_5M",
+  ] as const;
+  const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  process.env.CLAUDE_CODE_PROMPT_CACHE_TTL = "1h";
+  process.env.CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL = "1h";
+  process.env.ENABLE_PROMPT_CACHING_1H = "1";
+  process.env.FORCE_PROMPT_CACHING_5M = "0";
+  sdk.query.mockImplementation(async function* () {
+    yield {
+      type: "result",
+      subtype: "success",
+      is_error: false,
+      structured_output: { message: "done" },
+      session_id: "ttl-session",
+      usage: {},
+      modelUsage: {},
+    };
+  });
+  try {
+    await agentTurn({
+      provider: "claude",
+      model: "claude-opus-5-5",
+      workspace,
+      prompt: "Use the configured cache lifetime",
+      readOnly: true,
+      schema: z.object({ message: z.literal("done") }),
+      signal: new AbortController().signal,
+      onEvent: vi.fn(),
+    });
+    expect(sdk.query.mock.calls.at(-1)?.[0].options).toMatchObject({
+      settings: { promptCacheTtl: "5m", subagentPromptCacheTtl: "5m" },
+      env: { FORCE_PROMPT_CACHING_5M: "1" },
+    });
+    expect(process.env.CLAUDE_CODE_PROMPT_CACHE_TTL).toBe("1h");
+    expect(process.env.CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL).toBe("1h");
+    expect(process.env.FORCE_PROMPT_CACHING_5M).toBe("0");
+  } finally {
+    for (const key of keys) {
+      if (previous[key] === undefined) delete process.env[key];
+      else process.env[key] = previous[key];
+    }
+    await rm(workspace, { recursive: true, force: true });
+  }
+});

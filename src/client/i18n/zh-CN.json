@@ -1100,5 +1100,19 @@
   "Remove item": "删除此项",
   "Item text": "此项文本",
   "Add script item": "添加脚本项",
-  "Use timed script items": "改用分段脚本"
+  "Use timed script items": "改用分段脚本",
+  "Total input tokens": "输入总量",
+  "Uncached input": "非缓存输入",
+  "Cache reads": "缓存读取",
+  "Cache writes": "缓存写入",
+  "Standard API equivalent": "标准 API 等价费用",
+  "Standard API equivalent · cache/context range": "标准 API 等价费用 · 缓存/上下文范围",
+  "Costs are estimates, not invoices. SDK session token counters are differenced across continued sessions, so earlier turns are counted once. Supported Claude models use published API rates with cache-write durations; missing cache durations and Haiku request lengths produce cost ranges. Other models retain the reported SDK estimate. GPT costs show standard short/long-context API-equivalent bounds; subscriptions, fast tiers, discounts and infrastructure costs are excluded. Unpriced models remain unavailable. Cached summaries add no new model spend. Older extraction and ranking usage cannot be reconstructed. Totals include retained project records only, excluding deleted projects and separate catalog demo generation.": "费用是估算，不是账单。SDK 会话累计 token 按续接前后的增量计费，避免重复。已支持的 Claude 模型使用公开 API 价格及缓存写入有效期；缺失缓存有效期或 Haiku 单请求长度时显示范围。其他模型保留 SDK 估算。GPT 显示标准短/长上下文 API 等价费用范围；不含订阅、快速模式、折扣和基础设施费用。未定价模型保持未知。汇总仅包含保留的项目记录。",
+  "Duration is wall-clock time from project creation to the latest completed phase, including waits and retries. Input totals include cache reads/writes; cached input is a subset. Tool starts, updates and results count once per unique tool ID. Invocations are SDK turns, not individual API requests. Failed or cancelled invocations may lack a final usage report. Cache reads and cache writes are input tokens. Cache-write durations are shown when returned by the SDK; missing values remain unknown. Output tokens have no separate cache category.": "用时指从项目创建到最近完成阶段的实际时间，包含等待和重试。输入总量包括缓存读取和写入。工具按唯一 ID 计数；调用次数指 SDK 轮次，并非单独的 API 请求。失败或取消的调用可能缺少最终用量。缓存读取和写入都属于输入；SDK 返回缓存写入有效期时会分别显示，缺失数据保持未知。输出 token 没有单独的缓存类别。",
+  "Narration": "旁白",
+  "Creating narration…": "正在生成旁白…",
+  "Editing narration…": "正在编辑旁白…",
+  "Refining story timing": "调整故事节奏",
+  "Attempt {{attempt}}": "第 {{attempt}} 次尝试",
+  "Edit color {{color}}": "编辑颜色 {{color}}"
 }

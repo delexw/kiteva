@@ -1,3 +1,4 @@
+import { AsyncResource } from "node:async_hooks";
 export class WorkQueue {
   private active = 0;
   private tasks: Array<{
@@ -8,7 +9,11 @@ export class WorkQueue {
   constructor(private limit: number) {}
   run<T>(task: () => Promise<T>): Promise<T> {
     return new Promise((resolve, reject) => {
-      this.tasks.push({ task, resolve: resolve as (v: unknown) => void, reject });
+      this.tasks.push({
+        task: AsyncResource.bind(task),
+        resolve: resolve as (v: unknown) => void,
+        reject,
+      });
       this.pump();
     });
   }

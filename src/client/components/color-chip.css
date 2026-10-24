@@ -1,0 +1,28 @@
+.prompt-color-chip {
+  display: inline-flex;
+  vertical-align: baseline;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.05em 0.35em;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: 0.35em;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+}
+button.prompt-color-chip {
+  cursor: pointer;
+}
+.prompt-color-chip:focus-visible {
+  outline: 2px solid var(--ant-color-primary);
+  outline-offset: 2px;
+}
+.prompt-color-swatch {
+  display: inline-block;
+  flex: none;
+  width: 1.2em;
+  height: 0.8em;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  border-radius: 2px;
+}

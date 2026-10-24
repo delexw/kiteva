@@ -8,7 +8,7 @@ import {
   isRendererProgressEvent,
   type RenderProgress,
 } from "./render-progress";
-import { usesTitleOnlyPreparation } from "../shared/preparation";
+import { usesTitleOnlyPreparation, type PreparationStep } from "../shared/preparation";
 import { terminalPhases, type AgentProgressEvent, type Run } from "../shared/contracts";
 export interface ActivityItem {
   id: number;
@@ -18,7 +18,11 @@ export interface ActivityItem {
   text: string;
   time: string;
   itemId?: string;
+  capability?: "narration";
+  correctionAttempt?: number;
   purpose?: string;
+  preparationStep?: PreparationStep;
+  activityScopeId?: string;
   invocationId?: string;
   streaming?: boolean;
   retryable?: boolean;
@@ -31,34 +35,48 @@ export interface ActivityItem {
   captureTiming?: CaptureChapterTiming;
   status?: "running" | "complete" | "failed" | "stopped";
 }
-export const taskActivityLabels: Record<string, { working: string; saving: string }> = {
+export const taskActivityLabels: Record<
+  string,
+  { working: string; saving: string; preparationStep?: PreparationStep }
+> = {
   "Footage chapter capture": { working: "Capturing footage…", saving: "Saving captured chapter…" },
   "Project title extraction": {
+    preparationStep: "brief",
     working: "Extracting your project title…",
     saving: "Saving the project title…",
   },
   "Explicit-style preview planning": {
+    preparationStep: "selection",
     working: "Planning your requested previews…",
     saving: "Saving the preview directions…",
   },
-  "Brief preparation": { working: "Preparing your brief…", saving: "Saving the draft brief…" },
+  "Brief preparation": {
+    preparationStep: "brief",
+    working: "Preparing your brief…",
+    saving: "Saving the draft brief…",
+  },
   "Brief asset self-review": {
+    preparationStep: "brief",
     working: "Checking references against your story…",
     saving: "Recording review findings…",
   },
   "Brief asset alignment repair": {
+    preparationStep: "brief",
     working: "Revising reference usage…",
     saving: "Saving the revised brief…",
   },
   "Motion Graphic information extraction": {
+    preparationStep: "styles",
     working: "Understanding Motion Graphics…",
     saving: "Recording Motion Graphic details…",
   },
   "Motion Graphic combination proposals": {
+    preparationStep: "proposals",
     working: "Exploring Motion Graphic combinations…",
     saving: "Saving proposed combinations…",
   },
   "Combination evaluation": {
+    preparationStep: "selection",
     working: "Comparing creative directions…",
     saving: "Recording direction choices…",
   },
@@ -67,6 +85,7 @@ export const taskActivityLabels: Record<string, { working: string; saving: strin
     saving: "Saving translated video text…",
   },
   "Lyrics generation": {
+    preparationStep: "lyrics",
     working: "Writing your on-screen text…",
     saving: "Saving your on-screen text…",
   },
@@ -120,6 +139,8 @@ export const taskActivityLabels: Record<string, { working: string; saving: strin
   },
 };
 export function customerToolActivity(name: string, type: string, purpose?: string): string {
+  if (/narration.*create_narration/.test(name)) return "Creating narration…";
+  if (/narration.*edit_narration/.test(name)) return "Editing narration…";
   if (/react_bits.*search_components/.test(name)) return "Exploring visual components…";
   if (/react_bits.*read_component/.test(name)) return "Checking a visual component…";
   if (/react_bits.*install_component/.test(name)) return "Adding a visual component…";
@@ -146,6 +167,8 @@ export function mergeProgressItems(
   item: ActivityItem,
 ): ActivityItem | undefined {
   if (
+    previous.activityScopeId ||
+    item.activityScopeId ||
     previous.captureTiming ||
     item.captureTiming ||
     previous.scope !== item.scope ||
@@ -190,16 +213,20 @@ export function activityItems(
     seen.add(event.id);
     const data = { ...(event.data as object | undefined) } as {
       itemId?: string;
+      activityScopeId?: string;
       audience?: "customer" | "internal";
       state?: string;
       toolName?: string;
       purpose?: string;
       invocationId?: string;
+      correctionAttempt?: number;
       captureProgress?: unknown;
       captureTiming?: unknown;
       captureChapter?: { chapterId: string; title: string; index: number; total: number };
       results?: { itemId: string; failed: boolean; output: string }[];
     };
+    // Execution scopes are tracing metadata, not customer activity groups.
+    if (event.type === "activity_scope") continue;
     // Older title-only invocations were emitted with the full-brief default purpose.
     if (
       !event.jobId &&
@@ -220,7 +247,8 @@ export function activityItems(
     const ownsInvocation = (item: ActivityItem) =>
       item.scope === scope &&
       item.purpose === data.purpose &&
-      item.invocationId === data.invocationId;
+      item.invocationId === data.invocationId &&
+      item.activityScopeId === data.activityScopeId;
     const latest = (kind: ActivityItem["kind"]) =>
       items
         .slice()
@@ -241,7 +269,14 @@ export function activityItems(
         time: event.time,
         itemId: data.itemId,
         purpose: data.purpose,
+        activityScopeId: data.activityScopeId,
+        preparationStep: !event.jobId
+          ? event.type === "reference_capture"
+            ? "inputs"
+            : taskActivityLabels[data.purpose || ""]?.preparationStep
+          : undefined,
         invocationId: data.invocationId,
+        correctionAttempt: data.correctionAttempt,
         captureChapterId: data.captureChapter?.chapterId,
         captureChapterTitle: data.captureChapter?.title,
         captureChapterIndex: data.captureChapter?.index,
@@ -329,6 +364,8 @@ export function activityItems(
         continue;
       }
       const item = prior || add("tool", customerToolActivity(name, event.type, data.purpose));
+      if (/narration.*(?:create_narration|edit_narration)/.test(name))
+        item.capability = "narration";
       item.status = data.state === "item.completed" ? "complete" : "running";
       continue;
     }

@@ -3,6 +3,29 @@ import { RequestSchema } from "../src/shared/contracts";
 import { manualStyleLimit, normalizeStyleSelection } from "../src/shared/style-selection";
 import { manualDirection } from "../src/server/jobs/manual-direction";
 import { loadCatalog } from "../src/server/catalog/catalog";
+import { selectedStyleWeightingGuidance } from "../src/shared/style-combinations";
+
+it("leaves manual style emphasis to idea-led planning rather than selection order", async () => {
+  const { styles } = await loadCatalog();
+  const ids = styles.slice(0, 2).map((style) => style.id);
+  const makeDirection = (selectedStyleIds: string[]) =>
+    manualDirection(
+      RequestSchema.parse({
+        instructions: "Explain a workflow; let the audience's needs determine visual emphasis.",
+        selectedStyleIds,
+        candidateCount: 0,
+      }),
+      styles,
+    );
+  const forward = makeDirection(ids);
+  const reverse = makeDirection([...ids].reverse());
+  expect(forward.sceneRoles).toEqual([...reverse.sceneRoles].reverse());
+  expect(forward.sceneRoles.join(" ")).not.toMatch(
+    /Primary identity|Supporting visual contribution/,
+  );
+  expect(forward.rationale).toContain(selectedStyleWeightingGuidance);
+  expect(forward.rationale).toContain("Selection order does not determine importance");
+});
 it.each([
   { candidateCount: 2, selectedStyleIds: ["style-056"] },
   { candidateCount: 0, selectedStyleIds: ["style-056"] },

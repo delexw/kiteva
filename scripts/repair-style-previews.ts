@@ -1,3 +1,4 @@
+import { mergeCorrection, correctionMergeGuidance } from "../src/server/agents/correction-merge";
 import { linkWorkspaceDirectory } from "../src/server/runtime/workspace-links";
 import { existsSync } from "node:fs";
 import {
@@ -105,6 +106,14 @@ async function main() {
           () => "",
         );
         await writeFile(path.join(folder, "index.before-repair.txt"), originalHtml);
+        let previousProduction: unknown;
+        try {
+          previousProduction = JSON.parse(
+            await readFile(path.join(folder, "production.json"), "utf8"),
+          );
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+        }
         let sessionId: string | undefined;
         try {
           const saved = JSON.parse(await readFile(path.join(folder, "repair-review.json"), "utf8"));
@@ -154,11 +163,11 @@ async function main() {
                     : {}),
                 });
               },
-              promptContext: { previousFailure: problem },
+              promptContext: { previousFailure: problem, currentManifest: previousProduction },
               prompt: nativeAuthoring
                 ? reviewedStylePreviewPrompt(
                     style,
-                    "Read previousFailure from the required input JSON",
+                    `Read previousFailure from the required input JSON. ${correctionMergeGuidance}`,
                   )
                 : `Repair and author this style's 3-second SILENT motion preview. Read ILLUSTRATION.png with Read to inspect the actual artwork, ILLUSTRATION.svg, STYLE.json and index.html before editing. Style ${style.id}. Preserve the distinctive illustrated scene, all wording and full composition; do not substitute a generic template. Honor explicitly approved colors and material roles. Follow palette.background_policy: catalog swatches are optional for scene_dependent palettes, not mandatory canvas colors. Choose a coherent scene palette and check actual composited contrast. Do not use Blender, Python bpy, Cycles or EEVEE; choose appropriate available tools from TECHNOLOGY_POOL.json. Fix index.html directly. Root standalone data-composition-id="video", width1280 height720 duration3 fps30, register ONE paused GSAP timeline at window.__timelines.video after constructing it; local gsap.min.js and chroma.min.js available. Keep animations seekable and deterministic; no clocks, network or perpetual loops. Choose substantial coherent illustrated objects and meaningful lettering. Strong visible reveals, drawing where paths are truly stroked/unfilled, bounded pose changes within panels/contact points, and purposeful staging. Do not animate the full canvas/background, decorative noise or unrelated tiny elements merely to pass the test. Target at least 8% visibly changing pixels at card size, reaching the complete readable authored scene by2.7s. Preserve SVG authored transforms using neutral wrappers. Actor IDs must really exist and must not be removed during typography preparation; layered Pop Art shadow/lettering are deliberate separate actors, do not deduplicate selected layers. Fix contrast against each label's actual local background using the resolved scene palette while preserving explicitly approved colors; global foreground may be identical to a colored panel! Fix text fit through sizing/position/line breaks without deleting copy. Treat deliberate outlined/offset display-letter layering as intentional only on the specific affected labels, never suppress audits on root or blanket-mark content. Never disable contrast/runtime/layout validation, add data-no-timeline, remove the timeline guard, or hide text. For line drawing, inspect the selected actor's actual fill/stroke, not its name. Return a plan matching the actual chosen actors and motion in the edited HTML plus concise repair notes. Only use approved motion reference IDs from STYLE.json, or no references. Do not run render/browser tests or install anything; the host runs check/render and feeds actual failures back. Current failure: Read previousFailure from the required input JSON.`,
             });
@@ -176,10 +185,13 @@ async function main() {
               JSON.stringify({ model: models.claude, sessionId, ...result.value }, null, 2),
             );
             const started = Date.now();
+            const mergedProduction = nativeAuthoring
+              ? mergeCorrection(previousProduction, result.value.production, ProductionSchema)
+              : undefined;
             const production = reviewedStack
-              ? validateReviewedStyleProduction(result.value.production, style)
+              ? validateReviewedStyleProduction(mergedProduction, style)
               : nativeAuthoring
-                ? ProductionSchema.parse(result.value.production)
+                ? ProductionSchema.parse(mergedProduction)
                 : ProductionSchema.parse({
                     pipeline: "HyperFrames",
                     fallbackReason: null,
@@ -194,6 +206,7 @@ async function main() {
                       "Illustration-led vector motion study authored by Claude Opus 5.5.",
                     ],
                   });
+            previousProduction = production;
             await writeFile(
               path.join(folder, "production.json"),
               JSON.stringify(production, null, 2),

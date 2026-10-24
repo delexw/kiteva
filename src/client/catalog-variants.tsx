@@ -1,3 +1,4 @@
+import { PromptText } from "./components/style-mention";
 import { translateUi, useUiLanguage } from "./i18n";
 import type { MotionGraphicVariant, MotionVariant } from "../shared/contracts";
 import { motionGraphicVariantPolicy, motionVariantPolicy } from "../shared/catalog-variants";
@@ -16,7 +17,9 @@ export function MotionGraphicVariants({ variants }: { variants?: MotionGraphicVa
       {variants.map((variant) => (
         <article className="motion-graphic-variant" key={variant.id} data-variant-id={variant.id}>
           <h4>{translateUi(variant.name)}</h4>
-          <p>{translateUi(variant.summary)}</p>
+          <p>
+            <PromptText>{translateUi(variant.summary)}</PromptText>
+          </p>
           {variant.illustrative_swatches.length > 0 && (
             <div
               className="motion-graphic-variant-swatches"
@@ -57,22 +60,28 @@ export function MotionGraphicVariants({ variants }: { variants?: MotionGraphicVa
             </div>
           )}
           <p>
-            <strong>{translateUi("Use when:")}</strong> {translateUi(variant.use_when)}
+            <strong>{translateUi("Use when:")}</strong>{" "}
+            <PromptText>{translateUi(variant.use_when)}</PromptText>
           </p>
           <h5>{translateUi("Visual")}</h5>
           <ul>
             {variant.visual_guidance.map((line) => (
-              <li key={line}>{translateUi(line)}</li>
+              <li key={line}>
+                <PromptText>{translateUi(line)}</PromptText>
+              </li>
             ))}
           </ul>
           <h5>{translateUi("Animation")}</h5>
           <ul>
             {variant.animation_guidance.map((line) => (
-              <li key={line}>{translateUi(line)}</li>
+              <li key={line}>
+                <PromptText>{translateUi(line)}</PromptText>
+              </li>
             ))}
           </ul>
           <p>
-            <strong>{translateUi("Palette:")}</strong> {translateUi(variant.palette_guidance)}
+            <strong>{translateUi("Palette:")}</strong>{" "}
+            <PromptText>{translateUi(variant.palette_guidance)}</PromptText>
           </p>
           {variant.paired_motion_ids.length > 0 && (
             <p>
@@ -96,7 +105,9 @@ export function MotionVariantList({ variants }: { variants?: MotionVariant[] }) 
       {variants.map((variant) => (
         <article key={variant.id} data-variant-id={variant.id}>
           <h4>{translateUi(variant.name)}</h4>
-          <p>{translateUi(variant.summary)}</p>
+          <p>
+            <PromptText>{translateUi(variant.summary)}</PromptText>
+          </p>
           <p className="example-disclaimer">
             {translateUi("Shown in the preview from") + " "}
             {variant.preview_window_seconds[0].toFixed(1)}
@@ -104,7 +115,9 @@ export function MotionVariantList({ variants }: { variants?: MotionVariant[] }) 
           </p>
           <ol>
             {variant.motion_sequence.map((step) => (
-              <li key={step}>{translateUi(step)}</li>
+              <li key={step}>
+                <PromptText>{translateUi(step)}</PromptText>
+              </li>
             ))}
           </ol>
         </article>

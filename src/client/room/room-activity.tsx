@@ -72,6 +72,16 @@ export function roomActivityStep(
   item: DisplayActivityItem,
   retry?: ActivityRetry,
 ): ThoughtChainItemType {
+  if (item.kind === "message")
+    return {
+      key: String(item.id),
+      content: (
+        <MessageResponse isAnimating={Boolean(item.streaming)} controls={false}>
+          {item.text}
+        </MessageResponse>
+      ),
+      description: <ActivityRowTime time={item.time} />,
+    };
   return {
     key: String(item.id),
     title:
@@ -87,7 +97,7 @@ export function roomActivityStep(
         items={item.children.map((child) => roomActivityStep(child, retry))}
       />
     ) : undefined,
-    description: <ActivityRowTime time={item.children?.length ? undefined : item.time} />,
+    description: item.children?.length ? undefined : <ActivityRowTime time={item.time} />,
     status: item.status ? stepStatus[item.status] : undefined,
     icon:
       retry?.itemId === item.id ? (
@@ -103,33 +113,15 @@ export function roomActivityStep(
       ),
   };
 }
-function ContextDetail({
-  context,
-  retry,
-}: {
-  context: RoomActivityContext;
-  retry?: ActivityRetry;
-}) {
-  useUiLanguage();
+function ContextEntries({ items, retry }: { items: ActivityItem[]; retry?: ActivityRetry }) {
   const runs: Array<DisplayActivityItem | DisplayActivityItem[]> = [];
-  for (const item of displayActivityItems(context.items)) {
+  for (const item of displayActivityItems(items)) {
     const last = runs.at(-1);
     if (item.kind !== "message" && Array.isArray(last)) last.push(item);
     else runs.push(item.kind === "message" ? item : [item]);
   }
   return (
-    <div className="room-activity-detail">
-      {context.checkpoints.length > 0 && (
-        <ThoughtChain
-          line="dashed"
-          className="room-activity-steps"
-          items={context.checkpoints.map((item) => ({
-            ...item,
-            title: typeof item.title === "string" ? translateUi(item.title) : item.title,
-            description: item.description ?? <ActivityRowTime />,
-          }))}
-        />
-      )}
+    <>
       {runs.map((entry) =>
         Array.isArray(entry) ? (
           <ThoughtChain
@@ -154,6 +146,53 @@ function ContextDetail({
           />
         ),
       )}
+    </>
+  );
+}
+
+/** Checkpoint state owns the parent outcome; finished child calls do not complete it. */
+export function roomPreparationSteps(context: RoomActivityContext, retry?: ActivityRetry) {
+  const checkpointKeys = new Set(context.checkpoints.map((checkpoint) => checkpoint.key));
+  const nested = new Map<string, ActivityItem[]>();
+  const remaining: ActivityItem[] = [];
+  for (const item of context.items) {
+    if (item.preparationStep && checkpointKeys.has(item.preparationStep)) {
+      const children = nested.get(item.preparationStep) || [];
+      children.push(item);
+      nested.set(item.preparationStep, children);
+    } else remaining.push(item);
+  }
+  return {
+    checkpoints: context.checkpoints.map((checkpoint) => ({
+      ...checkpoint,
+      title:
+        typeof checkpoint.title === "string" ? translateUi(checkpoint.title) : checkpoint.title,
+      description: checkpoint.description ?? <ActivityRowTime />,
+      content: nested.has(String(checkpoint.key)) ? (
+        <ContextEntries items={nested.get(String(checkpoint.key))!} retry={retry} />
+      ) : (
+        checkpoint.content
+      ),
+    })),
+    remaining,
+  };
+}
+
+function ContextDetail({
+  context,
+  retry,
+}: {
+  context: RoomActivityContext;
+  retry?: ActivityRetry;
+}) {
+  useUiLanguage();
+  const { checkpoints, remaining } = roomPreparationSteps(context, retry);
+  return (
+    <div className="room-activity-detail">
+      {checkpoints.length > 0 && (
+        <ThoughtChain line="dashed" className="room-activity-steps" items={checkpoints} />
+      )}
+      <ContextEntries items={remaining} retry={retry} />
     </div>
   );
 }

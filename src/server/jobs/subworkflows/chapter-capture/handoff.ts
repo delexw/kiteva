@@ -17,6 +17,7 @@ export const ChapterResultSchema = z.object({
 export const ChapterCaptureResponseSchema = z.object({
   outcome: z.union([
     ChapterResultSchema,
+    z.object({ captureFailure: z.object({ reason: text }) }),
     z.object({
       timingConflict: z.object({
         requiredDurationSeconds: z.number().finite().positive(),

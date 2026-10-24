@@ -40,6 +40,8 @@ React.createElement(MotionMentionsContext,{value:[{id:'motion-036',name_en:'Glit
 React.createElement('button',{id:'save',onClick:()=>setSaved(value)},'Save'),
 React.createElement('button',{id:'restore',onClick:()=>{setValue(saved);setVersion(v=>v+1)}},'Restore'),
 React.createElement('button',{id:'external',onClick:()=>setValue('External <style id="style-136">Manga Production Theatre</style> end')},'External update'),
+React.createElement('button',{id:'reset',onClick:()=>{setValue('Act 1: ');setVersion(v=>v+1)}},'Reset'),
+React.createElement('button',{id:'colors',onClick:()=>setValue('Palette #87E64B and #FFF5ED')},'Color palette'),
 React.createElement('output',{id:'state'},value),React.createElement('output',{id:'saved'},saved),React.createElement('output',{id:'submitted'},submitted));}
 createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
               );
@@ -63,6 +65,42 @@ createRoot(document.getElementById('root')).render(React.createElement(App));</s
       await page.goto(`${server.resolvedUrls!.local[0]}style-mention-test`);
       const editor = '[contenteditable="true"][role="textbox"]';
       await page.waitForSelector(editor);
+      await page.click("#colors");
+      await page.waitForFunction(
+        () => document.querySelectorAll(".prompt-color-chip").length === 2,
+      );
+      const swatch = await page.$eval(".prompt-color-swatch", (el) => ({
+        color: getComputedStyle(el).backgroundColor,
+        width: el.getBoundingClientRect().width,
+        height: el.getBoundingClientRect().height,
+      }));
+      expect(swatch.color).toBe("rgb(135, 230, 75)");
+      expect(swatch.width).toBeGreaterThan(swatch.height);
+      await page.click("button.prompt-color-chip");
+      await page.waitForSelector(".ant-color-picker-panel", { visible: true });
+      await page.screenshot({ path: "/tmp/kiteva-color-picker.png" });
+      await page.waitForSelector(".ant-color-picker-hex-input input", { visible: true });
+      await page.focus(".ant-color-picker-hex-input input");
+      await page.keyboard.press("Home");
+      await page.keyboard.down("Shift");
+      await page.keyboard.press("End");
+      await page.keyboard.up("Shift");
+      await page.keyboard.type("123456");
+      await page.screenshot({ path: "/tmp/kiteva-color-picker-edited.png" });
+      await page.keyboard.press("Enter");
+      await page.waitForFunction(
+        () => document.querySelector("#state")?.textContent === "Palette #123456 and #FFF5ED",
+      );
+      await page.click("#save");
+      await page.click("#restore");
+      await page.waitForFunction(
+        () => document.querySelectorAll(".prompt-color-chip").length === 2,
+      );
+      expect(await page.$eval("#state", (el) => el.textContent)).toBe(
+        "Palette #123456 and #FFF5ED",
+      );
+      await page.screenshot({ path: "/tmp/kiteva-color-chips.png" });
+      await page.click("#reset");
       const initialBox = await (await page.$(editor))!.boundingBox();
       expect(initialBox).not.toBeNull();
       expect(await page.$eval(editor, (el) => getComputedStyle(el).resize)).toBe("vertical");

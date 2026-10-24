@@ -1100,5 +1100,19 @@
   "Remove item": "Remove item",
   "Item text": "Item text",
   "Add script item": "Add script item",
-  "Use timed script items": "Use timed script items"
+  "Use timed script items": "Use timed script items",
+  "Total input tokens": "Total input tokens",
+  "Uncached input": "Uncached input",
+  "Cache reads": "Cache reads",
+  "Cache writes": "Cache writes",
+  "Standard API equivalent": "Standard API equivalent",
+  "Standard API equivalent · cache/context range": "Standard API equivalent · cache/context range",
+  "Costs are estimates, not invoices. SDK session token counters are differenced across continued sessions, so earlier turns are counted once. Supported Claude models use published API rates with cache-write durations; missing cache durations and Haiku request lengths produce cost ranges. Other models retain the reported SDK estimate. GPT costs show standard short/long-context API-equivalent bounds; subscriptions, fast tiers, discounts and infrastructure costs are excluded. Unpriced models remain unavailable. Cached summaries add no new model spend. Older extraction and ranking usage cannot be reconstructed. Totals include retained project records only, excluding deleted projects and separate catalog demo generation.": "Costs are estimates, not invoices. SDK session token counters are differenced across continued sessions, so earlier turns are counted once. Supported Claude models use published API rates with cache-write durations; missing cache durations and Haiku request lengths produce cost ranges. Other models retain the reported SDK estimate. GPT costs show standard short/long-context API-equivalent bounds; subscriptions, fast tiers, discounts and infrastructure costs are excluded. Unpriced models remain unavailable. Cached summaries add no new model spend. Older extraction and ranking usage cannot be reconstructed. Totals include retained project records only, excluding deleted projects and separate catalog demo generation.",
+  "Duration is wall-clock time from project creation to the latest completed phase, including waits and retries. Input totals include cache reads/writes; cached input is a subset. Tool starts, updates and results count once per unique tool ID. Invocations are SDK turns, not individual API requests. Failed or cancelled invocations may lack a final usage report. Cache reads and cache writes are input tokens. Cache-write durations are shown when returned by the SDK; missing values remain unknown. Output tokens have no separate cache category.": "Duration is wall-clock time from project creation to the latest completed phase, including waits and retries. Input totals include cache reads/writes; cached input is a subset. Tool starts, updates and results count once per unique tool ID. Invocations are SDK turns, not individual API requests. Failed or cancelled invocations may lack a final usage report. Cache reads and cache writes are input tokens. Cache-write durations are shown when returned by the SDK; missing values remain unknown. Output tokens have no separate cache category.",
+  "Narration": "Narration",
+  "Creating narration…": "Creating narration…",
+  "Editing narration…": "Editing narration…",
+  "Refining story timing": "Refining story timing",
+  "Attempt {{attempt}}": "Attempt {{attempt}}",
+  "Edit color {{color}}": "Edit color {{color}}"
 }

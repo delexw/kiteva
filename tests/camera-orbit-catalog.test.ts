@@ -9,9 +9,16 @@ const hash = (value: unknown) => createHash("sha256").update(JSON.stringify(valu
 // Later, separately reviewed additions (mg-frame-findings): new motions, their style links,
 // optional motion variants and optional Motion Graphic variants. Stripping only these keeps
 // the orbit review's original hashes meaningful for all prior content.
-const laterMotionIds = ["motion-044", "motion-045", "motion-046", "motion-047", "motion-048"];
+const laterMotionIds = [
+  "motion-044",
+  "motion-045",
+  "motion-046",
+  "motion-047",
+  "motion-048",
+  "motion-049",
+];
 // Motion Graphics authored after the orbit review were not part of it and must not claim motion-043.
-const laterStyleIds = ["style-137", "style-138", "style-139", "style-140"];
+const laterStyleIds = ["style-137", "style-138", "style-139", "style-140", "style-141"];
 // The user-directed Manga crew revision postdates the orbit review. Keep its
 // historical evidence unchanged and verify the revised metadata separately.
 const laterMetadataHashes: Record<string, string> = {

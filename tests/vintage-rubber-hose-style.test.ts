@@ -51,7 +51,7 @@ const generationText = (style: Awaited<ReturnType<typeof styleOf>>) => [
 describe("Vintage Rubber Hose Animation metadata contract", () => {
   it("adds one authored style-140 with a name distinct from style-034 and the prior styles intact", async () => {
     const catalog = await loadCatalog();
-    expect(catalog.styles).toHaveLength(140);
+    expect(catalog.styles).toHaveLength(141);
     const style = await styleOf();
     expect(style.name_en).toBe("Vintage Rubber Hose Animation");
     expect(style.category).toBe("Animation Techniques");

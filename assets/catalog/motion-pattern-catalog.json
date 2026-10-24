@@ -1,7 +1,7 @@
 {
   "metadata": {
     "schema_version": "1.0",
-    "pattern_count": 48,
+    "pattern_count": 49,
     "language": "en",
     "description": "Reusable motion and interaction patterns that can supplement the separate visual-style catalog.",
     "interpretation_note": "The supplied reference images show titles rather than complete motion sequences. These entries propose adaptable interpretations; they do not claim to reproduce an observed original animation or its toolchain.",
@@ -5210,6 +5210,126 @@
         "exact_hex_from_source": false,
         "review_model": "claude-opus-5-5",
         "review_session_id": "1a123899-b189-4855-a8af-24cc095da54b"
+      }
+    },
+    {
+      "id": "motion-049",
+      "name": "Step-Tick Slot Refill",
+      "category": "data_sequence",
+      "description": "A fixed set of slot lanes advances on one discrete step clock. On every tick the STEP counter increments and each active lane gains exactly one token in its request's identity colour. On the tick a request reaches its length, its lane strip clears, the lane may show a muted completion fill for that one step, and the finished request's icon exits to the right past the lane end and out of frame. On the next tick a new, differently coloured request takes that same lane with its first token, while every other lane keeps growing undisturbed. Lanes never reorder or reflow and no waiting queue is shown, so the viewer reads freed capacity being reused immediately rather than a ranking.",
+      "motion_sequence": [
+        "Establish N labelled slot lanes, each with a request icon at the lane head and a strip of tokens, plus a STEP counter. No waiting queue is required; the order of new requests is authored data.",
+        "Tick: on each discrete step the counter increments and every active lane appends exactly one token at the same instant; tokens snap in on the tick rather than sliding.",
+        "Finish and exit: on the tick a request reaches its authored length, its strip clears, the lane may take a muted completion fill for that one step, and the finished icon moves out past the right end of the lane and leaves the frame well within one step; other lanes keep advancing.",
+        "Replace: on the next tick a new request with a different identity colour sits at the lane head of the cleared lane with its first token. It appears in place; no travel from a queue is implied.",
+        "Repeat the tick, finish, exit and replace rhythm with overlapping lanes so several lanes may finish or be replaced on the same step; lanes never swap position.",
+        "Hold a settled state (for example every lane active after the last tick) long enough to read the counters and caption."
+      ],
+      "video_adaptation": "Author the lanes, the initial requests with their progress and lengths, the order of new requests, the first tick time and the step interval (the source ran at roughly two to three steps per second). Derive step(t) = floor((t − first)/interval) + 1, clamped, and recompute the lane snapshot by replaying the authored rules from step 0 for every query, so there is no retained simulation state. The finished state lasts exactly one step; the exiting icon's position is a pure function of time since that tick, snapped to whole pixels, and leaves the frame before the next tick. New requests appear in place on the following tick. Counters (STEP and any authored served count) come from the same snapshot.",
+      "suggested_controls": [
+        "lane_count",
+        "step_interval",
+        "first_tick_time",
+        "request_lengths_and_order",
+        "completion_fill_and_label",
+        "exit_duration",
+        "optional_authored_queue",
+        "final_reading_hold",
+        "reduced_motion"
+      ],
+      "tech": {
+        "suggested_libraries": [
+          {
+            "name": "GSAP",
+            "package": "gsap",
+            "runtime": "browser",
+            "purpose": "Create a paused, seekable timeline that advances one composition clock.",
+            "suggested_apis": ["gsap.timeline({ paused: true })", "to", "seek"],
+            "optional": false,
+            "docs_url": "https://gsap.com/docs/v3/",
+            "production_roles": ["motion_engine"]
+          },
+          {
+            "name": "Canvas 2D",
+            "package": null,
+            "runtime": "browser",
+            "purpose": "Draw lanes, request icons, step tokens, completion fills, exiting icons and counters at the requested time.",
+            "suggested_apis": ["CanvasRenderingContext2D", "fillRect", "fillText"],
+            "optional": true,
+            "docs_url": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
+            "production_roles": ["style_renderer"]
+          }
+        ],
+        "implementation": "Keep a pure snapshot(step) that replays the authored lane rules (active → finished for one step with its strip cleared → replaced by the next authored request on the following tick → active) from step 0, and a pure frame state that adds the finished icon's exit position from the time since the latest tick. Draw tokens on the tick with no tween; animate only the exiting icon, in whole-pixel steps. Set fill, font and alignment explicitly for every label (or wrap each draw in save/restore) so lane labels keep one readable colour whatever the lane state. SVG, DOM or Canvas 2D can draw the lanes; the explorer preview is an original Canvas 2D study with four lanes, ten authored new requests and illustrative labels, not the source footage.",
+        "style_renderer": {
+          "recommended_stack_refs": ["Canvas 2D"]
+        },
+        "motion_engine": {
+          "recommended_stack_refs": ["GSAP"]
+        }
+      },
+      "compatibility": {
+        "good_fit": ["Pixel RPG Quest Explainer", "Scientific Visualization / Data Storytelling"],
+        "adapt_or_omit_when": [
+          "Use when a story explains a fixed pool of capacity that is reused as soon as work finishes: request scheduling, CPU or GPU slots, checkout lanes, beds, machines or seats.",
+          "Use a ranking motion instead when items compete by value and should reorder; this pattern never reorders lanes.",
+          "Omit when the content has no real step clock or when one-off completion is the point; a single Data Build is clearer.",
+          "A visible waiting queue is not part of the observed pattern. Add one only as an explicitly authored, optional staging choice when the story is about waiting, and label it as such.",
+          "Do not interpolate token growth between ticks, invent throughput numbers, or drive exits with a physics engine whose state depends on playback history. Mark invented lengths and counts as illustrative."
+        ]
+      },
+      "audio_direction_prompt": "No audio was analysed in the source review. Optional: a soft, quiet tick on step changes when ticks are slow, and one small whoosh per exiting request; never sound every token. Previews stay silent.",
+      "executable_prompt_template": "Build Step-Tick Slot Refill (motion-049) for {{subject}} in {{visual_style}}. Show fixed slot lanes with request icons and a STEP counter. On each discrete tick every active lane gains exactly one token; on the tick a request reaches its length its strip clears, the lane shows the completion state for that one step and the finished icon exits right past the lane end; on the next tick a new request takes that same lane with its first token while other lanes continue; lanes never reorder. Do not show a waiting queue unless the brief asks for one, and then label it as authored staging. Recompute the lane snapshot from authored requests, lengths, order and step timing for any time, and hold a settled readable state. Resolve {{motion_parameters}} (lanes, step interval, requests, colours, exit duration, holds). Verify forward, backward and direct seeks. Use {{render_pipeline}} for composition timing, synchronization, validation and export; preserve the selected style renderer and motion ownership.",
+      "verification": [
+        "The STEP counter and every lane's token count change on the same tick; tokens never grow between ticks.",
+        "On the finishing tick the lane's strip is cleared, it shows the completion state for exactly one step, and its icon exits right and leaves the frame before the next tick.",
+        "On the following tick the cleared lane holds a new request with one token; other lanes keep their own progress; lanes and their order never move.",
+        "New requests are taken in authored order and are not drawn before they take a lane, unless an authored queue is explicitly requested.",
+        "Every lane label keeps the same readable colour in every lane state; counters and lanes come from one schedule; forward, backward and direct seeks reproduce identical frames."
+      ],
+      "palette_guidance": "This pattern adds no required colours. Give each request one identity colour carried by its icon and tokens, reserve one muted completion fill for the finished lane, and keep labels light on dark lane fills with readable contrast. The preview uses illustrative orange, teal, yellow, violet, red and green requests on a dark grid; these are not binding.",
+      "reference_label": "Step-ticked slot refill (412–418 s)",
+      "source_evidence": {
+        "source_kind": "frame_analysis",
+        "source_file": "User-supplied pixel-art technical explainer video (about 13 minutes); title, topic artwork, mascot, captions and channel marks withheld and not reused",
+        "time_window_seconds": [412, 418],
+        "evidence_seconds": [
+          412, 412.3, 412.7, 413, 413.7, 414, 414.3, 414.7, 415, 415.3, 415.7, 416, 417.3, 417.7
+        ],
+        "sampling": "Claude Opus 5.5 reviewed contact sheets of 35 overview timestamps and six 3 fps dense windows (0–5, 163–168, 237–243, 312–318, 412–418 and 562–568 s); the correction pass re-inspected the 412–418 s sheet. No continuous playback or audio analysis.",
+        "observations": [
+          {
+            "seconds": [
+              412, 412.3, 412.7, 413, 413.3, 413.7, 414, 414.7, 415, 415.3, 416, 416.3, 416.7,
+              417.3, 417.7
+            ],
+            "observation": "The STEP label advances from 2 to 15 in about six seconds (roughly 0.4 s per step; some samples repeat a value, e.g. 412.7 and 413.0 s both show STEP 4), and every active lane gains one token at the right end of its strip per step."
+          },
+          {
+            "seconds": [415, 416, 417.3, 417.7],
+            "observation": "When a lane finishes, its strip clears and the lane background shows a muted green fill for about one step while the other lanes keep growing."
+          },
+          {
+            "seconds": [412.3, 412.7, 413, 414, 414.3, 415.3, 415.7, 417.3, 417.7],
+            "observation": "The finished request's document icon moves out past the right end of its lane and leaves the frame within about two samples (412.3→413.0 s, 414.0→414.3 s, 415.3→415.7 s). These right-edge icons are finished requests exiting, not waiting arrivals."
+          },
+          {
+            "seconds": [412.7, 413.7, 414.7, 415.3, 417.7],
+            "observation": "On the next step a new, differently coloured request icon sits at the head of the freed lane with its first token. It appears in place; no travel from a queue is visible."
+          },
+          {
+            "seconds": [414, 415, 417.3],
+            "observation": "Several lanes can finish on the same step (lanes 3 and 4 at 414.0 s, lanes 2 and 4 at 415.0 s, lanes 1 and 2 at 417.3 s). No waiting queue is drawn, lanes never reorder, and the other lanes keep growing undisturbed."
+          }
+        ],
+        "limitations": [
+          "3 fps samples cannot show the exit path's easing or whether tokens pop; the preview's accelerating whole-pixel exit is authored, not measured.",
+          "Lane counts, lengths, request order, colours, labels and the SERVED counter in the preview are illustrative authored choices; the source data and topic are not reused.",
+          "The source shows no waiting queue. Any queue in a production is optional authored staging, not observed and not required."
+        ],
+        "exact_hex_from_source": false,
+        "review_model": "claude-opus-5-5",
+        "overview_review_session_id": "caef7c61-872b-41c3-a5fa-c88992e17e78"
       }
     }
   ],

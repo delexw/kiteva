@@ -494,7 +494,7 @@ describe("local application API", () => {
   it("serves all styles and full metadata without leaking credentials", async () => {
     const response = await server.app.inject({ url: "/api/styles", headers });
     expect(response.statusCode).toBe(200);
-    expect(response.json().styles).toHaveLength(140);
+    expect(response.json().styles).toHaveLength(141);
     const details = await server.app.inject({ url: "/api/styles/style-108", headers });
     expect(details.json().tech.style_renderer.recommended_stack_refs).toContain("Three.js");
     const setup = await server.app.inject({ url: "/api/setup", headers });

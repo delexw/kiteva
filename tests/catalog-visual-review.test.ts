@@ -30,6 +30,7 @@ describe("Visual gallery additions", () => {
             "motion-046",
             "motion-047",
             "motion-048",
+            "motion-049",
           ].includes(entry.motion_id),
       );
       // Optional Motion Graphic variants are a later additive field (mg-frame-findings).

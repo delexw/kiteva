@@ -24725,6 +24725,11 @@
           {
             "motion_id": "motion-043",
             "usage_guidance": "Use only when verified 3D data exists (for example PDB atom coordinates or a measured mesh). Keep consistent scale and color semantics, use constant projection (orthographic is acceptable when it serves measurement), and keep labels in screen space reprojected from anchors and revealed during holds. Don't invent hidden structure, and pause on the meaningful view before and after the circuit."
+          },
+          {
+            "motion_id": "motion-049",
+            "usage_guidance": "Capacity and scheduling explanations (CPU or GPU slots, request batching, checkout lanes, beds): fixed lanes on a visible step counter, one cell per tick, a one-step completion state and refill from the queue head; keep illustrative numbers labelled.",
+            "review_evidence": "assets/catalog/reviews/pixel-quest-explainer.json"
           }
         ],
         "agent_instruction": "Read the actual illustration and complete pattern description, motion_sequence and video_adaptation. Identify which scene elements implement that action. Reject unsupported geometry, absent subjects, unintended depth, broken contact points or unrelated interactions. Select none when no candidate fits; use restrained style-native motion instead. Preserve authored transforms, fixed backgrounds and reading layers."
@@ -35342,6 +35347,311 @@
         ]
       },
       "combination_guidance_provenance": "authored_compatibility_guidance_2026-10-21"
+    },
+    {
+      "id": "style-141",
+      "category": "Motion Design and Cinematography",
+      "name_en": "Pixel RPG Quest Explainer",
+      "provenance": "authored",
+      "visual_cues": "Pixel RPG Quest Explainer: a technical or educational explainer staged as a game run in which game-progression UI is the narrative scaffold and every progress element carries meaning. Defining grammar: (1) a persistent HUD that keeps its position across scenes, a framed chip with a short heart row and a collectible counter that only ever rises across the film (in the source it never changed on a visible event; stepping it at authored concept milestones is an optional production choice, never a meaningless count), plus a thin runtime progress bar along one frame edge that grows with elapsed time; (2) chapter breaks as a quest-map card: numbered level nodes joined by a dotted path whose cleared segments take the completion colour while uncleared ones stay muted, held under a dark STAGE N title plate; (3) a cumulative skill-inventory recap: a header and a row of framed slots that fill one at a time as each concept is named, with unfinished slots left visibly empty; (4) pixel dialogue plates: captions sit at bottom centre in a solid dark plate with a stepped pixel border and small accent end caps, sized for the finished line, with keywords in the highlight colour; (5) an original pixel guide character who introduces topics, reacts to results and closes; (6) two working surfaces chosen by content, a dark charcoal-navy surface with a faint pixel grid for code, terminals and mechanisms and a warm cream paper surface with sparse specks for metaphors, maps and the guide, framed by thin corner brackets. Mechanism diagrams are built from whole-pixel blocks (cells, tokens, slots, tables, cards, icons) on a deliberate logical grid; each item keeps one identity colour through a scene, a success colour marks completion and a warning colour with an X mark marks failure. Optional motifs, only where the story needs them: an RPG status panel with a level number and segmented gauge as a premise or recap, a warm sunset bookend, map props such as pixel trees and a castle, treasure or question blocks, a short diamond-lattice pixel wipe between scenes, typed terminal or code windows. Render on a low logical resolution (for example a 4 px grid at 1280 × 720) with integer coordinates, hard edges, no gradients and a limited palette; HUD numbers, titles and labels use bitmap or pixel-style lettering and captions stay crisp and readable. Motion is stepped and purposeful: inventory slots unlock in one step on their narration cue, map cards arrive with cleared segments already drawn, and any authored counter step lands with the concept it marks, diagrams build nodes before connectors, captions type into pre-sized plates, scene changes are hard cuts or a brief pixel wipe, and held states give reading time. Topic, layout, chapter count and colours adapt to each production. Never copy an existing game's sprites, HUD, mascot or map, or any source channel branding, and never show HUD values that do not reflect the story's structure.",
+      "note": "Authored by Claude Opus 5.5 (claude-opus-5-5) on 2026-10-24 from Claude Opus 5.5's frame analysis of a user-supplied pixel-art technical explainer (contact sheets of 35 overview timestamps plus six 3 fps dense windows; no audio, no transcription). Only reusable structural, visual and motion rules are recorded: the source topic, mascot, artwork, captions, title and channel marks are content, are not reproduced and must not be imitated. Colour values are authored defaults, not measured source hex. Distinct from Pixel Art (style-057), which covers pixel rendering only, and from Cassette Futurism (style-137) and Futuristic UI (FUI) / HUD Design (style-112), whose HUDs carry no game-progression meaning; Scientific Visualization / Data Storytelling (style-097) supplies explanation discipline but no visual identity. Review record: assets/catalog/reviews/pixel-quest-explainer.json.",
+      "tech": {
+        "recommended_stack_keys": [
+          "hyperframes",
+          "svg",
+          "html_css",
+          "canvas_2d",
+          "gsap",
+          "chroma_js",
+          "aseprite",
+          "remotion"
+        ],
+        "implementation": "Separate four layers. (1) Progression model: before drawing, list the concepts and chapters in story order and derive every progress value from that list: the collectible counter only rises and, as an authored choice rather than a source observation, may equal the number of concepts resolved so far, quest-map nodes are cleared for finished chapters, inventory slots unlock in concept order and stay filled, and the runtime bar is elapsed time over total duration. When an authored value changes, change it only at the moment its concept resolves on screen or in narration; a counter that simply holds through a scene is equally faithful to the source; never animate HUD numbers decoratively. (2) Pixel drawing (SVG rects/paths with shape-rendering crispEdges, or Canvas 2D with imageSmoothingEnabled false at an integer scale): choose one logical grid, snap every position and size to it, build sprites and icons from string or index maps with a limited palette, and draw original guide, map props and item icons. HUD numbers, stage titles and labels use a bitmap glyph table or a locally available monospace face declared with @font-face local() names; never download fonts. Grid lines, specks and brackets stay outside letterforms; text sits on solid plates. (3) HUD and captions (persistent top layer): heart row, collectible counter, runtime bar and corner brackets keep fixed positions; the dialogue plate is sized for the finished line before characters type in with Terminal Typing (motion-022), with keyword spans in the highlight colour and a readable settled hold. (4) Motion (GSAP paused timeline driving one pure time-state function): diagrams and counters build with Data Build (motion-030), schedulers or fixed capacity pools may use Step-Tick Slot Refill (motion-049), title letters or the guide may land with Elastic Arrival (motion-027) in whole-pixel steps, and chapter changes are hard cuts or a short seeded pixel wipe. Arrowheads stay hidden until their shafts arrive. Keep stepped motion on whole pixels, limit flashes to brief single events, mark invented numbers illustrative, and verify forward, backward and direct seeks plus rendered frames at delivery size.",
+        "alternatives": [
+          "Canvas 2D at a fixed logical resolution with integer upscaling instead of SVG rectangles",
+          "Aseprite sprite sheets for a supplied or purpose-drawn guide character and item icons",
+          "Remotion for a verified export limitation"
+        ],
+        "render_pipeline": "Composition and export only: follow production_policy; integrate output from tech.style_renderer and tech.motion_engine.\nPrimary: HyperFrames. Author HTML/CSS/SVG compositions with data-composition-id, data-width, data-height, and data-duration. Time class=\"clip\" elements with data-start and data-duration. Register one paused, seekable GSAP timeline per composition in window.__timelines[compositionId]; let the framework control media time. Run npx hyperframes check, inspect key moments with npx hyperframes snapshot --at <seconds>, and render with npx hyperframes render --quality delivery --output <video.mp4> under the task's authorization. Load local fonts and assets first, seed randomness, and drive Canvas/WebGL from shared time rather than wall clocks or independent loops.\nFallback: Remotion. Use this route only when HyperFrames is unavailable or cannot meet a required constraint, and document the checked limitation. Build React/Remotion compositions driven by useCurrentFrame and useVideoConfig, preload assets, seed randomness, and render through the Remotion CLI or @remotion/renderer in Node.js. An existing React project alone is not a fallback reason.\nDelivery checks: inspect decoded opening, action, transition, and closing frames and watch the full video. Verify dimensions, duration, frame rate, audio synchronization, and loop continuity; fix issues and rerender.",
+        "usage_note": "These are suggested implementation routes, not claims about the source video's actual toolchain or locally installed tools. Tool combinations are selected as needed. Native Canvas and SVG do not require a 3D engine. Prepare assets and cache stateful simulations first; a simulated appearance is not evidence of physical production or validated physics. Reference numbers, scenes, and aspect ratios are optional examples.",
+        "framework_selection": {
+          "default": "HyperFrames",
+          "fallback": "Remotion",
+          "fallback_condition": "Use Remotion only when HyperFrames is unavailable in the current environment or a verified limitation prevents a required capability or output. Record the specific reason. An existing React project alone is not a fallback reason.",
+          "scope": "Owns scene assembly, composition timing, media and audio synchronization, validation, and final export. HyperFrames is the first choice; Remotion is the conditional fallback. Neither is the default visual construction or motion design method."
+        },
+        "available_library_ids": ["gsap", "chroma_js"],
+        "library_selection": "Prefer SVG or Canvas 2D on one logical pixel grid for scenes, sprites, HUD and diagrams, HTML/CSS for layout and caption text, and GSAP for one paused timeline driving a pure time-state function. Aseprite is optional for authored sprite sheets. Do not add 3D engines, physics or shader stacks; pixel wipes are seeded geometry.",
+        "motion_guidance": {
+          "shared_reference": "shared_motion_guidance",
+          "application": "Progress elements never move decoratively: inventory unlocks land on narration cues and any authored counter step lands with a resolved concept; diagrams build nodes before connectors; captions type into pre-sized dialogue plates; chapter changes are hard cuts or a short pixel wipe to a held quest-map card; the guide reacts with small stepped hops.",
+          "cadence_guidance": "Brisk, game-like rhythm: stepped whole-pixel moves and discrete counter changes, short slides only for travelling tokens, and a settled hold after every caption, stage card and result. Never pulse HUD elements continuously or flash more than briefly.",
+          "implementation": "Evaluate every layer from absolute composition time through one pure time-state function derived from the ordered concept list; snap positions to the logical grid; seed any specks, trees or wipe order; keep one owner per property and verify forward, backward and direct seeks."
+        },
+        "style_renderer": {
+          "selection_basis": "Use visual_cues and tech.implementation for styles, or the selected style and this pattern implementation for motion recipes. Select by visual fidelity and medium, not pipeline availability.",
+          "recommended_stack_refs": ["SVG", "HTML/CSS", "Canvas 2D"]
+        },
+        "motion_engine": {
+          "selection_basis": "Use the authored action, style cadence, trajectory, material behavior, and simulation requirements. Select one owner for each animated property.",
+          "recommended_stack_refs": ["GSAP"]
+        },
+        "production_policy_ref": "production_policy",
+        "stack_overrides": {
+          "hyperframes": {
+            "values": {
+              "style_application": "Assemble the pixel scenes, persistent HUD and captions and export them; keep the time-state renderer and the logical pixel grid rather than framework defaults."
+            },
+            "remove": []
+          },
+          "svg": {
+            "values": {
+              "style_application": "Whole-pixel scenes, sprites, map props, item icons, HUD chip, runtime bar, corner brackets and dialogue plates as rects or run-length paths with crisp edges; bitmap glyph paths for HUD numbers and titles."
+            },
+            "remove": []
+          },
+          "html_css": {
+            "values": {
+              "style_application": "Composition layout and optional real-text captions from local monospace faces, sized into the dialogue plate with keyword spans; no downloaded fonts."
+            },
+            "remove": []
+          },
+          "canvas_2d": {
+            "values": {
+              "style_application": "Fixed logical-resolution drawing with imageSmoothingEnabled false and integer upscaling for dense sprite or cell scenes, evaluated from composition time."
+            },
+            "remove": []
+          },
+          "gsap": {
+            "values": {
+              "style_application": "One paused, seekable timeline advances a composition clock; a pure time-state function sets counters, map and inventory states, caption typing, arrows, wipes and guide poses."
+            },
+            "remove": []
+          },
+          "chroma_js": {
+            "values": {
+              "style_application": "Verify cream and highlight text on the dark plate, ink on cream paper and labels on lane or slot fills; keep the limited palette discrete."
+            },
+            "remove": []
+          },
+          "aseprite": {
+            "values": {
+              "optional": true,
+              "style_application": "Optional: author an original guide character and item icons as indexed sprite sheets, then place them on the same logical grid."
+            },
+            "remove": []
+          },
+          "remotion": {
+            "values": {
+              "style_application": "Conditional composition/export fallback only for a verified HyperFrames limitation; keep the same pixel grid, HUD and time-state function."
+            },
+            "remove": []
+          }
+        },
+        "stack_property_order": {}
+      },
+      "executable_prompt_template": "Create an original Pixel RPG Quest Explainer video about {{subject}} for {{audience_and_objective}}, using {{assets_and_exact_copy}}. Duration {{duration_seconds}}, aspect ratio {{aspect_ratio}}, resolution {{resolution}}, frame rate {{frame_rate}}. Honor {{audio_or_rhythm_requirements}}. Save to {{output_directory}}. Use {{render_pipeline}} for composition/export; the project renderer setting remains binding. Take the topic, concepts, chapters and copy from the project; when a guide character is needed and none is given, design an original one and record its sprite sheet. Write structured STORYBOARD.json listing the concepts and chapters in order, the HUD values each scene shows, the scenes with their surface (dark grid or cream paper), any chosen optional motifs, exact copy and assets.\nVisual rules: Pixel RPG Quest Explainer: a technical or educational explainer staged as a game run in which game-progression UI is the narrative scaffold and every progress element carries meaning. Defining grammar: (1) a persistent HUD that keeps its position across scenes, a framed chip with a short heart row and a collectible counter that only ever rises across the film (in the source it never changed on a visible event; stepping it at authored concept milestones is an optional production choice, never a meaningless count), plus a thin runtime progress bar along one frame edge that grows with elapsed time; (2) chapter breaks as a quest-map card: numbered level nodes joined by a dotted path whose cleared segments take the completion colour while uncleared ones stay muted, held under a dark STAGE N title plate; (3) a cumulative skill-inventory recap: a header and a row of framed slots that fill one at a time as each concept is named, with unfinished slots left visibly empty; (4) pixel dialogue plates: captions sit at bottom centre in a solid dark plate with a stepped pixel border and small accent end caps, sized for the finished line, with keywords in the highlight colour; (5) an original pixel guide character who introduces topics, reacts to results and closes; (6) two working surfaces chosen by content, a dark charcoal-navy surface with a faint pixel grid for code, terminals and mechanisms and a warm cream paper surface with sparse specks for metaphors, maps and the guide, framed by thin corner brackets. Mechanism diagrams are built from whole-pixel blocks (cells, tokens, slots, tables, cards, icons) on a deliberate logical grid; each item keeps one identity colour through a scene, a success colour marks completion and a warning colour with an X mark marks failure. Optional motifs, only where the story needs them: an RPG status panel with a level number and segmented gauge as a premise or recap, a warm sunset bookend, map props such as pixel trees and a castle, treasure or question blocks, a short diamond-lattice pixel wipe between scenes, typed terminal or code windows. Render on a low logical resolution (for example a 4 px grid at 1280 × 720) with integer coordinates, hard edges, no gradients and a limited palette; HUD numbers, titles and labels use bitmap or pixel-style lettering and captions stay crisp and readable. Motion is stepped and purposeful: inventory slots unlock in one step on their narration cue, map cards arrive with cleared segments already drawn, and any authored counter step lands with the concept it marks, diagrams build nodes before connectors, captions type into pre-sized plates, scene changes are hard cuts or a brief pixel wipe, and held states give reading time. Topic, layout, chapter count and colours adapt to each production. Never copy an existing game's sprites, HUD, mascot or map, or any source channel branding, and never show HUD values that do not reflect the story's structure.\nImplementation: Separate four layers. (1) Progression model: before drawing, list the concepts and chapters in story order and derive every progress value from that list: the collectible counter only rises and, as an authored choice rather than a source observation, may equal the number of concepts resolved so far, quest-map nodes are cleared for finished chapters, inventory slots unlock in concept order and stay filled, and the runtime bar is elapsed time over total duration. When an authored value changes, change it only at the moment its concept resolves on screen or in narration; a counter that simply holds through a scene is equally faithful to the source; never animate HUD numbers decoratively. (2) Pixel drawing (SVG rects/paths with shape-rendering crispEdges, or Canvas 2D with imageSmoothingEnabled false at an integer scale): choose one logical grid, snap every position and size to it, build sprites and icons from string or index maps with a limited palette, and draw original guide, map props and item icons. HUD numbers, stage titles and labels use a bitmap glyph table or a locally available monospace face declared with @font-face local() names; never download fonts. Grid lines, specks and brackets stay outside letterforms; text sits on solid plates. (3) HUD and captions (persistent top layer): heart row, collectible counter, runtime bar and corner brackets keep fixed positions; the dialogue plate is sized for the finished line before characters type in with Terminal Typing (motion-022), with keyword spans in the highlight colour and a readable settled hold. (4) Motion (GSAP paused timeline driving one pure time-state function): diagrams and counters build with Data Build (motion-030), schedulers or fixed capacity pools may use Step-Tick Slot Refill (motion-049), title letters or the guide may land with Elastic Arrival (motion-027) in whole-pixel steps, and chapter changes are hard cuts or a short seeded pixel wipe. Arrowheads stay hidden until their shafts arrive. Keep stepped motion on whole pixels, limit flashes to brief single events, mark invented numbers illustrative, and verify forward, backward and direct seeks plus rendered frames at delivery size.\nRead the selected palette and tool guidance. Validate the storyboard schema, that every authored counter, map and inventory change matches a resolved concept, whole-pixel placement, readable caption holds, arrowhead timing, flash rate, forward/backward/direct seeks and rendered frames; preserve exact copy and word spacing.",
+      "palette": {
+        "background_policy": "scene_dependent",
+        "status": "style_compatible_suggestion",
+        "scope": "new_artwork_when_no_approved_palette_is_supplied",
+        "direction": "Two working surfaces, a dark charcoal-navy grid and a warm cream paper, with a limited set of game accents whose roles stay fixed: a highlight for keywords and cleared progress, a collectible colour, a heart colour, a success colour and item identity colours. These tokens are optional examples.",
+        "generator": {
+          "library": "chroma-js",
+          "version": "3.2.0",
+          "operations": ["chroma.valid", "chroma(color).hex()", "chroma.contrast"]
+        },
+        "tokens": {
+          "background": "#1C1F2E",
+          "foreground": "#F4EEDC",
+          "night_grid": "#1C1F2E",
+          "grid_line": "#272B3F",
+          "plate_ink": "#11121B",
+          "paper_cream": "#F2EAD3",
+          "paper_speck": "#DCCFAD",
+          "quest_orange": "#F28A2E",
+          "coin_yellow": "#F7C948",
+          "heart_red": "#E5484D",
+          "xp_green": "#5DC26A",
+          "slot_teal": "#3DB3A6",
+          "path_grey": "#8D90A6",
+          "tree_green": "#3A8F52"
+        },
+        "base_colors": [
+          "#1C1F2E",
+          "#F4EEDC",
+          "#272B3F",
+          "#11121B",
+          "#F2EAD3",
+          "#DCCFAD",
+          "#F28A2E",
+          "#F7C948",
+          "#E5484D",
+          "#5DC26A",
+          "#3DB3A6",
+          "#8D90A6",
+          "#3A8F52"
+        ],
+        "base_color_count": 13,
+        "constraints": [
+          "These hex values are authored suggestions, not measured source colours. Task-provided exact colours and approved palettes override them while keeping the accent roles fixed.",
+          "Keep one role per accent across the film: highlight for keywords and cleared progress, collectible colour for counters, heart colour for lives or warnings, success colour for completion and the runtime bar, and one identity colour per item within a scene.",
+          "Use discrete flat fills on the logical pixel grid; no gradients, anti-aliased glows or blurred shadows.",
+          "On cream paper, text uses the dark plate ink; the highlight orange and muted grey are for paths, borders and decoration there, not for text.",
+          "Keep grid lines, specks and corner brackets out of letterforms; captions and labels sit on solid plates.",
+          "Flashes for unlocks or completion are single brief events, never more than about three per second."
+        ],
+        "gradient": {
+          "enabled": false,
+          "instruction": "No gradients. Depth comes from stepped pixel shading with existing tokens."
+        },
+        "contrast_checks": {
+          "background": "opaque_sRGB",
+          "normal_text_target": 4.5,
+          "foreground_on_background": 14.1,
+          "suggested_text_pairs": [
+            {
+              "background_token": "plate_ink",
+              "foreground_token": "foreground",
+              "contrast_ratio": 16.08,
+              "meets_normal_text_target": true,
+              "use": "Dialogue plate captions, HUD labels and stage titles."
+            },
+            {
+              "background_token": "plate_ink",
+              "foreground_token": "quest_orange",
+              "contrast_ratio": 7.5,
+              "meets_normal_text_target": true,
+              "use": "Keyword spans and stage numbers on the dark plate."
+            },
+            {
+              "background_token": "plate_ink",
+              "foreground_token": "coin_yellow",
+              "contrast_ratio": 11.9,
+              "meets_normal_text_target": true,
+              "use": "Collectible counter digits in the HUD chip."
+            },
+            {
+              "background_token": "night_grid",
+              "foreground_token": "foreground",
+              "contrast_ratio": 14.1,
+              "meets_normal_text_target": true,
+              "use": "Diagram labels directly on the dark grid surface."
+            },
+            {
+              "background_token": "paper_cream",
+              "foreground_token": "plate_ink",
+              "contrast_ratio": 15.53,
+              "meets_normal_text_target": true,
+              "use": "Labels and node numbers on cream paper."
+            },
+            {
+              "background_token": "night_grid",
+              "foreground_token": "xp_green",
+              "contrast_ratio": 7.31,
+              "meets_normal_text_target": true,
+              "use": "Success labels and the runtime bar on the dark surface."
+            },
+            {
+              "background_token": "slot_teal",
+              "foreground_token": "plate_ink",
+              "contrast_ratio": 7.28,
+              "meets_normal_text_target": true,
+              "use": "Dark labels on teal item fills."
+            },
+            {
+              "background_token": "paper_cream",
+              "foreground_token": "quest_orange",
+              "contrast_ratio": 2.07,
+              "meets_normal_text_target": false,
+              "use": "Path and border colour on cream paper only; not for text."
+            }
+          ],
+          "limitation": "Two-color checks only. Not a guarantee of complete accessibility or readability over images, textures, glass, video, outlines or animated lighting. Recheck every actual foreground/background pairing in representative frames."
+        },
+        "composition_guidance": "Reserve fixed HUD zones (top edge bar, a top-corner chip, bottom-centre dialogue plate, corner brackets) and keep diagrams inside the remaining safe area. Give each scene one focal mechanism or card; place the guide beside, never over, diagrams and text. Adapt zones to the aspect ratio.",
+        "agent_instruction": "Read visual_cues, tech.implementation and palette.constraints as the complete style specification. Resolve colours in this order: task-provided exact palette, approved brand or source palette, then these optional tokens, keeping accent roles fixed. Use chroma-js for validation and contrast, and inspect composited frames at delivery size."
+      },
+      "audio_direction": {
+        "prompt": "Optional ideas, governed by the project's audio settings: a light chiptune or lo-fi bed under clear narration, short soft UI blips for counter or slot unlocks, and silence during dense reading. Do not invent narration or music when audio is disabled, and never sound every caption character.",
+        "suggestion_dimensions": [
+          "Whether background music is useful, and its suggested mood, texture, energy, tempo range, and progression.",
+          "Whether voiceover helps explain the topic, and its suggested language, tone, pace, and placement.",
+          "Whether sung vocals support the topic or distract from narration and essential text.",
+          "Whether sound effects, ambience, or silence clarify key actions, transitions, and reading holds.",
+          "How audio changes across scenes, supports motion cadence, and leaves space for speech and comprehension."
+        ],
+        "selection_guidance": "Treat these as task-specific suggestions, not requirements to include every audio layer. Honor explicit user audio choices and supplied assets. When inputs are absent, propose a coherent direction and state assumptions; do not silently default to instrumental music or invent available audio assets.",
+        "integration_guidance": "Select or create authorized audio assets separately from visual construction and motion design. Use render_pipeline to assemble, synchronize, mix, and export audio with picture. Keep speech intelligible, avoid clipping and competing vocals, and inspect the delivered audio and picture together."
+      },
+      "motion_references": {
+        "catalog_file": "motion-pattern-catalog.json",
+        "required": false,
+        "selection_policy": "Optional candidates are screened for natural style compatibility. Before selection, inspect the actual scene illustration, assets, geometry and narrative beat. Keep only references whose defining action is supported by that scene. Choosing no reference is valid. Do not infer motion from a similar label; do not replace the existing style motion direction.",
+        "candidates": [
+          {
+            "motion_id": "motion-030",
+            "usage_guidance": "Mechanism diagrams, memory or token grids, tables, metric cards and the HUD counter, map and inventory states build from one ordered concept list: nodes and slots before connectors, and every counter or slot change at the moment its concept resolves.",
+            "review_evidence": "assets/catalog/reviews/pixel-quest-explainer.json"
+          },
+          {
+            "motion_id": "motion-022",
+            "usage_guidance": "Dialogue-plate captions type into a plate already sized for the finished line, and terminal or code windows type commands with a block cursor; hold the completed line before the next caption.",
+            "review_evidence": "assets/catalog/reviews/pixel-quest-explainer.json"
+          },
+          {
+            "motion_id": "motion-049",
+            "usage_guidance": "Scheduler or fixed-capacity explanations: fixed slot lanes on a STEP counter gain one cell per tick, a finished lane clears for one step while its request icon exits right, and a new request takes that lane on the following tick.",
+            "review_evidence": "assets/catalog/reviews/pixel-quest-explainer.json"
+          },
+          {
+            "motion_id": "motion-027",
+            "usage_guidance": "Opening title letters or the guide drop onto a baseline one after another in whole-pixel steps; keep any compression to a single stepped pose and settle into a readable hold.",
+            "review_evidence": "assets/catalog/reviews/pixel-quest-explainer.json"
+          }
+        ],
+        "agent_instruction": "Read each complete motion definition before use. The progression grammar stays primary; use a reference only where the scene contains that action. Selecting none is valid."
+      },
+      "suggested_combinations": {
+        "selection_guidance": "Pixel RPG Quest Explainer is complete on its own. Add a supporting style only for stricter sprite rendering or a dense data scene, keeping the persistent HUD, quest-map chapters and inventory recap dominant.",
+        "suggestions": [
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-057",
+                "role": "Sprite, tile and palette-cycling discipline for pixel scenes"
+              }
+            ],
+            "rationale": "Pixel Art adds strict sprite construction and palette cycling while the quest grammar supplies the narrative structure.",
+            "best_for": "Explainers with many sprite scenes, animated props or palette-cycled lights.",
+            "video_application": "Draw sprites on one logical grid with integer scaling; keep HUD and dialogue plates in the quest style.",
+            "html_application": "A fixed-resolution canvas scaled by integer factors with the HUD as crisp overlay text; reduced motion holds key poses.",
+            "consistency_rules": [
+              "One logical grid for sprites, HUD and diagrams.",
+              "Palette cycling stays discrete."
+            ],
+            "avoid": ["Smoothing or non-integer scaling.", "HUD values unrelated to the story."]
+          },
+          {
+            "supporting_styles": [
+              {
+                "style_id": "style-097",
+                "role": "Step-by-step diagram discipline for dense technical scenes"
+              }
+            ],
+            "rationale": "Data storytelling keeps each mechanism scene to one idea with honest labels while the quest grammar tracks progress.",
+            "best_for": "Technical explainers with tables, memory maps, pipelines or metrics.",
+            "video_application": "One annotated pixel diagram per beat; unlock the matching inventory slot when its idea resolves.",
+            "html_application": "Scroll steps reveal one diagram per step with the HUD counter tied to completed steps and a static fallback.",
+            "consistency_rules": [
+              "Explain one idea at a time.",
+              "Mark invented values as illustrative."
+            ],
+            "avoid": ["Unsourced precise figures.", "Glossy dashboard chrome."]
+          }
+        ]
+      },
+      "combination_guidance_provenance": "authored_compatibility_guidance_2026-10-24"
     }
   ],
   "library_options": [

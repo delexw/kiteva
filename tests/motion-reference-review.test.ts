@@ -60,6 +60,7 @@ it("records all 405 decisions and adds exactly the approved references without c
           "motion-046",
           "motion-047",
           "motion-048",
+          "motion-049",
         ].includes(entry.motion_id),
     );
     // Optional Motion Graphic variants are a later additive field (mg-frame-findings).

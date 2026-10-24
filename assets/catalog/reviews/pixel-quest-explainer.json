@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "kind": "frame_analysis_additions",
+  "source": {
+    "description": "User-supplied pixel-art technical explainer video, about 13 minutes, about LLM inference serving. Its topic artwork, mascot, captions (not English), title and channel marks are content and are not reproduced or named here.",
+    "reuse_policy": "Only reusable structural, visual and motion rules are recorded. Previews are original code drawings with English-only copy; colours are authored defaults, not measured source hex."
+  },
+  "analysis_provenance": {
+    "model": "claude-opus-5-5",
+    "overview_session_id": "caef7c61-872b-41c3-a5fa-c88992e17e78",
+    "session_id": "caef7c61-872b-41c3-a5fa-c88992e17e78",
+    "sampling": "Contact sheets of 35 overview timestamps (2–785 s) plus six dense windows sampled at 3 fps: 0–5 s, 163–168 s, 237–243 s, 312–318 s, 412–418 s, 562–568 s. No continuous playback, no audio, no caption transcription.",
+    "limitations": [
+      "Changes shorter than about 0.33 s, exact easing and entrance curves are not resolvable at 3 fps; all easing in the additions is authored.",
+      "The collectible counter did not change inside any dense window: it holds x09 through both inventory unlocks (563.0 s, 565.3 s) and x04 through the STAGE 3 card. What makes it rise is unknown, so no sync with on-screen events is claimed; only its rising values across the overview are known.",
+      "No audio was analysed; no sound design or beat timing is claimed."
+    ]
+  },
+  "implementation_provenance": {
+    "author": "Claude Opus 5.5 (claude-opus-5-5) via the Claude Agent SDK",
+    "authored_on": "2026-10-24",
+    "session_id": "78dd2edd-3edb-4133-b2d3-eae59c50f51c",
+    "method": "Read the overview comparison against the 140 Motion Graphics and 48 motions, inspected all six dense contact sheets, read the closest existing definitions (style-057, motion-022, motion-027, motion-030, motion-041), then wrote the catalog entries, the motion-049 Canvas 2D study, the style-141 SVG/HyperFrames preview generator and tests. Rendered SVG frames (sharp) and motion-049 canvas frames (@napi-rs/canvas) were inspected and repaired before publishing.",
+    "correction": "Claude Opus 5.5 correction pass on 2026-10-24 after host review: re-inspected the 412–418 s dense sheet and the host's motion-049 render, rebased motion-049 on the observed finished-icon exit → cleared lane → next-step replacement with no queue, separated authored HUD counter behaviour from source observations, corrected the overview sample count to 35, fixed lane-label colour leakage in the Canvas study and recorded rejections for the pointer-chase and diamond-grid dissolve candidates.",
+    "correction_session_id": "4f468fa0-9932-4a69-86a8-d25bafd81f5b"
+  },
+  "dense_findings": [
+    {
+      "window_seconds": [0, 5],
+      "observation": "Title letters drop into place one by one over a sunset skyline; the guide walks in; a status panel's segmented gauge fills while its level number steps (1, 4, 75, 98, MAX) and a LEVEL UP label appears at 3.3 s; a diamond-lattice pixel wipe at 3.7 s cuts to the next scene. Captions type into the bottom plate (partial line at 1.7 s and 3.7 s). The HUD and caption box stay above the wipe."
+    },
+    {
+      "window_seconds": [163, 168],
+      "observation": "A request card fans connectors to scattered free gaps in a memory strip; shafts appear before their heads (163.3 to 163.7 s); a red X appears beside the card at 165.0 s; connectors are then withdrawn and a clock icon marks waiting. A Data Build sequence with a failure mark."
+    },
+    {
+      "window_seconds": [237, 243],
+      "observation": "Block-table lookup: a logical block label and its table row highlight, a thin connector runs from the row to a scattered physical cell, the cell is outlined and then filled, then the next row repeats; later a new token appends into a partly filled block and blocks lift out with dashed connectors."
+    },
+    {
+      "window_seconds": [312, 318],
+      "observation": "A diamond-lattice pixel wipe at 314.3 s (HUD and caption box stay on top) reveals the quest map already complete (cleared path to node 3); the STAGE 3 plate appears by a cut between 314.7 and 315.0 s and holds; no marker travels and the path does not fill; the counter stays x04."
+    },
+    {
+      "window_seconds": [412, 418],
+      "observation": "The STEP label advances from 2 to 15 in about six seconds; every active lane gains one token per step. When a lane finishes, its strip clears and the lane shows a muted green fill for about one step while the finished request's icon moves out past the right end of the lane and leaves the frame within about two samples. On the next step a new, differently coloured request sits at the lane head with its first token. The right-edge icons are finished requests exiting, not waiting arrivals; no waiting queue is shown and lanes never reorder."
+    },
+    {
+      "window_seconds": [562, 568],
+      "observation": "The 'skills acquired' inventory gains slot 4 (between 562.7 and 563.0 s) and slot 5 (between 565.0 and 565.3 s), each icon and label together, at the moment the caption names that skill; no pop or flash is resolvable; the counter stays x09."
+    }
+  ],
+  "additions": [
+    {
+      "id": "style-141",
+      "kind": "motion_graphic",
+      "name": "Pixel RPG Quest Explainer",
+      "novelty": "style-057 Pixel Art defines only pixel rendering. The new grammar uses game-progression UI as the explanation's scaffold: a persistent HUD whose collectible counter only rises (in the source it never changed on a visible event; tying its steps to explained concepts is an authored option), quest-map chapter cards, a cumulative skill inventory, pixel dialogue plates, an original guide and content-assigned dark-grid and cream-paper surfaces. style-137 and style-112 HUDs carry no progression meaning; style-097 has no visual identity.",
+      "evidence_seconds": [
+        2, 10, 20, 35, 70, 140, 240, 315, 365, 415, 465, 565, 690, 785, 1.7, 3.3, 3.7, 314.3, 315,
+        563, 565.3
+      ]
+    },
+    {
+      "id": "motion-049",
+      "kind": "motion",
+      "name": "Step-Tick Slot Refill",
+      "novelty": "motion-041 reorders ranked bars and never refills freed lanes; motion-030 is a generic build-then-hold; motion-046 docks step cards into a device. None defines a discrete step clock on which fixed lanes advance one token per tick, clear and release their finished request to the right on the finishing tick, and take a new request in the same lane on the next tick.",
+      "evidence_seconds": [
+        412, 412.3, 412.7, 413, 413.7, 414, 414.3, 414.7, 415, 415.3, 415.7, 416, 417.3, 417.7
+      ]
+    }
+  ],
+  "rejected_candidates": [
+    {
+      "name": "World-Map Stage Advance",
+      "kind": "motion",
+      "reason": "Rejected: the 312–318 s window shows the map arriving complete through a pixel wipe and the STAGE plate arriving by a plain cut; no path fill or travelling marker exists to model. The held map card is recorded as Motion Graphic grammar instead."
+    },
+    {
+      "name": "Skill Slot Unlock Recap",
+      "kind": "motion",
+      "reason": "Rejected as a motion: slots 4 and 5 appear by single-sample state changes synchronised with the caption, with no resolvable pop, flash or counter change. The cumulative inventory is Motion Graphic grammar and its state change is covered by Data Build (motion-030)."
+    },
+    {
+      "name": "Table-Indirection Lookup",
+      "kind": "motion",
+      "reason": "Rejected (the final review's 'Indirection Table Pointer-Chase' candidate). Observed at 237–243 s: an item's table row highlights, a thin connector runs to a scattered memory cell, the cell is outlined then filled, then the next row repeats; later scattered blocks gather into a contiguous row. Each row is a nodes-before-connectors build with a dependent state change, which is Data Build (motion-030), and the connector's head timing is already the shared arrowhead rule; the final gathering keeps the same blocks across two layouts, which is UI Recompose (motion-026). The row-by-row repetition is a property of the diagram content (page-table indirection), not a distinct temporal mechanism, so no new motion is added."
+    },
+    {
+      "name": "Segmented Level-Up Gauge",
+      "kind": "motion",
+      "reason": "Rejected: the 0–3.3 s gauge fill with a stepping level number and LEVEL UP label is a counter and bar driven from one authored value, covered by Data Build (motion-030). The status panel is kept only as an optional Motion Graphic motif."
+    },
+    {
+      "name": "Diamond-Lattice Pixel Wipe",
+      "kind": "motion",
+      "reason": "Rejected (the final review's 'Diamond-Grid Dissolve' candidate), although no existing motion draws a diamond lattice. Each occurrence (3.7 s and 314.3 s) has only one intermediate 3 fps sample, one incoming and one outgoing, so the sweep direction, cell-size curve, stepping rate and pairing of phases would all be invented; only the static look (a fixed lattice of diamond cells coloured from the scene, under the persistent HUD and caption box) is observed. The scene-handoff role is already Scroll-Driven Chaptered Scene Transition (motion-012) and a fixed grid of image-sampled cells is Pixel-Tile Materialize (motion-048), which is not linked because it breaks the whole-pixel grid. The look is kept in style-141 as an optional transition device with authored timing that never covers the HUD or captions."
+    },
+    {
+      "name": "Fragmentation Fit Rejection",
+      "kind": "motion",
+      "reason": "Rejected: the 163–168 s connectors-to-gaps and red X sequence is a Data Build with a failure mark; the Motion Graphic records the warning colour plus X convention instead."
+    },
+    {
+      "name": "Slot refill with a visible waiting queue",
+      "kind": "motion",
+      "reason": "Rejected: the sparse-pass reading was wrong. The icons at the right edge of the 412–418 s lanes are finished requests exiting, not waiting arrivals; new requests appear directly in the freed lane on the next step and no queue is ever shown. motion-049 adopts only the observed exit → cleared lane → replacement; a visible queue is optional authored staging, never observed or required."
+    },
+    {
+      "name": "HUD counter synchronised to concept unlocks",
+      "kind": "motion",
+      "reason": "Rejected as a source observation: the counter holds x09 while inventory slots 4 and 5 unlock (563.0 s, 565.3 s) and x04 while the STAGE 3 card appears. style-141 records only an always-rising counter; the style-141 preview's x02 → x03 step on a resolved concept is labelled an authored choice."
+    }
+  ],
+  "reused_existing": ["motion-030", "motion-022", "motion-027", "style-057", "style-097"],
+  "motion_graphic_links": [
+    {
+      "style_id": "style-141",
+      "motion_id": "motion-030",
+      "reason": "Diagrams, memory and token grids, tables, metric cards and the counter, map and inventory states build from one ordered concept list (163–168 s, 237–243 s, 562–568 s)."
+    },
+    {
+      "style_id": "style-141",
+      "motion_id": "motion-022",
+      "reason": "Captions type into a pre-sized dialogue plate (1.7 s, 3.7 s, 414.7 s, 563.0 s) and terminal panels end in a block cursor (312–314 s)."
+    },
+    {
+      "style_id": "style-141",
+      "motion_id": "motion-049",
+      "reason": "Observed source of the step-ticked slot refill (412–418 s): finished icon exits right, lane clears, a new request takes it on the next step."
+    },
+    {
+      "style_id": "style-141",
+      "motion_id": "motion-027",
+      "reason": "Opening title letters drop onto the baseline one after another (0.3–1.0 s); rebound is not resolvable at 3 fps, so whole-pixel steps and a single settle are recommended."
+    },
+    {
+      "style_id": "style-097",
+      "motion_id": "motion-049",
+      "reason": "Data storytelling about schedulers or shared capacity gains a reusable refill rhythm; illustrative counts must stay labelled."
+    }
+  ],
+  "considered_not_linked": [
+    {
+      "style_id": "style-057",
+      "motion_id": "motion-049",
+      "reason": "Pixel Art is a rendering style with no explanatory scheduling content; style-141 carries the pixel use."
+    },
+    {
+      "style_id": "style-141",
+      "motion_id": "motion-048",
+      "reason": "Pixel-tile scatter uses rotation and fractional scale that break the whole-pixel grid, and no such assembly was observed."
+    },
+    {
+      "style_id": "style-141",
+      "motion_id": "motion-041",
+      "reason": "No ranking or reordering was observed; lanes keep fixed positions."
+    }
+  ],
+  "previews": {
+    "motion_graphic": {
+      "script": "scripts/generate-pixel-quest-preview.ts",
+      "exports": ["preparePixelQuestPreview", "renderPixelQuestPreview"],
+      "composition_id": "pixel-rpg-quest-explainer",
+      "duration_seconds": 3,
+      "silent": true,
+      "sequence": "Cream quest-map chapter card (stage 3 held with its path already cleared, guide on the current node) → diamond-lattice pixel wipe under the HUD → dark-grid hash lookup; when the lookup resolves, the counter goes x02 → x03 and the third skill slot unlocks together. The counter step on a resolved concept is an authored preview choice, not a source observation.",
+      "english_only": true
+    },
+    "motion": {
+      "id": "motion-049",
+      "source": "src/client/motion-previews/motion-049.ts",
+      "duration_seconds": 6,
+      "english_only": true,
+      "sequence": "Four fixed lanes on a STEP clock gain one token per tick; on its finishing tick a lane clears to a muted completion fill and its request icon exits right out of frame; on the next tick a new request takes the lane with one token. No queue is drawn; new-request order and the SERVED count are authored."
+    }
+  },
+  "visual_review": {
+    "status": "host_verified",
+    "author_inspection": "The author inspected sharp-rendered SVG frames at 0.05, 0.6, 1.2, 1.3, 1.6, 1.95, 2.15 and 3.0 s and native-canvas motion-049 frames at 0.3–6.0 s, and repaired a visibility leak of lookup-scene elements into the map scene, the guide standing on the path, done-lane label contrast and queue tokens spilling below their column.",
+    "render_note": "The authoring sandbox could not nest the renderer sandbox. The host successfully rendered and published the final source through the existing HyperFrames renderJob pipeline: 3.0 seconds, 1280x720, 30 fps, silent VP9/WebM. No render validation or sandbox restriction was disabled.",
+    "host_review": "The host inspected exported video frames at 0.3, 1.5 and 2.8 seconds, then checked the final published video at 2.8 seconds and confirmed its editable HTML exactly matches the inspected export. English-only text and original artwork are visible. Revised motion-049 native-canvas frames at 2.5, 5.0 and 2.5 seconds reproduce identical pixels after seeking, contain no Han text and show readable lane labels with finished-request exits and no queue.",
+    "correction_inspection": "Correction pass (Claude Opus 5.5): every lane label now sets the same light label colour itself inside save/restore, and a test checks the colour set before each SLOT label plus its contrast. Native-canvas motion-049 frames at 0.3, 1.45, 1.6, 1.7, 2.25, 2.65, 3.05 and 5.0 s were inspected: labels are uniform and readable, finished lanes clear to a muted green fill with DONE while their icon exits right out of frame, the next tick refills the same lane with one token, and no queue is drawn. Rasterized style-141 SVG states at 0.6, 1.9, 2.2 and 3.0 s were re-inspected and are unchanged English-only artwork.",
+    "host_checks": {
+      "focused_test_files": 13,
+      "focused_tests_passed": 197,
+      "lint": "passed",
+      "build": "passed",
+      "video": "assets/style-previews/style-141.webm",
+      "visible_change_ratio": 0.8787673611111111,
+      "live_api": {
+        "motion_graphics": 141,
+        "motions": 49,
+        "new_metadata": 200,
+        "thumbnail": 200,
+        "video": 200
+      },
+      "broader_test_suite": "Stopped while in progress after focused checks and runtime verification; not claimed as passed."
+    }
+  }
+}

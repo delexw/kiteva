@@ -1538,5 +1538,16 @@
     "source": "style-140.svg",
     "generatedAt": "2026-10-21T08:37:29.172Z",
     "designNotes": "Claude Opus 5.5 code-drawn Vintage Rubber Hose Animation sample. An original crooked house on a hill at night shows the hand-inked style: strong irregular ink silhouettes, painterly sepia rim light and dry-brush shadow, small glowing windows, leaning bare trees, layered painterly sky and wind streaks. The house squashes, stretches and settles in elastic drawings that change 12 times a second. It then cuts to the optional film-leader countdown, 3, 2, 1: precise concentric rings and crosshairs, a large pale sans-serif numeral and a darker rotating clock-wipe sector on a photographic plate with grain, scratches, dust and gate weave. The house and sequence are sample content, not requirements."
+  },
+  {
+    "styleId": "style-141",
+    "catalogHash": "cec5c72e3bafb02b8c194381f393cd28a4ef920eecfc804bd6cbc2bf5660f775",
+    "thumbnail": "style-141.webp",
+    "status": "ready",
+    "provider": "claude",
+    "model": "claude-opus-5-5",
+    "source": "style-141.svg",
+    "generatedAt": "2026-10-24T10:29:16.647Z",
+    "designNotes": "Claude Opus 5.5 code-drawn Pixel RPG Quest Explainer sample on one 4 px logical grid with bitmap lettering. A cream quest-map chapter card (numbered nodes, two cleared orange path segments, pixel trees, a castle and an original lantern-bot guide standing on the current node 3) holds under a dark STAGE 3 plate while a caption types into a pre-sized dialogue plate. A diamond-lattice pixel wipe cuts to a dark-grid mechanism: a key card, a hash box and six buckets build first; pixel connectors draw before their heads, the hash output appears and bucket 3 is claimed. As an authored preview choice (not a source observation), progress moves only when that concept resolves: the collectible counter changes from x02 to x03, the third inventory slot unlocks with a single flash, and the guide hops with a ONE HOP! bubble. Hearts, counter, runtime bar and corner brackets stay fixed throughout. Topic, copy and layout are sample content, not requirements; not reference artwork or footage."
   }
 ]

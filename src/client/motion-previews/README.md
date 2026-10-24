@@ -58,6 +58,7 @@ Claude Opus 5.5 rewrote the 43 studies and reviewed their rendered six-timestamp
 | motion-046 | Cumulative Device-Feed Pipeline                | [motion-046.ts](./motion-046.ts) |
 | motion-047 | Rotating Sonar-Sweep Reveal                    | [motion-047.ts](./motion-047.ts) |
 | motion-048 | Pixel-Tile Materialize & Targeted Delete       | [motion-048.ts](./motion-048.ts) |
+| motion-049 | Step-Tick Slot Refill                          | [motion-049.ts](./motion-049.ts) |
 
 `motion-043.ts` uses `../motion-orbit-preview.ts` for its projected 3D geometry.
 
@@ -73,6 +74,8 @@ Claude Opus 5.5 authored motion-044 to motion-046 from a frame analysis of a use
 
 Claude Opus 5.5 authored motion-047 and motion-048 on 2026-10-18 from a frame analysis of a user-supplied anime-style music video. motion-047 rotates one sector beam clockwise around a fixed pivot over an original underwater scene: clear inside, dark dot matrix outside, with no accumulated history. motion-048 slices one original astronaut illustration into 48 real crops that assemble from seeded scatter, then a red selection box deletes fixed cells, which stay empty. Both modules export pure timing and state helpers. The [review record](../../../assets/catalog/reviews/terminal-lyric-anime.json) lists the evidence, links and limitations.
 
+Claude Opus 5.5 authored motion-049 on 2026-10-24 from a frame analysis of a user-supplied pixel-art technical explainer. Four fixed slot lanes advance on one STEP clock: every active lane gains one token per tick; on its finishing tick a lane clears to a muted completion fill while its request icon exits right out of frame, and on the next tick a new request takes that same lane with one token while the other lanes keep their progress. No waiting queue is drawn: the source shows none, and the order of new requests is authored data. The schedule is replayed from step 0 for every query through exported pure helpers. The [review record](../../../assets/catalog/reviews/pixel-quest-explainer.json) lists the evidence, rejected candidates and limitations.
+
 All drawings are original code; no source imagery is reused. The [frame-findings record](../../../assets/catalog/reviews/mg-frame-findings.json) maps each recommendation to its implementation and evidence frames. Its visual review stays pending until the rendered previews have been inspected.
 
 Verification:
@@ -80,5 +83,6 @@ Verification:
 - `tests/motion-drawing.test.ts`: catalog coverage, motion semantics, finite drawing coordinates and repeatable seeks.
 - `tests/motion-orbit-preview.test.ts`: camera path and front/back occlusion.
 - `tests/terminal-lyric-anime.test.ts`: motion-047 rotation and mask semantics, motion-048 crops, assembly, fixed-cell deletion and seek stability, plus real canvas frames when the optional native canvas package is installed.
+- `tests/pixel-quest-explainer.test.ts`: motion-049 tick, finish, exit and next-step replacement semantics, authored request order, no drawn queue, explicit lane-label colour and contrast, English-only copy and seek stability.
 - `tests/mg-frame-findings.test.tsx`: the three frame-finding motions, the seven improved studies, variant contracts, catalog links and seek stability.
 - `scripts/verify-motion-explorer.ts`: every catalog card and detail preview in the running app, pause/resume, pixel changes, repeatable seeking, offscreen pause and reduced motion. Run with `node --import tsx scripts/verify-motion-explorer.ts`.

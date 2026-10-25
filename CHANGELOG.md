@@ -2,6 +2,34 @@
 
 Notable changes to Kiteva. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] — 2026-10-25
+
+Kiteva adds model-owned technology setup, documentation research and clearer production controls, with 141 Motion Graphics and 49 motions.
+
+### Added
+
+- **Project-local technology capabilities.** Both providers can inspect tools through Creative Pool MCP, prepare their own JavaScript, Python or other environments, and bundle browser libraries, CSS and assets without relying on Kiteva's dependency tree. Bundling never installs packages. [Implementation](https://github.com/delexw/kiteva/commit/b5ca0fe).
+- **Bundled AnySearch research.** Read tool documentation, CLI parameters, repository examples and source code through a verified workspace skill. Native provider web search/fetch is disabled; sandboxed setup and research use project-local caches. [Implementation](https://github.com/delexw/kiteva/commit/b5ca0fe).
+- **Model-called narration tools.** Create and edit timed narration through internal MCP while the application retains measured scheduling, final mixing and validation. [Narration and workflow controls](https://github.com/delexw/kiteva/commit/7827aaf).
+- **Pixel RPG Quest Explainer and Step-Tick Slot Refill.** New reviewed metadata, an authored preview and a seekable motion study bring the catalog to 141 Motion Graphics and 49 motions. [Catalog addition](https://github.com/delexw/kiteva/commit/84bd05b).
+- **Shared color chips.** Prompt displays and editors show compact color swatches alongside existing style and motion mentions. [Prompt controls](https://github.com/delexw/kiteva/commit/7827aaf).
+
+### Changed
+
+- **Focused corrections retain accepted fields.** Shared recursive merging preserves omitted manifest values, including shot lists and soundtracks; changed arrays replace rather than append. Model instructions reinforce the same boundary. [Workflow controls](https://github.com/delexw/kiteva/commit/7827aaf).
+- **Provider-independent activity.** Reads, file updates, checks, installation and bundling share work categories; repeated named actions show the latest outcome without exposing execution nesting. Different models may still need different calls and correction rounds. [Activity normalization](https://github.com/delexw/kiteva/commit/b5ca0fe).
+- **Governance and cache settings.** Separate uncached input, cache reads, cache writes and output, show API-rate cost ranges when usage details are incomplete, and use five-minute Claude prompt caches. [Usage accounting](https://github.com/delexw/kiteva/commit/7827aaf).
+- **Capability documentation.** Refresh the architecture, Mermaid diagrams and bilingual dated README history. Anatomy and AnySearch are staged from verified upstream installations; downloaded skills and local models are not source-release assets. [Documentation](https://github.com/delexw/kiteva/commit/b5ca0fe).
+
+### Fixed
+
+- **Playback and review evidence.** Align windowed cursor tracks and assess sampled export frames during final review. [Cursor fix](https://github.com/delexw/kiteva/commit/7568781), [sampled review](https://github.com/delexw/kiteva/commit/c004af1).
+- **Question and source boundaries.** Pause unanswered questions before storyboard validation; keep document names and paths out of visible or spoken video content unless explicitly requested. [Fixes](https://github.com/delexw/kiteva/commit/b5ca0fe).
+- **Previews, translations and outcomes.** Stabilize mention hover playback, translate new catalog details, and retain failure states for Codex MCP calls, commands and file changes. [Fixes and regression coverage](https://github.com/delexw/kiteva/commit/b5ca0fe).
+- **Vintage style guidance.** Clarify visual requirements without encouraging simplified drawing. [Metadata correction](https://github.com/delexw/kiteva/commit/084e43d).
+
+This is a GitHub source release, without desktop installers, npm publication, bundled local models or downloaded upstream skills. Windows support remains experimental; native CI results describe the tested runner, not every installation.
+
 ## [0.3.0] — 2026-10-23
 
 Kiteva adds chapter-based application demos, timed narration and renderer-owned reuse, with clearer production activity.
@@ -76,3 +104,4 @@ Kiteva uses the [MIT License](LICENSE). Third-party components retain their own 
 [0.1.0]: https://github.com/delexw/kiteva/releases/tag/v0.1.0
 [0.2.0]: https://github.com/delexw/kiteva/releases/tag/v0.2.0
 [0.3.0]: https://github.com/delexw/kiteva/releases/tag/v0.3.0
+[0.4.0]: https://github.com/delexw/kiteva/releases/tag/v0.4.0

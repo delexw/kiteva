@@ -37,6 +37,8 @@ Dates below use New Zealand time.
 <details>
 <summary>2026-10-25</summary>
 
+- **v0.4.0:** project-local MCP technology tools, AnySearch research, narration tools, shared corrections and the Pixel RPG Quest Explainer. See the [release notes](CHANGELOG.md#040--2026-10-25).
+
 - **Project-local technology tools:** both providers inspect availability through Creative Pool MCP, choose their own tools and run JavaScript, Python or other setup inside the project. Browser preparation bundles libraries, stylesheets and assets without installing packages or relying on Kiteva's dependency tree.
 - **Documentation research:** the bundled AnySearch skill reads tool documentation, CLI parameters, repository examples and source code. Native provider web search/fetch is disabled; sandbox networking supports research and model-owned setup, with project-local caches and isolated Codex skill discovery.
 - **Clearer provider activity:** reads, file updates, checks, installation and bundling share labels across GPT and Claude. Failed MCP calls and commands stay failed; equivalent workflow stages no longer disappear into generic build messages.

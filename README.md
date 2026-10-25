@@ -35,6 +35,28 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 Dates below use New Zealand time.
 
 <details>
+<summary>2026-10-25</summary>
+
+- **Project-local technology tools:** both providers inspect availability through Creative Pool MCP, choose their own tools and run JavaScript, Python or other setup inside the project. Browser preparation bundles libraries, stylesheets and assets without installing packages or relying on Kiteva's dependency tree.
+- **Documentation research:** the bundled AnySearch skill reads tool documentation, CLI parameters, repository examples and source code. Native provider web search/fetch is disabled; sandbox networking supports research and model-owned setup, with project-local caches and isolated Codex skill discovery.
+- **Clearer provider activity:** reads, file updates, checks, installation and bundling share labels across GPT and Claude. Failed MCP calls and commands stay failed; equivalent workflow stages no longer disappear into generic build messages.
+- **Pixel RPG Quest Explainer:** a reviewed Motion Graphic and preview plus Step-Tick Slot Refill bring the catalog to 141 Motion Graphics and 49 motions. Pixel progress follows the explained concepts rather than decorative counters.
+- **Prompt and preview fixes:** document filenames and titles stay out of the finished video unless requested; unanswered questions pause before storyboard validation, mention previews keep stable dimensions, and new catalog details have Chinese translations.
+- **Architecture documentation:** updated capability ownership, technology setup and skill-staging diagrams. Full local verification: 1,843 tests passed, three skipped, with build, lint and formatting passing. Platform-specific release verification is reported separately.
+
+</details>
+
+<details>
+<summary>2026-10-24</summary>
+
+- **Narration as an internal tool:** models create and edit timed narration through MCP; the application retains measured speech scheduling, mixing and validation. Narration activity appears for actual narration-tool calls.
+- **Corrections preserve accepted work:** shared manifest merging retains omitted fields across generation and correction paths, protecting shot lists, soundtrack references and unrelated settings.
+- **Production controls:** event-based activity groups show the latest repeated action, timing retries stay grouped by cycle, capture timing recovery preserves accepted footage, and customer questions use plain language about the result.
+- **Usage and prompt settings:** Governance separates ordinary input, cache reads, cache writes and output, with API-rate estimates and explicit uncertainty. Claude prompt caches use a five-minute TTL. Shared color chips work in prompt displays and editors; selected Motion Graphic contributions are guided by the idea rather than selection order.
+
+</details>
+
+<details>
 <summary>2026-10-23</summary>
 
 - **v0.3.0:** chapter-based demos, timed narration, native cursor action logs, renderer reuse and grouped activity. See the [release notes](CHANGELOG.md#030--2026-10-23).

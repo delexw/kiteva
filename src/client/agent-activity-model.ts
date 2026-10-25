@@ -1,3 +1,4 @@
+import { toolActivityLabels, type ToolActivity } from "../shared/tool-activity";
 import {
   CaptureChapterProgressSchema,
   CaptureChapterTimingSchema,
@@ -139,6 +140,14 @@ export const taskActivityLabels: Record<
   },
 };
 export function customerToolActivity(name: string, type: string, purpose?: string): string {
+  if (/creative_pool.*inspect_technologies/.test(name)) return "Checking tool availability…";
+  if (/creative_pool.*prepare_technology_stylesheet/.test(name))
+    return "Bundling stylesheets and assets…";
+  if (/creative_pool.*prepare_technology/.test(name)) return "Bundling browser dependencies…";
+  if (/creative_pool.*(?:lookup_technologies|read_technology)/.test(name))
+    return "Reading tool guidance…";
+  if (/creative_pool.*read_pool_entry/.test(name)) return "Reading creative references…";
+  if (/creative_pool.*search_pool/.test(name)) return "Exploring creative references…";
   if (/narration.*create_narration/.test(name)) return "Creating narration…";
   if (/narration.*edit_narration/.test(name)) return "Editing narration…";
   if (/react_bits.*search_components/.test(name)) return "Exploring visual components…";
@@ -217,6 +226,8 @@ export function activityItems(
       audience?: "customer" | "internal";
       state?: string;
       toolName?: string;
+      activity?: ToolActivity;
+      failed?: boolean;
       purpose?: string;
       invocationId?: string;
       correctionAttempt?: number;
@@ -364,9 +375,15 @@ export function activityItems(
         continue;
       }
       const item = prior || add("tool", customerToolActivity(name, event.type, data.purpose));
+      if (data.activity && data.activity in toolActivityLabels)
+        item.text = toolActivityLabels[data.activity];
       if (/narration.*(?:create_narration|edit_narration)/.test(name))
         item.capability = "narration";
-      item.status = data.state === "item.completed" ? "complete" : "running";
+      item.status = data.failed
+        ? "failed"
+        : data.state === "item.completed"
+          ? "complete"
+          : (prior?.status ?? "running");
       continue;
     }
     if (event.type === "tool_result") {

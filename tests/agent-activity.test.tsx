@@ -677,3 +677,95 @@ it("shows distinct component actions without exposing registry payloads or sourc
     }
   }
 });
+
+it("shows technology operations instead of generic production messages", () => {
+  for (const [tool, label] of [
+    ["inspect_technologies", "Checking tool availability…"],
+    ["prepare_technology", "Bundling browser dependencies…"],
+    ["prepare_technology_stylesheet", "Bundling stylesheets and assets…"],
+    ["read_technology", "Reading tool guidance…"],
+  ]) {
+    expect(
+      customerToolActivity(`mcp__creative_pool__${tool}`, "tool", "full video generation"),
+    ).toBe(label);
+    expect(
+      customerToolActivity(`creative_pool: ${tool}`, "mcp_tool_call", "technical correction"),
+    ).toBe(label);
+  }
+});
+
+it("updates the owning command when installation input arrives and preserves its result", () => {
+  const items = activityItems(
+    [
+      event(1, "tool", "Bash", "a", { itemId: "install", toolName: "Bash" }),
+      event(2, "tool_result", "Done", "a", {
+        results: [{ itemId: "install", failed: false, output: "Done" }],
+      }),
+      event(3, "tool", "Bash", "a", {
+        itemId: "install",
+        toolName: "Bash",
+        activity: "dependencies",
+      }),
+    ],
+    false,
+  );
+  expect(items).toHaveLength(1);
+  expect(items[0]).toMatchObject({ text: "Installing project dependencies…", status: "complete" });
+});
+
+it("keeps bundling failures and unknown commands distinct", () => {
+  const items = activityItems(
+    [
+      event(1, "command_execution", "private command", "a", {
+        itemId: "bundle",
+        activity: "bundling",
+      }),
+      event(2, "tool_result", "Failed", "a", {
+        results: [{ itemId: "bundle", failed: true, output: "Failed" }],
+      }),
+      event(3, "command_execution", "unknown script", "a", { itemId: "unknown" }),
+    ],
+    false,
+  );
+  expect(items[0]).toMatchObject({ text: "Bundling project assets…", status: "failed" });
+  expect(items[1].text).toBe("Working on your project…");
+});
+
+it("does not show a failed Codex installation as complete", () => {
+  const items = activityItems([
+    event(1, "command_execution", "Install failed", "a", {
+      itemId: "install",
+      state: "item.completed",
+      activity: "dependencies",
+      failed: true,
+    }),
+  ]);
+  expect(items[0]).toMatchObject({ text: "Installing project dependencies…", status: "failed" });
+});
+
+it("uses matching labels and outcomes for equivalent provider operations", () => {
+  const make = (type: string, toolName: string, activity?: "reading" | "editing" | "checking") =>
+    activityItems([
+      event(1, type, toolName, "a", {
+        itemId: "work",
+        toolName,
+        activity,
+        state: "item.completed",
+        purpose: "full video generation",
+      }),
+    ])[0];
+  expect(make("tool", "Read", "reading").text).toBe(
+    make("command_execution", "Terminal", "reading").text,
+  );
+  expect(make("tool", "Edit", "editing").text).toBe(
+    make("file_change", "Edit files", "editing").text,
+  );
+  for (const tool of ["read_pool_entry", "search_pool", "prepare_technology"])
+    expect(make("tool", `mcp__creative_pool__${tool}`).text).toBe(
+      make("mcp_tool_call", `creative_pool: ${tool}`).text,
+    );
+  expect(make("command_execution", "Terminal", "checking")).toMatchObject({
+    text: "Checking project code…",
+    status: "complete",
+  });
+});

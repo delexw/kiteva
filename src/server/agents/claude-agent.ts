@@ -1,3 +1,5 @@
+import { commandActivity } from "./command-activity";
+import { nativeWebTools, researchToolDenial } from "./research-policy";
 import { ModelCapacityError } from "./capacity-error";
 import { cavemanRuntime } from "./caveman";
 import {
@@ -176,7 +178,7 @@ export const claudeAgent: Agent = {
           systemPrompt,
           settings: { promptCacheTtl: "5m", subagentPromptCacheTtl: "5m" },
           env: {
-            ...childEnvironment(),
+            ...childEnvironment(workspace),
             ...caveman?.env,
             ...(caveman
               ? { ANTHROPIC_BASE_URL: `${caveman.url}/w/claude`, ENABLE_TOOL_SEARCH: "auto" }
@@ -229,6 +231,7 @@ export const claudeAgent: Agent = {
                   ...(options.planMode ? ["ExitPlanMode"] : []),
                   ...(options.planMode && options.exploreBriefSections ? ["Agent"] : []),
                 ],
+          disallowedTools: nativeWebTools,
           permissionMode: options.planMode ? "plan" : "acceptEdits",
           ...(options.planMode
             ? {
@@ -260,6 +263,8 @@ export const claudeAgent: Agent = {
               : {}),
           },
           canUseTool: async (name, input) => {
+            if (nativeWebTools.includes(name))
+              return { behavior: "deny", message: researchToolDenial };
             if (name === "ExitPlanMode")
               return options.planMode
                 ? { behavior: "allow", updatedInput: input }
@@ -300,7 +305,18 @@ export const claudeAgent: Agent = {
               allowWrite: [workspace],
               denyRead: ["~/.ssh", "~/.aws", "~/.codex/auth.json", "~/.claude/.credentials.json"],
             },
-            network: { allowedDomains: [] },
+            network: {
+              allowedDomains: options.textOnly ? [] : ["*"],
+              allowLocalBinding: !options.textOnly,
+              ...(process.platform === "darwin" && !options.textOnly
+                ? {
+                    // macOS resolves names through this socket, including the sandbox proxy's localhost.
+                    allowUnixSockets: ["/private/var/run/mDNSResponder"],
+                    // Python truststore and Go clients verify TLS through the macOS trust agent.
+                    allowMachLookup: ["com.apple.trustd.agent"],
+                  }
+                : {}),
+            },
           },
           outputFormat: { type: "json_schema", schema: jsonSchema },
         },
@@ -309,6 +325,25 @@ export const claudeAgent: Agent = {
         signal.throwIfAborted();
         const mapped = claudeEvent(e);
         if (mapped) onEvent({ ...mapped, message: safeMessage(mapped.message) });
+        if (e.type === "assistant") {
+          for (const block of e.message.content) {
+            if (block.type !== "tool_use") continue;
+            const input = block.input as { command?: unknown };
+            const activity =
+              block.name === "Bash" && typeof input?.command === "string"
+                ? commandActivity(input.command)
+                : ["Read", "Glob", "Grep"].includes(block.name)
+                  ? "reading"
+                  : ["Edit", "Write", "MultiEdit"].includes(block.name)
+                    ? "editing"
+                    : undefined;
+            onEvent({
+              type: "tool",
+              message: block.name,
+              data: { itemId: block.id, toolName: block.name, activity },
+            });
+          }
+        }
         signal.throwIfAborted();
         if (e.type === "system" && e.subtype === "init") {
           sessionId = e.session_id;

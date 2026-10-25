@@ -31,7 +31,7 @@ export function safeMessage(value: unknown): string {
   return redactSecrets(value).slice(0, 12000);
 }
 
-export function childEnvironment() {
+export function childEnvironment(workspace?: string) {
   const names = [
     "HOME",
     "PATH",
@@ -44,9 +44,17 @@ export function childEnvironment() {
     "ANTHROPIC_API_KEY",
     "CLAUDE_CODE_OAUTH_TOKEN",
     "CLAUDE_CODE_GIT_BASH_PATH",
+    "ANYSEARCH_API_KEY",
   ];
   return {
     ...systemEnvironment(),
+    NODE_USE_ENV_PROXY: "1",
     ...Object.fromEntries(names.flatMap((k) => (process.env[k] ? [[k, process.env[k]!]] : []))),
+    ...(workspace
+      ? {
+          XDG_CACHE_HOME: path.join(workspace, ".cache"),
+          npm_config_cache: path.join(workspace, ".cache", "npm"),
+        }
+      : {}),
   };
 }

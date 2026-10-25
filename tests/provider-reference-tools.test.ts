@@ -413,7 +413,13 @@ it.each(["claude", "codex"] as const)(
     expect(provider === "claude" ? pool.args : pool.enabled_tools).toEqual(
       provider === "claude"
         ? expect.arrayContaining([expect.stringMatching(/creative-pool[/\\]server\.ts$/)])
-        : ["search_pool", "read_pool_entry"],
+        : [
+            "search_pool",
+            "read_pool_entry",
+            "inspect_technologies",
+            "prepare_technology",
+            "prepare_technology_stylesheet",
+          ],
     );
     expect(JSON.stringify(options)).not.toContain("FluidSynth");
     const invocation = onEvent.mock.calls

@@ -1,3 +1,4 @@
+import { commandActivity } from "./command-activity";
 import { ModelCapacityError } from "./capacity-error";
 import { cavemanRuntime, codexCavemanAuth, codexCavemanProvider } from "./caveman";
 import { Codex, type ThreadEvent } from "@openai/codex-sdk";
@@ -45,7 +46,22 @@ export function codexEvent(event: ThreadEvent): ProviderEvent | undefined {
       data: {
         itemId: i.id,
         state: event.type,
-        ...(i.type === "mcp_tool_call" ? { toolName: `${i.server}: ${i.tool}` } : {}),
+        ...(i.type === "command_execution"
+          ? {
+              activity: commandActivity(i.command),
+              failed: i.status === "failed" || (i.exit_code !== undefined && i.exit_code !== 0),
+            }
+          : {}),
+        ...(i.type === "file_change" ? { activity: "editing", failed: i.status === "failed" } : {}),
+        ...(i.type === "mcp_tool_call"
+          ? {
+              toolName: `${i.server}: ${i.tool}`,
+              failed:
+                i.status === "failed" ||
+                Boolean(i.error) ||
+                (i.result?.structured_content as { kind?: string } | undefined)?.kind === "error",
+            }
+          : {}),
       },
     };
   }
@@ -66,7 +82,14 @@ export const codexAgent: Agent = {
     signal.throwIfAborted();
     let result: unknown;
     const client = new Codex({
-      env: { ...childEnvironment(), ...caveman?.env, CODEX_HOME: home },
+      env: {
+        ...childEnvironment(workspace),
+        ...caveman?.env,
+        CODEX_HOME: home,
+        // Codex also discovers user skills under HOME/.agents, independently of CODEX_HOME.
+        HOME: home,
+        ...(process.platform === "win32" ? { USERPROFILE: home } : {}),
+      },
       config: {
         ...(process.platform === "win32" ? { windows: { sandbox: "elevated" } } : {}),
         ...(caveman
@@ -132,9 +155,9 @@ export const codexAgent: Agent = {
       model: model,
       workingDirectory: workspace,
       skipGitRepoCheck: true,
-      sandboxMode: options.readOnly ? ("read-only" as const) : ("workspace-write" as const),
       approvalPolicy: "never" as const,
-      networkAccessEnabled: false,
+      sandboxMode: options.readOnly ? ("read-only" as const) : ("workspace-write" as const),
+      networkAccessEnabled: !options.textOnly,
       webSearchMode: "disabled" as const,
       ...(options.reasoningEffort ? { modelReasoningEffort: options.reasoningEffort } : {}),
     };

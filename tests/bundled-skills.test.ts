@@ -1,5 +1,7 @@
 import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import path from "node:path";
 import os from "node:os";
 import { afterEach, expect, it } from "vitest";
@@ -44,7 +46,11 @@ it("stages the complete installed skill and license and restores edited files", 
   expect(await readFile(path.join(root, "LICENSE"), "utf8")).toContain("MIT License");
   expect(
     JSON.parse(await readFile(path.join(workspace, ".agents/.claude-plugin/plugin.json"), "utf8")),
-  ).toEqual({ name: "bundled-authoring", version: "1.0.0", skills: ["./skills/anatomy"] });
+  ).toEqual({
+    name: "bundled-authoring",
+    version: "1.0.0",
+    skills: ["./skills/anatomy", "./skills/anysearch"],
+  });
   await writeFile(path.join(root, "SKILL.md"), "changed");
   await prepareBundledSkills(workspace, signal, installation.root);
   expect(await readFile(path.join(root, "SKILL.md"), "utf8")).toContain("name: anatomy");
@@ -52,7 +58,7 @@ it("stages the complete installed skill and license and restores edited files", 
 it("configures only the app-owned Claude plugin and disables skills for text-only tasks", () => {
   expect(claudeBundledSkills("/job", true)).toEqual({
     plugins: [{ type: "local", path: "/job/.agents" }],
-    skills: ["bundled-authoring:anatomy"],
+    skills: ["bundled-authoring:anatomy", "bundled-authoring:anysearch"],
   });
   expect(claudeBundledSkills("/job", false)).toEqual({ plugins: [], skills: [] });
 });
@@ -108,4 +114,35 @@ it("keeps optional authoring separate from selected styles, capture and timeline
   expect(bundledSkillsGuidance).toContain("absolute composition time");
   expect(bundledSkillsGuidance).toContain("fresh page");
   expect(bundledSkillsGuidance).toContain("built-in capture_video");
+});
+
+it("stages AnySearch as CommonJS without copying global credentials", async () => {
+  const workspace = await temporaryWorkspace();
+  await writeFile(path.join(workspace, "package.json"), '{"type":"module"}');
+  await prepareBundledSkills(workspace, new AbortController().signal, installation.root);
+  const root = path.join(workspace, ".agents/skills/anysearch");
+  expect(JSON.parse(await readFile(path.join(root, "package.json"), "utf8"))).toMatchObject({
+    type: "commonjs",
+  });
+  expect(await readFile(path.join(root, "SKILL.md"), "utf8")).toContain("name: anysearch");
+  await expect(readFile(path.join(root, ".env"))).rejects.toThrow();
+  const { stdout } = await promisify(execFile)(process.execPath, [
+    path.join(root, "scripts/cli.js"),
+  ]);
+  expect(stdout.trim()).toBe("cli.js");
+});
+
+it("rejects linked generated runtime metadata without altering its target", async () => {
+  const workspace = await temporaryWorkspace();
+  const signal = new AbortController().signal;
+  await prepareBundledSkills(workspace, signal, installation.root);
+  const metadata = path.join(workspace, ".agents/skills/anysearch/package.json");
+  const outside = path.join(await temporaryWorkspace(), "package.json");
+  await writeFile(outside, '{"type":"module"}');
+  await rm(metadata);
+  await symlink(outside, metadata);
+  await expect(prepareBundledSkills(workspace, signal, installation.root)).rejects.toThrow(
+    "Skill package metadata must not be a link",
+  );
+  expect(await readFile(outside, "utf8")).toBe('{"type":"module"}');
 });

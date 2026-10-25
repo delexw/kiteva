@@ -1114,5 +1114,15 @@
   "Editing narration…": "正在编辑旁白…",
   "Refining story timing": "调整故事节奏",
   "Attempt {{attempt}}": "第 {{attempt}} 次尝试",
-  "Edit color {{color}}": "编辑颜色 {{color}}"
+  "Edit color {{color}}": "编辑颜色 {{color}}",
+  "Checking tool availability…": "正在检查工具可用性…",
+  "Bundling stylesheets and assets…": "正在打包样式和资源…",
+  "Bundling browser dependencies…": "正在打包浏览器依赖…",
+  "Reading tool guidance…": "正在阅读工具指南…",
+  "Installing project dependencies…": "正在安装项目依赖…",
+  "Bundling project assets…": "正在打包项目资源…",
+  "Checking project code…": "正在检查项目代码…",
+  "Reading creative references…": "正在阅读创作参考…",
+  "Exploring creative references…": "正在查找创作参考…",
+  "Updating project files…": "正在更新项目文件…"
 }

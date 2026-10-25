@@ -177,7 +177,7 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
       yield {
         type: "system",
         subtype: "init",
-        skills: ["bundled-authoring:anatomy"],
+        skills: ["bundled-authoring:anatomy", "bundled-authoring:anysearch"],
         session_id: "resumed-session",
       };
       yield {
@@ -239,12 +239,36 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
           tool_input: { command: "node scene.js" },
         }),
       ).toEqual({});
+      const settings = sdk.query.mock.calls.at(-1)![0].options;
+      expect(settings.disallowedTools).toEqual(["WebFetch", "WebSearch"]);
+      expect(settings.sandbox.network.allowedDomains).toEqual(["*"]);
+      expect(settings.sandbox.enabled).toBe(true);
+      expect(settings.sandbox.allowUnsandboxedCommands).toBe(false);
+      expect(settings.sandbox.network.allowLocalBinding).toBe(true);
+      expect(settings.sandbox.network.allowUnixSockets).toEqual(
+        process.platform === "darwin" ? ["/private/var/run/mDNSResponder"] : undefined,
+      );
+      expect(settings.sandbox.network.allowMachLookup).toEqual(
+        process.platform === "darwin" ? ["com.apple.trustd.agent"] : undefined,
+      );
+      expect(settings.env.NODE_USE_ENV_PROXY).toBe("1");
+      expect(settings.env.npm_config_cache).toBe(path.join("/job", ".cache", "npm"));
+      expect(settings.env.XDG_CACHE_HOME).toBe(path.join("/job", ".cache"));
+      expect(await settings.canUseTool("WebFetch", { url: "https://example.com" })).toMatchObject({
+        behavior: "deny",
+      });
       expect(sdk.close).toHaveBeenCalledOnce();
     } else {
+      expect(sdk.construct.mock.calls.at(-1)?.[0].env).toMatchObject({
+        CODEX_HOME: "/isolated-home",
+        HOME: "/isolated-home",
+        ...(process.platform === "win32" ? { USERPROFILE: "/isolated-home" } : {}),
+      });
       expect(sdk.resume).toHaveBeenCalledWith("original-session");
       expect(sdk.threadOptions.mock.calls.at(-1)?.[0]).toMatchObject({
+        webSearchMode: "disabled",
         sandboxMode: "workspace-write",
-        networkAccessEnabled: false,
+        networkAccessEnabled: true,
       });
       expect(events.find((event) => event.type === "usage")?.data).toMatchObject({
         usageScope: "session",
@@ -581,7 +605,7 @@ async function* claudeOverloadFailure() {
   yield {
     type: "system",
     subtype: "init",
-    skills: ["bundled-authoring:anatomy"],
+    skills: ["bundled-authoring:anatomy", "bundled-authoring:anysearch"],
     session_id: "claude-direction",
   };
   yield claudeAssistantError("overloaded");
@@ -591,7 +615,7 @@ async function* claudeRecoveredTurn() {
   yield {
     type: "system",
     subtype: "init",
-    skills: ["bundled-authoring:anatomy"],
+    skills: ["bundled-authoring:anatomy", "bundled-authoring:anysearch"],
     session_id: "claude-direction",
   };
   yield {
@@ -717,7 +741,7 @@ it("captures a structured Claude overload even if the SDK subsequently exits wit
       yield {
         type: "system",
         subtype: "init",
-        skills: ["bundled-authoring:anatomy"],
+        skills: ["bundled-authoring:anatomy", "bundled-authoring:anysearch"],
         session_id: "claude-direction",
       };
       yield claudeAssistantError("overloaded");
@@ -1186,7 +1210,7 @@ it.each(["claude", "codex"] as const)(
         type: "system",
         subtype: "init",
         session_id: session,
-        skills: ["bundled-authoring:anatomy"],
+        skills: ["bundled-authoring:anatomy", "bundled-authoring:anysearch"],
       };
       yield {
         type: "result",
@@ -1361,6 +1385,246 @@ it("forces five-minute SDK caching above inherited one-hour CLI settings without
       if (previous[key] === undefined) delete process.env[key];
       else process.env[key] = previous[key];
     }
+    await rm(workspace, { recursive: true, force: true });
+  }
+});
+
+it("emits installation activity for every Claude shell call, including mixed assistant messages", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "sdk-install-activity-"));
+  sdk.query.mockImplementation(async function* () {
+    yield {
+      type: "assistant",
+      message: {
+        content: [
+          { type: "text", text: "Preparing the project" },
+          {
+            type: "tool_use",
+            id: "npm-install",
+            name: "Bash",
+            input: { command: "npm install matter-js" },
+          },
+          {
+            type: "tool_use",
+            id: "pip-install",
+            name: "Bash",
+            input: { command: "python3 -m pip install Pillow" },
+          },
+        ],
+      },
+    };
+    yield {
+      type: "result",
+      subtype: "success",
+      is_error: false,
+      structured_output: { message: "done" },
+      session_id: "installation",
+      usage: {},
+      modelUsage: {},
+    };
+  });
+  const events: unknown[] = [];
+  try {
+    await agentTurn({
+      provider: "claude",
+      workspace,
+      prompt: "Build a project",
+      model: "selected-model",
+      schema: z.object({ message: z.literal("done") }),
+      signal: new AbortController().signal,
+      onEvent: (event) => events.push(event),
+    });
+    expect(events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "tool",
+          data: expect.objectContaining({
+            itemId: "npm-install",
+            toolName: "Bash",
+            activity: "dependencies",
+          }),
+        }),
+        expect.objectContaining({
+          type: "tool",
+          data: expect.objectContaining({
+            itemId: "pip-install",
+            toolName: "Bash",
+            activity: "dependencies",
+          }),
+        }),
+      ]),
+    );
+    expect(
+      JSON.stringify(events.filter((e) => (e as { type: string }).type === "tool")),
+    ).not.toContain("Pillow");
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
+  }
+});
+
+it("preserves failed Codex installation outcomes without exposing command arguments", async () => {
+  const { codexEvent } = await import("../src/server/agents/codex-agent");
+  const event = codexEvent({
+    type: "item.completed",
+    item: {
+      id: "install",
+      type: "command_execution",
+      command: "/bin/zsh -lc 'npm install example'",
+      aggregated_output: "Install failed",
+      exit_code: 1,
+      status: "failed",
+    },
+  });
+  expect(event?.data).toMatchObject({
+    activity: "dependencies",
+    failed: true,
+    state: "item.completed",
+  });
+  expect(event?.data).not.toHaveProperty("command");
+});
+
+it("preserves Codex MCP and file-change failures", async () => {
+  const { codexEvent } = await import("../src/server/agents/codex-agent");
+  expect(
+    codexEvent({
+      type: "item.completed",
+      item: {
+        id: "mcp",
+        type: "mcp_tool_call",
+        server: "creative_pool",
+        tool: "prepare_technology",
+        arguments: {},
+        status: "failed",
+        error: { message: "Bundle failed" },
+      },
+    })?.data,
+  ).toMatchObject({ failed: true, toolName: "creative_pool: prepare_technology" });
+  expect(
+    codexEvent({
+      type: "item.completed",
+      item: {
+        id: "mcp",
+        type: "mcp_tool_call",
+        server: "creative_pool",
+        tool: "prepare_technology",
+        arguments: {},
+        status: "completed",
+        result: { content: [], structured_content: { kind: "error", message: "Not installed" } },
+      },
+    })?.data,
+  ).toMatchObject({ failed: true });
+  expect(
+    codexEvent({
+      type: "item.completed",
+      item: { id: "edit", type: "file_change", changes: [], status: "failed" },
+    })?.data,
+  ).toMatchObject({ failed: true, activity: "editing" });
+});
+
+it("produces equivalent customer activity from native Claude and Codex SDK events", async () => {
+  const { activityItems } = await import("../src/client/agent-activity-model");
+  const { codexEvent } = await import("../src/server/agents/codex-agent");
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "sdk-activity-parity-"));
+  sdk.query.mockImplementation(async function* () {
+    yield {
+      type: "assistant",
+      message: {
+        content: [
+          { type: "text", text: "Preparing the project" },
+          { type: "tool_use", id: "read", name: "Read", input: { file_path: "brief.json" } },
+          { type: "tool_use", id: "edit", name: "Edit", input: {} },
+          {
+            type: "tool_use",
+            id: "check",
+            name: "Bash",
+            input: { command: "node --check main.js" },
+          },
+        ],
+      },
+    };
+    yield {
+      type: "user",
+      message: {
+        content: [
+          { type: "tool_result", tool_use_id: "read", content: "Done" },
+          { type: "tool_result", tool_use_id: "edit", is_error: true, content: "Failed" },
+          { type: "tool_result", tool_use_id: "check", content: "Done" },
+        ],
+      },
+    };
+    yield {
+      type: "result",
+      subtype: "success",
+      is_error: false,
+      structured_output: { message: "done" },
+      session_id: "parity",
+      usage: {},
+      modelUsage: {},
+    };
+  });
+  const events: import("../src/server/agents/agent").ProviderEvent[] = [];
+  try {
+    await agentTurn({
+      provider: "claude",
+      workspace,
+      prompt: "Build a project",
+      model: "selected-model",
+      schema: z.object({ message: z.literal("done") }),
+      signal: new AbortController().signal,
+      onEvent: (event) => events.push(event),
+    });
+    const codex = [
+      codexEvent({
+        type: "item.completed",
+        item: {
+          id: "read",
+          type: "command_execution",
+          command: "/bin/zsh -lc 'cat brief.json'",
+          aggregated_output: "Done",
+          status: "completed",
+          exit_code: 0,
+        },
+      })!,
+      codexEvent({
+        type: "item.completed",
+        item: { id: "edit", type: "file_change", changes: [], status: "failed" },
+      })!,
+      codexEvent({
+        type: "item.completed",
+        item: {
+          id: "check",
+          type: "command_execution",
+          command: "node --check main.js",
+          aggregated_output: "Done",
+          status: "completed",
+          exit_code: 0,
+        },
+      })!,
+    ];
+    const visible = (input: typeof events) =>
+      activityItems(
+        input.map((event, index) => ({
+          ...event,
+          id: index + 1,
+          runId: "example",
+          jobId: "build",
+          time: "2026-01-01T10:00:00Z",
+          data: {
+            ...(event.data as object),
+            invocationId: "build",
+            purpose: "full video generation",
+          },
+        })),
+        false,
+      )
+        .filter((item) => item.kind === "tool")
+        .map(({ text, status }) => ({ text, status }));
+    expect(visible(events)).toEqual(visible(codex));
+    expect(visible(codex)).toEqual([
+      { text: "Reading project content…", status: "complete" },
+      { text: "Updating project files…", status: "failed" },
+      { text: "Checking project code…", status: "complete" },
+    ]);
+  } finally {
     await rm(workspace, { recursive: true, force: true });
   }
 });

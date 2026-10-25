@@ -21,5 +21,26 @@ export async function skillInstallationFixture() {
   }
   const manifest = { repository: "https://github.com/wheresryan22/anatomy.git", revision, files };
   await writeFile(path.join(root, "anatomy/current.json"), JSON.stringify(manifest));
+  const anysearchDirectory = path.join(root, "anysearch", revision);
+  await mkdir(anysearchDirectory, { recursive: true });
+  const anysearchFiles: Record<string, string> = {};
+  for (const [name, content] of Object.entries({
+    "SKILL.md": "---\nname: anysearch\ndescription: Test research skill\n---\nTest fixture.\n",
+    LICENSE: "Apache-2.0 test fixture.\n",
+    "scripts/cli.js":
+      "const path = require('node:path'); console.log(path.basename(__filename));\n",
+  })) {
+    await mkdir(path.dirname(path.join(anysearchDirectory, name)), { recursive: true });
+    await writeFile(path.join(anysearchDirectory, name), content);
+    anysearchFiles[name] = createHash("sha256").update(content).digest("hex");
+  }
+  await writeFile(
+    path.join(root, "anysearch/current.json"),
+    JSON.stringify({
+      repository: "https://github.com/anysearch-ai/anysearch-skill.git",
+      revision,
+      files: anysearchFiles,
+    }),
+  );
   return { root, directory, manifest };
 }

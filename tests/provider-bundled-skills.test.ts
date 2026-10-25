@@ -117,6 +117,7 @@ it.each(["claude", "codex"] as const)(
         ]);
         expect(sdk.query.mock.calls.at(-1)![0].options.skills).toEqual([
           "bundled-authoring:anatomy",
+          "bundled-authoring:anysearch",
         ]);
       } else expect(sdk.construct.mock.calls.at(-1)![0].config.project_doc_max_bytes).toBe(0);
       const textWorkspace = path.join(workspace, "text-only");

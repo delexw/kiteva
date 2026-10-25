@@ -193,6 +193,11 @@ export async function generateVideo(input: {
       job.speechTrack = await currentNarrationTrack(job.workspace, job.speechTrack);
       const { storyboard, ...production } = turn.value;
       const merged = mergeCorrection(job.production, production, ProductionSchema);
+      if (merged.assetNeeds?.length) {
+        job.production = merged;
+        // The orchestrator pauses only unanswered questions; answered needs may remain in a merged manifest.
+        update();
+      }
       await writeStoryboardJson(job.workspace, storyboard, job.duration);
       job.production = merged;
       if (job.kind === "preview") {

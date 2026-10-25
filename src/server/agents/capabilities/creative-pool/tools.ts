@@ -1,12 +1,20 @@
+import path from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { loadCatalog } from "../../../catalog/catalog";
 import { technologyPool } from "../../../../shared/technology-pool";
 import type { CreativePoolEntry, CreativePoolResult } from "./types";
+import { projectTechnologyRoot } from "../../../technology/project-runtime";
+import { technologyEnvironment, technologyExecutableKey } from "../../../technology/availability";
+import { prepareTechnology, prepareTechnologyStylesheet } from "../../../technology/prepare";
 
 const poolKind = z.enum(["motion_graphic", "motion", "technology"]);
 
-export function createCreativePoolTools(signal: AbortSignal, includeAlternatives = true) {
+export function createCreativePoolTools(
+  signal: AbortSignal,
+  includeAlternatives = true,
+  options: { workspace?: string; readOnly?: boolean } = {},
+) {
   const omittedFields = new Set([
     "provenance",
     "combination_guidance_provenance",
@@ -120,5 +128,100 @@ export function createCreativePoolTools(signal: AbortSignal, includeAlternatives
         };
       }),
   );
+  server.registerTool(
+    "inspect_technologies",
+    {
+      description:
+        "Check current local availability and loading requirements for chosen technology IDs, or all pool technologies if omitted. Distinguishes packages, native capabilities, offline tools, techniques and assets. No installs, files or mandatory technology choices.",
+      inputSchema: {
+        ids: z.array(z.string().min(1)).max(100).optional(),
+        runtimeDirectory: z.string().optional(),
+        pythonExecutable: z.string().optional(),
+        executables: z.record(z.string(), z.string()).optional(),
+      },
+      annotations: { readOnlyHint: true },
+    },
+    ({ ids, runtimeDirectory, pythonExecutable, executables }) =>
+      run(async () => {
+        const root = options.workspace
+          ? await projectTechnologyRoot(options.workspace, runtimeDirectory)
+          : undefined;
+        const env = { ...process.env };
+        if (pythonExecutable) {
+          if (!options.workspace)
+            throw Error("A project workspace is required for a prepared Python executable");
+          const directory = await projectTechnologyRoot(
+            options.workspace,
+            path.dirname(pythonExecutable),
+          );
+          const executable = path.join(directory, path.basename(pythonExecutable));
+          env.KITEVA_TECHNOLOGY_PYTHON = executable;
+        }
+        for (const [id, relative] of Object.entries(executables || {})) {
+          const key = technologyExecutableKey(id);
+          if (!key || !options.workspace)
+            throw Error("Choose a catalog executable and project-relative path");
+          const directory = await projectTechnologyRoot(options.workspace, path.dirname(relative));
+          env[`KITEVA_TECHNOLOGY_${key.toUpperCase()}`] = path.join(
+            directory,
+            path.basename(relative),
+          );
+        }
+        const environment = technologyEnvironment(root, env);
+        return {
+          kind: "availability",
+          technologies: await Promise.all(
+            (ids ?? Object.keys(technologyPool)).map((id) => environment.inspect(id)),
+          ),
+        };
+      }),
+  );
+
+  if (options.workspace && options.readOnly === false) {
+    const workspace = options.workspace;
+    server.registerTool(
+      "prepare_technology",
+      {
+        description:
+          "Bundle a chosen browser package from a model-prepared project runtimeDirectory. Returns usable import/CSS/asset paths. Does not install packages or use Kiteva’s dependencies. For Python, CLI and other tools, use their prepared project environment directly.",
+        inputSchema: { id: z.string().min(1), runtimeDirectory: z.string().optional() },
+        annotations: { readOnlyHint: false, destructiveHint: false },
+      },
+      ({ id, runtimeDirectory }) =>
+        run(async () => ({
+          kind: "prepared",
+          technology: await prepareTechnology(
+            id,
+            workspace,
+            signal,
+            await projectTechnologyRoot(workspace, runtimeDirectory),
+          ),
+        })),
+    );
+    server.registerTool(
+      "prepare_technology_stylesheet",
+      {
+        description:
+          "Bundle a chosen technology's package-relative CSS file and its local assets into the project, from a model-prepared project runtimeDirectory; no installation. Use when its canonical integration needs a stylesheet.",
+        inputSchema: {
+          id: z.string().min(1),
+          stylesheet: z.string().min(1),
+          runtimeDirectory: z.string().optional(),
+        },
+        annotations: { readOnlyHint: false, destructiveHint: false },
+      },
+      ({ id, stylesheet, runtimeDirectory }) =>
+        run(async () => ({
+          kind: "stylesheet",
+          technology: await prepareTechnologyStylesheet(
+            id,
+            stylesheet,
+            workspace,
+            signal,
+            await projectTechnologyRoot(workspace, runtimeDirectory),
+          ),
+        })),
+    );
+  }
   return server;
 }

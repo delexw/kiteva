@@ -1,3 +1,4 @@
+import { technologyRuntimeFixture } from "./fixtures/technology-runtime";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
@@ -7,14 +8,20 @@ import { creativePoolCapability } from "../src/server/agents/capabilities/creati
 import { agentCapabilities } from "../src/server/agents/capabilities/registry";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { technologyPool } from "../src/shared/technology-pool";
+import { mkdtemp, rm, readFile, mkdir, writeFile, readdir, symlink } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 
 const cleanup: (() => Promise<unknown>)[] = [];
 afterEach(async () => {
   for (const close of cleanup.splice(0).reverse()) await close();
 });
-async function connect(includeAlternatives = true) {
+async function connect(
+  includeAlternatives = true,
+  options: { workspace?: string; readOnly?: boolean } = {},
+) {
   const controller = new AbortController();
-  const server = createCreativePoolTools(controller.signal, includeAlternatives);
+  const server = createCreativePoolTools(controller.signal, includeAlternatives, options);
   const client = new Client({ name: "pool-test", version: "1" });
   const [a, b] = InMemoryTransport.createLinkedPair();
   await server.connect(b);
@@ -25,6 +32,146 @@ async function connect(includeAlternatives = true) {
   );
   return { client, controller };
 }
+
+it.each([true, false])(
+  "requires relevant technology discovery while preserving model choice (%s)",
+  (readOnly) => {
+    const { guidance } = agentCapabilities("/job", readOnly);
+    expect(guidance).toContain("Before implementation, call creative_pool.inspect_technologies");
+    expect(guidance).toContain("including native features");
+    expect(guidance).toContain("project-local environments");
+    expect(guidance).toContain("Keep Kiteva’s dependencies unchanged");
+    expect(guidance).toContain("document actual tool use and plan changes");
+  },
+);
+
+it("reports availability on demand through MCP and prepares only a chosen technology during builds", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "pool-technologies-"));
+  cleanup.push(() => rm(workspace, { recursive: true, force: true }));
+  const { client } = await connect(true, { workspace, readOnly: false });
+  const available = await client.callTool({
+    name: "inspect_technologies",
+    arguments: { ids: ["gsap", "layered_png_assets"] },
+  });
+  expect(available.structuredContent).toMatchObject({
+    kind: "availability",
+    technologies: [
+      { id: "gsap", status: "unavailable" },
+      { id: "layered_png_assets", status: "requires_assets" },
+    ],
+  });
+  await technologyRuntimeFixture(workspace, "gsap");
+  const prepared = await client.callTool({ name: "prepare_technology", arguments: { id: "gsap" } });
+  expect(prepared.isError).not.toBe(true);
+  expect(prepared.structuredContent).toMatchObject({
+    kind: "prepared",
+    technology: { id: "gsap", modulePath: expect.any(String) },
+  });
+  expect(JSON.parse((prepared.content as { text: string }[])[0].text)).toEqual(
+    prepared.structuredContent,
+  );
+  const output = prepared.structuredContent as { technology: { modulePath: string } };
+  expect(await readFile(path.join(workspace, output.technology.modulePath), "utf8")).toContain(
+    "gsap",
+  );
+  const readOnly = await connect(true, { workspace, readOnly: true });
+  expect((await readOnly.client.listTools()).tools.map((tool) => tool.name)).toContain(
+    "inspect_technologies",
+  );
+  expect((await readOnly.client.listTools()).tools.map((tool) => tool.name)).not.toContain(
+    "prepare_technology",
+  );
+  expect((await readOnly.client.listTools()).tools.map((tool) => tool.name)).not.toContain(
+    "prepare_technology_stylesheet",
+  );
+  const denied = await readOnly.client.callTool({
+    name: "prepare_technology",
+    arguments: { id: "gsap" },
+  });
+  expect(denied.isError).toBe(true);
+});
+
+it("returns typed MCP errors for invalid technology inputs without changing the project", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "invalid-tool-runtime-"));
+  const outside = await mkdtemp(path.join(os.tmpdir(), "outside-tool-runtime-"));
+  cleanup.push(
+    () => rm(workspace, { recursive: true, force: true }),
+    () => rm(outside, { recursive: true, force: true }),
+  );
+  await symlink(outside, path.join(workspace, "escape"), "junction");
+  const { client } = await connect(true, { workspace, readOnly: false });
+  for (const args of [
+    { ids: ["unknown"] },
+    { ids: ["gsap"], runtimeDirectory: "escape" },
+    { ids: ["pillow"], pythonExecutable: "../outside/python" },
+    { ids: ["ffmpeg"], executables: { ffmpeg: path.join(outside, "ffmpeg") } },
+    { ids: ["gsap"], executables: { gsap: "anything" } },
+  ]) {
+    const result = await client.callTool({ name: "inspect_technologies", arguments: args });
+    expect(result.isError).toBe(true);
+    expect(result.structuredContent).toMatchObject({ kind: "error", message: expect.any(String) });
+    expect((result.content as { text: string }[])[0].text).toBe(
+      (result.structuredContent as { message: string }).message,
+    );
+  }
+  expect(await readdir(workspace)).toEqual(["escape"]);
+  expect(await readdir(outside)).toEqual([]);
+});
+
+it("keeps separately prepared projects isolated during inspection", async () => {
+  const first = await mkdtemp(path.join(os.tmpdir(), "first-tool-runtime-"));
+  const second = await mkdtemp(path.join(os.tmpdir(), "second-tool-runtime-"));
+  cleanup.push(
+    () => rm(first, { recursive: true, force: true }),
+    () => rm(second, { recursive: true, force: true }),
+  );
+  await technologyRuntimeFixture(first, "matter_js");
+  const prepared = await connect(true, { workspace: first, readOnly: false });
+  const empty = await connect(true, { workspace: second, readOnly: false });
+  for (const [client, status] of [
+    [prepared.client, "available"],
+    [empty.client, "unavailable"],
+  ] as const) {
+    const result = await client.callTool({
+      name: "inspect_technologies",
+      arguments: { ids: ["matter_js"] },
+    });
+    expect(result.structuredContent).toMatchObject({
+      kind: "availability",
+      technologies: [{ id: "matter_js", status }],
+    });
+  }
+  expect(await readdir(second)).toEqual([]);
+});
+
+it("exposes preparation through the actual build-stage stdio server", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "pool-build-runtime-"));
+  cleanup.push(() => rm(workspace, { recursive: true, force: true }));
+  await technologyRuntimeFixture(workspace, "matter_js");
+  const capability = creativePoolCapability(false, workspace, false);
+  const client = new Client({ name: "technology-runtime-test", version: "1" });
+  await client.connect(
+    new StdioClientTransport({
+      command: capability.command,
+      args: capability.args,
+      stderr: "pipe",
+      env: { ...process.env, ...capability.env } as Record<string, string>,
+    }),
+  );
+  cleanup.push(() => client.close());
+  expect((await client.listTools()).tools.map((tool) => tool.name)).toEqual(
+    capability.enabledTools,
+  );
+  const result = await client.callTool({
+    name: "prepare_technology",
+    arguments: { id: "matter_js" },
+  });
+  expect(result.isError).not.toBe(true);
+  expect(result.structuredContent).toMatchObject({
+    kind: "prepared",
+    technology: { id: "matter_js", packages: expect.arrayContaining(["matter-js"]) },
+  });
+});
 
 it("discovers named motions and returns their complete canonical instructions", async () => {
   const { client } = await connect();
@@ -141,7 +288,9 @@ it("launches the actual SDK stdio server and advertises only read-only pool tool
   });
   for (const readOnly of [true, false]) {
     const capabilities = agentCapabilities("/job", readOnly);
-    expect(capabilities.servers.creative_pool).toEqual(capability);
+    expect(capabilities.servers.creative_pool).toEqual(
+      creativePoolCapability(true, "/job", readOnly),
+    );
     expect(capabilities.guidance).toContain(
       "Before planning, writing code or making implementation choices",
     );
@@ -239,4 +388,53 @@ it("passes the alternatives flag to the actual MCP process", async () => {
   expect(definition).not.toHaveProperty("motion_graphic_variants");
   expect(definition).not.toHaveProperty("provenance");
   expect(definition.palette).not.toHaveProperty("source_frame_review");
+});
+
+it("inspects and bundles a nested model-prepared runtime and rejects escape", async () => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "nested-tool-runtime-"));
+  cleanup.push(() => rm(workspace, { recursive: true, force: true }));
+  const runtime = path.join(workspace, "tools/node");
+  await mkdir(runtime, { recursive: true });
+  await technologyRuntimeFixture(runtime, "gsap");
+  const { client } = await connect(true, { workspace, readOnly: false });
+  const result = await client.callTool({
+    name: "inspect_technologies",
+    arguments: { ids: ["gsap"], runtimeDirectory: "tools/node" },
+  });
+  expect(result.structuredContent).toMatchObject({
+    kind: "availability",
+    technologies: [{ id: "gsap", status: "available", version: "1.0.0" }],
+  });
+  const prepared = await client.callTool({
+    name: "prepare_technology",
+    arguments: { id: "gsap", runtimeDirectory: "tools/node" },
+  });
+  expect(prepared.isError).not.toBe(true);
+  const invalid = await client.callTool({
+    name: "inspect_technologies",
+    arguments: { ids: ["gsap"], runtimeDirectory: "../outside" },
+  });
+  expect(invalid.isError).toBe(true);
+  const bin = path.join(workspace, "tools/bin");
+  await mkdir(bin);
+  await writeFile(
+    path.join(bin, process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg"),
+    "fixture",
+    { mode: 0o755 },
+  );
+  const executable = await client.callTool({
+    name: "inspect_technologies",
+    arguments: {
+      ids: ["ffmpeg"],
+      executables: {
+        ffmpeg: process.platform === "win32" ? "tools/bin/ffmpeg.exe" : "tools/bin/ffmpeg",
+      },
+    },
+  });
+  expect(executable.structuredContent).toMatchObject({
+    kind: "availability",
+    technologies: [
+      { id: "ffmpeg", status: "available", executable: expect.stringContaining("tools") },
+    ],
+  });
 });

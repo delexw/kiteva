@@ -120,3 +120,12 @@ it("registers build-only audio tools independently of the visual capability", ()
   vi.stubEnv("AUDIO_STUDIO_MCP_COMMAND", "/nonexistent/audio-studio-mcp");
   expect(audioStudioCapability("/tmp/example-job")).toBeUndefined();
 });
+
+it("keeps the audio service home independent of the SDK home for model-cache reuse", () => {
+  vi.stubEnv("AUDIO_STUDIO_MCP_COMMAND", process.execPath);
+  vi.stubEnv("HOME", "/configured-service-home");
+  expect(audioStudioCapability("/tmp/example-job")?.env).toMatchObject({
+    HOME: "/configured-service-home",
+    ...(process.platform === "win32" ? { USERPROFILE: "/configured-service-home" } : {}),
+  });
+});

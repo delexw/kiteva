@@ -36,6 +36,18 @@ export async function prepareBundledSkills(
       if (!(await lstat(folder)).isDirectory())
         throw Error("Bundled skill directory must not be a link");
     }
+    if (skill.nodePackageType && !installation.manifest.files["package.json"]) {
+      const metadataFile = path.join(folder, "package.json");
+      const existing = await lstat(metadataFile).catch((error: NodeJS.ErrnoException) => {
+        if (error.code !== "ENOENT") throw error;
+      });
+      if (existing && !existing.isFile()) throw Error("Skill package metadata must not be a link");
+      await writeFile(
+        metadataFile,
+        JSON.stringify({ private: true, type: skill.nodePackageType }),
+        { signal },
+      );
+    }
     for (const [relative, expectedHash] of Object.entries(installation.manifest.files)) {
       signal.throwIfAborted();
       const source = path.join(installation.directory, relative);

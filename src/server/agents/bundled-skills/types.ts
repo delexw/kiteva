@@ -2,8 +2,10 @@
 export interface BundledSkill {
   id: string;
   name: string;
+  purpose: "visual_authoring" | "research";
   workspacePath: string;
   claudeName: string;
   repository: string;
   guidance: string;
+  nodePackageType?: "commonjs" | "module";
 }

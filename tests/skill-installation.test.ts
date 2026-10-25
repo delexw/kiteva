@@ -35,6 +35,7 @@ async function repository() {
   vi.stubGlobal("fetch", download);
 
   const skill: BundledSkill = {
+    purpose: "visual_authoring",
     id: "example",
     name: "Example",
     repository: "https://github.com/example/illustration-skill.git",

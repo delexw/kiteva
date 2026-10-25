@@ -16,6 +16,33 @@ calls (`readOnly: true`) get `search_components` and `read_component`; build/cor
 `install_component`. The planning server does not register the installation tool, independent of
 provider permissions or prompt compliance. No user/global MCP configuration is modified.
 
+## Capability architecture
+
+```mermaid
+flowchart TB
+  Turn["Shared agent turn"] --> Registry["Capability registry + stage permissions"]
+  Registry --> Claude["Claude SDK adapter"]
+  Registry --> Codex["Codex SDK adapter"]
+  Claude --> MCP["Same job-scoped MCP contracts"]
+  Codex --> MCP
+  MCP --> Pool["Creative Pool: catalog + inspect"]
+  MCP --> Components["React Bits / Animate UI"]
+  MCP --> Narration["Narration create/edit + Audio Studio"]
+  Pool --> Services["server/technology<br/>availability / runtime paths / bundling"]
+  Services --> Runtime["Project-local environments"]
+  Model["Model chooses tools"] --> Setup["Model runs documented setup<br/>npm, Python or other ecosystem"]
+  Setup --> Runtime
+  Pool -- "authoring only" --> Prepare["prepare_technology / stylesheet<br/>bundle only; never install"]
+  Prepare --> Services
+  Research["Bundled Skill(anysearch)<br/>docs / CLI / examples / source"] --> Model
+```
+
+Tool contracts and responses are shared across providers; SDK permissions and events are adapted
+at the boundary. Installation belongs to model execution, not to an MCP dependency manager.
+[Architecture and research boundaries](../../../../docs/architecture.md#technology-capabilities-and-project-setup)
+cover the complete flow. Provider events use shared activity categories; UI groups do not follow
+execution-scope nesting.
+
 ## Folder layout
 
 ```text
@@ -170,3 +197,44 @@ preserves adjacent act/scene scope and exclusions, and treats the label as refer
 do not become Settings selections or enter host-side routing/count validation.
 
 Motion clips use the same explicit mention path as Motion Graphics. The shared editor, picker preview and mention chip accept a `style` or `motion` variant; motion previews delegate to the existing MotionPreview player. The root loads the motion catalog once for editor consumers. Selecting a clip stores `<motion id="motion-036">Glitch Type Build</motion>`; the model reads that ID with `creative_pool.read_pool_entry` using `kind: "motion"`. Existing `<style>` references continue to use `kind: "motion_graphic"`. Neither variant extracts ordinary names from prose or adds Settings selections. Saved prompts across Assistant, project boards and governance use the same variant-aware PromptText renderer and hover preview.
+
+## Technology availability and local preparation
+
+Technology choice belongs to the main model. The shared Creative Pool MCP exposes
+`inspect_technologies` in both planning and authoring calls. It reads current local availability
+on demand for the requested IDs (or all entries), distinguishing installed browser packages,
+host runtimes, built-in browser capabilities, authored techniques and required input assets.
+No 92-entry availability report is attached to the model prompt or generated project context.
+Catalog recommendations are not required installs or enforced stack choices.
+
+Authoring exposes `prepare_technology` and `prepare_technology_stylesheet` to bundle browser
+packages from a model-prepared `runtimeDirectory` inside the project. Neither tool installs
+anything or resolves packages from Kiteva’s own dependency tree. The model reads the relevant
+instructions and runs project-local npm, pip, CLI or other setup commands itself. Tool-only
+packages are not application dependencies. Browser bundles return exact imports, CSS and assets;
+Node, Python and other tools run directly in their model-prepared environments.
+
+`inspect_technologies` accepts `runtimeDirectory`, `pythonExecutable` and a catalog-ID-to-project-
+relative-path `executables` mapping. Project directories cannot escape through traversal or
+symlinks. Missing packages remain unavailable until the model prepares them. Browser preparation
+rejects dependencies resolving outside the selected runtime. Native capabilities, assets and
+techniques retain their distinct requirements. Executable discovery is not proof of successful
+operation. Read-only stages expose inspection, never preparation or installation.
+
+The implementation owner is `src/server/technology/`; shared MCP result types live in
+`src/shared/technology-capabilities.ts`. Both providers use the same tools and concise guidance.
+Existing configured host executables remain optional fallbacks, not required package locations.
+
+Research uses the bundled AnySearch skill registered in `agents/bundled-skills/anysearch.ts`.
+Startup installs and integrity-checks its canonical upstream repository; both providers receive
+that same skill without user-global configuration. Its Node CLI is staged with CommonJS package
+metadata. Claude’s native WebFetch/WebSearch are explicitly denied; Codex web search is disabled.
+Sandboxed command networking supports the skill and model-run package managers. Node honors the
+sandbox proxy through `NODE_USE_ENV_PROXY`. On macOS, Claude can access the system DNS socket
+`/private/var/run/mDNSResponder` so it can resolve the proxy's `localhost` address, and
+`com.apple.trustd.agent` for Python/Go TLS certificate verification. Commands retain
+filesystem sandboxing; npm and XDG caches live under the job's `.cache` directory. External content
+remains reference data. AnySearch is Apache-2.0; the browser bundler esbuild is MIT.
+
+Codex uses the isolated SDK directory for both `CODEX_HOME` and the process home, so native
+skill discovery does not import the user's unrelated `~/.agents/skills` instructions.

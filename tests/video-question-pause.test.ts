@@ -49,6 +49,13 @@ it.each(["claude", "codex"] as const)(
     vi.mocked(agentTurn).mockResolvedValueOnce({
       sessionId: "saved-session",
       value: {
+        pipeline: "Multiplane",
+        fallbackReason: null,
+        styleRenderer: ["SVG"],
+        motionEngine: ["GSAP"],
+        sourceFile: "index.html",
+        audioDescription: "Silent preview",
+        limitations: [],
         // Invalid dimensions must not trigger repairs before the user decides.
         width: 1,
         height: 1,
@@ -63,7 +70,7 @@ it.each(["claude", "codex"] as const)(
             fallback: "Use the description.",
           },
         ],
-        storyboard: validStoryboard(3),
+        storyboard: { ...validStoryboard(3), durationSeconds: 9 },
       },
     });
     try {

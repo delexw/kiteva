@@ -94,6 +94,7 @@ describe("shared technology pool", () => {
                 "motion-046",
                 "motion-047",
                 "motion-048",
+                "motion-049",
               ].includes(entry.motion_id),
           );
       }

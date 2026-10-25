@@ -11,23 +11,23 @@ Three different things are easy to mix up, so they are kept apart here:
    attached to Motion Graphics in the catalog. An entry being in the pool doesn't mean
    it's installed, vendored or even an npm package.
 2. **What ships in this repository.** That covers Kiteva's original code, the catalogs and
-   reviewed previews, one startup-installed authoring skill (Anatomy), and npm dependencies
+   reviewed previews, startup-installed Anatomy and AnySearch skills, and npm dependencies
    declared in `package.json`.
 3. **What you install yourself.** Node, a Chromium browser, `ffmpeg`/`ffprobe`, Python
    for local speech, optional desktop tools, and model weights. Model weights are never committed to Git.
 
-Counts reflect the current source; native Windows dependencies were added on 2026-10-18.
+Counts reflect the source as of 2026-10-25. Native Windows verification remains separate from local macOS checks.
 
-| What                               |                             Count | Source                                                                        |
-| ---------------------------------- | --------------------------------: | ----------------------------------------------------------------------------- |
-| Motion Graphics in the catalog     |                               138 | `assets/catalog/video-style-catalog.json`                                     |
-| Motions in the catalog             |                                48 | `assets/catalog/motion-pattern-catalog.json`                                  |
-| Technology pool entries            |                                92 | `technologyPoolSize` in `src/shared/technology-pool.ts`                       |
-| Startup-installed authoring skills |  1 (Anatomy, installed at launch) | `src/server/agents/bundled-skills/registry.ts`, `skills/anatomy/current.json` |
-| Selectable renderers               | 2 (HyperFrames, Multiplane trial) | `src/shared/video-renderers.ts`                                               |
-| Fallback renderer                  |      1 (Remotion, not selectable) | `src/server/domains/video/render.ts`                                          |
-| Local speech engines               |            2 (Kokoro, Pocket TTS) | `src/server/audio/providers`                                                  |
-| Direct npm dependencies            |               60 runtime + 17 dev | `package.json`                                                                |
+| What                           |                             Count | Source                                                                        |
+| ------------------------------ | --------------------------------: | ----------------------------------------------------------------------------- |
+| Motion Graphics in the catalog |                               141 | `assets/catalog/video-style-catalog.json`                                     |
+| Motions in the catalog         |                                49 | `assets/catalog/motion-pattern-catalog.json`                                  |
+| Technology pool entries        |                                92 | `technologyPoolSize` in `src/shared/technology-pool.ts`                       |
+| Startup-installed skills       |         2 (Anatomy and AnySearch) | `src/server/agents/bundled-skills/registry.ts`, `skills/anatomy/current.json` |
+| Selectable renderers           | 2 (HyperFrames, Multiplane trial) | `src/shared/video-renderers.ts`                                               |
+| Fallback renderer              |      1 (Remotion, not selectable) | `src/server/domains/video/render.ts`                                          |
+| Local speech engines           |            2 (Kokoro, Pocket TTS) | `src/server/audio/providers`                                                  |
+| Direct npm dependencies        |               75 runtime + 22 dev | `package.json`                                                                |
 
 ## Who does what
 
@@ -44,9 +44,9 @@ These are separate jobs. A single library can do more than one, but Kiteva recor
 The catalog's production policy puts it this way: the pipeline must not decide or simplify the visual
 style. HyperFrames is the first choice for composition and export, and Remotion is the conditional fallback.
 
-## The startup-installed skill: Anatomy
+## Startup-installed skills: Anatomy and AnySearch
 
-Kiteva registers one upstream skill and installs or updates it at server launch. Its upstream files are not tracked in this repository.
+Kiteva registers two upstream skills and installs or updates them at server launch. Their upstream files are not tracked in this repository. Anatomy is a visual-authoring resource; AnySearch is research guidance available independently of visual-resource selection.
 
 |                    |                                                                                                  |
 | ------------------ | ------------------------------------------------------------------------------------------------ |
@@ -58,11 +58,11 @@ Kiteva registers one upstream skill and installs or updates it at server launch.
 | Used for           | Detailed isometric technical illustrations and mechanisms. Its 3D mode is beta                   |
 
 Before every file-enabled Claude or Codex turn, Kiteva checks each hash and copies the files to
-`.agents/skills/anatomy` inside that turn's workspace. Text-only turns get no skill files.
+`.agents/skills/<id>` inside that turn's workspace. Text-only turns get no skill files.
 
 - **Claude**: the [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript) loads
   the workspace's `.agents` folder as an app-owned local plugin called `bundled-authoring`. It enables
-  only `bundled-authoring:anatomy` through the SDK's `skills` option and includes the native `Skill`
+  the registry's `bundled-authoring:anatomy` and `bundled-authoring:anysearch` through the SDK's `skills` option and includes the native `Skill`
   tool. User and project settings sources are empty (`settingSources: []`). If the startup event
   doesn't list the skill, Kiteva stops the turn.
 - **Codex**: the [Codex SDK](https://github.com/openai/codex/tree/main/sdk/typescript) has no plugin
@@ -71,6 +71,26 @@ Before every file-enabled Claude or Codex turn, Kiteva checks each hash and copi
 Anatomy is optional. The model uses it when a scene suits it or when you ask for it, and it isn't tied
 to any Motion Graphic. It doesn't replace the renderer. For video, its interactive examples have to be
 driven from composition time and checked with forward, backward and direct seeks. Downloads run once at launch, never inside provider turns. Internet access is required for the first installation. Node.js downloads the upstream ZIP directly over HTTPS; no Git CLI, skills CLI, GitHub API or access token is required. Failed updates retain the last verified revision; if none exists, the app opens but creative tasks stop with a setup message. No upstream installation scripts are executed.
+
+## Project-local technology access
+
+The 92 catalog entries are recommendations, not a bundled package collection. Both providers use
+`creative_pool.inspect_technologies` to inspect selected JavaScript runtimes, Python interpreters,
+executables, browser-native features and asset requirements. The model chooses what to use, reads
+`Skill(anysearch)` for documentation, CLI parameters, repository examples or source as needed, and
+runs project-local setup commands itself. Kiteva's package manifest is not the tool runtime.
+
+Authoring-only `prepare_technology` and `prepare_technology_stylesheet` bundle browser imports,
+CSS and assets from the chosen project runtime. They do not install packages; read-only stages
+cannot call them. Paths and transitive bundle inputs must stay inside that runtime. Availability
+is not evidence of successful use: rendering and seeking must still be verified. See the
+[capability architecture and diagram](architecture.md#technology-capabilities-and-project-setup).
+
+AnySearch uses the same startup verification and workspace staging as Anatomy, under its
+Apache-2.0 license; esbuild, the browser bundler, is MIT. Native provider web search/fetch is
+disabled. Sandboxed authoring commands can access the network for research and setup; generated
+film rendering has a separate, restricted network policy. Neither skill nor local model weights
+are vendored in source releases.
 
 ## React Bits component capability
 
@@ -306,7 +326,7 @@ These are pool entries for material a person provides, such as photographed stop
 | Layered High-Resolution Assets       | Supply prepared layers or numbered frames. | —                         |
 | Layered PNG/SVG Assets               | Supply prepared layers or numbered frames. | —                         |
 
-## Direct npm dependencies (83)
+## Direct npm dependencies
 
 Versions are what `npm ci` installed when this page was written. Licenses come from each package's own metadata.
 

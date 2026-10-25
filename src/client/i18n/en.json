@@ -1114,5 +1114,15 @@
   "Editing narration…": "Editing narration…",
   "Refining story timing": "Refining story timing",
   "Attempt {{attempt}}": "Attempt {{attempt}}",
-  "Edit color {{color}}": "Edit color {{color}}"
+  "Edit color {{color}}": "Edit color {{color}}",
+  "Checking tool availability…": "Checking tool availability…",
+  "Bundling stylesheets and assets…": "Bundling stylesheets and assets…",
+  "Bundling browser dependencies…": "Bundling browser dependencies…",
+  "Reading tool guidance…": "Reading tool guidance…",
+  "Installing project dependencies…": "Installing project dependencies…",
+  "Bundling project assets…": "Bundling project assets…",
+  "Checking project code…": "Checking project code…",
+  "Reading creative references…": "Reading creative references…",
+  "Exploring creative references…": "Exploring creative references…",
+  "Updating project files…": "Updating project files…"
 }

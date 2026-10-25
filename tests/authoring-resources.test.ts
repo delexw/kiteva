@@ -9,6 +9,15 @@ afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
 });
+
+it("keeps research skills available independently of visual authoring selection", () => {
+  expect(authoringResources.map((resource) => resource.id)).toEqual([
+    "animate_ui",
+    "react_bits",
+    "anatomy",
+    "local_code",
+  ]);
+});
 async function input() {
   const catalog = await loadCatalog();
   return {

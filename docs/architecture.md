@@ -9,7 +9,7 @@ server on `127.0.0.1:4317` serves a [React](https://react.dev) desktop-style UI,
 controls, and renders films locally. There is no hosted service, no account system and no multi-user
 mode. The server refuses requests whose host or origin isn't local.
 
-This page is based on the source as of 2026-10-17. File paths are relative to the repository root.
+This page is based on the source as of 2026-10-25. File paths are relative to the repository root.
 
 ## Components
 
@@ -30,15 +30,18 @@ flowchart LR
     Rank["JEV ranking<br/>jev/strategies/style-combination.ts"]
     Providers["Provider adapters<br/>agents/claude-agent.ts<br/>agents/codex-agent.ts"]
     Skills["Installed skill staging<br/>agents/bundled-skills.ts"]
-    RefMCP["Job-scoped MCP server<br/>reference_browser + capture_video"]
-    Render["Render + QA<br/>domains/video/render.ts, qa.ts"]
+    RefMCP["Job-scoped reference browser MCP<br/>inspection + chapter capture"]
+    Capabilities["Capability registry<br/>Creative Pool, components,<br/>Narration, Audio Studio"]
+    Technology["Technology services<br/>inspect + browser bundling<br/>server/technology"]
+    Activity["Shared activity categories<br/>provider events → customer groups"]
+    Render["Render + QA<br/>rendering/render.ts, qa.ts"]
     Speech["Local TTS providers<br/>audio/providers"]
     Store[("SQLite<br/>.data/jobs.sqlite")]
     GovR["Governance report<br/>governance/report.ts"]
   end
 
   subgraph Local["On disk"]
-    Assets[("assets/catalog,<br/>style previews,<br/>skills/anatomy (ignored)")]
+    Assets[("assets/catalog,<br/>style previews,<br/>skills/anatomy + anysearch (ignored)")]
     Work[("Job workspaces<br/>.data/runs/&lt;run&gt;/&lt;job&gt;")]
     Models[("models/kokoro,<br/>models/pocket-tts")]
   end
@@ -68,6 +71,13 @@ flowchart LR
   Providers --> Skills
   Skills --> Work
   Providers --> RefMCP
+  Providers --> Capabilities
+  Capabilities --> Catalog
+  Capabilities --> Technology
+  Capabilities --> Speech
+  Technology --> Work
+  Providers --> Activity
+  Activity --> API
   Providers -- "via local Caveman proxy" --> Claude
   Providers -- "via local Caveman proxy" --> Codex
   Rank --> JEV
@@ -346,8 +356,12 @@ These responsibilities are kept separate in the code and in the prompts:
   hand-written physics…). Each animated property gets exactly one owner.
 - **The renderer** (render pipeline) supplies seekable time, assembles scenes, mixes audio, validates
   and exports. The catalog's production policy says the pipeline must not decide or simplify the visual style.
-- **Built-in agent tools** are capabilities Kiteva grants for a turn: `reference_browser` and `capture_video`.
-- **The startup-installed skill** (Anatomy) is reference material and a drawing kit the model may read. It doesn't render anything.
+- **Built-in agent tools** are job-scoped MCP capabilities: Creative Pool lookup and technology inspection,
+  reference browsing and capture, React Bits and Animate UI, Narration, and Audio Studio. The
+  capability registry controls which tools exist for each stage; providers adapt the same contracts.
+- **Startup-installed skills** supply instructions, not renderers. Anatomy provides a drawing kit;
+  AnySearch provides public documentation and repository research. Research remains available
+  independently of the selected visual-authoring resource.
 
 ### Renderers and their limits
 
@@ -393,21 +407,83 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-  Upstream["Anatomy upstream default branch"] --> Startup["Startup install/update; verified offline fallback"]
-  Startup --> Bundle["skills/anatomy/revision<br/>Git-ignored immutable installation"]
+  Registry["Bundled skill registry<br/>Anatomy: visual authoring<br/>AnySearch: research"] --> Startup["Startup install/update<br/>verified offline fallback"]
+  Startup --> Bundle["skills/id/revision<br/>ignored immutable upstream files"]
   Bundle --> Hash{"SHA-256 matches<br/>manifest?"}
-  Hash -- no --> Stop["Turn fails"]
-  Hash -- yes --> Copy["Copy to workspace<br/>.agents/skills/anatomy"]
-  Copy --> ClaudeP["Claude: local plugin 'bundled-authoring',<br/>skills: ['bundled-authoring:anatomy'],<br/>native Skill tool, settingSources: []"]
-  Copy --> CodexP["Codex: same instructions,<br/>reads the files with its coding tools"]
-  ClaudeP --> Verify{"Skill listed in<br/>SDK init event?"}
-  Verify -- no --> Stop
+  Hash -- no --> Stop["Turn fails with setup error"]
+  Hash -- yes --> Copy["Stage .agents/skills/id<br/>inside the job workspace"]
+  Copy --> ClaudeP["Claude: bundled-authoring plugin<br/>native Skill tool; verify SDK init"]
+  Copy --> CodexP["Codex: same guidance and files<br/>isolated HOME and CODEX_HOME"]
+  Registry --> Choice["Visual-resource choice<br/>visual_authoring entries only"]
 ```
 
-The registry (`src/server/agents/bundled-skills/registry.ts`) is the only list. Staging, the plugin
-manifest, Claude's allowed skill names, startup checks and both providers' instructions all come from it.
-Staging also rejects symlinks and any extra plugin components, so generated code can't slip hooks or
-MCP settings into the plugin folder. User-global skills, plugins and SDK settings stay disabled.
+The registry (`src/server/agents/bundled-skills/registry.ts`) owns installation, staging, plugin
+registration and concise guidance for both providers. Staging checks hashes and rejects symlinks
+and unexpected plugin components. AnySearch's Node CLI receives app-owned CommonJS metadata;
+upstream files remain unchanged. Text-only turns stage neither skills nor MCP tools. User-global
+skills and SDK settings are excluded; configured provider authentication remains separate.
+
+## Technology capabilities and project setup
+
+```mermaid
+sequenceDiagram
+  participant Model as Claude or Codex model
+  participant Pool as Creative Pool MCP
+  participant Runtime as Project-local runtime
+  participant Research as Skill(anysearch)
+  participant Render as Renderer and review
+  Model->>Pool: search_pool / read_pool_entry as needed
+  Model->>Pool: inspect_technologies(ids, runtime selectors)
+  Pool-->>Model: Typed availability, paths and requirements
+  opt Documentation or source needed
+    Model->>Research: Read docs, CLI parameters, examples or source
+    Research-->>Model: Public reference content (untrusted data)
+  end
+  opt Chosen tool needs setup (authoring only)
+    Model->>Runtime: Run documented npm, Python or other setup
+    Model->>Pool: Inspect the prepared runtime again
+  end
+  opt Browser library or stylesheet (authoring only)
+    Model->>Pool: prepare_technology / prepare_technology_stylesheet
+    Pool->>Runtime: Bundle from selected project runtime
+    Pool-->>Model: Exact imports, CSS and asset paths
+  end
+  Model->>Runtime: Implement with chosen tools
+  Runtime->>Render: Render and verify seekable output
+```
+
+`agents/capabilities/creative-pool/` owns MCP registration and stage permissions;
+`server/technology/` owns availability probes, project-path checks and browser bundling;
+`shared/technology-capabilities.ts` owns discriminated result types. Responses include both
+human-readable text and structured content. Inspection is read-only. Preparation tools exist only
+in authoring turns and never install anything. The model chooses technologies and performs setup
+in project-local JavaScript, Python or other environments; catalog entries need not be Kiteva npm
+dependencies. Assets and techniques have distinct requirements and are not reported as packages.
+Browser bundling rejects traversal, escaping symlinks, remote imports and transitive dependencies
+outside the selected runtime. Discovery alone is not evidence that a tool works or was used.
+
+Public research uses `Skill(anysearch)`; Claude WebFetch/WebSearch and Codex native web search
+are disabled. Authoring commands retain filesystem sandboxing with network access for research
+and package setup. Node uses the sandbox proxy; macOS Claude allows the DNS socket and trust
+service needed for proxy resolution and TLS verification. npm and XDG caches stay under each
+job's `.cache`. The configured Audio Studio subprocess retains its service home for model caches;
+it does not inherit Codex's isolated SDK home. Render-time networking remains a separate policy.
+
+## Activity and correction ownership
+
+Both provider adapters report the same shared work categories for reads, file updates, code checks,
+installation and bundling. SDK starts, updates and results attach to one tool identity; failures
+remain failures. The client groups by named work, uses the latest repeated action and keeps
+execution-scope nesting internal. Identical workflows do not imply identical model tool counts:
+models can choose different implementations or need different correction rounds.
+
+Manifest corrections use the shared `agents/correction-merge.ts`: omitted fields retain accepted
+values, objects merge recursively, arrays replace, and explicit null is accepted only where the
+schema allows it. Validate the merged result before accepting it. This preserves unrelated shots,
+audio and settings rather than relying on a model to return every field. Reported questions reach
+the orchestrator's unanswered-question checkpoint before storyboard validation and rendering;
+answer history determines whether work remains paused. Document source names and paths remain
+internal unless the user explicitly asks to show or speak them.
 
 ## Storyboard
 

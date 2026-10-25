@@ -23,16 +23,18 @@ import type { ProviderEvent } from "../../agents/agent";
 export const authoringResources: AuthoringResource[] = [
   animateUiAuthoring,
   reactBitsAuthoring,
-  ...bundledSkills.map((skill) =>
-    skill.id === anatomyAuthoring.id
-      ? anatomyAuthoring
-      : {
-          id: skill.id,
-          name: skill.name,
-          kind: "bundled_skill" as const,
-          guidance: skill.guidance,
-        },
-  ),
+  ...bundledSkills
+    .filter((skill) => skill.purpose === "visual_authoring")
+    .map((skill) =>
+      skill.id === anatomyAuthoring.id
+        ? anatomyAuthoring
+        : {
+            id: skill.id,
+            name: skill.name,
+            kind: "bundled_skill" as const,
+            guidance: skill.guidance,
+          },
+    ),
   localAuthoring,
 ];
 

@@ -2,6 +2,7 @@ import path from "node:path";
 import { existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { appRoot, dataRoot } from "../../../runtime/config";
+import { userHome } from "../../../runtime/platform";
 import type { AgentMcpCapability } from "../shared/types";
 
 export const audioStudioTools = ["generate_audio", "edit_audio", "process_audio", "unload_models"];
@@ -30,7 +31,11 @@ export function audioStudioCapability(workspace: string): AgentMcpCapability | u
       path.join(appRoot, "src/server/agents/capabilities/audio-studio/server.ts"),
       JSON.stringify({ workspace, command }),
     ],
-    env: {},
+    // Keep the configured service's model caches when an SDK isolates its own process home.
+    env: {
+      HOME: userHome(),
+      ...(process.platform === "win32" ? { USERPROFILE: userHome() } : {}),
+    },
     enabledTools: audioStudioTools,
     toolTimeoutSeconds: 1800,
   };

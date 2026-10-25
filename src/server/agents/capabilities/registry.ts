@@ -24,7 +24,7 @@ export function agentCapabilities(
     : {
         react_bits: reactBitsCapability(workspace, readOnly),
         animate_ui: animateUiCapability(workspace, readOnly),
-        creative_pool: creativePoolCapability(includeCreativeAlternatives),
+        creative_pool: creativePoolCapability(includeCreativeAlternatives, workspace, readOnly),
         ...(audioStudio ? { audio_studio: audioStudio } : {}),
         ...(narration ? { narration } : {}),
       };

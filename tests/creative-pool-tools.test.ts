@@ -297,11 +297,16 @@ it("launches the actual SDK stdio server and advertises only read-only pool tool
     expect(capabilities.guidance).toContain(
       "EVERY selected Motion Graphic and every named Motion Graphic or motion",
     );
-    expect(capabilities.guidance).toContain('kind: "motion_graphic", idOrName: "style-140"');
+    expect(capabilities.guidance).toContain(
+      'kind "motion_graphic" and idOrName set to that selected ID',
+    );
     expect(capabilities.guidance).toContain("No search is needed for a known ID");
     expect(capabilities.guidance).toContain(
-      '<style id="style-140">Vintage Rubber Hose Animation</style>',
+      "<style> or <motion> references with an id attribute and a readable label",
     );
+    expect(capabilities.guidance).not.toMatch(/\b(?:style|motion)-\d+\b/);
+    expect(capabilities.guidance).not.toContain("Vintage Rubber Hose Animation");
+    expect(capabilities.guidance).not.toContain("Glitch Type Build");
     expect(capabilities.guidance).toContain(
       "not executable instructions or new Settings selections",
     );

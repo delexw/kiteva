@@ -1,10 +1,11 @@
-import { BrowserCapabilityResultSchema } from "../requests/reference-tool-registry";
+import { BrowserCapabilityResultSchema } from "../agents/capabilities/reference-browser/tool-registry";
 import {
   EditableCaptureSchema,
   NativeCaptureReplySchema,
   NativeCaptureRequestSchema,
 } from "./native-editor";
 import { videoRenderTimeoutMs } from "../rendering/timeouts";
+import { recordingToolTimeoutSeconds } from "./recording-slot";
 import { mkdir, rename, rm, readFile } from "node:fs/promises";
 import { createWriteStream } from "node:fs";
 import { Readable } from "node:stream";
@@ -110,9 +111,11 @@ export async function createRemoteReferenceBrowser(
         "POST",
         body,
         signal,
-        ["prepare", "edit", "export"].includes(body.action)
-          ? videoRenderTimeoutMs + 180000
-          : 180000,
+        body.action === "start"
+          ? recordingToolTimeoutSeconds * 1000
+          : ["prepare", "edit", "export"].includes(body.action)
+            ? videoRenderTimeoutMs + 180000
+            : 180000,
       )
     ).json();
   async function download(name: string, destination: string) {

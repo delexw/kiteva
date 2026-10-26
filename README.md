@@ -35,6 +35,19 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 Dates below use New Zealand time.
 
 <details>
+<summary>2026-10-26</summary>
+
+- **Planning and session handoff:** one shared preview-planning call feeds independent direction builds; full films continue the selected preview's build session and plan their complete storyboard. Project settings and requirements are saved as files before planning, with concise Markdown instructions and generic system guidance. Build routes and creative approaches have separate responsibilities.
+- **Shared MCP capabilities:** reference-browser tools and context-recovery registration follow the capability registry used by both providers. Narration and Audio Studio adapters use native MCP registration while retaining service-owned validation, cancellation and activity.
+- **Project-wide cancellation:** stopping or deleting a project aborts queued and active SDK/MCP, browser, recording, render, audio and export work and waits for cleanup. Reported cleanup failures retain project files; other projects and shared services keep their own lifetimes. See [process lifecycle](docs/process-lifecycle.md).
+- **Recording reliability:** a cancellable cross-process lock serializes native recording and saving; editing and export remain independent. OpenScreen diagnostics stay in the job workspace, queued calls have longer timeouts, and owned recorder helpers are cleaned up after failures. The lock does not guarantee FIFO ordering.
+- **Clearer activity:** repeated narration and render retries update the latest result, recovered narration clears earlier failure status, and rendering uses recorded outcomes instead of leaving failed attempts as unfinished progress bars.
+- **Provider cost reporting:** Claude uses SDK-reported costs. Codex uses standard API estimates based on incremental thread usage, separating cache reads/writes and counting reasoning once. Real SDK calls verified cumulative resume behavior for both providers. See [cost reporting](docs/costs.md).
+- **Dependencies and regression coverage:** OpenAI and Anthropic SDK packages track `latest`; other dependencies use explicit versions, with grouped Dependabot updates. Added coverage for planning handoffs, shared preview correction paths, process ownership, recording concurrency and resumed-session costs.
+
+</details>
+
+<details>
 <summary>2026-10-25</summary>
 
 - **v0.4.0:** project-local MCP technology tools, AnySearch research, narration tools, shared corrections and the Pixel RPG Quest Explainer. See the [release notes](CHANGELOG.md#040--2026-10-25).

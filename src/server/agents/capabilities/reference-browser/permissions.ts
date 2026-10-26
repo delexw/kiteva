@@ -1,5 +1,5 @@
 import type { BrowserContext } from "puppeteer-core";
-import { isLoopbackAddress, validateReferenceUrl } from "./reference-url";
+import { isLoopbackAddress, validateReferenceUrl } from "../../../requests/reference-url";
 
 /** Decide network permissions before navigation so Chrome cannot prompt during a take. */
 export async function configureReferencePermissions(

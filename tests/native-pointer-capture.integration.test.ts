@@ -6,8 +6,8 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { expect, it } from "vitest";
 import { z } from "zod";
-import { createReferenceTools } from "../src/server/requests/reference-browser-tools";
-import type { ReferenceToolResult } from "../src/server/requests/reference-browser-contracts";
+import { createReferenceTools } from "../src/server/agents/capabilities/reference-browser/tools";
+import type { ReferenceToolResult } from "../src/server/agents/capabilities/reference-browser/types";
 
 it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1")(
   "renders browser action positions through the native pointer track in a windowed recording",

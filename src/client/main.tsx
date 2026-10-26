@@ -2,6 +2,7 @@ import { PromptText } from "./components/style-mention";
 import { ScriptItems } from "./components/script-items";
 import { legacyScriptItems, type ScriptItem } from "../shared/script-items";
 import { creativeApproaches, type CreativeApproach } from "../shared/creative-approach";
+import { buildRouteLabel } from "../shared/build-route";
 import { UiLanguageProvider } from "./i18n";
 import { uiLanguage, translateUi, useUiLanguage } from "./i18n";
 import { VideoPlayer } from "./components/video-player";
@@ -1801,7 +1802,7 @@ function App() {
                         )}
                         <div className="composer-control">
                           <StudioSelect
-                            aria-label={translateUi("Creative approach")}
+                            aria-label={translateUi(manual ? "Build route" : "Creative approach")}
                             aria-describedby="creative-approach-help"
                             disabled={manual}
                             value={preference}
@@ -1809,12 +1810,16 @@ function App() {
                           >
                             <StudioSelectOption value="context">
                               {manual
-                                ? translateUi("Using your selected Motion Graphic")
+                                ? translateUi(
+                                    buildRouteLabel({ candidateCount: count, selectedStyleIds }),
+                                  )
                                 : translateUi("Follow my brief")}
                             </StudioSelectOption>
                             <StudioSelectOption value="creative">
                               {manual
-                                ? translateUi("Using your selected Motion Graphic")
+                                ? translateUi(
+                                    buildRouteLabel({ candidateCount: count, selectedStyleIds }),
+                                  )
                                 : translateUi("Explore creative ideas")}
                             </StudioSelectOption>
                             <StudioSelectOption value="random">

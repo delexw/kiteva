@@ -23,6 +23,7 @@ const customerErrors: Record<ErrorCode, string> = {
   PROJECT_NOT_FOUND:
     "This project is no longer available. Open another project or start a new one.",
   PROJECT_DELETING: "This project is being deleted. Please wait a moment.",
+  DEPENDENCY_CLEANUP_FAILED: "We couldn't stop all project work. Your files have been kept.",
   PROJECT_ACTIVE: "Stop the project and wait for it to finish before deleting it.",
   PAGE_NOT_READY: "Your page isn't ready yet. Please wait for it to finish.",
   REFERENCE_CAPTURE_FAILED:

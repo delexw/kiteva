@@ -1,3 +1,4 @@
+import { terminateProcessTree } from "../runtime/process-tree";
 import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 import { readFile, writeFile, realpath } from "node:fs/promises";
@@ -31,6 +32,7 @@ const HooksResponseSchema = z.object({ data: z.array(z.object({ hooks: z.array(H
 async function listNativeHooks(home: string) {
   const cli = fileURLToPath(import.meta.resolve("@openai/codex/bin/codex.js"));
   const child = spawn(process.execPath, [cli, "app-server"], {
+    detached: process.platform !== "win32",
     cwd: home,
     env: { ...process.env, CODEX_HOME: home },
     stdio: ["pipe", "pipe", "pipe"],
@@ -76,7 +78,7 @@ async function listNativeHooks(home: string) {
   } finally {
     lines.close();
     child.stdin.end();
-    child.kill();
+    await terminateProcessTree(child.pid, { processGroup: true });
   }
 }
 

@@ -109,6 +109,7 @@ it("inherits a valid cache across fine-tune workspaces but refuses changed input
       refinementPrompt: "Refine existing video",
     },
     "Multiplane",
+    new AbortController().signal,
   );
   expect(await multiplaneInputFingerprint(destination, signal)).toBe(fingerprint);
   const inherited = {

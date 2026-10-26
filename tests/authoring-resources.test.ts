@@ -2,6 +2,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import {
   selectAuthoringResources,
   authoringResources,
+  authoringResourceSelectionGuidance,
 } from "../src/server/jev/strategies/visual-authoring";
 import { RequestSchema } from "../src/shared/contracts";
 import { loadCatalog } from "../src/server/catalog/catalog";
@@ -11,6 +12,7 @@ afterEach(() => {
 });
 
 it("keeps research skills available independently of visual authoring selection", () => {
+  expect(authoringResourceSelectionGuidance).toContain("AUTHORING RESOURCE SELECTION:");
   expect(authoringResources.map((resource) => resource.id)).toEqual([
     "animate_ui",
     "react_bits",

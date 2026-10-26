@@ -1,3 +1,4 @@
+import type { ActivityScope } from "../shared/activity-scopes";
 import { toolActivityLabels, type ToolActivity } from "../shared/tool-activity";
 import {
   CaptureChapterProgressSchema,
@@ -216,6 +217,7 @@ export function activityItems(
   const items: ActivityItem[] = [];
   const renderProgress = new Map<string, RenderProgress>();
   const streams = new Map<string, ActivityItem>();
+  const scopeStatuses = new Map<string, ActivityScope["state"]>();
   const seen = new Set<number>();
   for (const event of events) {
     if (seen.has(event.id)) continue;
@@ -223,6 +225,7 @@ export function activityItems(
     const data = { ...(event.data as object | undefined) } as {
       itemId?: string;
       activityScopeId?: string;
+      activityScope?: ActivityScope;
       audience?: "customer" | "internal";
       state?: string;
       toolName?: string;
@@ -236,8 +239,15 @@ export function activityItems(
       captureChapter?: { chapterId: string; title: string; index: number; total: number };
       results?: { itemId: string; failed: boolean; output: string }[];
     };
-    // Execution scopes are tracing metadata, not customer activity groups.
-    if (event.type === "activity_scope") continue;
+    // Trace outcomes inform status without exposing execution-scope nesting in the UI.
+    if (event.type === "activity_scope") {
+      if (data.activityScope)
+        scopeStatuses.set(
+          `${event.runId}:${event.jobId || "brief"}:${data.activityScope.id}`,
+          data.activityScope.state,
+        );
+      continue;
+    }
     // Older title-only invocations were emitted with the full-brief default purpose.
     if (
       !event.jobId &&
@@ -460,7 +470,7 @@ export function activityItems(
       event.message === "Making the 720p viewing copy and card clip; the MP4 download is ready";
     const rendering = isRendererProgressEvent(event);
     const phaseLabel = playbackCopy
-      ? "Preparing viewing copies…"
+      ? "Preparing playback assets…"
       : rendering
         ? "Rendering your video…"
         : event.message === "Mixing voice and music…"
@@ -479,13 +489,13 @@ export function activityItems(
             : "Full-film plan validated and saved",
       ranking: "Finding visual Motion Graphics for your idea…",
       validation: playbackCopy
-        ? "Viewing copies checked"
+        ? "Playback assets checked"
         : event.message === "Composition, layout, motion, and contrast checks passed"
           ? "Design checks complete"
           : "Checking the design and playback…",
       result_review: "Starting the final review…",
       phase: phaseLabel,
-      render_progress: playbackCopy ? "Preparing viewing copies…" : "Rendering your video…",
+      render_progress: playbackCopy ? "Preparing playback assets…" : "Rendering your video…",
       preview_ready: event.message.includes("Interactive")
         ? "Interactive preview ready"
         : event.message === "Full video ready"
@@ -526,6 +536,11 @@ export function activityItems(
       if (item.status === "running") item.status = "stopped";
       if (item.streaming) item.streaming = false;
     }
+  }
+  for (const item of items) {
+    if (item.progressStage !== "render" || !item.activityScopeId) continue;
+    const status = scopeStatuses.get(`${item.scope}:${item.activityScopeId}`);
+    if (status && status !== "waiting") item.status = status;
   }
   const visibleItems = items.filter((item) => item.text.trim());
   if (!groupConsecutive) return visibleItems;

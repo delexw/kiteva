@@ -1,19 +1,37 @@
 import { EventEmitter } from "node:events";
 import { PassThrough, Writable } from "node:stream";
 import type { ChildProcess } from "node:child_process";
-import { afterEach, expect, it, vi } from "vitest";
-vi.mock("node:fs", () => ({ existsSync: () => false }));
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { writeSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+vi.mock("node:fs", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("node:fs")>()),
+  existsSync: () => false,
+}));
 vi.mock("node:child_process", () => ({ spawn: vi.fn() }));
-vi.mock("node:fs/promises", () => ({ access: vi.fn() }));
-vi.mock("../src/server/runtime/process-tree", () => ({ stopProcessTree: vi.fn() }));
+vi.mock("node:fs/promises", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("node:fs/promises")>()),
+  access: vi.fn(),
+}));
+vi.mock("../src/server/runtime/process-tree", () => ({ terminateProcessTree: vi.fn() }));
 import { spawn } from "node:child_process";
-import { stopProcessTree } from "../src/server/runtime/process-tree";
-import { startOpenScreen } from "../src/server/capture/openscreen";
+import { terminateProcessTree } from "../src/server/runtime/process-tree";
+import { startOpenScreen as startOpenScreenProcess } from "../src/server/capture/openscreen";
 
-afterEach(() => {
+let diagnosticsDirectory: string;
+beforeEach(async () => {
+  diagnosticsDirectory = await mkdtemp(path.join(os.tmpdir(), "recorder-diagnostics-"));
+});
+const startOpenScreen = (title: string, signal: AbortSignal) =>
+  startOpenScreenProcess(title, signal, diagnosticsDirectory);
+
+afterEach(async () => {
   vi.resetAllMocks();
   vi.unstubAllEnvs();
   vi.useRealTimers();
+  await rm(diagnosticsDirectory, { recursive: true, force: true });
 });
 function processFixture(ready = true, valid = true) {
   vi.stubEnv("OPENSCREEN_EXECUTABLE", "/worker/OpenScreen");
@@ -61,7 +79,7 @@ it("records only the uniquely named window with OpenScreen and gracefully stops 
     screenVideoPath: "/recordings/take.mp4",
     durationMs: 1200,
   });
-  expect(stopProcessTree).not.toHaveBeenCalled();
+  expect(terminateProcessTree).not.toHaveBeenCalled();
 });
 it("rejects cancellation even if OpenScreen finishes saving a valid take", async () => {
   processFixture();
@@ -75,13 +93,23 @@ it("does not accept a recorder exit without a valid completion event", async () 
   const recorder = await startOpenScreen("Kiteva capture unique-id", new AbortController().signal);
   await expect(recorder.stop()).rejects.toThrow("valid recording");
 });
-it("bounds startup and stops a process that never reports recording readiness", async () => {
+it("bounds startup and retains diagnostics from a process that never reports readiness", async () => {
   vi.useFakeTimers();
   processFixture(false);
   const pending = startOpenScreen("Kiteva capture unique-id", new AbortController().signal);
   const rejection = expect(pending).rejects.toThrow("30 seconds");
+  // Let the real filesystem finish creating the log before advancing the startup timer.
+  await vi.waitFor(() => expect(spawn).toHaveBeenCalled());
+  const options = vi.mocked(spawn).mock.lastCall![2];
+  if (!Array.isArray(options?.stdio) || typeof options.stdio[2] !== "number")
+    throw Error("Expected persistent stderr descriptor");
+  writeSync(options.stdio[2], "Native capture stream interrupted\n");
   await vi.advanceTimersByTimeAsync(30000);
   await rejection;
+  const [file] = await readdir(diagnosticsDirectory);
+  expect(await readFile(path.join(diagnosticsDirectory, file), "utf8")).toBe(
+    "Native capture stream interrupted\n",
+  );
 });
 it("refuses to select a substitute recorder when OpenScreen is not configured", async () => {
   vi.stubEnv("OPENSCREEN_EXECUTABLE", "");
@@ -98,7 +126,7 @@ it("does not expire or kill an active recording after the former duration caps",
   await vi.advanceTimersByTimeAsync(0);
   const recorder = await pending;
   await vi.advanceTimersByTimeAsync(600000);
-  expect(stopProcessTree).not.toHaveBeenCalled();
+  expect(terminateProcessTree).not.toHaveBeenCalled();
   expect(child.stdin.writableEnded).toBe(false);
   await recorder.stop();
 });

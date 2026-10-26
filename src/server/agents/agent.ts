@@ -39,11 +39,6 @@ export interface AgentExecutionOptions extends Omit<
   systemPrompt: string;
   jsonSchema: z.core.JSONSchema.BaseSchema;
   capabilityServers?: Record<string, AgentMcpCapability>;
-  referenceServer?: {
-    command: string;
-    args: string[];
-    env: Record<string, string>;
-  };
 }
 
 export interface Agent {

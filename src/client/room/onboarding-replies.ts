@@ -1,4 +1,5 @@
 import { creativeApproachLabel } from "../../shared/creative-approach";
+import { buildRouteLabel, buildRouteOf } from "../../shared/build-route";
 import { translateUi } from "../i18n/service";
 import { deliverySpeech, videoLanguageLabel } from "../../shared/video-language";
 import type { CreativeRequest } from "../../shared/contracts";
@@ -109,9 +110,14 @@ export function roomSettingsReply(request: CreativeRequest, styles: ReplyStyle[]
             ),
           }),
         ]),
-    translateUi("Creative approach: {{value0}}", {
-      value0: translateUi(creativeApproachLabel(request)),
-    }),
+    translateUi("Build route: {{value0}}", { value0: translateUi(buildRouteLabel(request)) }),
+    ...(buildRouteOf(request) === "automatic-previews"
+      ? [
+          translateUi("Creative approach: {{value0}}", {
+            value0: translateUi(creativeApproachLabel(request)),
+          }),
+        ]
+      : []),
     styleNames.length
       ? translateUi(
           "Selected Motion Graphics: {{value0}}\nPreview directions: Skipped — build selected Motion Graphics directly",

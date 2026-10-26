@@ -2,9 +2,9 @@ import { expect, it } from "vitest";
 import { z } from "zod";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { referenceToolRegistry } from "../src/server/requests/reference-tool-registry";
-import { enabledReferenceTools } from "../src/server/requests/reference-browser-contracts";
-import { createReferenceTools } from "../src/server/requests/reference-browser-tools";
+import { referenceToolRegistry } from "../src/server/agents/capabilities/reference-browser/tool-registry";
+import { enabledReferenceTools } from "../src/server/agents/capabilities/reference-browser/types";
+import { createReferenceTools } from "../src/server/agents/capabilities/reference-browser/tools";
 
 it.each([false, true])(
   "publishes registry descriptions, schemas and permissions with recording enabled=%s",

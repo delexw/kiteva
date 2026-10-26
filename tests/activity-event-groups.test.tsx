@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import type { AgentProgressEvent } from "../src/shared/contracts";
 import { activityItems } from "../src/client/agent-activity-model";
 import { displayActivityItems } from "../src/client/activity-display";
-import { roomPreparationSteps } from "../src/client/room/room-activity";
+import { roomActivityStep, roomPreparationSteps } from "../src/client/room/room-activity";
 
 const event = (id: number, data: unknown, type = "tool", jobId?: string): AgentProgressEvent => ({
   id,
@@ -102,4 +102,88 @@ it("keeps preparation checkpoints for events that also carry tracing metadata", 
   expect(renderToStaticMarkup(<>{grouped.checkpoints[0].content}</>)).toContain(
     "Extracting your project title…",
   );
+});
+
+it("updates one render group across failed attempts and corrections using recorded scope outcomes", () => {
+  const trace = (
+    id: number,
+    attempt: string,
+    state: "running" | "failed" | "complete" | "stopped",
+  ) =>
+    event(
+      id,
+      { activityScope: { id: attempt, label: "Rendering your video", state } },
+      "activity_scope",
+      "video",
+    );
+  const progress = (id: number, attempt: string, message: string, type = "render_progress") => ({
+    ...event(id, { activityScopeId: attempt }, type, "video"),
+    message,
+  });
+  const events = [
+    trace(1, "first", "running"),
+    progress(2, "first", "Rendering validated composition", "phase"),
+    progress(
+      3,
+      "first",
+      "Checking the Multiplane shot: stage size (9/25: shot.html)",
+      "validation",
+    ),
+    trace(4, "first", "failed"),
+    {
+      ...event(
+        5,
+        {
+          purpose: "playback correction",
+          invocationId: "fix",
+          itemId: "edit",
+          state: "item.completed",
+        },
+        "tool",
+        "video",
+      ),
+      message: "Edit",
+    },
+    trace(6, "retry", "running"),
+    progress(7, "retry", "Rendering validated composition", "phase"),
+    progress(
+      8,
+      "retry",
+      "Checking the Multiplane shot: stage size (2/25: shot.html)",
+      "validation",
+    ),
+  ];
+  const source = JSON.stringify(events);
+  const render = (input: typeof events) =>
+    displayActivityItems(activityItems(input)).filter((item) => item.progressStage === "render");
+  const failed = render(events.slice(0, 4));
+  expect(failed).toHaveLength(1);
+  expect(failed[0]).toMatchObject({ status: "failed", progressPercent: 32 });
+  expect(failed[0].children![0].status).toBe("failed");
+  const retried = render(events);
+  expect(retried).toHaveLength(1);
+  expect(retried[0]).toMatchObject({
+    status: "running",
+    progressPercent: 4,
+    activityScopeId: "retry",
+  });
+  expect(retried[0].children).toHaveLength(1);
+  expect(retried[0].children![0].status).toBe("running");
+  const stopped = render([...events, trace(9, "retry", "stopped")]);
+  expect(stopped[0].status).toBe("stopped");
+  const complete = render([
+    ...events,
+    progress(9, "retry", "Render complete"),
+    trace(10, "retry", "complete"),
+  ]);
+  expect(complete).toHaveLength(1);
+  expect(complete[0]).toMatchObject({ status: "complete", progressPercent: 100 });
+  expect(JSON.stringify(events)).toBe(source);
+  const separate = render([
+    ...events,
+    { ...progress(11, "other", "Rendering validated composition", "phase"), jobId: "other-video" },
+  ]);
+  expect(separate).toHaveLength(2);
+  const html = renderToStaticMarkup(<>{roomActivityStep(retried[0]).content}</>);
+  expect(html.match(/Checking the design and playback/g)).toHaveLength(1);
 });

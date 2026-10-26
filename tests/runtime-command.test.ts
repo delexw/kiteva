@@ -59,3 +59,56 @@ it("decodes UTF-8 characters split across stdout chunks", async () => {
   );
   expect(stdout).toBe("中文");
 });
+
+it("waits for stubborn detached descendants to exit and preserves unrelated processes", async () => {
+  const { spawn } = await import("node:child_process");
+  const controller = new AbortController();
+  const unrelated = spawn(process.execPath, ["-e", "setInterval(()=>{},1000)"], {
+    stdio: "ignore",
+  });
+  const owned: number[] = [];
+  const exists = (pid: number) => {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ESRCH") return false;
+      throw error;
+    }
+  };
+  const childCode = "process.on('SIGTERM',()=>{});console.log('ready');setInterval(()=>{},1000)";
+  const parentCode = `
+    const {spawn}=require('node:child_process');
+    process.on('SIGTERM',()=>{});
+    const child=spawn(process.execPath,['-e',${JSON.stringify(childCode)}],{detached:true,stdio:['ignore','pipe','ignore']});
+    child.stdout.once('data',()=>console.log(JSON.stringify([process.pid,child.pid])));
+    setInterval(()=>{},1000);
+  `;
+  try {
+    let stdout = "";
+    await expect(
+      command(
+        process.execPath,
+        ["-e", parentCode],
+        appRoot,
+        controller.signal,
+        () => {},
+        10000,
+        false,
+        (chunk) => {
+          stdout += chunk;
+          if (stdout.includes("\n")) {
+            owned.push(...JSON.parse(stdout.trim()));
+            controller.abort();
+          }
+        },
+      ),
+    ).rejects.toThrow("Cancelled");
+    expect(owned).toHaveLength(2);
+    expect(owned.map(exists)).toEqual([false, false]);
+    expect(exists(unrelated.pid!)).toBe(true);
+  } finally {
+    for (const pid of [...owned, unrelated.pid])
+      if (pid && exists(pid)) process.kill(pid, "SIGKILL");
+  }
+}, 15000);

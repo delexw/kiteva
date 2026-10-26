@@ -34,6 +34,7 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
     try {
       await session.browser.close();
     } finally {
+      await session.queue.whenIdle();
       await rm(session.workspace, { recursive: true, force: true });
     }
   }
@@ -49,6 +50,10 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
     const input = CaptureSessionSchema.parse(request.body);
     const controller = new AbortController();
     starting = true;
+    const abort = () => {
+      if (!reply.raw.writableFinished) controller.abort();
+    };
+    reply.raw.once("close", abort);
     let workspace: string | undefined;
     try {
       workspace = await mkdtemp(path.join(os.tmpdir(), "kiteva-desktop-"));
@@ -67,6 +72,7 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
       if (workspace) await rm(workspace, { recursive: true, force: true });
       throw error;
     } finally {
+      reply.raw.off("close", abort);
       starting = false;
     }
   });
@@ -80,7 +86,7 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
       switch (action.action) {
         case "browser":
           return browser.perform(
-            action.request as import("../requests/reference-tool-registry").BrowserCapabilityRequest,
+            action.request as import("../agents/capabilities/reference-browser/tool-registry").BrowserCapabilityRequest,
             session.workspace,
           );
         case "inspect":
@@ -132,7 +138,7 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
           };
         }
       }
-    });
+    }, session.controller.signal);
   });
   app.get("/sessions/:id/assets/:name", async (request, reply) => {
     const { id, name } = sessionSchema

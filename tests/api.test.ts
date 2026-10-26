@@ -441,7 +441,7 @@ describe("local application API", () => {
     ).toBe(404);
     server.store.delete(otherId);
   });
-  it("blocks deletion during active or still stopping work and rejects unsafe requests", async () => {
+  it("stops active work before deletion and rejects unsafe requests", async () => {
     const id = randomUUID();
     const run: Run = {
       id,
@@ -453,14 +453,14 @@ describe("local application API", () => {
     };
     server.store.save(run);
     const request = { method: "DELETE" as const, url: `/api/runs/${id}`, headers };
-    expect((await server.app.inject(request)).statusCode).toBe(409);
+    expect((await server.app.inject(request)).statusCode).toBe(200);
     // Cancellation can finish the visible phase before the provider process exits.
     const active = vi.spyOn(server.workflow, "hasActiveTasks").mockReturnValue(true);
     const stoppedId = randomUUID();
     server.store.save({ ...run, id: stoppedId, phase: "cancelled" });
     expect(
       (await server.app.inject({ ...request, url: `/api/runs/${stoppedId}` })).statusCode,
-    ).toBe(409);
+    ).toBe(200);
     active.mockRestore();
     expect(
       (
@@ -476,10 +476,10 @@ describe("local application API", () => {
     expect(
       (await server.app.inject({ ...request, url: `/api/runs/${randomUUID()}` })).statusCode,
     ).toBe(404);
-    expect(server.store.get(id)).toBeDefined();
+    expect(server.store.get(id)).toBeUndefined();
     expect(
       (await server.app.inject({ ...request, url: `/api/runs/${stoppedId}` })).statusCode,
-    ).toBe(200);
+    ).toBe(404);
     server.store.delete(id);
   });
   it("exposes current validated demos and explicit preparation status", async () => {

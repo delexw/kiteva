@@ -1,3 +1,4 @@
+import { previewPlanArtifact } from "../../jobs/preview-plan";
 import { activityScope } from "../../jobs/activity-scope";
 import { mergeCorrection, correctionMergeGuidance } from "../../agents/correction-merge";
 import { ProductionSchema } from "../../../shared/agents/schemas/video";
@@ -87,6 +88,11 @@ export async function generateVideo(input: {
       );
       request = { ...request, speech: localized.speech };
     }
+    if (job.kind === "preview" && !job.production && job.buildPlan) {
+      if (job.sessionId === job.buildPlan.sessionId) job.sessionId = undefined;
+      job.buildPlan = undefined;
+      update();
+    }
     const fps = request.frameRate ?? 30;
     const size = dimensions(
       request.aspectRatio,
@@ -155,6 +161,8 @@ export async function generateVideo(input: {
       feedback,
       speechTrack: job.speechTrack,
     });
+    const previewRequirementsFile = path.resolve(job.workspace, "VIDEO_REQUIREMENTS.md");
+    if (job.kind === "preview") await writeFile(previewRequirementsFile, prompt);
     await writeFile(path.join(job.workspace, "EXECUTABLE_PROMPT.md"), prompt);
     const corrector = new VideoCorrectionCoordinator({
       job,
@@ -207,21 +215,33 @@ export async function generateVideo(input: {
       update();
     };
     if (!job.production) {
-      const implementationPrompt = await prepareVideoBuildPlan({
-        referenceUrls: request.urls,
-        job,
-        provider: request.provider,
-        prompt,
-        ...size,
-        fps,
-        signal,
-        onEvent,
-        update,
-      });
+      const implementationPrompt =
+        job.kind === "preview"
+          ? `# Build this preview
+
+- Read ${JSON.stringify(path.resolve(job.workspace, previewPlanArtifact))} for the shared plan and direction ${JSON.stringify(candidate.id)}. Implement only that direction's assigned styles and scene roles.
+- Read ${JSON.stringify(previewRequirementsFile)} for the original idea, settings, references and renderer contract.
+- Build the short silent preview directly; do not return another plan or restart direction selection.
+- Return the production manifest with the complete storyboard, displayTitle and displayDescription. The app validates and renders the result.`
+          : await prepareVideoBuildPlan({
+              referenceUrls: request.urls,
+              job,
+              provider: request.provider,
+              prompt,
+              ...size,
+              fps,
+              signal,
+              onEvent,
+              update,
+            });
       const captured = job.buildPlan?.value.version === 2 && job.buildPlan.value.capturePlan;
+      const implementationHandoff =
+        job.kind === "preview" || job.refinementPrompt
+          ? implementationPrompt
+          : `${implementationPrompt}\n\n${prompt}`;
       const assemblyPrompt = captured
-        ? `${implementationPrompt}\nCAPTURE HANDOFF: Code has completed the planned chapter captures. Read ${capturedChaptersArtifact} and use its reviewed exported assets and observed results. Reconcile actual durations with the storyboard and chapter cards. Do not record the chapters again; capture tools are unavailable during assembly.`
-        : implementationPrompt;
+        ? `${implementationHandoff}\nCAPTURE HANDOFF: Code has completed the planned chapter captures. Read ${capturedChaptersArtifact} and use its reviewed exported assets and observed results. Reconcile actual durations with the storyboard and chapter cards. Do not record the chapters again; capture tools are unavailable during assembly.`
+        : implementationHandoff;
       if (assemblyPrompt !== prompt)
         await writeFile(path.join(job.workspace, "EXECUTABLE_PROMPT.md"), assemblyPrompt);
       await buildTurn(assemblyPrompt);
@@ -310,7 +330,7 @@ export async function generateVideo(input: {
         if (error instanceof InputRequired) throw error;
         if (error instanceof CodedError && error.code.startsWith("SPEECH_")) throw error;
         signal.throwIfAborted();
-        if (job.kind === "preview" || error instanceof VideoQaReportError) throw error;
+        if (error instanceof VideoQaReportError) throw error;
         job.error = safeMessage(error);
         job.phase = "generating";
         update();

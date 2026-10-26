@@ -1,3 +1,4 @@
+import { fileBackedPlanningPrompt } from "../../../agents/planning-prompt";
 import { BriefSchema } from "../../../../shared/agents/schemas/video";
 import { PageBriefSchema } from "../../../../shared/agents/schemas/page";
 import { preparationBriefSchemaFor } from "../../../../shared/agents/schemas/preparation-brief";
@@ -12,7 +13,7 @@ import {
   briefAttachmentInstructions,
 } from "../../../requests/brief-attachments";
 import { prepareBriefImages } from "../../../requests/brief-images";
-import { readReferenceScreenshots } from "../../../requests/reference-browser-tools";
+import { readReferenceScreenshots } from "../../../agents/capabilities/reference-browser/tools";
 import { assemblePreparationBrief, preparationBriefPrompt } from "./preparation";
 import {
   reviewBriefAssets,
@@ -56,7 +57,7 @@ export async function runFullBriefWorkflow(options: {
     return asset;
   });
   await prepareBriefAttachments(workspace, attachments, images, signal);
-  const interpretation = await schedule(() =>
+  const interpretation = await schedule(async () =>
     agentTurn({
       provider: request.provider,
       model: textModels[request.provider],
@@ -67,7 +68,11 @@ export async function runFullBriefWorkflow(options: {
       schema: preparationBriefSchema,
       exploreBriefSections: true,
       onEvent: onEvent(),
-      prompt: preparationBriefPrompt,
+      prompt: await fileBackedPlanningPrompt(
+        workspace,
+        "BRIEF_PREPARATION.md",
+        preparationBriefPrompt,
+      ),
     }),
   );
   let prepared = {

@@ -21,32 +21,35 @@ sample, and it isn't a price list or a benchmark. Please read it that way.
 
 ## How the report computes cost
 
-The report rebuilds costs from raw SDK usage events every time it's read. It never stores a running total.
+The report reads SDK-reported costs from saved usage events whenever it is requested. Claude costs come directly from the SDK. Codex, whose SDK reports tokens but no amount,
+uses the current standard short-context API rates without inferring a cost range.
 
-| Basis label in the report                              | Meaning                                                                                                                                                         | Used for                                                          |
-| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `SDK estimate · session increments`                    | The Claude Agent SDK's own `costUSD` per model, differenced between turns of the same session so resumed sessions aren't counted twice                          | Historical examples below and models without a supported API rate |
-| `Standard API equivalent · short/long-context range`   | Tokens multiplied by the list prices in `report.ts`, shown as a low/high range because a turn's summed input doesn't reveal any single request's context length | Codex/OpenAI models (none in these examples)                      |
-| `Published Jev API rate`                               | Input tokens at $0.042 per million (matched for `jev-1.13.*` and `jev-1.14.*`)                                                                                  | JEV                                                               |
-| `Not reported` / `Usage unavailable or unpriced model` | No usable usage data. This means unknown, not zero                                                                                                              | Cache hits and anything the SDK didn't report                     |
+| Basis label                                   | Meaning                                                                                                     |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `SDK estimate · session increments`           | Reported cumulative cost, differenced between results in the same session so resumed spend is counted once. |
+| `SDK reported cost`                           | A reported amount for a non-cumulative invocation.                                                          |
+| `Standard API estimate · short-context rates` | Codex usage increments at standard input, cached-read, cache-write and output rates.                        |
+| `Not reported`                                | No SDK amount or supported Codex estimate is available. Unknown cost is not zero.                           |
 
-The current report shows total input, uncached input, cache reads, cache writes (5-minute and one-hour when recorded), and output separately. Output has no separate cache category. Supported Claude 5.5 models are calculated from published standard global API rates in `claude-pricing.ts`, verified 2026-10-24. Missing cache durations produce a range; Haiku also shows short/long-request bounds because aggregate turn counts do not establish individual request lengths. Other Claude models retain the SDK estimate. Raw SDK usage and costs remain unchanged in the logs; continued per-model session counters are differenced once before stage attribution. Savings estimated by the Caveman proxy are never subtracted.
+Claude's per-model `costUSD` is used directly. For older records without per-model cost,
+its reported `total_cost_usd` is used through the saved `cost` field. Counter resets start a
+new baseline. Duplicate invocation results add no new spend. Raw SDK usage and costs remain
+unchanged in the logs; cache-duration counters are shown when available but do not determine
+cost. Savings estimated by the Caveman proxy are never subtracted.
 
-**These are API-equivalent estimates, not your bill.** Kiteva can reach a provider with an API key or
-with an existing signed-in subscription account:
-
-- **Claude**: the Claude Agent SDK uses `ANTHROPIC_API_KEY`, `CLAUDE_CODE_OAUTH_TOKEN`, or your local
-  Claude Code sign-in under `~/.claude`.
-- **Codex**: the Codex SDK uses `CODEX_API_KEY` / `OPENAI_API_KEY`, or the Codex CLI sign-in in
-  `~/.codex/auth.json` (an API-key login or a ChatGPT sign-in). Kiteva's Caveman route sends ChatGPT
-  sign-ins and API keys to different upstream paths.
-
-Kiteva doesn't assume the two providers' subscriptions report usage the same way, and **reporting of
-subscription usage or remaining percentage has not been tested**. When you're signed in with a subscription, the governance
-numbers are still token counts priced at API rates. They are not a meter of your plan's allowance, they
-don't tell you what's left, and they aren't what you'll be charged. JEV is configured separately: whenever Kiteva
-generates directions it needs `TYPESAFE_API_KEY` (or `JEV_API_KEY`), and that usage falls under Typesafe's
-own terms. Picking Motion Graphics yourself skips JEV.
+Codex usage is typed against the installed SDK `Usage` contract. Cumulative counters are
+differenced by thread before pricing, including across preview/full builds and model changes.
+Cached reads and writes are subsets of input, and reasoning is already included in output;
+neither is charged twice. Codex rates are verified against the
+[official pricing page](https://developers.openai.com/api/docs/pricing) on 2026-10-26.
+The estimate uses short-context standard rates and 30-minute cache writes; aggregate counters
+do not establish request lengths, write retention or service tiers, so no premiums are inferred.
+It is an API-equivalent estimate, not a billed amount. Unknown models or missing input/output
+and cached-read counters remain unpriced. JEV token-only records remain unpriced.
+Totals combine SDK-reported costs and known Codex estimates. SDK estimates are not invoices or subscription-allowance meters, and
+may reflect the SDK's own pricing assumptions. The historical examples below describe their
+recorded snapshot, including its then-published JEV-rate calculation; that calculation is no
+longer used by the current report.
 
 ## The three examples
 

@@ -3,7 +3,7 @@ import os from "node:os";
 import sharp from "sharp";
 import path from "node:path";
 import { expect, it, vi } from "vitest";
-import { browserCapabilities } from "../src/server/requests/reference-tool-registry";
+import { browserCapabilities } from "../src/server/agents/capabilities/reference-browser/tool-registry";
 import { captureCursorThemes } from "../src/server/capture/presentation";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -15,7 +15,7 @@ import { createReferenceBrowser } from "../src/server/jobs/subworkflows/website-
 import {
   createReferenceTools,
   readReferenceScreenshots,
-} from "../src/server/requests/reference-browser-tools";
+} from "../src/server/agents/capabilities/reference-browser/tools";
 
 it.each([64, 3000])(
   "exposes semantic capture with a %s px image and preserves original generation assets",

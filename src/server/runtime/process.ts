@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { StringDecoder } from "node:string_decoder";
 import { renderCommand } from "../rendering/render-sandbox";
 import { systemEnvironment } from "./platform";
-import { stopProcessTree } from "./process-tree";
+import { terminateProcessTree } from "./process-tree";
 import { safeMessage } from "./config.js";
 export async function command(
   executable: string,
@@ -35,8 +35,11 @@ export async function command(
     let output = "";
     let timedOut = false;
     let outputFailed = false;
+    let outputError: unknown;
+    let stopping: Promise<void> | undefined;
     const stop = () => {
-      stopProcessTree(child.pid);
+      stopping ??= terminateProcessTree(child.pid, { processGroup: true });
+      void stopping.catch(() => {});
     };
     const timer = setTimeout(() => {
       timedOut = true;
@@ -58,7 +61,7 @@ export async function command(
           clearTimeout(timer);
           signal.removeEventListener("abort", stop);
           stop();
-          reject(error);
+          outputError = error;
         }
       };
       stream.on("data", (chunk) => emit(decoder.write(chunk)));
@@ -70,10 +73,17 @@ export async function command(
       reject(error);
     });
     if (signal.aborted) stop();
-    child.on("close", (code) => {
+    child.on("close", async (code) => {
       clearTimeout(timer);
       signal.removeEventListener("abort", stop);
-      if (signal.aborted) reject(Error("Cancelled"));
+      try {
+        await stopping;
+      } catch (error) {
+        reject(error);
+        return;
+      }
+      if (outputFailed) reject(outputError);
+      else if (signal.aborted) reject(Error("Cancelled"));
       else if (timedOut) reject(Error("Process exceeded time limit"));
       else if (code !== 0) reject(Error(`${executable} exited ${code}: ${output.slice(-5000)}`));
       else resolve(output);

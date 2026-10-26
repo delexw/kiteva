@@ -1,4 +1,4 @@
-import { BrowserCapabilityRequestSchema } from "../requests/reference-tool-registry";
+import { BrowserCapabilityRequestSchema } from "../agents/capabilities/reference-browser/tool-registry";
 import { NativeCaptureRequestSchema } from "./native-editor";
 import { z } from "zod";
 import { CapturePresentationSchema } from "./presentation";

@@ -10,7 +10,7 @@ import type {
 import { mkdir, writeFile, rename } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import type { BrowserCapabilityRequest, BrowserCapabilityResult } from "./reference-tool-registry";
+import type { BrowserCapabilityRequest, BrowserCapabilityResult } from "./tool-registry";
 
 /** Native input commands can remain pending until a JavaScript dialog is answered. */
 export async function runWithBrowserDialog<T>(

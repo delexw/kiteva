@@ -208,10 +208,60 @@ it("differences cumulative Claude per-model snapshots across functions and conti
   expect(result.activity[0]).toMatchObject({
     inputTokens: 130,
     outputTokens: 10,
-    costLow: 0.00036,
+    costLow: 0.1,
   });
   expect(result.activity[1].inputTokens).toBe(5);
-  expect(result.activity[1].costLow).toBeCloseTo(0.00012, 8);
+  expect(result.activity[1].costLow).toBeCloseTo(0.05, 8);
+});
+it("retains observed Claude resume counters without inventing costs and remains stable on report refresh", () => {
+  // Recorded SDK result shapes: modelUsage is cumulative; usage contains this turn's cache TTLs.
+  const observed = (
+    id: number,
+    purpose: string,
+    inputTokens: number,
+    outputTokens: number,
+    cacheReadInputTokens: number,
+    cacheCreationInputTokens: number,
+    turnWrites: number,
+  ) =>
+    event(id, "usage", {
+      provider: "claude",
+      model: "claude-opus-5-5",
+      sessionId: "shared-session",
+      invocationId: `observed-${id}`,
+      purpose,
+      usage: {
+        cache_creation_input_tokens: turnWrites,
+        cache_creation: { ephemeral_5m_input_tokens: turnWrites, ephemeral_1h_input_tokens: 0 },
+      },
+      modelUsage: {
+        "claude-opus-5-5": {
+          inputTokens,
+          outputTokens,
+          cacheReadInputTokens,
+          cacheCreationInputTokens,
+        },
+      },
+    });
+  const planning = observed(1, "Planning", 1642, 23075, 2357571, 155522, 155522);
+  const build = observed(2, "Build", 1664, 56795, 4297757, 363609, 208087);
+  const events = [planning, build, { ...build, id: 3 }];
+  const result = projectGovernance(run, events);
+  expect(result.activity[1]).toMatchObject({
+    calls: 1,
+    uncachedInputTokens: 22,
+    inputTokens: 22 + 1940186 + 208087,
+    outputTokens: 33720,
+    cachedTokens: 1940186,
+    cacheWrite5mTokens: 208087,
+    cacheWrite1hTokens: 0,
+    costLow: null,
+    costHigh: null,
+  });
+  // Rebuilding the report from persisted events must not accumulate charges in memory.
+  expect(projectGovernance(run, JSON.parse(JSON.stringify(events))).activity).toEqual(
+    result.activity,
+  );
 });
 it("retains unreported and unpriced usage without claiming zero cost", () => {
   const result = projectGovernance(run, [
@@ -219,7 +269,7 @@ it("retains unreported and unpriced usage without claiming zero cost", () => {
   ]);
   expect(result.activity[0]).toMatchObject({ calls: 1, inputTokens: null, costLow: null });
 });
-it("prices Astra usage with short and long context bounds including both cache types", () => {
+it("prices Astra cache categories once using standard rates", () => {
   const result = projectGovernance(run, [
     event(1, "usage", {
       provider: "codex",
@@ -238,7 +288,7 @@ it("prices Astra usage with short and long context bounds including both cache t
     outputTokens: 100000,
     cachedTokens: 600000,
     costLow: 9.85,
-    costHigh: 17.2,
+    costHigh: 9.85,
   });
 });
 it("does not attribute additional SDK models to the primary model's generation task", () => {
@@ -290,21 +340,24 @@ it("finishes timing at the terminal state event and flags legacy attribution", (
   expect(result.incompleteHistory).toBe(true);
   expect(result.activity[0].model).toBe("Unrecorded model");
 });
-it.each(["jev-1.13.0", "jev-1.14.0"])("prices versioned Jev input tokens for %s", (model) => {
-  const result = projectGovernance(run, [
-    event(1, "usage", {
-      model,
-      provider: "jev",
-      invocationId: "jev",
-      usage: { input_tokens: 1000000, output_tokens: 50 },
-    }),
-  ]);
-  expect(result.activity[0]).toMatchObject({
-    inputTokens: 1000000,
-    outputTokens: 50,
-    costLow: 0.042,
-  });
-});
+it.each(["jev-1.13.0", "jev-1.14.0"])(
+  "keeps cost unavailable when %s only reports tokens",
+  (model) => {
+    const result = projectGovernance(run, [
+      event(1, "usage", {
+        model,
+        provider: "jev",
+        invocationId: "jev",
+        usage: { input_tokens: 1000000, output_tokens: 50 },
+      }),
+    ]);
+    expect(result.activity[0]).toMatchObject({
+      inputTokens: 1000000,
+      outputTokens: 50,
+      costLow: null,
+    });
+  },
+);
 it("reads all governance events and projects beyond normal history pagination", () => {
   const store = new Store(":memory:");
   try {
@@ -376,7 +429,7 @@ it("does not count previously captured legacy Claude cost twice after upgrading 
     }),
   ]);
   expect(result.activity[1].inputTokens).toBe(10);
-  expect(result.activity[1].costLow).toBeCloseTo(0.000081, 8);
+  expect(result.activity[1].costLow).toBeCloseTo(0.05, 8);
 });
 it("does not invent completion timing for an empty historical project", () => {
   expect(projectGovernance({ ...run, phase: "ready" }, []).durationMs).toBeNull();
@@ -540,7 +593,7 @@ it("does not add unchanged or duplicated cumulative snapshots", () => {
     outputTokens: 10,
   });
 });
-it("handles reset Codex counters and preserves cache-write pricing", () => {
+it("prices reset Codex counters with cache writes counted once", () => {
   const result = projectGovernance(run, [
     codexUsage(1, "same", 1000, 800, 50, "Build", { cache_write_input_tokens: 100 }),
     codexUsage(2, "same", 100, 20, 5, "Repair", { cache_write_input_tokens: 10 }),
@@ -635,7 +688,7 @@ it("shows the idea heading for existing direct-build placeholders", () => {
   expect(projectGovernance(selectedRun, [], Date.now()).name).toBe("MY PRODUCT — IDEAS IN MOTION");
 });
 
-it("reconstructs SDK cache writes and API costs by stage without counting continued sessions twice", async () => {
+it("uses SDK costs regardless of token prices and counts continued sessions once", async () => {
   const { aggregateModels } = await import("../src/shared/governance");
   const make = (id: number, purpose: string, multiple: number) =>
     event(id, "usage", {
@@ -654,7 +707,7 @@ it("reconstructs SDK cache writes and API costs by stage without counting contin
           outputTokens: 20 * multiple,
           cacheReadInputTokens: 1000 * multiple,
           cacheCreationInputTokens: 300 * multiple,
-          costUSD: 999,
+          costUSD: 999 * multiple,
         },
       },
     });
@@ -669,16 +722,16 @@ it("reconstructs SDK cache writes and API costs by stage without counting contin
       cacheWriteTokens: 300,
       cacheWrite5mTokens: 100,
       cacheWrite1hTokens: 200,
-      costBasis: "Standard API equivalent",
-      costLow: 0.00274,
-      costHigh: 0.00274,
+      costBasis: "SDK estimate · session increments",
+      costLow: 999,
+      costHigh: 999,
     });
   expect(aggregateModels(rows)[0]).toMatchObject({
     inputTokens: 2620,
     cacheWriteTokens: 600,
     cacheWrite5mTokens: 200,
     cacheWrite1hTokens: 400,
-    costLow: 0.00548,
-    costHigh: 0.00548,
+    costLow: 1998,
+    costHigh: 1998,
   });
 });

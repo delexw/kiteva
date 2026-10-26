@@ -171,6 +171,7 @@ it.each(captureCursorThemes)(
             aspectRatio: "16:9",
           },
         }),
+        path.join(f.workspace, "capture-diagnostics"),
       );
     } finally {
       await f.capture.close();
@@ -189,6 +190,7 @@ it("uses the native recording project and records its clock for the model", asyn
       expect.stringContaining("edited.mp4"),
       expect.any(AbortSignal),
       expect.any(Object),
+      path.join(f.workspace, "capture-diagnostics"),
     );
     const result = await f.capture.export();
     const cursor = JSON.parse(await readFile(path.join(f.workspace, result.cursorPath), "utf8"));

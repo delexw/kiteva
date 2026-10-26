@@ -125,7 +125,7 @@ Seventeen additional tools expose the remaining browser capability groups:
 | `browser_media`, `browser_debug`                        | Media playback/seeking, tracing, coverage, heap snapshots, script inspection and debugger controls                                          |
 
 Descriptions, argument schemas and planning permissions have one owner:
-[`reference-tool-registry.ts`](../src/server/requests/reference-tool-registry.ts). The MCP server
+[`tool-registry.ts`](../src/server/agents/capabilities/reference-browser/tool-registry.ts). The MCP server
 publishes these contracts directly; local execution and the desktop worker validate the same
 requests. Planning exposes only the tools marked read-only; demo execution exposes all 25.
 Page evaluation has browser globals, not Node filesystem APIs. Login, credential entry,

@@ -22,6 +22,10 @@ The same export mechanism handles HyperFrames, Multiplane and the Remotion fallb
 
 Not every path exists in every export. Agent configuration, hidden files, prompt-input directories, selected internal context files, symlinks and `node_modules` are excluded. ZIP delivery is streamed rather than buffered behind the former 100 MB limit.
 
+ZIP generation is registered as project-owned work. A disconnected download or project stop
+aborts the export and closes its streams; deletion waits for settlement. See
+[project work and cancellation](process-lifecycle.md).
+
 ## How the timeline is built
 
 1. Read a valid `STORYBOARD.json` for scene names and time ranges.

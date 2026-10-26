@@ -10,7 +10,7 @@ vi.mock("../src/server/runtime/browser", () => ({ browserExecutablePath: () => "
 import { referenceResource } from "../src/server/requests/reference-resource";
 import { lookup } from "node:dns/promises";
 import puppeteer from "puppeteer-core";
-import { captureReferencePage } from "../src/server/requests/reference-screenshot";
+import { captureReferencePage } from "../src/server/agents/capabilities/reference-browser/screenshot";
 
 afterEach(() => vi.restoreAllMocks());
 it("pins screenshot resource connections to validated DNS and preserves binary responses", async () => {

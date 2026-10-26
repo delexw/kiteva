@@ -624,8 +624,8 @@ it("shows rendering, audio, final review and viewing copies as distinct stages w
     "Reviewing your finished result…",
     "Recording result review findings…",
     "Full video ready",
-    "Preparing viewing copies…",
-    "Viewing copies checked",
+    "Preparing playback assets…",
+    "Playback assets checked",
   ]);
   expect(items.every((item) => item.repetitions === undefined)).toBe(true);
   expect(items.map((item) => item.text).join(" ")).not.toMatch(/\d+%/);

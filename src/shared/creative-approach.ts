@@ -18,12 +18,7 @@ export const creativeApproaches = {
   },
 } satisfies Record<CreativeApproach, { label: string; description: string }>;
 
-/** Explicit selections bypass automatic creative exploration. */
-export function creativeApproachLabel(request: {
-  preference: CreativeApproach;
-  selectedStyleIds?: string[];
-}) {
-  return request.selectedStyleIds?.length
-    ? "Selected Motion Graphics"
-    : creativeApproaches[request.preference].label;
+/** Creative preference only; execution routes belong to build-route.ts. */
+export function creativeApproachLabel(request: { preference: CreativeApproach }) {
+  return creativeApproaches[request.preference].label;
 }

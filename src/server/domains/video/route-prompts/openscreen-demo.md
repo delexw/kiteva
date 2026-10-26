@@ -1,7 +1,5 @@
 # OpenScreen capture workflow
 
-Adapted from https://github.com/getopenscreen/openscreen/blob/main/plugin/skills/openscreen-demo/SKILL.md (copied 2026-10-20).
-License: MIT; see openscreen-demo.LICENSE alongside this file.
 Included directly; does not require a separate skill invocation. User timing, story boundaries, presentation and audio directions override defaults.
 
 ```mermaid

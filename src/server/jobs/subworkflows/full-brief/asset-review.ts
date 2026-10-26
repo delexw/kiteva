@@ -9,7 +9,7 @@ import { z } from "zod";
 import type { CreativeRequest } from "../../../../shared/contracts";
 import { agentTurn, type ProviderEvent } from "../../../agents/providers";
 import { textModels } from "../../../agents/models";
-import { readReferenceScreenshots } from "../../../requests/reference-browser-tools";
+import { readReferenceScreenshots } from "../../../agents/capabilities/reference-browser/tools";
 
 export const briefPreparationReviewPolicy = `PREPARATION EVIDENCE REVIEW, NOT PRODUCTION APPROVAL: The main model owns the production plan during building. It chooses per scene between recorded interactions, captured stills, generated visuals or a combination from the user's requirements. Preparation gathers verified facts, exact copy, source provenance and genuine access limitations; it must not prescribe a finished shot list or require finished production assets.
 Inspect supplied websites enough to establish relevant facts and reachable controls. Capture screenshots only when needed to verify a visual claim or when the user requires a particular still. Do not capture every stage of a requested interaction merely to satisfy a preparation checklist. Clearly distinguish rendered page text from content actually visible in each captured image.

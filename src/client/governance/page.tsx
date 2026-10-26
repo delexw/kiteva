@@ -1,5 +1,6 @@
 import { hasOnScreenLyrics } from "../../shared/script-items";
 import { creativeApproachLabel } from "../../shared/creative-approach";
+import { buildRouteLabel, buildRouteOf } from "../../shared/build-route";
 import { PromptText } from "../components/style-mention";
 import { uiLanguage, translateUi, useUiLanguage } from "../i18n";
 import { PageTemplate } from "../components/page-template";
@@ -273,9 +274,15 @@ export function GovernancePage() {
                         <dd>{project.request.provider}</dd>
                       </div>
                       <div>
-                        <dt>{translateUi("Creative approach")}</dt>
-                        <dd>{translateUi(creativeApproachLabel(project.request))}</dd>
+                        <dt>{translateUi("Build route")}</dt>
+                        <dd>{translateUi(buildRouteLabel(project.request))}</dd>
                       </div>
+                      {buildRouteOf(project.request) === "automatic-previews" && (
+                        <div>
+                          <dt>{translateUi("Creative approach")}</dt>
+                          <dd>{translateUi(creativeApproachLabel(project.request))}</dd>
+                        </div>
+                      )}
                       <div>
                         <dt>{translateUi("Preview options")}</dt>
                         <dd>{project.request.candidateCount}</dd>
@@ -395,7 +402,7 @@ export function GovernancePage() {
         </p>
         <p>
           {translateUi(
-            "Costs are estimates, not invoices. SDK session token counters are differenced across continued sessions, so earlier turns are counted once. Supported Claude models use published API rates with cache-write durations; missing cache durations and Haiku request lengths produce cost ranges. Other models retain the reported SDK estimate. GPT costs show standard short/long-context API-equivalent bounds; subscriptions, fast tiers, discounts and infrastructure costs are excluded. Unpriced models remain unavailable. Cached summaries add no new model spend. Older extraction and ranking usage cannot be reconstructed. Totals include retained project records only, excluding deleted projects and separate catalog demo generation.",
+            "Claude costs use SDK-reported amounts. Codex costs use standard short-context API rates on new thread usage; cached reads and writes are separated from input, and reasoning is included in output. Cumulative costs and token counters are differenced across resumed sessions to avoid double-counting. Codex estimates do not infer long-context, cache-duration or service-tier premiums from aggregate tokens. Other costs remain unavailable unless reported. Totals include retained project records only.",
           )}
         </p>
         <p>

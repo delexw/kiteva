@@ -1,6 +1,6 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { createReferenceTools } from "../requests/reference-browser-tools";
+import { createReferenceTools } from "./tools";
 
 const config = z
   .object({

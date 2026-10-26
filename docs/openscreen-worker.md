@@ -12,11 +12,11 @@ Setting a worker URL selects the remote desktop instead. Worker connection or au
 
 ## Verification status
 
-OpenScreen v2.1.1's installed CLI and native MCP connection have been verified. Local recording has also been exercised through the actual SDK tools against a sample website: typing, clicking, stopping, silent WebM decoding and native cursor alignment were checked on macOS. Worker transport, process lifecycle and local/remote routing have automated tests. A remote VM recording still requires deployment and verification on the chosen desktop. Do not treat transport tests as proof of a visually correct recording.
+OpenScreen v2.1.2's installed CLI and native MCP connection have been verified. Local recording has also been exercised through the actual SDK tools against a sample website: typing, clicking, stopping, silent WebM decoding and native cursor alignment were checked on macOS. Worker transport, process lifecycle and local/remote routing have automated tests. A remote VM recording still requires deployment and verification on the chosen desktop. Do not treat transport tests as proof of a visually correct recording.
 
 ## Desktop worker
 
-Use a dedicated macOS or Windows VM with a logged-in graphical desktop. Install Kiteva's dependencies, full Chrome/Chromium, [OpenScreen v2.1.1](https://github.com/getopenscreen/openscreen/releases/tag/v2.1.1) with its CLI, and FFmpeg. Grant Screen Recording on macOS. Keep the desktop session unlocked; prevent sleep. OpenScreen runs without its editor appearing, but its capture source is a real browser window **inside the VM**, on the VM rather than the current machine.
+Use a dedicated macOS or Windows VM with a logged-in graphical desktop. Install Kiteva's dependencies, full Chrome/Chromium, [OpenScreen v2.1.2](https://github.com/getopenscreen/openscreen/releases/tag/v2.1.2) with its CLI, and FFmpeg. Grant Screen Recording on macOS. Keep the desktop session unlocked; prevent sleep. OpenScreen runs without its editor appearing, but its capture source is a real browser window **inside the VM**, on the VM rather than the current machine.
 
 Linux's native OpenScreen recorder requires answering a portal picker on each run, so this deployment does not support unattended Linux workers. A virtual X server alone does not resolve that restriction. See the [OpenScreen CLI requirements](https://getopenscreen.com/docs/cli/#displays-ci-and-servers).
 
@@ -30,7 +30,7 @@ On the worker, configure these environment variables:
 | `KITEVA_CAPTURE_WORKER_TOKEN` | Shared random secret of at least 32 characters                       |
 | `KITEVA_CAPTURE_WORKER_PORT`  | Optional; defaults to 4330                                           |
 
-Start `npm run capture:worker`. The service binds to `127.0.0.1`. It permits one browser session at a time and expires abandoned sessions after 63 minutes (allowing the one-hour native export plus delivery conversion). Session shutdown stops the owned recorder and browser and removes transferred session assets. OpenScreen's original recordings remain in its own recordings directory; configure retention on the worker.
+Start `npm run capture:worker`. The service binds to `127.0.0.1`. It permits one browser session at a time. Session DELETE or worker shutdown aborts the session, closes its browser and recorder, waits for queued and active actions to settle, and removes transferred session assets. Disconnecting during session creation aborts startup. There is no server-side idle-expiry timer. OpenScreen's original recordings remain in its own recordings directory; configure retention on the worker.
 
 On the Kiteva host, configure:
 
@@ -40,6 +40,18 @@ KITEVA_CAPTURE_WORKER_TOKEN=<same-shared-secret>
 ```
 
 Forward that loopback port to the worker over a private tunnel, or terminate HTTPS at an authenticated private reverse proxy. Non-loopback plain HTTP is rejected. Never expose the service publicly. Keep the token out of prompts and source control. Restart Kiteva after changing configuration.
+
+## Recording ownership and cancellation
+
+Native recording and saving use a shared host lock across Kiteva processes using the same
+temporary-directory lock path. Other builders wait with cancellation support; the lock does
+not guarantee FIFO ordering. Review, editing and export can continue after the saved take
+releases the lock. See [recorder ownership](chapter-capture-timing.md#shared-recorder-ownership).
+
+Project cancellation sends session DELETE even after the original request signal is aborted,
+using a fresh ten-second cleanup signal. The worker aborts its own session controller and
+waits for action cleanup. See [project work and cancellation](process-lifecycle.md) for the
+complete lifecycle and deletion failure behavior.
 
 ## Website access
 

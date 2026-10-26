@@ -100,6 +100,7 @@ export async function startWebsiteCapture(
       path.join(editDirectory, "edited.mp4"),
       signal,
       settings,
+      path.join(workspace, "capture-diagnostics"),
     );
     pointerTrack.start(editor.recordingStartedAt!);
   } catch (error) {

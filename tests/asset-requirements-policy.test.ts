@@ -3,6 +3,7 @@ import {
   assetQuestionBuildScope,
   assetIdsForQuestionScope,
   assetRequirementsPolicy,
+  referenceFailureGuidance,
   customerQuestionGuidance,
   matchesAssetQuestion,
 } from "../src/shared/asset-requirements-policy";
@@ -205,4 +206,19 @@ it("deduplicates only the same scoped need, preserving answered decisions withou
   ).toBe(false);
   expect(matchesAssetQuestion(answered, need, "another-film")).toBe(false);
   expect(matchesAssetQuestion(answered, need)).toBe(false);
+});
+
+it("keeps reference failures scoped to dependent details without losing the idea", () => {
+  expect(assetRequirementsPolicy.guidance).toContain(referenceFailureGuidance);
+  expect(referenceFailureGuidance).toContain("skip only that reference and details requiring it");
+  expect(referenceFailureGuidance).toContain(
+    "Preserve the original idea, subject identity and remaining requirements",
+  );
+  expect(referenceFailureGuidance).toContain(
+    "do not invent evidence or redirect the creative concept",
+  );
+  expect(assetRequirementsPolicy.guidance).toContain(
+    "failed URL exploration prevents an explicitly required result",
+  );
+  expect(referenceFailureGuidance).not.toMatch(/TeamTube|style-\d+|motion-\d+/);
 });

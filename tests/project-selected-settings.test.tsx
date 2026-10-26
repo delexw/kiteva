@@ -129,10 +129,12 @@ it("shows selected Motion Graphics instead of an inactive creative preference", 
   });
   const html = renderToStaticMarkup(<ProjectSettings run={{ ...run, request }} />);
   expect(html).toContain("Selected Motion Graphics");
+  expect(html).toContain("Selected styles with previews");
   expect(html).toContain("2 directions");
   expect(html).not.toContain("Explore creative ideas");
   const automatic = renderToStaticMarkup(
     <ProjectSettings run={{ ...run, request: { ...request, selectedStyleIds: undefined } }} />,
   );
   expect(automatic).toContain("Explore creative ideas");
+  expect(automatic).toContain("Automatic styles with previews");
 });

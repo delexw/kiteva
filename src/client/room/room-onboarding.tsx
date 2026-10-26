@@ -2,7 +2,8 @@ import { ScriptItems } from "../components/script-items";
 import { legacyScriptItems } from "../../shared/script-items";
 import { StylePromptInput } from "../components/style-prompt-input";
 import { PromptText } from "../components/style-mention";
-import { creativeApproaches, creativeApproachLabel } from "../../shared/creative-approach";
+import { creativeApproaches } from "../../shared/creative-approach";
+import { buildRouteLabel, buildRouteOf } from "../../shared/build-route";
 import { translateUi, useUiLanguage } from "../i18n";
 import {
   deliverySpeech,
@@ -600,17 +601,23 @@ export function RoomOnboarding({
               />
             </label>
             <label>
-              {translateUi("Creative approach")}
+              {translateUi(
+                buildRouteOf(request) === "automatic-previews"
+                  ? "Creative approach"
+                  : "Build route",
+              )}
               <Select
-                aria-label={translateUi("Creative approach")}
+                aria-label={translateUi(
+                  buildRouteOf(request) === "automatic-previews"
+                    ? "Creative approach"
+                    : "Build route",
+                )}
                 disabled={Boolean(request.selectedStyleIds?.length)}
                 value={request.preference}
                 options={Object.entries(creativeApproaches).map(([value, approach]) => ({
                   value,
                   label: translateUi(
-                    request.selectedStyleIds?.length
-                      ? creativeApproachLabel(request)
-                      : approach.label,
+                    request.selectedStyleIds?.length ? buildRouteLabel(request) : approach.label,
                   ),
                 }))}
                 onChange={(preference) =>

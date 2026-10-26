@@ -158,7 +158,9 @@ it.each(["brief", "lyrics", "styles", "proposals", "selection"] as const)(
       expect(proposalCall?.promptContext).toMatchObject({
         originalIdea: resumed.request.instructions,
       });
-      expect(proposalCall?.prompt).toContain(
+      expect(
+        await readFile(path.resolve(proposalCall!.workspace, "DIRECTION_PLANNING.md"), "utf8"),
+      ).toContain(
         "Creative result; Contributions; Advantages; Disadvantages; Compatibility and adaptation",
       );
       for (const step of preparationSteps)
@@ -340,9 +342,13 @@ it.each(["claude", "codex"] as const)(
     });
     try {
       vi.mocked(agentTurn).mockImplementationOnce(async (options) => {
+        const prompt = await readFile(
+          path.resolve(options.workspace, "BRIEF_PREPARATION.md"),
+          "utf8",
+        );
         expect(options.model).toBe(textModels[provider]);
-        expect(options.prompt).toContain("brief-images.json");
-        expect(options.prompt).toContain("REQUIRED ATTACHMENT REVIEW");
+        expect(prompt).toContain("brief-images.json");
+        expect(prompt).toContain("REQUIRED ATTACHMENT REVIEW");
         const attachments = JSON.parse(
           await readFile(path.join(options.workspace, "brief-attachments.json"), "utf8"),
         );
@@ -352,7 +358,7 @@ it.each(["claude", "codex"] as const)(
           kind: "image",
           status: "image_available",
         });
-        expect(options.prompt).toContain("never production assets");
+        expect(prompt).toContain("never production assets");
         const manifest = JSON.parse(
           await readFile(path.join(options.workspace, "brief-images.json"), "utf8"),
         );
@@ -399,7 +405,7 @@ it("manual styles use only title preparation before the full build", async () =>
   });
   const workflow = new Workflow(new Store(":memory:"), await loadCatalog());
   const generate = vi.spyOn(workflow, "generate").mockImplementation(async (_run, job) => {
-    await workflow["setup"](run, job);
+    await workflow["setup"](run, job, new AbortController().signal);
     const context = JSON.parse(
       await readFile(path.join(job.workspace, "style-context.json"), "utf8"),
     );
@@ -614,7 +620,7 @@ it.each(["claude", "codex"] as const)(
     vi.mocked(agentTurn).mockResolvedValue({ value: { subject: "An original product story" } });
     const workflow = new Workflow(store, await loadCatalog());
     vi.spyOn(workflow, "generate").mockImplementation(async (_, job) => {
-      await workflow["setup"](run, job);
+      await workflow["setup"](run, job, new AbortController().signal);
       const context = JSON.parse(
         await readFile(path.join(job.workspace, "style-context.json"), "utf8"),
       );

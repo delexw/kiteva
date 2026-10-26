@@ -1,3 +1,6 @@
+import path from "node:path";
+import { writeFile } from "node:fs/promises";
+import { writeProjectRequest } from "../../../requests/project-request";
 import {
   requestedStyleScopeGuidance,
   selectedStyleWeightingGuidance,
@@ -36,6 +39,12 @@ export async function runExplicitStylePreviewWorkflow(input: {
 }) {
   const { request, styles, workspace, signal, onEvent } = input;
   const base = manualDirection(request, styles);
+  const requestFile = await writeProjectRequest(workspace, request);
+  const guidanceFile = path.resolve(workspace, "PREVIEW_DIRECTION_GUIDANCE.md");
+  await writeFile(
+    guidanceFile,
+    `${requestedStyleScopeGuidance}\n\n${selectedStyleWeightingGuidance}`,
+  );
   const schema = z.object({
     previewBeat: z.string().min(1),
     directions: z
@@ -58,11 +67,17 @@ export async function runExplicitStylePreviewWorkflow(input: {
     referenceUrls: request.urls,
     schema,
     promptContext: {
-      request,
+      projectRequestFile: requestFile,
       candidate: base,
       previousDirections: input.previousDirections,
     },
-    prompt: `EXPLICIT-STYLE PREVIEWS: The original request and supplied styles in the input JSON are authoritative. Inspect supplied sources as needed. Choose one representative previewBeat, then plan exactly ${request.candidateCount} distinct creative executions of that same beat using the Settings-selected Motion Graphics within their requested scopes. Vary composition, storytelling, typography or motion treatment meaningfully while preserving those styles. Do not propose, score, rank or choose alternative style combinations. ${requestedStyleScopeGuidance} ${selectedStyleWeightingGuidance} Describe each execution and its style roles concretely for the builder. Keep the original idea unchanged. Read input.json and available attachments when relevant. Previous directions are context for fresh executions, not a request to change the styles.`,
+    prompt: `# Preview direction planning
+
+- Read the original idea and all settings from ${JSON.stringify(requestFile)}.
+- Read ${JSON.stringify(guidanceFile)} for selected-style scope and weighting rules.
+- Read the required input JSON for the fixed selected styles and previous directions; inspect relevant attachments and supplied sources.
+- Choose one representative previewBeat and exactly ${request.candidateCount} distinct creative executions of that same beat. Preserve requested style scopes; vary the creative execution without proposing, ranking or changing style combinations.
+- Describe each direction and its sceneRoles concretely for the builder. Keep the original idea unchanged; return the required structured output.`,
   });
   const plan = schema.parse(result.value);
   return {

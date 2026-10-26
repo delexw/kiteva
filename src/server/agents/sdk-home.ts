@@ -1,3 +1,4 @@
+import { addAbortListener } from "node:events";
 import path from "node:path";
 import { prepareCodexToolHook } from "./codex-tool-hooks";
 import { userHome } from "../runtime/platform";
@@ -5,10 +6,25 @@ import { linkSdkFile } from "../runtime/workspace-links";
 import { mkdir, access, readdir } from "node:fs/promises";
 import { dataRoot } from "../runtime/config";
 let preparing: Promise<string> | undefined;
-export async function isolatedCodexHome(sessionId?: string) {
-  preparing ??= prepare();
-  const folder = await preparing;
-  if (sessionId) await linkExistingSession(folder, sessionId);
+export async function isolatedCodexHome(sessionId?: string, signal?: AbortSignal) {
+  signal?.throwIfAborted();
+  // This setup is shared by concurrent projects; only the caller's wait is cancelled.
+  preparing ??= prepare().catch((error) => {
+    preparing = undefined;
+    throw error;
+  });
+  let cancellation: ReturnType<typeof addAbortListener> | undefined;
+  const cancelled = new Promise<never>((_resolve, reject) => {
+    if (signal) cancellation = addAbortListener(signal, () => reject(signal.reason));
+  });
+  let folder: string;
+  try {
+    folder = await Promise.race([preparing, cancelled]);
+  } finally {
+    cancellation?.[Symbol.dispose]();
+  }
+  signal?.throwIfAborted();
+  if (sessionId) await linkExistingSession(folder, sessionId, signal);
   return folder;
 }
 async function prepare() {
@@ -27,13 +43,15 @@ async function prepare() {
   await prepareCodexToolHook(folder);
   return folder;
 }
-async function linkExistingSession(folder: string, id: string) {
+async function linkExistingSession(folder: string, id: string, signal?: AbortSignal) {
   if (!/^[\w-]+$/.test(id)) throw Error("Invalid SDK session ID");
   const source = path.join(process.env.CODEX_HOME || path.join(userHome(), ".codex"), "sessions");
   let visited = 0;
   async function find(dir: string): Promise<string | undefined> {
+    signal?.throwIfAborted();
     const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
     for (const e of entries) {
+      signal?.throwIfAborted();
       if (++visited > 15000) return;
       const full = path.join(dir, e.name);
       if (e.isFile() && e.name.endsWith(".jsonl") && e.name.includes(id)) return full;

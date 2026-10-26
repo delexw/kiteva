@@ -1,4 +1,5 @@
-import { claudeApiCost, type ClaudeTokenUsage } from "./claude-pricing";
+import { codexApiCost } from "./codex-pricing";
+import type { ClaudeTokenUsage } from "./token-usage";
 import type { AgentProgressEvent, Run } from "../../shared/contracts";
 import { isRunSettled } from "../../shared/contracts";
 import { projectName } from "../../shared/project-name";
@@ -9,54 +10,6 @@ import {
   type ModelActivity,
 } from "../../shared/governance";
 
-// Standard API-equivalent USD/1M rates. Astra checked 2026-10-13;
-// Sol/Luna checked 2026-10-11. Claude pricing lives in claude-pricing.ts.
-// OpenAI reports aggregate turn usage, so show short/long-context bounds rather than
-// assuming that a turn's summed input is the length of any individual API request.
-const rates: Record<
-  string,
-  {
-    input: number;
-    cached: number;
-    write: number;
-    output: number;
-    longInput: number;
-    longCached: number;
-    longWrite: number;
-    longOutput: number;
-  }
-> = {
-  "gpt-6-astra": {
-    input: 10,
-    cached: 1,
-    write: 12.5,
-    output: 50,
-    longInput: 20,
-    longCached: 2,
-    longWrite: 25,
-    longOutput: 75,
-  },
-  "gpt-6.1-sol": {
-    input: 2,
-    cached: 0.1,
-    write: 2.5,
-    output: 10,
-    longInput: 4,
-    longCached: 0.2,
-    longWrite: 5,
-    longOutput: 15,
-  },
-  "gpt-6-luna": {
-    input: 0.1,
-    cached: 0.01,
-    write: 0.125,
-    output: 0.5,
-    longInput: 0.2,
-    longCached: 0.02,
-    longWrite: 0.25,
-    longOutput: 0.75,
-  },
-};
 const numeric = (value: unknown): number | null =>
   typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
 const record = (value: unknown): Record<string, unknown> =>
@@ -242,15 +195,14 @@ export function projectGovernance(
           writes5m: matchesTurnWrites ? numeric(ttl.ephemeral_5m_input_tokens) : null,
           writes1h: matchesTurnWrites ? numeric(ttl.ephemeral_1h_input_tokens) : null,
         };
-        const priced = claudeApiCost(actualModel, usage);
         addUsage(
           actualRow,
           input === null ? null : input + (cached || 0) + (writes || 0),
           output,
           cached,
-          priced?.low ?? cost,
-          priced?.high ?? cost,
-          priced?.basis ?? "SDK estimate · session increments",
+          cost,
+          cost,
+          "SDK estimate · session increments",
           usage,
         );
       }
@@ -282,8 +234,7 @@ export function projectGovernance(
         incompleteHistory = true;
       }
     }
-    const claude =
-      d.provider === "claude" || model.startsWith("claude-") || numeric(d.cost) !== null;
+    const claude = d.provider === "claude" || model.startsWith("claude-");
     let low: number | null = null;
     let high: number | null = null;
     let basis = "Usage unavailable or unpriced model";
@@ -300,35 +251,26 @@ export function projectGovernance(
       writes5m: numeric(ttl.ephemeral_5m_input_tokens),
       writes1h: numeric(ttl.ephemeral_1h_input_tokens),
     };
-    const priced = claude ? claudeApiCost(model, usage) : null;
-    if (priced) {
-      low = priced.low;
-      high = priced.high;
-      basis = priced.basis;
-    } else if (claude && numeric(d.cost) !== null) {
-      const key = `${d.sessionId || sessions.get(scope) || scope}|legacy-cost`;
+    if (numeric(d.cost) !== null) {
       const cost = numeric(d.cost)!;
-      const previous = snapshots.get(key)?.cost || 0;
-      low = high = cost >= previous ? cost - previous : cost;
-      snapshots.set(key, { cost });
-      basis = "SDK estimate · historical main-loop tokens only";
-    } else if (input !== null && output !== null && rates[model]) {
-      const r = rates[model];
-      const base = Math.max(0, input - (cached || 0) - (writes || 0));
-      low =
-        (base * r.input + (cached || 0) * r.cached + (writes || 0) * r.write + output * r.output) /
-        1e6;
-      high =
-        (base * r.longInput +
-          (cached || 0) * r.longCached +
-          (writes || 0) * r.longWrite +
-          output * r.longOutput) /
-        1e6;
-      basis = "Standard API equivalent · short/long-context range";
-    } else if (input !== null && output !== null && /^jev-1\.(?:13|14)(?:[.-]|$)/.test(model)) {
-      low = high = (input * 0.042) / 1e6;
-      basis = "Published Jev API rate";
-    }
+      if (claude || (codex && d.usageScope !== "turn")) {
+        const key = `${d.sessionId || sessions.get(scope) || scope}|reported-cost`;
+        const increments = snapshotIncrements(key, { cost });
+        low = high = increments.cost;
+        basis = "SDK estimate · session increments";
+      } else {
+        low = high = cost;
+        basis = "SDK reported cost";
+      }
+    } else if (codex && input !== null && output !== null && cached !== null) {
+      low = high = codexApiCost(model, {
+        input_tokens: input,
+        cached_input_tokens: cached,
+        cache_write_input_tokens: writes ?? 0,
+        output_tokens: output,
+      });
+      basis = low === null ? "Not reported" : "Standard API estimate · short-context rates";
+    } else basis = "Not reported";
     addUsage(
       row,
       input === null ? null : claude ? input + (cached || 0) + (writes || 0) : input,

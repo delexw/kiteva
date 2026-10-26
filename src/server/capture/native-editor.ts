@@ -1,4 +1,9 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import path from "node:path";
+import { openCaptureDiagnostics } from "./diagnostics";
+import { writeSync } from "node:fs";
+import { terminateProcessTree } from "../runtime/process-tree";
+import { acquireRecordingSlot } from "./recording-slot";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { z } from "zod";
 import { openScreenExecutable } from "./openscreen";
@@ -67,19 +72,41 @@ async function openNativeCapture(
   output: string,
   signal: AbortSignal,
   presentation: CapturePresentationInput,
+  diagnosticsDirectory = path.dirname(output),
 ) {
+  const executable = await openScreenExecutable();
+  const diagnostics = await openCaptureDiagnostics(diagnosticsDirectory);
   const client = new Client({ name: "kiteva-capture", version: "1" });
   const transport = new StdioClientTransport({
-    command: await openScreenExecutable(),
+    command: executable,
     args: ["mcp"],
     env: Object.fromEntries(
-      Object.entries(systemEnvironment()).filter(
+      Object.entries({ ...systemEnvironment(), OPENSCREEN_DIAGNOSTIC: "1" }).filter(
         (entry): entry is [string, string] => entry[1] !== undefined,
       ),
     ),
-    stderr: "pipe",
+    stderr: diagnostics.fd,
   });
-  const close = () => client.close();
+  let closing: Promise<void> | undefined;
+  let slot: Awaited<ReturnType<typeof acquireRecordingSlot>> | undefined;
+  const close = () =>
+    (closing ??= (async () => {
+      let failure: unknown;
+      await terminateProcessTree(transport.pid ?? undefined, { close: () => client.close() }).catch(
+        (error) => {
+          failure = error;
+        },
+      );
+      if (failure)
+        writeSync(diagnostics.fd, `[kiteva] Process cleanup failed: ${String(failure)}\n`);
+      await diagnostics.close().catch((error) => {
+        failure ??= error;
+      });
+      await slot?.release().catch((error) => {
+        failure ??= error;
+      });
+      if (failure) throw failure;
+    })());
   const abort = () => {
     void close().catch(() => {});
   };
@@ -106,11 +133,17 @@ async function openNativeCapture(
     return { kind: "native_capture" as const, content, data, isError: result.isError === true };
   };
   try {
-    await client.connect(transport);
-    transport.stderr?.on("data", () => {});
+    if (typeof source !== "string") {
+      writeSync(diagnostics.fd, "[kiteva] Waiting for the native recording slot\n");
+      slot = await acquireRecordingSlot(signal);
+      signal = slot.signal;
+      writeSync(diagnostics.fd, "[kiteva] Native recording slot acquired\n");
+    }
     signal.addEventListener("abort", abort, { once: true });
     signal.throwIfAborted();
-    const tools = (await client.listTools()).tools;
+    await client.connect(transport, { signal });
+    signal.throwIfAborted();
+    const tools = (await client.listTools(undefined, { signal })).tools;
     const supported = tools.filter((tool) =>
       nativeCaptureOperations.some((name) => name === tool.name),
     );
@@ -203,6 +236,7 @@ async function openNativeCapture(
           .parse(result.data);
         recording = false;
         projectId = stopped.projectId;
+        await slot?.release();
         await applyPresentation();
         return stopped;
       },
@@ -240,7 +274,10 @@ async function openNativeCapture(
   } catch (error) {
     signal.removeEventListener("abort", abort);
     await close().catch(() => {});
-    throw error;
+    throw new Error(
+      `${error instanceof Error ? error.message : String(error)} (OpenScreen diagnostics: ${diagnostics.path})`,
+      { cause: error },
+    );
   }
 }
 
@@ -250,8 +287,15 @@ export async function createNativeCaptureEditor(
   output: string,
   signal: AbortSignal,
   presentation: CapturePresentationInput,
+  diagnosticsDirectory?: string,
 ) {
-  const editor = await openNativeCapture(source, output, signal, presentation);
+  const editor = await openNativeCapture(
+    source,
+    output,
+    signal,
+    presentation,
+    diagnosticsDirectory,
+  );
   return { tools: editor.tools, call: editor.call, export: editor.export, close: editor.close };
 }
 
@@ -261,6 +305,7 @@ export function startNativeCaptureRecording(
   output: string,
   signal: AbortSignal,
   presentation: CapturePresentationInput,
+  diagnosticsDirectory?: string,
 ) {
-  return openNativeCapture({ window }, output, signal, presentation);
+  return openNativeCapture({ window }, output, signal, presentation, diagnosticsDirectory);
 }

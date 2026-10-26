@@ -1,4 +1,6 @@
-import { websiteCaptureInstructions } from "../src/server/requests/reference-browser-instructions";
+import { referenceFailureGuidance } from "../src/shared/asset-requirements-policy";
+import { authoringResourceSelectionGuidance } from "../src/server/jev/strategies/visual-authoring";
+import { websiteCaptureInstructions } from "../src/server/agents/capabilities/reference-browser/prompt";
 vi.mock("../src/server/agents/bundled-skills", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../src/server/agents/bundled-skills")>()),
   prepareBundledSkills: vi.fn(),
@@ -40,7 +42,7 @@ vi.mock("@openai/codex-sdk", () => ({
     }
   },
 }));
-import { enabledReferenceTools } from "../src/server/requests/reference-browser-contracts";
+import { enabledReferenceTools } from "../src/server/agents/capabilities/reference-browser/types";
 import { agentTurn } from "../src/server/agents/providers";
 import { visualReadabilityRules } from "../src/server/agents/visual-readability";
 
@@ -77,6 +79,36 @@ it.each(["claude", "codex"] as const)(
         : calls.codex.mock.calls[0][0].config;
     const effectivePrompt =
       provider === "claude" ? options.systemPrompt : calls.streamedPrompt.mock.calls.at(-1)?.[0];
+    expect(effectivePrompt).toMatch(/^# System instructions\n\n## Role and boundaries\n\n/);
+    const headings = [...effectivePrompt.matchAll(/^## (.+)$/gm)].map((match) => match[1]);
+    expect(headings).toEqual([
+      "Role and boundaries",
+      "Requirements and reference handling",
+      "Drawing and content reveals",
+      "Visual readability",
+      "Video pacing",
+      "Bundled skills",
+      "Capabilities",
+      "Authoring resource selection",
+      "Execution policy",
+    ]);
+    expect(effectivePrompt).toContain("### Creative Pool\n\n");
+    expect(effectivePrompt).toContain("### Website references\n\n");
+    expect(effectivePrompt).toContain(authoringResourceSelectionGuidance);
+    expect(effectivePrompt.split(referenceFailureGuidance)).toHaveLength(2);
+    expect(effectivePrompt).not.toMatch(/\b(?:style|motion)-\d+\b/);
+    expect(effectivePrompt).not.toMatch(
+      /Vintage Rubber Hose Animation|Glitch Type Build|TeamTube|Envato/,
+    );
+    expect(effectivePrompt).toContain(
+      "<style> or <motion> references with an id attribute and a readable label",
+    );
+    const apiCheckGuidance =
+      "Before using library, renderer or CLI APIs, check version-specific documentation, examples or source for exact names, arguments and constraints; do not infer APIs from another library.";
+    expect(effectivePrompt.split(apiCheckGuidance)).toHaveLength(2);
+    expect(effectivePrompt).toContain(
+      `TECHNOLOGY ACCESS: Before implementation, call creative_pool.inspect_technologies for intended tools, including native features. ${apiCheckGuidance}`,
+    );
     expect(effectivePrompt).toContain("you MUST explore relevant navigation controls");
     expect(effectivePrompt).toContain("NOT YET CAPTURED DOES NOT MEAN UNAVAILABLE");
     expect(effectivePrompt).toContain("The main model chooses the production plan during building");
@@ -88,12 +120,15 @@ it.each(["claude", "codex"] as const)(
         ? options.mcpServers.reference_browser
         : options.mcp_servers.reference_browser;
     expect(server.command).toBe(process.execPath);
+    if (provider === "claude")
+      expect(Number(options.env.MCP_TOOL_TIMEOUT)).toBeGreaterThanOrEqual(600000);
+    else expect(server.tool_timeout_sec).toBeGreaterThanOrEqual(600);
     expect(JSON.parse(server.args.at(-1))).toMatchObject({
       workspace: "/job",
       urls: ["https://example.com/"],
     });
     expect(server.args).toEqual(
-      expect.arrayContaining([expect.stringContaining("reference-browser-server.ts")]),
+      expect.arrayContaining([expect.stringContaining("capabilities/reference-browser/server.ts")]),
     );
     if (provider === "codex") {
       expect(server.enabled_tools).toEqual([
@@ -159,6 +194,9 @@ it("does not attach browser tools to text-only extraction", async () => {
   });
   expect(calls.query.mock.calls[0][0].options.mcpServers).toEqual({});
   expect(calls.query.mock.calls[0][0].options.tools).toEqual([]);
+  expect(calls.query.mock.calls[0][0].options.systemPrompt).not.toContain(
+    authoringResourceSelectionGuidance,
+  );
 });
 it.each(["claude", "codex"] as const)(
   "enables native section subagents only for %s brief preparation",
@@ -302,6 +340,7 @@ it.each(["claude", "codex"] as const)(
     const prompt =
       provider === "claude" ? options.systemPrompt : calls.streamedPrompt.mock.calls.at(-1)?.[0];
     expect(prompt).toContain(websiteCaptureInstructions);
+    expect(prompt.split(referenceFailureGuidance)).toHaveLength(2);
     const server =
       provider === "claude"
         ? options.mcpServers.reference_browser

@@ -8,8 +8,8 @@ const { workspace, config } = z
   .parse(JSON.parse(process.argv[2]));
 const server = createNarrationTools(workspace, config);
 const close = () => {
-  void server.close().finally(() => {
-    stopPocketTtsWorker();
+  void server.close().finally(async () => {
+    await stopPocketTtsWorker();
     process.exit(0);
   });
 };

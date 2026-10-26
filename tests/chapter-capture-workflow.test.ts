@@ -4,9 +4,9 @@ import os from "node:os";
 import path from "node:path";
 const trace = vi.hoisted(() => [] as string[]);
 vi.mock("../src/server/domains/video/build-plan", () => ({
-  prepareVideoBuildPlan: vi.fn(async (input: { prompt: string }) => {
+  prepareVideoBuildPlan: vi.fn(async () => {
     trace.push("plan");
-    return `Implement the approved plan\n${input.prompt}`;
+    return "Implement the approved plan";
   }),
 }));
 vi.mock("../src/server/jobs/subworkflows/chapter-capture/workflow", () => ({

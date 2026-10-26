@@ -106,6 +106,7 @@ await prepareVideoRefinement(
   { ...job, phase: "ready", sessionId: "fixture-session", video: "renders/preview.webm" },
   revisionJob,
   "Multiplane",
+  signal,
 );
 const inherited = await pass("fine-tune-inherited", revisionJob);
 assert.equal(inherited.rendered, 0);

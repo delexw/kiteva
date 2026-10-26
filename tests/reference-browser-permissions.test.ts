@@ -1,7 +1,7 @@
 import { afterEach, expect, it, vi } from "vitest";
 import type { BrowserContext } from "puppeteer-core";
 import { lookup } from "node:dns/promises";
-import { configureReferencePermissions } from "../src/server/requests/reference-browser-permissions";
+import { configureReferencePermissions } from "../src/server/agents/capabilities/reference-browser/permissions";
 vi.mock("node:dns/promises", () => ({ lookup: vi.fn() }));
 afterEach(() => vi.resetAllMocks());
 

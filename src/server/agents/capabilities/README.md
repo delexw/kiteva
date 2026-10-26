@@ -3,13 +3,15 @@
 These are MCP tools registered directly with the Claude Agent SDK and Codex SDK on each turn.
 They are separate from authoring skills (`../bundled-skills/`), Motion Graphics and rendering engines.
 
-| Capability                                                              | Registration                                 | Guidance                             | Implementation                                                                                              |
-| ----------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| React Bits                                                              | [capability.ts](react-bits/capability.ts)    | [prompt.ts](react-bits/prompt.ts)    | [tools.ts](react-bits/tools.ts), [server.ts](react-bits/server.ts)                                          |
-| Animate UI                                                              | [capability.ts](animate-ui/capability.ts)    | [prompt.ts](animate-ui/prompt.ts)    | [tools.ts](animate-ui/tools.ts), [server.ts](animate-ui/server.ts)                                          |
-| Creative Pool                                                           | [capability.ts](creative-pool/capability.ts) | [prompt.ts](creative-pool/prompt.ts) | [tools.ts](creative-pool/tools.ts), [server.ts](creative-pool/server.ts)                                    |
-| Narration                                                               | [capability.ts](narration/capability.ts)     | [prompt.ts](narration/prompt.ts)     | [tools.ts](narration/tools.ts), [server.ts](narration/server.ts)                                            |
-| [Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) | [capability.ts](audio-studio/capability.ts)  | [prompt.ts](audio-studio/prompt.ts)  | [tools.ts](audio-studio/tools.ts), [server.ts](audio-studio/server.ts), [client.ts](audio-studio/client.ts) |
+| Capability                                                              | Registration                                     | Guidance                                 | Implementation                                                                                                                                                                   |
+| ----------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Reference browser](reference-browser/)                                 | [capability.ts](reference-browser/capability.ts) | [prompt.ts](reference-browser/prompt.ts) | [tools.ts](reference-browser/tools.ts), [server.ts](reference-browser/server.ts), [tool-registry.ts](reference-browser/tool-registry.ts), [types.ts](reference-browser/types.ts) |
+| [Context recovery](context-recovery/)                                   | [capability.ts](context-recovery/capability.ts)  | Existing Caveman turn guidance           | External Caveman MCP; proxy lifecycle remains in `agents/caveman.ts`                                                                                                             |
+| React Bits                                                              | [capability.ts](react-bits/capability.ts)        | [prompt.ts](react-bits/prompt.ts)        | [tools.ts](react-bits/tools.ts), [server.ts](react-bits/server.ts)                                                                                                               |
+| Animate UI                                                              | [capability.ts](animate-ui/capability.ts)        | [prompt.ts](animate-ui/prompt.ts)        | [tools.ts](animate-ui/tools.ts), [server.ts](animate-ui/server.ts)                                                                                                               |
+| Creative Pool                                                           | [capability.ts](creative-pool/capability.ts)     | [prompt.ts](creative-pool/prompt.ts)     | [tools.ts](creative-pool/tools.ts), [server.ts](creative-pool/server.ts)                                                                                                         |
+| Narration                                                               | [capability.ts](narration/capability.ts)         | [prompt.ts](narration/prompt.ts)         | [tools.ts](narration/tools.ts), [server.ts](narration/server.ts)                                                                                                                 |
+| [Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) | [capability.ts](audio-studio/capability.ts)      | [prompt.ts](audio-studio/prompt.ts)      | [tools.ts](audio-studio/tools.ts), [server.ts](audio-studio/server.ts), [client.ts](audio-studio/client.ts)                                                                      |
 
 `registry.ts` collects registrations and guidance. Text-only calls receive neither. Planning/review
 calls (`readOnly: true`) get `search_components` and `read_component`; build/correction calls also get
@@ -25,6 +27,9 @@ flowchart TB
   Registry --> Codex["Codex SDK adapter"]
   Claude --> MCP["Same job-scoped MCP contracts"]
   Codex --> MCP
+  MCP --> Browser["Reference browser: inspect / browser controls / capture_video"]
+  Browser --> Capture["Shared capture implementation: local or desktop worker"]
+  MCP --> Recovery["Optional Caveman context recovery"]
   MCP --> Pool["Creative Pool: catalog + inspect"]
   MCP --> Components["React Bits / Animate UI"]
   MCP --> Narration["Narration create/edit + Audio Studio"]
@@ -37,6 +42,14 @@ flowchart TB
   Research["Bundled Skill(anysearch)<br/>docs / CLI / examples / source"] --> Model
 ```
 
+All Kiteva-owned tool servers register tools with `McpServer.registerTool()`. Narration and the
+Audio Studio adapter use `shared/service-tool-input.ts` to publish their existing service-owned
+JSON schemas through Zod metadata while forwarding object arguments unchanged. Narration's
+service and Audio Studio's upstream server retain validation, defaults and structured errors;
+the adapter must not strip extra properties or apply defaults before forwarding. Narration retains
+its serial create/edit queue, cancellation and activity tracking. Audio Studio retains the upstream
+allowlist, instructions, metadata, workspace path checks and request cancellation.
+
 Tool contracts and responses are shared across providers; SDK permissions and events are adapted
 at the boundary. Installation belongs to model execution, not to an MCP dependency manager.
 [Architecture and research boundaries](../../../../docs/architecture.md#technology-capabilities-and-project-setup)
@@ -48,6 +61,8 @@ execution-scope nesting.
 ```text
 capabilities/
 ├── registry.ts
+├── reference-browser/      # Registration/prompt/server/tools/types, tool registry and browser support
+├── context-recovery/      # External MCP registration; proxy lifecycle stays with Caveman
 ├── animate-ui/
 │   ├── capability.ts
 │   ├── prompt.ts
@@ -61,6 +76,8 @@ capabilities/
     ├── types.ts
     └── component-registry-tools.ts
 ```
+
+Browser tools retain the `reference_browser` MCP name and all existing tool names. The shared registry owns stage availability for both providers; adapters no longer register browser tools separately. The browser capability owns tool contracts, guidance and browser support; `server/capture/` and the website capture workflow retain recording/worker orchestration. Context recovery keeps its existing text-only exception and provider proxy configuration.
 
 Each capability owns its registration, system guidance, server entry point, tools and specific types.
 The root registry only collects capabilities. Shared types and the component-registry adapter stay in
@@ -238,3 +255,13 @@ remains reference data. AnySearch is Apache-2.0; the browser bundler esbuild is 
 
 Codex uses the isolated SDK directory for both `CODEX_HOME` and the process home, so native
 skill discovery does not import the user's unrelated `~/.agents/skills` instructions.
+
+## Dependency lifecycle
+
+Pass the caller's `AbortSignal` through queues, MCP requests and process helpers, and await
+cleanup before returning. Both SDK adapters use shared process scopes; resource factories
+with a separate close lifetime use `createProcessScope`. Register auxiliary project work
+through `Workflow.projectDependency` rather than launching unowned background tasks.
+App-shared services retain app ownership. See
+[project work and cancellation](../../../../docs/process-lifecycle.md) for the lifecycle,
+cleanup failure contract and tests.

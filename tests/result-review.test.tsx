@@ -286,7 +286,7 @@ it("shares footage framing safeguards across production, capture and final revie
   const { capturedFootageFramingRules, fullVideoQualityRules } =
     await import("../src/server/domains/video/full-video-quality");
   const { websiteCaptureInstructions } =
-    await import("../src/server/requests/reference-browser-instructions");
+    await import("../src/server/agents/capabilities/reference-browser/prompt");
   const { videoResultReviewGuidance } = await import("../src/server/jobs/result-review-guidance");
   for (const guidance of [
     fullVideoQualityRules,

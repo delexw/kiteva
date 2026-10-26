@@ -29,9 +29,11 @@ function appendActivityOutcome(target: DisplayActivityItem[], item: DisplayActiv
         child.text === item.text &&
         child.kind === item.kind &&
         child.scope === item.scope &&
-        child.purpose === item.purpose &&
+        ((item.capability === "narration" && child.capability === "narration") ||
+          child.purpose === item.purpose) &&
         child.captureChapterId === item.captureChapterId &&
-        ((Boolean(child.activityScopeId) && Boolean(item.activityScopeId)) ||
+        ((item.capability === "narration" && child.capability === "narration") ||
+          (Boolean(child.activityScopeId) && Boolean(item.activityScopeId)) ||
           Boolean(item.captureChapterId) ||
           child.invocationId === item.invocationId ||
           (item.purpose === "full video generation" &&
@@ -39,7 +41,8 @@ function appendActivityOutcome(target: DisplayActivityItem[], item: DisplayActiv
             item.status === "complete")),
     );
   if (!prior) target.push(item);
-  else if (item.activityScopeId) Object.assign(prior, item, { id: prior.id });
+  else if (item.activityScopeId || item.capability === "narration")
+    Object.assign(prior, item, { id: prior.id });
   else {
     // Preserve genuinely pending actions; otherwise show the latest attempt's outcome.
     prior.status =
@@ -51,7 +54,7 @@ function appendActivityOutcome(target: DisplayActivityItem[], item: DisplayActiv
 /** Present known capabilities within a single model task without exposing its internal actions. */
 export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem[] {
   const display: DisplayActivityItem[] = [];
-  let renderGroup: DisplayActivityItem | undefined;
+  const renderGroups = new Map<string, DisplayActivityItem>();
   const captureGroups = new Map<string, DisplayActivityItem>();
   const pacingGroups = new Map<string, DisplayActivityItem>();
   const pacingInvocationGroups = new Map<string, DisplayActivityItem>();
@@ -60,7 +63,6 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
   for (const item of items) {
     const visible = { ...item, repetitions: undefined };
     if (item.capability === "narration") {
-      renderGroup = undefined;
       let narration = narrationGroups.get(item.scope);
       if (!narration) {
         narration = { ...visible, kind: "notice", text: "Narration", children: [] };
@@ -68,7 +70,7 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
         display.push(narration);
       }
       narration.time = item.time;
-      narration.children!.push(visible);
+      appendActivityOutcome(narration.children!, visible);
       const statuses = narration.children!.map((child) => child.status);
       narration.status = statuses.includes("running")
         ? "running"
@@ -80,7 +82,6 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
       continue;
     }
     if (item.purpose === "pacing correction" && item.invocationId && item.kind !== "message") {
-      renderGroup = undefined;
       const invocationKey = `${item.scope}:${item.invocationId}`;
       let pacing = pacingInvocationGroups.get(invocationKey);
       if (!pacing) {
@@ -134,7 +135,6 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
       continue;
     }
     if (item.progressStage === "capture" || item.captureChapterId) {
-      renderGroup = undefined;
       let capture = captureGroups.get(item.scope);
       if (!capture) {
         capture = {
@@ -193,21 +193,27 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
       continue;
     }
     if (item.progressStage === "render") {
-      if (!renderGroup || renderGroup.scope !== item.scope) {
+      let renderGroup = renderGroups.get(item.scope);
+      if (!renderGroup) {
         renderGroup = { ...visible, text: "Rendering your video…", children: [] };
+        renderGroups.set(item.scope, renderGroup);
         display.push(renderGroup);
       }
+      if (renderGroup.activityScopeId !== item.activityScopeId) {
+        renderGroup.activityScopeId = item.activityScopeId;
+        renderGroup.progressPercent = undefined;
+        renderGroup.children = [];
+      }
+      renderGroup.status = item.status;
       renderGroup.time = item.time;
       renderGroup.progressPercent = item.progressPercent ?? renderGroup.progressPercent;
       if (item.text === renderGroup.text) continue;
       const prior = renderGroup.children!.find((child) => child.text === item.text);
       if (prior) {
-        prior.time = item.time;
-        prior.progressPercent = undefined;
+        Object.assign(prior, visible, { id: prior.id, progressPercent: undefined });
       } else renderGroup.children!.push({ ...visible, progressPercent: undefined });
       continue;
     }
-    renderGroup = undefined;
     if (item.kind === "message" || (!item.invocationId && !item.activityScopeId)) {
       display.push(visible);
       continue;

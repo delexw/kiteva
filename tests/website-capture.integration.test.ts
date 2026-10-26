@@ -6,10 +6,10 @@ import path from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { expect, it, vi } from "vitest";
-import { createReferenceTools } from "../src/server/requests/reference-browser-tools";
+import { createReferenceTools } from "../src/server/agents/capabilities/reference-browser/tools";
 import { probeVideo } from "../src/server/rendering/video-probe";
 import { browserExecutablePath } from "../src/server/runtime/browser";
-import type { ReferenceToolResult } from "../src/server/requests/reference-browser-contracts";
+import type { ReferenceToolResult } from "../src/server/agents/capabilities/reference-browser/types";
 
 it.skipIf(process.env.KITEVA_TEST_LOCAL_OPENSCREEN !== "1" || !browserExecutablePath(true))(
   "records a real local OpenScreen session when no worker URL is configured",

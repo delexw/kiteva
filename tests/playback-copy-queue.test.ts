@@ -224,3 +224,32 @@ it("starts the copies only after a full film is ready, without holding the job",
   await vi.waitFor(() => expect(run.jobs[0]).toMatchObject(ready));
   expect(makePlaybackCopies).toHaveBeenCalledTimes(1);
 });
+
+it("project stop aborts active playback preparation and waits for its cleanup", async () => {
+  const store = new Store(":memory:");
+  const workflow = new Workflow(store, await loadCatalog());
+  const run = project("/tmp/unused");
+  let caller: AbortSignal | undefined;
+  let finish!: () => void;
+  vi.mocked(makePlaybackCopies).mockImplementation((_job, signal) => {
+    caller = signal;
+    return new Promise((resolve) => {
+      finish = () => resolve(ready);
+    });
+  });
+  workflow.queuePlaybackCopies(run, "film");
+  await vi.waitFor(() => expect(caller).toBeDefined());
+  let done = false;
+  const stopping = workflow.stop(run).then(() => {
+    done = true;
+  });
+  expect(caller!.aborted).toBe(true);
+  expect(done).toBe(false);
+  finish();
+  await stopping;
+  expect(run.jobs[0]).not.toHaveProperty("viewingVideo");
+  expect(run.phase).toBe("cancelled");
+  expect(run.jobs[0]).toMatchObject({ playbackCopies: { status: "failed", error: "Cancelled" } });
+  expect(store.get(run.id)!.jobs[0]).toMatchObject({ playbackCopies: { status: "failed" } });
+  store.close();
+});

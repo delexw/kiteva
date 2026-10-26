@@ -1,10 +1,11 @@
+import { createProcessScope } from "../../runtime/process-scope";
 import {
   createBrowserCapabilities,
   runWithBrowserDialog,
-} from "../../requests/browser-capabilities-runtime";
-import type { BrowserCapabilityRequest } from "../../requests/reference-tool-registry";
+} from "../../agents/capabilities/reference-browser/runtime";
+import type { BrowserCapabilityRequest } from "../../agents/capabilities/reference-browser/tool-registry";
 import type { NativeCaptureRequest } from "../../capture/native-editor";
-import { configureReferencePermissions } from "../../requests/reference-browser-permissions";
+import { configureReferencePermissions } from "../../agents/capabilities/reference-browser/permissions";
 import { setTimeout as delay } from "node:timers/promises";
 import type { ElementHandle, Frame, Page } from "puppeteer-core";
 import { createRemoteReferenceBrowser } from "../../capture/worker-client";
@@ -15,8 +16,8 @@ import {
   inspectReferenceDocument,
   type ReferencePageInspection,
   referencePageHasContent,
-} from "../../requests/reference-page-inspection";
-import { createReferenceNetwork } from "../../requests/reference-network";
+} from "../../agents/capabilities/reference-browser/page-inspection";
+import { createReferenceNetwork } from "../../agents/capabilities/reference-browser/network";
 import { referenceResourceLimits } from "../../requests/reference-resource";
 import { validateReferenceUrl } from "../../requests/reference-url";
 import { CodedError } from "../../../shared/errors";
@@ -29,6 +30,7 @@ export async function createLocalReferenceBrowser(
   mode: "local" | "hosted" = agentMode,
   desktop = process.env.KITEVA_CAPTURE_DESKTOP === "1",
 ) {
+  signal.throwIfAborted();
   const allowedOrigins = new Set(origins.map((url) => new URL(url).origin));
   const executablePath = browserExecutablePath(desktop);
   if (!executablePath)
@@ -38,30 +40,35 @@ export async function createLocalReferenceBrowser(
         ? "OpenScreen recording requires full Chrome or Chromium; configure VIDEO_BROWSER_PATH"
         : "Screenshot browser unavailable",
     );
-  const browser = await puppeteer
-    .launch({
-      executablePath,
-      headless: desktop ? false : "shell",
-      ...(desktop
-        ? {
-            defaultViewport: null,
-            // Puppeteer's extra startup tab opens a normal window alongside --app.
-            ignoreDefaultArgs: ["about:blank"],
-          }
-        : {}),
-      timeout: 10000,
-      args: [
+  const processScope = createProcessScope(signal);
+  const browser = await processScope
+    .run(async (signal) =>
+      puppeteer.launch({
+        executablePath,
+        signal,
+        headless: desktop ? false : "shell",
         ...(desktop
-          ? ["--app=data:text/html,<title>Capture</title>", "--window-size=1440,1000"]
-          : []),
-        ...(mode === "hosted"
-          ? ["--proxy-server=http://127.0.0.1:9", "--proxy-bypass-list=<-loopback>"]
-          : []),
-        "--disable-quic",
-        "--disable-background-networking",
-      ],
-    })
-    .catch((error: unknown) => {
+          ? {
+              defaultViewport: null,
+              // Puppeteer's extra startup tab opens a normal window alongside --app.
+              ignoreDefaultArgs: ["about:blank"],
+            }
+          : {}),
+        timeout: 10000,
+        args: [
+          ...(desktop
+            ? ["--app=data:text/html,<title>Capture</title>", "--window-size=1440,1000"]
+            : []),
+          ...(mode === "hosted"
+            ? ["--proxy-server=http://127.0.0.1:9", "--proxy-bypass-list=<-loopback>"]
+            : []),
+          "--disable-quic",
+          "--disable-background-networking",
+        ],
+      }),
+    )
+    .catch(async (error: unknown) => {
+      await processScope.close();
       throw new CodedError(
         "REFERENCE_CAPTURE_FAILED",
         error instanceof Error ? error.message : "Browser launch failed",
@@ -72,10 +79,10 @@ export async function createLocalReferenceBrowser(
   const stop = () => {
     void (async () => {
       await recording?.close().catch(() => {});
-      await browser.close().catch(() => {});
     })();
   };
   signal.addEventListener("abort", stop, { once: true });
+  if (signal.aborted) stop();
   let requests = 0;
   let bytes = 0;
   const network = createReferenceNetwork({
@@ -394,12 +401,20 @@ export async function createLocalReferenceBrowser(
         signal.removeEventListener("abort", stop);
         await recording?.close().catch(() => {});
         await Promise.all([...editable.values()].map((take) => take.close().catch(() => {})));
-        await browser.close();
+        try {
+          await processScope.close();
+        } finally {
+          await browser.close();
+        }
       },
     };
   } catch (error) {
     signal.removeEventListener("abort", stop);
-    await browser.close();
+    try {
+      await processScope.close();
+    } finally {
+      await browser.close();
+    }
     throw error;
   }
 }

@@ -3,20 +3,20 @@ import {
   referenceToolRegistry,
   BrowserCapabilityRequestSchema,
   type BrowserCapabilityRequest,
-} from "./reference-tool-registry";
-import { captureChapterDirectory, CaptureChapterSchema } from "../../shared/capture-chapters";
-import { readWebsiteRecordings } from "../jobs/subworkflows/website-capture";
+} from "./tool-registry";
+import { captureChapterDirectory, CaptureChapterSchema } from "../../../../shared/capture-chapters";
+import { readWebsiteRecordings } from "../../../jobs/subworkflows/website-capture";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { mkdir, readFile, writeFile, copyFile, realpath, stat } from "node:fs/promises";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { ReferenceScreenshotSchema } from "../../shared/contracts";
-import { prepareBriefImage } from "./brief-images";
-import { createReferenceBrowser } from "../jobs/subworkflows/website-reference";
-import { type ReferenceToolResult } from "./reference-browser-contracts";
-import { WorkQueue } from "../jobs/queue";
-import { validateChapterTiming } from "../capture/chapter-timing";
+import { ReferenceScreenshotSchema } from "../../../../shared/contracts";
+import { prepareBriefImage } from "../../../requests/brief-images";
+import { createReferenceBrowser } from "../../../jobs/subworkflows/website-reference";
+import { type ReferenceToolResult } from "./types";
+import { WorkQueue } from "../../../jobs/queue";
+import { validateChapterTiming } from "../../../capture/chapter-timing";
 
 export const referenceManifest = "reference-screenshots.json";
 export async function readReferenceScreenshots(workspace: string) {

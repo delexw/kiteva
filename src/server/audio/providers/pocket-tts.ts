@@ -23,9 +23,10 @@ const managedPython = path.join(
 const python = () =>
   process.env.POCKET_TTS_PYTHON || (existsSync(managedPython) ? managedPython : defaultPython());
 let warm: { key: string; worker: PocketTtsWorker } | undefined;
-export function stopPocketTtsWorker() {
-  warm?.worker.stop();
+export async function stopPocketTtsWorker() {
+  const worker = warm?.worker;
   warm = undefined;
+  await worker?.stop();
 }
 async function workerFor(language: string) {
   const [manifest, config, adapter] = await Promise.all([
@@ -43,7 +44,7 @@ async function workerFor(language: string) {
     adapter: adapter.mtimeMs,
   });
   if (warm?.key !== key) {
-    stopPocketTtsWorker();
+    await stopPocketTtsWorker();
     warm = {
       key,
       worker: new PocketTtsWorker(
@@ -104,6 +105,6 @@ export const pocketTtsSpeechProvider: SpeechProvider = {
           );
         },
       });
-    });
+    }, signal);
   },
 };

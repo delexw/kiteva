@@ -51,7 +51,12 @@ it("records verified source state, copies provider cache only and preserves sour
   );
   await writeFile(path.join(source.workspace, "renders/full.mp4"), "completed output");
   await writeFile(path.join(source.workspace, "renders/qa-report.json"), "old QA");
-  const checkpoint = await prepareVideoRefinement(source, job, "Multiplane");
+  const checkpoint = await prepareVideoRefinement(
+    source,
+    job,
+    "Multiplane",
+    new AbortController().signal,
+  );
   expect(checkpoint).toMatchObject({
     sourceJobId: source.id,
     sourceSessionId: "saved-session",
@@ -86,10 +91,22 @@ it("records verified source state, copies provider cache only and preserves sour
 });
 it("reports absent artifacts honestly and permits cold refinements for unsupported or missing caches", async () => {
   const { source, job } = await fixture();
-  const checkpoint = await prepareVideoRefinement(source, job, "HyperFrames");
+  const checkpoint = await prepareVideoRefinement(
+    source,
+    job,
+    "HyperFrames",
+    new AbortController().signal,
+  );
   expect(checkpoint.files.every((file) => !file.available && !file.sha256)).toBe(true);
   expect(checkpoint.inheritedCacheDirectories).toEqual([]);
-  expect(await inheritRendererCache(source.workspace, job.workspace, "Multiplane")).toEqual([]);
+  expect(
+    await inheritRendererCache(
+      source.workspace,
+      job.workspace,
+      "Multiplane",
+      new AbortController().signal,
+    ),
+  ).toEqual([]);
 });
 it("does not inherit cache symlinks or follow source artifacts outside the workspace", async () => {
   const { root, source, job } = await fixture();
@@ -104,7 +121,23 @@ it("does not inherit cache symlinks or follow source artifacts outside the works
     path.join(root, "external/full.mp4"),
     path.join(source.workspace, "renders/full.mp4"),
   );
-  const checkpoint = await prepareVideoRefinement(source, job, "Multiplane");
+  const checkpoint = await prepareVideoRefinement(
+    source,
+    job,
+    "Multiplane",
+    new AbortController().signal,
+  );
   expect(checkpoint.inheritedCacheDirectories).toEqual([]);
   expect(checkpoint.files.find((file) => file.path === source.video)?.available).toBe(false);
+});
+
+it("stops checkpoint and cache preparation before creating output when the caller aborted", async () => {
+  const { source, job } = await fixture();
+  const signal = AbortSignal.abort(Error("Stop project"));
+  await expect(prepareVideoRefinement(source, job, "Multiplane", signal)).rejects.toThrow(
+    "Stop project",
+  );
+  await expect(
+    inheritRendererCache(source.workspace, job.workspace, "Multiplane", signal),
+  ).rejects.toThrow("Stop project");
 });

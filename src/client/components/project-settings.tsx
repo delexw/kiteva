@@ -1,5 +1,6 @@
 import { hasOnScreenLyrics } from "../../shared/script-items";
 import { creativeApproachLabel } from "../../shared/creative-approach";
+import { buildRouteLabel, buildRouteOf } from "../../shared/build-route";
 import { translateUi, useUiLanguage } from "../i18n";
 import { videoLanguageLabel } from "../../shared/video-language";
 import { Popover } from "antd";
@@ -41,7 +42,10 @@ export function ProjectSettings({
     request.candidateCount === 0
       ? "Manual Motion Graphics"
       : translateUi("{{count}} directions", { count: request.candidateCount }),
-    ...(request.candidateCount > 0 ? [creativeApproachLabel(request)] : []),
+    buildRouteLabel(request),
+    ...(buildRouteOf(request) === "automatic-previews"
+      ? [creativeApproachLabel(request)]
+      : ["Selected Motion Graphics"]),
   ];
   return (
     <div

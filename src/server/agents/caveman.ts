@@ -1,5 +1,6 @@
+import { terminateProcessTree } from "../runtime/process-tree";
 import { nativeExecutable } from "../runtime/platform";
-import { addAbortListener, once } from "node:events";
+import { addAbortListener } from "node:events";
 import { spawn, type ChildProcess } from "node:child_process";
 import { access, mkdir, open, readFile } from "node:fs/promises";
 import { setTimeout as delay } from "node:timers/promises";
@@ -52,6 +53,7 @@ async function startProxy(signal: AbortSignal) {
   try {
     signal.throwIfAborted();
     ownedProxy = spawn(path.join(home, "bin", nativeExecutable("caveman-proxy")), [], {
+      detached: process.platform !== "win32",
       cwd: appRoot,
       env: {
         ...childEnvironment(),
@@ -154,7 +156,5 @@ export async function stopCaveman() {
   starting = undefined;
   if (!proxy || proxy.exitCode !== null) return;
   // Stop only the bundled proxy child started by this server.
-  const exited = once(proxy, "exit");
-  proxy.kill("SIGTERM");
-  await Promise.race([exited, delay(2000, undefined, { ref: false })]);
+  await terminateProcessTree(proxy.pid, { processGroup: true });
 }

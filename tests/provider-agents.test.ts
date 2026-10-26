@@ -518,7 +518,10 @@ it("retries a terminal capacity response in the captured session and meters a fr
     }),
   );
   const streams = sdk.stream.mock.calls.slice(-2);
-  expect(streams[0]).toEqual(streams[1]);
+  expect(streams[0][0]).toEqual(streams[1][0]);
+  expect(streams[0][1].outputSchema).toEqual(streams[1][1].outputSchema);
+  expect(streams[0][1].signal).not.toBe(streams[1][1].signal);
+  expect(streams.every(([, options]) => options.signal instanceof AbortSignal)).toBe(true);
   expect(onEvent.mock.calls.filter(([event]) => event.type === "usage")).toHaveLength(1);
 });
 it("stops after three capacity retries with increasing delays", async () => {

@@ -151,9 +151,19 @@ it("plans in the selected preview session, persists it and hands off in the retu
     readOnly: true,
     sessionId: "preview-session",
   });
-  expect(call.prompt).toContain("explicit from/to values with units");
-  expect(call.prompt).toContain(options.prompt);
-  expect(call.prompt).toContain("specify only the representative preview beat");
+  expect(call.prompt).not.toContain(options.prompt);
+  expect(call.prompt).toContain(
+    JSON.stringify(path.resolve(options.job.workspace, "VIDEO_REQUIREMENTS.md")),
+  );
+  expect(await readFile(path.join(options.job.workspace, "VIDEO_REQUIREMENTS.md"), "utf8")).toBe(
+    options.prompt,
+  );
+  const guidance = await readFile(
+    path.join(options.job.workspace, "VIDEO_PLANNING_GUIDANCE.md"),
+    "utf8",
+  );
+  expect(guidance).toContain("explicit from/to values with units");
+  expect(guidance).toContain("specify only the representative preview beat");
   expect(options.job.sessionId).toBe("same-session");
   expect(options.job.buildPlan?.sessionId).toBe("same-session");
   expect(prompt).toContain("Read VIDEO_BUILD_PLAN.json completely");
@@ -293,7 +303,7 @@ it.each([
   ["codex", "automatic"],
   ["claude", "automatic"],
 ] as const)(
-  "runs %s %s planning then implementation in one selected session before rendering",
+  "runs %s %s with independent preview builds and unchanged full-film planning",
   async (provider, mode) => {
     const automatic = mode === "automatic";
     const kind = mode === "preview" || mode === "selected-preview" ? "preview" : "full";
@@ -329,24 +339,52 @@ it.each([
       limitations: [],
       storyboard: validStoryboard(duration),
     };
-    vi.mocked(agentTurn)
-      .mockImplementationOnce(async (call) => {
+    if (kind === "full")
+      vi.mocked(agentTurn).mockImplementationOnce(async (call) => {
+        const planningFiles = [
+          await readFile(path.join(call.workspace, "VIDEO_PLANNING_GUIDANCE.md"), "utf8"),
+          await readFile(path.join(call.workspace, "VIDEO_REQUIREMENTS.md"), "utf8"),
+        ].join("\n");
+        expect(call.prompt).not.toContain("Show an idea");
+        expect(call.prompt.length).toBeLessThan(1000);
+        for (const heading of [
+          "# Video build planning",
+          "## Stage and boundaries",
+          "## Planning scope",
+          "## Required plan content",
+          "## Output constraints",
+          "## Next-turn build specification",
+          "### Original user idea",
+          "### Production parameters",
+          "### Renderer contract",
+        ])
+          expect(planningFiles).toContain(heading);
         expect(call.readOnly).toBe(true);
         expect(call.planMode).toBe(provider === "claude");
         expect(call.referenceUrls).toEqual(["https://example.com/app"]);
         expect(call.model).toBe(options.job.model);
         return { value: previewPlan, sessionId: "planning-session" };
-      })
-      .mockImplementationOnce(async (call) => {
-        expect(call.sessionId).toBe("planning-session");
-        expect(call.readOnly).toBeUndefined();
-        expect(call.model).toBe(options.job.model);
-        expect(call.prompt).toContain("IMPLEMENT THE SAVED VIDEO BUILD PLAN");
-        expect(call.schema.parse(production)).toMatchObject({
-          storyboard: validStoryboard(duration),
-        });
-        return { value: production, sessionId: "planning-session" };
       });
+    vi.mocked(agentTurn).mockImplementationOnce(async (call) => {
+      expect(call.sessionId).toBe(kind === "preview" ? undefined : "planning-session");
+      expect(call.readOnly).toBeUndefined();
+      expect(call.model).toBe(options.job.model);
+      expect(call.prompt).toContain(
+        kind === "preview" ? "# Build this preview" : "IMPLEMENT THE SAVED VIDEO BUILD PLAN",
+      );
+      if (kind === "preview") {
+        expect(call.prompt).not.toContain("ORIGINAL USER IDEA");
+        expect(call.prompt).not.toContain("NEXT-TURN BUILD SPECIFICATION");
+        expect(call.prompt).toContain("displayTitle and displayDescription");
+      }
+      expect(call.schema.parse(production)).toMatchObject({
+        storyboard: validStoryboard(duration),
+      });
+      return {
+        value: production,
+        sessionId: kind === "preview" ? "preview-build-session" : "planning-session",
+      };
+    });
     await expect(
       generateVideo({
         job: options.job,
@@ -398,12 +436,40 @@ it.each([
         },
       }),
     ).rejects.toThrow("verified before render");
-    expect(agentTurn).toHaveBeenCalledTimes(2);
-    expect(options.job.sessionId).toBe("planning-session");
+    expect(agentTurn).toHaveBeenCalledTimes(kind === "preview" ? 1 : 2);
+    expect(options.job.sessionId).toBe(
+      kind === "preview" ? "preview-build-session" : "planning-session",
+    );
     expect(options.job.duration).toBe(duration);
     expect(
       await readFile(path.join(options.job.workspace, "EXECUTABLE_PROMPT.md"), "utf8"),
-    ).toContain("IMPLEMENT THE SAVED VIDEO BUILD PLAN");
+    ).toContain(
+      kind === "preview" ? "# Build this preview" : "IMPLEMENT THE SAVED VIDEO BUILD PLAN",
+    );
+  },
+);
+
+it.each(["claude", "codex"] as const)(
+  "keeps concurrent %s preview planning histories separate",
+  async (provider) => {
+    const first = await input();
+    const second = await input();
+    const previews = [first, second];
+    for (const preview of previews) preview.job.sessionId = undefined;
+    vi.mocked(agentTurn).mockImplementation(async (call) => {
+      expect(call.sessionId).toBeUndefined();
+      return { value: validPlan(), sessionId: `session-${call.workspace}` };
+    });
+    const prompts = await Promise.all(
+      previews.map((preview) => prepareVideoBuildPlan({ ...preview, provider })),
+    );
+    expect(first.job.sessionId).not.toBe(second.job.sessionId);
+    for (const [index, preview] of previews.entries()) {
+      expect(preview.job.buildPlan?.sessionId).toBe(preview.job.sessionId);
+      expect(prompts[index]).not.toContain("Continue in the same model session");
+      expect(prompts[index]).not.toContain(preview.prompt);
+    }
+    expect(agentTurn).toHaveBeenCalledTimes(2);
   },
 );
 
@@ -447,7 +513,10 @@ it.each(["claude", "codex"] as const)(
       planMode: provider === "claude",
       referenceUrls,
     });
-    const planningPrompt = vi.mocked(agentTurn).mock.calls[0][0].prompt;
+    const planningPrompt = await readFile(
+      path.join(options.job.workspace, "VIDEO_PLANNING_GUIDANCE.md"),
+      "utf8",
+    );
     expect(planningPrompt).toContain("Plan the complete requested film at its full duration");
     expect(planningPrompt).toContain("inspect the live application using the reference tools");
     expect(planningPrompt).toContain("never claim planned footage already exists");
@@ -500,7 +569,9 @@ it.each(["claude", "codex"] as const)(
     vi.mocked(agentTurn).mockImplementationOnce(async (call) => {
       expect(call.schema.safeParse(fullPlan(1)).success).toBe(false);
       expect(call.schema.safeParse(fullPlan(301)).success).toBe(false);
-      expect(call.prompt).toContain("duration in the next-turn specification is provisional");
+      expect(
+        await readFile(path.join(call.workspace, "VIDEO_PLANNING_GUIDANCE.md"), "utf8"),
+      ).toContain("duration in the next-turn specification is provisional");
       return { value: fullPlan(90), sessionId: "auto-main-plan" };
     });
     await prepareVideoBuildPlan({ ...options, provider, automaticDuration: true });

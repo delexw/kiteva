@@ -690,6 +690,44 @@ it("shows narration in a separate group across build and correction calls, prese
   expect(pending[0].status).toBe("running");
 });
 
+it("replaces failed narration retries with the latest outcome across invocations", () => {
+  const attempts = ["failed", "failed", "running", "complete"] as const;
+  const source = attempts.map((status, index) =>
+    item(index + 1, {
+      capability: "narration",
+      text: "Creating narration…",
+      status,
+      invocationId: `attempt-${index}`,
+      activityScopeId: `scope-${index}`,
+      purpose: index < 2 ? "full video generation" : "pacing correction",
+      time: `2026-10-24T00:00:0${index + 1}Z`,
+    }),
+  );
+  const before = JSON.stringify(source);
+  for (let length = 1; length <= source.length; length++) {
+    const [group] = displayActivityItems(source.slice(0, length));
+    const latest = source[length - 1];
+    expect(group.status).toBe(latest.status);
+    expect(group.children).toHaveLength(1);
+    expect(group.children![0]).toMatchObject({ ...latest, id: source[0].id });
+    const markup = renderToStaticMarkup(<>{roomActivityStep(group).content}</>);
+    expect(markup.match(/Creating narration/g)).toHaveLength(1);
+  }
+  const separate = displayActivityItems([
+    ...source,
+    item(5, {
+      capability: "narration",
+      text: "Creating narration…",
+      scope: "other-job",
+      jobId: "other-job",
+      status: "failed",
+    }),
+  ]);
+  expect(separate.find((group) => group.scope === "job")?.status).toBe("complete");
+  expect(separate.find((group) => group.scope === "other-job")?.status).toBe("failed");
+  expect(JSON.stringify(source)).toBe(before);
+});
+
 it("groups historical pacing calls into attempts without claiming the timing passed", () => {
   const source = [
     item(1, {

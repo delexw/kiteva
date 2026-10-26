@@ -1,3 +1,5 @@
+import { finished } from "node:stream/promises";
+import { writeProjectRequest } from "./requests/project-request";
 import { stopPocketTtsWorker } from "./audio/providers/pocket-tts";
 import { jevModel } from "./jev/client";
 import { assertWindowsRenderReady } from "./rendering/sandbox/readiness";
@@ -32,7 +34,6 @@ import { apiErrorHandler } from "./runtime/api-errors";
 import sharp from "sharp";
 import {
   RequestSchema,
-  isRunSettled,
   type Asset,
   type Run,
   type AgentProgressEvent,
@@ -77,7 +78,11 @@ export async function createApp(options: { store?: Store } = {}) {
   };
   for (const saved of store.list())
     for (const job of saved.jobs)
-      if (job.outputType !== "page" && job.playbackCopies?.status === "making")
+      if (
+        saved.phase !== "cancelled" &&
+        job.outputType !== "page" &&
+        job.playbackCopies?.status === "making"
+      )
         workflow.queuePlaybackCopies(getRun(saved.id), job.id);
   const uploadFolder = path.join(dataRoot, "uploads");
   await mkdir(uploadFolder, { recursive: true });
@@ -340,6 +345,7 @@ export async function createApp(options: { store?: Store } = {}) {
       candidates: [],
       jobs: [],
     };
+    await writeProjectRequest(path.join(dataRoot, "runs", run.id), request);
     cache.set(run.id, run);
     store.save(run);
     void workflow.prepare(run);
@@ -376,7 +382,7 @@ export async function createApp(options: { store?: Store } = {}) {
   app.post<{ Params: { id: string } }>("/api/runs/:id/cancel", async (req) => {
     const run = getRun(req.params.id);
     const body = z.object({ jobId: z.string().optional() }).parse(req.body || {});
-    workflow.cancel(run, body.jobId);
+    await workflow.stop(run, body.jobId);
     return run;
   });
   app.post<{ Params: { id: string } }>("/api/runs/:id/retry", async (req) => {
@@ -404,15 +410,10 @@ export async function createApp(options: { store?: Store } = {}) {
   app.delete<{ Params: { id: string } }>("/api/runs/:id", async (req) => {
     const id = z.uuid().parse(req.params.id);
     const run = getRun(id);
-    if (!isRunSettled(run) || workflow.hasActiveTasks(run) || fullLocks.has(id))
-      throw new CodedError(
-        "PROJECT_ACTIVE",
-        "Cancel the project and wait for it to stop before deleting it.",
-        409,
-      );
     deletingRuns.add(id);
     try {
-      await workflow.stopPlaybackCopies(run);
+      await workflow.stop(run);
+      await fullLocks.get(id);
       await rm(path.join(dataRoot, "runs", id), { recursive: true, force: true });
       store.delete(id);
       cache.delete(id);
@@ -652,14 +653,17 @@ export async function createApp(options: { store?: Store } = {}) {
       const abort = () => controller.abort();
       reply.raw.once("close", abort);
       try {
-        const stream = await createProjectBundle(job, controller.signal);
-        return reply
-          .header("Content-Disposition", "attachment; filename=editable-project.zip")
-          .type("application/zip")
-          .send(stream);
-      } catch (error) {
+        return await workflow.projectDependency(run, controller.signal, async (signal) => {
+          const stream = await createProjectBundle(job, signal);
+          reply
+            .header("Content-Disposition", "attachment; filename=editable-project.zip")
+            .type("application/zip")
+            .send(stream);
+          await finished(stream, { cleanup: true });
+          return reply;
+        });
+      } finally {
         reply.raw.off("close", abort);
-        throw error;
       }
     },
   );
@@ -671,7 +675,7 @@ export async function createApp(options: { store?: Store } = {}) {
   );
   app.addHook("onClose", async () => {
     await workflow.shutdown();
-    stopPocketTtsWorker();
+    await stopPocketTtsWorker();
     store.close();
   });
   return { app, store, workflow, catalog };

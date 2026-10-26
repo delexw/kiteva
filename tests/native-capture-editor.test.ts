@@ -1,9 +1,18 @@
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { writeSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import pidtree from "pidtree";
+vi.mock("pidtree", () => ({ default: native.descendants }));
 const native = vi.hoisted(() => ({
   callTool: vi.fn(),
   listTools: vi.fn(),
   connect: vi.fn(),
   close: vi.fn(),
+  transport: vi.fn(),
+  pid: undefined as number | undefined,
+  descendants: vi.fn(async (_pid: number): Promise<number[]> => []),
 }));
 vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
   Client: class {
@@ -13,7 +22,16 @@ vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
     close = native.close;
   },
 }));
-vi.mock("@modelcontextprotocol/sdk/client/stdio.js", () => ({ StdioClientTransport: class {} }));
+vi.mock("@modelcontextprotocol/sdk/client/stdio.js", () => ({
+  StdioClientTransport: class {
+    get pid() {
+      return native.pid;
+    }
+    constructor(options: unknown) {
+      native.transport(options);
+    }
+  },
+}));
 vi.mock("../src/server/capture/openscreen", () => ({
   openScreenExecutable: async () => "/native/openscreen",
 }));
@@ -28,8 +46,11 @@ const reply = (data: unknown, isError = false) => ({
   content: [{ type: "text", text: JSON.stringify(data) }],
   isError,
 });
-beforeEach(() => {
+let diagnosticsDirectory: string;
+beforeEach(async () => {
+  diagnosticsDirectory = await mkdtemp(path.join(os.tmpdir(), "native-diagnostics-"));
   vi.clearAllMocks();
+  native.pid = undefined;
   native.close.mockResolvedValue(undefined);
   native.listTools.mockResolvedValue({
     tools: [
@@ -61,11 +82,20 @@ beforeEach(() => {
         : reply({ applied: true }),
   );
 });
+afterEach(async () => {
+  await rm(diagnosticsDirectory, { recursive: true, force: true });
+});
 const editor = () =>
-  createNativeCaptureEditor("/take/source.mp4", "/take/export.mp4", new AbortController().signal, {
-    cursorTheme: "studio-ink",
-    framing: { shadowIntensity: 0.5 },
-  });
+  createNativeCaptureEditor(
+    "/take/source.mp4",
+    "/take/export.mp4",
+    new AbortController().signal,
+    {
+      cursorTheme: "studio-ink",
+      framing: { shadowIntensity: 0.5 },
+    },
+    diagnosticsDirectory,
+  );
 
 it("uses live schemas and binds review/edit/export to the take without selecting cuts", async () => {
   const take = await editor();
@@ -228,6 +258,7 @@ it("uses native recording and pointer-track tools on the same connection without
     "/take/export.mp4",
     new AbortController().signal,
     {},
+    diagnosticsDirectory,
   );
   try {
     expect(take.recordingStartedAt).toBe(1000);
@@ -255,4 +286,99 @@ it("uses native recording and pointer-track tools on the same connection without
   } finally {
     await take.close();
   }
+});
+
+it("retains native stderr and a discoverable log path when recording startup fails", async () => {
+  const diagnostic = "ScreenCaptureKit -3805: application connection interrupted\n";
+  native.callTool.mockImplementation(async ({ name }) => {
+    if (name === "startRecording") {
+      const options = native.transport.mock.lastCall![0];
+      expect(options.env.OPENSCREEN_DIAGNOSTIC).toBe("1");
+      writeSync(options.stderr, diagnostic);
+      return reply("Recording did not start within 30s", true);
+    }
+    return reply({ applied: true });
+  });
+  await expect(
+    startNativeCaptureRecording(
+      "Test window",
+      "/take/export.mp4",
+      new AbortController().signal,
+      {},
+      diagnosticsDirectory,
+    ),
+  ).rejects.toThrow("OpenScreen diagnostics:");
+  const files = await readdir(diagnosticsDirectory);
+  expect(files).toHaveLength(1);
+  expect(await readFile(path.join(diagnosticsDirectory, files[0]), "utf8")).toContain(diagnostic);
+  expect(native.close).toHaveBeenCalledTimes(1);
+  // A later attempt keeps the previous failure evidence instead of overwriting it.
+  await expect(
+    startNativeCaptureRecording(
+      "Test window",
+      "/take/export.mp4",
+      new AbortController().signal,
+      {},
+      diagnosticsDirectory,
+    ),
+  ).rejects.toThrow("30s");
+  expect(await readdir(diagnosticsDirectory)).toHaveLength(2);
+});
+
+it("closes only the owned recorder descendants before allowing another take", async () => {
+  native.pid = 12345;
+  native.descendants.mockResolvedValueOnce([12346, 12347]);
+  const kill = vi.spyOn(process, "kill").mockImplementation((_pid, signal) => {
+    if (signal === 0) throw Object.assign(Error("Exited"), { code: "ESRCH" });
+    return true;
+  });
+  try {
+    const take = await editor();
+    await take.close();
+    expect(pidtree).toHaveBeenCalledWith(12345);
+    expect(kill.mock.calls.filter(([, signal]) => signal !== 0)).toEqual([
+      [12345, "SIGKILL"],
+      [12346, "SIGKILL"],
+      [12347, "SIGKILL"],
+    ]);
+    expect(native.close).toHaveBeenCalledOnce();
+    await take.close();
+    expect(kill.mock.calls.filter(([, signal]) => signal !== 0)).toHaveLength(3);
+  } finally {
+    kill.mockRestore();
+  }
+});
+
+it("saves diagnostics emitted during MCP connection failure", async () => {
+  native.connect.mockImplementationOnce(async () => {
+    writeSync(native.transport.mock.lastCall![0].stderr, "OpenScreen connection failed\n");
+    throw Error("Connection closed");
+  });
+  await expect(editor()).rejects.toThrow("Connection closed");
+  const [file] = await readdir(diagnosticsDirectory);
+  expect(await readFile(path.join(diagnosticsDirectory, file), "utf8")).toBe(
+    "OpenScreen connection failed\n",
+  );
+});
+
+it("forwards caller cancellation during native MCP initialization and closes the connection", async () => {
+  const controller = new AbortController();
+  native.connect.mockImplementationOnce(async (_transport, options: { signal: AbortSignal }) => {
+    await new Promise<void>((_resolve, reject) => {
+      options.signal.addEventListener("abort", () => reject(options.signal.reason), { once: true });
+    });
+  });
+  const pending = createNativeCaptureEditor(
+    "/take/source.mp4",
+    "/take/export.mp4",
+    controller.signal,
+    {},
+    diagnosticsDirectory,
+  );
+  const rejected = expect(pending).rejects.toThrow("Stop project");
+  await vi.waitFor(() => expect(native.connect).toHaveBeenCalledOnce());
+  controller.abort(Error("Stop project"));
+  await rejected;
+  expect(native.close).toHaveBeenCalledOnce();
+  expect(native.listTools).not.toHaveBeenCalled();
 });

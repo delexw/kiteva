@@ -9,7 +9,7 @@ import {
   BrowserCapabilityRequestSchema,
   browserCapabilities,
   type BrowserCapabilityRequest,
-} from "../src/server/requests/reference-tool-registry";
+} from "../src/server/agents/capabilities/reference-browser/tool-registry";
 
 const recording = vi.hoisted(() => ({
   id: "00000000-0000-4000-8000-000000000001",

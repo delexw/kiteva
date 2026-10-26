@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { CapturePresentationSchema } from "../capture/presentation";
-import { NativeCaptureRequestSchema } from "../capture/native-editor";
+import { CapturePresentationSchema } from "../../../capture/presentation";
+import { NativeCaptureRequestSchema } from "../../../capture/native-editor";
 
 const target = z
   .string()

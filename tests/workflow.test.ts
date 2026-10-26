@@ -187,6 +187,15 @@ it.each([0, 1, 2])(
       expect(workflow.generate).toHaveBeenCalledTimes(2);
       expect(run.jobs[0].duration).toBe(3);
       expect(workflow.generate).toHaveBeenCalledWith(run, full, undefined);
+      const unusedIndex = (selectedIndex + 2) % 3;
+      const promoting = workflow.full(run, `candidate-${unusedIndex}`);
+      const rejected = expect(promoting).rejects.toThrow(/abort|cancel/i);
+      const stopping = workflow.stop(run);
+      await rejected;
+      await stopping;
+      expect(workflow.generate).toHaveBeenCalledTimes(2);
+      expect(run.phase).toBe("cancelled");
+      expect(workflow.hasActiveTasks(run)).toBe(false);
     } finally {
       store.close();
       await rm(workspace, { recursive: true, force: true });

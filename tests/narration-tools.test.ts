@@ -257,3 +257,81 @@ it("rejects narration audio escaping the job through a symlink", async () => {
   ).rejects.toThrow("inside the job");
   await expect(readFile(path.join(f.workspace, "audio/narration.json"))).rejects.toThrow();
 });
+
+it("preserves narration schemas and structured validation failures through registerTool", async () => {
+  const f = await fixture();
+  const server = createNarrationTools(f.workspace, f.config, f.service);
+  const client = new Client({ name: "narration-contract-test", version: "1" });
+  const [a, b] = InMemoryTransport.createLinkedPair();
+  try {
+    await server.connect(b);
+    await client.connect(a);
+    const { z } = await import("zod");
+    const { CreateNarrationSchema, EditNarrationSchema } =
+      await import("../src/server/audio/narration-types");
+    const published = (await client.listTools()).tools;
+    expect(published[0].inputSchema).toEqual(z.toJSONSchema(CreateNarrationSchema));
+    expect(published[1].inputSchema).toEqual(z.toJSONSchema(EditNarrationSchema));
+    for (const name of ["create_narration", "edit_narration"]) {
+      const result = await client.callTool({ name, arguments: {} });
+      expect(result.isError).toBe(true);
+      expect(result.structuredContent).toMatchObject({
+        kind: "error",
+        message: expect.any(String),
+      });
+      expect(result.content).toEqual([{ type: "text", text: expect.any(String) }]);
+    }
+    expect(f.prepare).not.toHaveBeenCalled();
+    const next = await client.callTool({
+      name: "create_narration",
+      arguments: { cues: [{ id: "first", text: "After failure", startSeconds: 0 }] },
+    });
+    expect(next.isError).not.toBe(true);
+    expect(next.structuredContent).toMatchObject({ kind: "narration", action: "created" });
+  } finally {
+    await client.close();
+    await server.close();
+  }
+});
+
+it("cancels an active narration tool and releases its shared operation queue", async () => {
+  const f = await fixture();
+  let entered: (signal: AbortSignal) => void;
+  const started = new Promise<AbortSignal>((resolve) => {
+    entered = resolve;
+  });
+  const create = vi.spyOn(f.service, "create").mockImplementationOnce(async (_input, signal) => {
+    entered(signal);
+    return new Promise((_resolve, reject) => {
+      signal.addEventListener("abort", () => reject(Error("Cancelled narration")), { once: true });
+    });
+  });
+  const server = createNarrationTools(f.workspace, f.config, f.service);
+  const client = new Client({ name: "narration-cancel-test", version: "1" });
+  const [a, b] = InMemoryTransport.createLinkedPair();
+  const controller = new AbortController();
+  try {
+    await server.connect(b);
+    await client.connect(a);
+    const input = { cues: [{ id: "first", text: "Example", startSeconds: 0 }] };
+    const pending = client.callTool({ name: "create_narration", arguments: input }, undefined, {
+      signal: controller.signal,
+    });
+    const signal = await started;
+    const cancelled = new Promise<void>((resolve) =>
+      signal.addEventListener("abort", () => resolve(), { once: true }),
+    );
+    controller.abort();
+    await expect(pending).rejects.toThrow();
+    await cancelled;
+    create.mockRestore();
+    const next = await client.callTool({ name: "create_narration", arguments: input });
+    expect(next.isError).not.toBe(true);
+    expect(next.structuredContent).toMatchObject({ kind: "narration", action: "created" });
+  } finally {
+    controller.abort();
+    create.mockRestore();
+    await client.close();
+    await server.close();
+  }
+});

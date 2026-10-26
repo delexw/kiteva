@@ -8,6 +8,7 @@ import { inheritRendererCache } from "../../rendering/refinement";
 async function checkpointFile(
   workspace: string,
   file: string,
+  signal: AbortSignal,
 ): Promise<VideoRefinementCheckpoint["files"][number]> {
   try {
     const root = await realpath(workspace);
@@ -18,9 +19,10 @@ async function checkpointFile(
     const info = await stat(resolved);
     if (!info.isFile()) return { path: file, available: false };
     const hash = createHash("sha256");
-    for await (const chunk of createReadStream(resolved)) hash.update(chunk);
+    for await (const chunk of createReadStream(resolved, { signal })) hash.update(chunk);
     return { path: file, available: true, sha256: hash.digest("hex"), bytes: info.size };
   } catch {
+    signal.throwIfAborted();
     return { path: file, available: false };
   }
 }
@@ -30,23 +32,29 @@ export async function prepareVideoRefinement(
   source: VideoGenerationJob,
   job: VideoGenerationJob,
   pipeline: string,
+  signal: AbortSignal,
 ) {
+  signal.throwIfAborted();
   if (source.phase !== "ready" || !source.sessionId || !job.refinementPrompt)
     throw Error("Fine-tuning requires a completed video, saved session and requested changes");
   await mkdir(job.workspace, { recursive: true });
   await cp(source.workspace, job.workspace, {
     recursive: true,
-    filter: (file) => !["node_modules", "renders"].includes(path.basename(file)),
+    filter: (file) => {
+      signal.throwIfAborted();
+      return !["node_modules", "renders"].includes(path.basename(file));
+    },
   });
   const inheritedCacheDirectories = await inheritRendererCache(
     source.workspace,
     job.workspace,
     pipeline,
+    signal,
   );
   const files = await Promise.all(
     [
       ...new Set(["production.json", "STORYBOARD.json", ...(source.video ? [source.video] : [])]),
-    ].map((file) => checkpointFile(source.workspace, file)),
+    ].map((file) => checkpointFile(source.workspace, file, signal)),
   );
   const checkpoint: VideoRefinementCheckpoint = {
     sourceJobId: source.id,
@@ -63,6 +71,7 @@ export async function prepareVideoRefinement(
   await writeFile(
     path.join(job.workspace, "renders/refinement-checkpoint.json"),
     JSON.stringify(checkpoint, null, 2),
+    { signal },
   );
   return checkpoint;
 }

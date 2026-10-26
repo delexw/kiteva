@@ -46,7 +46,7 @@ it("tracks saved segmented render messages without resetting on encoding or the 
   expect(renderProgressUpdate(event(6, "render_progress", "capture: 0/0 frames"), next)).toBe(next);
   expect(renderProgressUpdate(event(7, "render_progress", "arbitrary output"))).toBeUndefined();
 });
-it("groups code-driven shot checks and rendering together, keeps jobs and repairs separate", () => {
+it("groups shot checks with rendering, isolates jobs and merges render retries", () => {
   const events = [
     event(
       1,
@@ -78,15 +78,18 @@ it("groups code-driven shot checks and rendering together, keeps jobs and repair
       activityItems([...events, event(7, "render_progress", "capture: 1/10 frames", "other")]),
     ),
   ).toHaveLength(2);
-  expect(
-    displayActivityItems(
-      activityItems([
-        ...events,
-        event(7, "error", "Failed"),
-        event(8, "phase", "Rendering the Multiplane shot (1/2: shots/retry.html)"),
-      ]),
-    ),
-  ).toHaveLength(3);
+  const retried = displayActivityItems(
+    activityItems([
+      ...events,
+      event(7, "error", "Failed"),
+      event(8, "phase", "Rendering the Multiplane shot (1/2: shots/retry.html)"),
+    ]),
+  );
+  expect(retried).toHaveLength(2);
+  const renders = retried.filter((item) => item.progressStage === "render");
+  expect(renders).toHaveLength(1);
+  expect(renders[0].progressPercent).toBe(0);
+  expect(retried.some((item) => item.retryable)).toBe(true);
 });
 it("uses measured percentages for viewing-copy exports", () => {
   const grouped = activityItems([

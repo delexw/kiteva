@@ -1,8 +1,8 @@
-import { referenceToolRegistry, type BrowserCapabilityResult } from "./reference-tool-registry";
-import type { EditableCapture, NativeCaptureReply } from "../capture/native-editor";
-import type { ReferenceScreenshot } from "../../shared/contracts";
-import type { createReferenceBrowser } from "../jobs/subworkflows/website-reference";
-import type { WebsiteRecording } from "../jobs/subworkflows/website-capture";
+import { referenceToolRegistry, type BrowserCapabilityResult } from "./tool-registry";
+import type { EditableCapture, NativeCaptureReply } from "../../../capture/native-editor";
+import type { ReferenceScreenshot } from "../../../../shared/contracts";
+import type { createReferenceBrowser } from "../../../jobs/subworkflows/website-reference";
+import type { WebsiteRecording } from "../../../jobs/subworkflows/website-capture";
 export type ReferenceToolResult =
   | BrowserCapabilityResult
   | EditableCapture

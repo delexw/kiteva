@@ -3,7 +3,7 @@ import { createInterface } from "node:readline";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { systemEnvironment } from "../../runtime/platform";
-import { stopProcessTree } from "../../runtime/process-tree";
+import { terminateProcessTree } from "../../runtime/process-tree";
 
 const ReplySchema = z.discriminatedUnion("ok", [
   z.object({ id: z.string(), ok: z.literal(true) }),
@@ -13,6 +13,7 @@ const ReplySchema = z.discriminatedUnion("ok", [
 export class PocketTtsWorker {
   private child?: ChildProcessWithoutNullStreams;
   private pending?: { id: string; resolve: () => void; reject: (error: Error) => void };
+  private stopping?: Promise<void>;
   private idle?: ReturnType<typeof setTimeout>;
   constructor(
     private executable: string,
@@ -28,13 +29,19 @@ export class PocketTtsWorker {
     const pending = this.pending;
     this.pending = undefined;
     pending?.reject(error);
-    if (child) stopProcessTree(child.pid);
+    if (child) {
+      this.stopping = terminateProcessTree(child.pid, { processGroup: true });
+      void this.stopping.catch(() => {});
+    }
+    return this.stopping;
   }
 
   async synthesize(
     input: { textFile: string; output: string; voice: string },
     signal: AbortSignal,
   ) {
+    signal.throwIfAborted();
+    if (this.stopping) await this.stopping;
     signal.throwIfAborted();
     if (this.pending) throw Error("Pocket TTS requests must be serialized");
     clearTimeout(this.idle);
@@ -102,6 +109,7 @@ export class PocketTtsWorker {
       });
     } finally {
       combined.removeEventListener("abort", abort);
+      await this.stopping;
       signal.throwIfAborted();
       if (this.child) {
         this.idle = setTimeout(() => this.stop(), this.idleMs);

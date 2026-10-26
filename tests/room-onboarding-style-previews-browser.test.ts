@@ -75,6 +75,14 @@ createRoot(document.getElementById('root')).render(React.createElement(App));</s
       });
       await page.goto(`${server.resolvedUrls!.local[0]}onboarding-style-preview-test`);
       await page.waitForSelector('[aria-label="Preview directions"]');
+      await page.waitForSelector('[aria-label="Build route"]');
+      expect(await page.$('[aria-label="Creative approach"]')).toBeNull();
+      expect(
+        await page.$eval(
+          '[aria-label="Build route"]',
+          (el) => el.closest(".ant-select")?.textContent,
+        ),
+      ).toContain("Selected styles with previews");
       expect(
         await page.$eval(
           '[aria-label="Preview directions"]',
@@ -102,6 +110,12 @@ createRoot(document.getElementById('root')).render(React.createElement(App));</s
         () =>
           JSON.parse(document.querySelector("#state")!.textContent!).request.candidateCount === 0,
       );
+      expect(
+        await page.$eval(
+          '[aria-label="Build route"]',
+          (el) => el.closest(".ant-select")?.textContent,
+        ),
+      ).toContain("Direct build");
       await page.evaluate(() => {
         const next = [...document.querySelectorAll(".room-onboarding-actions button")].find(
           (el) => el.textContent?.trim() === "Continue",

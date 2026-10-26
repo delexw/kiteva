@@ -1,7 +1,7 @@
 import { mkdtemp, readdir, realpath, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import { PassThrough } from "node:stream";
+import { PassThrough, Readable } from "node:stream";
 import { ZipFile } from "yazl";
 import { z } from "zod";
 import type { GenerationJob } from "../../shared/contracts";
@@ -50,6 +50,7 @@ async function readJson(file: string): Promise<unknown> {
   }
 }
 export async function createProjectBundle(job: GenerationJob, signal: AbortSignal) {
+  signal.throwIfAborted();
   const files = await projectFiles(job.workspace);
   if (!(await projectAvailable(job.workspace)))
     throw Error("No editable project files are available yet");
@@ -60,8 +61,22 @@ export async function createProjectBundle(job: GenerationJob, signal: AbortSigna
   zip.on("error", (error: Error) => output.destroy(error));
   zip.outputStream.on("error", (error: Error) => output.destroy(error));
   const warnings: string[] = [];
-  const cleanup = () => rm(temporary, { recursive: true, force: true });
+  const abort = () => {
+    if (zip.outputStream instanceof Readable)
+      zip.outputStream.destroy(
+        signal.reason instanceof Error ? signal.reason : Error("Project export cancelled"),
+      );
+    output.destroy(
+      signal.reason instanceof Error ? signal.reason : Error("Project export cancelled"),
+    );
+  };
+  signal.addEventListener("abort", abort, { once: true });
+  const cleanup = () => {
+    signal.removeEventListener("abort", abort);
+    return rm(temporary, { recursive: true, force: true });
+  };
   const finish = () => {
+    signal.throwIfAborted();
     zip.outputStream.pipe(output);
     zip.end();
     output.once("close", () => {
@@ -70,6 +85,7 @@ export async function createProjectBundle(job: GenerationJob, signal: AbortSigna
     return output;
   };
   try {
+    signal.throwIfAborted();
     for (const file of files)
       zip.addFile(file.path, job.outputType === "page" ? file.name : `source/${file.name}`, {
         compress: false,

@@ -22,7 +22,7 @@ async function fixture() {
     { name: "test-upstream", version: "1" },
     { capabilities: { tools: {} }, instructions: "Upstream audio instructions" },
   );
-  const call = vi.fn(async (request) => ({
+  const call = vi.fn(async (request, _extra: { signal: AbortSignal }) => ({
     content: [{ type: "text", text: JSON.stringify(request.params.arguments) }],
     structuredContent: { status: "done" },
   }));
@@ -128,4 +128,83 @@ it("keeps the audio service home independent of the SDK home for model-cache reu
     HOME: "/configured-service-home",
     ...(process.platform === "win32" ? { USERPROFILE: "/configured-service-home" } : {}),
   });
+});
+
+it("preserves extra upstream arguments and leaves defaults to the audio service", async () => {
+  const f = await fixture();
+  try {
+    const input = { input_audio: "source.wav", extra_option: { enabled: true } };
+    const result = await f.client.callTool({ name: "process_audio", arguments: input });
+    expect(result.isError).toBe(false);
+    expect(f.call.mock.calls[0][0].params.arguments).toEqual({
+      ...input,
+      input_audio: await realpath(f.source),
+    });
+    expect(f.call.mock.calls[0][0].params.arguments).not.toHaveProperty("start_seconds");
+  } finally {
+    await f.close();
+  }
+});
+
+it("preserves structured errors for invalid paths and upstream failures", async () => {
+  const f = await fixture();
+  try {
+    const invalid = await f.client.callTool({
+      name: "process_audio",
+      arguments: { input_audio: 42 },
+    });
+    expect(invalid.isError).toBe(true);
+    expect(invalid.structuredContent).toMatchObject({
+      kind: "error",
+      message: "input_audio must be a workspace file path",
+    });
+    expect(f.call).not.toHaveBeenCalled();
+    f.call.mockRejectedValueOnce(Error("Example upstream failure"));
+    const failed = await f.client.callTool({
+      name: "process_audio",
+      arguments: { input_audio: "source.wav" },
+    });
+    expect(failed.isError).toBe(true);
+    expect(failed.structuredContent).toMatchObject({
+      kind: "error",
+      message: expect.stringContaining("Example upstream failure"),
+    });
+  } finally {
+    await f.close();
+  }
+});
+
+it("forwards MCP cancellation to the upstream audio request", async () => {
+  const f = await fixture();
+  let entered: (signal: AbortSignal) => void;
+  const started = new Promise<AbortSignal>((resolve) => {
+    entered = resolve;
+  });
+  f.call.mockImplementationOnce(async (_request, extra) => {
+    entered(extra.signal);
+    return new Promise((_resolve, reject) => {
+      extra.signal.addEventListener("abort", () => reject(Error("Cancelled audio")), {
+        once: true,
+      });
+    });
+  });
+  const controller = new AbortController();
+  try {
+    const pending = f.client.callTool(
+      { name: "process_audio", arguments: { input_audio: "source.wav" } },
+      undefined,
+      { signal: controller.signal },
+    );
+    const signal = await started;
+    const cancelled = new Promise<void>((resolve) =>
+      signal.addEventListener("abort", () => resolve(), { once: true }),
+    );
+    controller.abort();
+    await expect(pending).rejects.toThrow();
+    await cancelled;
+    expect(signal.aborted).toBe(true);
+  } finally {
+    controller.abort();
+    await f.close();
+  }
 });

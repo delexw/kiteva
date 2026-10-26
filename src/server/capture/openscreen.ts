@@ -5,7 +5,8 @@ import { existsSync } from "node:fs";
 import { access } from "node:fs/promises";
 import { z } from "zod";
 import { systemEnvironment } from "../runtime/platform";
-import { stopProcessTree } from "../runtime/process-tree";
+import { terminateProcessTree } from "../runtime/process-tree";
+import { openCaptureDiagnostics } from "./diagnostics";
 
 export const openScreenExportFrameRate = 60;
 
@@ -18,20 +19,31 @@ const DoneSchema = z.object({
 });
 
 /** OpenScreen is the only recorder; FFmpeg is used downstream solely for delivery conversion. */
-export async function startOpenScreen(windowTitle: string, signal: AbortSignal) {
+export async function startOpenScreen(
+  windowTitle: string,
+  signal: AbortSignal,
+  diagnosticsDirectory: string,
+) {
   signal.throwIfAborted();
   const executable = await openScreenExecutable();
   signal.throwIfAborted();
+  const diagnostics = await openCaptureDiagnostics(diagnosticsDirectory);
   const child = spawn(
     executable,
     ["record", "--window", windowTitle, "--cursor", "editable-overlay", "--json"],
     {
-      env: systemEnvironment(),
+      env: { ...systemEnvironment(), OPENSCREEN_DIAGNOSTIC: "1" },
       windowsHide: true,
       detached: process.platform !== "win32",
-      stdio: ["pipe", "pipe", "pipe"],
+      stdio: ["pipe", "pipe", diagnostics.fd],
     },
   );
+  const { stdin, stdout } = child;
+  if (!stdin || !stdout) {
+    await terminateProcessTree(child.pid, { processGroup: true });
+    await diagnostics.close();
+    throw Error("OpenScreen recording pipes are unavailable");
+  }
   let result: z.infer<typeof DoneSchema> | undefined;
   let error: Error | undefined;
   let readyResolve!: () => void;
@@ -44,13 +56,19 @@ export async function startOpenScreen(windowTitle: string, signal: AbortSignal) 
   const exited = new Promise<void>((resolve) => {
     exitResolve = resolve;
   });
-  const lines = createInterface({ input: child.stdout });
+  const lines = createInterface({ input: stdout });
   let closed = false;
+  let terminating: Promise<void> | undefined;
   let stopTimer: NodeJS.Timeout | undefined;
   const stop = () => {
     if (closed || stopTimer) return;
-    if (!child.stdin.destroyed) child.stdin.end("stop\n");
-    stopTimer = setTimeout(() => stopProcessTree(child.pid), 10000);
+    if (!stdin.destroyed) stdin.end("stop\n");
+    stopTimer = setTimeout(() => {
+      terminating = terminateProcessTree(child.pid, { processGroup: true });
+      void terminating.catch((reason) => {
+        error ??= reason;
+      });
+    }, 10000);
     stopTimer.unref();
   };
   const fail = (reason: Error) => {
@@ -79,9 +97,7 @@ export async function startOpenScreen(windowTitle: string, signal: AbortSignal) 
       fail(Error("OpenScreen returned an invalid recording event"));
     }
   });
-  // Drain Chromium diagnostics without leaking desktop paths into agent-visible errors.
-  child.stderr.on("data", () => {});
-  child.stdin.on("error", () => {});
+  stdin.on("error", () => {});
   child.on("error", (reason) => fail(reason));
   const abort = () => fail(Error("OpenScreen recording cancelled"));
   signal.addEventListener("abort", abort, { once: true });
@@ -94,15 +110,24 @@ export async function startOpenScreen(windowTitle: string, signal: AbortSignal) 
     lines.close();
     if (code !== 0 || !result) fail(Error("OpenScreen exited without a valid recording"));
     readyReject(error ?? Error("OpenScreen stopped before recording started"));
-    exitResolve();
+    void Promise.resolve(terminating)
+      .then(() => diagnostics.close())
+      .catch((reason) => {
+        error ??= reason;
+      })
+      .finally(exitResolve);
   });
   try {
     await ready;
   } catch (reason) {
     await exited;
-    throw reason;
+    throw new Error(
+      `${reason instanceof Error ? reason.message : String(reason)} (OpenScreen diagnostics: ${diagnostics.path})`,
+      { cause: reason },
+    );
   }
   return {
+    diagnosticsPath: diagnostics.path,
     async stop() {
       stop();
       await exited;

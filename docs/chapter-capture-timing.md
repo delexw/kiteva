@@ -62,7 +62,7 @@ chapter budgets and film timing; it never invokes full-film planning.
 
 Owners: `src/server/jobs/subworkflows/chapter-capture/` owns orchestration and
 checkpoints; `src/server/capture/chapter-timing.ts` owns timing checks;
-`src/server/requests/reference-browser-tools.ts` enforces live tool boundaries.
+`src/server/agents/capabilities/reference-browser/tools.ts` enforces live tool boundaries.
 
 ## Activity
 
@@ -72,3 +72,41 @@ validation, acceptance, conflicts and bounded chapter retries. Acceptance shows
 measured export duration against its budget. Repeated phase updates share one row;
 a recovered conflict becomes resolved after acceptance. These events never invent
 a percentage: the capture bar still counts accepted chapters.
+
+## Recorder diagnostics
+
+Each recording attempt writes OpenScreen's detailed stderr directly to a unique
+`capture-diagnostics/openscreen-<id>.log` inside the current job's project workspace.
+For a local build this is `.data/runs/<project-id>/<job-id>/capture-diagnostics/`.
+Worker recordings use their worker-side project workspace. Logs remain after failed
+startup and recording cleanup; retries create new files instead of replacing evidence.
+Startup errors include the saved diagnostic path. Log files are private to the local
+user and are not video assets or part of the rendered output.
+
+## Shared recorder ownership
+
+Preview builders run concurrently, but native recording is a shared resource on each
+recording host. A cross-process lease in `capture/recording-slot.ts` queues recording
+requests across projects and MCP servers using the same `os.tmpdir()` lock path. This is
+lock-based mutual exclusion, not a FIFO queue or a distributed lock across hosts. Ownership
+lasts from recorder startup until
+the take finishes saving. Native review, editing, export and authored graphics can
+continue after that ownership is released.
+
+Waiting retries every 250 ms and is cancellable. The lease updates its heartbeat every two
+seconds, with a ten-second stale-owner threshold. A compromised lease aborts its recording. The reference MCP tool and remote worker start request
+allow ten minutes for queued calls; Claude and Codex both receive the tool timeout.
+This is separate from OpenScreen's internal thirty-second startup timeout.
+
+Before closing an OpenScreen MCP process, Kiteva records its descendant PIDs. After
+the parent closes, remaining owned descendants are terminated so failed native
+helpers cannot stay orphaned and interfere with subsequent takes. Cleanup never
+targets unrelated applications by name. Successful stops release the recorder for
+the next builder; startup failures, cancellation and stop failures close the owned
+processes as part of releasing it. Reported cleanup failures propagate through the
+[project stop/delete lifecycle](process-lifecycle.md), so deletion retains project files.
+
+`tests/recording-slot.test.ts` covers separate-process exclusion and queued
+cancellation. With `KITEVA_TEST_LOCAL_OPENSCREEN=1`,
+`tests/native-recording-concurrency.integration.test.ts` launches five independent
+builders and verifies real recording, saving, frame review and WebM export.

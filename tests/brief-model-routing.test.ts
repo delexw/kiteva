@@ -109,18 +109,18 @@ it.each([
     };
     vi.mocked(agentTurn)
       .mockImplementationOnce(async (options) => {
+        const prompt = await readFile(
+          path.resolve(options.workspace, "BRIEF_PREPARATION.md"),
+          "utf8",
+        );
         const input = JSON.parse(
           await readFile(path.join(options.workspace, "input.json"), "utf8"),
         );
-        expect(options.prompt).toContain("Return subject as a short idea title of 4–10 words");
-        expect(options.prompt).toContain(
-          "Keep previewBeat and any proposed scenes Motion Graphic-neutral",
-        );
-        expect(options.prompt).toContain("Do not suggest Motion Graphics anywhere in the brief.");
-        expect(options.prompt).toContain(
-          "Preserve visual choices explicitly requested by the user",
-        );
-        expect(options.prompt).toContain(
+        expect(prompt).toContain("Return subject as a short idea title of 4–10 words");
+        expect(prompt).toContain("Keep previewBeat and any proposed scenes Motion Graphic-neutral");
+        expect(prompt).toContain("Do not suggest Motion Graphics anywhere in the brief.");
+        expect(prompt).toContain("Preserve visual choices explicitly requested by the user");
+        expect(prompt).toContain(
           "Defer all other visual treatment to the subsequent Motion Graphic selection stage",
         );
         expect(options.referenceUrls).toEqual(["http://127.0.0.1:4317/"]);
@@ -189,18 +189,22 @@ it.each([
         };
       })
       .mockImplementationOnce(async (options) => {
+        const prompt = await readFile(
+          path.resolve(options.workspace, "DIRECTION_PLANNING.md"),
+          "utf8",
+        );
         const input = JSON.parse(
           await readFile(path.join(options.workspace, "style-summaries.json"), "utf8"),
         );
         expect(input).toEqual(summaries);
         expect(input).toHaveLength(catalog.styles.length);
-        expect(options.prompt).toContain(
+        expect(prompt).toContain(
           `Read all ${catalog.styles.length} cached Motion Graphic summaries`,
         );
-        expect(options.prompt).toContain("Propose 20 distinct candidate options");
-        expect(options.prompt).toContain("not an allowlist");
-        expect(options.prompt).toContain("60:40");
-        expect(options.prompt).toContain("not fixed scoring weights");
+        expect(prompt).toContain("Propose 20 distinct candidate options");
+        expect(prompt).toContain("not an allowlist");
+        expect(prompt).toContain("60:40");
+        expect(prompt).toContain("not fixed scoring weights");
         const recommendations = JSON.parse(
           await readFile(path.join(options.workspace, "style-combinations.json"), "utf8"),
         );
@@ -242,7 +246,10 @@ it.each([
       score: 100,
       confidence: 0.9,
     };
-    vi.mocked(rankOptions).mockResolvedValueOnce({ candidates: [candidate], model: "jev-test" });
+    vi.mocked(rankOptions).mockResolvedValueOnce({
+      candidates: [candidate, { ...candidate, ...otherCombination, id: "direction-2" }],
+      model: "jev-test",
+    });
     const generate = vi.spyOn(workflow, "generate").mockImplementation(async (_run, job) => {
       job.phase = "ready";
     });
@@ -257,7 +264,7 @@ it.each([
           url: "http://127.0.0.1:4317/",
         },
       ]);
-      await workflow["setup"](run, run.jobs[0]);
+      await workflow["setup"](run, run.jobs[0], new AbortController().signal);
       expect(
         await readFile(path.join(run.jobs[0].workspace, "assets/website-reference-1.png"), "utf8"),
       ).toBe("actual-screenshot-bytes");
@@ -299,13 +306,28 @@ it.each([
         model: models[provider],
         candidateId: "direction",
       });
-      expect(generate).toHaveBeenCalledTimes(1);
+      expect(generate).toHaveBeenCalledTimes(2);
+      const sharedPlan = JSON.parse(
+        await readFile(path.resolve(dataRoot, "runs", run.id, "PREVIEW_PLAN.json"), "utf8"),
+      );
+      expect(sharedPlan.directions).toEqual(run.candidates);
+      expect(sharedPlan.directions[0].supportingStyleIds).not.toEqual(
+        sharedPlan.directions[1].supportingStyleIds,
+      );
+      expect(run.jobs.every((job) => job.sessionId === undefined)).toBe(true);
+      expect(sharedPlan.brief.previewBeat).toBe(run.brief!.previewBeat);
+      expect(generate.mock.calls[0][1].sessionId).toBeUndefined();
+
       if (outputType === "video") {
         const proposalCall = vi.mocked(agentTurn).mock.calls[2][0];
-        expect(proposalCall.prompt).toContain(
+        expect(
+          await readFile(path.resolve(proposalCall.workspace, "DIRECTION_PLANNING.md"), "utf8"),
+        ).toContain(
           duration === 300 ? "2–6 distinct Motion Graphics" : "2–5 distinct Motion Graphics",
         );
-        expect(proposalCall.prompt).toContain("full video duration, not the 3-second preview");
+        expect(
+          await readFile(path.resolve(proposalCall.workspace, "DIRECTION_PLANNING.md"), "utf8"),
+        ).toContain("full video duration, not the 3-second preview");
       }
       for (const purpose of ["Brief preparation", "Motion Graphic combination proposals"]) {
         expect(store.events(run.id)).toContainEqual(

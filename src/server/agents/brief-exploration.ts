@@ -1,6 +1,6 @@
 import { assetRequirementsPolicy } from "../../shared/asset-requirements-policy";
 import { briefAttachmentInstructions } from "../requests/brief-attachments";
-import { referenceExplorationInstructions } from "../requests/reference-browser-instructions";
+import { referenceExplorationInstructions } from "./capabilities/reference-browser/prompt";
 
 export const briefSectionExtraction = {
   main: "MAIN BRIEF: Read request.instructions and request.requirements.main plus its document attachments (Markdown, text, PDF). Read the complete extracted text, not only excerpts. Extract the core idea, audience, objective, factual claims, exact copy, branding, main scenes and mandatory constraints. Attribute each fact to its inspected source. Main instructions determine the story; source documents do not override them.",

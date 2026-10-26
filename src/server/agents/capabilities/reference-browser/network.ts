@@ -2,8 +2,8 @@ import type { HTTPRequest, Page } from "puppeteer-core";
 import CachePolicy from "http-cache-semantics";
 import { URLPattern } from "node:url";
 import { setTimeout as delay } from "node:timers/promises";
-import { referenceResource, referenceResourceLimits } from "./reference-resource";
-import type { BrowserCapabilityRequest } from "./reference-tool-registry";
+import { referenceResource, referenceResourceLimits } from "../../../requests/reference-resource";
+import type { BrowserCapabilityRequest } from "./tool-registry";
 
 type NetworkRequest = Extract<BrowserCapabilityRequest, { operation: "browser_network" }>;
 type Resource = Awaited<ReturnType<typeof referenceResource>>;

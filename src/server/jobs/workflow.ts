@@ -1,3 +1,9 @@
+import { DependencyCleanupError } from "../runtime/process-tree";
+import { addAbortListener } from "node:events";
+import { writePreviewPlan, previewPlanArtifact } from "./preview-plan";
+import { buildRouteOf } from "../../shared/build-route";
+import { fileBackedPlanningPrompt } from "../agents/planning-prompt";
+import { writeProjectRequest } from "../requests/project-request";
 import { activityScope, activityEventData, bindActivityCallback } from "./activity-scope";
 import { preparationStepLabel } from "../../shared/preparation";
 import {
@@ -75,7 +81,10 @@ import { runFullBriefWorkflow } from "./subworkflows/full-brief/workflow";
 import { prepareStyleSummaries } from "../catalog/style-summaries";
 import { rankOptions } from "../jev/strategies/style-combination.js";
 import { jevClient } from "../jev/client";
-import { readReferenceScreenshots, referenceManifest } from "../requests/reference-browser-tools";
+import {
+  readReferenceScreenshots,
+  referenceManifest,
+} from "../agents/capabilities/reference-browser/tools";
 import { validateReferenceUrl } from "../requests/reference-url";
 import { prepareBriefAttachments, briefAttachmentKind } from "../requests/brief-attachments";
 import { prepareBriefImages } from "../requests/brief-images";
@@ -90,29 +99,39 @@ export class Workflow {
   private agents = new WorkQueue(5);
   private renders = new WorkQueue(1);
   private controllers = new Map<string, AbortController>();
+  private dependencyCleanupErrors = new Map<string, DependencyCleanupError>();
+  private taskOwners = new Map<string, string>();
   private taskSettlements = new Map<string, Promise<void>>();
   private stopping = false;
   private playbackCopies = new Map<
     string,
     { controller: AbortController; discard: boolean; done: Promise<void> }
   >();
-  private startTask(id: string): WorkflowTask | undefined {
+  private startTask(id: string, runId = id): WorkflowTask | undefined {
     if (this.stopping || this.controllers.has(id)) return;
     const controller = new AbortController();
     let settle!: () => void;
     this.taskSettlements.set(id, new Promise<void>((resolve) => (settle = resolve)));
     this.controllers.set(id, controller);
+    this.taskOwners.set(id, runId);
+    const parent = id !== runId ? this.controllers.get(runId)?.signal : undefined;
+    const cancellation = parent && addAbortListener(parent, () => controller.abort(parent.reason));
     return {
       controller,
       finish: () => {
+        cancellation?.[Symbol.dispose]();
         this.controllers.delete(id);
+        this.taskOwners.delete(id);
         this.taskSettlements.delete(id);
         settle();
       },
     };
   }
+  private trackDependencyFailure(run: Run, error: unknown) {
+    if (error instanceof DependencyCleanupError) this.dependencyCleanupErrors.set(run.id, error);
+  }
   hasActiveTasks(run: Run) {
-    return this.controllers.has(run.id) || run.jobs.some((job) => this.controllers.has(job.id));
+    return [...this.taskOwners.values()].includes(run.id);
   }
   constructor(
     readonly store: Store,
@@ -330,7 +349,9 @@ export class Workflow {
   private async prepareWork(run: Run, task: WorkflowTask) {
     const { controller } = task;
     try {
-      if (!run.request.selectedStyleIds?.length && run.request.preference !== "random") jevClient();
+      await writeProjectRequest(path.join(dataRoot, "runs", run.id), run.request);
+      if (buildRouteOf(run.request) === "automatic-previews" && run.request.preference !== "random")
+        jevClient();
       run.phase = "preparing";
       run.error = undefined;
       run.errorCode = undefined;
@@ -347,6 +368,7 @@ export class Workflow {
         ...(request.assetIds.length ? { attachmentReviewRevision: 1 } : {}),
       });
       const preparedRequest = preparationRequest(run);
+      await writeProjectRequest(workspace, preparedRequest);
       initializePreparation(run, preparationInputs(preparedRequest), [
         preparationInputs(run.request),
       ]);
@@ -426,32 +448,36 @@ export class Workflow {
           }
         },
       );
-      if (run.request.selectedStyleIds?.length) {
+      if (buildRouteOf(run.request) !== "automatic-previews") {
         const title = await checkpoint("brief", TitleBriefCheckpointSchema, () =>
-          this.agents.run(() =>
-            runTitleBriefWorkflow({
-              request: preparedRequest,
-              workspace,
-              signal: controller.signal,
-              onEvent: this.providerEvent(run, undefined, "Project title extraction"),
-            }),
+          this.agents.run(
+            () =>
+              runTitleBriefWorkflow({
+                request: preparedRequest,
+                workspace,
+                signal: controller.signal,
+                onEvent: this.providerEvent(run, undefined, "Project title extraction"),
+              }),
+            controller.signal,
           ),
         );
         run.brief = directBuildContext(run.request, inputs.descriptions, title.value.subject);
-        if (run.request.candidateCount > 0) {
+        if (buildRouteOf(run.request) === "selected-previews") {
           const selection = await checkpoint(
             "selection",
             ExplicitStylePreviewsSchema.extend({ previewBeat: z.string().min(1) }),
             () =>
-              this.agents.run(() =>
-                runExplicitStylePreviewWorkflow({
-                  request: preparedRequest,
-                  styles: this.catalog.styles,
-                  workspace,
-                  signal: controller.signal,
-                  previousDirections: run.candidates,
-                  onEvent: this.providerEvent(run, undefined, "Explicit-style preview planning"),
-                }),
+              this.agents.run(
+                () =>
+                  runExplicitStylePreviewWorkflow({
+                    request: preparedRequest,
+                    styles: this.catalog.styles,
+                    workspace,
+                    signal: controller.signal,
+                    previousDirections: run.candidates,
+                    onEvent: this.providerEvent(run, undefined, "Explicit-style preview planning"),
+                  }),
+                controller.signal,
               ),
           );
           run.brief.previewBeat = selection.previewBeat;
@@ -504,7 +530,7 @@ export class Workflow {
             sourceDescriptions: inputs.descriptions,
             getAsset: (id) => this.store.getAsset(id),
             restoreReferences,
-            schedule: (task) => this.agents.run(task),
+            schedule: (task) => this.agents.run(task, controller.signal),
             onEvent: (purpose) => this.providerEvent(run, undefined, purpose),
           });
         },
@@ -522,14 +548,16 @@ export class Workflow {
         const request = run.request;
         run.generatedLyrics = await checkpoint("lyrics", GeneratedLyricsSchema, async () => {
           this.emit(run, "lyrics", "Writing your lyrics…");
-          const lyrics = await this.agents.run(() =>
-            prepareLyrics({
-              request,
-              brief: BriefSchema.parse(run.brief),
-              workspace,
-              signal: controller.signal,
-              onEvent: this.providerEvent(run, undefined, "Lyrics generation"),
-            }),
+          const lyrics = await this.agents.run(
+            () =>
+              prepareLyrics({
+                request,
+                brief: BriefSchema.parse(run.brief),
+                workspace,
+                signal: controller.signal,
+                onEvent: this.providerEvent(run, undefined, "Lyrics generation"),
+              }),
+            controller.signal,
           );
           if (!lyrics) throw Error("Lyrics could not be prepared.");
           return lyrics;
@@ -613,25 +641,35 @@ export class Workflow {
           async () => {
             await restoreReferences(brief.screenshots);
             this.emit(run, "ranking", "Exploring visual directions for your project…");
-            const proposed = await this.agents.run(() =>
-              agentTurn({
-                provider: run.request.provider,
-                model: combinationModels[run.request.provider],
-                workspace,
-                signal: controller.signal,
-                readOnly: true,
-                referenceUrls: run.request.urls,
-                schema: proposalSchema,
-                promptContext: {
-                  originalIdea: run.request.instructions,
-                  sectionInstructions: run.request.requirements,
-                  brief: run.brief,
-                  previousDirections: run.candidates,
-                  regenerationRound: run.directionRound || 0,
-                },
-                onEvent: this.providerEvent(run, undefined, "Motion Graphic combination proposals"),
-                prompt: `${assetRequirementsPolicy.guidance}\nOutput type: ${run.request.outputType || "video"}. For pages, evaluate responsive layout and working user interactions rather than video timing. Read all ${summaries.length} cached Motion Graphic summaries in style-summaries.json before proposing directions. There is no individual Motion Graphic shortlist: consider every Motion Graphic both as a primary identity and as a useful supporting contribution. Propose ${Math.max(12, run.request.candidateCount * 4)} distinct candidate options for the brief in the required input JSON. These are proposals for JEV to evaluate, not the final selected directions. Offer meaningfully different visual approaches, not cosmetic variations of one idea. Each generated candidate combination must contain ${styleRange.min}–${styleRange.max} distinct Motion Graphics, counting its primary plus supporting Motion Graphics. ${requestedStyleScopeGuidance} ${run.request.outputType === "page" ? "" : "This range comes from the full video duration, not the 3-second preview. Motion Graphic count is separate from the requested number of preview directions."} Include single Motion Graphics when permitted and compatible combinations with specific scene roles and honest asset feasibility. The unchanged originalIdea and sectionInstructions are authoritative; the brief is supporting context and cannot remove explicit requirements. In each rationale write a concise, self-contained comparison in complete sentences with these labels: Creative result; Contributions; Advantages; Disadvantages; Compatibility and adaptation. Explain the primary identity, what every support adds, why the whole combination suits this request, what it sacrifices compared with alternatives, conflicts in palette/material/typography/motion and how those conflicts would be reconciled without overriding visual restrictions. Explain when using the primary alone is better. Do not describe an option only by IDs, praise or a technology list; acknowledge unknowns rather than inventing evidence. Read style-combinations.json for the full recommendations and their roles, rationale, consistency rules and pitfalls; compressed summaries are not the complete suggestion list. ${suggestedCombinationGuidance} ${candidateCopyGuidance} Keep one primary identity and add supporting Motion Graphics within the permitted count only when they contribute meaningfully. Do not force the maximum; vary combination sizes where appropriate. Preserve the primary palette and visual identity, assign subordinate roles, and explain shared typography and motion rhythm. IDs must come from style-summaries.json. A primary Motion Graphic may appear in multiple genuinely distinct combinations. ${run.request.pinnedStyleId ? `Every primary Motion Graphic must be ${run.request.pinnedStyleId}.` : ""} Only when the model and available tools cannot fulfil a requested requirement, including inaccessible supplied URLs, return a focused assetNeeds question with its capability or access cause. Missing uploads alone do not warrant questions. Propose an honest adapted direction using available material; do not invent references. Use supplied images where appropriate and available code-generated visuals where none are supplied. Do not list multiple copies of the same combination, including reordered supporting Motion Graphics.`,
-              }),
+            const proposed = await this.agents.run(
+              async () =>
+                agentTurn({
+                  provider: run.request.provider,
+                  model: combinationModels[run.request.provider],
+                  workspace,
+                  signal: controller.signal,
+                  readOnly: true,
+                  referenceUrls: run.request.urls,
+                  schema: proposalSchema,
+                  promptContext: {
+                    originalIdea: run.request.instructions,
+                    sectionInstructions: run.request.requirements,
+                    brief: run.brief,
+                    previousDirections: run.candidates,
+                    regenerationRound: run.directionRound || 0,
+                  },
+                  onEvent: this.providerEvent(
+                    run,
+                    undefined,
+                    "Motion Graphic combination proposals",
+                  ),
+                  prompt: await fileBackedPlanningPrompt(
+                    workspace,
+                    "DIRECTION_PLANNING.md",
+                    `${assetRequirementsPolicy.guidance}\nOutput type: ${run.request.outputType || "video"}. For pages, evaluate responsive layout and working user interactions rather than video timing. Read all ${summaries.length} cached Motion Graphic summaries in style-summaries.json before proposing directions. There is no individual Motion Graphic shortlist: consider every Motion Graphic both as a primary identity and as a useful supporting contribution. Propose ${Math.max(12, run.request.candidateCount * 4)} distinct candidate options for the brief in the required input JSON. These are proposals for JEV to evaluate, not the final selected directions. Offer meaningfully different visual approaches, not cosmetic variations of one idea. Each generated candidate combination must contain ${styleRange.min}–${styleRange.max} distinct Motion Graphics, counting its primary plus supporting Motion Graphics. ${requestedStyleScopeGuidance} ${run.request.outputType === "page" ? "" : "This range comes from the full video duration, not the 3-second preview. Motion Graphic count is separate from the requested number of preview directions."} Include single Motion Graphics when permitted and compatible combinations with specific scene roles and honest asset feasibility. The unchanged originalIdea and sectionInstructions are authoritative; the brief is supporting context and cannot remove explicit requirements. In each rationale write a concise, self-contained comparison in complete sentences with these labels: Creative result; Contributions; Advantages; Disadvantages; Compatibility and adaptation. Explain the primary identity, what every support adds, why the whole combination suits this request, what it sacrifices compared with alternatives, conflicts in palette/material/typography/motion and how those conflicts would be reconciled without overriding visual restrictions. Explain when using the primary alone is better. Do not describe an option only by IDs, praise or a technology list; acknowledge unknowns rather than inventing evidence. Read style-combinations.json for the full recommendations and their roles, rationale, consistency rules and pitfalls; compressed summaries are not the complete suggestion list. ${suggestedCombinationGuidance} ${candidateCopyGuidance} Keep one primary identity and add supporting Motion Graphics within the permitted count only when they contribute meaningfully. Do not force the maximum; vary combination sizes where appropriate. Preserve the primary palette and visual identity, assign subordinate roles, and explain shared typography and motion rhythm. IDs must come from style-summaries.json. A primary Motion Graphic may appear in multiple genuinely distinct combinations. ${run.request.pinnedStyleId ? `Every primary Motion Graphic must be ${run.request.pinnedStyleId}.` : ""} Only when the model and available tools cannot fulfil a requested requirement, including inaccessible supplied URLs, return a focused assetNeeds question with its capability or access cause. Missing uploads alone do not warrant questions. Propose an honest adapted direction using available material; do not invent references. Use supplied images where appropriate and available code-generated visuals where none are supplied. Do not list multiple copies of the same combination, including reordered supporting Motion Graphics.`,
+                  ),
+                }),
+              controller.signal,
             );
             run.referenceScreenshots = await readReferenceScreenshots(workspace);
 
@@ -706,6 +744,7 @@ export class Workflow {
       }
       await this.generatePreviews(run, selectedCandidates, controller.signal);
     } catch (error) {
+      this.trackDependencyFailure(run, error);
       if (error instanceof InputRequired) return;
       run.phase = controller.signal.aborted ? "cancelled" : "failed";
       run.error = safeMessage(error);
@@ -728,6 +767,7 @@ export class Workflow {
       ),
       ...selectedCandidates,
     ];
+    await writePreviewPlan(path.join(dataRoot, "runs", run.id), run.brief!, selectedCandidates);
     run.phase = "generating";
     this.update(run);
     signal.throwIfAborted();
@@ -771,7 +811,7 @@ export class Workflow {
       workspace: path.join(dataRoot, "runs", run.id, id),
     };
   }
-  private async setup(run: Run, job: GenerationJob, signal = new AbortController().signal) {
+  private async setup(run: Run, job: GenerationJob, signal: AbortSignal) {
     await mkdir(path.join(job.workspace, "assets"), { recursive: true });
     await mkdir(path.join(job.workspace, "vendor"), { recursive: true });
     await linkWorkspaceDirectory(
@@ -850,6 +890,18 @@ export class Workflow {
         ),
       }),
     );
+    await writeProjectRequest(job.workspace, run.request);
+    if (job.kind === "preview") {
+      const planFile = path.resolve(job.workspace, previewPlanArtifact);
+      try {
+        await access(planFile);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+        const candidate = run.candidates.find((entry) => entry.id === job.candidateId);
+        if (!candidate) throw Error("Preview direction unavailable");
+        await writePreviewPlan(job.workspace, run.brief!, [candidate]);
+      }
+    }
     await writeFile(
       path.join(job.workspace, "style-context.json"),
       JSON.stringify(
@@ -880,7 +932,8 @@ export class Workflow {
     );
   }
   async generate(run: Run, job: GenerationJob, feedback?: string, decisions?: string) {
-    const task = this.startTask(job.id);
+    if (run.phase === "cancelled" || job.phase === "cancelled") return;
+    const task = this.startTask(job.id, run.id);
     if (!task) return;
     return activityScope(
       job.kind === "preview" ? "Creating your preview" : "Creating your full result",
@@ -1003,13 +1056,14 @@ export class Workflow {
           },
           onEvent: this.providerEvent(run, job),
           emit: (type, msg) => this.emit(run, type, msg, job),
-          render: (task) => this.renders.run(task),
+          render: (task) => this.renders.run(task, controller.signal),
         });
         controller.signal.throwIfAborted();
-      });
+      }, controller.signal);
       if (job.kind === "full" && job.outputType !== "page" && job.phase === "ready")
         this.queuePlaybackCopies(run, job.id);
     } catch (error) {
+      this.trackDependencyFailure(run, error);
       if (error instanceof InputRequired) return;
       job.phase = controller.signal.aborted ? "cancelled" : "failed";
       job.error = safeMessage(error);
@@ -1026,11 +1080,35 @@ export class Workflow {
     }
   }
   cancel(run: Run, jobId?: string) {
+    for (const job of run.jobs) {
+      if (jobId && job.id !== jobId) continue;
+      const entry = this.playbackCopies.get(job.id);
+      if (entry) {
+        entry.discard = true;
+        entry.controller.abort();
+        if (job.outputType !== "page" && job.playbackCopies) {
+          job.playbackCopies = {
+            ...job.playbackCopies,
+            status: "failed",
+            error: "Cancelled",
+            updatedAt: new Date().toISOString(),
+          };
+        }
+      }
+      this.controllers.get(job.id)?.abort();
+    }
+    if (!jobId)
+      for (const [id, owner] of this.taskOwners) {
+        if (owner === run.id) this.controllers.get(id)?.abort();
+      }
     run.inputWaits = jobId ? run.inputWaits?.filter((wait) => wait.jobId !== jobId) : [];
     if (jobId) {
       const job = run.jobs.find((j) => j.id === jobId);
       if (!job) throw Error("Job not found");
-      if (terminalPhases.has(job.phase)) return;
+      if (terminalPhases.has(job.phase)) {
+        this.update(run);
+        return;
+      }
       this.controllers.get(jobId)?.abort();
       job.phase = "cancelled";
       if (!this.controllers.has(jobId)) this.settleRun(run, job);
@@ -1082,20 +1160,30 @@ export class Workflow {
             run.request.scriptItems,
           ),
     );
-    await mkdir(job.workspace, { recursive: true });
-    await cp(preview.workspace, job.workspace, {
-      recursive: true,
-      filter: (source) => !["node_modules", "renders"].includes(path.basename(source)),
-    });
-    job.sessionId = preview.sessionId;
-    run.jobs.push(job);
-    run.phase = "generating";
-    this.update(run);
-    void this.generate(run, job, feedback).then(() => {
-      run.phase = job.phase;
+    const task = this.startTask(run.id);
+    if (!task) throw new CodedError("PROJECT_ACTIVE", "Project is stopping", 409);
+    try {
+      await mkdir(job.workspace, { recursive: true });
+      await cp(preview.workspace, job.workspace, {
+        recursive: true,
+        filter: (source) => {
+          task.controller.signal.throwIfAborted();
+          return !["node_modules", "renders"].includes(path.basename(source));
+        },
+      });
+      task.controller.signal.throwIfAborted();
+      job.sessionId = preview.sessionId;
+      run.jobs.push(job);
+      run.phase = "generating";
       this.update(run);
-    });
-    return job;
+      void this.generate(run, job, feedback).then(() => {
+        run.phase = job.phase;
+        this.update(run);
+      });
+      return job;
+    } finally {
+      task.finish();
+    }
   }
   async refineVideo(run: Run, jobId: string, prompt: string) {
     if (
@@ -1131,6 +1219,8 @@ export class Workflow {
     run.phase = "generating";
     run.winnerId = candidate.id;
     this.update(run);
+    const task = this.startTask(run.id);
+    if (!task) throw new CodedError("PROJECT_ACTIVE", "Project is stopping", 409);
     try {
       job.authoringResources = structuredClone(source.authoringResources);
       job.audioAuthoring = structuredClone(source.audioAuthoring);
@@ -1138,15 +1228,19 @@ export class Workflow {
         source,
         job,
         source.production?.pipeline ?? videoRendererOf(run.request),
+        task.controller.signal,
       );
+      task.controller.signal.throwIfAborted();
       this.update(run);
     } catch (error) {
-      job.phase = "failed";
+      job.phase = task.controller.signal.aborted ? "cancelled" : "failed";
       job.error = safeMessage(error);
       job.errorCode = "VIDEO_GENERATION_FAILED";
-      run.phase = "failed";
+      run.phase = job.phase;
       this.update(run);
       throw error;
+    } finally {
+      task.finish();
     }
     void this.generate(run, job, feedback).then(() => {
       run.phase = job.phase;
@@ -1230,6 +1324,8 @@ export class Workflow {
   queuePlaybackCopies(run: Run, jobId: string) {
     const job = run.jobs.find((item) => item.id === jobId);
     if (
+      this.stopping ||
+      run.phase === "cancelled" ||
       !job ||
       job.outputType === "page" ||
       job.kind !== "full" ||
@@ -1251,16 +1347,19 @@ export class Workflow {
     };
     this.update(run);
     entry.done = this.renders
-      .run(() =>
-        makePlaybackCopies(job, entry.controller.signal, (type, message) =>
-          this.emit(run, type, message, job),
-        ),
+      .run(
+        () =>
+          makePlaybackCopies(job, entry.controller.signal, (type, message) =>
+            this.emit(run, type, message, job),
+          ),
+        entry.controller.signal,
       )
       .then(
         (copies) => {
           if (!entry.discard) Object.assign(job, copies);
         },
         (error) => {
+          this.trackDependencyFailure(run, error);
           if (!entry.discard)
             job.playbackCopies = {
               profile: playbackCopyProfile,
@@ -1275,6 +1374,52 @@ export class Workflow {
       })
       .finally(() => this.playbackCopies.delete(job.id));
     return true;
+  }
+  async projectDependency<T>(
+    run: Run,
+    signal: AbortSignal,
+    work: (signal: AbortSignal) => Promise<T>,
+  ) {
+    signal.throwIfAborted();
+    if (run.phase === "cancelled") throw Error("Project was cancelled");
+    const task = this.startTask(randomUUID(), run.id);
+    if (!task) throw Error("Project is stopping");
+    const cancellation = addAbortListener(signal, () => task.controller.abort(signal.reason));
+    try {
+      return await work(task.controller.signal);
+    } catch (error) {
+      this.trackDependencyFailure(run, error);
+      throw error;
+    } finally {
+      cancellation[Symbol.dispose]();
+      task.finish();
+    }
+  }
+  async stop(run: Run, jobId?: string) {
+    this.cancel(run, jobId);
+    const ids = jobId
+      ? [jobId]
+      : [
+          ...[...this.taskOwners].filter(([, owner]) => owner === run.id).map(([id]) => id),
+          ...run.jobs.map((job) => job.id),
+        ];
+    await Promise.all(
+      ids.flatMap((id) =>
+        [this.taskSettlements.get(id), this.playbackCopies.get(id)?.done].filter(
+          (task) => task !== undefined,
+        ),
+      ),
+    );
+    const cleanupError = this.dependencyCleanupErrors.get(run.id);
+    if (cleanupError) throw cleanupError;
+    if (
+      run.errorCode === "DEPENDENCY_CLEANUP_FAILED" ||
+      run.jobs.some(
+        (job) => (!jobId || job.id === jobId) && job.errorCode === "DEPENDENCY_CLEANUP_FAILED",
+      )
+    )
+      throw new DependencyCleanupError(run.error);
+    this.cancel(run, jobId);
   }
   async stopPlaybackCopies(run: Run) {
     const entries = run.jobs.flatMap((job) => this.playbackCopies.get(job.id) || []);

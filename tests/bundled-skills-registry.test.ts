@@ -8,7 +8,9 @@ it("uses each skill registration for both prompt assembly and native Claude disc
   expect(bundledSkills).toContain(anatomySkill);
   expect(new Set(bundledSkills.map((skill) => skill.id)).size).toBe(bundledSkills.length);
   expect(new Set(bundledSkills.map((skill) => skill.claudeName)).size).toBe(bundledSkills.length);
-  expect(bundledSkillsGuidance).toBe(bundledSkills.map((skill) => skill.guidance).join("\n\n"));
+  expect(bundledSkillsGuidance).toBe(
+    bundledSkills.map((skill) => `### ${skill.name}\n\n${skill.guidance}`).join("\n\n"),
+  );
   expect(claudeBundledSkills("/workspace", true).skills).toEqual(
     bundledSkills.map((skill) => skill.claudeName),
   );

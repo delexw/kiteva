@@ -1,3 +1,5 @@
+import path from "node:path";
+import { previewPlanArtifact } from "../../jobs/preview-plan";
 import {
   requestedStyleScopeGuidance,
   selectedStyleWeightingGuidance,
@@ -46,7 +48,7 @@ export function buildPagePrompt(input: {
   styles: Style[];
   feedback?: string;
 }) {
-  return `Build a standalone responsive interactive HTML page, not a video or slideshow.
+  return `${input.job.kind === "preview" ? `Read ${JSON.stringify(path.resolve(input.job.workspace, previewPlanArtifact))} for the shared plan and direction ${JSON.stringify(input.candidate.id)}. Implement only this direction; do not restart direction selection.\n` : ""}Build a standalone responsive interactive HTML page, not a video or slideshow.
 ${input.job.kind === "preview" ? "Create one focused representative section for comparing directions, with one meaningful working interaction. Hand off promptly after writing source and the manifest. Do not investigate tools, launch browsers, run validation, or render exports; the app owns these checks after your response." : "Expand the approved page into a complete experience. Preserve its assets, palette, visual decisions and interaction language."}
 ${input.request.selectedStyleIds?.length ? `${selectedStyleWeightingGuidance} USER-SUPPLIED STYLES: Preserve the supplied styles. Follow the candidate rationale and sceneRoles for this execution; do not propose or rank different combinations. The complete original idea in request.instructions remains authoritative.` : ""}
 ${requestedStyleScopeGuidance}

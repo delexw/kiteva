@@ -61,9 +61,11 @@ it("lists actual generation settings and selected style names rather than counts
     "60 fps",
     "Multiplane",
     "Selected Motion Graphics: Mosaic",
+    "Build route: Direct build",
     "build selected Motion Graphics directly",
   ])
     expect(reply).toContain(value);
+  expect(reply).not.toContain("Creative approach: Selected Motion Graphics");
 });
 it("recomputes edited answers and omits removed attachments", () => {
   const edited = { ...request(), instructions: "The revised project idea.", assetIds: [] };

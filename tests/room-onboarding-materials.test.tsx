@@ -64,6 +64,19 @@ it("gives generation controls a clear settings heading within the existing step"
   expect(html).not.toContain("room-reply-label");
 });
 
+it("labels the selected-style route separately from automatic creative approaches", () => {
+  const draft = draftAt(6);
+  const automatic = render(draft);
+  expect(automatic).toContain('aria-label="Creative approach"');
+  const selected = render({
+    ...draft,
+    request: { ...draft.request, selectedStyleIds: ["style-001"], candidateCount: 2 },
+  });
+  expect(selected).toContain('aria-label="Build route"');
+  expect(selected).toContain("Selected styles with previews");
+  expect(selected).not.toContain('aria-label="Creative approach"');
+});
+
 it("places the review create action in the same footer as Back and Continue", () => {
   const html = render(draftAt(7));
   const footer = html.slice(html.lastIndexOf('class="room-onboarding-actions"'));

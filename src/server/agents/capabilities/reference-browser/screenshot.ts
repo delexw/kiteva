@@ -1,7 +1,7 @@
-import { createReferenceBrowser } from "../jobs/subworkflows/website-reference";
-import { validateReferenceUrl } from "./reference-url";
-import { agentMode } from "../runtime/config";
-import { CodedError } from "../../shared/errors";
+import { createReferenceBrowser } from "../../../jobs/subworkflows/website-reference";
+import { validateReferenceUrl } from "../../../requests/reference-url";
+import { agentMode } from "../../../runtime/config";
+import { CodedError } from "../../../../shared/errors";
 
 export async function captureReferencePage(
   value: string,

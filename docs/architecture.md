@@ -127,10 +127,9 @@ sequenceDiagram
   WF->>Small: Motion Graphic summaries (cache hits are free)
   WF->>Main: Propose 12+ Motion Graphic combinations
   WF->>JEV: Score proposals, pick N directions
+  WF->>WF: Save shared PREVIEW_PLAN.json from preparation
   loop Each direction (up to 5)
-    WF->>Main: Plan a 3-second silent preview in its own session
-    Main-->>WF: Validated plan + session ID
-    WF->>Main: Build the preview in that same session
+    WF->>Main: Start a new build session; read assigned preview plan
     Main->>R: Composition + STORYBOARD.json
     R-->>WF: Validated WebM preview
   end
@@ -159,9 +158,15 @@ checkpoint.
 
 ### Video generation routes
 
-These three routes reflect the implementation on 2026-10-21. The complete original prompt, settings
+These three routes reflect the implementation on 2026-10-26. The complete original prompt, settings
 and references remain available to every main-model job. Routing uses Settings-selected style IDs
 and the preview count; embedded style mentions stay in the prompt for the model to interpret.
+
+Build routes and creative approaches have separate ownership. `src/shared/build-route.ts` derives
+the route from selected styles and preview count; `src/shared/creative-approach.ts` describes the
+pool-selection preference. Random selection is a policy within the automatic route, not a fourth
+route. See [Build routes and creative approaches](build-routes-and-creative-approaches.md) for the
+selection matrix, planning boundaries and complete flow.
 
 #### 1. Automatic styles with previews
 
@@ -170,9 +175,9 @@ flowchart TD
   Input["Full prompt + settings + references"] --> Brief["Full brief + evidence review"]
   Brief --> Proposals["Propose style combinations"]
   Proposals --> JEV["JEV evaluates and selects directions"]
-  JEV --> Sessions["Separate main-model session for each direction"]
-  Sessions --> Plan["Plan and validate the 3-second preview"]
-  Plan --> Preview["Build silent preview in the same session"]
+  JEV --> Plan["Save shared plan with selected dynamic style combinations"]
+  Plan --> Sessions["New build session for each direction"]
+  Sessions --> Preview["Read assigned plan and build silent preview"]
   Preview --> QA["Render and check preview"]
   QA --> Select["You select a completed preview"]
   Select --> Resume["Copy working files and resume selected session"]
@@ -187,9 +192,9 @@ flowchart TD
 flowchart TD
   Input["Full prompt + selected styles + settings + references"] --> Title["Extract project title"]
   Title --> Concepts["Extra preparation call: shared preview beat and variations"]
-  Concepts --> Sessions["Separate main-model session for each variation"]
-  Sessions --> Plan["Plan and validate the 3-second preview"]
-  Plan --> Preview["Build silent preview using your styles in the same session"]
+  Concepts --> Plan["Save shared plan and N creative directions"]
+  Plan --> Sessions["New build session for each variation"]
+  Sessions --> Preview["Read assigned plan and build using selected styles"]
   Preview --> QA["Render and check preview"]
   QA --> Select["You select a completed preview"]
   Select --> Resume["Copy working files and resume selected session"]
@@ -200,7 +205,8 @@ flowchart TD
 
 The extra concept-planning call still exists in
 `src/server/jobs/subworkflows/explicit-style-preview/workflow.ts`. It describes variations of the
-fixed styles before preview jobs are created; it does not replace each job's validated build plan.
+fixed styles before preview jobs are created. Each preview reads its assigned direction from
+`PREVIEW_PLAN.json` in a fresh build session; there is no per-preview planning call.
 This route does not propose or rank style combinations through JEV.
 
 #### 3. Selected styles with direct full build
@@ -331,13 +337,13 @@ executable workflows from the shared title-prompt helper and callable browser ca
 
 ### Which model does what
 
-| Step                                                                | Claude projects     | Codex projects      | Why                                                                                        |
-| ------------------------------------------------------------------- | ------------------- | ------------------- | ------------------------------------------------------------------------------------------ |
-| Brief, attachment review, summaries, lyrics, eligible small repairs | `claude-haiku-5-5`  | `gpt-6-luna`        | Simple preparation and checking. Cheap and fast enough                                     |
-| Combination proposals                                               | `claude-opus-5-5`   | `gpt-6.1-sol`       | The main creative judgement                                                                |
-| Preview and full-film planning                                      | selected main model | selected main model | Validated read-only plan before building in the same session; Claude uses native plan mode |
-| Previews, full film, pacing/style repairs                           | selected main model | selected main model | Creative implementation                                                                    |
-| Choosing directions                                                 | JEV                 | JEV                 | A separate evaluator, not the model that proposed the options                              |
+| Step                                                                | Claude projects                                                  | Codex projects                                                   | Why                                                                                                               |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Brief, attachment review, summaries, lyrics, eligible small repairs | `claude-haiku-5-5`                                               | `gpt-6-luna`                                                     | Simple preparation and checking. Cheap and fast enough                                                            |
+| Combination proposals                                               | `claude-opus-5-5`                                                | `gpt-6.1-sol`                                                    | The main creative judgement                                                                                       |
+| Preview and full-film planning                                      | shared preview direction plan; selected main model for full film | shared preview direction plan; selected main model for full film | Previews use independent build sessions; full films validate a read-only plan before building in the same session |
+| Previews, full film, pacing/style repairs                           | selected main model                                              | selected main model                                              | Creative implementation                                                                                           |
+| Choosing directions                                                 | JEV                                                              | JEV                                                              | A separate evaluator, not the model that proposed the options                                                     |
 
 Full-film finished-result review uses the same selected main model that built the job, using the provider’s default reasoning effort. It runs as a separate read-only invocation with the existing QA evidence and Governance tracking.
 
@@ -357,7 +363,10 @@ These responsibilities are kept separate in the code and in the prompts:
 - **The renderer** (render pipeline) supplies seekable time, assembles scenes, mixes audio, validates
   and exports. The catalog's production policy says the pipeline must not decide or simplify the visual style.
 - **Built-in agent tools** are job-scoped MCP capabilities: Creative Pool lookup and technology inspection,
-  reference browsing and capture, React Bits and Animate UI, Narration, and Audio Studio. The
+  reference browsing and capture, React Bits and Animate UI, Narration, and Audio Studio.
+  `agents/capabilities/reference-browser/` owns the browser registration, guidance, contracts and
+  tools; both SDK adapters consume its shared registration. Optional Caveman context retrieval
+  is registered by `agents/capabilities/context-recovery/`; its provider proxy lifecycle stays separate. The
   capability registry controls which tools exist for each stage; providers adapt the same contracts.
 - **Startup-installed skills** supply instructions, not renderers. Anatomy provides a drawing kit;
   AnySearch provides public documentation and repository research. Research remains available
@@ -371,7 +380,7 @@ These responsibilities are kept separate in the code and in the prompts:
 | [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.10        | Yes, labelled "trial" | Preview: `multiplane render`. Full film: inspect, verify, render (all with `--no-lint`) on a `shot.html` driven by `render(t)` | One sound file only. No video clips inside scenes. No automatic layout or contrast checks (full-film frame consistency is verified). Previews use a faster quality setting |
 | [Remotion](https://www.remotion.dev) 4.0.534                     | No                    | Used only when the production records a verified `fallbackReason`                                                              | Separate license terms. Some companies need a company license                                                                                                              |
 
-Previews go from the validated main-model plan to build and render, without QA commands, finished-result review or automatic correction loops. A render failure is reported directly. Full films retain these checks and repairs.
+Previews go from the shared direction plan to independent builds and rendering without extra QA commands or finished-result review. Validation and render failures reuse the full-film correction coordinator, focused correctors, manifest merge and provider retry budgets, then render again. Successful previews make no correction call. Cancellation, user questions and application QA-report failures still propagate immediately. Full films retain their additional checks and finished-result review.
 
 For full films, layout and contrast checks belong to HyperFrames (`hyperframes check`). Multiplane renders don't get
 them. Multiplane skips built-in lint with `--no-lint`; full-film `verify` still checks runtime determinism and frame consistency. Remotion
@@ -388,7 +397,7 @@ flowchart TB
   Check --> Session["Dedicated desktop Chrome<br/>local default or configured worker<br/>controlled via puppeteer-core"]
   Session --> Inspect["inspect_page / click_control"]
   Inspect --> Shot["capture_screenshot<br/>→ brief assets (PNG)"]
-  Session --> Rec["capture_video → OpenScreen CLI<br/>(local or worker, implementation only)"]
+  Session --> Rec["capture_video → OpenScreen MCP<br/>(local or worker, implementation only)"]
   Rec --> Probe["Stream probe + full decode"]
   Probe --> Footage["Silent WebM + cursor JSON<br/>→ job assets"]
 ```
@@ -514,7 +523,7 @@ UI-component tool called [Storybook](https://storybook.js.org).
   `ANTHROPIC_API_KEY`, `CLAUDE_CODE_OAUTH_TOKEN` or your local Claude Code sign-in (`~/.claude`). Codex
   uses `CODEX_API_KEY`/`OPENAI_API_KEY` or the Codex CLI sign-in in `~/.codex/auth.json`, which Kiteva
   links into its isolated Codex home under `.data/runtime/codex`. Subscription usage or
-  remaining-percentage reporting hasn't been tested. Governance prices tokens at API rates either way.
+  remaining-percentage reporting hasn't been tested. Governance displays Claude SDK-reported costs and estimates Codex costs from incremental token usage at standard API rates.
 - JEV has its own key (`TYPESAFE_API_KEY`, or `JEV_API_KEY`) and talks to Typesafe directly, outside Caveman.
 - Uploaded files and fetched pages are treated as data, never as instructions.
 - This is a local tool for one person. It isn't a hardened multi-tenant code execution service.
@@ -529,3 +538,15 @@ projects. Process cancellation, system environment, browser lookup and workspace
 are handled in shared runtime modules. [Windows setup and verification](windows.md)
 describes the required boundary canary and real render check; Windows runtime behavior
 has not been verified on this development host.
+
+## Project cancellation and dependency ownership
+
+Project stop and delete share an awaited lifecycle covering preparation, builds, refinement,
+SDK/MCP subprocesses, browsers, commands, audio, exports and playback preparation. Queued
+work receives caller cancellation. Deletion blocks new requests and retains files if dependency
+cleanup fails. Shared app services and other projects keep their own lifetimes.
+
+Both providers use the same subprocess ownership and cleanup helpers. See
+[project work and cancellation](process-lifecycle.md) for the lifecycle diagram, ownership
+boundaries, contributor requirements and verification. Native recording and saving also use a
+[cancellable shared recorder lock](chapter-capture-timing.md#shared-recorder-ownership).

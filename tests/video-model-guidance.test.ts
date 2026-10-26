@@ -14,13 +14,13 @@ import { conceptFilmRoutePrompt } from "../src/server/domains/video/route-prompt
 import { mixedFilmRoutePrompt } from "../src/server/domains/video/route-prompts/mixed-film";
 import { hyperframesDemoRoutePrompt } from "../src/server/domains/video/route-prompts/application-demo-hyperframes";
 import { multiplaneDemoRoutePrompt } from "../src/server/domains/video/route-prompts/application-demo-multiplane";
-import { websiteCaptureInstructions } from "../src/server/requests/reference-browser-instructions";
+import { websiteCaptureInstructions } from "../src/server/agents/capabilities/reference-browser/prompt";
 
 it.each(["hyperframes", "multiplane"] as const)(
   "includes the adapted OpenScreen capture workflow once in the %s demo route",
   (renderer) => {
     const prompt = buildVideoWorkflowRoutingPrompt(renderer);
-    expect(prompt).toContain(
+    expect(prompt).not.toContain(
       "https://github.com/getopenscreen/openscreen/blob/main/plugin/skills/openscreen-demo/SKILL.md",
     );
     for (const heading of [

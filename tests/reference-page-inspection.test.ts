@@ -4,7 +4,7 @@ import { browserExecutablePath } from "../src/server/runtime/browser";
 import {
   inspectReferenceDocument,
   referencePageHasContent,
-} from "../src/server/requests/reference-page-inspection";
+} from "../src/server/agents/capabilities/reference-browser/page-inspection";
 
 it.skipIf(!browserExecutablePath())(
   "returns working capture selectors when several headings share one container",

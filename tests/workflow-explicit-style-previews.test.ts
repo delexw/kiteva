@@ -3,7 +3,7 @@ import {
   selectedStyleWeightingGuidance,
 } from "../src/shared/style-combinations";
 import { randomUUID } from "node:crypto";
-import { rm } from "node:fs/promises";
+import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
 vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
@@ -51,6 +51,9 @@ it.each([
     };
     const originalRequest = structuredClone(run.request);
     vi.mocked(agentTurn).mockImplementation(async (input) => {
+      expect(
+        JSON.parse(await readFile(path.resolve(input.workspace, "PROJECT_REQUEST.json"), "utf8")),
+      ).toEqual({ request: originalRequest });
       if (input.textOnly) return { value: { subject: "Product story" } };
       input.onEvent({
         type: "tool",
@@ -88,6 +91,15 @@ it.each([
       expect(run.phase, run.error).toBe("ready");
       expect(run.jobs.map((job) => job.kind)).toEqual(["preview", "preview"]);
       expect(run.winnerId).toBeUndefined();
+      const sharedPlan = JSON.parse(
+        await readFile(path.resolve(dataRoot, "runs", run.id, "PREVIEW_PLAN.json"), "utf8"),
+      );
+      expect(sharedPlan.brief.previewBeat).toBe("A product appears");
+      expect(sharedPlan.directions.map((direction: { id: string }) => direction.id)).toEqual(
+        run.candidates.map((direction) => direction.id),
+      );
+      expect(generate.mock.calls.every(([, job]) => job.sessionId === undefined)).toBe(true);
+
       expect(run.request).toEqual(originalRequest);
       const recorded = store.events(run.id);
       const scopeEvents = recorded.filter((event) => event.type === "activity_scope");
@@ -124,7 +136,7 @@ it.each([
         includeCreativeAlternatives: false,
       });
       expect(planning.promptContext).toMatchObject({
-        request: originalRequest,
+        projectRequestFile: path.resolve(dataRoot, "runs", run.id, "brief", "PROJECT_REQUEST.json"),
         candidate: {
           primaryStyleId: catalog.styles[0].id,
           supportingStyleIds: [catalog.styles[1].id],
@@ -132,8 +144,22 @@ it.each([
       });
       expect(planning.promptContext).not.toHaveProperty("styles");
       expect(JSON.stringify(planning.promptContext)).not.toContain("executable_prompt_template");
-      expect(planning.prompt).toContain(requestedStyleScopeGuidance);
-      expect(planning.prompt).toContain(selectedStyleWeightingGuidance);
+      expect(planning.prompt).toContain("# Preview direction planning");
+      expect(planning.prompt).not.toContain(originalRequest.instructions);
+      const requestFile = path.resolve(planning.workspace, "PROJECT_REQUEST.json");
+      expect(planning.prompt).toContain(JSON.stringify(requestFile));
+      expect(JSON.parse(await readFile(requestFile, "utf8"))).toEqual({ request: originalRequest });
+      expect(
+        JSON.parse(
+          await readFile(path.resolve(dataRoot, "runs", run.id, "PROJECT_REQUEST.json"), "utf8"),
+        ),
+      ).toEqual({ request: originalRequest });
+      const guidance = await readFile(
+        path.resolve(planning.workspace, "PREVIEW_DIRECTION_GUIDANCE.md"),
+        "utf8",
+      );
+      expect(guidance).toContain(requestedStyleScopeGuidance);
+      expect(guidance).toContain(selectedStyleWeightingGuidance);
       expect(JSON.stringify(planning.promptContext)).not.toContain("Primary identity");
       expect(run.candidates[0].sceneRoles).toEqual([
         "60% emphasis for the source journey; 40% for result clarity; Act 1 only; retain Act 3 for the ending",

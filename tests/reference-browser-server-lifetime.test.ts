@@ -5,7 +5,7 @@ const tools = vi.hoisted(() => ({
   connect: vi.fn(),
   close: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock("../src/server/requests/reference-browser-tools", () => ({
+vi.mock("../src/server/agents/capabilities/reference-browser/tools", () => ({
   createReferenceTools: tools.create,
 }));
 vi.mock("@modelcontextprotocol/sdk/server/stdio.js", () => ({
@@ -37,7 +37,7 @@ it("keeps the browser MCP alive beyond ten minutes and closes on run shutdown", 
     }),
   ];
   try {
-    await import("../src/server/agents/reference-browser-server");
+    await import("../src/server/agents/capabilities/reference-browser/server");
     const signal: AbortSignal = tools.create.mock.calls[0][0].signal;
     expect(tools.connect).toHaveBeenCalledOnce();
     expect(timeout).not.toHaveBeenCalled();

@@ -1,5 +1,5 @@
-import { prepareProjectRuntime, projectRuntimeEnvironment } from "../../runtime/project-files";
-import { systemEnvironment } from "../../runtime/platform";
+import { launchReferenceBrowser } from "../../agents/capabilities/reference-browser/launch";
+import { prepareProjectRuntime } from "../../runtime/project-files";
 import { mkdtemp, rm } from "node:fs/promises";
 import path from "node:path";
 import { createProcessScope } from "../../runtime/process-scope";
@@ -13,7 +13,6 @@ import { configureReferencePermissions } from "../../agents/capabilities/referen
 import { setTimeout as delay } from "node:timers/promises";
 import type { ElementHandle, Frame, Page } from "puppeteer-core";
 import { createRemoteReferenceBrowser } from "../../capture/worker-client";
-import puppeteer from "puppeteer-core";
 import { startWebsiteCapture } from "./website-capture";
 import type { CapturePresentationInput } from "../../capture/presentation";
 import {
@@ -50,34 +49,13 @@ export async function createLocalReferenceBrowser(
   const processScope = createProcessScope(signal);
   const browser = await processScope
     .run(async (signal) =>
-      puppeteer.launch({
+      launchReferenceBrowser({
         executablePath,
         signal,
-        ...(workspace
-          ? {
-              env: { ...systemEnvironment(), ...projectRuntimeEnvironment(workspace, "browser") },
-              userDataDir: profile,
-            }
-          : {}),
-        headless: desktop ? false : "shell",
-        ...(desktop
-          ? {
-              defaultViewport: null,
-              // Puppeteer's extra startup tab opens a normal window alongside --app.
-              ignoreDefaultArgs: ["about:blank"],
-            }
-          : {}),
-        timeout: 10000,
-        args: [
-          ...(desktop
-            ? ["--app=data:text/html,<title>Capture</title>", "--window-size=1440,1000"]
-            : []),
-          ...(mode === "hosted"
-            ? ["--proxy-server=http://127.0.0.1:9", "--proxy-bypass-list=<-loopback>"]
-            : []),
-          "--disable-quic",
-          "--disable-background-networking",
-        ],
+        workspace,
+        profile,
+        presentation: desktop ? "capture" : "headless",
+        mode,
       }),
     )
     .catch(async (error: unknown) => {

@@ -16,6 +16,20 @@ export interface ModelActivity {
   costLow: number | null;
   costHigh: number | null;
   costBasis: string;
+  combinationEvaluation?: {
+    selected: {
+      id: string;
+      title: string;
+      styles: string[];
+      rationale: string;
+      score: number;
+      confidence: number;
+      evaluationConfidence?: number;
+      selectionDecision?: import("./contracts").StyleCandidate["selectionDecision"];
+      dimensions: Record<string, number>;
+    }[];
+    calls: { id: string; time: string; promptUrl: string }[];
+  };
   authoringSelections?: {
     jobId: string;
     kind: "preview" | "full";

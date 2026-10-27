@@ -1,3 +1,6 @@
+vi.mock("../src/server/agents/claude-home", () => ({
+  prepareClaudeHome: async () => "/isolated-home",
+}));
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";

@@ -15,7 +15,7 @@ An empty facts or constraints array is valid. Arrays remain native typed arrays;
 
 Kiteva assembles the existing full brief after validating this response:
 
-- Active provided lyrics and narration text are copied without rewriting into `exactCopy`.
+- Active provided subtitles and narration text are copied without rewriting into `exactCopy`.
 - Verified source inventory and capture paths populate `assetDescriptions`; inventory does not assert uninspected visual content.
 - Explicit duration comes directly from the request.
 - The original request retains all prompt wording, settings and selected Motion Graphics. Copy embedded in the main prompt remains authoritative there; the model need not reproduce it in preparation.

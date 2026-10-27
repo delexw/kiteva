@@ -1,3 +1,5 @@
+import { projectRuntimeFiles } from "../runtime/project-files";
+import { prepareClaudeHome } from "./claude-home";
 import { withProcessScope } from "../runtime/process-scope";
 import { contextRecoveryCapabilities } from "./capabilities/context-recovery/capability";
 import { commandActivity } from "./command-activity";
@@ -130,6 +132,7 @@ export const claudeAgent: Agent = {
     signal.throwIfAborted();
     if (options.planMode && !options.readOnly)
       throw Error("Native planning requires a read-only turn");
+    await prepareClaudeHome(workspace, options.sessionId, signal);
     const caveman = await cavemanRuntime(signal);
     signal.throwIfAborted();
     return withProcessScope(signal, async (signal) => {
@@ -181,6 +184,9 @@ export const claudeAgent: Agent = {
             settings: { promptCacheTtl: "5m", subagentPromptCacheTtl: "5m" },
             env: {
               ...childEnvironment(workspace),
+              // Use the project HOME's default directory, retaining native Keychain login.
+              CLAUDE_CONFIG_DIR: undefined,
+              CLAUDE_CODE_TMPDIR: projectRuntimeFiles(workspace, "agent").tmp,
               ...caveman?.env,
               ...(caveman
                 ? { ANTHROPIC_BASE_URL: `${caveman.url}/w/claude`, ENABLE_TOOL_SEARCH: "auto" }
@@ -252,7 +258,7 @@ export const claudeAgent: Agent = {
             hooks: {
               PreToolUse: [
                 { matcher: "^(Agent|Task)$", hooks: [requireForegroundSubagent] },
-                { matcher: "^Bash$", hooks: [async (input) => sdkToolHook(input)] },
+                { matcher: "^Bash$", hooks: [async (input) => sdkToolHook(input, workspace)] },
               ],
               ...(options.planMode
                 ? {
@@ -312,7 +318,7 @@ export const claudeAgent: Agent = {
               autoAllowBashIfSandboxed: true,
               allowUnsandboxedCommands: false,
               filesystem: {
-                allowWrite: [workspace],
+                allowWrite: [workspace, projectRuntimeFiles(workspace, "agent").root],
                 denyRead: ["~/.ssh", "~/.aws", "~/.codex/auth.json", "~/.claude/.credentials.json"],
               },
               network: {

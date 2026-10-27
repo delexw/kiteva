@@ -1,3 +1,4 @@
+import { normalizeSubtitleFields } from "./subtitle-compatibility";
 import { z } from "zod";
 import { RoomAppearanceSchema, defaultRoomAppearance } from "./room-appearance";
 
@@ -26,7 +27,11 @@ export const RoomDraftSchema = z
   .object({
     step: z.number().int().min(0).max(7).catch(0).default(0),
     stepLayout: z.literal("separate-speech").optional().catch(undefined),
-    request: z.record(z.string(), z.unknown()).catch({}).default({}),
+    request: z
+      .record(z.string(), z.unknown())
+      .transform(normalizeSubtitleFields)
+      .catch({})
+      .default({}),
     assets: z.array(RoomLibraryAssetSchema).max(20).catch([]).default([]),
   })
   .transform((draft) => {

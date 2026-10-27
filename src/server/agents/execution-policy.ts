@@ -1,4 +1,5 @@
-import { parse } from "shell-quote";
+import { projectRuntimeEnvironment } from "../runtime/project-files";
+import { parse, quote } from "shell-quote";
 import { z } from "zod";
 
 export const sdkExecutionGuidance =
@@ -79,14 +80,31 @@ export function invokesBlender(command: string): boolean {
   return false;
 }
 
-export function sdkToolHook(input: unknown) {
+export function sdkToolHook(input: unknown, workspace?: string) {
   try {
     const parsed = HookInputSchema.parse(input);
     if (!["Bash", "exec_command", "shell", "shell_command"].includes(parsed.tool_name)) return {};
     const commands = parsed.tool_input.command;
     const blocked =
       typeof commands === "string" ? invokesBlender(commands) : invokesBlender(commands.join(" "));
-    if (!blocked) return {};
+    if (!blocked) {
+      if (workspace && parsed.tool_name === "Bash" && typeof commands === "string") {
+        const environment = projectRuntimeEnvironment(workspace, "agent");
+        const assignments = Object.entries(environment)
+          .map(([name, value]) => `${name}=${quote([value])}`)
+          .join(" ");
+        return {
+          hookSpecificOutput: {
+            hookEventName: "PreToolUse" as const,
+            updatedInput: {
+              ...(input as { tool_input: Record<string, unknown> }).tool_input,
+              command: `export ${assignments}\n${commands}`,
+            },
+          },
+        };
+      }
+      return {};
+    }
   } catch {
     return {
       hookSpecificOutput: {

@@ -1,3 +1,7 @@
+import { prepareProjectRuntime, projectRuntimeEnvironment } from "../../runtime/project-files";
+import { systemEnvironment } from "../../runtime/platform";
+import { mkdtemp, rm } from "node:fs/promises";
+import path from "node:path";
 import { createProcessScope } from "../../runtime/process-scope";
 import {
   createBrowserCapabilities,
@@ -29,6 +33,7 @@ export async function createLocalReferenceBrowser(
   signal: AbortSignal,
   mode: "local" | "hosted" = agentMode,
   desktop = process.env.KITEVA_CAPTURE_DESKTOP === "1",
+  workspace?: string,
 ) {
   signal.throwIfAborted();
   const allowedOrigins = new Set(origins.map((url) => new URL(url).origin));
@@ -40,12 +45,20 @@ export async function createLocalReferenceBrowser(
         ? "OpenScreen recording requires full Chrome or Chromium; configure VIDEO_BROWSER_PATH"
         : "Screenshot browser unavailable",
     );
+  const files = workspace ? prepareProjectRuntime(workspace, "browser") : undefined;
+  const profile = files ? await mkdtemp(path.join(files.tmp, "profile-")) : undefined;
   const processScope = createProcessScope(signal);
   const browser = await processScope
     .run(async (signal) =>
       puppeteer.launch({
         executablePath,
         signal,
+        ...(workspace
+          ? {
+              env: { ...systemEnvironment(), ...projectRuntimeEnvironment(workspace, "browser") },
+              userDataDir: profile,
+            }
+          : {}),
         headless: desktop ? false : "shell",
         ...(desktop
           ? {
@@ -69,6 +82,7 @@ export async function createLocalReferenceBrowser(
     )
     .catch(async (error: unknown) => {
       await processScope.close();
+      if (profile) await rm(profile, { recursive: true, force: true });
       throw new CodedError(
         "REFERENCE_CAPTURE_FAILED",
         error instanceof Error ? error.message : "Browser launch failed",
@@ -404,7 +418,11 @@ export async function createLocalReferenceBrowser(
         try {
           await processScope.close();
         } finally {
-          await browser.close();
+          try {
+            await browser.close();
+          } finally {
+            if (profile) await rm(profile, { recursive: true, force: true });
+          }
         }
       },
     };
@@ -413,7 +431,11 @@ export async function createLocalReferenceBrowser(
     try {
       await processScope.close();
     } finally {
-      await browser.close();
+      try {
+        await browser.close();
+      } finally {
+        if (profile) await rm(profile, { recursive: true, force: true });
+      }
     }
     throw error;
   }
@@ -425,6 +447,7 @@ export async function createReferenceBrowser(
   signal: AbortSignal,
   mode: "local" | "hosted" = agentMode,
   enableVideoCapture = false,
+  workspace?: string,
 ) {
   if (process.env.KITEVA_CAPTURE_WORKER_URL && process.env.KITEVA_CAPTURE_DESKTOP !== "1")
     return createRemoteReferenceBrowser(origins, signal, mode);
@@ -433,5 +456,6 @@ export async function createReferenceBrowser(
     signal,
     mode,
     enableVideoCapture || process.env.KITEVA_CAPTURE_DESKTOP === "1",
+    workspace,
   );
 }

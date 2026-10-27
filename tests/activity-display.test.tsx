@@ -833,3 +833,40 @@ it("starts a fresh timing group when the retry counter resets and keeps late eve
   expect(shown[0].status).toBeUndefined();
   expect(shown[1].status).toBeUndefined();
 });
+
+it.each(["running", "complete", "failed", "stopped"] as const)(
+  "shows the latest %s row within a preparation checkpoint across model purposes",
+  (status) => {
+    const original = item(1, {
+      jobId: undefined,
+      preparationStep: "brief",
+      purpose: "Brief preparation",
+      invocationId: "draft",
+      text: "Reading project content…",
+      status: "running",
+    });
+    const latest = item(2, {
+      jobId: undefined,
+      preparationStep: "brief",
+      purpose: "Brief asset self-review",
+      invocationId: "review",
+      text: original.text,
+      status,
+      time: "2026-10-19T00:01:00Z",
+    });
+    const otherCheckpoint = item(3, { ...latest, id: 3, preparationStep: "styles" });
+    const source = [original, latest, otherCheckpoint];
+    const before = JSON.stringify(source);
+    const shown = displayActivityItems(source);
+    expect(shown).toHaveLength(2);
+    expect(shown[0]).toMatchObject({
+      id: original.id,
+      status,
+      purpose: latest.purpose,
+      invocationId: latest.invocationId,
+      time: latest.time,
+    });
+    expect(shown[1].preparationStep).toBe("styles");
+    expect(JSON.stringify(source)).toBe(before);
+  },
+);

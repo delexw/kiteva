@@ -1,4 +1,5 @@
 import { codexApiCost } from "./codex-pricing";
+import { jevApiCost } from "./jev-pricing";
 import type { ClaudeTokenUsage } from "./token-usage";
 import type { AgentProgressEvent, Run } from "../../shared/contracts";
 import { isRunSettled } from "../../shared/contracts";
@@ -129,6 +130,34 @@ export function projectGovernance(
           : "Historical activity · function unrecorded");
     if (!d.invocationId && event.type !== "summary_cache") incompleteHistory = true;
     const row = rowFor(model, purpose);
+    if (purpose === "Combination evaluation" && run.rankingModel === model) {
+      row.combinationEvaluation ||= {
+        selected: run.candidates.map((candidate) => ({
+          id: candidate.id,
+          title: candidate.displayTitle || candidate.id,
+          styles: [candidate.primaryStyleId, ...candidate.supportingStyleIds],
+          rationale: candidate.rationale,
+          score: candidate.score,
+          confidence: candidate.confidence,
+          evaluationConfidence: candidate.evaluationConfidence,
+          selectionDecision: candidate.selectionDecision,
+          dimensions: candidate.dimensions,
+        })),
+        calls: [],
+      };
+      if (
+        event.type === "invocation" &&
+        typeof d.invocationId === "string" &&
+        d.prompt &&
+        !row.combinationEvaluation.calls.some((call) => call.id === d.invocationId)
+      ) {
+        row.combinationEvaluation.calls.push({
+          id: d.invocationId,
+          time: event.time,
+          promptUrl: `/api/admin/governance/${encodeURIComponent(run.id)}/prompts/${encodeURIComponent(d.invocationId)}`,
+        });
+      }
+    }
     if (job && !row.authoringSelections?.some((entry) => entry.jobId === job.id)) {
       const selection = jobAuthoringSelection(run, job, purpose, model);
       if (selection) (row.authoringSelections ||= []).push(selection);
@@ -270,6 +299,9 @@ export function projectGovernance(
         output_tokens: output,
       });
       basis = low === null ? "Not reported" : "Standard API estimate · short-context rates";
+    } else if (d.provider === "jev" && input !== null) {
+      low = high = jevApiCost(model, input);
+      basis = low === null ? "Not reported" : "Standard API estimate · input tokens";
     } else basis = "Not reported";
     addUsage(
       row,

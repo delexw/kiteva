@@ -25,7 +25,7 @@ it("generates only requested items from the approved plan, preserves Eve and exa
       startSeconds: 0,
       endSeconds: 10,
       text: "Meet the application.",
-      showLyrics: true,
+      showSubtitles: true,
       speech,
     };
     const request = VideoRequestSchema.parse({
@@ -238,7 +238,7 @@ it("passes captured evidence to narration in the main session and invalidates ca
           text: "Describe the verified recording",
           startSeconds: 0,
           endSeconds: 30,
-          showLyrics: true,
+          showSubtitles: true,
           speech: {
             mode: "narration",
             engine: "pocket-tts",

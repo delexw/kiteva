@@ -101,7 +101,7 @@ it("attributes build-time translation usage to the project without replacing its
     instructions: "Tell a visual story",
     provider: "codex",
     outputLanguage: "zh",
-    lyrics: { mode: "provided", text: "Hello, world" },
+    subtitles: { mode: "provided", text: "Hello, world" },
   });
   run.jobs[0].sessionId = "build-session";
   run.jobs[0].kind = "preview";
@@ -129,7 +129,7 @@ it("attributes build-time translation usage to the project without replacing its
       input.onEvent,
       generate,
     );
-    expect(translated.lyrics).toEqual({ mode: "provided", text: "你好，世界" });
+    expect(translated.subtitles).toEqual({ mode: "provided", text: "你好，世界" });
     input.job.phase = "ready";
   });
   try {

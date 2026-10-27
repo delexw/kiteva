@@ -1,3 +1,4 @@
+import { projectRuntimeFiles } from "../runtime/project-files";
 import { withProcessScope } from "../runtime/process-scope";
 import { contextRecoveryCapabilities } from "./capabilities/context-recovery/capability";
 import { commandActivity } from "./command-activity";
@@ -78,7 +79,7 @@ export const codexAgent: Agent = {
     const caveman = await cavemanRuntime(signal);
     signal.throwIfAborted();
     let sessionId = options.sessionId;
-    const home = await isolatedCodexHome(sessionId, signal);
+    const home = await isolatedCodexHome(workspace, sessionId, signal);
     signal.throwIfAborted();
     return withProcessScope(signal, async (signal) => {
       let result: unknown;
@@ -124,6 +125,7 @@ export const codexAgent: Agent = {
             ? { features: { multi_agent: true }, agents: { max_threads: 1, max_depth: 1 } }
             : {}),
           project_doc_max_bytes: 0,
+          sandbox_workspace_write: { exclude_slash_tmp: true, exclude_tmpdir_env_var: true },
         },
       });
       const opts = {
@@ -134,6 +136,9 @@ export const codexAgent: Agent = {
         sandboxMode: options.readOnly ? ("read-only" as const) : ("workspace-write" as const),
         networkAccessEnabled: !options.textOnly,
         webSearchMode: "disabled" as const,
+        ...(!options.readOnly
+          ? { additionalDirectories: [projectRuntimeFiles(workspace, "agent").root] }
+          : {}),
         ...(options.reasoningEffort ? { modelReasoningEffort: options.reasoningEffort } : {}),
       };
       signal.throwIfAborted();

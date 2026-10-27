@@ -48,9 +48,10 @@ flowchart TD
   Approach --> Follow["Follow my brief: propose + evaluate"]
   Approach --> Explore["Explore creative ideas: propose + evaluate"]
   Approach --> Random["Random selection: uniform draw"]
-  Follow --> Shared["Save shared brief + assigned directions"]
-  Explore --> Shared
-  Random --> Shared
+  Follow --> PreviewPlan["One shared preview-planning call for all selected directions"]
+  Explore --> PreviewPlan
+  Random --> PreviewPlan
+  PreviewPlan --> Shared["Save shared preview plan + assigned directions"]
 
   Route --> Selected["Selected styles with previews"]
   Selected --> Direction["One shared direction plan using fixed selected styles"]
@@ -66,7 +67,10 @@ flowchart TD
 ```
 
 For automatic selection, content preparation preserves user-specified visual references but does
-not invent combinations. Combinations enter the assigned directions after selection. Each preview
+not invent combinations. Combinations enter the assigned directions after selection. All three
+creative approaches then make one shared preview-planning call for the fixed directions. Its
+checkpoint is shown as **Preview planning**, reused on retry and invalidated on a new direction
+round. This model plans execution; it cannot change the selected style combinations. Each preview
 reads its assigned `PREVIEW_PLAN.json` in a fresh build session.
 
 Selected-style direction planning and direct full-video planning receive both Settings-selected
@@ -84,6 +88,7 @@ policies but use their page workflow instead of full-video planning, capture or 
 - `src/shared/style-selection.ts` owns selection validation, including incompatible random/pinned or selected-style requests.
 - `src/server/jobs/workflow.ts` orchestrates preparation, style selection, previews and full builds.
 - `src/server/jobs/subworkflows/explicit-style-preview/` plans executions of fixed selected styles.
+- `src/server/jobs/subworkflows/automatic-preview/` plans the shared beat and all automatic directions after pool selection.
 - `src/server/jobs/random-directions.ts` implements uniform pool selection.
 - `src/server/domains/video/build-plan.ts` owns full-video production planning.
 

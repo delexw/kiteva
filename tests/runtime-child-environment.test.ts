@@ -1,3 +1,4 @@
+import { projectRuntimeEnvironment } from "../src/server/runtime/project-files";
 import path from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
 import { childEnvironment } from "../src/server/runtime/config";
@@ -9,8 +10,7 @@ it("keeps package caches inside the job despite inherited host cache settings", 
   vi.stubEnv("XDG_CACHE_HOME", "/host/cache");
   const workspace = path.resolve("project-workspace");
   expect(childEnvironment(workspace)).toMatchObject({
-    npm_config_cache: path.join(workspace, ".cache", "npm"),
-    XDG_CACHE_HOME: path.join(workspace, ".cache"),
+    ...projectRuntimeEnvironment(workspace, "agent"),
     NODE_USE_ENV_PROXY: "1",
   });
 });

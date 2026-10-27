@@ -16,7 +16,7 @@ import {
   switchRoomOutputType,
 } from "../src/client/room/onboarding";
 import { projectSettingsDraft } from "../src/client/lib/project-settings";
-import { lyricsDirection } from "../src/server/domains/video/lyrics";
+import { subtitlesDirection } from "../src/server/domains/video/subtitles";
 
 const narration = SpeechSettingsSchema.parse({ mode: "narration" });
 it("offers all eight synthetic Mandarin references with source and generated-audio voice groups", () => {
@@ -105,24 +105,24 @@ it("groups every Pocket voice under Female or Male and keeps names without suffi
   }
 });
 if (narration.mode !== "narration") throw Error("Invalid narration fixture");
-it("defaults old projects to no speech and retains choices while lyrics are off", () => {
+it("defaults old projects to no speech and retains choices while subtitles are off", () => {
   expect(activeSpeech(RequestSchema.parse({ instructions: "Example idea" }))).toBeUndefined();
   const request = RequestSchema.parse({
     instructions: "Example idea",
-    lyrics: { mode: "off" },
+    subtitles: { mode: "off" },
     speech: narration,
   });
   expect(activeSpeech(request)).toBeUndefined();
   const restored = roomDraftRequest(roomDraftFromProject(request, []));
   expect(restored.outputType === "video" && restored.speech).toEqual(narration);
-  expect(activeSpeech({ ...restored, lyrics: { mode: "write" }, speech: narration })).toEqual(
+  expect(activeSpeech({ ...restored, subtitles: { mode: "write" }, speech: narration })).toEqual(
     narration,
   );
 });
 it("preserves script and voice through edit, submit and settings restoration", () => {
   const request = RequestSchema.parse({
     instructions: "Example idea",
-    lyrics: { mode: "write" },
+    subtitles: { mode: "write" },
     speech: {
       ...narration,
       source: "provided",
@@ -133,9 +133,9 @@ it("preserves script and voice through edit, submit and settings restoration", (
   });
   const restored = roomSubmission(roomDraftRequest(roomDraftFromProject(request, [])));
   expect(projectSettingsDraft(restored).speech).toEqual(
-    request.outputType === "video" && { ...request.speech, source: "lyrics" },
+    request.outputType === "video" && { ...request.speech, source: "subtitles" },
   );
-  expect(restored.outputType === "video" && restored.lyrics).toEqual({
+  expect(restored.outputType === "video" && restored.subtitles).toEqual({
     mode: "provided",
     text: "A spoken idea",
   });
@@ -149,21 +149,21 @@ it("rejects unsupported singing, invalid voice/speed, empty scripts and unattach
   expect(SpeechSettingsSchema.safeParse({ mode: "narration", speed: 4 }).success).toBe(false);
   expect(
     speechConfigurationProblem({
-      lyrics: { mode: "write" },
+      subtitles: { mode: "write" },
       speech: { ...narration, mode: "narration", source: "provided", text: "" },
       assetIds: [],
     }),
   ).toMatch(/script/);
   expect(
     speechConfigurationProblem({
-      lyrics: { mode: "write" },
+      subtitles: { mode: "write" },
       speech: { mode: "uploaded", assetId: "voice" },
       assetIds: ["voice"],
     }),
   ).toMatch(/attached/);
   expect(
     speechConfigurationProblem({
-      lyrics: { mode: "write" },
+      subtitles: { mode: "write" },
       speech: { mode: "uploaded", assetId: "voice" },
       assetIds: ["voice"],
       requirements: { music: { assetIds: ["voice"] } },
@@ -171,10 +171,12 @@ it("rejects unsupported singing, invalid voice/speed, empty scripts and unattach
   ).toBeUndefined();
 });
 it("keeps unrequested vocals prohibited but recognizes prepared requested speech", () => {
-  const lyrics = { mode: "provided" as const, text: "An idea takes flight" };
-  expect(lyricsDirection(lyrics, false)).toContain("Do not claim singing or narration");
-  expect(lyricsDirection(lyrics, false, true)).toContain("measured cues");
-  expect(lyricsDirection(lyrics, false, true)).not.toContain("Do not claim singing or narration");
+  const subtitles = { mode: "provided" as const, text: "An idea takes flight" };
+  expect(subtitlesDirection(subtitles, false)).toContain("Do not claim singing or narration");
+  expect(subtitlesDirection(subtitles, false, true)).toContain("measured cues");
+  expect(subtitlesDirection(subtitles, false, true)).not.toContain(
+    "Do not claim singing or narration",
+  );
 });
 
 it("validates engine-specific voices and preserves Pocket settings through saved drafts", () => {
@@ -195,7 +197,7 @@ it("validates engine-specific voices and preserves Pocket settings through saved
   );
   const request = RequestSchema.parse({
     instructions: "An example film",
-    lyrics: { mode: "write" },
+    subtitles: { mode: "write" },
     speech: pocket,
   });
   expect(roomSubmission(roomDraftRequest(roomDraftFromProject(request, []))).speech).toEqual(
@@ -241,16 +243,18 @@ it("exposes every official Pocket language and all 27 official presets plus eigh
   expect(pocketLanguageForVoice("unknown")).toBeUndefined();
 });
 
-it("allows provided narration, generated scripts and uploaded vocals without on-screen lyrics", () => {
-  for (const lyrics of [undefined, { mode: "off" }]) {
+it("allows provided narration, generated scripts and uploaded vocals without on-screen subtitles", () => {
+  for (const subtitles of [undefined, { mode: "off" }]) {
     for (const source of ["provided", "write"] as const) {
       const speech = { ...narration, source, text: "A spoken story" };
-      expect(activeSpeech({ lyrics, speech })).toEqual(speech);
+      expect(activeSpeech({ subtitles, speech })).toEqual(speech);
     }
     const uploaded = { mode: "uploaded" as const, assetId: "recording" };
-    expect(activeSpeech({ lyrics, speech: uploaded })).toEqual(uploaded);
-    expect(activeSpeech({ lyrics, speech: { mode: "off" } })).toBeUndefined();
-    expect(activeSpeech({ lyrics, speech: { ...narration, source: "lyrics" } })).toBeUndefined();
+    expect(activeSpeech({ subtitles, speech: uploaded })).toEqual(uploaded);
+    expect(activeSpeech({ subtitles, speech: { mode: "off" } })).toBeUndefined();
+    expect(
+      activeSpeech({ subtitles, speech: { ...narration, source: "subtitles" } }),
+    ).toBeUndefined();
   }
 });
 

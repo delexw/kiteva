@@ -1,3 +1,4 @@
+import { normalizeSubtitleFields } from "../shared/subtitle-compatibility";
 import { PromptText } from "./components/style-mention";
 import { ScriptItems } from "./components/script-items";
 import { legacyScriptItems, type ScriptItem } from "../shared/script-items";
@@ -41,7 +42,7 @@ import type { SpeechSettings as SpeechConfiguration } from "../shared/speech";
 import { candidateDisplayTitle } from "../shared/candidate-copy";
 import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
 import { PreviewLoadingMedia } from "./components/preview-workspace";
-import { lyricsFromInput, MAX_VIDEO_DURATION, playbackVideoOf } from "../shared/domains/video";
+import { subtitlesFromInput, MAX_VIDEO_DURATION, playbackVideoOf } from "../shared/domains/video";
 import { customerErrorMessage } from "./customer-messages";
 import {
   PromptInput,
@@ -188,8 +189,8 @@ function App() {
   const [resolution, setResolution] = useState<"1080p" | "1440p">("1080p");
   const [frameRate, setFrameRate] = useState<30 | 60>(30);
   const [aspect, setAspect] = useState<"16:9" | "9:16" | "1:1">("16:9");
-  const [lyricsEnabled, setLyricsEnabled] = useState(false);
-  const [lyricsText, setLyricsText] = useState("");
+  const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
+  const [subtitlesText, setSubtitlesText] = useState("");
   const [scriptItems, setScriptItems] = useState<ScriptItem[]>();
   const [speech, setSpeech] = useState<SpeechConfiguration>();
   const [urls, setUrls] = useState("");
@@ -273,7 +274,7 @@ function App() {
       connected = true;
     };
     stream.onmessage = (event) => {
-      const e = JSON.parse(event.data) as AgentProgressEvent;
+      const e = normalizeSubtitleFields(JSON.parse(event.data)) as AgentProgressEvent;
       setEvents((old) => (old.some((x) => x.id === e.id) ? old : [...old, e]));
       if (["state", "preview_ready", "interrupted"].includes(e.type)) refreshRun();
     };
@@ -323,8 +324,8 @@ function App() {
               setAspect(draft.aspect);
               setResolution(draft.resolution as "1080p" | "1440p");
               setFrameRate(draft.frameRate as 30 | 60);
-              setLyricsEnabled(draft.lyricsEnabled);
-              setLyricsText(draft.lyricsText);
+              setSubtitlesEnabled(draft.subtitlesEnabled);
+              setSubtitlesText(draft.subtitlesText);
               setSpeech(draft.speech);
               setScriptItems(draft.scriptItems);
               setUrls(draft.urls);
@@ -541,7 +542,7 @@ function App() {
               aspectRatio: aspect,
               resolution,
               frameRate,
-              lyrics: lyricsFromInput(lyricsEnabled, lyricsText),
+              subtitles: subtitlesFromInput(subtitlesEnabled, subtitlesText),
               speech,
               scriptItems,
             }),
@@ -612,8 +613,8 @@ function App() {
       setBusy(false);
       setSelectedStyleIds([]);
       setFeedback("");
-      setLyricsEnabled(false);
-      setLyricsText("");
+      setSubtitlesEnabled(false);
+      setSubtitlesText("");
       setSpeech(undefined);
       setScriptItems(undefined);
       setError("");
@@ -1587,9 +1588,9 @@ function App() {
                                 legacyScriptItems({
                                   duration,
                                   speech,
-                                  lyrics: {
-                                    mode: lyricsEnabled ? "provided" : "off",
-                                    text: lyricsText,
+                                  subtitles: {
+                                    mode: subtitlesEnabled ? "provided" : "off",
+                                    text: subtitlesText,
                                   },
                                 }),
                               )
@@ -1598,27 +1599,27 @@ function App() {
                             {translateUi("Use timed script items")}
                           </Button>
                         ))}
-                      {outputType === "video" && scriptItems === undefined && lyricsEnabled && (
-                        <label className="field-label composer-lyrics-input">
-                          {translateUi("Your lyrics")}
+                      {outputType === "video" && scriptItems === undefined && subtitlesEnabled && (
+                        <label className="field-label composer-subtitles-input">
+                          {translateUi("Your subtitles")}
                           <Textarea
-                            aria-label={translateUi("Your lyrics")}
+                            aria-label={translateUi("Your subtitles")}
                             className="url-input"
                             placeholder={translateUi(
-                              "Paste your lyrics, or leave blank to generate them…",
+                              "Paste your subtitles, or leave blank to generate them…",
                             )}
                             maxLength={8000}
-                            value={lyricsText}
-                            onChange={(event) => setLyricsText(event.target.value)}
+                            value={subtitlesText}
+                            onChange={(event) => setSubtitlesText(event.target.value)}
                           />
                           <span>
                             {translateUi(
-                              "Leave blank to generate lyrics. Choose speech below to add a voice.",
+                              "Leave blank to generate subtitles. Choose speech below to add a voice.",
                             )}
                           </span>
                         </label>
                       )}
-                      {outputType === "video" && scriptItems === undefined && lyricsEnabled && (
+                      {outputType === "video" && scriptItems === undefined && subtitlesEnabled && (
                         <SpeechSettings
                           value={speech}
                           onChange={setSpeech}
@@ -1787,15 +1788,15 @@ function App() {
                         {outputType === "video" && (
                           <div className="composer-control">
                             <StudioSelect
-                              aria-label={translateUi("Lyrics")}
-                              value={lyricsEnabled ? "auto" : "off"}
-                              onValueChange={(value) => setLyricsEnabled(value === "auto")}
+                              aria-label={translateUi("Subtitles")}
+                              value={subtitlesEnabled ? "auto" : "off"}
+                              onValueChange={(value) => setSubtitlesEnabled(value === "auto")}
                             >
                               <StudioSelectOption value="off">
-                                {translateUi("Lyrics · Off")}
+                                {translateUi("Subtitles · Off")}
                               </StudioSelectOption>
                               <StudioSelectOption value="auto">
-                                {translateUi("Lyrics · On")}
+                                {translateUi("Subtitles · On")}
                               </StudioSelectOption>
                             </StudioSelect>
                           </div>

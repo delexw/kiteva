@@ -1,7 +1,11 @@
 import type { AgentProgressEvent, GenerationJob, Run } from "./contracts";
 import type { PreparationCheckpoint, PreparationStep } from "./preparation";
 
-export const directionRoundSteps: readonly PreparationStep[] = ["proposals", "selection"];
+export const directionRoundSteps: readonly PreparationStep[] = [
+  "proposals",
+  "selection",
+  "preview-plan",
+];
 export interface DirectionRoundRecord {
   round: number;
   startedAt: string;

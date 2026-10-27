@@ -19,6 +19,9 @@ import {
   speechEngines,
   speechVoicesForEngine,
   pocketLanguages,
+  qwenLanguages,
+  qwenVoiceGroupsForEngine,
+  isQwenSpeechEngine,
   pocketVoiceGroups,
   pocketLanguageForVoice,
   type SpeechSettings as Settings,
@@ -193,7 +196,7 @@ export function SpeechSettings({
                 ...value,
                 engine,
                 voice: speechVoicesForEngine(engine)[0].id,
-                language: engine === "pocket-tts" ? "en" : undefined,
+                language: engine === "pocket-tts" || isQwenSpeechEngine(engine) ? "en" : undefined,
               })
             }
           />
@@ -229,11 +232,13 @@ export function SpeechSettings({
                     },
                   ]
                 : []),
-              ...(engine === "pocket-tts"
-                ? pocketLanguages.map((language) => ({
-                    value: language.id,
-                    label: translateUi(language.label),
-                  }))
+              ...(engine === "pocket-tts" || isQwenSpeechEngine(engine)
+                ? (isQwenSpeechEngine(engine) ? qwenLanguages : pocketLanguages).map(
+                    (language) => ({
+                      value: language.id,
+                      label: translateUi(language.label),
+                    }),
+                  )
                 : Object.entries(languages)
                     .filter(([language]) => voices.some((voice) => voice.language === language))
                     .map(([value, label]) => ({ value, label: translateUi(label) }))),
@@ -244,24 +249,26 @@ export function SpeechSettings({
                 return;
               }
               onChange(
-                engine === "pocket-tts"
-                  ? {
-                      ...value,
-                      followVideoLanguage: false,
-                      language,
-                      voice:
-                        language === "zh"
-                          ? "pocket_zh_xiaobei"
-                          : pocketLanguageForVoice(value.voice)?.id === "zh"
-                            ? "pocket_alba"
-                            : value.voice,
-                    }
-                  : {
-                      ...value,
-                      followVideoLanguage: false,
-                      language: undefined,
-                      voice: voices.find((voice) => voice.language === language)!.id,
-                    },
+                isQwenSpeechEngine(engine)
+                  ? { ...value, followVideoLanguage: false, language }
+                  : engine === "pocket-tts"
+                    ? {
+                        ...value,
+                        followVideoLanguage: false,
+                        language,
+                        voice:
+                          language === "zh"
+                            ? "pocket_zh_xiaobei"
+                            : pocketLanguageForVoice(value.voice)?.id === "zh"
+                              ? "pocket_alba"
+                              : value.voice,
+                      }
+                    : {
+                        ...value,
+                        followVideoLanguage: false,
+                        language: undefined,
+                        voice: voices.find((voice) => voice.language === language)!.id,
+                      },
               );
             }}
           />
@@ -271,24 +278,29 @@ export function SpeechSettings({
               style={{ flex: 1 }}
               value={value.voice}
               options={
-                engine === "pocket-tts"
-                  ? pocketVoiceGroups
-                      .map((group) => ({
-                        ...group,
-                        label: translateUi(group.label),
-                        options: group.options.filter((option) =>
-                          Boolean(
-                            pocketLanguageForVoice(
-                              option.value,
-                              selectedLanguage || voice?.language,
+                isQwenSpeechEngine(engine)
+                  ? qwenVoiceGroupsForEngine(engine).map((group) => ({
+                      ...group,
+                      label: translateUi(group.label),
+                    }))
+                  : engine === "pocket-tts"
+                    ? pocketVoiceGroups
+                        .map((group) => ({
+                          ...group,
+                          label: translateUi(group.label),
+                          options: group.options.filter((option) =>
+                            Boolean(
+                              pocketLanguageForVoice(
+                                option.value,
+                                selectedLanguage || voice?.language,
+                              ),
                             ),
                           ),
-                        ),
-                      }))
-                      .filter((group) => group.options.length)
-                  : voices
-                      .filter((item) => item.language === voice?.language)
-                      .map((item) => ({ value: item.id, label: item.label }))
+                        }))
+                        .filter((group) => group.options.length)
+                    : voices
+                        .filter((item) => item.language === voice?.language)
+                        .map((item) => ({ value: item.id, label: item.label }))
               }
               onChange={(voice) => onChange({ ...value, voice })}
             />
@@ -366,7 +378,7 @@ export function SpeechSettings({
                 style={{ width: "100%" }}
                 value={value.source}
                 options={[
-                  { value: "lyrics", label: translateUi("Speak the displayed lyrics") },
+                  { value: "subtitles", label: translateUi("Speak the displayed subtitles") },
                   { value: "write", label: translateUi("Write a separate narration script") },
                   { value: "provided", label: translateUi("Use my narration script") },
                 ]}

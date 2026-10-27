@@ -10,7 +10,7 @@ import { type Brief } from "../../../shared/agents/schemas/video";
 import type { VideoGenerationJob } from "../../../shared/domains/video";
 import type { Style, VideoRequest, StyleCandidate } from "../../../shared/contracts.js";
 import { videoModelGuidance } from "./model-guidance";
-import { lyricsDirection } from "./lyrics";
+import { subtitlesDirection } from "./subtitles";
 import type { SpeechTrack } from "../../../shared/speech";
 import { applyBriefSectionGuidance } from "../../requests/brief-section-guidance";
 import { fullVideoQualityRules } from "./full-video-quality";
@@ -114,7 +114,7 @@ export function buildVideoPrompt(input: {
       ? `### Pacing and quality\n\n${videoPacingRules}\n${fullVideoQualityRules}`
       : "",
     `### Storyboard and response requirements\n\n${storyboardJsonGuidance}\n${job.kind === "preview" ? `${candidateCopyGuidance} Include displayTitle and displayDescription in production.json and your structured response. Name the preview you actually created; choose a creative, playful, professional, energetic, gaming-inspired or other tone that suits the brief rather than imposing one tone on every direction.` : ""}`,
-    `### Lyrics direction\n\nLyrics direction: ${request.scriptItems !== undefined ? scriptItemsDirection(request.scriptItems, job.kind === "preview") : lyricsDirection(request.lyrics, job.kind === "preview", Boolean(input.speechTrack))}`,
+    `### Subtitles direction\n\nSubtitles direction: ${request.scriptItems !== undefined ? scriptItemsDirection(request.scriptItems, job.kind === "preview") : subtitlesDirection(request.subtitles, job.kind === "preview", Boolean(input.speechTrack))}`,
     `### Feedback\n\nFeedback: ${input.feedback || "None"}`,
     "### Workspace and dependencies\n\nAvailable files: assets/, vendor/, style-context.json. Local node_modules are read-only shared dependencies. Do not install packages or access network. Use vendor libraries or bundle local dependencies with esbuild. Use supplied image assets where appropriate and code-created assets where none are supplied; do not reduce a material or 3D Motion Graphic to generic text slides. If a required renderer is unavailable, report it.",
     `### Renderer contract\n\n${renderContract(videoRendererOf(request), { width, height, duration: job.duration, fps: request.frameRate ?? 30, kind: job.kind })}`,

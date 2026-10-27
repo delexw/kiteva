@@ -1,5 +1,12 @@
 import type { ErrorCode } from "./errors";
-export type PreparationStep = "inputs" | "brief" | "lyrics" | "styles" | "proposals" | "selection";
+export type PreparationStep =
+  | "inputs"
+  | "brief"
+  | "subtitles"
+  | "styles"
+  | "proposals"
+  | "selection"
+  | "preview-plan";
 export type PreparationCheckpoint =
   | { state: "running"; startedAt: string }
   | { state: "completed"; completedAt: string; output: unknown }
@@ -11,18 +18,20 @@ export interface PreparationState {
 export const preparationSteps: PreparationStep[] = [
   "inputs",
   "brief",
-  "lyrics",
+  "subtitles",
   "styles",
   "proposals",
   "selection",
+  "preview-plan",
 ];
 export const preparationStepNames: Record<PreparationStep, string> = {
   inputs: "Reference material",
   brief: "Brief",
-  lyrics: "Lyrics",
+  subtitles: "Subtitles",
   styles: "Motion Graphic information",
   proposals: "Creative directions",
   selection: "Direction selection",
+  "preview-plan": "Preview planning",
 };
 
 export function usesTitleOnlyPreparation(

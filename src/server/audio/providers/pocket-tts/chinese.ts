@@ -1,14 +1,14 @@
 import path from "node:path";
 import { existsSync } from "node:fs";
-import { appRoot, dataRoot } from "../../runtime/config";
-import { defaultPython } from "../../runtime/platform";
-import { command } from "../../runtime/process";
-import { WorkQueue } from "../../jobs/queue";
-import { CodedError } from "../../../shared/errors";
-import { publishSpeechWave } from "./local-wave";
-import { pocketVoices } from "../../../shared/speech";
-import type { SpeechProvider } from "./types";
-import { speechModelDirectory } from "./paths";
+import { appRoot, dataRoot } from "../../../runtime/config";
+import { defaultPython } from "../../../runtime/platform";
+import { command } from "../../../runtime/process";
+import { WorkQueue } from "../../../jobs/queue";
+import { CodedError } from "../../../../shared/errors";
+import { publishSpeechWave } from "../local-wave";
+import { pocketVoices } from "../../../../shared/speech";
+import type { SpeechProvider } from "../types";
+import { speechModelDirectory } from "../paths";
 
 export const pocketZhModelDirectory = speechModelDirectory("pocket-tts-zh");
 const managedPython = path.join(
@@ -18,7 +18,7 @@ const managedPython = path.join(
 );
 const python = () =>
   process.env.POCKET_TTS_ZH_PYTHON || (existsSync(managedPython) ? managedPython : defaultPython());
-const script = path.join(appRoot, "scripts/speech/pocket-tts-zh.py");
+const script = path.join(appRoot, "src/server/audio/providers/pocket-tts/chinese.py");
 const queue = new WorkQueue(1);
 /** Resolve only catalogued synthetic references; caller input never becomes a file path. */
 export function pocketZhVoiceReference(voice: string) {

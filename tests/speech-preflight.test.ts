@@ -4,10 +4,10 @@ import { api } from "../src/client/lib/api";
 vi.mock("../src/client/lib/api", () => ({ api: vi.fn() }));
 afterEach(() => vi.resetAllMocks());
 const request = {
-  lyrics: { mode: "write" },
+  subtitles: { mode: "write" },
   speech: {
     mode: "narration" as const,
-    source: "lyrics" as const,
+    source: "subtitles" as const,
     voice: "af_heart" as const,
     text: "",
     instructions: "",
@@ -16,7 +16,7 @@ const request = {
 };
 it("does not run voice preflight for existing or disabled voice projects", async () => {
   await ensureSpeechGenerationReady({});
-  await ensureSpeechGenerationReady({ ...request, lyrics: { mode: "off" } });
+  await ensureSpeechGenerationReady({ ...request, subtitles: { mode: "off" } });
   expect(api).not.toHaveBeenCalled();
 });
 it("blocks an old worker and an unavailable runtime before project creation", async () => {
@@ -68,7 +68,7 @@ it("requires an updated worker and checks each timed item's selected voice indep
       startSeconds: 0,
       endSeconds: 2,
       text: "Hello",
-      showLyrics: true,
+      showSubtitles: true,
       speech: {
         mode: "narration" as const,
         engine: "kokoro" as const,
@@ -81,7 +81,7 @@ it("requires an updated worker and checks each timed item's selected voice indep
       startSeconds: 2,
       endSeconds: 4,
       text: "你好",
-      showLyrics: false,
+      showSubtitles: false,
       speech: {
         mode: "narration" as const,
         engine: "pocket-tts" as const,
@@ -114,7 +114,7 @@ it("blocks generated items on workers that only support fixed scripts", async ()
       startSeconds: 0,
       endSeconds: 10,
       text: "Explain the planned result",
-      showLyrics: true,
+      showSubtitles: true,
       speech: { mode: "off" as const },
     },
   ];

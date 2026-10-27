@@ -1,3 +1,5 @@
+import { addAbortListener } from "node:events";
+import { prepareProjectRuntime, projectRuntimeEnvironment } from "../runtime/project-files";
 import { terminateProcessTree } from "../runtime/process-tree";
 import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
@@ -29,16 +31,19 @@ const HookSchema = z.object({
 const HooksResponseSchema = z.object({ data: z.array(z.object({ hooks: z.array(HookSchema) })) });
 
 /** Read identities from Codex itself rather than reimplementing its trust hash algorithm. */
-async function listNativeHooks(home: string) {
+async function listNativeHooks(home: string, signal?: AbortSignal) {
+  signal?.throwIfAborted();
   const cli = fileURLToPath(import.meta.resolve("@openai/codex/bin/codex.js"));
+  prepareProjectRuntime(home, "tools");
   const child = spawn(process.execPath, [cli, "app-server"], {
     detached: process.platform !== "win32",
     cwd: home,
-    env: { ...process.env, CODEX_HOME: home },
+    env: { ...process.env, ...projectRuntimeEnvironment(home, "tools"), CODEX_HOME: home },
     stdio: ["pipe", "pipe", "pipe"],
   });
   const lines = createInterface({ input: child.stdout });
   child.stderr.resume();
+  let cancellation: ReturnType<typeof addAbortListener> | undefined;
   try {
     return await new Promise<z.infer<typeof HooksResponseSchema>>((resolve, reject) => {
       const timer = setTimeout(
@@ -50,6 +55,8 @@ async function listNativeHooks(home: string) {
         if (error) reject(error);
         else if (value) resolve(value);
       };
+      if (signal) cancellation = addAbortListener(signal, () => finish(Error("Cancelled")));
+      signal?.throwIfAborted();
       const send = (value: unknown) => child.stdin.write(JSON.stringify(value) + "\n");
       child.once("error", (error) => finish(error));
       child.stdin.once("error", (error) => finish(error));
@@ -76,6 +83,7 @@ async function listNativeHooks(home: string) {
       });
     });
   } finally {
+    cancellation?.[Symbol.dispose]();
     lines.close();
     child.stdin.end();
     await terminateProcessTree(child.pid, { processGroup: true });
@@ -83,7 +91,8 @@ async function listNativeHooks(home: string) {
 }
 
 /** Install and trust only Kiteva's application-owned hook in the isolated SDK home. */
-export async function prepareCodexToolHook(home: string) {
+export async function prepareCodexToolHook(home: string, signal?: AbortSignal) {
+  signal?.throwIfAborted();
   const args = [
     process.execPath,
     "--import",
@@ -108,17 +117,19 @@ export async function prepareCodexToolHook(home: string) {
   });
   const config = ConfigSchema.parse(TOML.parse(previous));
   config.features.hooks = true;
-  await writeFile(configFile, TOML.stringify(config as TOML.JsonMap));
+  signal?.throwIfAborted();
+  await writeFile(configFile, TOML.stringify(config as TOML.JsonMap), { signal });
   const sourcePath = await realpath(hooksFile);
-  const hooks = (await listNativeHooks(home)).data.flatMap((entry) => entry.hooks);
+  const hooks = (await listNativeHooks(home, signal)).data.flatMap((entry) => entry.hooks);
   const hook = hooks.find(
     (entry) =>
       entry.sourcePath === sourcePath && entry.command === command && entry.matcher === "^Bash$",
   );
   if (!hook) throw Error("Codex did not discover Kiteva's pre-tool policy");
   config.hooks.state[hook.key] = { enabled: true, trusted_hash: hook.currentHash };
-  await writeFile(configFile, TOML.stringify(config as TOML.JsonMap));
-  const verified = (await listNativeHooks(home)).data
+  signal?.throwIfAborted();
+  await writeFile(configFile, TOML.stringify(config as TOML.JsonMap), { signal });
+  const verified = (await listNativeHooks(home, signal)).data
     .flatMap((entry) => entry.hooks)
     .find((entry) => entry.key === hook.key);
   if (!verified?.enabled || verified.trustStatus !== "trusted")

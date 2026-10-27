@@ -24,7 +24,7 @@ export const videoPacingRules = `DURATION AND PACING RULES:
 ${videoPacingPolicy.scope}
 Preserve the requested duration and exact copy. Develop a richer story, not longer versions of the same six scenes. These rules apply to every Motion Graphic and combination; energetic and calm Motion Graphics both need intentional timing.
 ${videoPacingPolicy.editorial}
-Build a timed storyboard covering the whole duration. Identify each beat's communication or emotional purpose and its primary focus: for example a discovery, example, comparison, transformation, reaction, anticipation or payoff. Ground additions in the brief; do not invent facts, product capabilities or extra claims. A longer shot can sustain a meaningful action or feeling without adding new facts or cuts. A purposeful still pose can carry the beat. Decorative loops and ambient drift alone do not justify otherwise empty time; lyrics may carry meaning when the requested format calls for them.
+Build a timed storyboard covering the whole duration. Identify each beat's communication or emotional purpose and its primary focus: for example a discovery, example, comparison, transformation, reaction, anticipation or payoff. Ground additions in the brief; do not invent facts, product capabilities or extra claims. A longer shot can sustain a meaningful action or feeling without adding new facts or cuts. A purposeful still pose can carry the beat. Decorative loops and ambient drift alone do not justify otherwise empty time; subtitles may carry meaning when the requested format calls for them.
 ${videoPacingPolicy.action}
 ${videoPacingPolicy.attention}
 ${videoPacingPolicy.reading}

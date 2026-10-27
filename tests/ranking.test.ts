@@ -75,8 +75,7 @@ it("uses the official SDK wire format and excludes conflicting candidates", asyn
     expect(body.state.renderer.id).toBe("hyperframes");
     expect(body.state.renderer.audio.generatesMusic).toBe(false);
     expect(body.state.assetPolicy).toContain("Video previews are silent");
-    expect(body.state.combinationGuidance).toContain("not an allowlist");
-    expect(body.state.combinationGuidance).toContain("not fixed scoring weights");
+    expect(body.state).not.toHaveProperty("combinationGuidance");
     const answers = Object.fromEntries(
       Object.entries(body.questions).map(([id, q]) => {
         const query = q as { type: string; criteria: string[] };
@@ -144,6 +143,12 @@ it("uses the official SDK wire format and excludes conflicting candidates", asyn
   expect(result.candidates[0].supportingStyleIds).toEqual(["style-107"]);
   expect(result.candidates[0].score).toBe(100);
   expect(result.candidates[0].confidence).toBe(0.9);
+  expect(result.candidates[0].evaluationConfidence).toBe(0.9);
+  expect(result.candidates[0].selectionDecision).toMatchObject({
+    round: 1,
+    comparedIds: ["candidate-1", "candidate-3"],
+    probabilities: { "candidate-1": 1, "candidate-3": 0 },
+  });
 });
 it("reports missing ranking credentials and real SDK API failures without invented scores", async () => {
   vi.stubEnv("TYPESAFE_API_KEY", "");
@@ -433,13 +438,10 @@ it("preserves original instructions and evaluates readable combination tradeoffs
       urls: "Use the live site",
     });
     expect(payload.state.options[0].rationale).toBe(options[0].rationale);
-    expect(payload.state.options[0].styles[0]).toContain(
-      extracted.find((s) => s.styleId === "style-026")!.decisionGuidance,
-    );
-    expect(payload.state.options[0].compatibility).toContain(
-      "Chart strokes match the whiteboard marker weight",
-    );
-    expect(payload.state.options[0].compatibility).toContain("Invented values");
+    expect(payload.state.options[0]).not.toHaveProperty("styles");
+    expect(payload.state.options[0]).not.toHaveProperty("compatibility");
+    expect(payload.state.options[0].sceneRoles).toEqual(options[0].sceneRoles);
+    expect(JSON.stringify(payload.state)).not.toContain(extracted[0].decisionGuidance);
     expect(payload.state.options[0]).not.toHaveProperty("feasible");
     expect(payload.state.options[0]).not.toHaveProperty("displayTitle");
     expect(JSON.stringify(payload.state)).not.toMatch(
@@ -504,6 +506,8 @@ it("compares survivors across all batches repeatedly and obeys JEV choice order 
     const payload = JSON.parse(String(init.body));
     if (payload.questions.direction?.type === "choice") {
       const round = payload.state.selectionRound;
+      expect(payload.state).not.toHaveProperty("styleDefinitions");
+      expect(JSON.stringify(payload)).not.toContain("Model-extracted identity");
       expect(Object.keys(payload.questions.direction.criteria)).toHaveLength(round === 1 ? 6 : 5);
       expect(payload.state.selectedDirections).toHaveLength(round - 1);
       expect(payload.questions.direction.instructions).toContain("ALL evaluation batches");
@@ -620,5 +624,40 @@ it.each(["all-conflict", "invalid-choice", "cancel"] as const)(
       await expect(task).rejects.toThrow();
       expect(calls).toBe(2);
     }
+  },
+);
+
+it.each(["unknown-id", "missing-extraction"] as const)(
+  "validates %s locally before sending combination briefs",
+  async (scenario) => {
+    vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+    const catalog = await loadCatalog();
+    const fetch = vi.fn();
+    vi.stubGlobal("fetch", fetch);
+    const id = scenario === "unknown-id" ? "missing-style" : catalog.styles[0].id;
+    await expect(
+      rankOptions(
+        brief,
+        [
+          {
+            primaryStyleId: id,
+            supportingStyleIds: [],
+            sceneRoles: ["Explain"],
+            rationale: "A concise combination brief",
+            feasible: true,
+            missingAssets: [],
+          },
+        ],
+        catalog.styles,
+        RequestSchema.parse({ instructions: "Explain an example" }),
+        new AbortController().signal,
+        scenario === "missing-extraction" ? [] : summaries(catalog.styles),
+      ),
+    ).rejects.toThrow(
+      scenario === "unknown-id"
+        ? "Missing Motion Graphic metadata"
+        : "Missing model-extracted summary",
+    );
+    expect(fetch).not.toHaveBeenCalled();
   },
 );

@@ -1,3 +1,4 @@
+import { normalizeSubtitleFields } from "../../subtitle-compatibility";
 import { z } from "zod";
 const seconds = z.number().finite().nonnegative();
 const strings = z.array(z.string());
@@ -7,7 +8,7 @@ export const StoryboardBeatSchema = z.object({
   endSeconds: seconds,
   development: z.string().trim().min(1),
   captions: strings,
-  audio: z.object({ music: audioText, effects: audioText, lyrics: strings }),
+  audio: z.object({ music: audioText, effects: audioText, subtitles: strings }),
   readingHoldSeconds: seconds,
 });
 export const StoryboardSceneSchema = z.object({
@@ -88,4 +89,7 @@ export const MigratedStoryboardSchema = z.object({
     }),
   ),
 });
-export const SavedStoryboardSchema = z.union([StoryboardSchema, MigratedStoryboardSchema]);
+export const SavedStoryboardSchema = z.preprocess(
+  normalizeSubtitleFields,
+  z.union([StoryboardSchema, MigratedStoryboardSchema]),
+);

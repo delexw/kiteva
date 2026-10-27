@@ -33,7 +33,7 @@ await command(
     "pip",
     "install",
     "-r",
-    path.join(appRoot, "scripts/pocket-tts-requirements.txt"),
+    path.join(appRoot, "src/server/audio/providers/pocket-tts/requirements.txt"),
     ...(process.platform === "linux"
       ? ["--extra-index-url", "https://download.pytorch.org/whl/cpu"]
       : []),
@@ -47,7 +47,7 @@ for (const language of languages) {
   await command(
     python,
     [
-      path.join(appRoot, "scripts/speech/pocket-tts.py"),
+      path.join(appRoot, "src/server/audio/providers/pocket-tts/adapter.py"),
       "--models",
       speechModelDirectory("pocket-tts"),
       "--language",

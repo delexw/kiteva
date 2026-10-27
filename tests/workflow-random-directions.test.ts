@@ -7,7 +7,7 @@ vi.mock("../src/server/jev/strategies/visual-authoring", () => ({
   }),
 }));
 import { randomUUID } from "node:crypto";
-import { rm } from "node:fs/promises";
+import { rm, readFile } from "node:fs/promises";
 import path from "node:path";
 import { expect, it, vi, afterEach } from "vitest";
 vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
@@ -27,6 +27,7 @@ import { Store } from "../src/server/jobs/store";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { dataRoot } from "../src/server/runtime/config";
 import { RequestSchema, type Run } from "../src/shared/contracts";
+import { AutomaticPreviewPlanSchema } from "../src/server/jobs/subworkflows/automatic-preview/workflow";
 
 afterEach(() => vi.clearAllMocks());
 
@@ -53,22 +54,45 @@ it.each([
       candidates: [],
       jobs: [],
     };
-    vi.mocked(agentTurn).mockResolvedValue({
-      value: {
-        subject: "Import an insight",
-        audience: "Creators",
-        objective: "Explain",
-        facts: [],
-        exactCopy: [],
-        previewBeat: "An insight appears",
-        assetDescriptions: [],
-        constraints: [],
-        suggestedDuration: 30,
-        durationReason: "A short story",
-        sections: ["Introduction"],
-        interactionGoals: ["Open details"],
-      },
-      sessionId: "preparation-session",
+    vi.mocked(agentTurn).mockImplementation(async (call) => {
+      if (call.schema === AutomaticPreviewPlanSchema) {
+        const directions = (call.promptContext as { directions: Run["candidates"] }).directions;
+        call.onEvent({
+          type: "tool",
+          message: "Read",
+          data: { itemId: "shared-planning-read", state: "item.completed" },
+        });
+        return {
+          value: {
+            previewBeat: "A planned insight appears",
+            directions: directions.map((direction) => ({
+              id: direction.id,
+              displayTitle: "Clear Insight",
+              displayDescription: "A readable transformation",
+              sceneRoles: ["Reveal the source, transform it, and hold the readable result"],
+              rationale: "A planned explanation",
+            })),
+          },
+          sessionId: "shared-planning-session",
+        };
+      }
+      return {
+        value: {
+          subject: "Import an insight",
+          audience: "Creators",
+          objective: "Explain",
+          facts: [],
+          exactCopy: [],
+          previewBeat: "An insight appears",
+          assetDescriptions: [],
+          constraints: [],
+          suggestedDuration: 30,
+          durationReason: "A short story",
+          sections: ["Introduction"],
+          interactionGoals: ["Open details"],
+        },
+        sessionId: "preparation-session",
+      };
     });
     const workflow = new Workflow(store, await loadCatalog());
     vi.spyOn(workflow, "generate").mockImplementation(async (_run, job) => {
@@ -79,10 +103,36 @@ it.each([
       expect(run.phase, run.error).toBe("ready");
       expect(run.candidates).toHaveLength(5);
       expect(run.rankingModel).toBeUndefined();
+      const planningCalls = () =>
+        vi
+          .mocked(agentTurn)
+          .mock.calls.filter(([call]) => call.schema === AutomaticPreviewPlanSchema);
+      expect(planningCalls()).toHaveLength(outputType === "video" ? 1 : 0);
+      if (outputType === "video") {
+        const plan = JSON.parse(
+          await readFile(path.join(dataRoot, "runs", run.id, "PREVIEW_PLAN.json"), "utf8"),
+        );
+        expect(plan.brief.previewBeat).toBe("A planned insight appears");
+        expect(plan.directions).toHaveLength(5);
+        const events = store.events(run.id);
+        const scope = events.find(
+          (event) => event.type === "activity_scope" && event.message === "Preview planning",
+        )!;
+        expect(scope).toBeDefined();
+        expect(
+          events.find(
+            (event) =>
+              event.type === "tool" &&
+              (event.data as { purpose?: string })?.purpose === "Shared preview planning",
+          )?.data,
+        ).toMatchObject({
+          activityScopeId: (scope.data as { activityScope: { id: string } }).activityScope.id,
+        });
+      }
       const original = structuredClone(run.candidates);
       await workflow.prepare(run);
       expect(run.candidates).toEqual(original);
-      expect(agentTurn).toHaveBeenCalledOnce(); // Brief only; no model chooses the random pool.
+      expect(planningCalls()).toHaveLength(outputType === "video" ? 1 : 0); // Retry reuses the completed shared plan.
       await workflow.regenerateDirections(run);
       expect(run.phase, run.error).toBe("ready");
       expect(run.candidates).toHaveLength(10);
@@ -92,7 +142,7 @@ it.each([
       expect(rankOptions).not.toHaveBeenCalled();
       expect(jevClient).not.toHaveBeenCalled();
       expect(prepareStyleSummaries).not.toHaveBeenCalled();
-      expect(agentTurn).toHaveBeenCalledOnce();
+      expect(planningCalls()).toHaveLength(outputType === "video" ? 2 : 0); // A new draw receives one new shared plan.
     } finally {
       store.close();
       await rm(path.join(dataRoot, "runs", run.id), { recursive: true, force: true });

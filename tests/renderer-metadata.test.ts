@@ -1,5 +1,8 @@
 import { expect, it } from "vitest";
-import { rendererMetadataFor } from "../src/server/rendering/renderer-metadata";
+import {
+  rendererMetadataFor,
+  rendererDecisionMetadataFor,
+} from "../src/server/rendering/renderer-metadata";
 import { multiplaneAudioGuidance } from "../src/server/domains/video/route-prompts/multiplane-audio";
 import { renderContract } from "../src/server/domains/video/prompts";
 import { multiplaneRenderArgs } from "../src/server/rendering/multiplane";
@@ -43,3 +46,19 @@ it("uses the HyperFrames and fallback Remotion audio contracts without enabling 
   expect(rendererMetadataFor("remotion").selectionPolicy).toContain("verified");
   expect(rendererMetadataFor("hyperframes").audio.manifestField).toBeNull();
 });
+
+it.each(["hyperframes", "multiplane", "remotion"] as const)(
+  "keeps %s decision capabilities while omitting production instructions",
+  (renderer) => {
+    const full = rendererMetadataFor(renderer);
+    const decision = rendererDecisionMetadataFor(renderer);
+    expect(decision.visuals).toEqual(full.visuals);
+    expect(decision.limitations).toEqual(full.limitations);
+    expect(decision.selectionPolicy).toBe(full.selectionPolicy);
+    expect(decision.audio.generatesMusic).toBe(false);
+    expect(decision.audio.previewPolicy).toBe(full.audio.previewPolicy);
+    expect(decision).not.toHaveProperty("execution");
+    expect(decision.audio).not.toHaveProperty("guidance");
+    expect(JSON.stringify(decision).length).toBeLessThan(JSON.stringify(full).length);
+  },
+);

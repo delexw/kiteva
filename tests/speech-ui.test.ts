@@ -10,7 +10,7 @@ import { browserExecutablePath } from "../src/server/runtime/browser";
 import { appRoot } from "../src/server/runtime/config";
 
 it.skipIf(!browserExecutablePath())(
-  "shares the narration/lyrics script and preserves voice choices",
+  "shares the narration/subtitles script and preserves voice choices",
   async () => {
     const languageRequests: string[] = [];
     const previewRequests: Record<string, unknown>[] = [];
@@ -55,7 +55,7 @@ it.skipIf(!browserExecutablePath())(
 import React,{useState}from'react';import{createRoot}from'react-dom/client';import{ConfigProvider,theme}from'antd';
 import{RoomOnboarding}from'/src/client/room/room-onboarding.tsx';
 import '/src/client/framework.css';import '/src/client/style.css';import{roomTheme,roomCssVariables,roomColors}from'/src/client/theme.ts';
-function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speech',request:{instructions:'A concept introduction',candidateCount:2,selectedStyleIds:['style-056'],outputLanguage:'en',lyrics:{mode:'off'}}});return React.createElement(ConfigProvider,{theme:roomTheme},React.createElement('div',{style:{...roomCssVariables,padding:16,background:roomColors.inset,color:roomColors.text}},React.createElement('output',{id:'draft-state',hidden:true},JSON.stringify(draft)),React.createElement(RoomOnboarding,{draft,onChange:setDraft,materials:[],styles:[],examples:[],onCreated(){},onUpload:async()=>[]})));}createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
+function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speech',request:{instructions:'A concept introduction',candidateCount:2,selectedStyleIds:['style-056'],outputLanguage:'en',subtitles:{mode:'off'}}});return React.createElement(ConfigProvider,{theme:roomTheme},React.createElement('div',{style:{...roomCssVariables,padding:16,background:roomColors.inset,color:roomColors.text}},React.createElement('output',{id:'draft-state',hidden:true},JSON.stringify(draft)),React.createElement(RoomOnboarding,{draft,onChange:setDraft,materials:[],styles:[],examples:[],onCreated(){},onUpload:async()=>[]})));}createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
               );
               res.setHeader("Content-Type", "text/html");
               res.end(html);
@@ -78,7 +78,7 @@ function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speec
       expect(await page.$('[aria-label="Speech and vocals"]')).toBeNull();
       await page.evaluate(() => {
         const button = Array.from(document.querySelectorAll(".room-step-tabs button")).find(
-          (item) => item.textContent === "Narration / lyrics",
+          (item) => item.textContent === "Narration / subtitles",
         );
         (button as HTMLButtonElement).click();
       });
@@ -302,7 +302,7 @@ function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speec
           (el) => JSON.parse(el.textContent!).request.outputLanguage,
         ),
       ).toBe("zh");
-      await clickStep("Narration / lyrics");
+      await clickStep("Narration / subtitles");
       await page.waitForFunction(
         () =>
           (document.querySelector('[aria-label="Shared script"]') as HTMLTextAreaElement)?.value ===
@@ -359,7 +359,7 @@ function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speec
           ?.closest(".ant-select")
           ?.textContent?.includes("English"),
       );
-      await clickStep("Narration / lyrics");
+      await clickStep("Narration / subtitles");
       await page.waitForFunction(
         () =>
           (document.querySelector('[aria-label="Shared script"]') as HTMLTextAreaElement)?.value ===
@@ -368,6 +368,75 @@ function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speec
       expect(
         await page.$eval('[aria-label="Shared script"]', (el) => (el as HTMLTextAreaElement).value),
       ).toBe("Let your idea take flight.");
+      await page.locator('[aria-label="Speech engine"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="Qwen3-TTS · VoiceDesign 1.7B"]', {
+        visible: true,
+      });
+      await page.locator('.ant-select-item-option[title="Qwen3-TTS · VoiceDesign 1.7B"]').click();
+      await page.locator('[aria-label="Narrator voice"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="Deep"]', { visible: true });
+      await page.locator('.ant-select-item-option[title="Deep"]').click();
+      await page.locator('[aria-label="Speech language"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="Chinese"]', { visible: true });
+      await page.locator('.ant-select-item-option[title="Chinese"]').click();
+      for (const button of await page.$$("button"))
+        if (await button.evaluate((el) => el.textContent === "Listen")) await button.click();
+      await page.waitForFunction(
+        () => document.querySelector('audio[aria-label="Narrator sample"]') !== null,
+      );
+      await page.waitForFunction(
+        () =>
+          JSON.parse(document.querySelector("#draft-state")!.textContent!).request.speech
+            .language === "zh",
+      );
+      expect(previewRequests.at(-1)).toMatchObject({
+        engine: "qwen3-tts",
+        voice: "qwen_deep_male",
+        language: "zh",
+      });
+      await page.locator('[aria-label="Speech engine"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="Qwen3-TTS · Base 1.7B"]', {
+        visible: true,
+      });
+      await page.locator('.ant-select-item-option[title="Qwen3-TTS · Base 1.7B"]').click();
+      await page.locator('[aria-label="Narrator voice"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="Male narrator"]', {
+        visible: true,
+      });
+      await page.locator('.ant-select-item-option[title="Male narrator"]').click();
+      await page.locator('[aria-label="Speech language"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="Chinese"]', { visible: true });
+      await page.locator('.ant-select-item-option[title="Chinese"]').click();
+      for (const button of await page.$$("button"))
+        if (await button.evaluate((el) => el.textContent === "Listen")) await button.click();
+      await expect
+        .poll(() => previewRequests.at(-1))
+        .toMatchObject({ engine: "qwen3-tts-base", voice: "qwen_base_male", language: "zh" });
+      await page.locator('[aria-label="Speech language"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="English"]', { visible: true });
+      await page.locator('.ant-select-item-option[title="English"]').click();
+      await page.waitForFunction(
+        () =>
+          JSON.parse(document.querySelector("#draft-state")!.textContent!).request.speech
+            .language === "en",
+      );
+      expect(
+        await page.$eval("#draft-state", (el) => JSON.parse(el.textContent!).request.speech.voice),
+      ).toBe("qwen_base_male");
+      await page.locator('[aria-label="Narrator voice"]').click();
+      await page.waitForSelector('.ant-select-item-option[title="Original narrator"]', {
+        visible: true,
+      });
+      await page.locator('.ant-select-item-option[title="Original narrator"]').click();
+      for (const button of await page.$$("button"))
+        if (await button.evaluate((el) => el.textContent === "Listen")) await button.click();
+      await expect
+        .poll(() => previewRequests.at(-1))
+        .toMatchObject({
+          engine: "qwen3-tts-base",
+          voice: "qwen_base_original_female",
+          language: "en",
+        });
       expect(languageRequests).toEqual([]);
       const savedDraft = await page.$eval("#draft-state", (el) => JSON.parse(el.textContent!));
       expect(savedDraft.request).toMatchObject({

@@ -1,15 +1,15 @@
-import { defaultPython } from "../../runtime/platform";
+import { defaultPython } from "../../../runtime/platform";
 import { existsSync } from "node:fs";
 import { access } from "node:fs/promises";
 import path from "node:path";
-import { pocketVoices, speechVoices, type SpeechReadiness } from "../../../shared/speech";
-import { appRoot, dataRoot } from "../../runtime/config";
-import { command } from "../../runtime/process";
-import { publishSpeechWave } from "./local-wave";
-import { WorkQueue } from "../../jobs/queue";
-import { CodedError } from "../../../shared/errors";
-import type { SpeechProvider } from "./types";
-import { speechModelDirectory } from "./paths";
+import { pocketVoices, speechVoices, type SpeechReadiness } from "../../../../shared/speech";
+import { appRoot, dataRoot } from "../../../runtime/config";
+import { command } from "../../../runtime/process";
+import { publishSpeechWave } from "../local-wave";
+import { WorkQueue } from "../../../jobs/queue";
+import { CodedError } from "../../../../shared/errors";
+import type { SpeechProvider } from "../types";
+import { speechModelDirectory } from "../paths";
 
 const modelDirectory = speechModelDirectory("kokoro");
 const synthesisQueue = new WorkQueue(1);
@@ -33,7 +33,7 @@ async function speechReadiness(signal: AbortSignal): Promise<SpeechReadiness> {
     );
 
     await Promise.all([
-      access(path.join(appRoot, "scripts/speech/kokoro.py")),
+      access(path.join(appRoot, "src/server/audio/providers/kokoro/adapter.py")),
       access(path.join(modelDirectory, "kokoro-v1.0.onnx")),
       access(path.join(modelDirectory, "voices-v1.0.bin")),
     ]);
@@ -73,7 +73,7 @@ async function synthesizeSpeech(
         await command(
           python(),
           [
-            path.join(appRoot, "scripts/speech/kokoro.py"),
+            path.join(appRoot, "src/server/audio/providers/kokoro/adapter.py"),
             "--model",
             path.join(modelDirectory, "kokoro-v1.0.onnx"),
             "--voices",

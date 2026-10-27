@@ -24,7 +24,7 @@ const input = {
           endSeconds: 2,
           development: "The card opens",
           captions: ["Every idea starts here"],
-          audio: { music: "Bass groove", effects: "Paper sound", lyrics: [] },
+          audio: { music: "Bass groove", effects: "Paper sound", subtitles: [] },
           readingHoldSeconds: 1,
         },
         {
@@ -32,7 +32,7 @@ const input = {
           endSeconds: 8,
           development: "Hold the title",
           captions: [],
-          audio: { music: "Continue the groove", effects: [], lyrics: [] },
+          audio: { music: "Continue the groove", effects: [], subtitles: [] },
         },
       ],
     },

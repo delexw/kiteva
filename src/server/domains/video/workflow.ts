@@ -71,16 +71,16 @@ export async function generateVideo(input: {
     if (
       request.scriptItems === undefined &&
       request.speech?.mode === "narration" &&
-      request.speech.source === "lyrics" &&
-      request.lyrics?.mode === "provided" &&
+      request.speech.source === "subtitles" &&
+      request.subtitles?.mode === "provided" &&
       request.outputLanguage &&
       narrationLanguage(request)?.split("-")[0] !== request.outputLanguage
     ) {
       const localized = await localizeVideoRequest(
         {
           ...request,
-          speech: { ...request.speech, source: "provided", text: request.lyrics.text },
-          translations: { original: { narration: request.lyrics.text }, versions: {} },
+          speech: { ...request.speech, source: "provided", text: request.subtitles.text },
+          translations: { original: { narration: request.subtitles.text }, versions: {} },
         },
         path.join(job.workspace, "localization"),
         signal,

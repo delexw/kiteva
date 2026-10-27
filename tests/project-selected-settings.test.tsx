@@ -30,7 +30,7 @@ it("shows selected settings without result verification claims", () => {
     "2K · 1440p",
     "60 fps",
     "16:9",
-    "No lyrics",
+    "No subtitles",
     "Manual Motion Graphics",
     "Watercolor",
   ])
@@ -95,28 +95,28 @@ it("hides model-suggested styles even after a direction is selected", () => {
 });
 
 it.each([
-  { showLyrics: true, mode: "off", expected: "Lyrics on" },
-  { showLyrics: false, mode: "write", expected: "No lyrics" },
+  { showSubtitles: true, mode: "off", expected: "Subtitles on" },
+  { showSubtitles: false, mode: "write", expected: "No subtitles" },
 ])(
-  "uses timed-item text visibility instead of legacy lyrics: %j",
-  ({ showLyrics, mode, expected }) => {
+  "uses timed-item text visibility instead of legacy subtitles: %j",
+  ({ showSubtitles, mode, expected }) => {
     const request = RequestSchema.parse({
       instructions: "Tell a visual story",
-      lyrics: mode === "off" ? { mode: "off" } : { mode: "write" },
+      subtitles: mode === "off" ? { mode: "off" } : { mode: "write" },
       scriptItems: [
         {
           id: "opening",
           startSeconds: 0,
           endSeconds: 10,
           text: "Read this",
-          showLyrics,
+          showSubtitles,
           speech: { mode: "off" },
         },
       ],
     });
     const html = renderToStaticMarkup(<ProjectSettings run={{ ...run, request }} />);
     expect(html).toContain(expected);
-    expect(html).not.toContain(expected === "Lyrics on" ? "No lyrics" : "Lyrics on");
+    expect(html).not.toContain(expected === "Subtitles on" ? "No subtitles" : "Subtitles on");
   },
 );
 

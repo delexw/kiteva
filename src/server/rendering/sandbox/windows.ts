@@ -2,15 +2,20 @@ import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
-import { tmpdir } from "node:os";
 import { parse, stringify } from "@iarna/toml";
-import { dataRoot } from "../../runtime/config";
+import {
+  prepareProjectRuntime,
+  projectRuntimeEnvironment,
+  projectRuntimeFiles,
+} from "../../runtime/project-files";
 import { browserExecutablePath } from "../../runtime/browser";
 import { assertWindowsRenderReady } from "./readiness";
 import { renderPrivatePaths } from "./private-paths";
 import type { RenderCommand } from "./contracts";
 
-export const windowsRenderSandboxHome = path.join(dataRoot, "runtime", "render-sandbox");
+export function windowsRenderSandboxHome(workspace: string) {
+  return path.join(projectRuntimeFiles(workspace, "render").root, "sandbox");
+}
 export const renderPermissionProfile = "kiteva-render";
 
 /** A native, model-free CLI operation. All paths and arguments stay separate argv entries. */
@@ -33,7 +38,6 @@ export function windowsRenderPolicy(workspace: string, home: string, privatePath
           ":root": "read",
           [workspace]: "write",
           [home]: "write",
-          [tmpdir()]: "write",
           ...Object.fromEntries(privatePaths.map((file) => [file, "deny"])),
         },
         network,
@@ -48,10 +52,10 @@ export async function windowsRenderCommand(
   workspace: string,
 ): Promise<RenderCommand> {
   await assertWindowsRenderReady();
-  const home = path.join(dataRoot, "runtime", "render-home");
-  await mkdir(home, { recursive: true, mode: 0o700 });
-  await mkdir(windowsRenderSandboxHome, { recursive: true, mode: 0o700 });
-  const privatePaths = renderPrivatePaths();
+  const { home } = prepareProjectRuntime(workspace, "render");
+  const sandboxHome = windowsRenderSandboxHome(workspace);
+  await mkdir(sandboxHome, { recursive: true, mode: 0o700 });
+  const privatePaths = renderPrivatePaths(workspace);
   const require = createRequire(import.meta.url);
   const cli = path.join(
     path.dirname(require.resolve("@openai/codex/package.json")),
@@ -77,8 +81,8 @@ export async function windowsRenderCommand(
       ).toString("base64url"),
     ],
     env: {
-      CODEX_HOME: windowsRenderSandboxHome,
-      HOME: home,
+      ...projectRuntimeEnvironment(workspace, "render"),
+      CODEX_HOME: sandboxHome,
       HYPERFRAMES_BROWSER_PATH: browserExecutablePath(),
     },
   };

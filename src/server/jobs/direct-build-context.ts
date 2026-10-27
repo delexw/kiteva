@@ -16,8 +16,8 @@ export function directBuildContext(
     objective: request.instructions,
     facts: [],
     exactCopy:
-      request.outputType === "video" && request.lyrics?.mode === "provided"
-        ? [request.lyrics.text]
+      request.outputType === "video" && request.subtitles?.mode === "provided"
+        ? [request.subtitles.text]
         : [],
     previewBeat: "",
     assetDescriptions,

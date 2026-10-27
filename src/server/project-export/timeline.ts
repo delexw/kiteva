@@ -68,7 +68,7 @@ export function storyboardSubtitles(storyboard?: Storyboard) {
   const cues: { start: number; end: number; text: string }[] = [];
   for (const scene of storyboard?.scenes ?? []) {
     for (const beat of scene.beats) {
-      const text = beat.audio.lyrics.join("\n").trim();
+      const text = beat.audio.subtitles.join("\n").trim();
       if (!text) continue;
       const previous = cues.at(-1);
       if (previous?.text === text && Math.abs(previous.end - beat.startSeconds) < 0.001)

@@ -1,3 +1,5 @@
+import { browserExecutablePath } from "../../../runtime/browser";
+import os from "node:os";
 import path from "node:path";
 import { appRoot, agentMode } from "../../../runtime/config";
 import type { AgentTurnOptions } from "../../agent";
@@ -40,7 +42,13 @@ export function referenceBrowserCapability(
         ),
         toolTimeoutSeconds: recordingToolTimeoutSeconds,
         env: {
-          VIDEO_BROWSER_PATH: process.env.VIDEO_BROWSER_PATH || "",
+          KITEVA_RECORDING_LOCK_PATH:
+            process.env.KITEVA_RECORDING_LOCK_PATH ||
+            path.join(os.tmpdir(), "kiteva-native-recording"),
+          VIDEO_BROWSER_PATH:
+            process.env.VIDEO_BROWSER_PATH ||
+            browserExecutablePath(!options.readOnly && options.enableVideoCapture !== false) ||
+            "",
           OPENSCREEN_EXECUTABLE: process.env.OPENSCREEN_EXECUTABLE || "",
           KITEVA_CAPTURE_WORKER_URL: process.env.KITEVA_CAPTURE_WORKER_URL || "",
           KITEVA_CAPTURE_WORKER_TOKEN: process.env.KITEVA_CAPTURE_WORKER_TOKEN || "",

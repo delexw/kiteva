@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { VideoRequest } from "./domains/video";
-import { type SpeechSettings, speechLanguage } from "./speech";
+import { type SpeechSettings, speechLanguage, isQwenSpeechEngine } from "./speech";
 
 export const VideoLanguageSchema = z.enum(["en", "zh"]);
 export type VideoLanguage = z.infer<typeof VideoLanguageSchema>;
@@ -9,7 +9,7 @@ export const videoLanguages = [
   { value: "zh", label: "简体中文" },
 ] as const;
 const CopySchema = z.object({
-  lyrics: z.string().max(8000).optional(),
+  subtitles: z.string().max(8000).optional(),
   narration: z.string().max(8000).optional(),
 });
 export const VideoTranslationsSchema = z.object({
@@ -32,6 +32,7 @@ export function deliverySpeech(
   )
     return speech;
   const language = request.outputLanguage;
+  if (isQwenSpeechEngine(speech.engine)) return { ...speech, language };
   const current = speechLanguage(speech.voice, speech.engine, speech.language);
   const matches = language === "en" ? current?.startsWith("en") : current === "zh";
   return {
@@ -60,7 +61,7 @@ export function editVideoCopy(
   field: keyof VideoCopy,
   text: string,
 ): VideoRequest {
-  const language = field === "lyrics" ? request.outputLanguage : narrationLanguage(request);
+  const language = field === "subtitles" ? request.outputLanguage : narrationLanguage(request);
   const existing = request.translations;
   const translations =
     existing && language
@@ -75,8 +76,10 @@ export function editVideoCopy(
   return {
     ...request,
     translations,
-    ...(field === "lyrics"
-      ? { lyrics: text.trim() ? { mode: "provided" as const, text } : { mode: "write" as const } }
+    ...(field === "subtitles"
+      ? {
+          subtitles: text.trim() ? { mode: "provided" as const, text } : { mode: "write" as const },
+        }
       : request.speech?.mode === "narration"
         ? { speech: { ...request.speech, text } }
         : {}),
@@ -84,15 +87,15 @@ export function editVideoCopy(
 }
 /** One editor feeds narration and optional on-screen text in the Assistant. */
 export function sharedVideoScript(request: VideoRequest): string {
-  return request.lyrics?.mode === "provided"
-    ? request.lyrics.text
+  return request.subtitles?.mode === "provided"
+    ? request.subtitles.text
     : request.speech?.mode === "narration" && request.speech.source === "provided"
       ? request.speech.text
       : "";
 }
 export function editSharedVideoScript(request: VideoRequest, text: string): VideoRequest {
-  const showText = Boolean(request.lyrics && request.lyrics.mode !== "off");
-  let result = showText ? editVideoCopy(request, "lyrics", text) : request;
+  const showText = Boolean(request.subtitles && request.subtitles.mode !== "off");
+  let result = showText ? editVideoCopy(request, "subtitles", text) : request;
   if (result.speech?.mode === "narration") {
     result = editVideoCopy(result, "narration", text);
     if (result.speech?.mode === "narration")
@@ -100,7 +103,7 @@ export function editSharedVideoScript(request: VideoRequest, text: string): Vide
         ...result,
         speech: {
           ...result.speech,
-          source: showText ? "lyrics" : text.trim() ? "provided" : "write",
+          source: showText ? "subtitles" : text.trim() ? "provided" : "write",
         },
       };
   }

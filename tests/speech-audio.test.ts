@@ -27,7 +27,7 @@ async function input() {
     emit: vi.fn(),
     request: VideoRequestSchema.parse({
       instructions: "Introduce an idea",
-      lyrics: { mode: "provided", text: "First line\nSecond line" },
+      subtitles: { mode: "provided", text: "First line\nSecond line" },
       speech: { mode: "narration" },
     }),
     brief: BriefSchema.parse({
@@ -65,7 +65,7 @@ it("measures line cues, caches successful speech across reloads, and regenerates
   ]);
   expect(await prepareSpeech({ ...options, signal: signal() }, { synthesize })).toEqual(first);
   expect(synthesize).toHaveBeenCalledTimes(2);
-  options.request.lyrics = { mode: "provided", text: "Changed words" };
+  options.request.subtitles = { mode: "provided", text: "Changed words" };
   await prepareSpeech(options, { synthesize });
   expect(synthesize).toHaveBeenCalledTimes(3);
   expect(
@@ -82,7 +82,7 @@ it("does not generate when disabled, does not cache cancelled work, and rejects 
   });
   expect(
     await prepareSpeech(
-      { ...options, request: { ...options.request, lyrics: { mode: "off" } } },
+      { ...options, request: { ...options.request, subtitles: { mode: "off" } } },
       { synthesize },
     ),
   ).toBeUndefined();
@@ -229,11 +229,11 @@ it("passes the selected Pocket engine through narration preparation and reuses i
   expect(louder?.cues).toEqual(track?.cues);
 });
 
-it("prepares a provided narration track while on-screen lyrics are off", async () => {
+it("prepares a provided narration track while on-screen subtitles are off", async () => {
   const options = await input();
   options.request = VideoRequestSchema.parse({
     ...options.request,
-    lyrics: { mode: "off" },
+    subtitles: { mode: "off" },
     speech: { mode: "narration", source: "provided", text: "An independent spoken story" },
   });
   const synthesize = vi.fn(async (_text: string, file: string) => {
@@ -297,7 +297,7 @@ it("renders timed voices with independent providers, measured cues and real sile
       startSeconds: 0,
       endSeconds: 1,
       text: "Silent opening caption",
-      showLyrics: true,
+      showSubtitles: true,
       speech: { mode: "off" },
     },
     {
@@ -305,7 +305,7 @@ it("renders timed voices with independent providers, measured cues and real sile
       startSeconds: 1,
       endSeconds: 1.5,
       text: "Hello",
-      showLyrics: false,
+      showSubtitles: false,
       speech: { mode: "narration", engine: "kokoro", voice: "af_heart", speed: 1, volume: 0.7 },
     },
     {
@@ -313,7 +313,7 @@ it("renders timed voices with independent providers, measured cues and real sile
       startSeconds: 2,
       endSeconds: 2.5,
       text: "你好",
-      showLyrics: true,
+      showSubtitles: true,
       speech: {
         mode: "narration",
         engine: "pocket-tts",
@@ -353,8 +353,20 @@ it("renders timed voices with independent providers, measured cues and real sile
     1,
   );
   expect(track?.cues).toEqual([
-    { text: "Hello", startSeconds: 1, endSeconds: 1.2, scriptItemId: "english", showLyrics: false },
-    { text: "你好", startSeconds: 2, endSeconds: 2.2, scriptItemId: "chinese", showLyrics: true },
+    {
+      text: "Hello",
+      startSeconds: 1,
+      endSeconds: 1.2,
+      scriptItemId: "english",
+      showSubtitles: false,
+    },
+    {
+      text: "你好",
+      startSeconds: 2,
+      endSeconds: 2.2,
+      scriptItemId: "chinese",
+      showSubtitles: true,
+    },
   ]);
   const raw = path.join(options.workspace, "voice.pcm");
   await command(
@@ -404,7 +416,7 @@ it("refuses a spoken item that exceeds its own window instead of truncating it",
       startSeconds: 1,
       endSeconds: 1.5,
       text: "Too much speech",
-      showLyrics: true,
+      showSubtitles: true,
       speech: { mode: "narration", voice: "af_heart", speed: 1 },
     },
   ];
@@ -414,7 +426,7 @@ it("refuses a spoken item that exceeds its own window instead of truncating it",
   });
   await expect(prepareSpeech(options, { synthesize })).rejects.toThrow(/exceeds the 0.5s/);
 });
-it("does not synthesize a lyric-only timeline even when legacy narration remains stored", async () => {
+it("does not synthesize a subtitle-only timeline even when legacy narration remains stored", async () => {
   const options = await input();
   const synthesize = vi.fn();
   options.request.scriptItems = [
@@ -423,10 +435,40 @@ it("does not synthesize a lyric-only timeline even when legacy narration remains
       startSeconds: 0,
       endSeconds: 4,
       text: "Read this without speech",
-      showLyrics: true,
+      showSubtitles: true,
       speech: { mode: "off" },
     },
   ];
   expect(await prepareSpeech(options, { synthesize })).toBeUndefined();
   expect(synthesize).not.toHaveBeenCalled();
+});
+
+it("regenerates edited Qwen voice audio while reusing the written script", async () => {
+  const { qwenVoices } = await import("../src/shared/speech");
+  const voice = qwenVoices[0];
+  const original = voice.description;
+  const options = await input();
+  options.request.speech = SpeechSettingsSchema.parse({
+    mode: "narration",
+    engine: "qwen3-tts",
+    voice: voice.id,
+    source: "write",
+  });
+  const generate = vi.fn(async () => ({
+    value: { text: "An original introduction" },
+  })) as unknown as typeof agentTurn;
+  const synthesize = vi.fn(async (_text: string, file: string) => {
+    await tone(file);
+    return 0.25;
+  });
+  try {
+    const first = await prepareSpeech(options, { generate, synthesize });
+    voice.description = original + " Steady broadcast diction.";
+    const second = await prepareSpeech(options, { generate, synthesize });
+    expect(second?.file).not.toBe(first?.file);
+    expect(synthesize).toHaveBeenCalledTimes(2);
+    expect(generate).toHaveBeenCalledTimes(1);
+  } finally {
+    voice.description = original;
+  }
 });

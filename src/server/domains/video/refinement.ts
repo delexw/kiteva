@@ -42,7 +42,7 @@ export async function prepareVideoRefinement(
     recursive: true,
     filter: (file) => {
       signal.throwIfAborted();
-      return !["node_modules", "renders"].includes(path.basename(file));
+      return !["node_modules", "renders", ".runtime"].includes(path.basename(file));
     },
   });
   const inheritedCacheDirectories = await inheritRendererCache(

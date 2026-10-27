@@ -16,7 +16,7 @@ it("keeps explicit duration, exact active copy and inventory out of the model re
   const request = RequestSchema.parse({
     instructions: "Keep this original direction unchanged",
     duration: 180,
-    lyrics: { mode: "provided", text: "Exact lyric\nWith spacing." },
+    subtitles: { mode: "provided", text: "Exact subtitle\nWith spacing." },
     speech: { mode: "narration", source: "provided", text: "Exact narration." },
     selectedStyleIds: ["style-026"],
     candidateCount: 0,
@@ -52,7 +52,7 @@ it("keeps explicit duration, exact active copy and inventory out of the model re
       },
     ],
   );
-  expect(brief.exactCopy).toEqual(["Exact lyric\nWith spacing.", "Exact narration."]);
+  expect(brief.exactCopy).toEqual(["Exact subtitle\nWith spacing.", "Exact narration."]);
   expect(brief).toMatchObject({
     suggestedDuration: 180,
     facts: interpretation.facts,

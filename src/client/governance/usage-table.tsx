@@ -135,9 +135,78 @@ export function GovernanceUsageTable({
       expandable={
         byFunction
           ? {
-              rowExpandable: (row) => Boolean(row.authoringSelections?.length),
+              rowExpandable: (row) =>
+                Boolean(row.authoringSelections?.length || row.combinationEvaluation),
               expandedRowRender: (row) => (
                 <div>
+                  {row.combinationEvaluation && (
+                    <section aria-label={translateUi("Combination evaluation")}>
+                      {row.combinationEvaluation.selected.map((candidate) => (
+                        <section key={candidate.id}>
+                          <strong>{candidate.title || candidate.id}</strong>
+                          <div>{candidate.styles.join(" · ")}</div>
+                          <p>{candidate.rationale}</p>
+                          <div>
+                            {translateUi("Evaluation score")}: {candidate.score.toFixed(1)} / 100
+                          </div>
+                          {candidate.evaluationConfidence != null && (
+                            <div>
+                              {translateUi("Evaluation certainty")}:{" "}
+                              {probability(candidate.evaluationConfidence)}
+                            </div>
+                          )}
+                          <div>
+                            {translateUi("Choice certainty in final comparison")}:{" "}
+                            {probability(candidate.confidence)}
+                          </div>
+                          <p>
+                            {translateUi(
+                              "Choice certainty measures how strongly JEV preferred one option over the others. Near zero means a near tie; it is not the quality score or a success probability.",
+                            )}
+                          </p>
+                          <div>
+                            {candidate.selectionDecision ? (
+                              <>
+                                {translateUi("Selection round")}:{" "}
+                                {candidate.selectionDecision.round}
+                                <ul>
+                                  {candidate.selectionDecision.comparedIds.map((id) => (
+                                    <li key={id}>
+                                      {id}:{" "}
+                                      {probability(
+                                        candidate.selectionDecision!.probabilities[id] ?? null,
+                                      )}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </>
+                            ) : (
+                              translateUi(
+                                "Original choice probabilities were not recorded for this run.",
+                              )
+                            )}
+                          </div>
+                          <ul>
+                            {Object.entries(candidate.dimensions).map(([name, value]) => (
+                              <li key={name}>
+                                {translateUi(name)}: {probability(value)}
+                              </li>
+                            ))}
+                          </ul>
+                        </section>
+                      ))}
+                      <strong>{translateUi("Recorded evaluation calls")}</strong>
+                      <ol>
+                        {row.combinationEvaluation.calls.map((call) => (
+                          <li key={call.id}>
+                            <a href={call.promptUrl} target="_blank" rel="noreferrer">
+                              {call.time}
+                            </a>
+                          </li>
+                        ))}
+                      </ol>
+                    </section>
+                  )}
                   {row.authoringSelections?.map((selection) => (
                     <section key={selection.jobId} aria-label={translateUi("Authoring comparison")}>
                       <strong>

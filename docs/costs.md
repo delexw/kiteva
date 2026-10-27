@@ -70,14 +70,14 @@ longer used by the current report.
 
 Split by job (USD, SDK estimate):
 
-| Job                                | Model              |     A |     B |     C |
-| ---------------------------------- | ------------------ | ----: | ----: | ----: |
-| Brief, review, lyrics, small fixes | `claude-haiku-5-5` |  0.04 |  0.04 |  0.09 |
-| Combination proposals              | `claude-opus-5-5`  |  0.91 |  1.94 |  2.12 |
-| Choosing directions                | `jev-1.13.0`       | 0.004 | 0.007 | 0.005 |
-| Previews                           | `claude-opus-5-5`  |  4.25 | 10.74 |  3.90 |
-| Full film builds                   | `claude-opus-5-5`  | 11.26 | 17.25 | 11.85 |
-| Main-model repairs                 | `claude-opus-5-5`  |     — |  7.44 |  0.76 |
+| Job                                   | Model              |     A |     B |     C |
+| ------------------------------------- | ------------------ | ----: | ----: | ----: |
+| Brief, review, subtitles, small fixes | `claude-haiku-5-5` |  0.04 |  0.04 |  0.09 |
+| Combination proposals                 | `claude-opus-5-5`  |  0.91 |  1.94 |  2.12 |
+| Choosing directions                   | `jev-1.13.0`       | 0.004 | 0.007 | 0.005 |
+| Previews                              | `claude-opus-5-5`  |  4.25 | 10.74 |  3.90 |
+| Full film builds                      | `claude-opus-5-5`  | 11.26 | 17.25 | 11.85 |
+| Main-model repairs                    | `claude-opus-5-5`  |     — |  7.44 |  0.76 |
 
 "Full-build invocations" counts SDK calls in full-film jobs, including retries and refinements. It
 isn't a count of finished films. Motion Graphic summaries were served from cache in all three (135–136

@@ -174,11 +174,11 @@ it.each(["preview", "full", "refinement"] as const)(
             startSeconds: 0,
             endSeconds: 10,
             text: "Knowledge everywhere.",
-            showLyrics: true,
+            showSubtitles: true,
             speech: { mode: "off" },
           },
         ],
-        lyrics: { mode: "provided", text: "Legacy text must not appear" },
+        subtitles: { mode: "provided", text: "Legacy text must not appear" },
       }),
     });
     expect(timedPrompt).toContain("TIMED SCRIPT ITEMS (authoritative");

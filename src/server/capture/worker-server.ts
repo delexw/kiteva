@@ -58,7 +58,13 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
     try {
       workspace = await mkdtemp(path.join(os.tmpdir(), "kiteva-desktop-"));
       await mkdir(path.join(workspace, "assets"));
-      const browser = await createBrowser(input.urls, controller.signal, input.mode);
+      const browser = await createBrowser(
+        input.urls,
+        controller.signal,
+        input.mode,
+        true,
+        workspace,
+      );
       const id = randomUUID();
       sessions.set(id, {
         browser,

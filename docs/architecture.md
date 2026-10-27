@@ -117,7 +117,7 @@ sequenceDiagram
   participant JEV as JEV
   participant R as Renderer + QA
 
-  You->>Room: Idea, files, websites, music/lyrics, settings
+  You->>Room: Idea, files, websites, music/subtitles, settings
   Room->>WF: POST /api/runs
   WF->>Small: Prepare brief (read-only, may use reference_browser)
   WF->>Small: Brief self-review, focused repairs
@@ -337,13 +337,13 @@ executable workflows from the shared title-prompt helper and callable browser ca
 
 ### Which model does what
 
-| Step                                                                | Claude projects                                                  | Codex projects                                                   | Why                                                                                                               |
-| ------------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Brief, attachment review, summaries, lyrics, eligible small repairs | `claude-haiku-5-5`                                               | `gpt-6-luna`                                                     | Simple preparation and checking. Cheap and fast enough                                                            |
-| Combination proposals                                               | `claude-opus-5-5`                                                | `gpt-6.1-sol`                                                    | The main creative judgement                                                                                       |
-| Preview and full-film planning                                      | shared preview direction plan; selected main model for full film | shared preview direction plan; selected main model for full film | Previews use independent build sessions; full films validate a read-only plan before building in the same session |
-| Previews, full film, pacing/style repairs                           | selected main model                                              | selected main model                                              | Creative implementation                                                                                           |
-| Choosing directions                                                 | JEV                                                              | JEV                                                              | A separate evaluator, not the model that proposed the options                                                     |
+| Step                                                                   | Claude projects                                                  | Codex projects                                                   | Why                                                                                                               |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Brief, attachment review, summaries, subtitles, eligible small repairs | `claude-haiku-5-5`                                               | `gpt-6-luna`                                                     | Simple preparation and checking. Cheap and fast enough                                                            |
+| Combination proposals                                                  | `claude-opus-5-5`                                                | `gpt-6.1-sol`                                                    | The main creative judgement                                                                                       |
+| Preview and full-film planning                                         | shared preview direction plan; selected main model for full film | shared preview direction plan; selected main model for full film | Previews use independent build sessions; full films validate a read-only plan before building in the same session |
+| Previews, full film, pacing/style repairs                              | selected main model                                              | selected main model                                              | Creative implementation                                                                                           |
+| Choosing directions                                                    | JEV                                                              | JEV                                                              | A separate evaluator, not the model that proposed the options                                                     |
 
 Full-film finished-result review uses the same selected main model that built the job, using the provider’s default reasoning effort. It runs as a separate read-only invocation with the existing QA evidence and Governance tracking.
 
@@ -377,7 +377,7 @@ These responsibilities are kept separate in the code and in the prompts:
 | Renderer                                                         | Selectable            | Pipeline in the code                                                                                                           | Current limits                                                                                                                                                             |
 | ---------------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [HyperFrames](https://github.com/heygen-com/hyperframes) 0.8.144 | Yes, the default      | Preview: render directly. Full film: `hyperframes check --json --snapshots`, then render; findings go to correctors            | Previews are 3 s, silent and 720p. Full films go up to 300 s                                                                                                               |
-| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.10        | Yes, labelled "trial" | Preview: `multiplane render`. Full film: inspect, verify, render (all with `--no-lint`) on a `shot.html` driven by `render(t)` | One sound file only. No video clips inside scenes. No automatic layout or contrast checks (full-film frame consistency is verified). Previews use a faster quality setting |
+| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.13        | Yes, labelled "trial" | Preview: `multiplane render`. Full film: inspect, verify, render (all with `--no-lint`) on a `shot.html` driven by `render(t)` | One sound file only. No video clips inside scenes. No automatic layout or contrast checks (full-film frame consistency is verified). Previews use a faster quality setting |
 | [Remotion](https://www.remotion.dev) 4.0.534                     | No                    | Used only when the production records a verified `fallbackReason`                                                              | Separate license terms. Some companies need a company license                                                                                                              |
 
 Previews go from the shared direction plan to independent builds and rendering without extra QA commands or finished-result review. Validation and render failures reuse the full-film correction coordinator, focused correctors, manifest merge and provider retry budgets, then render again. Successful previews make no correction call. Cancellation, user questions and application QA-report failures still propagate immediately. Full films retain their additional checks and finished-result review.
@@ -522,7 +522,7 @@ UI-component tool called [Storybook](https://storybook.js.org).
 - Providers accept an API key **or** an existing signed-in subscription account. Claude uses
   `ANTHROPIC_API_KEY`, `CLAUDE_CODE_OAUTH_TOKEN` or your local Claude Code sign-in (`~/.claude`). Codex
   uses `CODEX_API_KEY`/`OPENAI_API_KEY` or the Codex CLI sign-in in `~/.codex/auth.json`, which Kiteva
-  links into its isolated Codex home under `.data/runtime/codex`. Subscription usage or
+  copies into the project's isolated Codex home. Subscription usage or
   remaining-percentage reporting hasn't been tested. Governance displays Claude SDK-reported costs and estimates Codex costs from incremental token usage at standard API rates.
 - JEV has its own key (`TYPESAFE_API_KEY`, or `JEV_API_KEY`) and talks to Typesafe directly, outside Caveman.
 - Uploaded files and fetched pages are treated as data, never as instructions.
@@ -550,3 +550,10 @@ Both providers use the same subprocess ownership and cleanup helpers. See
 [project work and cancellation](process-lifecycle.md) for the lifecycle diagram, ownership
 boundaries, contributor requirements and verification. Native recording and saving also use a
 [cancellable shared recorder lock](chapter-capture-timing.md#shared-recorder-ownership).
+
+## Project-local runtime files
+
+Agent homes and sessions belong to the project; renderer, command and browser homes, caches
+and temporary files belong to each build workspace. CLI binaries and app-owned services remain
+reusable. See [project-local runtime files](project-file-isolation.md) for directory ownership,
+login/session migration, shared native resources and verification.

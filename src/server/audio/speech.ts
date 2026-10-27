@@ -7,6 +7,7 @@ import {
   activeSpeech,
   SpeechTrackSchema,
   speechLanguage,
+  speechVoiceDefinition,
   type SpeechTrack,
 } from "../../shared/speech";
 import type { VideoRequest } from "../../shared/domains/video";
@@ -65,13 +66,19 @@ export async function prepareSpeech(
   signal.throwIfAborted();
   const context = {
     settings,
-    lyrics: request.lyrics,
+    subtitles: request.subtitles,
     instructions: request.instructions,
     brief,
     duration,
   };
   const hash = createHash("sha256")
-    .update(JSON.stringify({ ...context, revision: narrationAudioRevision }))
+    .update(
+      JSON.stringify({
+        ...context,
+        revision: narrationAudioRevision,
+        voiceDefinition: speechVoiceDefinition(settings),
+      }),
+    )
     .digest("hex");
   const folder = path.join(workspace, "audio");
   const checkpoint = path.join(folder, `speech-${hash}.json`);
@@ -111,8 +118,8 @@ export async function prepareSpeech(
     let text =
       settings.source === "provided"
         ? settings.text.trim()
-        : settings.source === "lyrics" && request.lyrics?.mode === "provided"
-          ? request.lyrics.text
+        : settings.source === "subtitles" && request.subtitles?.mode === "provided"
+          ? request.subtitles.text
           : "";
     // Adjusting playback volume must not ask the model to rewrite the script.
     const scriptHash = createHash("sha256")
@@ -147,7 +154,7 @@ export async function prepareSpeech(
         await writeFile(scriptFile, JSON.stringify({ text }));
       }
     }
-    if (!text) throw Error("Provide narration text or prepare lyrics before generating speech.");
+    if (!text) throw Error("Provide narration text or prepare subtitles before generating speech.");
     const lines = text
       .split(/\n+/)
       .map((line) => line.trim())
@@ -234,8 +241,15 @@ async function prepareScriptItemsSpeech(
     );
   const problem = scriptItemsProblem(items, input.duration);
   if (problem) throw new CodedError("INVALID_REQUEST", problem);
+  const voiceDefinitions = items.map((item) => speechVoiceDefinition(item.speech)).filter(Boolean);
   const hash = createHash("sha256")
-    .update(JSON.stringify({ items, revision: narrationAudioRevision }))
+    .update(
+      JSON.stringify({
+        items,
+        revision: narrationAudioRevision,
+        voiceDefinitions: voiceDefinitions.length ? voiceDefinitions : undefined,
+      }),
+    )
     .digest("hex");
   const folder = path.join(input.workspace, "audio", "items", hash);
   await mkdir(folder, { recursive: true });
@@ -245,7 +259,13 @@ async function prepareScriptItemsSpeech(
   for (const item of items) {
     if (item.speech.mode !== "narration") continue;
     const itemHash = createHash("sha256")
-      .update(JSON.stringify({ item, revision: narrationAudioRevision }))
+      .update(
+        JSON.stringify({
+          item,
+          revision: narrationAudioRevision,
+          voiceDefinition: speechVoiceDefinition(item.speech),
+        }),
+      )
       .digest("hex");
     const workspace = path.join(input.workspace, "audio", "items", itemHash);
     const track = await prepareSpeech(
@@ -256,7 +276,7 @@ async function prepareScriptItemsSpeech(
         request: {
           ...input.request,
           scriptItems: undefined,
-          lyrics: { mode: "off" },
+          subtitles: { mode: "off" },
           speech: {
             ...item.speech,
             source: "provided",
@@ -278,7 +298,7 @@ async function prepareScriptItemsSpeech(
         startSeconds: cue.startSeconds + item.startSeconds,
         endSeconds: cue.endSeconds + item.startSeconds,
         scriptItemId: item.id,
-        showLyrics: item.showLyrics,
+        showSubtitles: item.showSubtitles,
       })),
     );
   }

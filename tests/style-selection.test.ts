@@ -36,14 +36,14 @@ it.each([
     ...selection,
     instructions: "A visual story",
     outputLanguage: "zh",
-    lyrics: { mode: "provided", text: "A story begins." },
+    subtitles: { mode: "provided", text: "A story begins." },
   };
   const before = structuredClone(draft);
   const request = RequestSchema.parse(normalizeStyleSelection(draft));
   expect(request).toMatchObject({
     instructions: draft.instructions,
     outputLanguage: "zh",
-    lyrics: draft.lyrics,
+    subtitles: draft.subtitles,
     candidateCount: selection.selectedStyleIds?.length
       ? selection.candidateCount
       : selection.candidateCount || 5,

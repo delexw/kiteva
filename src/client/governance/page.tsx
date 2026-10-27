@@ -1,4 +1,5 @@
-import { hasOnScreenLyrics } from "../../shared/script-items";
+import { normalizeSubtitleFields } from "../../shared/subtitle-compatibility";
+import { hasOnScreenSubtitles } from "../../shared/script-items";
 import { creativeApproachLabel } from "../../shared/creative-approach";
 import { buildRouteLabel, buildRouteOf } from "../../shared/build-route";
 import { PromptText } from "../components/style-mention";
@@ -33,7 +34,7 @@ export function GovernancePage() {
       try {
         const response = await fetch("/api/admin/governance", { signal: controller.signal });
         if (!response.ok) throw Error(translateUi("Unable to load governance data."));
-        setReport(await response.json());
+        setReport(normalizeSubtitleFields(await response.json()));
         setError("");
       } catch (e) {
         if (!controller.signal.aborted) setError((e as Error).message);
@@ -311,17 +312,17 @@ export function GovernancePage() {
                             <dd>{project.request.aspectRatio}</dd>
                           </div>
                           <div>
-                            <dt>{translateUi("Lyrics")}</dt>
+                            <dt>{translateUi("Subtitles")}</dt>
                             <dd>
                               {project.request.scriptItems !== undefined
                                 ? translateUi(
-                                    hasOnScreenLyrics(project.request)
+                                    hasOnScreenSubtitles(project.request)
                                       ? "Timed script items"
                                       : "Off",
                                   )
-                                : project.request.lyrics?.mode === "provided"
+                                : project.request.subtitles?.mode === "provided"
                                   ? translateUi("User supplied")
-                                  : project.request.lyrics?.mode === "write"
+                                  : project.request.subtitles?.mode === "write"
                                     ? translateUi("Generate")
                                     : translateUi("Off")}
                             </dd>
@@ -330,11 +331,11 @@ export function GovernancePage() {
                       )}
                     </dl>
                     {project.request.outputType !== "page" &&
-                      project.request.lyrics?.mode === "provided" && (
+                      project.request.subtitles?.mode === "provided" && (
                         <>
-                          <h3>{translateUi("Supplied lyrics")}</h3>
+                          <h3>{translateUi("Supplied subtitles")}</h3>
                           <p className="governance-copy">
-                            <PromptText>{project.request.lyrics.text}</PromptText>
+                            <PromptText>{project.request.subtitles.text}</PromptText>
                           </p>
                         </>
                       )}

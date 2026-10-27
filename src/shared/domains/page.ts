@@ -7,7 +7,7 @@ export const PageRequestSchema = SharedRequestSchema.extend({
   viewport: z.enum(["desktop", "mobile"]).default("desktop"),
   duration: z.never().optional(),
   aspectRatio: z.never().optional(),
-  lyrics: z.never().optional(),
+  subtitles: z.never().optional(),
   speech: z.never().optional(),
 }).superRefine(validateStyleSelection);
 export type PageRequest = z.infer<typeof PageRequestSchema>;

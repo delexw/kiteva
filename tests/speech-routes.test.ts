@@ -193,3 +193,78 @@ it("keys previews by volume and rejects out-of-range gain", async () => {
     await app.close();
   }
 });
+
+it.each([
+  { engine: "qwen3-tts", voice: "qwen_deep_male" },
+  { engine: "qwen3-tts-base", voice: "qwen_base_male" },
+])(
+  "uses $engine selected voice and explicit language for readiness and preview",
+  async ({ engine, voice }) => {
+    const app = Fastify();
+    app.setErrorHandler(apiErrorHandler);
+    registerSpeechRoutes(app);
+    try {
+      expect(
+        (
+          await app.inject({
+            method: "GET",
+            url: `/api/speech/status?engine=${engine}&voice=${voice}&language=en`,
+          })
+        ).statusCode,
+      ).toBe(200);
+      expect(speechReadiness).toHaveBeenLastCalledWith(
+        expect.any(AbortSignal),
+        engine,
+        voice,
+        "en",
+      );
+      for (const language of ["en", "zh"]) {
+        const response = await app.inject({
+          method: "POST",
+          url: "/api/speech/sample",
+          payload: { mode: "narration", engine, voice, language },
+        });
+        expect(response.statusCode).toBe(200);
+        expect(synthesizeSpeech).toHaveBeenLastCalledWith(
+          language === "en" ? "Let's bring your idea to life." : expect.stringContaining("中文"),
+          expect.any(String),
+          voice,
+          1,
+          expect.any(AbortSignal),
+          engine,
+          language,
+          1,
+        );
+      }
+    } finally {
+      await app.close();
+    }
+  },
+);
+
+it.each(["qwen3-tts", "qwen3-tts-base"])(
+  "invalidates %s previews when its voice definition changes",
+  async (engine) => {
+    const { qwenVoices, qwenBaseVoices } = await import("../src/shared/speech");
+    const voice = engine === "qwen3-tts-base" ? qwenBaseVoices[0] : qwenVoices[0];
+    const original = { ...voice };
+    const app = Fastify();
+    app.setErrorHandler(apiErrorHandler);
+    registerSpeechRoutes(app);
+    try {
+      const request = {
+        method: "POST" as const,
+        url: "/api/speech/sample",
+        payload: { mode: "narration", engine, voice: voice.id, language: "en" },
+      };
+      const before = (await app.inject(request)).json().url;
+      if ("description" in voice) voice.description += " Clear broadcast delivery.";
+      else voice.revision += 1;
+      const after = (await app.inject(request)).json().url;
+      expect(after).not.toBe(before);
+    } finally {
+      Object.assign(voice, original);
+      await app.close();
+    }
+  },
+);

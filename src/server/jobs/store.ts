@@ -1,3 +1,4 @@
+import { normalizeSubtitleFields } from "../../shared/subtitle-compatibility";
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { EventEmitter } from "node:events";
@@ -21,7 +22,7 @@ export class Store {
   }
   room(): RoomState {
     const row = this.db.prepare("SELECT json FROM room_state WHERE id=1").get();
-    return RoomStateSchema.parse(row ? JSON.parse(String(row.json)) : {});
+    return RoomStateSchema.parse(row ? normalizeSubtitleFields(JSON.parse(String(row.json))) : {});
   }
   saveRoom(state: RoomState) {
     this.db
@@ -65,13 +66,13 @@ export class Store {
         `SELECT a.json FROM assets a JOIN ${table} l ON a.id=l.asset_id ORDER BY l.rowid DESC`,
       )
       .all()
-      .map((row) => JSON.parse(String(row.json)));
+      .map((row) => normalizeSubtitleFields(JSON.parse(String(row.json))));
   }
   assetByHash(sha256: string): Asset | undefined {
     const row = this.db
       .prepare("SELECT json FROM assets WHERE json_extract(json,'$.sha256')=? LIMIT 1")
       .get(sha256);
-    return row ? JSON.parse(String(row.json)) : undefined;
+    return row ? normalizeSubtitleFields(JSON.parse(String(row.json))) : undefined;
   }
   removeLibraryAsset(id: string) {
     this.db.prepare("DELETE FROM room_library WHERE asset_id=?").run(id);
@@ -90,13 +91,13 @@ export class Store {
   }
   get(id: string): Run | undefined {
     const row = this.db.prepare("SELECT json FROM runs WHERE id=?").get(id);
-    return row ? JSON.parse(String(row.json)) : undefined;
+    return row ? normalizeSubtitleFields(JSON.parse(String(row.json))) : undefined;
   }
   list(): Run[] {
     return this.db
       .prepare("SELECT json FROM runs ORDER BY rowid DESC LIMIT 50")
       .all()
-      .map((x) => JSON.parse(String(x.json)));
+      .map((x) => normalizeSubtitleFields(JSON.parse(String(x.json))));
   }
   delete(id: string) {
     this.db.exec("BEGIN");
@@ -113,20 +114,23 @@ export class Store {
     return this.db
       .prepare("SELECT json FROM runs ORDER BY rowid DESC")
       .all()
-      .map((row) => JSON.parse(String(row.json)));
+      .map((row) => normalizeSubtitleFields(JSON.parse(String(row.json))));
   }
   allEvents(id: string): AgentProgressEvent[] {
     return this.db
       .prepare("SELECT id,json FROM events WHERE run_id=? ORDER BY id")
       .all(id)
-      .map((row) => ({ ...JSON.parse(String(row.json)), id: Number(row.id) }));
+      .map((row) => ({
+        ...normalizeSubtitleFields(JSON.parse(String(row.json))),
+        id: Number(row.id),
+      }));
   }
   asset(a: Asset) {
     this.db.prepare("INSERT INTO assets VALUES(?,?)").run(a.id, JSON.stringify(a));
   }
   getAsset(id: string): Asset | undefined {
     const r = this.db.prepare("SELECT json FROM assets WHERE id=?").get(id);
-    return r ? JSON.parse(String(r.json)) : undefined;
+    return r ? normalizeSubtitleFields(JSON.parse(String(r.json))) : undefined;
   }
   emit(runId: string, type: string, message: string, jobId?: string, data?: unknown) {
     const e = {
@@ -152,7 +156,7 @@ export class Store {
     return this.db
       .prepare("SELECT id,json FROM events WHERE run_id=? AND id>? ORDER BY id LIMIT 500")
       .all(id, after)
-      .map((x) => ({ ...JSON.parse(String(x.json)), id: Number(x.id) }));
+      .map((x) => ({ ...normalizeSubtitleFields(JSON.parse(String(x.json))), id: Number(x.id) }));
   }
   recover() {
     for (const run of this.allRuns()) {

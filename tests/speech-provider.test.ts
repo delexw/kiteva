@@ -3,7 +3,7 @@ import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 const workerMock = vi.hoisted(() => ({ create: vi.fn(), synthesize: vi.fn(), stop: vi.fn() }));
-vi.mock("../src/server/audio/providers/pocket-worker", () => ({
+vi.mock("../src/server/audio/providers/pocket-tts/worker", () => ({
   PocketTtsWorker: class {
     constructor(...args: unknown[]) {
       workerMock.create(...args);
@@ -39,7 +39,7 @@ import { speechProvider } from "../src/server/audio/providers";
 import { kokoroSpeechProvider } from "../src/server/audio/providers/kokoro";
 import { speechModelDirectory } from "../src/server/audio/providers/paths";
 import { pocketVoices } from "../src/shared/speech";
-import { pocketZhVoiceReference } from "../src/server/audio/providers/pocket-tts-zh";
+import { pocketZhVoiceReference } from "../src/server/audio/providers/pocket-tts/chinese";
 import { appRoot } from "../src/server/runtime/config";
 const folders: string[] = [];
 beforeEach(() => {
@@ -299,7 +299,7 @@ it.each(pocketVoices.filter((voice) => voice.language === "zh"))(
     expect((await pocketTtsSpeechProvider.readiness(signal, voice.id)).available).toBe(true);
     expect(vi.mocked(command).mock.calls[0][1]).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("pocket-tts-zh.py"),
+        expect.stringContaining("pocket-tts/chinese.py"),
         expect.stringContaining("models/pocket-tts-zh"),
         "--check",
         "--reference",

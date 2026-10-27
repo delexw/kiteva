@@ -1,3 +1,4 @@
+import { normalizeSubtitleFields } from "../../shared/subtitle-compatibility";
 import { ScriptItemDraftSchema } from "../../shared/script-items";
 import type { z } from "zod";
 import {
@@ -44,7 +45,7 @@ export const roomQuestions = [
     question: "What should the music sound like? Describe the score or choose reference audio.",
   },
   {
-    label: "Narration / lyrics",
+    label: "Narration / subtitles",
     question: "Would you like a narrator, a vocal recording, or words on screen?",
   },
   {
@@ -93,7 +94,7 @@ export function initialRoomRequest(): CreativeRequest {
     outputType: "video",
     resolution: "1080p",
     frameRate: 30,
-    lyrics: { mode: "off" },
+    subtitles: { mode: "off" },
     outputLanguage: "en",
   });
 }
@@ -124,10 +125,9 @@ const strings = (value: unknown) =>
  * half-written links) are kept as typed; anything unusable falls back to its default.
  */
 export function roomDraftRequest(draft: Partial<RoomDraft>): CreativeRequest {
-  const saved = (draft.request && typeof draft.request === "object" ? draft.request : {}) as Record<
-    string,
-    unknown
-  >;
+  const saved = normalizeSubtitleFields(
+    draft.request && typeof draft.request === "object" ? draft.request : {},
+  ) as Record<string, unknown>;
   const merged = { ...initialRoomRequest(), ...saved };
   const count =
     typeof merged.candidateCount === "number" && merged.candidateCount > 0
@@ -145,23 +145,23 @@ export function roomDraftRequest(draft: Partial<RoomDraft>): CreativeRequest {
     requirements: undefined,
     candidateCount: styles.length && merged.candidateCount === 0 ? 0 : count,
   });
-  const savedLyrics = saved.lyrics;
-  const draftLyricsText =
-    savedLyrics &&
-    typeof savedLyrics === "object" &&
-    "text" in savedLyrics &&
-    typeof savedLyrics.text === "string"
-      ? savedLyrics.text
+  const savedSubtitles = saved.subtitles;
+  const draftSubtitlesText =
+    savedSubtitles &&
+    typeof savedSubtitles === "object" &&
+    "text" in savedSubtitles &&
+    typeof savedSubtitles.text === "string"
+      ? savedSubtitles.text
       : undefined;
   const base = parsed.success
     ? parsed.data
     : switchRoomOutputType(initialRoomRequest(), saved.outputType === "page" ? "page" : "video");
   if (
     base.outputType === "video" &&
-    base.lyrics?.mode === "provided" &&
-    draftLyricsText !== undefined
+    base.subtitles?.mode === "provided" &&
+    draftSubtitlesText !== undefined
   )
-    base.lyrics = { mode: "provided", text: draftLyricsText };
+    base.subtitles = { mode: "provided", text: draftSubtitlesText };
   return {
     ...base,
     ...(base.outputType === "video" && Array.isArray(saved.scriptItems)
@@ -324,7 +324,7 @@ export function switchRoomOutputType(
     aspectRatio: "16:9",
     resolution: "1080p",
     frameRate: 30,
-    lyrics: { mode: "off" },
+    subtitles: { mode: "off" },
     selectedStyleIds: trimStylesForDuration(shared.selectedStyleIds || [], "video", "auto"),
   };
   return video;

@@ -622,7 +622,7 @@ it("exposes governance inputs, settings and complete model activity only on the 
   expect(response.statusCode).toBe(200);
   const project = response.json().projects.find((p: { id: string }) => p.id === id);
   expect(response.json().models).toContainEqual({
-    function: "Brief preparation, Motion Graphic information extraction and generated lyrics",
+    function: "Brief preparation, Motion Graphic information extraction and generated subtitles",
     claude: "claude-haiku-5-5",
     codex: "gpt-6-luna",
   });

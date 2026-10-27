@@ -33,7 +33,7 @@ it.skipIf(!browserExecutablePath())(
 import React,{useState}from'react';import{createRoot}from'react-dom/client';
 import{RoomOnboarding}from'/src/client/room/room-onboarding.tsx';
 import{emptyRoomDraft}from'/src/client/room/onboarding.ts';
-function App(){const[draft,setDraft]=useState({...emptyRoomDraft(),step:5,stepLayout:'separate-speech',request:{instructions:'An example film',urls:[],lyrics:{mode:'provided',text:'Original words'},speech:{mode:'narration',source:'provided',text:'Original words'}}});return React.createElement(React.Fragment,null,React.createElement(RoomOnboarding,{draft,onChange:setDraft,materials:[],styles:[],examples:[],onCreated(){},onUpload:async()=>[]}),React.createElement('output',{id:'state'},JSON.stringify(draft)));}
+function App(){const[draft,setDraft]=useState({...emptyRoomDraft(),step:5,stepLayout:'separate-speech',request:{instructions:'An example film',urls:[],subtitles:{mode:'provided',text:'Original words'},speech:{mode:'narration',source:'provided',text:'Original words'}}});return React.createElement(React.Fragment,null,React.createElement(RoomOnboarding,{draft,onChange:setDraft,materials:[],styles:[],examples:[],onCreated(){},onUpload:async()=>[]}),React.createElement('output',{id:'state'},JSON.stringify(draft)));}
 createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
               );
               res.setHeader("Content-Type", "text/html");
@@ -65,17 +65,21 @@ createRoot(document.getElementById('root')).render(React.createElement(App));</s
       await page.keyboard.press("Backspace");
       await page.type('[aria-label="Shared script"]', "One shared script.");
       const state = await page.$eval("#state", (el) => JSON.parse(el.textContent!));
-      expect(state.request.lyrics).toEqual({ mode: "provided", text: "One shared script." });
-      expect(state.request.speech).toMatchObject({ source: "lyrics", text: "One shared script." });
+      expect(state.request.subtitles).toEqual({ mode: "provided", text: "One shared script." });
+      expect(state.request.speech).toMatchObject({
+        source: "subtitles",
+        text: "One shared script.",
+      });
       await page.evaluate(() => {
         const label = [...document.querySelectorAll("label")].find((el) =>
-          el.textContent?.includes("Show lyrics on screen"),
+          el.textContent?.includes("Show subtitles on screen"),
         );
         (label?.querySelector("button") as HTMLButtonElement)?.click();
       });
       await page.waitForFunction(
         () =>
-          JSON.parse(document.querySelector("#state")!.textContent!).request.lyrics.mode === "off",
+          JSON.parse(document.querySelector("#state")!.textContent!).request.subtitles.mode ===
+          "off",
       );
       const narrationOnly = await page.$eval("#state", (el) => JSON.parse(el.textContent!));
       expect(narrationOnly.request.speech).toMatchObject({

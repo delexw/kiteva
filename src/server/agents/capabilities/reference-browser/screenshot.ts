@@ -1,3 +1,4 @@
+import path from "node:path";
 import { createReferenceBrowser } from "../../../jobs/subworkflows/website-reference";
 import { validateReferenceUrl } from "../../../requests/reference-url";
 import { agentMode } from "../../../runtime/config";
@@ -15,6 +16,8 @@ export async function captureReferencePage(
     [value],
     AbortSignal.any([signal, AbortSignal.timeout(30000)]),
     mode,
+    false,
+    path.dirname(screenshotPath),
   );
   try {
     await browser.inspect(value);

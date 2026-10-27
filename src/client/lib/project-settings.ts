@@ -1,4 +1,4 @@
-import { hasOnScreenLyrics } from "../../shared/script-items";
+import { hasOnScreenSubtitles } from "../../shared/script-items";
 import type { CreativeRequest } from "../../shared/contracts";
 import { MAX_VIDEO_DURATION } from "../../shared/domains/video";
 
@@ -22,10 +22,10 @@ export function projectSettingsDraft(request: CreativeRequest) {
     aspect: request.outputType === "video" ? request.aspectRatio : ("16:9" as const),
     resolution: request.outputType === "video" ? request.resolution || "1080p" : "1080p",
     frameRate: request.outputType === "video" ? request.frameRate || 30 : 30,
-    lyricsEnabled: request.outputType === "video" && hasOnScreenLyrics(request),
-    lyricsText:
-      request.outputType === "video" && request.lyrics?.mode === "provided"
-        ? request.lyrics.text
+    subtitlesEnabled: request.outputType === "video" && hasOnScreenSubtitles(request),
+    subtitlesText:
+      request.outputType === "video" && request.subtitles?.mode === "provided"
+        ? request.subtitles.text
         : "",
     urls: request.urls.join("\n"),
     scriptItems: request.outputType === "video" ? request.scriptItems : undefined,

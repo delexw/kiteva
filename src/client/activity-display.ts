@@ -24,24 +24,31 @@ function appendActivityOutcome(target: DisplayActivityItem[], item: DisplayActiv
   }
   const prior =
     item.kind !== "message" &&
-    target.find(
-      (child) =>
+    target.find((child) => {
+      const sameCheckpoint = Boolean(
+        item.preparationStep && child.preparationStep === item.preparationStep,
+      );
+      return (
         child.text === item.text &&
         child.kind === item.kind &&
         child.scope === item.scope &&
-        ((item.capability === "narration" && child.capability === "narration") ||
+        child.preparationStep === item.preparationStep &&
+        (sameCheckpoint ||
+          (item.capability === "narration" && child.capability === "narration") ||
           child.purpose === item.purpose) &&
         child.captureChapterId === item.captureChapterId &&
-        ((item.capability === "narration" && child.capability === "narration") ||
+        (sameCheckpoint ||
+          (item.capability === "narration" && child.capability === "narration") ||
           (Boolean(child.activityScopeId) && Boolean(item.activityScopeId)) ||
           Boolean(item.captureChapterId) ||
           child.invocationId === item.invocationId ||
           (item.purpose === "full video generation" &&
             child.status === "complete" &&
-            item.status === "complete")),
-    );
+            item.status === "complete"))
+      );
+    });
   if (!prior) target.push(item);
-  else if (item.activityScopeId || item.capability === "narration")
+  else if (item.preparationStep || item.activityScopeId || item.capability === "narration")
     Object.assign(prior, item, { id: prior.id });
   else {
     // Preserve genuinely pending actions; otherwise show the latest attempt's outcome.

@@ -40,7 +40,7 @@ it.skipIf(!browserExecutablePath())(
 import '/src/client/style.css';
 import React,{useState}from'react';import{createRoot}from'react-dom/client';
 import{ScriptItems}from'/src/client/components/script-items.tsx';
-const initial=[{id:'opening',startSeconds:0,endSeconds:2,text:'Read without narration',showLyrics:true,speech:{mode:'off'}},{id:'voice',startSeconds:2,endSeconds:4,text:'Hello team',showLyrics:false,speech:{mode:'narration',engine:'pocket-tts',language:'en',voice:'pocket_eve',speed:1,volume:0.8}}];
+const initial=[{id:'opening',startSeconds:0,endSeconds:2,text:'Read without narration',showSubtitles:true,speech:{mode:'off'}},{id:'voice',startSeconds:2,endSeconds:4,text:'Hello team',showSubtitles:false,speech:{mode:'narration',engine:'pocket-tts',language:'en',voice:'pocket_eve',speed:1,volume:0.8}}];
 function App(){const[items,setItems]=useState(initial);const[saved,setSaved]=useState(initial);return React.createElement(React.Fragment,null,React.createElement(ScriptItems,{items,duration:20,onChange:setItems}),React.createElement('button',{id:'save',onClick:()=>setSaved(items)},'Save'),React.createElement('button',{id:'restore',onClick:()=>setItems(saved)},'Restore'),React.createElement('output',{id:'state',style:{display:'none'}},JSON.stringify(items)));}createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
                 ),
               );
@@ -83,9 +83,9 @@ function App(){const[items,setItems]=useState(initial);const[saved,setSaved]=use
       await page.keyboard.press("Backspace");
       await firstText.type("Opening words");
       expect((await state())[0].text).toBe("Opening words");
-      await page.click('[aria-label="Show lyrics on screen"]');
-      expect((await state())[0].showLyrics).toBe(false);
-      expect((await state())[1].showLyrics).toBe(false);
+      await page.click('[aria-label="Show subtitles on screen"]');
+      expect((await state())[0].showSubtitles).toBe(false);
+      expect((await state())[1].showSubtitles).toBe(false);
       const end = (await page.$$('[aria-label="End (seconds)"]'))[0];
       await end.click();
       await end.evaluate((el) => (el as HTMLInputElement).select());

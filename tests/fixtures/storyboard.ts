@@ -18,7 +18,7 @@ export function validStoryboard(durationSeconds = 3) {
             endSeconds: durationSeconds,
             development: "A shape unfolds",
             captions: [],
-            audio: { music: "", effects: [], lyrics: [] },
+            audio: { music: "", effects: [], subtitles: [] },
             readingHoldSeconds: 0,
           },
         ],

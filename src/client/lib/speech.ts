@@ -6,7 +6,7 @@ import { api } from "./api";
 
 /** Prevent an older, still-running worker from silently dropping the new request field. */
 export async function ensureSpeechGenerationReady(request: {
-  lyrics?: { mode: string };
+  subtitles?: { mode: string };
   speech?: SpeechSettings;
   scriptItems?: ScriptItem[];
   outputLanguage?: VideoLanguage;

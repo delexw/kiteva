@@ -87,7 +87,9 @@ user and are not video assets or part of the rendered output.
 
 Preview builders run concurrently, but native recording is a shared resource on each
 recording host. A cross-process lease in `capture/recording-slot.ts` queues recording
-requests across projects and MCP servers using the same `os.tmpdir()` lock path. This is
+requests across projects and MCP servers using the same host temporary-directory lock path.
+The capability passes `KITEVA_RECORDING_LOCK_PATH` explicitly so project-local `TMPDIR` values
+do not split recorder ownership. This is
 lock-based mutual exclusion, not a FIFO queue or a distributed lock across hosts. Ownership
 lasts from recorder startup until
 the take finishes saving. Native review, editing, export and authored graphics can

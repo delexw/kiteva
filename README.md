@@ -35,6 +35,20 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 Dates below use New Zealand time.
 
 <details>
+<summary>2026-10-27</summary>
+
+- **Project-local runtime files:** agent homes, temporary files, browser profiles and render caches live inside the project. Provider login credentials remain available without copying unrelated account data. Runtime files stay out of editable project exports. See [project file isolation](docs/project-file-isolation.md).
+- **Local Qwen narration:** add Qwen3-TTS VoiceDesign 1.7B and Base 1.7B providers with selectable female and male voices, Chinese/English speech, shared runtime handling and bundled Base reference recordings. Existing speech providers now own their adapters and requirements in provider folders. See [speech](docs/speech.md).
+- **Subtitle terminology:** rename on-screen lyrics to subtitles across settings, script items, prompts, storyboard fields and exports. Existing projects, drafts and narration profiles retain their text and settings through compatibility handling. This does not add selectable playback language tracks.
+- **Automatic preview planning:** one shared preview plan feeds independent direction builders. The plan retains each direction's assigned styles and scene roles; full films reuse the selected preview's production context.
+- **JEV evaluation and visibility:** pass compact combination briefs instead of complete style metadata, keep cross-batch selection, and split oversized comparisons before dispatch. Governance expands selected combinations, scores and recorded calls. Future runs preserve evaluation certainty separately from Choice certainty, including compared options and probabilities.
+- **JEV cost reporting:** calculate token-based estimates from recorded input usage at the published rate, including retained project history; keep SDK-reported costs when available.
+- **Multiplane setup:** upgrade to 0.3.13. The installer explicitly installs its matching Chromium into Kiteva's browser cache and runs doctor; unavailable readiness results are rechecked after repair. Run `npm run multiplane:setup` to repair the installation. See [Multiplane](docs/multiplane-trial.md).
+- **Activity and regression coverage:** improve preparation grouping and recovered tool activity, and add coverage for project isolation, planning, browser setup, narration providers, subtitle migration and governance.
+
+</details>
+
+<details>
 <summary>2026-10-26</summary>
 
 - **Planning and session handoff:** one shared preview-planning call feeds independent direction builds; full films continue the selected preview's build session and plan their complete storyboard. Project settings and requirements are saved as files before planning, with concise Markdown instructions and generic system guidance. Build routes and creative approaches have separate responsibilities.
@@ -170,7 +184,7 @@ Dates below use New Zealand time.
 - **Browser capability coverage:** unify tool names, schemas and handlers; add file uploads and browser session, pointer, frame, dialog, network, diagnostics and capture operations. Local mock workflows use normal HTTP(S) requests; hosted access retains its proxy boundary.
 - **Multiplane shots:** inspect, verify and render independently loaded shots, then join their visual output and apply the full-film soundtrack once to avoid film-wide frame preloads.
 - **Activity display:** consolidate recovered tool retries, order updates chronologically, preserve spacing without timestamps and follow appended activity.
-- **Editable project downloads:** expose available sources and media even from failed builds, with an OTIO timeline, SRT lyrics, audio files and streaming ZIP delivery. See the [export guide](docs/editable-projects.md).
+- **Editable project downloads:** expose available sources and media even from failed builds, with an OTIO timeline, SRT subtitles, audio files and streaming ZIP delivery. See the [export guide](docs/editable-projects.md).
 
 video planning, native capture and JEV selection.
 
@@ -178,7 +192,7 @@ video planning, native capture and JEV selection.
 - **Audio authoring:** add [Audio Studio MCP](https://github.com/kanaworksai-hue/audio-studio-mcp) as a local capability, with independent JEV selection and renderer-owned audio contracts. Multiplane receives prepared audio assets before rendering; uploaded audio retains its own usage guidance.
 - **Planning and preparation:** separate full-brief and title-only workflows. Direct builds preserve the original idea and still receive a project title. Full videos use a main-model planning turn (Claude's native plan mode for Claude) and a prose plan before capture and implementation; renderer-specific demo routes preserve feature coverage, section titles and act-specific Motion Graphics.
 - **Native OpenScreen editing:** use the referenced upstream demo skill and document-scoped MCP tools for review, trims, speed regions, zooms and export. Remove custom idle-gap editing, automatic input scrolling/centering and the fixed 450 ms pause. Keep the captured frame fitted within the final composition.
-- **Assistant and activity:** add website references one URL per item, share the narration/lyrics script, apply each setting's source guidance through shared logic, pause generation for blocking questions and surface them in the Assistant. Activity follows appended logs and replaces recovered failures with the latest status without retry subtrees.
+- **Assistant and activity:** add website references one URL per item, share the narration/subtitles script, apply each setting's source guidance through shared logic, pause generation for blocking questions and surface them in the Assistant. Activity follows appended logs and replaces recovered failures with the latest status without retry subtrees.
 - **Setup and organization:** add `install.sh` and an OpenScreen setup helper, simplify `.env.example`, update Claude Agent SDK through `latest`, and group capabilities, renderer metadata and JEV strategies in their own folders. React Bits discovery accepts current JS/TS-only registry entries.
 
 </details>
@@ -210,7 +224,7 @@ agent planning, capabilities and demo capture.
 
 - **v0.1.0 — first source release.** See the [release notes](CHANGELOG.md#010--2026-10-18). Includes 138 Motion Graphics, 48 motions, both agent providers, headless website capture and English / Chinese delivery. Native Windows sandbox and render verification passed in CI; Windows support remains experimental.
 
-- Added **English / 简体中文 video language**, translated narration and lyrics with preserved originals, and a separate Chinese Pocket TTS provider. Music and Narration / lyrics now have separate Assistant steps.
+- Added **English / 简体中文 video language**, translated narration and subtitles with preserved originals, and a separate Chinese Pocket TTS provider. Music and Narration / subtitles now have separate Assistant steps.
 - Added **Cassette Futurism**: hardware panels, phosphor screens, tape reels and stepped animation, with a rendered preview. The collection now has **137 Motion Graphics**.
 - Added **Terminal Lyric Duotone Anime**: flat blue, cream and black anime art in a CRT terminal frame, with bilingual decoding captions and ringed keyword titles, plus a code-drawn illustrative preview. Also added two motions, **Rotating Sonar-Sweep Reveal** and **Pixel-Tile Materialize & Targeted Delete**. The collection now has **138 Motion Graphics and 48 motions**.
 - Added an **experimental native Windows backend**, platform-aware setup and a render verification command. Actual Windows 10/11 testing is still pending; project creation on Windows requires a successful verification first. See the [Windows setup guide](docs/windows.md).
@@ -232,7 +246,7 @@ agent planning, capabilities and demo capture.
 
 ## Editable project downloads
 
-Full versions offer **Download editable project** whenever source or media files exist, including failed, cancelled and incomplete builds. The streamed ZIP contains renderer sources and assets, dependency manifests, an OpenTimelineIO timeline, SRT lyrics from the storyboard, and usable rendered media. Rendered scenes remain clips, with available music/narration tracks; the rendered audio mix is preserved as a reference or fallback. Burned-in graphics/captions stay flattened in clips; edit the included native renderer sources to change them. Editor import support varies. Missing renders are reported in `export.json`; a source-only export does not imply a successful build. See [editable project exports](docs/editable-projects.md) for the ZIP layout, timeline construction and editing limitations.
+Full versions offer **Download editable project** whenever source or media files exist, including failed, cancelled and incomplete builds. The streamed ZIP contains renderer sources and assets, dependency manifests, an OpenTimelineIO timeline, SRT subtitles from the storyboard, and usable rendered media. Rendered scenes remain clips, with available music/narration tracks; the rendered audio mix is preserved as a reference or fallback. Burned-in graphics/captions stay flattened in clips; edit the included native renderer sources to change them. Editor import support varies. Missing renders are reported in `export.json`; a source-only export does not imply a successful build. See [editable project exports](docs/editable-projects.md) for the ZIP layout, timeline construction and editing limitations.
 
 ## Why this exists
 
@@ -259,7 +273,7 @@ and I'm trying it out for fun. You choose the provider per project.
 </p>
 
 - **A desktop-style room.** Everything happens in windows on a personal desktop: an assistant that
-  walks you through the idea, documents, images, websites, music and lyrics, and settings, plus a material
+  walks you through the idea, documents, images, websites, music and subtitles, and settings, plus a material
   shelf and one widget per project. Nothing calls a model until you press **Create**.
 - **A brief from your references.** A small model reads your files and, if you add websites, opens
   them in a fresh headless [Chromium](https://www.chromium.org) browser to take screenshots. It writes a structured brief and then checks it.
@@ -268,7 +282,7 @@ and I'm trying it out for fun. You choose the provider per project.
   separate evaluator, [Typesafe](https://docs.typesafe.ai)'s [JEV](https://docs.typesafe.ai/models), scores them and keeps the number of directions you asked for (1–5).
 - **Silent 3-second previews** of the same story beat, one per direction, so you can compare.
 - **The full film** continues the preview session you picked, at 1080p or 1440p, 30 or 60 fps, up to
-  5 minutes, with optional on-screen lyrics and local narration ([Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) or
+  5 minutes, with optional on-screen subtitles and local narration ([Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) or
   [Pocket TTS](https://pypi.org/project/pocket-tts/)).
 - **Review and delivery.** Every render is probed with `ffprobe` and fully decoded. With
   [HyperFrames](https://github.com/heygen-com/hyperframes), the default renderer, layout and contrast checks run
@@ -321,13 +335,13 @@ an evaluator and repairs.
 
 ## Who does what
 
-| Job                                                                       | Claude projects                                                                         | Codex projects                                                           |
-| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Brief, reference checks, Motion Graphic summaries, lyrics, simple repairs | [Claude Haiku 5.5](https://platform.claude.com/docs/en/about-claude/models/overview)    | [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna)   |
-| Combination proposals, previews, the full film, pacing/style repairs      | **[Claude Opus 5.5](https://platform.claude.com/docs/en/about-claude/models/overview)** | [GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol) |
-| Finished-result review                                                    | Same model that built the result                                                        | Same model that built the result                                         |
-| Scoring and choosing directions                                           | [JEV](https://docs.typesafe.ai/models) via [Typesafe](https://docs.typesafe.ai)         | [JEV](https://docs.typesafe.ai/models)                                   |
-| Recording every call, token count and cost estimate                       | Governance report                                                                       | Governance report                                                        |
+| Job                                                                          | Claude projects                                                                         | Codex projects                                                           |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Brief, reference checks, Motion Graphic summaries, subtitles, simple repairs | [Claude Haiku 5.5](https://platform.claude.com/docs/en/about-claude/models/overview)    | [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna)   |
+| Combination proposals, previews, the full film, pacing/style repairs         | **[Claude Opus 5.5](https://platform.claude.com/docs/en/about-claude/models/overview)** | [GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol) |
+| Finished-result review                                                       | Same model that built the result                                                        | Same model that built the result                                         |
+| Scoring and choosing directions                                              | [JEV](https://docs.typesafe.ai/models) via [Typesafe](https://docs.typesafe.ai)         | [JEV](https://docs.typesafe.ai/models)                                   |
+| Recording every call, token count and cost estimate                          | Governance report                                                                       | Governance report                                                        |
 
 More detail, including the workflow diagrams, is in [docs/architecture.md](docs/architecture.md).
 
@@ -379,7 +393,7 @@ Your projects, uploads, room layout, databases and credentials stay in Git-ignor
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | [Anatomy](https://github.com/wheresryan22/anatomy)                                                                                                                                                                                                                            | Isometric technical-illustration skill and drawing kit (3D mode is beta)                                                                             | Installed/updated from upstream at launch into Git-ignored `skills/anatomy/`; verified local fallback when offline; MIT |
 | [HyperFrames](https://github.com/heygen-com/hyperframes) 0.8.144                                                                                                                                                                                                              | HTML video composition and export                                                                                                                    | npm dependency, pinned, default renderer                                                                                |
-| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.10                                                                                                                                                                                                                     | `render(t)` shot renderer with motion blur                                                                                                           | npm dependency, pinned, trial setting                                                                                   |
+| [Multiplane](https://github.com/LBEILC/Multiplane) 0.3.13                                                                                                                                                                                                                     | `render(t)` shot renderer with motion blur                                                                                                           | npm dependency, pinned, trial setting                                                                                   |
 | [Remotion](https://www.remotion.dev) 4.x                                                                                                                                                                                                                                      | React video renderer                                                                                                                                 | npm dependency, fallback only (has its own license terms)                                                               |
 | `reference_browser` / `capture_video`                                                                                                                                                                                                                                         | Website inspection via [Puppeteer](https://pptr.dev); recording via local or worker [OpenScreen](https://github.com/getopenscreen/openscreen) worker | Built into Kiteva, for both providers                                                                                   |
 | [Kokoro](https://github.com/thewh1teagle/kokoro-onnx), [Pocket TTS](https://pypi.org/project/pocket-tts/)                                                                                                                                                                     | Local narration                                                                                                                                      | Python set up by `npm run speech:setup*`. Weights downloaded to Git-ignored `models/`                                   |

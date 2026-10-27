@@ -7,7 +7,7 @@ import json
 import os
 from pathlib import Path
 
-catalog = json.loads((Path(__file__).resolve().parents[2] / "src/shared/pocket-tts-catalog.json").read_text())
+catalog = json.loads((Path(__file__).resolve().parents[5] / "src/shared/pocket-tts-catalog.json").read_text())
 VERSION = catalog["version"]
 languages = {language["model"]: language for language in catalog["languages"] if language["id"] != "zh"}
 parser = argparse.ArgumentParser()

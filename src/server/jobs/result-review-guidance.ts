@@ -80,13 +80,13 @@ export const videoReviewTestCases = [
       "Add substantive content beats; decorative movement alone does not develop the story.",
   },
   {
-    id: "lyrics-only",
+    id: "subtitles-only",
     evidence:
-      "0–30s: six unrelated lyric changes over the same generic scene; the brief requests a process demonstration, and no process step is shown",
+      "0–30s: six unrelated subtitle changes over the same generic scene; the brief requests a process demonstration, and no process step is shown",
     pacingPlan: "needs_review",
     focus: "pacing",
     expectedFix:
-      "Show the requested process steps; lyric changes alone do not satisfy this demonstration brief.",
+      "Show the requested process steps; subtitle changes alone do not satisfy this demonstration brief.",
   },
   {
     id: "dense-reading",

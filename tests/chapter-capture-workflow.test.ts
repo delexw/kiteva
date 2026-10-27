@@ -129,7 +129,7 @@ it.each(["chapters", "retry", "exhausted", "none", "legacy", "narration"] as con
                 id: "first",
                 text: "Example",
                 startSeconds: 0,
-                showLyrics: true,
+                showSubtitles: true,
                 file: "audio/model-created.wav",
                 sourceStartSeconds: 0,
                 durationSeconds: 1,

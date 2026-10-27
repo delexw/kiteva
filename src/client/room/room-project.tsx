@@ -128,6 +128,7 @@ export function RoomProject({
                   {run.request.requirements &&
                     Object.entries(run.request.requirements).map(
                       ([label, value]) =>
+                        label !== "urls" &&
                         value.instructions && (
                           <Bubble
                             key={label}
@@ -138,6 +139,31 @@ export function RoomProject({
                           />
                         ),
                     )}
+                  {(run.request.urls.length > 0 || run.request.requirements?.urls.instructions) && (
+                    <Bubble
+                      placement="end"
+                      className="room-bubble-user"
+                      header={translateUi("Websites")}
+                      content={
+                        <>
+                          {run.request.requirements?.urls.instructions && (
+                            <PromptText>{run.request.requirements.urls.instructions}</PromptText>
+                          )}
+                          {run.request.urls.length > 0 && (
+                            <ul>
+                              {run.request.urls.map((url) => (
+                                <li key={url}>
+                                  <a href={url} target="_blank" rel="noreferrer">
+                                    {url}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </>
+                      }
+                    />
+                  )}
                   {questions.map((q) => (
                     <div className="room-chat-turn" key={`${q.id}:${q.jobId || ""}`}>
                       <Bubble

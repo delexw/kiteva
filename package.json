@@ -5,6 +5,9 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "multiplane:setup": "node --import tsx scripts/setup-multiplane.ts",
+    "speech:setup:qwen:base": "node --import tsx scripts/setup-qwen-tts.ts --base",
+    "speech:setup:qwen": "node --import tsx scripts/setup-qwen-tts.ts",
     "speech:setup:pocket": "node --import tsx scripts/setup-pocket-tts.ts",
     "speech:setup": "node --import tsx scripts/setup-speech.ts",
     "dev": "node --import tsx src/server/index.ts",
@@ -76,7 +79,7 @@
     "micromark-extension-gfm": "3.0.0",
     "minisearch": "7.2.0",
     "motion": "14.1.0",
-    "multiplane": "0.3.10",
+    "multiplane": "0.3.13",
     "nanoid": "6.0.2",
     "otio.js": "0.1.0",
     "paper": "0.12.18",

@@ -24,18 +24,18 @@ Checked with `ffprobe` and by pulling frames out of the MP4 myself:
 
 ## Request
 
-| Setting                       | Value                                                                                                                          | Where it went               |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------- |
-| Output                        | Video, 28 s, 16:9, 1080p, 30 fps                                                                                               | settings fields             |
-| Renderer                      | [HyperFrames](https://github.com/heygen-com/hyperframes)                                                                       | `renderer`                  |
-| Provider and main model       | Claude, `claude-opus-5-5`                                                                                                      | `provider`, `mainModel`     |
-| Preview directions            | 2                                                                                                                              | `candidateCount`            |
-| Pinned primary Motion Graphic | Sticker-Style Explainer Animation (`style-111`)                                                                                | `pinnedStyleId`             |
-| Interpretation                | Explore creative ideas                                                                                                         | `preference: "creative"`    |
-| On-screen words               | Eight provided lines (below)                                                                                                   | `lyrics.mode: "provided"`   |
-| Voice                         | Local [Kokoro](https://github.com/thewh1teagle/kokoro-onnx) narration, voice "Heart" (`af_heart`), speed 1, reading the lyrics | `speech`                    |
-| Logo                          | The real `public/kiteva-mark.svg`, uploaded as an image attachment                                                             | Images section (`assetIds`) |
-| Music                         | None supplied. The film agent wrote its own instrumental in code (see below)                                                   | —                           |
+| Setting                       | Value                                                                                                                             | Where it went                |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Output                        | Video, 28 s, 16:9, 1080p, 30 fps                                                                                                  | settings fields              |
+| Renderer                      | [HyperFrames](https://github.com/heygen-com/hyperframes)                                                                          | `renderer`                   |
+| Provider and main model       | Claude, `claude-opus-5-5`                                                                                                         | `provider`, `mainModel`      |
+| Preview directions            | 2                                                                                                                                 | `candidateCount`             |
+| Pinned primary Motion Graphic | Sticker-Style Explainer Animation (`style-111`)                                                                                   | `pinnedStyleId`              |
+| Interpretation                | Explore creative ideas                                                                                                            | `preference: "creative"`     |
+| On-screen words               | Eight provided lines (below)                                                                                                      | `subtitles.mode: "provided"` |
+| Voice                         | Local [Kokoro](https://github.com/thewh1teagle/kokoro-onnx) narration, voice "Heart" (`af_heart`), speed 1, reading the subtitles | `speech`                     |
+| Logo                          | The real `public/kiteva-mark.svg`, uploaded as an image attachment                                                                | Images section (`assetIds`)  |
+| Music                         | None supplied. The film agent wrote its own instrumental in code (see below)                                                      | —                            |
 
 The idea prompt only described the story and feel: a non-designer engineer's messy collection of motion
 scraps sorting itself into an idea, a brief, Motion Graphic swatches, small previews and finally the
@@ -111,7 +111,7 @@ The only change from the first request was moving the logo from the URL field to
 1. Run Kiteva locally (see the README quick start) with Claude access (an API key or a signed-in
    subscription) and a Typesafe key for JEV, then run `npm run speech:setup` for [Kokoro](https://github.com/thewh1teagle/kokoro-onnx).
 2. In the room, start a **New idea**: write the story, attach `public/kiteva-mark.svg` under Images,
-   turn on lyrics and paste the lines above, choose Narration with Kokoro "Heart", then set 28 s, 16:9,
+   turn on subtitles and paste the lines above, choose Narration with Kokoro "Heart", then set 28 s, 16:9,
    1080p, 30 fps, HyperFrames, two directions and the pinned Motion Graphic.
 3. Wait for the previews, pick one, and build the full film.
 

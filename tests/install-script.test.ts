@@ -18,7 +18,10 @@ async function fixture() {
     await writeFile(file, `#!/bin/bash\nset -eu\n${body}\n`);
     await chmod(file, 0o755);
   }
-  await shim("uname", 'if [[ "$1" == -s ]]; then echo "${TEST_OS:-Darwin}"; else echo arm64; fi');
+  await shim(
+    "uname",
+    'if [[ "$1" == -s ]]; then echo "${TEST_OS:-Darwin}"; else echo "${TEST_ARCH:-arm64}"; fi',
+  );
   await shim(
     "node",
     'if [[ "$1" == -p ]]; then\n  if [[ -f "$INSTALL_PREFIX/node-upgraded" ]]; then echo 24;\n  elif [[ -n "${TEST_NODE_MAJOR:-}" ]]; then echo "$TEST_NODE_MAJOR";\n  else exec "$REAL_NODE" "$@"; fi\n  exit 0\nfi\nprintf "node %s\\n" "$*" >> "$INSTALL_LOG"',
@@ -29,7 +32,7 @@ async function fixture() {
   );
   await shim(
     "npm",
-    'printf "npm %s\\n" "$*" >> "$INSTALL_LOG"\nif [[ "$1" == ci && "${FAIL_NPM_CI:-0}" == 1 ]]; then exit 23; fi',
+    'printf "npm %s\\n" "$*" >> "$INSTALL_LOG"\nif [[ "$1" == ci && "${FAIL_NPM_CI:-0}" == 1 ]]; then exit 23; fi\nif [[ "$*" == "run multiplane:setup" && "${FAIL_MULTIPLANE_SETUP:-0}" == 1 ]]; then exit 29; fi',
   );
   for (const name of ["npx", "ffmpeg", "ffprobe"])
     await shim(name, `printf '${name} %s\\n' "$*" >> "$INSTALL_LOG"`);
@@ -70,12 +73,15 @@ it("runs the complete fresh-clone setup in order using isolated command fixtures
       "npm ci",
       "npm update @anthropic-ai/claude-agent-sdk",
       "npx --no-install browsers install chrome@stable",
+      "npm run multiplane:setup",
       "node --import tsx scripts/setup-openscreen.ts",
       "npm run caveman:setup",
       "uv python install 3.11",
       "npm run speech:setup\n",
       "npm run speech:setup:pocket\n",
       "npm run speech:setup:pocket:zh",
+      "npm run speech:setup:qwen",
+      "npm run speech:setup:qwen:base",
       "git clone --depth 1 https://github.com/kanaworksai-hue/audio-studio-mcp.git",
       "audio-installer \n",
       "npm run build",
@@ -181,6 +187,67 @@ it("stops on a dependency installation failure instead of reporting completion",
       }),
     ).rejects.toMatchObject({ code: 23 });
     expect(await readFile(f.log, "utf8")).toBe("npm ci\n");
+  } finally {
+    await f.close();
+  }
+});
+
+it("sets up Qwen independently and rejects Intel hardware before installing", async () => {
+  const f = await fixture();
+  try {
+    await f.run([
+      "--speech",
+      "qwen",
+      "--skip-audio-studio",
+      "--skip-openscreen",
+      "--skip-browser",
+      "--skip-caveman",
+      "--skip-build",
+    ]);
+    const commands = await readFile(f.log, "utf8");
+    expect(commands).toContain("npm run speech:setup:qwen");
+    expect(commands).not.toContain("npm run speech:setup\n");
+    expect(commands).not.toContain("speech:setup:pocket");
+    Object.assign(f.env, { TEST_ARCH: "x86_64" });
+    await expect(f.run(["--speech", "qwen"])).rejects.toThrow("Qwen3-TTS requires Apple Silicon");
+  } finally {
+    await f.close();
+  }
+});
+
+it("sets up Base without requiring VoiceDesign or Kokoro", async () => {
+  const f = await fixture();
+  try {
+    await f.run([
+      "--speech",
+      "qwen-base",
+      "--skip-audio-studio",
+      "--skip-openscreen",
+      "--skip-browser",
+      "--skip-caveman",
+      "--skip-build",
+    ]);
+    const commands = await readFile(f.log, "utf8");
+    expect(commands).toContain("npm run speech:setup:qwen:base");
+    expect(commands).not.toContain("npm run speech:setup:qwen\n");
+    expect(commands).not.toContain("npm run speech:setup\n");
+    Object.assign(f.env, { TEST_ARCH: "x86_64" });
+    await expect(f.run(["--speech", "qwen-base"])).rejects.toThrow(
+      "Qwen3-TTS requires Apple Silicon",
+    );
+  } finally {
+    await f.close();
+  }
+});
+
+it("stops installation when Multiplane browser verification fails", async () => {
+  const f = await fixture();
+  try {
+    Object.assign(f.env, { FAIL_MULTIPLANE_SETUP: "1" });
+    await expect(f.run()).rejects.toMatchObject({ code: 29 });
+    const commands = await readFile(f.log, "utf8");
+    expect(commands).toContain("npm run multiplane:setup");
+    expect(commands).not.toContain("npm run build");
   } finally {
     await f.close();
   }

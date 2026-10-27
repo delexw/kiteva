@@ -267,7 +267,7 @@ it(
         controller.abort(),
       ),
     ).rejects.toThrow("Cancelled");
-    expect(await readdir(workspace)).toEqual(["full.mp4"]);
+    expect(await readdir(workspace)).toEqual([".runtime", "full.mp4"]);
   },
   realMediaTestTimeoutMs,
 );

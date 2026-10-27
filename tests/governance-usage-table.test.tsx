@@ -133,3 +133,40 @@ it("keeps governance readable while the running backend still returns the older 
   expect(html).toContain("Not recorded");
   expect(html).not.toContain("NaN");
 });
+
+it("makes combination evaluation expandable and renders its saved detail", () => {
+  const row: ModelActivity = {
+    model: "jev-1.14.0",
+    purpose: "Combination evaluation",
+    calls: 1,
+    tools: 0,
+    cacheHits: 0,
+    inputTokens: 100,
+    outputTokens: 1,
+    cachedTokens: null,
+    uncachedInputTokens: 100,
+    cacheWriteTokens: null,
+    cacheWrite5mTokens: null,
+    cacheWrite1hTokens: null,
+    costLow: 0.0000042,
+    costHigh: 0.0000042,
+    costBasis: "Standard API estimate · input tokens",
+    combinationEvaluation: {
+      selected: [
+        {
+          id: "candidate-1",
+          title: "Clear explanation",
+          styles: ["style-001"],
+          rationale: "Fits the subject",
+          score: 80,
+          confidence: 0.7,
+          dimensions: { clarity: 0.9 },
+        },
+      ],
+      calls: [],
+    },
+  };
+  const html = renderToStaticMarkup(<GovernanceUsageTable rows={[row]} byFunction />);
+  expect(html).toContain("ant-table-row-expand-icon");
+  expect(html).not.toContain("ant-table-row-expand-icon-spaced");
+});

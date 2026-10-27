@@ -1,5 +1,6 @@
 import path from "node:path";
 import { mkdir, access } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { appRoot, dataRoot } from "../src/server/runtime/config";
 import { defaultPython } from "../src/server/runtime/platform";
 import { command } from "../src/server/runtime/process";
@@ -8,7 +9,7 @@ import {
   pocketZhModelDirectory,
   pocketZhSpeechProvider,
   pocketZhVoiceReference,
-} from "../src/server/audio/providers/pocket-tts-zh";
+} from "../src/server/audio/providers/pocket-tts/chinese";
 import { pocketVoices } from "../src/shared/speech";
 const signal = AbortSignal.timeout(3600000);
 const environment = path.join(dataRoot, "pocket-tts-zh-venv");
@@ -18,7 +19,12 @@ const python = path.join(
 );
 await command(
   process.env.SPEECH_SETUP_PYTHON || defaultPython(),
-  ["-m", "venv", environment],
+  [
+    "-m",
+    "venv",
+    ...(!existsSync(python) && existsSync(environment) ? ["--clear"] : []),
+    environment,
+  ],
   appRoot,
   signal,
 );
@@ -29,7 +35,7 @@ await command(
     "pip",
     "install",
     "-r",
-    path.join(appRoot, "scripts/pocket-tts-zh-requirements.txt"),
+    path.join(appRoot, "src/server/audio/providers/pocket-tts/chinese-requirements.txt"),
     ...(process.platform === "linux"
       ? ["--extra-index-url", "https://download.pytorch.org/whl/cpu"]
       : []),
@@ -61,7 +67,7 @@ for (const voice of pocketVoices.filter((item) => item.language === "zh")) {
 await command(
   python,
   [
-    path.join(appRoot, "scripts/speech/pocket-tts-zh.py"),
+    path.join(appRoot, "src/server/audio/providers/pocket-tts/chinese.py"),
     "--models",
     pocketZhModelDirectory,
     "--setup",

@@ -36,6 +36,8 @@ coverage/
 *.tsbuildinfo
 
 # Downloaded speech model weights and voice states (setup recreates these)
+/models/qwen3-tts/
+/models/qwen3-tts-base/
 /models/kokoro/
 /models/pocket-tts/
 /models/pocket-tts-zh/
@@ -45,3 +47,17 @@ coverage/
 
 # Downloaded local instrument bank and upstream license (music:setup recreates these).
 /models/instruments/
+
+# Per-project runtime homes, temporary files and caches
+.runtime/
+
+# Python runtime caches and local environments
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Runtime-generated style summaries; already tracked bundled summaries stay versioned.
+/assets/style-summaries/

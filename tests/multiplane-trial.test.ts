@@ -1,6 +1,6 @@
 import { beforeEach, expect, it, vi } from "vitest";
 import { existsSync } from "node:fs";
-import { mkdtemp, readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { ProductionSchema } from "../src/shared/agents/schemas/video";
@@ -73,6 +73,24 @@ const ffprobe = (codec: string) =>
     format: { duration: "3" },
   });
 beforeEach(() => vi.clearAllMocks());
+
+it("retains the underlying browser failure in the displayed diagnostic", () => {
+  const parsed = multiplaneResult(
+    result(
+      "doctor",
+      false,
+      {},
+      {
+        code: "browser_launch_failed",
+        message: "Chromium failed to launch.",
+        details: { reason: "Failed to create socket directory." },
+      },
+    ),
+  );
+  expect(multiplaneFailure("doctor", parsed).message).toContain(
+    "Underlying error: Failed to create socket directory.",
+  );
+});
 
 const lintFinding = (file: string, severity = "error") =>
   JSON.stringify({
@@ -582,4 +600,38 @@ it.each(["hyperframes", "multiplane"] as const)(
 it("disables built-in lint for full-film inspection and verification too", () => {
   expect(multiplaneInspectArgs("shot.html")).toContain("--no-lint");
   expect(multiplaneVerifyArgs("shot.html", 30)).toContain("--no-lint");
+});
+
+it("uses one app-owned browser path with an explicit override for setup and rendering", async () => {
+  const { multiplaneEnvironment } = await import("../src/server/rendering/multiplane");
+  const { dataRoot } = await import("../src/server/runtime/config");
+  vi.stubEnv("PLAYWRIGHT_BROWSERS_PATH", "");
+  expect(multiplaneEnvironment().PLAYWRIGHT_BROWSERS_PATH).toBe(
+    path.join(dataRoot, "browsers", "multiplane"),
+  );
+  vi.stubEnv("PLAYWRIGHT_BROWSERS_PATH", "/custom/browser-cache");
+  expect(multiplaneEnvironment().PLAYWRIGHT_BROWSERS_PATH).toBe("/custom/browser-cache");
+  vi.unstubAllEnvs();
+});
+it("rechecks failed doctor status immediately after repair and caches successful status", async () => {
+  vi.resetModules();
+  const { multiplaneStatus } = await import("../src/server/rendering/multiplane");
+  const { isolatedCommand: doctorCommand } = await import("../src/server/runtime/process");
+  vi.mocked(doctorCommand).mockReset();
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "doctor-repair-"));
+  try {
+    vi.mocked(doctorCommand).mockRejectedValueOnce(Error("Browser missing"));
+    expect((await multiplaneStatus(workspace, "test")).available).toBe(false);
+    vi.mocked(doctorCommand).mockImplementationOnce(
+      async (_exe, _args, _cwd, _signal, _output, _timeout, stdout) => {
+        stdout?.(result("doctor", true, { checks: [] }));
+        return "";
+      },
+    );
+    expect((await multiplaneStatus(workspace, "test")).available).toBe(true);
+    expect((await multiplaneStatus(workspace, "test")).available).toBe(true);
+    expect(doctorCommand).toHaveBeenCalledTimes(2);
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
+  }
 });

@@ -5,7 +5,7 @@ import { redactSecrets } from "../runtime/config";
 import type { ProviderEvent } from "../agents/agent";
 
 /** Shared native Choice API execution and attribution; strategies own their criteria and policy. */
-export async function runJevChoice(options: {
+type JevChoiceOptions = {
   invocationId: string;
   label: string;
   questionKey: string;
@@ -14,7 +14,17 @@ export async function runJevChoice(options: {
   state: unknown;
   signal: AbortSignal;
   onEvent: (event: ProviderEvent) => void;
-}) {
+};
+
+export function jevChoicePayload(
+  options: Pick<JevChoiceOptions, "questionKey" | "question" | "criteria" | "state">,
+) {
+  const questions = { [options.questionKey]: choice(options.question, options.criteria) };
+  const state = z.record(z.string(), z.json()).parse(JSON.parse(JSON.stringify(options.state)));
+  return { model: jevModel, state, questions };
+}
+
+export async function runJevChoice(options: JevChoiceOptions) {
   options.signal.throwIfAborted();
   const ids = Object.keys(options.criteria);
   if (!ids.length) throw Error("JEV Choice requires at least one available option");
@@ -25,9 +35,7 @@ export async function runJevChoice(options: {
     confidence: z.number().finite().min(0).max(1),
     probabilities: z.record(idSchema, z.number().finite().min(0).max(1)),
   });
-  const questions = { [options.questionKey]: choice(options.question, options.criteria) };
-  const state = z.record(z.string(), z.json()).parse(JSON.parse(JSON.stringify(options.state)));
-  const payload = { model: jevModel, state, questions };
+  const payload = jevChoicePayload(options);
   const client = jevClient();
   options.onEvent({
     type: "invocation",
@@ -54,8 +62,17 @@ export async function runJevChoice(options: {
       model: result.model,
       invocationId: options.invocationId,
       usage: result.usage,
+      decision: {
+        questionKey: options.questionKey,
+        answer: result.answers[options.questionKey],
+        comparedIds: ids,
+      },
     },
   });
   options.signal.throwIfAborted();
-  return { model: result.model, answer: answerSchema.parse(result.answers[options.questionKey]) };
+  return {
+    model: result.model,
+    answer: answerSchema.parse(result.answers[options.questionKey]),
+    comparedIds: ids,
+  };
 }

@@ -85,6 +85,30 @@ it("keeps full-brief and JEV direction-selection labels for their actual workflo
   expect(preparationStepLabel("brief", run.request, historicalFull)).toBe("Brief");
 });
 
+it("shows automatic shared planning as its own preparation activity", () => {
+  const request = RequestSchema.parse({ instructions: "An original story", preference: "random" });
+  expect(preparationStepLabel("preview-plan", request)).toBe("Preview planning");
+  const items = activityItems([
+    {
+      id: 1,
+      runId: "project",
+      type: "tool",
+      message: "Read",
+      time: "2026-01-01T10:00:00Z",
+      data: {
+        toolName: "Read",
+        purpose: "Shared preview planning",
+        itemId: "planning-read",
+        invocationId: "planning",
+      },
+    },
+  ]);
+  expect(items[0]).toMatchObject({
+    preparationStep: "preview-plan",
+    purpose: "Shared preview planning",
+  });
+});
+
 it("recognizes persisted title-only checkpoints without request context", () => {
   expect(preparationStepLabel("brief", undefined, preparation)).toBe("Project title");
   const html = renderToStaticMarkup(<PreparationCheckpoints preparation={preparation} />);
@@ -194,3 +218,62 @@ it("keeps active preparation and independently running jobs active", () => {
   );
   expect(activityItems([{ ...events[3], jobId: "job" }], true, run)[0].status).toBe("running");
 });
+
+it.each(["running", "complete"] as const)(
+  "keeps preparation notices inside their named checkpoint with its %s outcome",
+  (state) => {
+    const automatic: Run = {
+      ...run,
+      phase: "ranking",
+      request: RequestSchema.parse({ instructions: "An original story" }),
+      preparation: {
+        fingerprint: "fixture",
+        checkpoints: {
+          styles:
+            state === "running"
+              ? { state: "running", startedAt: run.createdAt }
+              : { state: "completed", completedAt: run.createdAt, output: [] },
+        },
+      },
+    };
+    const fixture: AgentProgressEvent[] = [
+      {
+        id: 1,
+        runId: run.id,
+        type: "activity_scope",
+        time: run.createdAt,
+        message: "Motion Graphic information",
+        data: {
+          activityScope: { id: "styles", label: "Motion Graphic information", state: "running" },
+        },
+      },
+      {
+        id: 2,
+        runId: run.id,
+        type: "input",
+        time: run.createdAt,
+        message: "Preparing Motion Graphic information for your project…",
+        data: { activityScopeId: "styles" },
+      },
+      {
+        id: 3,
+        runId: run.id,
+        type: "activity_scope",
+        time: run.createdAt,
+        message: "Motion Graphic information",
+        data: { activityScope: { id: "styles", label: "Motion Graphic information", state } },
+      },
+    ];
+    expect(activityItems(fixture, true, automatic)).toMatchObject([
+      { preparationStep: "styles", text: "Understanding Motion Graphics…", status: state },
+    ]);
+    const context = roomActivityContexts(automatic, fixture)[0];
+    const grouped = roomPreparationSteps(context);
+    expect(grouped.remaining).toEqual([]);
+    const checkpoint = grouped.checkpoints.find((item) => item.key === "styles")!;
+    expect(checkpoint.status).toBe(state === "running" ? "loading" : "success");
+    expect(renderToStaticMarkup(<>{checkpoint.content}</>)).toContain(
+      "Understanding Motion Graphics…",
+    );
+  },
+);

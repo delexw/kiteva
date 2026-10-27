@@ -476,7 +476,7 @@ it.each([
     "Saving proposed combinations…",
   ],
   ["Combination evaluation", "Comparing creative directions…", "Recording direction choices…"],
-  ["Lyrics generation", "Writing your on-screen text…", "Saving your on-screen text…"],
+  ["Subtitles generation", "Writing your on-screen text…", "Saving your on-screen text…"],
   ["Video copy translation", "Translating your video text…", "Saving translated video text…"],
   ["Preview video planning", "Planning your preview…", "Receiving the preview plan…"],
   ["Full video planning", "Planning your full video…", "Receiving the full video plan…"],

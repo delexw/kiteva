@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { RequestSchema } from "../src/shared/contracts";
 import { projectSettingsDraft } from "../src/client/lib/project-settings";
-it("restores the complete saved video settings without replacing user lyrics", () => {
+it("restores the complete saved video settings without replacing user subtitles", () => {
   const draft = projectSettingsDraft(
     RequestSchema.parse({
       instructions: "Introduce a creative workspace",
@@ -11,7 +11,7 @@ it("restores the complete saved video settings without replacing user lyrics", (
       outputType: "video",
       duration: 45,
       aspectRatio: "9:16",
-      lyrics: { mode: "provided", text: "Let an idea fly" },
+      subtitles: { mode: "provided", text: "Let an idea fly" },
       urls: ["https://example.com", "https://example.org"],
       pinnedStyleId: "style-046",
     }),
@@ -24,20 +24,20 @@ it("restores the complete saved video settings without replacing user lyrics", (
     outputType: "video",
     duration: 45,
     aspect: "9:16",
-    lyricsEnabled: true,
-    lyricsText: "Let an idea fly",
+    subtitlesEnabled: true,
+    subtitlesText: "Let an idea fly",
     urls: "https://example.com\nhttps://example.org",
     pinnedStyleId: "style-046",
   });
 });
 it.each([undefined, { mode: "off" }, { mode: "write" }])(
-  "restores optional lyric mode %j",
-  (lyrics) => {
+  "restores optional subtitle mode %j",
+  (subtitles) => {
     const draft = projectSettingsDraft(
-      RequestSchema.parse({ instructions: "Explain a creative idea", lyrics }),
+      RequestSchema.parse({ instructions: "Explain a creative idea", subtitles }),
     );
-    expect(draft.lyricsEnabled).toBe(lyrics?.mode === "write");
-    expect(draft.lyricsText).toBe("");
+    expect(draft.subtitlesEnabled).toBe(subtitles?.mode === "write");
+    expect(draft.subtitlesText).toBe("");
   },
 );
 it("restores page settings with safe video defaults", () => {
@@ -56,7 +56,7 @@ it("restores page settings with safe video defaults", () => {
     count: 2,
     duration: "auto",
     aspect: "16:9",
-    lyricsEnabled: false,
+    subtitlesEnabled: false,
   });
 });
 
@@ -91,24 +91,25 @@ it("restores manual styles with zero directions", () => {
   });
 });
 
-it("restores timed-item lyrics independently of the old global setting", () => {
+it("restores timed-item subtitles independently of the old global setting", () => {
   const request = RequestSchema.parse({
     instructions: "Tell a visual story",
-    lyrics: { mode: "off" },
+    subtitles: { mode: "off" },
     scriptItems: [
       {
         id: "opening",
         startSeconds: 0,
         endSeconds: 10,
         text: "Read this",
-        showLyrics: true,
+        showSubtitles: true,
         speech: { mode: "off" },
       },
     ],
   });
-  expect(projectSettingsDraft(request).lyricsEnabled).toBe(true);
+  expect(projectSettingsDraft(request).subtitlesEnabled).toBe(true);
   if (request.outputType !== "video") throw Error("Expected video");
   expect(
-    projectSettingsDraft({ ...request, scriptItems: [], lyrics: { mode: "write" } }).lyricsEnabled,
+    projectSettingsDraft({ ...request, scriptItems: [], subtitles: { mode: "write" } })
+      .subtitlesEnabled,
   ).toBe(false);
 });

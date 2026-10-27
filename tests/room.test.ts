@@ -270,7 +270,7 @@ it("switches between video and page without leaving fields the other type reject
   const video = VideoRequestSchema.parse({
     instructions: "A launch story for our app",
     duration: 120,
-    lyrics: { mode: "write" },
+    subtitles: { mode: "write" },
     candidateCount: 0,
     selectedStyleIds: ["style-001", "style-002", "style-003", "style-004", "style-005"],
   });
@@ -278,7 +278,7 @@ it("switches between video and page without leaving fields the other type reject
   const page = switchRoomOutputType(video, "page");
   expect(page).toMatchObject({ outputType: "page", viewport: "desktop" });
   expect(page).not.toHaveProperty("duration");
-  expect(page).not.toHaveProperty("lyrics");
+  expect(page).not.toHaveProperty("subtitles");
   expect(page).not.toHaveProperty("frameRate");
   expect(page.selectedStyleIds).toHaveLength(3);
   expect(roomSubmission(page)).toMatchObject({ outputType: "page", candidateCount: 0 });
@@ -289,7 +289,7 @@ it("switches between video and page without leaving fields the other type reject
     duration: "auto",
     resolution: "1080p",
     frameRate: 30,
-    lyrics: { mode: "off" },
+    subtitles: { mode: "off" },
   });
   expect(
     roomSubmission({

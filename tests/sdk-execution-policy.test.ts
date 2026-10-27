@@ -88,3 +88,26 @@ it("installs and verifies only the application-owned hook in the isolated Codex 
     await rm(home, { recursive: true, force: true });
   }
 });
+
+it("restores project-local Bash paths through the native input hook without dropping tool options", () => {
+  const input = {
+    hook_event_name: "PreToolUse",
+    tool_name: "Bash",
+    tool_input: { command: "node scene.js", timeout: 1000, description: "Check scene" },
+  };
+  const result = sdkToolHook(input, "/project-a");
+  expect(result).toMatchObject({
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      updatedInput: {
+        command: expect.stringMatching(/^export HOME=.*\nnode scene\.js$/),
+        timeout: 1000,
+        description: "Check scene",
+      },
+    },
+  });
+  expect(input.tool_input.command).toBe("node scene.js");
+  expect(
+    sdkToolHook({ ...input, tool_input: { command: "blender -b" } }, "/project-a"),
+  ).toMatchObject({ hookSpecificOutput: { permissionDecision: "deny" } });
+});

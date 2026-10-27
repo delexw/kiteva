@@ -2157,15 +2157,15 @@ html,
   }
 }
 
-.composer-context .composer-lyrics-input {
+.composer-context .composer-subtitles-input {
   width: 100%;
   margin: 0;
 }
-.composer-lyrics-input .url-input {
+.composer-subtitles-input .url-input {
   width: 100%;
   min-height: 100px;
 }
-.composer-lyrics-input > span {
+.composer-subtitles-input > span {
   color: var(--muted);
   font-size: 11px;
 }

@@ -11,7 +11,7 @@ The same export mechanism handles HyperFrames, Multiplane and the Remotion fallb
 | Path                                              | Contents                                                                                           |
 | ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | `timeline.otio`                                   | OpenTimelineIO editing timeline with scene clips and available audio tracks                        |
-| `captions.srt`                                    | Timed lyric text from the saved storyboard; empty if no valid lyric cues exist                     |
+| `captions.srt`                                    | Timed subtitle text from the saved storyboard; empty if no valid subtitle cues exist               |
 | `media/visuals.mp4`                               | Available rendered video with its audio removed, copied without re-encoding                        |
 | `media/music.*`, `media/narration.*`              | Available separate audio files                                                                     |
 | `media/reference-mix.wav`                         | Audio extracted from the rendered video, when present                                              |
@@ -32,7 +32,7 @@ aborts the export and closes its streams; deletion waits for settlement. See
 2. If a usable rendered video exists, create one video clip per storyboard scene. Clips reference ranges of the shared `media/visuals.mp4`; they are not separate physical scene files. Without a valid storyboard, use one clip for the available video.
 3. Add available music and narration on separate tracks. These start at zero, matching Kiteva's current narration mixing behavior; the exporter does not infer a new speech schedule from prose instructions.
 4. Preserve the rendered audio mix. If no separate music file is available, use that mix on the timeline instead of the separate stems, avoiding duplicate narration and missing renderer-authored audio. Separate files remain available for manual editing.
-5. Export timed `audio.lyrics` entries from storyboard beats as SRT cues, merging adjacent identical lines. Captions are a sidecar, not an OTIO text layer.
+5. Export timed `audio.subtitles` entries from storyboard beats as SRT cues, merging adjacent identical lines. Captions are a sidecar, not an OTIO text layer.
 
 Kiteva uses the `otio.js` timeline model with a compatibility adapter for OTIO time-object schema tags. The serialized format has been checked using the official OpenTimelineIO Python reader. That confirms format compatibility, not feature-by-feature import in every editor.
 

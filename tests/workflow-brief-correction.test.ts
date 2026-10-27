@@ -23,6 +23,7 @@ import { loadCatalog } from "../src/server/catalog/catalog";
 import { dataRoot } from "../src/server/runtime/config";
 import { RequestSchema, type Run } from "../src/shared/contracts";
 import { BriefCorrectionSchema } from "../src/shared/agents/schemas/brief-correction";
+import { automaticPreviewResult } from "./fixtures/automatic-preview-plan";
 
 afterEach(() => vi.resetAllMocks());
 
@@ -36,7 +37,7 @@ it.each(["claude", "codex"] as const)(
       phase: "queued",
       request: RequestSchema.parse({
         instructions: "Explain importing",
-        lyrics: { mode: "provided", text: "Exact copy" },
+        subtitles: { mode: "provided", text: "Exact copy" },
         provider,
         preference: "random",
         candidateCount: 1,
@@ -67,7 +68,8 @@ it.each(["claude", "codex"] as const)(
         value: { edits: [{ ...correction.edits[0], path: "/facts/1" }] },
         sessionId: "repair-session",
       })
-      .mockResolvedValueOnce({ value: correction, sessionId: "repair-session" });
+      .mockResolvedValueOnce({ value: correction, sessionId: "repair-session" })
+      .mockImplementationOnce(async (call) => automaticPreviewResult(call.promptContext));
     vi.mocked(reviewBriefAssets).mockImplementation(async (input) =>
       input.revise(
         input.brief,
@@ -82,7 +84,7 @@ it.each(["claude", "codex"] as const)(
     try {
       await workflow.prepare(run);
       expect(run.phase, run.error).toBe("ready");
-      expect(agentTurn).toHaveBeenCalledTimes(3);
+      expect(agentTurn).toHaveBeenCalledTimes(4);
       const repair = vi.mocked(agentTurn).mock.calls[1][0];
       expect(repair).toMatchObject({
         provider,

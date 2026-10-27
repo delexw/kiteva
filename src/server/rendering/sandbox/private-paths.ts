@@ -1,14 +1,16 @@
+import { projectRuntimeFiles } from "../../runtime/project-files";
 import path from "node:path";
 import { appRoot, dataRoot } from "../../runtime/config";
 import { userHome } from "../../runtime/platform";
 
-export function renderPrivatePaths() {
+export function renderPrivatePaths(workspace?: string) {
   return [
     ...new Set(
       [
         ...[".codex", ".claude", ".ssh", ".aws", ".config"].map((name) =>
           path.join(userHome(), name),
         ),
+        ...(workspace ? [projectRuntimeFiles(workspace, "agent").root] : []),
         process.env.CODEX_HOME,
         process.env.CLAUDE_CONFIG_DIR,
         path.join(dataRoot, "runtime", "codex"),

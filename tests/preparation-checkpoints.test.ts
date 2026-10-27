@@ -20,12 +20,12 @@ vi.mock("../src/server/catalog/style-summaries", async (original) => ({
 }));
 vi.mock("../src/server/jev/strategies/style-combination", () => ({ rankOptions: vi.fn() }));
 vi.mock("../src/server/jev/client", () => ({ jevClient: vi.fn() }));
-vi.mock("../src/server/domains/video/prepare-lyrics", () => ({ prepareLyrics: vi.fn() }));
+vi.mock("../src/server/domains/video/prepare-subtitles", () => ({ prepareSubtitles: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
 import { prepareStyleSummaries } from "../src/server/catalog/style-summaries";
 import { rankOptions } from "../src/server/jev/strategies/style-combination";
 import { jevClient } from "../src/server/jev/client";
-import { prepareLyrics } from "../src/server/domains/video/prepare-lyrics";
+import { prepareSubtitles } from "../src/server/domains/video/prepare-subtitles";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { Store } from "../src/server/jobs/store";
 import { Workflow } from "../src/server/jobs/workflow";
@@ -37,6 +37,8 @@ import { RequestSchema, type Run } from "../src/shared/contracts";
 import { preparationSteps } from "../src/shared/preparation";
 import { dataRoot } from "../src/server/runtime/config";
 import { textModels, combinationModels } from "../src/server/agents/models";
+import { AutomaticPreviewPlanSchema } from "../src/server/jobs/subworkflows/automatic-preview/workflow";
+import { automaticPreviewResult } from "./fixtures/automatic-preview-plan";
 
 beforeEach(() => vi.clearAllMocks());
 const brief = {
@@ -75,13 +77,13 @@ const newRun = (): Run => ({
   request: RequestSchema.parse({
     instructions: "Explain a product",
     provider: "claude",
-    lyrics: { mode: "write" },
+    subtitles: { mode: "write" },
   }),
   candidates: [],
   jobs: [],
 });
 
-it.each(["brief", "lyrics", "styles", "proposals", "selection"] as const)(
+it.each(["brief", "subtitles", "styles", "proposals", "selection", "preview-plan"] as const)(
   "retries only unfinished work after %s fails, including after reopening the database",
   async (failedStep) => {
     const folder = await mkdtemp(path.join(os.tmpdir(), "preparation-checkpoints-"));
@@ -90,16 +92,21 @@ it.each(["brief", "lyrics", "styles", "proposals", "selection"] as const)(
     let failing = true;
     const counts: Record<string, number> = {
       brief: 0,
-      lyrics: 0,
+      subtitles: 0,
       styles: 0,
       proposals: 0,
       selection: 0,
+      "preview-plan": 0,
     };
     function attempt(step: string) {
       counts[step]++;
       if (failing && step === failedStep) throw Error(`${step} failed`);
     }
     vi.mocked(agentTurn).mockImplementation(async (options) => {
+      if (options.schema === AutomaticPreviewPlanSchema) {
+        attempt("preview-plan");
+        return automaticPreviewResult(options.promptContext);
+      }
       const step = options.model === textModels.claude ? "brief" : "proposals";
       attempt(step);
       return {
@@ -107,9 +114,9 @@ it.each(["brief", "lyrics", "styles", "proposals", "selection"] as const)(
         sessionId: "completed-brief-session",
       };
     });
-    vi.mocked(prepareLyrics).mockImplementation(async () => {
-      attempt("lyrics");
-      return { text: "A completed lyric", model: "text-model" };
+    vi.mocked(prepareSubtitles).mockImplementation(async () => {
+      attempt("subtitles");
+      return { text: "A completed subtitle", model: "text-model" };
     });
     vi.mocked(prepareStyleSummaries).mockImplementation(async () => {
       attempt("styles");
@@ -168,9 +175,9 @@ it.each(["brief", "lyrics", "styles", "proposals", "selection"] as const)(
       for (const step of preparationSteps.slice(1, preparationSteps.indexOf(failedStep)))
         expect(counts[step]).toBe(before[step]);
       expect(counts[failedStep]).toBe(before[failedStep] + 1);
-      expect(resumed.brief?.exactCopy.filter((line) => line === "A completed lyric")).toHaveLength(
-        1,
-      );
+      expect(
+        resumed.brief?.exactCopy.filter((line) => line === "A completed subtitle"),
+      ).toHaveLength(1);
       if (failedStep === "proposals") {
         expect(vi.mocked(agentTurn).mock.calls.at(-1)?.[0].sessionId).toBeUndefined();
       }
@@ -321,7 +328,7 @@ it.each(["claude", "codex"] as const)(
     const folder = await mkdtemp(path.join(os.tmpdir(), "brief-input-"));
     const run = newRun();
     run.request.provider = provider;
-    run.request.lyrics = { mode: "off" };
+    run.request.subtitles = { mode: "off" };
     const id = randomUUID();
     run.request.assetIds = [id];
     const source = await sharp({
@@ -468,10 +475,14 @@ it("regenerates the chosen count in fresh sessions and extends the selected roun
     duration: 30,
   });
   const catalog = await loadCatalog();
-  vi.mocked(agentTurn).mockImplementation(async (options) => ({
-    value: options.model === textModels.claude ? brief : { options: [proposal] },
-    sessionId: randomUUID(),
-  }));
+  vi.mocked(agentTurn).mockImplementation(async (options) =>
+    options.schema === AutomaticPreviewPlanSchema
+      ? automaticPreviewResult(options.promptContext)
+      : {
+          value: options.model === textModels.claude ? brief : { options: [proposal] },
+          sessionId: randomUUID(),
+        },
+  );
   vi.mocked(prepareStyleSummaries).mockResolvedValue(
     catalog.styles.map((s) => ({
       styleId: s.id,
@@ -522,6 +533,7 @@ it("regenerates the chosen count in fresh sessions and extends the selected roun
     for (let round = 1; round <= 3; round++) {
       const afterEventId = store.lastEventId(run.id);
       const { proposals, selection } = run.preparation!.checkpoints;
+      const previewPlan = run.preparation!.checkpoints["preview-plan"];
       expect(proposals?.state).toBe("completed");
       await workflow.regenerateDirections(run);
       expect(run.directionRounds).toHaveLength(round);
@@ -529,7 +541,7 @@ it("regenerates the chosen count in fresh sessions and extends the selected roun
         round,
         startedAt: expect.any(String),
         afterEventId,
-        replacedCheckpoints: { proposals, selection },
+        replacedCheckpoints: { proposals, selection, "preview-plan": previewPlan },
       });
       expect(afterEventId).toBeGreaterThan(run.directionRounds![round - 2]?.afterEventId ?? 0);
       expect(run.phase, run.error).toBe("ready");
@@ -546,7 +558,10 @@ it("regenerates the chosen count in fresh sessions and extends the selected roun
     expect(lastFull.sessionId).toBe(lastPreview.sessionId);
     const proposals = vi
       .mocked(agentTurn)
-      .mock.calls.filter(([options]) => options.model !== textModels.claude);
+      .mock.calls.filter(
+        ([options]) =>
+          options.model !== textModels.claude && options.schema !== AutomaticPreviewPlanSchema,
+      );
     expect(proposals).toHaveLength(4);
     expect(proposals.every(([options]) => !options.sessionId)).toBe(true);
     for (const call of vi.mocked(rankOptions).mock.calls) {

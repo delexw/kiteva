@@ -2,8 +2,8 @@ import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { createInterface } from "node:readline";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { systemEnvironment } from "../../runtime/platform";
-import { terminateProcessTree } from "../../runtime/process-tree";
+import { systemEnvironment } from "../../../runtime/platform";
+import { terminateProcessTree } from "../../../runtime/process-tree";
 
 const ReplySchema = z.discriminatedUnion("ok", [
   z.object({ id: z.string(), ok: z.literal(true) }),

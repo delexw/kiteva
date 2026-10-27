@@ -6,7 +6,7 @@ it("preserves the original idea and source descriptions without inferring story 
   const request = RequestSchema.parse({
     instructions: "Credits: Avery — Engineering. End with ‘Make ideas move.’",
     duration: 90,
-    lyrics: { mode: "provided", text: "Exact script" },
+    subtitles: { mode: "provided", text: "Exact script" },
   });
   expect(directBuildContext(request, ["Reference document: assets/example.txt"])).toMatchObject({
     objective: request.instructions,

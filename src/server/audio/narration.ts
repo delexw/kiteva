@@ -119,7 +119,7 @@ export function narrationService(
         ...context.request,
         scriptItems: undefined,
         speech: { ...settings, source: "provided", text: cue.text, startSeconds: 0 },
-        lyrics: { mode: "off" },
+        subtitles: { mode: "off" },
       },
       brief: context.brief,
       signal,
@@ -209,7 +209,7 @@ export function narrationService(
           startSeconds: segment.startSeconds,
           endSeconds: segment.startSeconds + segment.durationSeconds,
           scriptItemId: segment.scriptItemId,
-          showLyrics: segment.showLyrics,
+          showSubtitles: segment.showSubtitles,
         })),
       }),
     });

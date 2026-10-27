@@ -485,11 +485,14 @@ it("reviews active delivery copy without exposing historical translation backups
       ...input.request,
       outputType: "video",
       outputLanguage: "en",
-      lyrics: { mode: "provided", text: active },
+      subtitles: { mode: "provided", text: active },
       speech: { mode: "narration", text: active },
       translations: {
-        original: { lyrics: historical, narration: historical },
-        versions: { en: { lyrics: active, narration: active }, zh: { lyrics: "保留历史版本" } },
+        original: { subtitles: historical, narration: historical },
+        versions: {
+          en: { subtitles: active, narration: active },
+          zh: { subtitles: "保留历史版本" },
+        },
       },
     });
     const original = structuredClone(request);
@@ -502,7 +505,7 @@ it("reviews active delivery copy without exposing historical translation backups
     );
     expect(reviewInput.request).not.toHaveProperty("translations");
     expect(reviewInput.request).toMatchObject({
-      lyrics: { text: active },
+      subtitles: { text: active },
       speech: { text: active },
     });
     expect(request).toEqual(original);

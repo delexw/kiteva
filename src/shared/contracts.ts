@@ -1,3 +1,4 @@
+import { normalizeSubtitleFields } from "./subtitle-compatibility";
 import type { ErrorCode } from "./errors";
 import type { Provider } from "./domains/common";
 import { z } from "zod";
@@ -9,7 +10,10 @@ export { ProductionSchema, type Production } from "./domains/video";
 export type { VideoRequest } from "./domains/video";
 export type CreativeRequest = VideoRequest | PageRequest;
 export type GenerationJob = VideoGenerationJob | PageGenerationJob;
-export const RequestSchema = z.union([PageRequestSchema, VideoRequestSchema]);
+export const RequestSchema = z.preprocess(
+  normalizeSubtitleFields,
+  z.union([PageRequestSchema, VideoRequestSchema]),
+);
 export const StackEntrySchema = z
   .object({
     name: z.string(),
@@ -136,6 +140,12 @@ export {
 } from "./agents/schemas/proposals";
 import type { Proposal } from "./agents/schemas/proposals";
 export interface StyleCandidate extends Proposal {
+  evaluationConfidence?: number;
+  selectionDecision?: {
+    round: number;
+    comparedIds: string[];
+    probabilities: Record<string, number>;
+  };
   id: string;
   score: number;
   confidence: number;
@@ -179,7 +189,7 @@ export interface Run {
   directionRounds?: import("./direction-rounds").DirectionRoundRecord[];
   preparation?: PreparationState;
   referenceScreenshots?: ReferenceScreenshot[];
-  generatedLyrics?: import("./domains/video").GeneratedLyrics;
+  generatedSubtitles?: import("./domains/video").GeneratedSubtitles;
 }
 export interface StyleExample {
   authorship?: "application";

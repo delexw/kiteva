@@ -1,3 +1,6 @@
+vi.mock("../src/server/agents/claude-home", () => ({
+  prepareClaudeHome: async () => "/isolated-home",
+}));
 import { referenceFailureGuidance } from "../src/shared/asset-requirements-policy";
 import { authoringResourceSelectionGuidance } from "../src/server/jev/strategies/visual-authoring";
 import { websiteCaptureInstructions } from "../src/server/agents/capabilities/reference-browser/prompt";
@@ -113,7 +116,9 @@ it.each(["claude", "codex"] as const)(
     expect(effectivePrompt).toContain("NOT YET CAPTURED DOES NOT MEAN UNAVAILABLE");
     expect(effectivePrompt).toContain("The main model chooses the production plan during building");
     expect(effectivePrompt).toContain("not mandatory screenshots for every future interaction");
-    expect(effectivePrompt).toContain("pending lyric generation is not a missing uploaded asset");
+    expect(effectivePrompt).toContain(
+      "pending subtitle generation is not a missing uploaded asset",
+    );
     expect(effectivePrompt).toContain("do not log in");
     const server =
       provider === "claude"

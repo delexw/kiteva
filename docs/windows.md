@@ -61,13 +61,13 @@ requiring a GPT subscription. The adapter uses the model-free `command/exec` API
 the normal native executor applies the managed network proxy.
 
 Each invocation passes its own permissions tables to a dedicated local executor.
-`.data/runtime/render-sandbox` holds the native sandbox setup state, without model login
-credentials. The policy allows workspace, render-home and temporary writes,
+Each build workspace’s `.runtime/render/sandbox` holds native sandbox setup state, without model login
+credentials. The policy allows workspace-local render home and temporary writes,
 blocks credential directories and Kiteva environment files, and requests restricted
 network access with localhost permitted. The Windows elevated sandbox is required;
 there is no unsandboxed or read-only fallback. Configuration is passed as literal arguments, so concurrent jobs cannot overwrite a shared policy file.
 Windows does not support streaming/custom output caps on this execution path. A trusted
-child captures complete stdout/stderr into per-command files under render-home; the host
+child captures complete stdout/stderr into per-command files under the workspace-local render home; the host
 forwards the bytes while the command runs and removes the files afterward. This avoids
 truncated quality-check JSON. Provider keys are excluded from the renderer environment.
 Cancellation targets the owned process tree by PID, never all Node/Chrome processes.

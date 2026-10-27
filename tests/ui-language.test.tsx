@@ -47,7 +47,7 @@ it("renders server-side without accessing browser storage or globals", () => {
     ),
   ).not.toThrow();
 });
-it("changes UI summaries without altering the idea, script, lyrics or output-language setting", async () => {
+it("changes UI summaries without altering the idea, script, subtitles or output-language setting", async () => {
   const draft = RoomDraftSchema.parse({
     step: 6,
     stepLayout: "separate-speech",
@@ -57,7 +57,7 @@ it("changes UI summaries without altering the idea, script, lyrics or output-lan
       outputLanguage: "en",
       candidateCount: 2,
       duration: 30,
-      lyrics: { mode: "provided", text: "Keep my original lyrics" },
+      subtitles: { mode: "provided", text: "Keep my original subtitles" },
       speech: { mode: "narration", source: "provided", text: "Keep my original script" },
     },
   });
@@ -66,7 +66,7 @@ it("changes UI summaries without altering the idea, script, lyrics or output-lan
   await uiLanguage.change("zh-CN");
   const replies = roomOnboardingReplies(request, [], []);
   expect(replies[0].text).toBe("Keep my original idea");
-  expect(replies[5].text).toContain("Keep my original lyrics");
+  expect(replies[5].text).toContain("Keep my original subtitles");
   expect(replies[5].text).toContain("Keep my original script");
   expect(replies[6].text).toContain("模型：");
   expect(JSON.stringify(draft)).toBe(before);

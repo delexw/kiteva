@@ -16,7 +16,7 @@ const item = {
   startSeconds: 0,
   endSeconds: 10,
   text: "Knowledge everywhere.",
-  showLyrics: true,
+  showSubtitles: true,
   speech: { mode: "off" as const },
 };
 it("keeps silent text independent from speech and hides old global narration", () => {
@@ -25,12 +25,14 @@ it("keeps silent text independent from speech and hides old global narration", (
     duration: 20,
     scriptItems: [item],
     speech: { mode: "narration" },
-    lyrics: { mode: "write" },
+    subtitles: { mode: "write" },
   });
   expect(activeSpeech(request)).toBeUndefined();
   expect(scriptItemsDirection(request.scriptItems)).toContain('"enabled":false');
-  expect(scriptItemsDirection(request.scriptItems)).toContain('"showLyrics":true');
-  expect(scriptItemsDirection(request.scriptItems)).toContain("supersede legacy speech and lyrics");
+  expect(scriptItemsDirection(request.scriptItems)).toContain('"showSubtitles":true');
+  expect(scriptItemsDirection(request.scriptItems)).toContain(
+    "supersede legacy speech and subtitles",
+  );
 });
 it.each([
   { ...item, endSeconds: 0 },
@@ -75,7 +77,7 @@ it("retains independently selected providers, languages and hidden captions in m
       id: "spoken",
       startSeconds: 10,
       endSeconds: 20,
-      showLyrics: false,
+      showSubtitles: false,
       speech: {
         mode: "narration",
         engine: "pocket-tts",
@@ -89,7 +91,7 @@ it("retains independently selected providers, languages and hidden captions in m
   const prompt = scriptItemsDirection(items);
   expect(prompt).toContain('"item":2');
   expect(prompt).toContain('"language":"zh"');
-  expect(prompt).toContain('"showLyrics":false');
+  expect(prompt).toContain('"showSubtitles":false');
   expect(prompt).toContain('"engine":"pocket-tts"');
   expect(scriptItemsDirection(items, true)).toContain("Direction previews stay silent");
   expect(resolveVideoDuration("auto", 15, items)).toBe(20);
@@ -114,10 +116,10 @@ it("preserves unfinished item edits and existing settings without submitting inv
 it("converts existing scripts explicitly, without shifting their start or changing voices", () => {
   const converted = legacyScriptItems({
     duration: 60,
-    lyrics: { mode: "provided", text: "Hello" },
+    subtitles: { mode: "provided", text: "Hello" },
     speech: {
       mode: "narration",
-      source: "lyrics",
+      source: "subtitles",
       voice: "af_heart",
       speed: 1,
       startSeconds: 18,
@@ -129,7 +131,7 @@ it("converts existing scripts explicitly, without shifting their start or changi
     startSeconds: 18,
     endSeconds: 60,
     text: "Hello",
-    showLyrics: true,
+    showSubtitles: true,
     speech: { mode: "narration", voice: "af_heart" },
   });
   expect(converted[0].speech).not.toHaveProperty("startSeconds");

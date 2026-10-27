@@ -6,7 +6,7 @@ import { videoRenderTimeoutMs } from "./timeouts";
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
-import os from "node:os";
+import { dataRoot } from "../runtime/config";
 import path from "node:path";
 import { z } from "zod";
 import { isolatedCommand } from "../runtime/process.js";
@@ -21,6 +21,7 @@ const ResultSchema = z.object({
   code: z.string().nullable().optional(),
   message: z.string().nullable().optional(),
   hint: z.string().nullable().optional(),
+  details: z.object({ reason: z.string().optional() }).nullable().optional(),
   data: z.record(z.string(), z.unknown()).nullable().optional(),
 });
 export type MultiplaneResult = z.infer<typeof ResultSchema>;
@@ -72,8 +73,7 @@ export function multiplaneEnvironment(): Record<string, string> {
   return {
     MULTIPLANE_HOSTED: "0",
     PLAYWRIGHT_BROWSERS_PATH:
-      process.env.PLAYWRIGHT_BROWSERS_PATH ||
-      path.join(os.homedir(), "Library", "Caches", "ms-playwright"),
+      process.env.PLAYWRIGHT_BROWSERS_PATH || path.join(dataRoot, "browsers", "multiplane"),
   };
 }
 export function multiplaneInspectArgs(shot: string) {
@@ -164,6 +164,7 @@ export function multiplaneFailure(
   }
   return new RendererDiagnosticError(
     `Multiplane ${command} failed (${result.code || "unknown"}): ${result.message || "no message"}${result.hint ? ` Hint: ${result.hint}` : ""}` +
+      (result.details?.reason ? `\nUnderlying error: ${result.details.reason}` : "") +
       (report ? `\nComplete diagnostic report: ${report}` : "") +
       (included.length ? `\nStructured findings:\n${included.join("\n")}` : "") +
       (included.length < diagnostics.length
@@ -237,8 +238,8 @@ export function multiplaneStatus(workspace: string, version: string) {
         checks: [],
         problem: "Multiplane is not installed. Run npm install.",
       };
-    await mkdir(workspace, { recursive: true });
     try {
+      await mkdir(workspace, { recursive: true });
       const result = await runMultiplane(
         "doctor",
         [multiplaneCli, "doctor", "--json"],
@@ -254,5 +255,8 @@ export function multiplaneStatus(workspace: string, version: string) {
     }
   })();
   cachedStatus = { at: Date.now(), status };
+  void status.then((result) => {
+    if (!result.available && cachedStatus?.status === status) cachedStatus = undefined;
+  });
   return status;
 }

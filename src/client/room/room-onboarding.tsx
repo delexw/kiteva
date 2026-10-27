@@ -48,7 +48,7 @@ import {
 } from "./onboarding";
 import { StylePicker } from "../components/style-picker";
 import { manualStyleLimit, trimStylesForDuration } from "../../shared/style-selection";
-import { lyricsFromInput } from "../../shared/domains/video";
+import { subtitlesFromInput } from "../../shared/domains/video";
 import { providerDisplayName } from "../../shared/model-display-name";
 import { api } from "../lib/api";
 import { RendererChoice } from "./renderer-choice";
@@ -481,7 +481,7 @@ export function RoomOnboarding({
               onClick={() =>
                 patch({
                   scriptItems: legacyScriptItems(request),
-                  lyrics: { mode: "off" },
+                  subtitles: { mode: "off" },
                   speech: { mode: "off" },
                 })
               }
@@ -496,29 +496,31 @@ export function RoomOnboarding({
             <label>
               <Switch
                 size="small"
-                checked={request.lyrics?.mode !== "off" && Boolean(request.lyrics)}
+                checked={request.subtitles?.mode !== "off" && Boolean(request.subtitles)}
                 onChange={(enabled) =>
                   onChange({
                     ...draft,
                     request: editSharedVideoScript(
                       {
                         ...request,
-                        lyrics: lyricsFromInput(enabled, sharedVideoScript(request)),
+                        subtitles: subtitlesFromInput(enabled, sharedVideoScript(request)),
                       },
                       sharedVideoScript(request),
                     ),
                   })
                 }
               />{" "}
-              {translateUi("Show lyrics on screen")}
+              {translateUi("Show subtitles on screen")}
             </label>
-            {((request.lyrics && request.lyrics.mode !== "off") ||
+            {((request.subtitles && request.subtitles.mode !== "off") ||
               request.speech?.mode === "narration") && (
               <>
                 <Input.TextArea
                   aria-label={translateUi("Shared script")}
                   autoSize={{ minRows: 2, maxRows: 6 }}
-                  placeholder={translateUi("Paste your lyrics, or leave empty and I’ll write them")}
+                  placeholder={translateUi(
+                    "Paste your subtitles, or leave empty and I’ll write them",
+                  )}
                   value={sharedVideoScript(request)}
                   onChange={(e) => {
                     onChange({
@@ -550,7 +552,7 @@ export function RoomOnboarding({
         )}
         {step === 5 && request.outputType === "page" && (
           <p className="room-hint">
-            {translateUi("Narration and lyrics are available for video projects.")}
+            {translateUi("Narration and subtitles are available for video projects.")}
           </p>
         )}
         {step === 6 && (

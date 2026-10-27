@@ -283,7 +283,8 @@ export async function createApp(options: { store?: Store } = {}) {
         codex: models.codex,
       },
       {
-        function: "Brief preparation, Motion Graphic information extraction and generated lyrics",
+        function:
+          "Brief preparation, Motion Graphic information extraction and generated subtitles",
         claude: textModels.claude,
         codex: textModels.codex,
       },

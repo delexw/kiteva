@@ -140,7 +140,7 @@ and recording branches are different artifacts, not interchangeable demo fallbac
 
 ```mermaid
 flowchart TD
-  Request["Video request with delivery language and supplied lyrics or narration"] --> Need{"Localization needed?"}
+  Request["Video request with delivery language and supplied subtitles or narration"] --> Need{"Localization needed?"}
   Need -->|No| Keep["Return request unchanged"]
   Need -->|Yes| Cache{"Saved translation available?"}
   Cache -->|Yes| Reuse["Reuse the existing language version or cached text"]

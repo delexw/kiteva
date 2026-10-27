@@ -10,7 +10,12 @@ import {
   isRendererProgressEvent,
   type RenderProgress,
 } from "./render-progress";
-import { usesTitleOnlyPreparation, type PreparationStep } from "../shared/preparation";
+import {
+  usesTitleOnlyPreparation,
+  preparationSteps,
+  preparationStepLabel,
+  type PreparationStep,
+} from "../shared/preparation";
 import { terminalPhases, type AgentProgressEvent, type Run } from "../shared/contracts";
 export interface ActivityItem {
   id: number;
@@ -52,6 +57,11 @@ export const taskActivityLabels: Record<
     working: "Planning your requested previews…",
     saving: "Saving the preview directions…",
   },
+  "Shared preview planning": {
+    preparationStep: "preview-plan",
+    working: "Planning your requested previews…",
+    saving: "Saving the preview directions…",
+  },
   "Brief preparation": {
     preparationStep: "brief",
     working: "Preparing your brief…",
@@ -86,8 +96,8 @@ export const taskActivityLabels: Record<
     working: "Translating your video text…",
     saving: "Saving translated video text…",
   },
-  "Lyrics generation": {
-    preparationStep: "lyrics",
+  "Subtitles generation": {
+    preparationStep: "subtitles",
     working: "Writing your on-screen text…",
     saving: "Saving your on-screen text…",
   },
@@ -218,6 +228,7 @@ export function activityItems(
   const renderProgress = new Map<string, RenderProgress>();
   const streams = new Map<string, ActivityItem>();
   const scopeStatuses = new Map<string, ActivityScope["state"]>();
+  const scopePreparationSteps = new Map<string, PreparationStep>();
   const seen = new Set<number>();
   for (const event of events) {
     if (seen.has(event.id)) continue;
@@ -241,11 +252,23 @@ export function activityItems(
     };
     // Trace outcomes inform status without exposing execution-scope nesting in the UI.
     if (event.type === "activity_scope") {
-      if (data.activityScope)
-        scopeStatuses.set(
-          `${event.runId}:${event.jobId || "brief"}:${data.activityScope.id}`,
-          data.activityScope.state,
-        );
+      if (data.activityScope) {
+        const owner = `${event.runId}:${event.jobId || "brief"}:`;
+        const activity = data.activityScope;
+        scopeStatuses.set(`${owner}${activity.id}`, activity.state);
+        if (!event.jobId) {
+          const step =
+            preparationSteps.find(
+              (step) =>
+                preparationStepLabel(step, run?.request, run?.preparation) === activity.label &&
+                (!run?.preparation || Boolean(run.preparation.checkpoints[step])),
+            ) ||
+            (activity.parentId
+              ? scopePreparationSteps.get(`${owner}${activity.parentId}`)
+              : undefined);
+          if (step) scopePreparationSteps.set(`${owner}${activity.id}`, step);
+        }
+      }
       continue;
     }
     // Older title-only invocations were emitted with the full-brief default purpose.
@@ -294,7 +317,8 @@ export function activityItems(
         preparationStep: !event.jobId
           ? event.type === "reference_capture"
             ? "inputs"
-            : taskActivityLabels[data.purpose || ""]?.preparationStep
+            : taskActivityLabels[data.purpose || ""]?.preparationStep ||
+              scopePreparationSteps.get(`${scope}:${data.activityScopeId}`)
           : undefined,
         invocationId: data.invocationId,
         correctionAttempt: data.correctionAttempt,
@@ -477,7 +501,8 @@ export function activityItems(
           ? "Mixing your audio…"
           : "Preparing your finished project…";
     const notices: Record<string, string> = {
-      lyrics: event.message === "Lyrics ready" ? "Lyrics ready" : "Writing your lyrics…",
+      subtitles:
+        event.message === "Subtitles ready" ? "Subtitles ready" : "Writing your subtitles…",
       input: "Reading your reference material…",
       reference_capture: "Capturing your website reference…",
       reference_ready: "Website screenshot ready",
@@ -508,6 +533,8 @@ export function activityItems(
     const notice = notices[event.type];
     if (notice) {
       const item = add("notice", notice);
+      if (event.type === "input" && item.preparationStep === "styles")
+        item.text = taskActivityLabels["Motion Graphic information extraction"].working;
       if (event.type === "error") item.retryable = true;
       if (playbackCopy) {
         const percent = event.message.match(/^720p viewing copy (\d+)%$/);
@@ -538,7 +565,9 @@ export function activityItems(
     }
   }
   for (const item of items) {
-    if (item.progressStage !== "render" || !item.activityScopeId) continue;
+    if (!item.activityScopeId) continue;
+    if (item.progressStage !== "render" && !(item.kind === "notice" && item.status === undefined))
+      continue;
     const status = scopeStatuses.get(`${item.scope}:${item.activityScopeId}`);
     if (status && status !== "waiting") item.status = status;
   }

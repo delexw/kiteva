@@ -11,3 +11,20 @@ const rendererMetadata = {
 export function rendererMetadataFor(renderer: keyof typeof rendererMetadata) {
   return rendererMetadata[renderer];
 }
+
+/** Decision-time capabilities omit production CLI and audio-authoring instructions. */
+export function rendererDecisionMetadataFor(renderer: keyof typeof rendererMetadata) {
+  const metadata = rendererMetadataFor(renderer);
+  return {
+    id: metadata.id,
+    name: metadata.name,
+    selectionPolicy: metadata.selectionPolicy,
+    visuals: metadata.visuals,
+    limitations: metadata.limitations,
+    audio: {
+      generatesMusic: metadata.audio.generatesMusic,
+      generationResponsibility: metadata.audio.generationResponsibility,
+      previewPolicy: metadata.audio.previewPolicy,
+    },
+  };
+}

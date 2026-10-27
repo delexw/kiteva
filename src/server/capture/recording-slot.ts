@@ -8,7 +8,8 @@ export const recordingToolTimeoutSeconds = 600;
 
 export async function acquireRecordingSlot(
   signal: AbortSignal,
-  file = path.join(os.tmpdir(), "kiteva-native-recording"),
+  file = process.env.KITEVA_RECORDING_LOCK_PATH ||
+    path.join(os.tmpdir(), "kiteva-native-recording"),
 ) {
   const compromised = new AbortController();
   const recordingSignal = AbortSignal.any([signal, compromised.signal]);

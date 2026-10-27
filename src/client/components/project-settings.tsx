@@ -1,4 +1,4 @@
-import { hasOnScreenLyrics } from "../../shared/script-items";
+import { hasOnScreenSubtitles } from "../../shared/script-items";
 import { creativeApproachLabel } from "../../shared/creative-approach";
 import { buildRouteLabel, buildRouteOf } from "../../shared/build-route";
 import { translateUi, useUiLanguage } from "../i18n";
@@ -36,7 +36,7 @@ export function ProjectSettings({
           request.resolution === "1440p" ? "2K · 1440p" : "1080p",
           translateUi("{{value0}} fps", { value0: request.frameRate || 30 }),
           videoRenderers[videoRendererOf(request)].label,
-          hasOnScreenLyrics(request) ? "Lyrics on" : "No lyrics",
+          hasOnScreenSubtitles(request) ? "Subtitles on" : "No subtitles",
         ]
       : [request.viewport === "mobile" ? "Mobile layout" : "Desktop layout"]),
     request.candidateCount === 0

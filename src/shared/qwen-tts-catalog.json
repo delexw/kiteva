@@ -1,0 +1,67 @@
+{
+  "voices": [
+    {
+      "id": "qwen_bright_female",
+      "label": "Bright",
+      "language": "en",
+      "gender": "female",
+      "description": "An adult female presenter with a bright, rounded mid-high voice and clear articulation. Friendly and assured, suited to product introductions and short explainers. Use a natural conversational pace with light emphasis on key words; avoid a sales pitch or exaggerated excitement. Use standard Mandarin for Chinese and clear natural pronunciation for English."
+    },
+    {
+      "id": "qwen_warm_female",
+      "label": "Warm",
+      "language": "en",
+      "gender": "female",
+      "description": "An adult female storyteller with a warm, smooth mid-register voice, gentle resonance and relaxed confidence. Suitable for learning videos and human stories. Deliver complete phrases with natural breathing, subtle expression and clear consonants; avoid whispering, breathiness or theatrical sentiment. Use standard Mandarin for Chinese and natural English for English."
+    },
+    {
+      "id": "qwen_clear_male",
+      "label": "Clear",
+      "language": "en",
+      "gender": "male",
+      "description": "An adult male explainer with a clear, balanced mid-register voice and approachable confidence. Friendly rather than formal, suited to tutorials and product walkthroughs. Keep articulation precise, use natural pauses between ideas and maintain a steady conversational pace. Use standard Mandarin for Chinese and natural English for English."
+    },
+    {
+      "id": "qwen_deep_male",
+      "label": "Deep",
+      "language": "en",
+      "gender": "male",
+      "description": "An adult male documentary narrator with a warm, resonant low-mid voice. Calm, grounded and thoughtful, suited to longer explanations and documentary storytelling. Use measured phrasing and restrained emphasis, retaining clear diction without forced bass, gravel or dramatic trailer delivery. Use standard Mandarin for Chinese and natural English for English."
+    },
+    {
+      "id": "qwen_broadcast_female",
+      "label": "Broadcast narrator",
+      "language": "zh",
+      "gender": "female",
+      "description": "成年女播音员声线，清亮圆润的中音，声音端正、饱满、有亲和力。中文使用标准普通话，字音准确，咬字清楚，吐字归音自然，气息稳定。语速适中，句意完整，停连与逻辑重音清晰，适合知识讲解、正式介绍和较长旁白。保持从容自然，避免广告式夸张、尖细童声或过度拿腔。英文词汇发音自然清晰；目标语言为英文时使用自然英语。"
+    },
+    {
+      "id": "qwen_technical_female",
+      "label": "Technical explainer",
+      "language": "zh",
+      "gender": "female",
+      "description": "成年女性科普讲解声线，音色清晰温和，中音区，语气理性、自信而平易近人。像一位善于讲解的老师，逐层说明概念，轻重音服务于理解，专业术语清楚，句间停顿自然，节奏稳定，适合技术教程和长篇知识旁白。中文普通话标准，英文术语自然准确。保持成年声线，不卖萌、不耳语、不用推销口吻；目标语言为英文时自然说英语。"
+    },
+    {
+      "id": "qwen_broadcast_male",
+      "label": "Broadcast narrator",
+      "language": "zh",
+      "gender": "male",
+      "description": "成年男播音员声线，中低音，音色端正、温厚、明亮而有支撑。中文使用标准普通话，字音准确，吐字清晰，气息连贯，语速适中。句子收束干净，逻辑重音明确，适合正式介绍、新闻式解说和知识旁白。沉稳可信但不生硬，避免刻意压低嗓音、拖腔或广告式激情。英文词汇自然清楚；目标语言为英文时使用自然英语。"
+    },
+    {
+      "id": "qwen_technical_male",
+      "label": "Technical explainer",
+      "language": "zh",
+      "gender": "male",
+      "description": "成年男性技术讲解声线，中音区，干净清晰、沉着友善，像一位有耐心的专业讲师。以清楚的层次和自然停顿解释复杂概念，关键词有轻微重音，术语发音清楚，节奏均匀，适合软件演示、工程原理和较长教学旁白。中文普通话标准，英文术语自然连贯。避免低沉预告片腔、过度严肃或推销口吻；目标语言为英文时自然说英语。"
+    },
+    {
+      "id": "qwen_playful_female",
+      "label": "Playful",
+      "language": "zh",
+      "gender": "female",
+      "description": "年轻成年女性的甜美少女感声线，音区偏高，音色轻盈、清亮、柔软，带一点稚嫩感和俏皮的撒娇语气。像亲切活泼的动画向导，自然微笑着讲解，句尾轻柔上扬，偶尔轻轻拖音，情绪灵动但不过度。适合轻松科普、趣味教程和角色化旁白。保持吐字清楚、语速适中、术语完整，不尖叫、不含糊、不用婴儿腔，也不添加原文没有的语气词。中文使用标准普通话，英文使用自然清晰的英语，混合语言时保留一致的甜美音色。"
+    }
+  ]
+}

@@ -52,7 +52,7 @@ export function mangaTheatrePreviewFrames() {
             endSeconds: 3,
             development: "The camera pans past a prop card as the spotlight lights the title.",
             captions: ["An idea takes shape."],
-            audio: { effects: ["Soft impact"], music: [], lyrics: [] },
+            audio: { effects: ["Soft impact"], music: [], subtitles: [] },
           },
         ],
       },

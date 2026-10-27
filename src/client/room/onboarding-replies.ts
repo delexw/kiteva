@@ -52,8 +52,8 @@ function speechReply(request: CreativeRequest, assets: RoomLibraryAsset[]) {
       value0:
         speech.source === "provided"
           ? "My script"
-          : speech.source === "lyrics"
-            ? "Use lyrics"
+          : speech.source === "subtitles"
+            ? "Use subtitles"
             : "Write a script",
     }),
     speech.source === "provided" && speech.text
@@ -151,12 +151,14 @@ export function roomOnboardingReplies(
                 item.source === "write"
                   ? `${translateUi("Script instructions")}: ${item.text}`
                   : item.text,
-                translateUi(item.showLyrics ? "Lyrics on screen: On" : "Lyrics on screen: Off"),
+                translateUi(
+                  item.showSubtitles ? "Subtitles on screen: On" : "Subtitles on screen: Off",
+                ),
                 ...speechReply(
                   {
                     ...request,
                     scriptItems: undefined,
-                    lyrics: { mode: "off" },
+                    subtitles: { mode: "off" },
                     speech:
                       item.speech.mode === "narration"
                         ? {
@@ -176,11 +178,11 @@ export function roomOnboardingReplies(
           skipped: false,
         };
       const text = [
-        request.lyrics?.mode === "provided"
-          ? translateUi("Lyrics on screen:\n{{value0}}", { value0: request.lyrics.text })
-          : request.lyrics?.mode === "write"
-            ? translateUi("Lyrics on screen: Write lyrics for me")
-            : translateUi("Lyrics on screen: Off"),
+        request.subtitles?.mode === "provided"
+          ? translateUi("Subtitles on screen:\n{{value0}}", { value0: request.subtitles.text })
+          : request.subtitles?.mode === "write"
+            ? translateUi("Subtitles on screen: Write subtitles for me")
+            : translateUi("Subtitles on screen: Off"),
         ...speechReply(request, selected),
       ].join("\n\n");
       return { text, skipped: false };

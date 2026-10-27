@@ -92,7 +92,7 @@ it("places the review create action in the same footer as Back and Continue", ()
   ).not.toContain("Create previews");
 });
 
-it("uses matching titled sections for materials, websites, lyrics and review", () => {
+it("uses matching titled sections for materials, websites, subtitles and review", () => {
   for (const [step, title] of [
     [1, "Documents"],
     [2, "Reference images"],
@@ -106,7 +106,7 @@ it("uses matching titled sections for materials, websites, lyrics and review", (
   }
   const music = render(
     draftAt(5, {
-      request: { instructions: "A short film about a lighthouse", lyrics: { mode: "write" } },
+      request: { instructions: "A short film about a lighthouse", subtitles: { mode: "write" } },
     }),
   );
   expect(music).toContain("<h3>Shared script</h3>");
@@ -169,7 +169,7 @@ it("renders only the current step's upload, file filter, shelf items and counts"
     draftAt(4, {
       request: {
         instructions: "A short film about a lighthouse",
-        lyrics: { mode: "provided", text: "Keep the light on" },
+        subtitles: { mode: "provided", text: "Keep the light on" },
       },
     }),
     shelf,
@@ -179,7 +179,7 @@ it("renders only the current step's upload, file filter, shelf items and counts"
   expect(music).toContain("theme.mp3");
   expect(music).not.toContain("cover.png");
   expect(music).toContain("Music 0/2");
-  expect(music).not.toContain("Show lyrics on screen");
+  expect(music).not.toContain("Show subtitles on screen");
   expect(music).not.toContain("Keep the light on");
   expect(render(draftAt(3), shelf)).not.toContain("Upload");
 });
@@ -230,7 +230,7 @@ it("keeps each step's attachments in its own section of the submitted brief", ()
   let draft = draftAt(1, {
     request: {
       instructions: "A short film about a lighthouse",
-      lyrics: { mode: "provided", text: "Keep the light on" },
+      subtitles: { mode: "provided", text: "Keep the light on" },
     },
   });
   draft = attachRoomStepUploads(draft, "main", [asset(1, "brief.pdf"), asset(2, "notes.md")]).draft;
@@ -244,22 +244,22 @@ it("keeps each step's attachments in its own section of the submitted brief", ()
   expect(submitted.requirements?.main.assetIds).toEqual([uuid(1), uuid(2)]);
   expect(submitted.requirements?.images.assetIds).toEqual([uuid(3)]);
   expect(submitted.requirements?.music.assetIds).toEqual([uuid(4)]);
-  expect(submitted.outputType === "video" && submitted.lyrics).toEqual({
+  expect(submitted.outputType === "video" && submitted.subtitles).toEqual({
     mode: "provided",
     text: "Keep the light on",
   });
 });
 
-it("shows editable narration only in Narration / lyrics while preserving its saved reply in later steps", () => {
+it("shows editable narration only in Narration / subtitles while preserving its saved reply in later steps", () => {
   const request = {
     instructions: "A short film about a lighthouse",
-    lyrics: { mode: "write" as const },
+    subtitles: { mode: "write" as const },
     speech: {
       mode: "narration" as const,
       voice: "am_michael",
       speed: 1,
       source: "provided" as const,
-      text: "Our narration stays in Narration / lyrics.",
+      text: "Our narration stays in Narration / subtitles.",
       instructions: "Speak warmly",
     },
   };
@@ -269,7 +269,7 @@ it("shows editable narration only in Narration / lyrics while preserving its sav
   expect(settings).toContain("Generation settings");
   expect(settings).not.toContain('aria-label="Speech and vocals"');
   expect(settings).not.toContain('aria-label="Shared script"');
-  expect(settings).toContain("Our narration stays in Narration / lyrics.");
+  expect(settings).toContain("Our narration stays in Narration / subtitles.");
 });
 
 it("keeps saved Settings and Review drafts on their original step", () => {
@@ -287,11 +287,11 @@ it("keeps saved Settings and Review drafts on their original step", () => {
   expect(roomDraftStep(draftAt(7, { stepLayout: undefined }))).toBe(7);
 });
 
-it("offers narration with lyrics off in a separate Assistant step", () => {
+it("offers narration with subtitles off in a separate Assistant step", () => {
   const draft = draftAt(5, {
     request: {
       instructions: "A short film about a lighthouse",
-      lyrics: { mode: "off" },
+      subtitles: { mode: "off" },
       speech: {
         mode: "narration",
         source: "provided",
@@ -302,14 +302,14 @@ it("offers narration with lyrics off in a separate Assistant step", () => {
     },
   });
   const speech = render(draft);
-  expect(speech).toContain("Assistant · Narration / lyrics");
+  expect(speech).toContain("Assistant · Narration / subtitles");
   expect(speech).toContain('aria-label="Shared script"');
-  expect(speech).not.toContain('aria-label="Your lyrics"');
+  expect(speech).not.toContain('aria-label="Your subtitles"');
   const music = render({ ...draft, step: 4 });
   expect(music).not.toContain('aria-label="Speech and vocals"');
   expect(music).not.toContain('aria-label="Shared script"');
   expect(roomSubmission(roomDraftRequest(draft))).toMatchObject({
-    lyrics: { mode: "off" },
+    subtitles: { mode: "off" },
     speech: { text: "A spoken story", source: "provided" },
   });
 });
@@ -362,7 +362,7 @@ it("shows only one script editor for narration and on-screen text", () => {
     draftAt(5, {
       request: {
         instructions: "An example film",
-        lyrics: { mode: "provided", text: "Shared words" },
+        subtitles: { mode: "provided", text: "Shared words" },
         speech: { mode: "narration", source: "provided", text: "Shared words" },
       },
     }),
@@ -377,14 +377,14 @@ it("submits legacy duplicated text through the shared script source", () => {
     draftAt(5, {
       request: {
         instructions: "An example film",
-        lyrics: { mode: "provided", text: "Displayed script" },
+        subtitles: { mode: "provided", text: "Displayed script" },
         speech: { mode: "narration", source: "provided", text: "Old separate narration" },
       },
     }),
   );
   const submitted = roomSubmission(request);
   expect(submitted.outputType === "video" && submitted.speech).toMatchObject({
-    source: "lyrics",
+    source: "subtitles",
     text: "Displayed script",
   });
 });

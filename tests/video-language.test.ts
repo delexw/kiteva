@@ -45,55 +45,57 @@ it("preserves originals while storing edits to a translated language version", (
   const request = VideoRequestSchema.parse({
     instructions: "A creative idea",
     outputLanguage: "zh",
-    lyrics: { mode: "provided", text: "你好" },
-    translations: { original: { lyrics: "Hello" }, versions: { zh: { lyrics: "你好" } } },
+    subtitles: { mode: "provided", text: "你好" },
+    translations: { original: { subtitles: "Hello" }, versions: { zh: { subtitles: "你好" } } },
   });
-  const edited = editVideoCopy(request, "lyrics", "Another line");
+  const edited = editVideoCopy(request, "subtitles", "Another line");
   expect(edited.translations).toEqual({
-    original: { lyrics: "Hello" },
-    versions: { zh: { lyrics: "Another line" } },
+    original: { subtitles: "Hello" },
+    versions: { zh: { subtitles: "Another line" } },
   });
-  expect(edited.lyrics).toEqual({ mode: "provided", text: "Another line" });
+  expect(edited.subtitles).toEqual({ mode: "provided", text: "Another line" });
   expect(videoLanguageDirection("zh")).toContain("overrides");
   expect(videoLanguageDirection("zh")).toContain("captured website UI");
 });
 
-it("preserves spaces while typing lyrics and captures the complete original only when translating", () => {
+it("preserves spaces while typing subtitles and captures the complete original only when translating", () => {
   const base = VideoRequestSchema.parse({ instructions: "A creative idea", outputLanguage: "en" });
-  const first = editVideoCopy(base, "lyrics", "Let ");
+  const first = editVideoCopy(base, "subtitles", "Let ");
   const restored = roomDraftRequest({ step: 0, request: first, assets: [] });
-  expect(restored.outputType === "video" && restored.lyrics).toEqual({
+  expect(restored.outputType === "video" && restored.subtitles).toEqual({
     mode: "provided",
     text: "Let ",
   });
-  const next = editVideoCopy(first, "lyrics", "Let your idea take flight.");
+  const next = editVideoCopy(first, "subtitles", "Let your idea take flight.");
   expect(next.translations).toBeUndefined();
 });
 
 it("uses one script for displayed text and narration while retaining voice settings", () => {
   const request = VideoRequestSchema.parse({
     instructions: "An example film",
-    lyrics: { mode: "provided", text: "Display script" },
+    subtitles: { mode: "provided", text: "Display script" },
     speech: { mode: "narration", source: "provided", text: "Old duplicate", voice: "am_michael" },
   });
   expect(sharedVideoScript(request)).toBe("Display script");
   const edited = editSharedVideoScript(request, "One shared script ");
-  expect(edited.lyrics).toEqual({ mode: "provided", text: "One shared script " });
+  expect(edited.subtitles).toEqual({ mode: "provided", text: "One shared script " });
   expect(edited.speech).toMatchObject({
-    source: "lyrics",
+    source: "subtitles",
     text: "One shared script ",
     voice: "am_michael",
   });
   const narrationOnly = editSharedVideoScript(
-    { ...edited, lyrics: { mode: "off" } },
+    { ...edited, subtitles: { mode: "off" } },
     "Narration alone",
   );
-  expect(narrationOnly.lyrics).toEqual({ mode: "off" });
+  expect(narrationOnly.subtitles).toEqual({ mode: "off" });
   expect(narrationOnly.speech).toMatchObject({ source: "provided", text: "Narration alone" });
-  expect(editSharedVideoScript({ ...request, lyrics: { mode: "write" } }, "").speech).toMatchObject(
-    { source: "lyrics" },
-  );
-  expect(editSharedVideoScript({ ...request, lyrics: { mode: "off" } }, "").speech).toMatchObject({
+  expect(
+    editSharedVideoScript({ ...request, subtitles: { mode: "write" } }, "").speech,
+  ).toMatchObject({ source: "subtitles" });
+  expect(
+    editSharedVideoScript({ ...request, subtitles: { mode: "off" } }, "").speech,
+  ).toMatchObject({
     source: "write",
   });
 });

@@ -58,7 +58,7 @@ it("uses separate policy files and literal argv, with no provider login or shell
     expect(fileURLToPath(first.args[1])).toBe(createRequire(import.meta.url).resolve("tsx"));
     expect(firstPayload.command).toEqual([process.execPath, "-e", 'console.log("a & b")']);
     expect(firstPayload.configOverrides).toEqual(payload(second.args).configOverrides);
-    expect(first.env.CODEX_HOME).toBe(windowsRenderSandboxHome);
+    expect(first.env.CODEX_HOME).toBe(windowsRenderSandboxHome(workspace));
     expect(firstPayload.configOverrides.join("\n")).toContain(".env.local");
     expect(firstPayload.configOverrides.join("\n")).not.toContain("api_key");
   } finally {

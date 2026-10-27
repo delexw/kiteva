@@ -1,3 +1,4 @@
+import { normalizeSubtitleFields } from "../shared/subtitle-compatibility";
 import { z } from "zod";
 import { StoryboardBeatSchema, StoryboardSceneSchema } from "../shared/agents/schemas/storyboard";
 const textList = z
@@ -14,9 +15,9 @@ const beatSchema = StoryboardBeatSchema.partial().extend({
     .object({
       music: textList.default([]),
       effects: textList.default([]),
-      lyrics: textList.default([]),
+      subtitles: textList.default([]),
     })
-    .default({ music: [], effects: [], lyrics: [] }),
+    .default({ music: [], effects: [], subtitles: [] }),
 });
 const sceneSchema = StoryboardSceneSchema.partial().extend({
   id: z.string().optional(),
@@ -28,20 +29,23 @@ const sceneSchema = StoryboardSceneSchema.partial().extend({
   assets: textList.default([]),
   beats: z.array(beatSchema).default([]),
 });
-export const storyboardPageSchema = z.object({
-  title: z.string().default("Storyboard"),
-  durationSeconds: time,
-  scenes: z.array(sceneSchema).default([]),
-  sections: z
-    .array(
-      z.object({
-        heading: z.string().nullable().optional(),
-        blocks: z.array(z.unknown()).default([]),
-      }),
-    )
-    .default([]),
-  notes: textList.default([]),
-});
+export const storyboardPageSchema = z.preprocess(
+  normalizeSubtitleFields,
+  z.object({
+    title: z.string().default("Storyboard"),
+    durationSeconds: time,
+    scenes: z.array(sceneSchema).default([]),
+    sections: z
+      .array(
+        z.object({
+          heading: z.string().nullable().optional(),
+          blocks: z.array(z.unknown()).default([]),
+        }),
+      )
+      .default([]),
+    notes: textList.default([]),
+  }),
+);
 export type MangaStoryboard = z.infer<typeof storyboardPageSchema>;
 export type MangaScene = MangaStoryboard["scenes"][number];
 export function storyboardTime(seconds?: number) {

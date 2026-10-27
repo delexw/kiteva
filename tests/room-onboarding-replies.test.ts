@@ -24,7 +24,7 @@ const request = () =>
       music: { instructions: "An upbeat groove", assetIds: [] },
       urls: { instructions: "Capture the working app" },
     },
-    lyrics: { mode: "provided", text: "Here are the actual lyrics" },
+    subtitles: { mode: "provided", text: "Here are the actual subtitles" },
     speech: {
       mode: "narration",
       voice: "am_michael",
@@ -34,7 +34,7 @@ const request = () =>
       instructions: "Speak warmly",
     },
   });
-it("includes full prompts, file names, URL instructions, lyrics and speech in prior replies", () => {
+it("includes full prompts, file names, URL instructions, subtitles and speech in prior replies", () => {
   const replies = roomOnboardingReplies(request(), assets, styles);
   expect(replies[0].text).toBe("Explain an idea for the team.");
   expect(replies[1].text).toContain("Read the notes");
@@ -43,7 +43,7 @@ it("includes full prompts, file names, URL instructions, lyrics and speech in pr
   expect(replies[3].text).toContain("https://example.com");
   expect(replies[3].text).toContain("Capture the working app");
   for (const value of [
-    "Here are the actual lyrics",
+    "Here are the actual subtitles",
     "Michael",
     "1.1×",
     "Here is the actual narration",
@@ -87,7 +87,7 @@ it("handles optional steps and page settings without video or inactive voice set
   expect(replies[6].text).not.toContain("Frame rate");
   const video = request();
   if (video.outputType !== "video") throw Error("Expected video fixture");
-  video.lyrics = { mode: "off" };
+  video.subtitles = { mode: "off" };
   expect(roomOnboardingReplies(video, assets, styles)[5].text).toContain("Voice: Michael");
   expect(roomSettingsReply(video, styles)).not.toContain("Michael");
 });

@@ -51,6 +51,7 @@ export function createReferenceTools(options: {
       options.signal,
       options.mode,
       options.enableVideoCapture,
+      options.workspace,
     ));
   async function run(action: () => Promise<{ result: ReferenceToolResult; image?: Buffer }>) {
     return queue.run(async () => {

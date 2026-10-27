@@ -16,7 +16,7 @@ const request = () =>
     instructions: "An English idea",
     outputLanguage: "zh",
     provider: "claude",
-    lyrics: { mode: "provided", text: "Hello, world" },
+    subtitles: { mode: "provided", text: "Hello, world" },
     speech: { mode: "narration", source: "provided", text: "A story", voice: "am_michael" },
   });
 const workspace = async () => {
@@ -36,7 +36,7 @@ it("translates provided copy, preserves originals, caches per language and share
     return {
       value: {
         text:
-          JSON.parse(input.prompt.split("SOURCE DATA:\n")[1]).field === "lyrics"
+          JSON.parse(input.prompt.split("SOURCE DATA:\n")[1]).field === "subtitles"
             ? "你好，世界"
             : "一个故事",
       },
@@ -51,10 +51,10 @@ it("translates provided copy, preserves originals, caches per language and share
     generate,
   );
   expect(localized.instructions).toBe(source.instructions);
-  expect(localized.lyrics).toEqual({ mode: "provided", text: "你好，世界" });
+  expect(localized.subtitles).toEqual({ mode: "provided", text: "你好，世界" });
   expect(localized.speech).toMatchObject({ text: "一个故事" });
   expect(localized.translations?.original).toEqual({
-    lyrics: "Hello, world",
+    subtitles: "Hello, world",
     narration: "A story",
   });
   expect(generate).toHaveBeenCalledTimes(2);
@@ -88,11 +88,11 @@ it("keeps legacy and generated copy model-free and rejects aborted translations"
   const source = VideoRequestSchema.parse({
     instructions: "An original idea",
     outputLanguage: "zh",
-    lyrics: { mode: "write" },
+    subtitles: { mode: "write" },
   });
   expect(
     (await localizeVideoRequest(source, folder, new AbortController().signal, vi.fn(), generate))
-      .lyrics,
+      .subtitles,
   ).toEqual({ mode: "write" });
   expect(generate).not.toHaveBeenCalled();
   const controller = new AbortController();

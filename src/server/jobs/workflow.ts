@@ -1,6 +1,11 @@
 import { DependencyCleanupError } from "../runtime/process-tree";
 import { addAbortListener } from "node:events";
 import { writePreviewPlan, previewPlanArtifact } from "./preview-plan";
+import {
+  AutomaticPreviewPlanSchema,
+  runAutomaticPreviewWorkflow,
+  validateAutomaticPreviewPlan,
+} from "./subworkflows/automatic-preview/workflow";
 import { buildRouteOf } from "../../shared/build-route";
 import { fileBackedPlanningPrompt } from "../agents/planning-prompt";
 import { writeProjectRequest } from "../requests/project-request";
@@ -37,6 +42,7 @@ import { candidateCopyGuidance } from "../../shared/candidate-copy";
 import { z } from "zod";
 import {
   combinationProposalPolicyRevision,
+  compactDirectionProposalGuidance,
   suggestedCombinationGuidance,
   requestedStyleScopeGuidance,
 } from "../../shared/style-combinations";
@@ -46,9 +52,9 @@ import {
   preparationCheckpoint,
   preparationRequest,
 } from "./preparation-checkpoints";
-import { GeneratedLyricsSchema } from "../../shared/domains/video";
+import { GeneratedSubtitlesSchema } from "../../shared/domains/video";
 import { CodedError, errorCode } from "../../shared/errors";
-import { prepareLyrics, resolvedLyricsRequest } from "../domains/video/prepare-lyrics";
+import { prepareSubtitles, resolvedSubtitlesRequest } from "../domains/video/prepare-subtitles";
 import { resolveVideoDuration, videoStyleCountRange } from "../../shared/domains/video";
 import { generateVideo } from "../domains/video/workflow";
 import { prepareVideoRefinement } from "../domains/video/refinement";
@@ -543,30 +549,34 @@ export class Workflow {
       if (
         run.request.outputType !== "page" &&
         run.request.scriptItems === undefined &&
-        run.request.lyrics?.mode === "write"
+        run.request.subtitles?.mode === "write"
       ) {
         const request = run.request;
-        run.generatedLyrics = await checkpoint("lyrics", GeneratedLyricsSchema, async () => {
-          this.emit(run, "lyrics", "Writing your lyrics…");
-          const lyrics = await this.agents.run(
-            () =>
-              prepareLyrics({
-                request,
-                brief: BriefSchema.parse(run.brief),
-                workspace,
-                signal: controller.signal,
-                onEvent: this.providerEvent(run, undefined, "Lyrics generation"),
-              }),
-            controller.signal,
-          );
-          if (!lyrics) throw Error("Lyrics could not be prepared.");
-          return lyrics;
-        });
-        if (!run.generatedLyrics) throw Error("Lyrics could not be prepared.");
-        if (!run.brief.exactCopy.includes(run.generatedLyrics.text))
-          run.brief.exactCopy.push(run.generatedLyrics.text);
+        run.generatedSubtitles = await checkpoint(
+          "subtitles",
+          GeneratedSubtitlesSchema,
+          async () => {
+            this.emit(run, "subtitles", "Writing your subtitles…");
+            const subtitles = await this.agents.run(
+              () =>
+                prepareSubtitles({
+                  request,
+                  brief: BriefSchema.parse(run.brief),
+                  workspace,
+                  signal: controller.signal,
+                  onEvent: this.providerEvent(run, undefined, "Subtitles generation"),
+                }),
+              controller.signal,
+            );
+            if (!subtitles) throw Error("Subtitles could not be prepared.");
+            return subtitles;
+          },
+        );
+        if (!run.generatedSubtitles) throw Error("Subtitles could not be prepared.");
+        if (!run.brief.exactCopy.includes(run.generatedSubtitles.text))
+          run.brief.exactCopy.push(run.generatedSubtitles.text);
         this.update(run);
-        this.emit(run, "lyrics", "Lyrics ready");
+        this.emit(run, "subtitles", "Subtitles ready");
       }
       run.phase = "ranking";
       this.update(run);
@@ -666,7 +676,7 @@ export class Workflow {
                   prompt: await fileBackedPlanningPrompt(
                     workspace,
                     "DIRECTION_PLANNING.md",
-                    `${assetRequirementsPolicy.guidance}\nOutput type: ${run.request.outputType || "video"}. For pages, evaluate responsive layout and working user interactions rather than video timing. Read all ${summaries.length} cached Motion Graphic summaries in style-summaries.json before proposing directions. There is no individual Motion Graphic shortlist: consider every Motion Graphic both as a primary identity and as a useful supporting contribution. Propose ${Math.max(12, run.request.candidateCount * 4)} distinct candidate options for the brief in the required input JSON. These are proposals for JEV to evaluate, not the final selected directions. Offer meaningfully different visual approaches, not cosmetic variations of one idea. Each generated candidate combination must contain ${styleRange.min}–${styleRange.max} distinct Motion Graphics, counting its primary plus supporting Motion Graphics. ${requestedStyleScopeGuidance} ${run.request.outputType === "page" ? "" : "This range comes from the full video duration, not the 3-second preview. Motion Graphic count is separate from the requested number of preview directions."} Include single Motion Graphics when permitted and compatible combinations with specific scene roles and honest asset feasibility. The unchanged originalIdea and sectionInstructions are authoritative; the brief is supporting context and cannot remove explicit requirements. In each rationale write a concise, self-contained comparison in complete sentences with these labels: Creative result; Contributions; Advantages; Disadvantages; Compatibility and adaptation. Explain the primary identity, what every support adds, why the whole combination suits this request, what it sacrifices compared with alternatives, conflicts in palette/material/typography/motion and how those conflicts would be reconciled without overriding visual restrictions. Explain when using the primary alone is better. Do not describe an option only by IDs, praise or a technology list; acknowledge unknowns rather than inventing evidence. Read style-combinations.json for the full recommendations and their roles, rationale, consistency rules and pitfalls; compressed summaries are not the complete suggestion list. ${suggestedCombinationGuidance} ${candidateCopyGuidance} Keep one primary identity and add supporting Motion Graphics within the permitted count only when they contribute meaningfully. Do not force the maximum; vary combination sizes where appropriate. Preserve the primary palette and visual identity, assign subordinate roles, and explain shared typography and motion rhythm. IDs must come from style-summaries.json. A primary Motion Graphic may appear in multiple genuinely distinct combinations. ${run.request.pinnedStyleId ? `Every primary Motion Graphic must be ${run.request.pinnedStyleId}.` : ""} Only when the model and available tools cannot fulfil a requested requirement, including inaccessible supplied URLs, return a focused assetNeeds question with its capability or access cause. Missing uploads alone do not warrant questions. Propose an honest adapted direction using available material; do not invent references. Use supplied images where appropriate and available code-generated visuals where none are supplied. Do not list multiple copies of the same combination, including reordered supporting Motion Graphics.`,
+                    `${assetRequirementsPolicy.guidance}\n${compactDirectionProposalGuidance}\nOutput type: ${run.request.outputType || "video"}. For pages, evaluate responsive layout and working user interactions rather than video timing. Read all ${summaries.length} cached Motion Graphic summaries in style-summaries.json before proposing directions. There is no individual Motion Graphic shortlist: consider every Motion Graphic both as a primary identity and as a useful supporting contribution. Propose ${Math.max(12, run.request.candidateCount * 4)} distinct candidate options for the brief in the required input JSON. These are proposals for JEV to evaluate, not the final selected directions. Offer meaningfully different visual approaches, not cosmetic variations of one idea. Each generated candidate combination must contain ${styleRange.min}–${styleRange.max} distinct Motion Graphics, counting its primary plus supporting Motion Graphics. ${requestedStyleScopeGuidance} ${run.request.outputType === "page" ? "" : "This range comes from the full video duration, not the 3-second preview. Motion Graphic count is separate from the requested number of preview directions."} Include single Motion Graphics when permitted and compatible combinations with specific scene roles and honest asset feasibility. The unchanged originalIdea and sectionInstructions are authoritative; the brief is supporting context and cannot remove explicit requirements. In each rationale write a concise, self-contained comparison in complete sentences with these labels: Creative result; Contributions; Advantages; Disadvantages; Compatibility and adaptation. Explain the primary identity, what every support adds, why the whole combination suits this request, what it sacrifices compared with alternatives, conflicts in palette/material/typography/motion and how those conflicts would be reconciled without overriding visual restrictions. Explain when using the primary alone is better. Do not describe an option only by IDs, praise or a technology list; acknowledge unknowns rather than inventing evidence. Read style-combinations.json for the full recommendations and their roles, rationale, consistency rules and pitfalls; compressed summaries are not the complete suggestion list. ${suggestedCombinationGuidance} ${candidateCopyGuidance} Keep one primary identity and add supporting Motion Graphics within the permitted count only when they contribute meaningfully. Do not force the maximum; vary combination sizes where appropriate. Preserve the primary palette and visual identity, assign subordinate roles, and explain shared typography and motion rhythm. IDs must come from style-summaries.json. A primary Motion Graphic may appear in multiple genuinely distinct combinations. ${run.request.pinnedStyleId ? `Every primary Motion Graphic must be ${run.request.pinnedStyleId}.` : ""} Only when the model and available tools cannot fulfil a requested requirement, including inaccessible supplied URLs, return a focused assetNeeds question with its capability or access cause. Missing uploads alone do not warrant questions. Propose an honest adapted direction using available material; do not invent references. Use supplied images where appropriate and available code-generated visuals where none are supplied. Do not list multiple copies of the same combination, including reordered supporting Motion Graphics.`,
                   ),
                 }),
               controller.signal,
@@ -705,6 +715,14 @@ export class Workflow {
           id: z.string(),
           score: z.number(),
           confidence: z.number(),
+          evaluationConfidence: z.number().optional(),
+          selectionDecision: z
+            .object({
+              round: z.number(),
+              comparedIds: z.array(z.string()),
+              probabilities: z.record(z.string(), z.number()),
+            })
+            .optional(),
           dimensions: z.record(z.string(), z.number()),
         });
         const ranked = await checkpoint(
@@ -733,13 +751,38 @@ export class Workflow {
               throw Error(
                 "No feasible Motion Graphic option passed the brief constraints. Supply the missing assets or clarify the request.",
               );
-            return { ...selected, policyRevision: combinationProposalPolicyRevision };
+            return { ...selected, policyRevision: combinationProposalPolicyRevision } as const;
           },
         );
         run.rankingModel = ranked.model;
         selectedCandidates = ranked.candidates.map((candidate) => ({
           ...candidate,
           id: directionCandidateId(run.directionRound || 0, candidate.id),
+        }));
+      }
+      if (run.request.outputType !== "page") {
+        const plan = await checkpoint(
+          "preview-plan",
+          AutomaticPreviewPlanSchema,
+          () =>
+            this.agents.run(
+              () =>
+                runAutomaticPreviewWorkflow({
+                  request: preparedRequest,
+                  brief: run.brief!,
+                  candidates: selectedCandidates,
+                  workspace,
+                  signal: controller.signal,
+                  onEvent: this.providerEvent(run, undefined, "Shared preview planning"),
+                }),
+              controller.signal,
+            ),
+          async (output) => validateAutomaticPreviewPlan(output, selectedCandidates),
+        );
+        run.brief.previewBeat = plan.previewBeat;
+        selectedCandidates = selectedCandidates.map((candidate) => ({
+          ...candidate,
+          ...plan.directions.find((direction) => direction.id === candidate.id)!,
         }));
       }
       await this.generatePreviews(run, selectedCandidates, controller.signal);
@@ -1027,23 +1070,23 @@ export class Workflow {
         if (run.request.outputType === "page") throw Error("Video job requires a video request");
         if (
           run.request.scriptItems === undefined &&
-          run.request.lyrics?.mode === "write" &&
-          !run.generatedLyrics
+          run.request.subtitles?.mode === "write" &&
+          !run.generatedSubtitles
         ) {
-          this.emit(run, "lyrics", "Writing your lyrics…");
-          run.generatedLyrics = await prepareLyrics({
+          this.emit(run, "subtitles", "Writing your subtitles…");
+          run.generatedSubtitles = await prepareSubtitles({
             request: run.request,
             brief: BriefSchema.parse(run.brief),
             workspace: path.join(dataRoot, "runs", run.id, "brief"),
             signal: controller.signal,
-            onEvent: this.providerEvent(run, undefined, "Lyrics generation"),
+            onEvent: this.providerEvent(run, undefined, "Subtitles generation"),
           });
           this.update(run);
-          this.emit(run, "lyrics", "Lyrics ready");
+          this.emit(run, "subtitles", "Subtitles ready");
         }
         await generateVideo({
           job,
-          request: resolvedLyricsRequest(run.request, run.generatedLyrics),
+          request: resolvedSubtitlesRequest(run.request, run.generatedSubtitles),
           brief: BriefSchema.parse(run.brief),
           candidate: run.candidates.find((c) => c.id === job.candidateId)!,
           styles: this.catalog.styles,
@@ -1168,7 +1211,7 @@ export class Workflow {
         recursive: true,
         filter: (source) => {
           task.controller.signal.throwIfAborted();
-          return !["node_modules", "renders"].includes(path.basename(source));
+          return !["node_modules", "renders", ".runtime"].includes(path.basename(source));
         },
       });
       task.controller.signal.throwIfAborted();

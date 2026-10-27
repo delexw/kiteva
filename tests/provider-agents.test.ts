@@ -1,3 +1,7 @@
+import { projectRuntimeEnvironment } from "../src/server/runtime/project-files";
+vi.mock("../src/server/agents/claude-home", () => ({
+  prepareClaudeHome: async () => "/isolated-home",
+}));
 vi.mock("../src/server/agents/bundled-skills", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../src/server/agents/bundled-skills")>()),
   prepareBundledSkills: vi.fn(),
@@ -238,7 +242,9 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
           tool_name: "Bash",
           tool_input: { command: "node scene.js" },
         }),
-      ).toEqual({});
+      ).toMatchObject({
+        hookSpecificOutput: { updatedInput: { command: expect.stringContaining("node scene.js") } },
+      });
       const settings = sdk.query.mock.calls.at(-1)![0].options;
       expect(settings.disallowedTools).toEqual(["WebFetch", "WebSearch"]);
       expect(settings.sandbox.network.allowedDomains).toEqual(["*"]);
@@ -252,8 +258,12 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
         process.platform === "darwin" ? ["com.apple.trustd.agent"] : undefined,
       );
       expect(settings.env.NODE_USE_ENV_PROXY).toBe("1");
-      expect(settings.env.npm_config_cache).toBe(path.join("/job", ".cache", "npm"));
-      expect(settings.env.XDG_CACHE_HOME).toBe(path.join("/job", ".cache"));
+      expect(settings.env.npm_config_cache).toBe(
+        projectRuntimeEnvironment("/job", "agent").npm_config_cache,
+      );
+      expect(settings.env.XDG_CACHE_HOME).toBe(
+        projectRuntimeEnvironment("/job", "agent").XDG_CACHE_HOME,
+      );
       expect(await settings.canUseTool("WebFetch", { url: "https://example.com" })).toMatchObject({
         behavior: "deny",
       });

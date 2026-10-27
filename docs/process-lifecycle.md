@@ -48,7 +48,7 @@ resumed automatically after restart.
 | Commands, rendering, installation and audio | Caller signals reach the shared command/process-tree helpers; cancellation waits for cleanup. Serialized speech requests wait for worker cleanup before starting the next request.                                |
 | Editable ZIP downloads                      | `Workflow.projectDependency` registers the export. Project stop or client disconnect aborts it and closes its streams.                                                                                            |
 | Remote capture                              | The client sends session DELETE on cancellation with an independent, bounded cleanup signal. The worker aborts its session, closes its browser and waits for queued/active actions before removing the workspace. |
-| Shared proxy and SDK-home setup             | App-owned rather than project-owned. Cancelling a caller stops its wait/request without shutting down a service used by another project. App shutdown handles service cleanup.                                    |
+| Shared proxy and per-project SDK-home setup | The proxy is app-owned. SDK-home setup is shared only by callers within the same project. Cancelling a caller stops its wait without interrupting another caller; app shutdown handles shared proxy cleanup.      |
 
 ### Subprocess scopes
 
@@ -111,3 +111,6 @@ KITEVA_TEST_LOCAL_OPENSCREEN=1 npx vitest run tests/native-recording-concurrency
 Local native recording and cancellation were exercised on macOS. Transport tests do not
 establish that a remote VM or another operating system records correctly; verify that desktop
 separately before relying on it.
+
+[Project-local runtime files](project-file-isolation.md) explains filesystem ownership and
+why native recorder locks and app-owned services remain explicitly shared.

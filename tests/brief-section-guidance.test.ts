@@ -64,7 +64,7 @@ it("keeps document identity internal during preparation and production, includin
     expect(prompt).toContain(
       "document names, document titles, filenames, file paths and attachment labels",
     );
-    expect(prompt).toContain("visible text, graphics, captions, narration and lyrics");
+    expect(prompt).toContain("visible text, graphics, captions, narration and subtitles");
     expect(prompt).toContain("unless the user explicitly asks to show or speak them");
     expect(prompt).toContain(
       "Naming an attachment in source-reading instructions is not a request to display its name",

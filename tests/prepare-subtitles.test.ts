@@ -4,7 +4,10 @@ import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { VideoRequestSchema } from "../src/shared/domains/video";
-import { prepareLyrics, resolvedLyricsRequest } from "../src/server/domains/video/prepare-lyrics";
+import {
+  prepareSubtitles,
+  resolvedSubtitlesRequest,
+} from "../src/server/domains/video/prepare-subtitles";
 import type { agentTurn } from "../src/server/agents/providers";
 const folders: string[] = [];
 afterEach(async () => {
@@ -25,13 +28,13 @@ const brief = BriefSchema.parse({
   durationReason: "Reading time",
 });
 async function input(provider: "claude" | "codex" = "claude") {
-  const workspace = await mkdtemp(path.join(os.tmpdir(), "lyrics-test-"));
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "subtitles-test-"));
   folders.push(workspace);
   return {
     request: VideoRequestSchema.parse({
       instructions: "Show an idea taking flight",
       provider,
-      lyrics: { mode: "write" },
+      subtitles: { mode: "write" },
     }),
     brief,
     workspace,
@@ -49,8 +52,8 @@ it.each([
     const generate = vi.fn(async () => ({
       value: { text: "One idea takes flight" },
     })) as unknown as typeof agentTurn;
-    const first = await prepareLyrics(options, generate);
-    const second = await prepareLyrics(
+    const first = await prepareSubtitles(options, generate);
+    const second = await prepareSubtitles(
       {
         ...options,
         signal: new AbortController().signal,
@@ -70,40 +73,42 @@ it.each([
     );
     expect(first).toEqual({ text: "One idea takes flight", model });
     expect(second).toEqual(first);
-    const resolved = resolvedLyricsRequest(options.request, first);
-    expect(resolved.lyrics).toEqual({ mode: "provided", text: "One idea takes flight" });
-    expect(options.request.lyrics?.mode).toBe("write");
+    const resolved = resolvedSubtitlesRequest(options.request, first);
+    expect(resolved.subtitles).toEqual({ mode: "provided", text: "One idea takes flight" });
+    expect(options.request.subtitles?.mode).toBe("write");
   },
 );
-it("does not call a model for supplied or disabled lyrics", async () => {
+it("does not call a model for supplied or disabled subtitles", async () => {
   const options = await input();
   const generate = vi.fn() as unknown as typeof agentTurn;
-  for (const lyrics of [
+  for (const subtitles of [
     undefined,
     { mode: "off" as const },
     { mode: "provided" as const, text: "Exact words" },
   ]) {
-    const request = { ...options.request, lyrics };
-    expect(await prepareLyrics({ ...options, request }, generate)).toBeUndefined();
-    expect(resolvedLyricsRequest(request)).toBe(request);
+    const request = { ...options.request, subtitles };
+    expect(await prepareSubtitles({ ...options, request }, generate)).toBeUndefined();
+    expect(resolvedSubtitlesRequest(request)).toBe(request);
   }
   expect(generate).not.toHaveBeenCalled();
-  expect(() => resolvedLyricsRequest(options.request)).toThrow("Lyrics must be prepared");
+  expect(() => resolvedSubtitlesRequest(options.request)).toThrow("Subtitles must be prepared");
 });
 it("does not cache invalid, failed, or cancelled generations", async () => {
   const options = await input();
   const failed = vi.fn(async () => {
     throw Error("Model unavailable");
   }) as unknown as typeof agentTurn;
-  await expect(prepareLyrics(options, failed)).rejects.toThrow("Model unavailable");
+  await expect(prepareSubtitles(options, failed)).rejects.toThrow("Model unavailable");
   const invalid = vi.fn(async () => ({ value: { text: " " } })) as unknown as typeof agentTurn;
-  await expect(prepareLyrics(options, invalid)).rejects.toThrow();
+  await expect(prepareSubtitles(options, invalid)).rejects.toThrow();
   const valid = vi.fn(async () => ({
-    value: { text: "Valid lyrics" },
+    value: { text: "Valid subtitles" },
   })) as unknown as typeof agentTurn;
   const controller = new AbortController();
   controller.abort();
-  await expect(prepareLyrics({ ...options, signal: controller.signal }, valid)).rejects.toThrow();
+  await expect(
+    prepareSubtitles({ ...options, signal: controller.signal }, valid),
+  ).rejects.toThrow();
   expect(valid).not.toHaveBeenCalled();
-  expect(await prepareLyrics(options, valid)).toMatchObject({ text: "Valid lyrics" });
+  expect(await prepareSubtitles(options, valid)).toMatchObject({ text: "Valid subtitles" });
 });

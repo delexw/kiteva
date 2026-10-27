@@ -13,7 +13,7 @@ export const NarrationCueSchema = z.object({
   text: z.string().trim().min(1).max(8000),
   startSeconds: z.number().finite().min(0),
   scriptItemId: z.string().optional(),
-  showLyrics: z.boolean().default(true),
+  showSubtitles: z.boolean().default(true),
 });
 export const CreateNarrationSchema = z.object({
   expectedRevision: z.string().optional(),

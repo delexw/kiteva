@@ -1,14 +1,14 @@
+import { projectRuntimeEnvironment } from "./project-files";
 import path from "node:path";
 import { systemEnvironment } from "./platform";
-import { fileURLToPath } from "node:url";
 import { mkdirSync } from "node:fs";
 import dotenv from "dotenv";
 import { DEFAULT_WEB_PORT } from "../../shared/local-web-port";
 import { defaultProviderModels } from "../../shared/model-display-name";
-export const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+import { appRoot, dataRoot } from "./paths";
+export { appRoot, dataRoot } from "./paths";
 dotenv.config({ path: path.join(appRoot, ".env"), quiet: true });
 dotenv.config({ path: path.join(appRoot, ".env.local"), quiet: true });
-export const dataRoot = path.join(appRoot, ".data");
 mkdirSync(dataRoot, { recursive: true, mode: 0o700 });
 export const catalogRoot = path.join(appRoot, "assets", "catalog");
 export const models = {
@@ -52,8 +52,7 @@ export function childEnvironment(workspace?: string) {
     ...Object.fromEntries(names.flatMap((k) => (process.env[k] ? [[k, process.env[k]!]] : []))),
     ...(workspace
       ? {
-          XDG_CACHE_HOME: path.join(workspace, ".cache"),
-          npm_config_cache: path.join(workspace, ".cache", "npm"),
+          ...projectRuntimeEnvironment(workspace, "agent"),
         }
       : {}),
   };

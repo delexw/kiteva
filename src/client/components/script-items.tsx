@@ -27,7 +27,7 @@ export function ScriptItems({
       <Typography.Title level={4}>{translateUi("Timed script items")}</Typography.Title>
       <p>
         {translateUi(
-          "Each item has its own time window, text, lyrics visibility and voice. Times are seconds from the start of the film.",
+          "Each item has its own time window, text, subtitle visibility and voice. Times are seconds from the start of the film.",
         )}
       </p>
       <Space orientation="vertical" className="script-items-list" size={16}>
@@ -118,13 +118,13 @@ export function ScriptItems({
                 onChange={(event) => change(index, { text: event.target.value })}
               />
             </label>
-            <label className="script-item-lyrics">
+            <label className="script-item-subtitles">
               <Switch
-                aria-label={translateUi("Show lyrics on screen")}
-                checked={item.showLyrics}
-                onChange={(showLyrics) => change(index, { showLyrics })}
+                aria-label={translateUi("Show subtitles on screen")}
+                checked={item.showSubtitles}
+                onChange={(showSubtitles) => change(index, { showSubtitles })}
               />{" "}
-              {translateUi("Show lyrics on screen")}
+              {translateUi("Show subtitles on screen")}
             </label>
             <SpeechSettings
               timedItem
@@ -176,7 +176,7 @@ export function ScriptItems({
                   typeof duration === "number" ? duration : 300,
                 ),
                 text: "",
-                showLyrics: true,
+                showSubtitles: true,
                 speech: { mode: "off" },
               },
             ]);

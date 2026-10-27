@@ -1,3 +1,4 @@
+import { prepareProjectRuntime, projectRuntimeEnvironment } from "./project-files";
 import { spawn } from "node:child_process";
 import { StringDecoder } from "node:string_decoder";
 import { renderCommand } from "../rendering/render-sandbox";
@@ -16,6 +17,7 @@ export async function command(
   env: Record<string, string | undefined> = {},
 ): Promise<string> {
   signal.throwIfAborted();
+  prepareProjectRuntime(cwd, isolate ? "render" : "tools");
   const sandbox = isolate ? await renderCommand(executable, args, cwd) : undefined;
   signal.throwIfAborted();
   return new Promise<string>((resolve, reject) => {
@@ -26,6 +28,7 @@ export async function command(
       env: {
         ...systemEnvironment(),
         LANG: "en_US.UTF-8",
+        ...projectRuntimeEnvironment(cwd, isolate ? "render" : "tools"),
         ...sandbox?.env,
         DO_NOT_TRACK: "1",
         ...env,

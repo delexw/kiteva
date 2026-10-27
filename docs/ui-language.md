@@ -2,7 +2,7 @@
 
 Use **EN / 中文** in the room header to switch between English and Simplified Chinese. The choice takes effect immediately, survives reloads on the same browser and synchronizes between tabs. Switching the interface does not call a model.
 
-The interface language and **Video language** are separate. Changing the interface preserves the original idea, supplied scripts and lyrics, selected voices, project settings and generated assets. Video language still controls the text and speech produced during project building.
+The interface language and **Video language** are separate. Changing the interface preserves the original idea, supplied scripts and subtitles, selected voices, project settings and generated assets. Video language still controls the text and speech produced during project building.
 
 Motion Graphic and motion cards and details include translated names, visual descriptions, palette constraints, audio guidance, variants, combinations, motion sequences, adaptation notes and preview descriptions. Tool purposes, runtimes, integration guidance and type/role filters are translated; package names, API names, URLs and stable catalog IDs retain their original spelling. Catalog search accepts both original English text and its Chinese translation. The detail resources are generated ahead of time and stored in the codebase; browsing never starts translation calls. Original executable templates and complete technical metadata remain source records.
 

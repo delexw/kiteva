@@ -23,6 +23,7 @@ vi.mock("../src/server/catalog/style-summaries", async (original) => ({
 vi.mock("../src/server/jev/strategies/style-combination", () => ({ rankOptions: vi.fn() }));
 vi.mock("../src/server/jev/client", () => ({ jevClient: vi.fn() }));
 import { agentTurn } from "../src/server/agents/providers";
+import { automaticPreviewResult } from "./fixtures/automatic-preview-plan";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { prepareStyleSummaries } from "../src/server/catalog/style-summaries";
 import { rankOptions } from "../src/server/jev/strategies/style-combination";
@@ -39,7 +40,7 @@ it.each([
 ] as const)(
   "uses %s text models for %s briefs and catalog-wide proposals before JEV selection",
   async (provider, outputType, pinnedStyleId, duration) => {
-    vi.mocked(agentTurn).mockClear();
+    vi.mocked(agentTurn).mockReset();
     const store = new Store(":memory:");
     const catalog = await loadCatalog();
     const workflow = new Workflow(store, catalog);
@@ -238,6 +239,14 @@ it.each([
           },
           sessionId: "proposal-session",
         };
+      })
+      .mockImplementationOnce(async (options) => {
+        options.onEvent({
+          type: "invocation",
+          message: "Started",
+          data: { model: options.model, invocationId: "shared-preview-test" },
+        });
+        return automaticPreviewResult(options.promptContext);
       });
     const candidate = {
       ...combination,
@@ -276,7 +285,22 @@ it.each([
         ]),
       });
       expect(run.brief?.assetPlan?.coreIdea).toBe("Explain an idea");
-      expect(agentTurn).toHaveBeenCalledTimes(3);
+      expect(agentTurn).toHaveBeenCalledTimes(outputType === "video" ? 4 : 3);
+      if (outputType === "video") {
+        expect(agentTurn).toHaveBeenNthCalledWith(
+          4,
+          expect.objectContaining({ provider, model: models[provider], readOnly: true }),
+        );
+        expect(store.events(run.id)).toContainEqual(
+          expect.objectContaining({
+            type: "invocation",
+            data: expect.objectContaining({
+              purpose: "Shared preview planning",
+              model: models[provider],
+            }),
+          }),
+        );
+      }
       expect(agentTurn).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({ provider, model: textModels[provider], readOnly: true }),

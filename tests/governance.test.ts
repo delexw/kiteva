@@ -340,24 +340,23 @@ it("finishes timing at the terminal state event and flags legacy attribution", (
   expect(result.incompleteHistory).toBe(true);
   expect(result.activity[0].model).toBe("Unrecorded model");
 });
-it.each(["jev-1.13.0", "jev-1.14.0"])(
-  "keeps cost unavailable when %s only reports tokens",
-  (model) => {
-    const result = projectGovernance(run, [
-      event(1, "usage", {
-        model,
-        provider: "jev",
-        invocationId: "jev",
-        usage: { input_tokens: 1000000, output_tokens: 50 },
-      }),
-    ]);
-    expect(result.activity[0]).toMatchObject({
-      inputTokens: 1000000,
-      outputTokens: 50,
-      costLow: null,
-    });
-  },
-);
+it.each(["jev-1.13.0", "jev-1.14.0"])("calculates %s cost from reported input tokens", (model) => {
+  const result = projectGovernance(run, [
+    event(1, "usage", {
+      model,
+      provider: "jev",
+      invocationId: "jev",
+      usage: { input_tokens: 1000000, output_tokens: 50 },
+    }),
+  ]);
+  expect(result.activity[0]).toMatchObject({
+    inputTokens: 1000000,
+    outputTokens: 50,
+    costLow: 0.042,
+    costHigh: 0.042,
+    costBasis: "Standard API estimate · input tokens",
+  });
+});
 it("reads all governance events and projects beyond normal history pagination", () => {
   const store = new Store(":memory:");
   try {
@@ -734,4 +733,60 @@ it("uses SDK costs regardless of token prices and counts continued sessions once
     costLow: 1998,
     costHigh: 1998,
   });
+});
+
+it("counts JEV usage once and prefers a reported cost when present", () => {
+  const usage = {
+    provider: "jev",
+    model: "jev-1.14.0",
+    invocationId: "choice",
+    usage: { input_tokens: 151497, output_tokens: 3280 },
+  };
+  const result = projectGovernance(run, [event(1, "usage", usage), event(2, "usage", usage)]);
+  expect(result.activity[0].inputTokens).toBe(151497);
+  expect(result.activity[0].costLow).toBeCloseTo(0.006362874, 12);
+  expect(result.activity[0].costHigh).toBe(result.activity[0].costLow);
+  const reported = projectGovernance(run, [event(3, "usage", { ...usage, cost: 0.01 })]);
+  expect(reported.activity[0]).toMatchObject({
+    costLow: 0.01,
+    costHigh: 0.01,
+    costBasis: "SDK reported cost",
+  });
+});
+
+it("exposes saved combination decisions and unique recorded calls without repeating prompt bodies", () => {
+  const candidate = {
+    id: "candidate-1",
+    primaryStyleId: "style-001",
+    supportingStyleIds: [],
+    sceneRoles: [],
+    rationale: "Fits the explanation",
+    feasible: true,
+    missingAssets: [],
+    score: 80,
+    confidence: 0.7,
+    dimensions: { clarity: 0.9 },
+  };
+  const invocation = {
+    provider: "jev",
+    model: "jev-1.14.0",
+    purpose: "Combination evaluation",
+    invocationId: "evaluation-1",
+    prompt: { user: "Private large prompt" },
+  };
+  const report = projectGovernance(
+    { ...run, rankingModel: "jev-1.14.0", candidates: [candidate] },
+    [event(1, "invocation", invocation), event(2, "invocation", invocation)],
+  );
+  const detail = report.activity[0].combinationEvaluation!;
+  expect(detail.selected[0]).toMatchObject({
+    title: "candidate-1",
+    styles: ["style-001"],
+    score: 80,
+    confidence: 0.7,
+    dimensions: { clarity: 0.9 },
+  });
+  expect(detail.calls).toHaveLength(1);
+  expect(detail.calls[0].promptUrl).toBe("/api/admin/governance/project/prompts/evaluation-1");
+  expect(JSON.stringify(detail)).not.toContain("Private large prompt");
 });

@@ -23,7 +23,13 @@ await command(
 );
 await command(
   python,
-  ["-m", "pip", "install", "-r", path.join(appRoot, "scripts/speech-requirements.txt")],
+  [
+    "-m",
+    "pip",
+    "install",
+    "-r",
+    path.join(appRoot, "src/server/audio/providers/kokoro/requirements.txt"),
+  ],
   appRoot,
   signal,
   (text) => process.stdout.write(text),

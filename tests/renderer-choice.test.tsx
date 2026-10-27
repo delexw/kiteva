@@ -5,7 +5,7 @@ import { multiplaneLimits, multiplaneSettingCoverage } from "../src/shared/video
 
 it("shows the trial's limits up front and keeps the full support list folded away", () => {
   const html = renderToStaticMarkup(<RendererChoice value="multiplane" onChange={() => {}} />);
-  expect(html).toContain("Trying Multiplane 0.3.10");
+  expect(html).toContain("Trying Multiplane 0.3.13");
   for (const limit of multiplaneLimits) expect(html).toContain(limit);
   expect(html).toContain("Supported settings and limits");
   expect(html).not.toContain(multiplaneSettingCoverage[0].detail);

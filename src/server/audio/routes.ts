@@ -9,6 +9,7 @@ import {
   SpeechProviderIdSchema,
   speechVoices,
   speechLanguage,
+  speechVoiceDefinition,
   PocketLanguageSchema,
 } from "../../shared/speech";
 import { CodedError } from "../../shared/errors";
@@ -40,6 +41,7 @@ export function registerSpeechRoutes(app: FastifyInstance) {
         JSON.stringify({
           engine: settings.engine || "kokoro",
           voice: settings.voice,
+          voiceDefinition: speechVoiceDefinition(settings),
           language: settings.language,
           speed: settings.speed,
           volume: settings.volume ?? 1,

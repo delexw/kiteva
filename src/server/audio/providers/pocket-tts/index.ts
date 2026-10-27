@@ -1,20 +1,20 @@
-import { pocketZhSpeechProvider } from "./pocket-tts-zh";
-import { defaultPython } from "../../runtime/platform";
-import { PocketTtsWorker } from "./pocket-worker";
+import { pocketZhSpeechProvider } from "./chinese";
+import { defaultPython } from "../../../runtime/platform";
+import { PocketTtsWorker } from "./worker";
 import { stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { pocketLanguageForVoice } from "../../../shared/speech";
-import { CodedError } from "../../../shared/errors";
-import { appRoot, dataRoot } from "../../runtime/config";
-import { command } from "../../runtime/process";
-import { WorkQueue } from "../../jobs/queue";
-import { speechModelDirectory } from "./paths";
-import { publishSpeechWave } from "./local-wave";
-import type { SpeechProvider } from "./types";
+import { pocketLanguageForVoice } from "../../../../shared/speech";
+import { CodedError } from "../../../../shared/errors";
+import { appRoot, dataRoot } from "../../../runtime/config";
+import { command } from "../../../runtime/process";
+import { WorkQueue } from "../../../jobs/queue";
+import { speechModelDirectory } from "../paths";
+import { publishSpeechWave } from "../local-wave";
+import type { SpeechProvider } from "../types";
 const queue = new WorkQueue(1);
 const modelDirectory = speechModelDirectory("pocket-tts");
-const script = path.join(appRoot, "scripts/speech/pocket-tts.py");
+const script = path.join(appRoot, "src/server/audio/providers/pocket-tts/adapter.py");
 const managedPython = path.join(
   dataRoot,
   "pocket-tts-venv",

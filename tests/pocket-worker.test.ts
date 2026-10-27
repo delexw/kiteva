@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { expect, it } from "vitest";
-import { PocketTtsWorker } from "../src/server/audio/providers/pocket-worker";
+import { PocketTtsWorker } from "../src/server/audio/providers/pocket-tts/worker";
 
 it("reuses one process across voices, resets after cancellation/crash and closes cleanly", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "pocket-worker-test-"));

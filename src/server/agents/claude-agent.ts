@@ -1,5 +1,5 @@
 import { projectRuntimeFiles } from "../runtime/project-files";
-import { prepareClaudeHome } from "./claude-home";
+import { prepareClaudeHome, claudeLoginEnvironment } from "./claude-home";
 import { withProcessScope } from "../runtime/process-scope";
 import { contextRecoveryCapabilities } from "./capabilities/context-recovery/capability";
 import { commandActivity } from "./command-activity";
@@ -132,7 +132,8 @@ export const claudeAgent: Agent = {
     signal.throwIfAborted();
     if (options.planMode && !options.readOnly)
       throw Error("Native planning requires a read-only turn");
-    await prepareClaudeHome(workspace, options.sessionId, signal);
+    const home = await prepareClaudeHome(workspace, options.sessionId, signal);
+    const loginEnvironment = await claudeLoginEnvironment(home, signal);
     const caveman = await cavemanRuntime(signal);
     signal.throwIfAborted();
     return withProcessScope(signal, async (signal) => {
@@ -184,8 +185,9 @@ export const claudeAgent: Agent = {
             settings: { promptCacheTtl: "5m", subagentPromptCacheTtl: "5m" },
             env: {
               ...childEnvironment(workspace),
-              // Use the project HOME's default directory, retaining native Keychain login.
+              // Keep configuration isolated; supply login explicitly to avoid native Keychain writes.
               CLAUDE_CONFIG_DIR: undefined,
+              ...loginEnvironment,
               CLAUDE_CODE_TMPDIR: projectRuntimeFiles(workspace, "agent").tmp,
               ...caveman?.env,
               ...(caveman

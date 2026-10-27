@@ -9,7 +9,11 @@ export const CaptureSessionSchema = z.object({
 });
 export const CaptureActionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("browser"), request: BrowserCapabilityRequestSchema }),
-  z.object({ action: z.literal("inspect"), url: z.string().url().optional() }),
+  z.object({
+    action: z.literal("inspect"),
+    url: z.string().url().optional(),
+    requestSignIn: z.boolean().optional(),
+  }),
   z.object({ action: z.literal("click"), controlId: z.string().regex(/^\d+$/) }),
   z.object({
     action: z.literal("fill"),

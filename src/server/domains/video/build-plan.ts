@@ -1,3 +1,4 @@
+import { RetryBudget } from "../../../shared/retry-budget";
 import { activityScope } from "../../jobs/activity-scope";
 import path from "node:path";
 import { writeStoryboardJson } from "./storyboard";
@@ -145,7 +146,7 @@ export async function prepareVideoBuildPlan(input: {
         ? `# Capture timing revision\n\n## Revision scope\n\nREVISE CAPTURE TIMING in the same main planning session. A chapter cannot fit clearly using native speed regions without cuts. Preserve the full film duration, story, explicit user act boundaries, non-footage scene times, scene IDs/assets and every chapter's order, actions, expected results and continuity. Reallocate only footage scene/beat timing and chapter budgets within the existing footage regions. Keep capture scope and story. Read CAPTURED_CHAPTERS.json for already accepted footage. Do not shorten coverage, skip actions, cut footage, stretch speech or add filler. Return the complete validated plan with revised storyboard and capturePlan. Remain read-only; code saves the plan before capture retries. If impossible, do not claim a feasible plan.\n\n## Timing conflict\n\nTIMING CONFLICT (data):\n${JSON.stringify(input.captureTimingConflict)}\n\n## Approved plan\n\nAPPROVED PLAN (data):\n${JSON.stringify(priorPlan)}\n\n## Original build brief\n\nORIGINAL BUILD BRIEF:\nRead ${JSON.stringify(requirementsFile)} completely.`
         : "";
       try {
-        for (let attempt = 0; ; attempt++) {
+        for (const { index: attempt } of new RetryBudget(3)) {
           try {
             const turn = await agentTurn({
               includeCreativeAlternatives: false,

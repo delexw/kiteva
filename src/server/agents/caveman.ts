@@ -1,3 +1,4 @@
+import { RetryBudget } from "../../shared/retry-budget";
 import { terminateProcessTree } from "../runtime/process-tree";
 import { nativeExecutable } from "../runtime/platform";
 import { addAbortListener } from "node:events";
@@ -71,7 +72,7 @@ async function startProxy(signal: AbortSignal) {
     ownedProxy.on("error", (error) => {
       launchError = error;
     });
-    for (let attempt = 0; attempt < 50; attempt++) {
+    for (const _attempt of new RetryBudget(50)) {
       signal.throwIfAborted();
       if (launchError || ownedProxy.exitCode !== null)
         throw Error("Caveman proxy could not start; check .data/caveman/sdk-proxy.log");

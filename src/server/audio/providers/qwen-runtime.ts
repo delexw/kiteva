@@ -1,3 +1,4 @@
+import { RetryBudget } from "../../../shared/retry-budget";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { speechLanguage } from "../../../shared/speech";
@@ -43,7 +44,7 @@ export function createQwenSpeechProvider(options: {
           detail: "Local Qwen3-TTS currently requires an Apple Silicon Mac.",
         };
       let diagnostic = "";
-      for (let attempt = 0; attempt < 2; attempt++) {
+      for (const _attempt of new RetryBudget(2)) {
         try {
           await command(
             qwenPython(),

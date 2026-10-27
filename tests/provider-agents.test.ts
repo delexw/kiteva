@@ -1,6 +1,7 @@
 import { projectRuntimeEnvironment } from "../src/server/runtime/project-files";
 vi.mock("../src/server/agents/claude-home", () => ({
   prepareClaudeHome: async () => "/isolated-home",
+  claudeLoginEnvironment: async () => ({ CLAUDE_CODE_OAUTH_TOKEN: "fixture-sdk-token" }),
 }));
 vi.mock("../src/server/agents/bundled-skills", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../src/server/agents/bundled-skills")>()),
@@ -258,6 +259,7 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
         process.platform === "darwin" ? ["com.apple.trustd.agent"] : undefined,
       );
       expect(settings.env.NODE_USE_ENV_PROXY).toBe("1");
+      expect(settings.env.CLAUDE_CODE_OAUTH_TOKEN).toBe("fixture-sdk-token");
       expect(settings.env.npm_config_cache).toBe(
         projectRuntimeEnvironment("/job", "agent").npm_config_cache,
       );

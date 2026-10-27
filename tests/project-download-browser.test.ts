@@ -58,11 +58,23 @@ it.skipIf(!browserExecutablePath())(
       await page.goto(`http://127.0.0.1:${address.port}/download-test`);
       await page.waitForSelector("a[download]");
       expect(
-        await page.$eval("a", (a) => ({ text: a.textContent, href: a.getAttribute("href") })),
+        await page.$eval("a", (a) => ({
+          label: a.getAttribute("aria-label"),
+          text: a.textContent,
+          href: a.getAttribute("href"),
+          icons: a.querySelectorAll("svg").length,
+        })),
       ).toEqual({
-        text: expect.stringContaining("Download editable project"),
+        label: "Download editable project",
+        text: "",
         href: "/api/projects/run/job",
+        icons: 1,
       });
+      await page.hover("a[download]");
+      await page.waitForSelector('[role="tooltip"]', { visible: true });
+      expect(await page.$eval('[role="tooltip"]', (element) => element.textContent)).toBe(
+        "Download editable source files and assets as a ZIP.",
+      );
       available = false;
       await page.reload();
       await page.waitForNetworkIdle();

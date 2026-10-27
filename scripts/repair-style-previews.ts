@@ -1,3 +1,4 @@
+import { RetryBudget } from "../src/shared/retry-budget";
 import { mergeCorrection, correctionMergeGuidance } from "../src/server/agents/correction-merge";
 import { linkWorkspaceDirectory } from "../src/server/runtime/workspace-links";
 import { existsSync } from "node:fs";
@@ -136,7 +137,7 @@ async function main() {
         } catch (error) {
           if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
         }
-        for (let attempt = 1; attempt <= 3; attempt++) {
+        for (const { number: attempt } of new RetryBudget(3)) {
           controller.signal.throwIfAborted();
           const authoringEvents: unknown[] = [];
           try {

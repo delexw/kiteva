@@ -8,6 +8,7 @@ export const PageRequestSchema = SharedRequestSchema.extend({
   duration: z.never().optional(),
   aspectRatio: z.never().optional(),
   subtitles: z.never().optional(),
+  languageTracks: z.never().optional(),
   speech: z.never().optional(),
 }).superRefine(validateStyleSelection);
 export type PageRequest = z.infer<typeof PageRequestSchema>;

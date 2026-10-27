@@ -1,3 +1,4 @@
+import { RetryBudget } from "../src/shared/retry-budget";
 import { TechnologyReviewSchema } from "../src/shared/agents/schemas/technology-review";
 import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
 import { createHash } from "node:crypto";
@@ -65,7 +66,7 @@ async function main() {
       if ((readError as NodeJS.ErrnoException).code !== "ENOENT") throw readError;
       result = await agentTurn(turnOptions);
     }
-    for (let attempt = 0; ; attempt++) {
+    for (const { index: attempt } of new RetryBudget(3)) {
       await writeFile(rawFile, JSON.stringify(result, null, 2));
       try {
         review = validateTechnologyReview(result.value, selectedIds);
@@ -95,6 +96,7 @@ async function main() {
       ),
     );
   }
+  if (!review) throw Error("Technology review retry budget exhausted");
   if ((await readFile(file, "utf8")) !== original)
     throw Error("Catalog changed; completed review saved without applying");
   const source = JSON.parse(original);

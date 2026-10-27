@@ -1,9 +1,34 @@
 import { Flex, Progress } from "antd";
+import { useMemo } from "react";
+import type { AgentProgressEvent } from "../../shared/contracts";
+import { activityItems } from "../agent-activity-model";
+import { useUiLanguage } from "../i18n";
 import {
   activityProgressPercent,
   activityText,
+  latestActivityProgress,
   type DisplayActivityItem,
 } from "../activity-display";
+
+/** Result cards use the same measured progress and grouping as their activity context. */
+export function JobActivityProgress({
+  jobId,
+  events,
+}: {
+  jobId: string;
+  events: AgentProgressEvent[];
+}) {
+  const { language } = useUiLanguage();
+  const progress = useMemo(
+    () => latestActivityProgress(activityItems(events.filter((event) => event.jobId === jobId))),
+    [events, jobId, language],
+  );
+  return progress ? (
+    <div className="candidate-progress" role="status">
+      <ActivityWorkTitle item={progress} />
+    </div>
+  ) : null;
+}
 
 /** Shared progress indicator within Ant Design X activity steps. */
 export function ActivityProgress({ item }: { item?: DisplayActivityItem }) {

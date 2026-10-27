@@ -1,3 +1,4 @@
+import { RetryBudget } from "../src/shared/retry-budget";
 import { ExampleDesignSchema } from "../src/shared/agents/schemas/example-design";
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import path from "node:path";
@@ -139,7 +140,7 @@ async function main() {
         const prompt = examplePrompt(batch);
         await writeFile(path.join(workspace, "PROMPT.md"), prompt);
         let lastError = "";
-        for (let attempt = 0; attempt < 2; attempt++) {
+        for (const { index: attempt } of new RetryBudget(2)) {
           const started = Date.now();
           const timeout = AbortSignal.timeout(600000);
           const activeSignal = AbortSignal.any([signal.signal, timeout]);

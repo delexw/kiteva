@@ -1,3 +1,4 @@
+import { RetryBudget } from "../../../../shared/retry-budget";
 import { applyPatch, type Operation } from "rfc6902";
 import { z } from "zod";
 import { BriefCorrectionSchema } from "../../../../shared/agents/schemas/brief-correction";
@@ -40,7 +41,7 @@ export async function reviseBriefWithRetry<T>(input: {
 }): Promise<{ value: T; sessionId?: string }> {
   let sessionId = input.sessionId;
   let previousIssue = "";
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (const { index: attempt } of new RetryBudget(3)) {
     input.signal.throwIfAborted();
     const correction = await input.revise(sessionId, previousIssue);
     if (correction.sessionId) sessionId = correction.sessionId;

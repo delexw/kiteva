@@ -18,6 +18,7 @@ import {
   activityProgressPercent,
   activityText,
   latestActivityProgress,
+  latestRetryableActivityItem,
   displayActivityItems,
   type DisplayActivityItem,
 } from "../activity-display";
@@ -98,7 +99,9 @@ export function roomActivityStep(
       />
     ) : undefined,
     description: item.children?.length ? undefined : <ActivityRowTime time={item.time} />,
-    status: item.status ? stepStatus[item.status] : undefined,
+    // ThoughtChain prioritizes status over a custom icon.
+    status:
+      retry?.itemId === item.id ? undefined : item.status ? stepStatus[item.status] : undefined,
     icon:
       retry?.itemId === item.id ? (
         <ActivityRetryButton action={retry.action} />
@@ -323,7 +326,7 @@ export function RoomActivity({
         className="room-activity-list"
         items={contexts.map((context) => {
           const empty = !context.items.length && !context.checkpoints.length;
-          const interrupted = context.items.filter((item) => item.retryable).at(-1);
+          const interrupted = latestRetryableActivityItem(context.items);
           const phase = interrupted?.jobId
             ? run.jobs.find((job) => job.id === interrupted.jobId)?.phase
             : run.phase;

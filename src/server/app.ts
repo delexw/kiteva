@@ -1,3 +1,7 @@
+import {
+  pendingReferenceAuthentications,
+  answerReferenceAuthentication,
+} from "./agents/capabilities/reference-browser/authentication-bridge";
 import { finished } from "node:stream/promises";
 import { writeProjectRequest } from "./requests/project-request";
 import { stopPocketTtsWorker } from "./audio/providers/pocket-tts";
@@ -110,6 +114,7 @@ export async function createApp(options: { store?: Store } = {}) {
   await registerRoomRoutes(app, store);
   app.get("/api/setup", async () => ({
     speechSupported: true,
+    languageTracksSupported: true,
     speechStartSupported: true,
     scriptItemsSupported: true,
     generatedScriptItemsSupported: true,
@@ -353,6 +358,27 @@ export async function createApp(options: { store?: Store } = {}) {
     return reply.code(202).send(run);
   });
   app.get<{ Params: { id: string } }>("/api/runs/:id", async (req) => getRun(req.params.id));
+  app.get<{ Params: { id: string } }>("/api/runs/:id/authentication", async (req) => {
+    getRun(req.params.id);
+    return pendingReferenceAuthentications(path.join(dataRoot, "runs", req.params.id));
+  });
+  app.post<{ Params: { id: string; requestId: string } }>(
+    "/api/runs/:id/authentication/:requestId",
+    async (req, reply) => {
+      getRun(req.params.id);
+      const { action } = z.object({ action: z.enum(["focus", "continue"]) }).parse(req.body);
+      if (
+        !answerReferenceAuthentication(
+          path.join(dataRoot, "runs", req.params.id),
+          req.params.requestId,
+          action,
+        )
+      )
+        return reply.code(404).send({ error: "This sign-in request is no longer waiting." });
+      return { ok: true };
+    },
+  );
+
   app.get<{ Params: { id: string } }>("/api/runs/:id/assets", async (req) => ({
     assets: getRun(req.params.id).request.assetIds.map((id) => {
       const asset = store.getAsset(id);
@@ -460,7 +486,7 @@ export async function createApp(options: { store?: Store } = {}) {
   app.addHook("preClose", async () => {
     for (const stream of eventStreams) stream.end();
   });
-  app.get<{ Params: { id: string }; Querystring: { after?: string } }>(
+  app.get<{ Params: { id: string }; Querystring: { after?: string; batch?: string } }>(
     "/api/runs/:id/events",
     async (req, reply) => {
       getRun(req.params.id);
@@ -484,7 +510,10 @@ export async function createApp(options: { store?: Store } = {}) {
       let page;
       do {
         page = store.events(req.params.id, cursor);
-        page.forEach(send);
+        if (req.query.batch === "1" && page.length) {
+          cursor = page.at(-1)!.id;
+          reply.raw.write(`id: ${cursor}\nevent: history\ndata: ${JSON.stringify(page)}\n\n`);
+        } else page.forEach(send);
       } while (page.length === 500);
       const keep = setInterval(() => reply.raw.write(": keepalive\n\n"), 15000);
       eventStreams.add(reply.raw);

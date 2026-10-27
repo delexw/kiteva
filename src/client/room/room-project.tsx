@@ -1,3 +1,4 @@
+import { ReferenceSignIn } from "../components/reference-sign-in";
 import { translateUi, useUiLanguage } from "../i18n";
 import { Bubble, Sender } from "@ant-design/x";
 import { Alert, Button, Select, Tabs } from "antd";
@@ -103,6 +104,12 @@ export function RoomProject({
         {pending()}
       </div>
       <div className="room-project-scroll">
+        <ReferenceSignIn
+          runId={run.id}
+          revision={
+            events.filter((event) => event.type === "reference_authentication").at(-1)?.id || 0
+          }
+        />
         <RoomActivityNow run={run} events={events} onOpen={() => setTab("activity")} />
         <Tabs
           className="room-project-tabs"

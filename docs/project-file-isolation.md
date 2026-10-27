@@ -36,7 +36,10 @@ before starting a dependency. They never change the server's own environment.
 
 - Claude uses its project-local home. Existing file-based credentials are copied, not linked;
   the normal macOS Keychain login can seed a private project credential file containing only
-  the Claude login. Host settings and plugins are not imported.
+  the Claude login. Before each SDK call, the login is synchronized and its access token is
+  supplied through `CLAUDE_CODE_OAUTH_TOKEN`. This avoids the SDK attempting to save copied
+  OAuth credentials into a nonexistent Keychain under the isolated home. Explicit API keys
+  and OAuth environment tokens retain precedence. Host settings and plugins are not imported.
 - Codex gets a project-local `CODEX_HOME`. Authentication and model/cache metadata are copied,
   not linked. Its hook is application-owned; user hooks and configuration are not imported.
 - Resuming an older saved session can copy its matching transcript into the new provider home.

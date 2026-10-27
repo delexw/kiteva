@@ -1,4 +1,5 @@
-import { normalizeSubtitleFields } from "../shared/subtitle-compatibility";
+import { languageMediaUrls } from "./lib/language-media";
+import { LanguageMediaDownloads } from "./components/language-media-downloads";
 import { PromptText } from "./components/style-mention";
 import { ScriptItems } from "./components/script-items";
 import { legacyScriptItems, type ScriptItem } from "../shared/script-items";
@@ -16,6 +17,7 @@ import {
 } from "./room/utility-windows";
 import { ProjectDownload } from "./components/project-download";
 import { ProjectResultPending } from "./components/project-result-pending";
+import { JobActivityProgress } from "./components/activity-progress";
 import { RoomProject } from "./room/room-project";
 import { styleTechnologyRecommendations } from "../shared/style-technology";
 import { replayPreviewVideos } from "./lib/replay-preview-videos";
@@ -26,13 +28,13 @@ import { validateAssetLimits } from "../shared/asset-limits";
 import { PageTemplate } from "./components/page-template";
 import { technologyPoolSize } from "../shared/technology-pool";
 import { ProjectList } from "./components/project-list";
-import { Button, Input, Alert, Card, Collapse } from "antd";
+import { Button, Input, Alert, Card, Collapse, Tooltip } from "antd";
 import { CodedError, errorCode } from "../shared/errors";
 import { ProjectConversation } from "./components/project-conversation";
-import { GenerationTime } from "./components/generation-time";
 import { RunningProjects } from "./components/running-projects";
 import { projectName } from "../shared/project-name";
 import { api } from "./lib/api";
+import { subscribeProjectEvents } from "./lib/project-event-stream";
 import { loadMotionCatalog } from "./motion-catalog";
 import { appRoute } from "./lib/app-route";
 import { projectSettingsDraft } from "./lib/project-settings";
@@ -73,8 +75,10 @@ import {
   Search,
   Play,
   LoaderCircle,
-  Download,
+  FileVideo,
+  PanelsTopLeft,
   RotateCcw,
+  Square,
   Sparkles,
   Layers,
   SlidersHorizontal,
@@ -259,7 +263,6 @@ function App() {
     if (!run?.id) return;
     setEvents([]);
     let disposed = false;
-    const stream = new EventSource(`/api/runs/${run.id}/events`);
     const refreshRun = () =>
       void api<Run>(`/api/runs/${run.id}`)
         .then((next) => {
@@ -268,19 +271,14 @@ function App() {
         .catch((e) => {
           if (!disposed) setError(errorCode(e));
         });
-    let connected = false;
-    stream.onopen = () => {
-      if (connected) refreshRun();
-      connected = true;
-    };
-    stream.onmessage = (event) => {
-      const e = normalizeSubtitleFields(JSON.parse(event.data)) as AgentProgressEvent;
-      setEvents((old) => (old.some((x) => x.id === e.id) ? old : [...old, e]));
-      if (["state", "preview_ready", "interrupted"].includes(e.type)) refreshRun();
-    };
+    const unsubscribe = subscribeProjectEvents(
+      run.id,
+      (batch) => setEvents((old) => [...old, ...batch]),
+      refreshRun,
+    );
     return () => {
       disposed = true;
-      stream.close();
+      unsubscribe();
     };
   }, [run?.id]);
   useEffect(() => {
@@ -683,50 +681,14 @@ function App() {
   }
   function fullDelivery(job: GenerationJob, activity?: React.ReactNode) {
     if (!run) return null;
-    return (
-      <div className="full-delivery">
-        {candidateCard(job, activity)}
-        <div className="delivery-links">
-          <ProjectDownload runId={run.id} job={job} />
-        </div>
-        {job.phase === "ready" && (
-          <div className="delivery-links">
-            <a
-              className="primary"
-              href={
-                job.outputType === "page"
-                  ? `/api/projects/${run.id}/${job.id}`
-                  : artifactUrl(run, job, job.video!)
-              }
-              download
-            >
-              <Download size={16} />{" "}
-              {job.outputType === "page"
-                ? translateUi("Download HTML bundle")
-                : translateUi("Download MP4")}
-            </a>
-            <a
-              className="secondary"
-              href={
-                job.outputType === "page"
-                  ? artifactUrl(run, job, "PAGE_PLAN.md")
-                  : `/projects/${run.id}/storyboard?job=${job.id}`
-              }
-              target="_blank"
-              rel="noreferrer"
-            >
-              {job.outputType === "page" ? translateUi("Page plan") : translateUi("Storyboard")}
-            </a>
-          </div>
-        )}
-      </div>
-    );
+    return <div className="full-delivery">{candidateCard(job, activity)}</div>;
   }
   function candidateCard(
     job: GenerationJob,
     activity?: React.ReactNode,
     onFullStarted?: () => void,
   ) {
+    if (!run) return null;
     const candidate = run!.candidates.find((c) => c.id === job.candidateId);
     const title = candidateDisplayTitle(
       candidate,
@@ -739,6 +701,11 @@ function App() {
         existingJob.phase === "ready",
     );
     const active = !["ready", "failed", "cancelled", "interrupted"].includes(job.phase);
+    const retryable = ["failed", "cancelled", "interrupted"].includes(job.phase);
+    const media =
+      job.outputType !== "page" && job.languageMedia
+        ? languageMediaUrls(job.languageMedia, (file) => artifactUrl(run!, job, file))
+        : undefined;
     return (
       <Card className="candidate studio-result-card" key={job.id}>
         <div
@@ -756,6 +723,7 @@ function App() {
                 if (el) jobVideoRefs.current.set(job.id, el);
                 else jobVideoRefs.current.delete(job.id);
               }}
+              languageMedia={media}
               src={artifactUrl(run!, job, playbackVideoOf(job)!)}
               poster={job.poster ? artifactUrl(run!, job, job.poster) : undefined}
               aria-label={title}
@@ -778,14 +746,107 @@ function App() {
         </div>
         <div className="candidate-body">
           <div className="candidate-heading">
-            <h3>{title}</h3>
-            {active && (
-              <Button className="secondary compact" onClick={() => action("cancel", job.id)}>
-                {translateUi("Cancel")}
-              </Button>
+            <div className="candidate-heading-label">
+              <h3>{title}</h3>
+              {job.phase === "ready" && job.finishedAt && (
+                <span className="candidate-generated-at">
+                  {translateUi("Generated")}{" "}
+                  <time dateTime={job.finishedAt}>{uiLanguage.date(job.finishedAt)}</time>
+                </span>
+              )}
+            </div>
+            {(job.kind === "full" || retryable || active) && (
+              <div
+                className="delivery-links"
+                role="group"
+                aria-label={translateUi("Result actions")}
+              >
+                {job.kind === "full" && <ProjectDownload runId={run.id} job={job} />}
+                {job.phase === "ready" && (
+                  <>
+                    <Tooltip
+                      trigger={["hover", "focus"]}
+                      title={translateUi(
+                        job.outputType === "page"
+                          ? "Download the complete HTML page bundle."
+                          : "Download the finished video as an MP4.",
+                      )}
+                    >
+                      <a
+                        className="secondary delivery-icon-button"
+                        href={
+                          job.outputType === "page"
+                            ? `/api/projects/${run.id}/${job.id}`
+                            : artifactUrl(run, job, job.video!)
+                        }
+                        download
+                        aria-label={translateUi(
+                          job.outputType === "page" ? "Download HTML bundle" : "Download MP4",
+                        )}
+                      >
+                        <FileVideo size={18} aria-hidden="true" />
+                      </a>
+                    </Tooltip>
+                    <Tooltip
+                      trigger={["hover", "focus"]}
+                      title={translateUi(
+                        job.outputType === "page"
+                          ? "Open the page plan."
+                          : "Open the storyboard with scene timings and content.",
+                      )}
+                    >
+                      <a
+                        className="secondary delivery-icon-button"
+                        href={
+                          job.outputType === "page"
+                            ? artifactUrl(run, job, "PAGE_PLAN.md")
+                            : `/projects/${run.id}/storyboard?job=${job.id}`
+                        }
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={translateUi(
+                          job.outputType === "page" ? "Page plan" : "Storyboard",
+                        )}
+                      >
+                        <PanelsTopLeft size={18} aria-hidden="true" />
+                      </a>
+                    </Tooltip>
+                  </>
+                )}
+                {retryable && (
+                  <Tooltip
+                    trigger={["hover", "focus"]}
+                    title={translateUi("Retry this result using its saved project files.")}
+                  >
+                    <Button
+                      className="secondary delivery-icon-button"
+                      aria-label={translateUi("Retry")}
+                      onClick={() => action("retry", job.id)}
+                    >
+                      <RotateCcw size={18} aria-hidden="true" />
+                    </Button>
+                  </Tooltip>
+                )}
+                {active && (
+                  <Tooltip
+                    trigger={["hover", "focus"]}
+                    title={translateUi("Stop generating this result.")}
+                  >
+                    <Button
+                      className="delivery-icon-button"
+                      aria-label={translateUi("Cancel")}
+                      danger
+                      onClick={() => action("cancel", job.id)}
+                    >
+                      <Square size={18} aria-hidden="true" />
+                    </Button>
+                  </Tooltip>
+                )}
+              </div>
             )}
           </div>
-          <p>{job.outputType === "page" ? translateUi("Interactive page") : `${job.duration}s`}</p>
+          {active && <JobActivityProgress jobId={job.id} events={events} />}
+          {job.outputType === "page" && <p>{translateUi("Interactive page")}</p>}
           {job.kind === "preview" && candidate?.displayDescription && (
             <p
               className="rationale candidate-description"
@@ -794,7 +855,7 @@ function App() {
               <PromptText>{candidate.displayDescription}</PromptText>
             </p>
           )}
-          <GenerationTime job={job} now={clock} />
+          {media && <LanguageMediaDownloads media={media} />}
           {activity}
           {job.phase === "failed" && job.error && (
             <p className="failure">
@@ -834,12 +895,6 @@ function App() {
                       ? translateUi("Choose & build full page")
                       : translateUi("Choose & build full video")}{" "}
                   <ArrowUpRight size={16} />
-                </Button>
-              )}
-              {["failed", "cancelled", "interrupted"].includes(job.phase) && (
-                <Button className="secondary compact" onClick={() => action("retry", job.id)}>
-                  <RotateCcw size={14} />
-                  {" " + translateUi("Retry")}
                 </Button>
               )}
             </div>

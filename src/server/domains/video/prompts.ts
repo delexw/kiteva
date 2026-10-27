@@ -1,3 +1,4 @@
+import { languageTracksDirection } from "../../../shared/language-tracks";
 import { scriptItemsDirection } from "../../../shared/script-items";
 import { renderContract } from "../../rendering/contracts";
 export { renderContract } from "../../rendering/contracts";
@@ -115,6 +116,7 @@ export function buildVideoPrompt(input: {
       : "",
     `### Storyboard and response requirements\n\n${storyboardJsonGuidance}\n${job.kind === "preview" ? `${candidateCopyGuidance} Include displayTitle and displayDescription in production.json and your structured response. Name the preview you actually created; choose a creative, playful, professional, energetic, gaming-inspired or other tone that suits the brief rather than imposing one tone on every direction.` : ""}`,
     `### Subtitles direction\n\nSubtitles direction: ${request.scriptItems !== undefined ? scriptItemsDirection(request.scriptItems, job.kind === "preview") : subtitlesDirection(request.subtitles, job.kind === "preview", Boolean(input.speechTrack))}`,
+    languageTracksDirection(request),
     `### Feedback\n\nFeedback: ${input.feedback || "None"}`,
     "### Workspace and dependencies\n\nAvailable files: assets/, vendor/, style-context.json. Local node_modules are read-only shared dependencies. Do not install packages or access network. Use vendor libraries or bundle local dependencies with esbuild. Use supplied image assets where appropriate and code-created assets where none are supplied; do not reduce a material or 3D Motion Graphic to generic text slides. If a required renderer is unavailable, report it.",
     `### Renderer contract\n\n${renderContract(videoRendererOf(request), { width, height, duration: job.duration, fps: request.frameRate ?? 30, kind: job.kind })}`,

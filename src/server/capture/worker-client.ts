@@ -179,7 +179,8 @@ export async function createRemoteReferenceBrowser(
         );
       return result;
     },
-    inspect: async (url) => InspectionSchema.parse(await action({ action: "inspect", url })),
+    inspect: async (url, requestSignIn = false) =>
+      InspectionSchema.parse(await action({ action: "inspect", url, requestSignIn })),
     click: async (controlId) =>
       InspectionSchema.parse(await action({ action: "click", controlId })),
     fill: async (controlId, value) =>

@@ -1,3 +1,4 @@
+import { RetryBudget } from "../../../../shared/retry-budget";
 import path from "node:path";
 import { existsSync } from "node:fs";
 import { appRoot, dataRoot } from "../../../runtime/config";
@@ -35,7 +36,7 @@ export const pocketZhSpeechProvider: SpeechProvider = {
   id: "pocket-tts",
   async readiness(signal, voice = "pocket_zh_xiaobei") {
     const reference = pocketZhVoiceReference(voice);
-    for (let attempt = 0; attempt < 2; attempt++) {
+    for (const _attempt of new RetryBudget(2)) {
       try {
         await command(
           python(),

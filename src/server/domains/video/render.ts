@@ -16,7 +16,7 @@ import path from "node:path";
 import { existsSync } from "node:fs";
 import type { SpeechTrack } from "../../../shared/speech";
 import { mixSpeech } from "../../audio/speech";
-import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
+import { readFile, writeFile, mkdir, rm, copyFile } from "node:fs/promises";
 import { command, isolatedCommand } from "../../runtime/process.js";
 import { probeVideo } from "../../rendering/video-probe";
 import { previewVideoFile, transcodePreviewToWebm } from "../../rendering/webm-video";
@@ -327,6 +327,7 @@ export async function renderJob(
   signal: AbortSignal,
   emit: (type: string, message: string) => void,
   speechTrack?: SpeechTrack,
+  preserveMusicVideo = false,
 ) {
   const fps = production.fps ?? 30;
   const out = path.join(job.workspace, "renders");
@@ -342,6 +343,8 @@ export async function renderJob(
     await renderMultiplane(job, production, rendered, fps, signal, emit);
   else await renderRemotion(job, production, rendered, fps, signal, emit);
   emit("render_progress", "Render complete");
+  if (job.kind === "full" && preserveMusicVideo)
+    await copyFile(rendered, path.join(out, "full.music.mp4"));
   if (job.kind === "full" && speechTrack) {
     emit("phase", "Mixing voice and music…");
     await mixSpeech(rendered, speechTrack, job.duration, signal);

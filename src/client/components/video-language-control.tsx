@@ -22,7 +22,7 @@ export function VideoLanguageControl({
       />
       <Typography.Text type="secondary">
         {translateUi(
-          "Applies to titles, captions, narration and subtitles. Translation runs when you build the project. Your original idea stays unchanged.",
+          "Controls titles, labels, diagrams and credits built into the video. Narration and subtitle tracks have their own language settings.",
         )}
       </Typography.Text>
     </label>

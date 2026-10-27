@@ -3,6 +3,18 @@ import { afterEach, expect, it, vi } from "vitest";
 vi.mock("node:fs", () => ({ existsSync: vi.fn(), readdirSync: vi.fn() }));
 import { existsSync, readdirSync } from "node:fs";
 import { browserExecutablePath } from "../src/server/runtime/browser";
+
+it("can find full Chrome for human sign-in when screenshot configuration points to headless shell", () => {
+  vi.stubEnv("VIDEO_BROWSER_PATH", "/browser/chrome-headless-shell");
+  vi.stubEnv("HYPERFRAMES_BROWSER_PATH", "/browser/chrome-headless-shell");
+  vi.stubEnv("PUPPETEER_CACHE_DIR", "/managed/browsers");
+  vi.mocked(existsSync).mockReturnValue(true);
+  vi.mocked(readdirSync).mockReturnValue(["mac/browser/Google Chrome for Testing"] as never);
+  expect(browserExecutablePath(true)).toBeUndefined();
+  expect(browserExecutablePath(true, { fallbackFromHeadlessShell: true })).toBe(
+    path.join("/managed/browsers/chrome", "mac/browser/Google Chrome for Testing"),
+  );
+});
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.restoreAllMocks();

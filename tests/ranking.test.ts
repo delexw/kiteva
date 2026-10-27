@@ -495,7 +495,8 @@ it("compares survivors across all batches repeatedly and obeys JEV choice order 
     primaryStyleId: style.id,
     supportingStyleIds: [],
     sceneRoles: ["Explain"],
-    rationale: "A distinct option",
+    rationale:
+      "A distinct option. Asset evidence: reference coverage is limited; suitable for diagrams; private source code remains unverified.",
     feasible: true,
     missingAssets: [],
   }));
@@ -507,6 +508,12 @@ it("compares survivors across all batches repeatedly and obeys JEV choice order 
     if (payload.questions.direction?.type === "choice") {
       const round = payload.state.selectionRound;
       expect(payload.state).not.toHaveProperty("styleDefinitions");
+      expect(payload.state.brief).not.toHaveProperty("assetPlan");
+      expect(payload.state.brief).not.toHaveProperty("assetEvidence");
+      for (const description of Object.values(payload.questions.direction.criteria))
+        expect(description).toContain(
+          "Asset evidence: reference coverage is limited; suitable for diagrams; private source code remains unverified.",
+        );
       expect(JSON.stringify(payload)).not.toContain("Model-extracted identity");
       expect(Object.keys(payload.questions.direction.criteria)).toHaveLength(round === 1 ? 6 : 5);
       expect(payload.state.selectedDirections).toHaveLength(round - 1);

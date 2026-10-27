@@ -1,3 +1,4 @@
+import { LanguageTracksSchema, type LanguageMedia } from "../language-tracks";
 import { normalizeSubtitleFields } from "../subtitle-compatibility";
 import { ScriptItemsSchema, scriptItemsProblem } from "../script-items";
 import type { VideoBuildPlan } from "../agents/schemas/video-build-plan";
@@ -41,6 +42,7 @@ export const VideoRequestSchema = z.preprocess(
     frameRate: z.union([z.literal(30), z.literal(60)]).optional(),
     renderer: z.enum(videoRendererIds).optional(),
     subtitles: SubtitlesSchema.optional(),
+    languageTracks: LanguageTracksSchema.optional(),
     speech: SpeechSettingsSchema.optional(),
     scriptItems: ScriptItemsSchema.optional(),
     outputLanguage: VideoLanguageSchema.optional(),
@@ -86,6 +88,7 @@ export type VideoRefinementCheckpoint = {
 export interface VideoGenerationJob extends JobState {
   refinementCheckpoint?: VideoRefinementCheckpoint;
   speechTrack?: SpeechTrack;
+  languageMedia?: LanguageMedia;
   outputType?: "video";
   page?: never;
   pageProduction?: never;

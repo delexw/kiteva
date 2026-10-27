@@ -152,6 +152,7 @@ export function multiplaneFailure(
   result: MultiplaneResult | undefined,
   diagnostics: string[] = [],
   report?: string,
+  sourceFile?: string,
 ) {
   if (!result) return Error(`Multiplane ${command} did not report a result`);
   const budget = 24000;
@@ -170,7 +171,25 @@ export function multiplaneFailure(
       (included.length < diagnostics.length
         ? `\n${diagnostics.length - included.length} additional findings omitted from this message; read the complete report.`
         : ""),
-    diagnostics.map((finding) => formatMultiplaneDiagnostic(command, JSON.parse(finding))),
+    (diagnostics.length
+      ? diagnostics.map((finding) => formatMultiplaneDiagnostic(command, JSON.parse(finding)))
+      : [
+          formatMultiplaneDiagnostic(command, {
+            code: result.code || "check_failed",
+            severity: "error",
+            message: result.message || "Multiplane check failed",
+            details: result.details,
+          }),
+        ]
+    ).map((diagnostic) => ({
+      ...diagnostic,
+      location: { ...diagnostic.location, file: diagnostic.location.file || sourceFile || null },
+      source: diagnostic.location.file
+        ? diagnostic.source
+        : sourceFile
+          ? ("authored source" as const)
+          : diagnostic.source,
+    })),
     report,
   );
 }
@@ -218,7 +237,13 @@ export async function runMultiplane(
   }
   if (result?.ok) return result;
   if (!result && failure) throw failure;
-  throw multiplaneFailure(command, result, multiplaneDiagnostics(stdout), report);
+  throw multiplaneFailure(
+    command,
+    result,
+    multiplaneDiagnostics(stdout),
+    report,
+    args.find((argument) => argument.endsWith(".html")),
+  );
 }
 
 export type MultiplaneStatus = {

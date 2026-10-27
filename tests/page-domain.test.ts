@@ -47,6 +47,49 @@ const production = PageProductionSchema.parse({
   limitations: [],
 });
 describe("interactive page domain", () => {
+  it("does not consume a second validation issue's repair allowance", async () => {
+    vi.resetAllMocks();
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "page-issue-budgets-"));
+    try {
+      const request = RequestSchema.parse({
+        instructions: "Explore a diagram",
+        outputType: "page",
+      });
+      if (request.outputType !== "page") throw Error("Expected page");
+      const job: PageGenerationJob = {
+        outputType: "page",
+        id: "job",
+        runId: "run",
+        candidateId: "option",
+        kind: "preview",
+        phase: "generating",
+        workspace,
+        model: "test",
+      };
+      vi.mocked(agentTurn).mockResolvedValue({ value: production, sessionId: "repair-session" });
+      vi.mocked(validatePage)
+        .mockRejectedValueOnce(Error("First element overflows"))
+        .mockRejectedValueOnce(Error("First element overflows"))
+        .mockRejectedValueOnce(Error("Second element overlaps"))
+        .mockRejectedValueOnce(Error("Second element overlaps"))
+        .mockResolvedValue({ page: "index.html", poster: "renders/page.png" });
+      await generatePage({
+        job,
+        request,
+        brief,
+        candidate,
+        styles: [],
+        signal: new AbortController().signal,
+        update: vi.fn(),
+        onEvent: vi.fn(),
+        emit: vi.fn(),
+      });
+      expect(job.phase).toBe("ready");
+      expect(agentTurn).toHaveBeenCalledTimes(5);
+    } finally {
+      await rm(workspace, { recursive: true, force: true });
+    }
+  });
   it("keeps page requests separate from video timing and maintains legacy video defaults", () => {
     expect(RequestSchema.parse({ instructions: "Explore a diagram" })).toMatchObject({
       outputType: "video",

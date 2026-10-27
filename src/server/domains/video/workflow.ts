@@ -1,3 +1,6 @@
+import { StructuredOutputError } from "../../agents/structured-output-error";
+import { applyLanguageTracks } from "../../../shared/language-tracks";
+import { buildLanguageMedia } from "./language-media";
 import { previewPlanArtifact } from "../../jobs/preview-plan";
 import { activityScope } from "../../jobs/activity-scope";
 import { mergeCorrection, correctionMergeGuidance } from "../../agents/correction-merge";
@@ -61,8 +64,9 @@ export async function generateVideo(input: {
       emit,
       render,
     } = input;
+    if (job.kind === "full") job.languageMedia = undefined;
     let request = await localizeVideoRequest(
-      sourceRequest,
+      applyLanguageTracks(sourceRequest),
       path.join(job.workspace, "localization"),
       signal,
       onEvent,
@@ -195,7 +199,38 @@ export async function generateVideo(input: {
         onEvent,
         prompt,
         ...(job.production ? { promptContext: { currentManifest: job.production } } : {}),
+      }).catch(async (error: unknown) => {
+        signal.throwIfAborted();
+        if (
+          !(error instanceof StructuredOutputError) ||
+          !error.issues.length ||
+          error.issues.some((issue) => issue.path[0] !== "storyboard")
+        )
+          throw error;
+        // A valid manifest can be retained while the shared corrector repairs its rejected storyboard.
+        const production = ProductionSchema.safeParse(error.output);
+        if (!production.success) throw error;
+        job.production = mergeCorrection(job.production, production.data, ProductionSchema);
+        job.sessionId = error.sessionId || job.sessionId;
+        job.generationMs = (job.generationMs || 0) + Date.now() - generationStarted;
+        const copy = CandidateCopySchema.safeParse(error.output);
+        if (job.kind === "preview" && copy.success) Object.assign(candidate, copy.data);
+        update();
+        await corrector.correctRound([
+          {
+            focus: "technical",
+            cheapEligible: true,
+            issue: "Generated storyboard failed application validation",
+            expectedFix:
+              "Repair every reported storyboard validation error. Keep beats ordered and contiguous inside each scene, covering its full duration. Preserve the accepted manifest, actual animation, source assets and unrelated content; update scene code only if needed for consistency.",
+            acceptanceCriteria:
+              "The complete storyboard passes the existing schema and matches the composition and requested duration without relaxing validation.",
+            evidence: { issues: error.issues, rejectedOutput: error.output },
+          },
+        ]);
+        return undefined;
       });
+      if (!turn) return;
       job.generationMs = (job.generationMs || 0) + Date.now() - generationStarted;
       job.sessionId = turn.sessionId || job.sessionId;
       job.speechTrack = await currentNarrationTrack(job.workspace, job.speechTrack);
@@ -299,6 +334,7 @@ export async function generateVideo(input: {
                 signal,
                 (type, msg) => emit(type, msg),
                 job.speechTrack,
+                ...(request.languageTracks ? ([true] as const) : []),
               );
             } finally {
               job.renderMs = (job.renderMs || 0) + Date.now() - renderStarted;
@@ -306,6 +342,12 @@ export async function generateVideo(input: {
           }),
         );
         Object.assign(job, artifacts);
+        if (job.kind === "full" && request.languageTracks) {
+          job.languageMedia = await activityScope("Preparing language tracks", () =>
+            buildLanguageMedia({ job, request, brief, signal, onEvent, emit }),
+          );
+          update();
+        }
         await validateStoryboardJson(job.workspace, job.duration);
         if (job.kind === "full") {
           job.resultReview = await reviewFinishedResult({

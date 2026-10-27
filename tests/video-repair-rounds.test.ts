@@ -209,7 +209,7 @@ it.each(cases)(
         await expect(generation).rejects.toThrow("correction round limit");
         const attempts =
           provider === "claude"
-            ? videoCorrectionPolicy.claudeEfforts.length
+            ? videoCorrectionPolicy.claudeEfforts.length + videoCorrectionPolicy.claudeMainRounds
             : correctionRoundBudget.main;
         expect(agentTurn).toHaveBeenCalledTimes(attempts);
         expect(renderJob).toHaveBeenCalledTimes(attempts + 1);
@@ -254,6 +254,120 @@ it.each(cases)(
       ]);
       for (const [index, selector] of ["#first", "#second", "#third"].entries())
         expect(JSON.stringify(calls[index].promptContext)).toContain(selector);
+    } finally {
+      await rm(workspace, { recursive: true, force: true });
+    }
+  },
+);
+
+it.each(["claude", "codex"] as const)(
+  "%s repairs an initial rejected storyboard before rendering the preview",
+  async (provider) => {
+    vi.resetAllMocks();
+    const { StructuredOutputError } = await import("../src/server/agents/structured-output-error");
+    const { videoGenerationOutputSchemaForDuration } =
+      await import("../src/shared/agents/schemas/video");
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "storyboard-repair-"));
+    const production = {
+      pipeline: "HyperFrames" as const,
+      fallbackReason: null,
+      styleRenderer: ["SVG"],
+      motionEngine: ["GSAP"],
+      sourceFile: "index.html",
+      duration: 3,
+      width: 1280,
+      height: 720,
+      fps: 30 as const,
+      audioDescription: "Silent",
+      limitations: [],
+    };
+    const job: VideoGenerationJob = {
+      id: "job",
+      runId: "project",
+      candidateId: "direction",
+      kind: "preview",
+      duration: 3,
+      model: "selected-main",
+      phase: "queued",
+      workspace,
+    };
+    const storyboard = validStoryboard();
+    const beat = storyboard.scenes[0].beats[0];
+    storyboard.scenes[0].beats = [
+      { ...beat, endSeconds: 1.5 },
+      { ...beat, startSeconds: 1.4 },
+    ];
+    const rejected = {
+      ...production,
+      storyboard,
+      displayTitle: "Original title",
+      displayDescription: "Original description",
+    };
+    const parsed = videoGenerationOutputSchemaForDuration(3).safeParse(rejected);
+    expect(parsed.success).toBe(false);
+    if (parsed.success) throw Error("Fixture must fail validation");
+    const candidate = {
+      id: "direction",
+      primaryStyleId: "style-001",
+      supportingStyleIds: [],
+      sceneRoles: [],
+      rationale: "An explanation",
+      feasible: true,
+      missingAssets: [],
+      score: 1,
+      confidence: 1,
+      dimensions: {},
+    } as StyleCandidate;
+    vi.mocked(agentTurn).mockRejectedValueOnce(
+      new StructuredOutputError(parsed.error, rejected, "original-session"),
+    );
+    vi.mocked(agentTurn).mockImplementationOnce(async (options) => {
+      expect(renderJob).not.toHaveBeenCalled();
+      expect(options.promptContext).toMatchObject({
+        currentManifest: production,
+        correctionTask: { evidence: { issues: parsed.error.issues, rejectedOutput: rejected } },
+      });
+      expect(job.sessionId).toBe("original-session");
+      expect(options.reasoningEffort).toBe(provider === "claude" ? "medium" : undefined);
+      return { value: { storyboard: validStoryboard() }, sessionId: "repair-session" };
+    });
+    vi.mocked(renderJob).mockResolvedValue({
+      video: "renders/preview.webm",
+      poster: "renders/preview.jpg",
+    });
+    try {
+      await generateVideo({
+        job,
+        request: VideoRequestSchema.parse({ instructions: "Create a generic video", provider }),
+        brief: {
+          subject: "Example",
+          audience: "Learners",
+          objective: "Explain",
+          facts: [],
+          exactCopy: [],
+          previewBeat: "Introduce",
+          assetDescriptions: [],
+          constraints: [],
+          suggestedDuration: 3,
+          durationReason: "Short preview",
+        },
+        candidate,
+        styles: [],
+        signal: new AbortController().signal,
+        update: vi.fn(),
+        onEvent: vi.fn(),
+        emit: vi.fn(),
+        render: (task) => task(),
+      });
+      expect(agentTurn).toHaveBeenCalledTimes(2);
+      expect(renderJob).toHaveBeenCalledOnce();
+      expect(job.phase).toBe("ready");
+      expect(job.production).toEqual({
+        ...production,
+        displayTitle: "Original title",
+        displayDescription: "Original description",
+      });
+      expect(candidate.displayTitle).toBe("Original title");
     } finally {
       await rm(workspace, { recursive: true, force: true });
     }

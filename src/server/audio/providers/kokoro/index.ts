@@ -1,3 +1,4 @@
+import { RetryBudget } from "../../../../shared/retry-budget";
 import { defaultPython } from "../../../runtime/platform";
 import { existsSync } from "node:fs";
 import { access } from "node:fs/promises";
@@ -39,7 +40,7 @@ async function speechReadiness(signal: AbortSignal): Promise<SpeechReadiness> {
     ]);
   };
   // Retry transient interpreter/cache errors before declaring the runtime unavailable.
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (const _attempt of new RetryBudget(2)) {
     try {
       await checks();
       return { available: true, detail: "Local narration · Kokoro. No provider credits." };

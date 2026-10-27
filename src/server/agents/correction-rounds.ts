@@ -1,14 +1,15 @@
+import { RetryBudget } from "../../shared/retry-budget";
 export type CorrectionTier = "cheap" | "main";
 
 export const correctionRoundBudget = { cheap: 20, main: 2 } as const;
 
 /** A round consumes one budget entry and addresses every issue before its caller rechecks. */
 export class CorrectionRounds {
-  private rounds = { cheap: 0, main: 0 };
+  private readonly rounds: Record<CorrectionTier, RetryBudget>;
 
-  constructor(
-    private readonly budget: Readonly<Record<CorrectionTier, number>> = correctionRoundBudget,
-  ) {}
+  constructor(budget: Readonly<Record<CorrectionTier, number>> = correctionRoundBudget) {
+    this.rounds = { cheap: new RetryBudget(budget.cheap), main: new RetryBudget(budget.main) };
+  }
 
   async run<T extends { cheapEligible: boolean }>(
     findings: readonly T[],
@@ -18,14 +19,12 @@ export class CorrectionRounds {
     signal.throwIfAborted();
     if (!findings.length) return;
     const tier: CorrectionTier =
-      this.rounds.main === 0 &&
+      this.rounds.main.used === 0 &&
       findings.every((finding) => finding.cheapEligible) &&
-      this.rounds.cheap < this.budget.cheap
+      this.rounds.cheap.remaining > 0
         ? "cheap"
         : "main";
-    if (this.rounds[tier] >= this.budget[tier])
-      throw Error("The correction round limit was reached");
-    this.rounds[tier]++;
+    if (!this.rounds[tier].take(signal)) throw Error("The correction round limit was reached");
     for (const [index, finding] of findings.entries()) {
       signal.throwIfAborted();
       await repair(finding, tier, index);

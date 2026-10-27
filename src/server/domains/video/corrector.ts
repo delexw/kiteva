@@ -1,3 +1,5 @@
+import { RetryBudgets } from "../../../shared/retry-budget";
+import { correctionIdentity } from "../../agents/correction-identity";
 import { activityScope } from "../../jobs/activity-scope";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -59,7 +61,7 @@ export const technicalCorrector: VideoCorrector = {
     "The reported error no longer occurs, required assets load and the composition initializes and seeks successfully under the existing QA checks.",
   progress: "Repairing the video…",
   instructions:
-    "Fix the reported code, asset, initialization, or rendering contract failure with the smallest change. Inspect only the implicated source files first. Keep browser and Node execution boundaries correct. Preserve the visual design and timing; do not disable validation, weaken sandbox permissions, or introduce unrelated dependencies. For Multiplane nondeterministic_output, inspect the reported time/frame, changed-pixel bounds and reference/actual/diff images before editing. Check all animated state is derived from t and canvas surfaces are reset and redrawn. If differences are confined to animated SVG antialiasing, redraw those marks on a cleared Canvas 2D overlay while preserving their shape, timing and colour. Do not guess at unrelated code or weaken comparison thresholds.",
+    "Fix the reported code, asset, initialization, or rendering contract failure with the smallest change. Inspect only the implicated source files first. Keep browser and Node execution boundaries correct. Preserve the visual design and timing; do not disable validation, weaken sandbox permissions, or introduce unrelated dependencies. For Multiplane nondeterministic_output, inspect the reported time/frame, changed-pixel bounds and reference/actual/diff images before editing. Check all animated state is derived from t and canvas surfaces are reset and redrawn. For reload-only SVG differences with identical DOM, geometry and loaded fonts, set shape-rendering: geometricPrecision and text-rendering: geometricPrecision on the SVG surface before considering a redraw. If differences are confined to animated SVG antialiasing, redraw those marks on a cleared Canvas 2D overlay while preserving their shape, timing and colour. Do not guess at unrelated code or weaken comparison thresholds.",
 };
 export const pacingCorrector: VideoCorrector = {
   focus: "pacing",
@@ -115,12 +117,13 @@ export const videoCorrectionPolicy = {
     "xhigh",
     "xhigh",
   ],
+  claudeMainRounds: 2,
   gpt61Full: { ...correctionRoundBudget, main: 5 },
 } as const;
 
 export class VideoCorrectionCoordinator {
-  private rounds: CorrectionRounds;
-  private claudeRound = 0;
+  private readonly rounds = new Map<string, CorrectionRounds>();
+  private readonly attempts = new RetryBudgets();
   constructor(
     private readonly input: {
       job: VideoGenerationJob;
@@ -130,13 +133,7 @@ export class VideoCorrectionCoordinator {
       update: () => void;
       emit: (type: string, message: string) => void;
     },
-  ) {
-    this.rounds = new CorrectionRounds(
-      input.provider === "codex" && input.job.model === "gpt-6.1-sol" && input.job.kind === "full"
-        ? videoCorrectionPolicy.gpt61Full
-        : correctionRoundBudget,
-    );
-  }
+  ) {}
 
   async correctRound(findings: readonly CorrectionFinding[]) {
     return activityScope(
@@ -144,42 +141,59 @@ export class VideoCorrectionCoordinator {
         ? "Applying timing corrections"
         : "Applying video corrections",
       async () => {
-        if (this.input.provider === "claude") return this.correctClaudeRound(findings);
-        await this.rounds.run(findings, this.input.signal, async (finding, tier, index) => {
-          if (index > 0) {
-            const session =
-              tier === "main"
-                ? this.input.job.sessionId
-                : this.input.job.correctionSession?.sessionId;
-            if (!session)
-              throw Error("Cannot continue the correction round without its model session");
+        for (const finding of findings) {
+          this.input.signal.throwIfAborted();
+          const key = correctionIdentity(finding);
+          if (this.input.provider === "claude") {
+            await this.correctClaudeIssue(finding, key);
+            continue;
           }
-          await this.correctIssue(finding, tier);
-        });
+          let rounds = this.rounds.get(key);
+          if (!rounds) {
+            rounds = new CorrectionRounds(
+              this.input.job.model === "gpt-6.1-sol" && this.input.job.kind === "full"
+                ? videoCorrectionPolicy.gpt61Full
+                : correctionRoundBudget,
+            );
+            this.rounds.set(key, rounds);
+          }
+          await rounds.run([finding], this.input.signal, async (issue, tier) => {
+            await this.correctIssue(issue, tier);
+          });
+        }
       },
     );
   }
 
-  private async correctClaudeRound(findings: readonly CorrectionFinding[]) {
-    let index = 0;
+  private async correctClaudeIssue(finding: CorrectionFinding, key: string) {
+    const cheap = this.attempts.for(`${key}:cheap`, videoCorrectionPolicy.claudeEfforts.length);
+    const main = this.attempts.for(`${key}:main`, videoCorrectionPolicy.claudeMainRounds);
     let previousFailure: string | undefined;
-    while (index < findings.length) {
+    for (;;) {
       this.input.signal.throwIfAborted();
-      const effort = videoCorrectionPolicy.claudeEfforts[this.claudeRound];
-      if (!effort) throw Error("The correction round limit was reached (10 Haiku attempts)");
-      this.claudeRound++;
-      for (; index < findings.length; index++) {
-        try {
-          await this.correctIssue(findings[index], "cheap", effort, previousFailure);
-          previousFailure = undefined;
-        } catch (error) {
-          this.input.signal.throwIfAborted();
-          if (error instanceof InputRequired) throw error;
-          if (this.claudeRound === videoCorrectionPolicy.claudeEfforts.length) throw error;
-          previousFailure = error instanceof Error ? error.message : String(error);
-          this.input.emit("repair", `Retrying correction · attempt ${this.claudeRound + 1}/10`);
-          break;
-        }
+      const tier: CorrectionTier = main.used === 0 && cheap.remaining > 0 ? "cheap" : "main";
+      const attempt = (tier === "cheap" ? cheap : main).take(this.input.signal);
+      if (!attempt)
+        throw Error(
+          "The correction round limit was reached for this issue after escalation to the main model",
+        );
+      const effort =
+        tier === "cheap" ? videoCorrectionPolicy.claudeEfforts[attempt.index] : "xhigh";
+      if (tier === "main")
+        this.input.emit("repair", "Escalating video correction to the main model…");
+      try {
+        await this.correctIssue(finding, tier, effort, previousFailure, {
+          attempt: cheap.used + main.used,
+          cheapAttempts: cheap.used,
+          issueKey: key,
+        });
+        return;
+      } catch (error) {
+        this.input.signal.throwIfAborted();
+        if (error instanceof InputRequired) throw error;
+        if (tier === "main" && !main.remaining) throw error;
+        previousFailure = error instanceof Error ? error.message : String(error);
+        this.input.emit("repair", "Retrying the rejected correction with its diagnostic evidence…");
       }
     }
   }
@@ -189,6 +203,7 @@ export class VideoCorrectionCoordinator {
     tier: CorrectionTier,
     reasoningEffort?: (typeof videoCorrectionPolicy.claudeEfforts)[number],
     previousFailure?: string,
+    retry?: { attempt: number; cheapAttempts: number; issueKey: string },
   ) {
     return activityScope("Correction attempt", async () => {
       const { job, provider, signal, onEvent, update, emit } = this.input;
@@ -216,6 +231,11 @@ export class VideoCorrectionCoordinator {
             currentManifest: job.production,
             correctionTask: correctionTask(finding),
             ...(previousFailure ? { previousFailure } : {}),
+            ...(tier === "main" && retry && retry.cheapAttempts > 0
+              ? {
+                  correctionHistory: `The small model used ${retry.cheapAttempts} rounds and the checks still fail. Inspect the current files and saved reference/actual/diff evidence; diagnose the unresolved cause rather than repeating the previous approach.`,
+                }
+              : {}),
           },
           onEvent: (event) => {
             const data = event.data as { sessionId?: string } | undefined;
@@ -231,7 +251,11 @@ export class VideoCorrectionCoordinator {
                 correctionFocus: finding.focus,
                 correctionTier: tier,
                 ...(reasoningEffort
-                  ? { correctionAttempt: this.claudeRound, correctionEffort: reasoningEffort }
+                  ? {
+                      correctionAttempt: retry?.attempt,
+                      correctionIssueKey: retry?.issueKey,
+                      correctionEffort: reasoningEffort,
+                    }
                   : {}),
               },
             });

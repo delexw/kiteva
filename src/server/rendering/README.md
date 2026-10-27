@@ -1,5 +1,7 @@
 # Renderer metadata
 
+See [retry budgets and repair ownership](../../../docs/retry-budgets.md) for shared attempt counting and independent repair budgets.
+
 Renderer capability facts live next to their renderer names:
 
 - `hyperframes/metadata.ts`: deterministic HTML/timeline authoring and composition audio tracks.

@@ -16,7 +16,7 @@
   align-items: center;
   gap: 10px;
   padding: 7px 10px;
-  min-height: 44px;
+  min-height: var(--kiteva-playback-bar-height);
   background: var(--room-inset, #171410);
   border-top: 1px solid var(--room-borderStrong, #514439);
 }
@@ -86,4 +86,14 @@
   .kiteva-playback-time {
     font-size: 11px;
   }
+}
+
+.kiteva-language-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.4rem;
+}
+:root {
+  --kiteva-playback-bar-height: 49px;
 }

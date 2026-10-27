@@ -1,3 +1,7 @@
+import { videoLanguageLabel } from "../../shared/video-language";
+import { useVideoLanguageTracks } from "../use-video-language-tracks";
+import { LanguagePlaybackControls } from "./language-playback-controls";
+import type { LanguageMedia } from "../../shared/language-tracks";
 import { translateUi, useUiLanguage } from "../i18n";
 import {
   useEffect,
@@ -14,9 +18,10 @@ import "./video-player.css";
 
 type VideoPlayerProps = Omit<VideoHTMLAttributes<HTMLVideoElement>, "controls"> & {
   ref?: Ref<HTMLVideoElement>;
+  languageMedia?: LanguageMedia;
 };
 
-export function VideoPlayer({ ref, src, ...props }: VideoPlayerProps) {
+export function VideoPlayer({ ref, src, languageMedia, ...props }: VideoPlayerProps) {
   useUiLanguage();
   const player = useRef<HTMLVideoElement>(null);
   const frame = useRef<HTMLDivElement>(null);
@@ -29,6 +34,7 @@ export function VideoPlayer({ ref, src, ...props }: VideoPlayerProps) {
   const [fullscreen, setFullscreen] = useState(false);
   const [canFullscreen, setCanFullscreen] = useState(false);
   const [error, setError] = useState("");
+  const languages = useVideoLanguageTracks(player, src, languageMedia);
   const label = props["aria-label"] || "Video";
   useEffect(() => {
     setPlaying(false);
@@ -81,10 +87,15 @@ export function VideoPlayer({ ref, src, ...props }: VideoPlayerProps) {
     >
       <video
         {...props}
-        src={src}
+        src={languages.playbackSource}
         ref={player}
         controls={false}
         onLoadedMetadata={(event) => {
+          const restored = languages.restorePlayback(event.currentTarget);
+          if (restored)
+            void restored.catch(() =>
+              setError(translateUi("This video could not play. Please try again.")),
+            );
           sync();
           props.onLoadedMetadata?.(event);
         }}
@@ -116,7 +127,28 @@ export function VideoPlayer({ ref, src, ...props }: VideoPlayerProps) {
           setError(translateUi("This video could not load. Please try again."));
           props.onError?.(event);
         }}
-      />
+      >
+        {props.children}
+        {languageMedia?.subtitles.map((track) => (
+          <track
+            key={track.language}
+            kind="subtitles"
+            src={track.vtt}
+            srcLang={track.language}
+            label={videoLanguageLabel(track.language)}
+            onLoad={() => languages.selectSubtitles(languages.subtitleLanguage)}
+          />
+        ))}
+      </video>
+      {languageMedia && (
+        <LanguagePlaybackControls
+          media={languageMedia}
+          audioLanguage={languages.audioLanguage}
+          subtitleLanguage={languages.subtitleLanguage}
+          onAudioChange={languages.changeAudioLanguage}
+          onSubtitleChange={languages.changeSubtitleLanguage}
+        />
+      )}
       <div
         className="kiteva-playback-bar"
         role="toolbar"

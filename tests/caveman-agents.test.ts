@@ -1,5 +1,6 @@
 vi.mock("../src/server/agents/claude-home", () => ({
   prepareClaudeHome: async () => "/isolated-home",
+  claudeLoginEnvironment: async () => ({}),
 }));
 import { expect, it, vi } from "vitest";
 const sdk = vi.hoisted(() => ({ query: vi.fn(), codex: vi.fn(), events: vi.fn() }));

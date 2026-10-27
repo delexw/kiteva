@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Download } from "lucide-react";
+import { FolderArchive } from "lucide-react";
+import { Tooltip } from "antd";
 import { translateUi, useUiLanguage } from "../i18n";
 import { terminalPhases, type GenerationJob } from "../../shared/contracts";
 
@@ -33,8 +34,18 @@ export function ProjectDownload({ runId, job }: { runId: string; job: Generation
     };
   }, [url, job.phase]);
   return available ? (
-    <a className="secondary" href={url} download>
-      <Download size={16} /> {translateUi("Download editable project")}
-    </a>
+    <Tooltip
+      trigger={["hover", "focus"]}
+      title={translateUi("Download editable source files and assets as a ZIP.")}
+    >
+      <a
+        className="secondary delivery-icon-button"
+        href={url}
+        download
+        aria-label={translateUi("Download editable project")}
+      >
+        <FolderArchive size={18} aria-hidden="true" />
+      </a>
+    </Tooltip>
   ) : null;
 }

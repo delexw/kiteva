@@ -1,3 +1,4 @@
+import { RetryBudget } from "../src/shared/retry-budget";
 import { createServer, createConnection } from "node:net";
 import { lookup } from "node:dns/promises";
 import { setTimeout as delay } from "node:timers/promises";
@@ -108,7 +109,7 @@ const canConnect=(host,port)=>new Promise(resolve=>{const s=net.createConnection
       cancelError = error;
     });
     try {
-      for (let attempt = 0; attempt < 600; attempt++) {
+      for (const _attempt of new RetryBudget(600)) {
         signal.throwIfAborted();
         if (cancelError) throw cancelError;
         const ticks = await readFile(tickFile, "utf8").catch(() => "");

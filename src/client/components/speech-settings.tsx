@@ -52,6 +52,7 @@ export function SpeechSettings({
   videoLanguage,
   sharedScript = false,
   timedItem = false,
+  profileOnly = false,
 }: {
   value?: Settings;
   onChange: (settings: Settings) => void;
@@ -59,6 +60,7 @@ export function SpeechSettings({
   videoLanguage?: VideoLanguage;
   sharedScript?: boolean;
   timedItem?: boolean;
+  profileOnly?: boolean;
 }) {
   useUiLanguage();
   const [status, setStatus] = useState<SpeechReadiness>();
@@ -142,31 +144,35 @@ export function SpeechSettings({
         )}
         icon={<Mic size={18} />}
       />
-      <Select
-        className={value?.mode === "narration" ? "speech-control-half" : undefined}
-        aria-label={translateUi("Speech mode")}
-        style={{ width: "100%" }}
-        value={value?.mode || "off"}
-        options={[
-          { value: "off", label: translateUi(timedItem ? "Off" : "Off · on-screen words only") },
-          { value: "narration", label: translateUi("Narration · local voice") },
-          {
-            value: "uploaded",
-            label: translateUi("Uploaded speech or singing"),
-            disabled: timedItem || !audioAssets.length,
-          },
-          {
-            value: "singing",
-            label: translateUi("Generated singing · not available"),
-            disabled: true,
-          },
-        ]}
-        onChange={(mode) =>
-          mode === "narration"
-            ? narrate()
-            : onChange(mode === "uploaded" ? { mode, assetId: audioAssets[0].id } : { mode: "off" })
-        }
-      />
+      {!profileOnly && (
+        <Select
+          className={value?.mode === "narration" ? "speech-control-half" : undefined}
+          aria-label={translateUi("Speech mode")}
+          style={{ width: "100%" }}
+          value={value?.mode || "off"}
+          options={[
+            { value: "off", label: translateUi(timedItem ? "Off" : "Off · on-screen words only") },
+            { value: "narration", label: translateUi("Narration · local voice") },
+            {
+              value: "uploaded",
+              label: translateUi("Uploaded speech or singing"),
+              disabled: timedItem || !audioAssets.length,
+            },
+            {
+              value: "singing",
+              label: translateUi("Generated singing · not available"),
+              disabled: true,
+            },
+          ]}
+          onChange={(mode) =>
+            mode === "narration"
+              ? narrate()
+              : onChange(
+                  mode === "uploaded" ? { mode, assetId: audioAssets[0].id } : { mode: "off" },
+                )
+          }
+        />
+      )}
       {value?.mode === "uploaded" && (
         <>
           <Select
@@ -212,66 +218,68 @@ export function SpeechSettings({
               title={status?.detail || translateUi("Checking local speech…")}
             />
           )}
-          <Select
-            className="speech-control-half"
-            aria-label={translateUi("Speech language")}
-            style={{ width: "100%" }}
-            value={
-              videoLanguage && value.followVideoLanguage !== false
-                ? "follow"
-                : selectedLanguage || voice?.language
-            }
-            options={[
-              ...(videoLanguage
-                ? [
-                    {
-                      value: "follow",
-                      label: translateUi("Follow video · {{value0}}", {
-                        value0: translateUi(videoLanguageLabel(videoLanguage)),
-                      }),
-                    },
-                  ]
-                : []),
-              ...(engine === "pocket-tts" || isQwenSpeechEngine(engine)
-                ? (isQwenSpeechEngine(engine) ? qwenLanguages : pocketLanguages).map(
-                    (language) => ({
-                      value: language.id,
-                      label: translateUi(language.label),
-                    }),
-                  )
-                : Object.entries(languages)
-                    .filter(([language]) => voices.some((voice) => voice.language === language))
-                    .map(([value, label]) => ({ value, label: translateUi(label) }))),
-            ]}
-            onChange={(language) => {
-              if (language === "follow") {
-                onChange({ ...value, followVideoLanguage: true });
-                return;
+          {!profileOnly && (
+            <Select
+              className="speech-control-half"
+              aria-label={translateUi("Speech language")}
+              style={{ width: "100%" }}
+              value={
+                videoLanguage && value.followVideoLanguage !== false
+                  ? "follow"
+                  : selectedLanguage || voice?.language
               }
-              onChange(
-                isQwenSpeechEngine(engine)
-                  ? { ...value, followVideoLanguage: false, language }
-                  : engine === "pocket-tts"
-                    ? {
-                        ...value,
-                        followVideoLanguage: false,
-                        language,
-                        voice:
-                          language === "zh"
-                            ? "pocket_zh_xiaobei"
-                            : pocketLanguageForVoice(value.voice)?.id === "zh"
-                              ? "pocket_alba"
-                              : value.voice,
-                      }
-                    : {
-                        ...value,
-                        followVideoLanguage: false,
-                        language: undefined,
-                        voice: voices.find((voice) => voice.language === language)!.id,
+              options={[
+                ...(videoLanguage
+                  ? [
+                      {
+                        value: "follow",
+                        label: translateUi("Follow video · {{value0}}", {
+                          value0: translateUi(videoLanguageLabel(videoLanguage)),
+                        }),
                       },
-              );
-            }}
-          />
+                    ]
+                  : []),
+                ...(engine === "pocket-tts" || isQwenSpeechEngine(engine)
+                  ? (isQwenSpeechEngine(engine) ? qwenLanguages : pocketLanguages).map(
+                      (language) => ({
+                        value: language.id,
+                        label: translateUi(language.label),
+                      }),
+                    )
+                  : Object.entries(languages)
+                      .filter(([language]) => voices.some((voice) => voice.language === language))
+                      .map(([value, label]) => ({ value, label: translateUi(label) }))),
+              ]}
+              onChange={(language) => {
+                if (language === "follow") {
+                  onChange({ ...value, followVideoLanguage: true });
+                  return;
+                }
+                onChange(
+                  isQwenSpeechEngine(engine)
+                    ? { ...value, followVideoLanguage: false, language }
+                    : engine === "pocket-tts"
+                      ? {
+                          ...value,
+                          followVideoLanguage: false,
+                          language,
+                          voice:
+                            language === "zh"
+                              ? "pocket_zh_xiaobei"
+                              : pocketLanguageForVoice(value.voice)?.id === "zh"
+                                ? "pocket_alba"
+                                : value.voice,
+                        }
+                      : {
+                          ...value,
+                          followVideoLanguage: false,
+                          language: undefined,
+                          voice: voices.find((voice) => voice.language === language)!.id,
+                        },
+                );
+              }}
+            />
+          )}
           <Space.Compact className="speech-control-half" style={{ width: "100%" }}>
             <Select<string>
               aria-label={translateUi("Narrator voice")}

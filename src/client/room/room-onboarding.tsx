@@ -1,3 +1,4 @@
+import { LanguageTrackSettings } from "../components/language-track-settings";
 import { ScriptItems } from "../components/script-items";
 import { legacyScriptItems } from "../../shared/script-items";
 import { StylePromptInput } from "../components/style-prompt-input";
@@ -466,6 +467,12 @@ export function RoomOnboarding({
               </Button>
             </div>
           </section>
+        )}
+        {step === 5 && request.outputType === "video" && (
+          <LanguageTrackSettings
+            request={request}
+            onChange={(languageTracks) => patch({ languageTracks })}
+          />
         )}
         {step === 5 && request.outputType === "video" && request.scriptItems !== undefined && (
           <ScriptItems

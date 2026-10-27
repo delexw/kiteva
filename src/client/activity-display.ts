@@ -308,3 +308,18 @@ export function latestActivityProgress(items: ActivityItem[]): DisplayActivityIt
   const current = displayActivityItems(items).at(-1);
   return current && activityProgressPercent(current) !== undefined ? current : undefined;
 }
+
+/** Retry targets must use displayed IDs, since merged rows retain their first event's ID. */
+export function latestRetryableActivityItem(
+  items: ActivityItem[],
+): DisplayActivityItem | undefined {
+  let latest: DisplayActivityItem | undefined;
+  function visit(rows: DisplayActivityItem[]) {
+    for (const row of rows) {
+      if (row.retryable && (!latest || (row.time ?? "") >= (latest.time ?? ""))) latest = row;
+      if (row.children) visit(row.children);
+    }
+  }
+  visit(displayActivityItems(items));
+  return latest;
+}

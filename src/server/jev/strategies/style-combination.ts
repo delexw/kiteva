@@ -1,3 +1,4 @@
+import { styleCombinationRankingBrief } from "./style-combination-context";
 import { videoRendererOf } from "../../../shared/video-renderers";
 import { rendererDecisionMetadataFor } from "../../rendering/renderer-metadata";
 import { jevModel, jevClient } from "../client";
@@ -113,7 +114,7 @@ export async function rankOptions(
         value.instructions,
       ]),
     ),
-    brief,
+    brief: styleCombinationRankingBrief(brief),
     assetPolicy: assetRequirementsPolicy.rankingGuidance,
     outputType: request.outputType || "video",
     renderer:

@@ -1,3 +1,4 @@
+import { RetryBudget } from "../../shared/retry-budget";
 import { access, readFile, realpath, stat } from "node:fs/promises";
 import { constants } from "node:fs";
 import { createRequire } from "node:module";
@@ -67,7 +68,7 @@ export function technologyEnvironment(
               ),
             ...(process.platform === "darwin" && tool.application ? [tool.application] : []),
           ];
-      for (let attempt = 0; attempt < 2; attempt++)
+      for (const _attempt of new RetryBudget(2))
         for (const candidate of candidates)
           try {
             await access(candidate, constants.X_OK);
@@ -113,7 +114,7 @@ export function technologyEnvironment(
       const installed =
         python &&
         (await memo(`python:${module}`, async () => {
-          for (let attempt = 0; attempt < 2; attempt++)
+          for (const _attempt of new RetryBudget(2))
             try {
               const result = await execute(
                 python,

@@ -1,3 +1,4 @@
+import { combinationAssetEvidenceGuidance } from "../../style-combinations";
 import { AssetNeedSchema } from "./asset-needs";
 import { z } from "zod";
 import { CandidateCopySchema } from "./candidate-copy";
@@ -10,7 +11,7 @@ export const ProposalSchema = z.object({
         primaryStyleId: z.string(),
         supportingStyleIds: z.array(z.string()).max(MAX_SUPPORTING_STYLES),
         sceneRoles: z.array(z.string()),
-        rationale: z.string(),
+        rationale: z.string().describe(combinationAssetEvidenceGuidance),
         displayTitle: CandidateCopySchema.shape.displayTitle.optional(),
         displayDescription: CandidateCopySchema.shape.displayDescription.optional(),
         feasible: z.boolean(),

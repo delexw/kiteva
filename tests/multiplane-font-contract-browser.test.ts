@@ -59,6 +59,9 @@ it.skipIf(!browserExecutablePath())(
       expect(prompt).toContain(`fonts: ${JSON.stringify(multiplaneFontExample)}`);
       expect(prompt).toContain("node_modules/multiplane/skills/multiplane/SKILL.md");
       expect(prompt).toContain("BEFORE setup()");
+      expect(prompt).toContain("Reserve the runtime globals Shot and SHOT");
+      expect(prompt).toContain("shape-rendering: geometricPrecision");
+      expect(prompt).toContain("text-rendering: geometricPrecision");
       expect(prompt).toContain("--no-lint");
     }
   },

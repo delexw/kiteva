@@ -1,5 +1,6 @@
 vi.mock("../src/server/agents/claude-home", () => ({
   prepareClaudeHome: async () => "/isolated-home",
+  claudeLoginEnvironment: async () => ({}),
 }));
 import { referenceFailureGuidance } from "../src/shared/asset-requirements-policy";
 import { authoringResourceSelectionGuidance } from "../src/server/jev/strategies/visual-authoring";

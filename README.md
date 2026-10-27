@@ -35,11 +35,25 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 Dates below use New Zealand time.
 
 <details>
+<summary>2026-10-28</summary>
+
+- **Human sign-in handoff:** protected local website references pause for human authentication with Sign in and Continue controls in the project. A token-protected project-scoped bridge keeps the wait alive; interrupted handoffs discard the failed browser session before another inspection. Device-authenticator network permissions are temporary, and project cancellation closes the handoff. See [application guide](docs/application-guide.md).
+- **Shared browser sizing:** recording and sign-in now use one launcher for profiles, environment, window sizing and startup defaults. Visible pages follow the actual window instead of a fixed viewport, preventing clipping and blank areas after sign-in.
+- **Claude login refresh:** synchronize the current login before each SDK call and pass its access token through the SDK environment. Project files and sessions stay isolated while avoiding attempts to save copied OAuth credentials into a nonexistent project Keychain. Explicit API keys and OAuth tokens retain precedence. See [project file isolation](docs/project-file-isolation.md).
+- **Compact combination evaluation:** Opus includes relevant asset coverage, suitability and limitations inside each complete combination brief. JEV receives these briefs with unchanged original requirements, facts and constraints, without a separate production asset map. Cross-batch comparison still considers every surviving candidate; proposal-policy revisions invalidate older cached proposals. See [JEV strategies](src/server/jev/README.md).
+- **Shared repair budgets:** bounded attempts use a common per-issue mechanism. Claude video corrections retain ten Haiku attempts with increasing effort before main-model escalation. Initial storyboard validation failures with a valid manifest now enter the same corrector for previews and full films, preserving unrelated content. See [retry budgets](docs/retry-budgets.md).
+- **Playback and result controls:** refine independent narration/subtitle language controls and language-specific downloads, add consistent icon actions and generated timestamps to result cards, show job-scoped progress, and keep unavailable preview cards at the normal size. See [language-track architecture](docs/language-tracks-architecture.md).
+- **Activity loading and recovery:** batch EventSource history and live updates to reduce repeated state updates and project fetches. Retry actions follow the displayed merged activity item. Renderer checks document font and clip-path constraints, with shared readiness retries across local tools and speech providers.
+
+</details>
+
+<details>
 <summary>2026-10-27</summary>
 
+- **Independent language tracks:** configure narration voices and subtitle languages separately from visual Video language. Full builds share the same picture/music timeline, create alternate narration and SRT/VTT tracks, and expose language selectors plus MP4/audio/subtitle downloads. Existing single-language projects retain their behavior. See [video languages](docs/video-languages.md).
 - **Project-local runtime files:** agent homes, temporary files, browser profiles and render caches live inside the project. Provider login credentials remain available without copying unrelated account data. Runtime files stay out of editable project exports. See [project file isolation](docs/project-file-isolation.md).
 - **Local Qwen narration:** add Qwen3-TTS VoiceDesign 1.7B and Base 1.7B providers with selectable female and male voices, Chinese/English speech, shared runtime handling and bundled Base reference recordings. Existing speech providers now own their adapters and requirements in provider folders. See [speech](docs/speech.md).
-- **Subtitle terminology:** rename on-screen lyrics to subtitles across settings, script items, prompts, storyboard fields and exports. Existing projects, drafts and narration profiles retain their text and settings through compatibility handling. This does not add selectable playback language tracks.
+- **Subtitle terminology:** rename on-screen lyrics to subtitles across settings, script items, prompts, storyboard fields and exports. Existing projects, drafts and narration profiles retain their text and settings through compatibility handling. Playback language tracks are configured separately.
 - **Automatic preview planning:** one shared preview plan feeds independent direction builders. The plan retains each direction's assigned styles and scene roles; full films reuse the selected preview's production context.
 - **JEV evaluation and visibility:** pass compact combination briefs instead of complete style metadata, keep cross-batch selection, and split oversized comparisons before dispatch. Governance expands selected combinations, scores and recorded calls. Future runs preserve evaluation certainty separately from Choice certainty, including compared options and probabilities.
 - **JEV cost reporting:** calculate token-based estimates from recorded input usage at the published rate, including retained project history; keep SDK-reported costs when available.

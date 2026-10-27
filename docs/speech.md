@@ -147,6 +147,6 @@ Both providers reuse readiness retries, cancellation, temporary-output cleanup, 
 
 ### Subtitle naming and saved projects
 
-On-screen text is called **subtitles** throughout settings, script items, prompts, storyboard JSON and exports. Requests use `subtitles`, script items use `showSubtitles`, and prepared text uses `generatedSubtitles`. This terminology change does not add switchable language tracks to the player.
+On-screen text is called **subtitles** throughout settings, script items, prompts, storyboard JSON and exports. Requests use `subtitles`, script items use `showSubtitles`, and prepared text uses `generatedSubtitles`. Selectable narration and subtitle tracks are configured separately; see [video languages](video-languages.md).
 
 Legacy `lyrics`, `showLyrics` and `generatedLyrics` fields are normalized when loading requests, projects, drafts and saved storyboards. Canonical fields take precedence when both names are present. Supplied text is preserved. The client includes legacy wire aliases so updating the interface does not require interrupting a build running in an older backend process. Genuine song lyrics in source descriptions and catalog entries retain their musical meaning.

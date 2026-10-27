@@ -14,7 +14,7 @@ export async function captureReferencePage(
   signal.throwIfAborted();
   const browser = await createReferenceBrowser(
     [value],
-    AbortSignal.any([signal, AbortSignal.timeout(30000)]),
+    AbortSignal.any([signal, AbortSignal.timeout(mode === "local" ? 600000 : 30000)]),
     mode,
     false,
     path.dirname(screenshotPath),

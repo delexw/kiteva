@@ -142,42 +142,60 @@ export function roomOnboardingReplies(
     if (index === 5) {
       if (request.outputType !== "video")
         return { text: translateUi("Not used for interactive pages"), skipped: true };
+      const trackSummary = request.languageTracks
+        ? [
+            translateUi("Narration languages: {{value0}}", {
+              value0:
+                request.languageTracks.narration
+                  .map((track) => videoLanguageLabel(track.language))
+                  .join(" / ") || translateUi("Off"),
+            }),
+            translateUi("Subtitle languages: {{value0}}", {
+              value0:
+                request.languageTracks.subtitles.map(videoLanguageLabel).join(" / ") ||
+                translateUi("Off"),
+            }),
+          ].join("\n")
+        : "";
       if (request.scriptItems !== undefined)
         return {
-          text: request.scriptItems
-            .map((item, index) =>
-              [
-                `${translateUi("Script item {{value0}}", { value0: index + 1 })} · ${item.startSeconds}–${item.endSeconds}s`,
-                item.source === "write"
-                  ? `${translateUi("Script instructions")}: ${item.text}`
-                  : item.text,
-                translateUi(
-                  item.showSubtitles ? "Subtitles on screen: On" : "Subtitles on screen: Off",
-                ),
-                ...speechReply(
-                  {
-                    ...request,
-                    scriptItems: undefined,
-                    subtitles: { mode: "off" },
-                    speech:
-                      item.speech.mode === "narration"
-                        ? {
-                            ...item.speech,
-                            source: item.source || "provided",
-                            text: "",
-                            instructions: "",
-                            followVideoLanguage: false,
-                          }
-                        : item.speech,
-                  },
-                  selected,
-                ),
-              ].join("\n"),
-            )
-            .join("\n\n"),
+          text:
+            (trackSummary ? trackSummary + "\n\n" : "") +
+            request.scriptItems
+              .map((item, index) =>
+                [
+                  `${translateUi("Script item {{value0}}", { value0: index + 1 })} · ${item.startSeconds}–${item.endSeconds}s`,
+                  item.source === "write"
+                    ? `${translateUi("Script instructions")}: ${item.text}`
+                    : item.text,
+                  translateUi(
+                    item.showSubtitles ? "Subtitles on screen: On" : "Subtitles on screen: Off",
+                  ),
+                  ...speechReply(
+                    {
+                      ...request,
+                      scriptItems: undefined,
+                      subtitles: { mode: "off" },
+                      speech:
+                        item.speech.mode === "narration"
+                          ? {
+                              ...item.speech,
+                              source: item.source || "provided",
+                              text: "",
+                              instructions: "",
+                              followVideoLanguage: false,
+                            }
+                          : item.speech,
+                    },
+                    selected,
+                  ),
+                ].join("\n"),
+              )
+              .join("\n\n"),
           skipped: false,
         };
       const text = [
+        trackSummary,
         request.subtitles?.mode === "provided"
           ? translateUi("Subtitles on screen:\n{{value0}}", { value0: request.subtitles.text })
           : request.subtitles?.mode === "write"

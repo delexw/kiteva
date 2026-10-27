@@ -15,7 +15,7 @@ export type ReferenceBrowserOptions = Pick<
   | "enableVideoCapture"
   | "captureChapterId"
   | "captureChapterDurationSeconds"
->;
+> & { authenticationBridge?: { url: string; token: string } };
 
 export function referenceBrowserCapability(
   workspace: string,
@@ -42,6 +42,12 @@ export function referenceBrowserCapability(
         ),
         toolTimeoutSeconds: recordingToolTimeoutSeconds,
         env: {
+          KITEVA_AUTH_BRIDGE_URL: options.authenticationBridge?.url || "",
+          KITEVA_AUTH_BRIDGE_TOKEN: options.authenticationBridge?.token || "",
+          VIDEO_AUTH_BROWSER_PATH:
+            process.env.VIDEO_AUTH_BROWSER_PATH ||
+            browserExecutablePath(true, { fallbackFromHeadlessShell: true }) ||
+            "",
           KITEVA_RECORDING_LOCK_PATH:
             process.env.KITEVA_RECORDING_LOCK_PATH ||
             path.join(os.tmpdir(), "kiteva-native-recording"),

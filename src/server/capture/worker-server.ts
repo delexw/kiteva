@@ -96,7 +96,7 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
             session.workspace,
           );
         case "inspect":
-          return browser.inspect(action.url);
+          return browser.inspect(action.url, action.requestSignIn);
         case "click":
           return browser.click(action.controlId);
         case "fill":

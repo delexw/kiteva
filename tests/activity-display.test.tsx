@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { displayActivityItems } from "../src/client/activity-display";
+import { ThoughtChain } from "@ant-design/x";
+import { displayActivityItems, latestRetryableActivityItem } from "../src/client/activity-display";
 import { activityItems, type ActivityItem } from "../src/client/agent-activity-model";
 import { uiLanguage } from "../src/client/i18n/service";
 import { roomActivityStep } from "../src/client/room/room-activity";
@@ -16,6 +17,25 @@ const item = (id: number, change: Partial<ActivityItem> = {}): ActivityItem => (
   time: "2026-10-19T00:00:00Z",
   status: "complete",
   ...change,
+});
+it("targets the visible interruption row after repeated errors merge", () => {
+  const errors = [1, 2].map((id) =>
+    item(id, {
+      kind: "notice",
+      text: "Something interrupted this step. You can retry it.",
+      activityScopeId: `scope-${id}`,
+      retryable: true,
+      status: "stopped",
+      time: `2026-10-19T00:00:0${id}Z`,
+    }),
+  );
+  const retry = latestRetryableActivityItem(errors);
+  expect(retry).toMatchObject({ id: 1, jobId: "job", time: "2026-10-19T00:00:02Z" });
+  const rendered = roomActivityStep(displayActivityItems(errors)[0], {
+    itemId: retry!.id,
+    action: () => {},
+  });
+  expect(renderToStaticMarkup(<ThoughtChain items={[rendered]} />)).toContain('aria-label="Retry"');
 });
 it("shows one video task around a recorded instrumental step, with a consolidated implementation group and no action counts", () => {
   const source = [

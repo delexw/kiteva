@@ -1,3 +1,4 @@
+import { RetryBudget } from "../../../../shared/retry-budget";
 import { pocketZhSpeechProvider } from "./chinese";
 import { defaultPython } from "../../../runtime/platform";
 import { PocketTtsWorker } from "./worker";
@@ -63,7 +64,7 @@ export const pocketTtsSpeechProvider: SpeechProvider = {
       return pocketZhSpeechProvider.readiness(signal, voice, "zh");
     const language = pocketLanguageForVoice(voice, selectedLanguage);
     if (!language) throw new CodedError("INVALID_REQUEST", "Choose a Pocket TTS voice.");
-    for (let attempt = 0; attempt < 2; attempt++) {
+    for (const _attempt of new RetryBudget(2)) {
       try {
         await command(
           python(),

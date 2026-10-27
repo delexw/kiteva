@@ -176,6 +176,16 @@ const h=React.createElement;function App(){const[language,setLanguage]=useState(
       for (const motion of motions) {
         await page.click(`[data-style-id="${motion.id}"]`);
         await page.waitForSelector(".studio-modal .style-detail");
+        // Wait for the modal's opening transform before clicking its contents.
+        await page.waitForFunction(() => {
+          const modal = document.querySelector(".studio-modal");
+          return (
+            modal &&
+            modal
+              .getAnimations()
+              .every((animation) => ["finished", "idle"].includes(animation.playState))
+          );
+        });
         await page
           .locator(".studio-modal .ant-collapse-header")
           .filter((node) => node.textContent === "推荐技术组合")

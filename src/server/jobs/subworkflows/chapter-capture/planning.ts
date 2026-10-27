@@ -1,4 +1,5 @@
 import { captureChapterRetryLimit } from "../../../../shared/capture-chapters";
+import { RetryBudgets } from "../../../../shared/retry-budget";
 import { ChapterTimingConflictError } from "../../../capture/chapter-timing";
 import { prepareChapterCaptures } from "./workflow";
 import { emitChapterTiming } from "./events";
@@ -12,7 +13,7 @@ export async function captureWithTimingRetries(
   if (plan?.version !== 2 || !plan.capturePlan)
     throw Error("Chapter recovery requires the approved capture plan");
   let timingRetry: Parameters<typeof prepareChapterCaptures>[0]["timingRetry"];
-  const attempts = new Map<string, number>();
+  const attempts = new RetryBudgets();
   for (;;) {
     input.signal.throwIfAborted();
     try {
@@ -38,15 +39,14 @@ export async function captureWithTimingRetries(
         status: "failed",
         actualDurationSeconds: error.conflict.requiredDurationSeconds,
       });
-      const attempt = (attempts.get(chapter.id) ?? 0) + 1;
-      if (attempt > captureChapterRetryLimit) throw error;
-      attempts.set(chapter.id, attempt);
+      const attempt = attempts.for(chapter.id, captureChapterRetryLimit).take(input.signal);
+      if (!attempt) throw error;
       timingRetry = { ...error.conflict, targetDurationSeconds: chapter.estimatedDurationSeconds };
       emitChapterTiming(input.onEvent, {
         ...metadata,
         phase: "retry",
         status: "complete",
-        revision: attempt,
+        revision: attempt.number,
       });
     }
   }

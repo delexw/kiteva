@@ -1,3 +1,4 @@
+import { RetryBudget, RetryBudgets } from "../../../../shared/retry-budget";
 import {
   BriefAssetReviewSchema,
   type BriefAssetPlan,
@@ -93,7 +94,9 @@ export async function reviewBriefAssets<
   let previousRepair:
     | { issue: z.infer<typeof BriefAssetReviewSchema>["issues"][number]; briefBeforeRepair: T }
     | undefined;
-  for (let attempt = 0; attempt <= MAX_BRIEF_ASSET_REPAIRS; attempt++) {
+  const repairs = new RetryBudgets();
+  let reviewIndex = 0;
+  for (;;) {
     input.signal.throwIfAborted();
     const inventory = InventorySchema.parse(
       JSON.parse(await readFile(path.join(input.workspace, "brief-attachments.json"), "utf8")),
@@ -121,7 +124,7 @@ export async function reviewBriefAssets<
     let reviewSessionId: string | undefined;
     let reviewFeedback = "";
     let review: ReturnType<typeof BriefAssetReviewSchema.parse> | undefined;
-    for (let correction = 0; correction <= 2; correction++) {
+    for (const { index: correction } of new RetryBudget(3)) {
       input.signal.throwIfAborted();
       let candidate: z.infer<typeof BriefAssetReviewSchema> | undefined;
       let validationError: unknown;
@@ -154,7 +157,7 @@ export async function reviewBriefAssets<
       }
       if (candidate) {
         await writeFile(
-          path.join(input.workspace, `brief-asset-review-${attempt}-${correction}.json`),
+          path.join(input.workspace, `brief-asset-review-${reviewIndex}-${correction}.json`),
           JSON.stringify(candidate, null, 2),
         );
         try {
@@ -179,7 +182,7 @@ export async function reviewBriefAssets<
         input.onEvent({
           type: "review_diagnostic",
           message: "Correcting the brief asset review structure",
-          data: { issue, attempt, correction },
+          data: { issue, attempt: reviewIndex, correction },
         });
         reviewFeedback = `CORRECT ONLY THE REPORTED VALIDATION ISSUE in your review structure in this same review session. Preserve all unrelated review fields and quality findings. Do not repair the creative brief or recapture assets in this turn.\nIssue: ${issue}\nExpected fix: return the full corrected review satisfying the reported paths. status=needs_repair requires at least one actionable issue; status=passed requires issues=[]. Do not discard genuine defects merely to satisfy the status. Include exactly one plan.assets entry per available original source (including unused sources), no internal JSON/manifest/inspection paths, unique scene IDs and mutually consistent scene-to-asset mappings. Keep genuine quality findings and expected fixes; correcting the review structure must not change needs_repair to passed without evidence.\nAcceptance criteria: plan.assets paths exactly match availableAssetPaths in brief-asset-review-input.json; each scene.assetPaths and asset.sceneIds link agrees; unused assets have no scenes; limited assets/scenes have explicit limitations.\nRead your previous StructuredOutput in this same review session and read the exact availableAssetPaths from brief-asset-review-input.json before correcting.`;
       }
@@ -198,11 +201,13 @@ export async function reviewBriefAssets<
           constraints: [...new Set([...current.value.constraints, ...review.plan.limitations])],
         },
       };
-    if (attempt === MAX_BRIEF_ASSET_REPAIRS)
-      throw Error(
-        `Brief asset review still has unresolved scene or content defects after ${MAX_BRIEF_ASSET_REPAIRS} focused repairs`,
-      );
     const issue = review.issues[0];
+    const issueKey = JSON.stringify([issue.sceneId, issue.assetPath]);
+    if (!repairs.for(issueKey, MAX_BRIEF_ASSET_REPAIRS).take(input.signal))
+      throw Error(
+        `Brief asset review still has unresolved scene or content defects after ${MAX_BRIEF_ASSET_REPAIRS} focused repairs for this issue`,
+      );
+    reviewIndex++;
     const repairDraft = { ...current.value, assetPlan: structuredClone(review.plan) };
     previousRepair = { issue, briefBeforeRepair: structuredClone(repairDraft) };
     const revised = await input.revise(
@@ -222,5 +227,4 @@ export async function reviewBriefAssets<
       value: { ...revised.value, assetPlan: revised.value.assetPlan ?? repairDraft.assetPlan },
     };
   }
-  throw Error("Brief asset review did not complete");
 }

@@ -1,3 +1,4 @@
+import { ReferenceAuthenticationError } from "./authentication-error";
 import {
   browserCapabilities,
   referenceToolRegistry,
@@ -70,6 +71,11 @@ export function createReferenceTools(options: {
           ...(result.kind === "native_capture" && result.isError ? { isError: true } : {}),
         };
       } catch (error) {
+        if (error instanceof ReferenceAuthenticationError) {
+          const failed = session;
+          session = undefined;
+          await failed?.then((browser) => browser.close()).catch(() => {});
+        }
         const result: ReferenceToolResult = {
           kind: "error",
           message: error instanceof Error ? error.message : "Reference browsing failed",
@@ -96,9 +102,9 @@ export function createReferenceTools(options: {
       ),
     );
   }
-  setHandler("inspect_page", ({ url }) =>
+  setHandler("inspect_page", ({ url, requestSignIn }) =>
     run(async () => ({
-      result: { kind: "inspection", page: await (await browser()).inspect(url) },
+      result: { kind: "inspection", page: await (await browser()).inspect(url, requestSignIn) },
     })),
   );
   setHandler("click_control", ({ controlId }) =>

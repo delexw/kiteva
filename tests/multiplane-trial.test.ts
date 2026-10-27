@@ -166,6 +166,31 @@ it("retains warning reports for successful commands without failing the command"
   );
 });
 
+it("keeps the shot identity when native inspection only returns a failure result", () => {
+  const failure = multiplaneFailure(
+    "inspect",
+    {
+      type: "result",
+      ok: false,
+      code: "shot_contract_invalid",
+      message: "Invalid shot",
+      details: { reason: "SHOT.render is not a function" },
+    },
+    [],
+    "renders/report.jsonl",
+    "shots/03.html",
+  );
+  expect(failure).toMatchObject({
+    diagnostics: [
+      {
+        code: "shot_contract_invalid",
+        location: { file: "shots/03.html" },
+        source: "authored source",
+      },
+    ],
+  });
+});
+
 it("keeps HyperFrames the default and lets a project choose the Multiplane trial", () => {
   expect(videoRendererOf(VideoRequestSchema.parse({ instructions: "A visual demo" }))).toBe(
     "hyperframes",

@@ -158,6 +158,8 @@ checkpoint.
 
 ### Video generation routes
 
+Independent visual, narration and subtitle languages are documented in [Language-track architecture](language-tracks-architecture.md), including module boundaries and the full-build Mermaid flow. The [language settings guide](video-languages.md) covers playback and downloads.
+
 These three routes reflect the implementation on 2026-10-26. The complete original prompt, settings
 and references remain available to every main-model job. Routing uses Settings-selected style IDs
 and the preview count; embedded style mentions stay in the prompt for the model to interpret.

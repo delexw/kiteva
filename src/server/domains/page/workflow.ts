@@ -1,3 +1,6 @@
+import { correctionIdentity } from "../../agents/correction-identity";
+import { RendererDiagnosticError, rendererCorrectionEvidence } from "../../rendering/diagnostics";
+import { RetryBudgets } from "../../../shared/retry-budget";
 import { activityScope } from "../../jobs/activity-scope";
 import { mergeCorrection, correctionMergeGuidance } from "../../agents/correction-merge";
 import { InputRequired } from "../../../shared/input-checkpoint";
@@ -32,10 +35,12 @@ export async function generatePage(input: {
     );
     const prompt = buildPagePrompt(input);
     await writeFile(path.join(job.workspace, "EXECUTABLE_PROMPT.md"), prompt);
-    for (let attempt = 0; attempt < 3; attempt++) {
+    const repairBudgets = new RetryBudgets();
+    let firstAttempt = true;
+    for (;;) {
       signal.throwIfAborted();
       const started = Date.now();
-      const reuse = attempt === 0 && job.pageProduction;
+      const reuse = firstAttempt && job.pageProduction;
       if (reuse && input.decisions) emit("state", "Applying your decision…");
       const turn =
         reuse && !input.decisions
@@ -53,10 +58,11 @@ export async function generatePage(input: {
                 : {}),
               prompt: reuse
                 ? `The user answered a question about this existing page. Continue this session and apply only the decision below. Inspect any newly supplied files listed in style-context.json assetInputs before using them. Keep the selected Motion Graphics, approved visuals and unaffected sections unchanged. ${correctionMergeGuidance} Return the page production manifest.\n\n${input.decisions}`
-                : attempt === 0
+                : firstAttempt
                   ? prompt
                   : `Repair this page validation failure: ${job.error}. Preserve approved visuals. ${correctionMergeGuidance} Return the page production manifest.`,
             });
+      firstAttempt = false;
       job.generationMs = (job.generationMs || 0) + Date.now() - started;
       job.sessionId = turn.sessionId;
       job.pageProduction = mergeCorrection(job.pageProduction, turn.value, PageProductionSchema);
@@ -96,7 +102,14 @@ export async function generatePage(input: {
         signal.throwIfAborted();
         job.error = safeMessage(error);
         emit("repair", job.error);
-        if (attempt === 2) throw error;
+        const issueKey = correctionIdentity({
+          focus: "page",
+          evidence:
+            error instanceof RendererDiagnosticError
+              ? rendererCorrectionEvidence(error.diagnostics, error.reportFile)
+              : job.error,
+        });
+        if (!repairBudgets.for(issueKey, 2).take(signal)) throw error;
         job.phase = "generating";
         update();
       }

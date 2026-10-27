@@ -1,19 +1,37 @@
-# Video languages
+# Video, narration and subtitle languages
 
-Choose **Video language** in the Assistant's Settings: English or 简体中文. It controls all authored video text, including titles, labels, annotations, captions and credits. It takes precedence over language instructions in the idea prompt. Captured website screens, supplied images, names, code and URLs remain authentic.
+**Settings → Video language** selects text authored into the visuals: titles, labels, diagrams and credits. Captured websites and supplied images remain authentic. It does not translate those captures.
 
-In **Narration / subtitles**, Speech language defaults to **Follow video**. An explicit language overrides only spoken delivery. The existing language choices remain available. Voice selection resolves to a compatible voice within the selected engine; Pocket Mandarin uses the separate Chinese checkpoint. Existing requests without a video language retain their prior language behavior.
+In **Narration / subtitles → Multiple language tracks**, independently enable English and Chinese narration and subtitle languages. Choose a voice for each narration language, then choose the default narration and default subtitles (or Off). Spoken script items keep their time windows and use these global voices; silent items stay silent. Per-item subtitle visibility is retained. Extra languages add translation and local speech generation time.
 
-Changing language only saves the delivery setting. It does not call an AI model, translate editor text or use provider usage. Supplied narration and subtitles stay as entered while editing. When you build a preview or full video, the project's selected Claude or Codex provider translates supplied copy with its small text model. Translation events and usage belong to that project job and appear in Governance under **Video copy translation**. Originals are preserved in the build's localization data; per-source/model/language caching avoids repeat calls for the same build workspace. Generated copy is written in the chosen language. Audio uploads are not automatically dubbed.
+The full-film planner receives the track requirements before authoring a shared visual timeline. It creates measured primary narration and records subtitle text in the storyboard without burning it into the picture. Alternate scripts are translated from that narration, synthesized locally and fitted to the same cue windows. Short speech retains natural pauses; an overlong cue is shortened and regenerated once, with playback speed adjustment capped at 1.5×. If it still cannot fit, the build reports the timing failure rather than silently dropping speech or changing the visual timeline.
 
-Translation alone does not create a video or modify an existing finished film. Create a new version to rebuild layout, font coverage, line breaks, reading holds, voice audio and measured caption timing. The old project and its artifacts remain available. A narration language override can differ from the on-screen language; the renderer must retain the video language for captions rather than copying a differently translated voice transcript.
+The renderer saves a shared picture/music master before narration mixing. Each narration language gets an MP4 using the same video frames, a narration WAV and an audio mix. Each subtitle language gets timed SRT and WebVTT files. The primary voice is reused. Music and effects remain shared. Source, cue and translation caches remain inside the project.
 
-## Ownership
+## Playback and downloads
 
-- `src/shared/video-language.ts`: language schema, delivery voice resolution and localized-copy edits.
-- `src/server/jobs/subworkflows/video-localization.ts`: shared text-only localization workflow for both SDK providers, with per-source/model/language cache keys and atomic checkpoints.
-- `prepare-subtitles.ts` and `audio/speech.ts`: native-language generated subtitles and narration.
-- `domains/video/prompts.ts`: authoritative video text language for every renderer.
-- `audio/providers/pocket-tts/chinese.ts`: isolated Mandarin synthesis; see [Speech setup](speech.md#chinese-pocket-tts).
+Finished full videos expose separate **Narration language** and **Subtitle language** controls. Changing narration switches the matching MP4 while retaining the play position and play/pause state. Subtitle language is selected independently, including Off; native WebVTT tracks provide the text overlay.
 
-The language preference is saved in the draft; supplied source text remains editable. Original prompt text and dedicated settings remain separate. Generation rechecks localization even when a request comes directly through the API rather than the Assistant. Full-film audio is newly synthesized and timed from the resolved language copy. Previews stay silent.
+**Language downloads** selects the MP4's narration language, narration-only WAV or voice/music mix, and a subtitle language for SRT/VTT downloads. The MP4 variants share the visuals and each contain one language's audio; subtitles are separate files. This does not burn translated captions into an MP4 or translate visual titles during playback. Editable ZIPs include the language files under the source workspace.
+
+For example, choose English Video language, Chinese and English narration, and Chinese and English subtitles. The picture remains English while playback can use Chinese narration with English subtitles, or the reverse.
+
+## Existing projects and activation
+
+Existing requests without `languageTracks` retain their single-language delivery behavior and existing narration overrides. Previously burned-in captions cannot be removed by changing playback controls; build a new version with language tracks to get clean visuals and selectable subtitles. Uploaded recordings are not automatically transcribed or dubbed.
+
+The API accepts a validated `languageTracks` setting and completed jobs expose `languageMedia`. Defaults must reference enabled languages; duplicates and unsupported voice/language combinations are rejected. Narration and visual language remain distinct. Language-track controls require a backend advertising `languageTracksSupported`; an older process running an existing build is not interrupted by a frontend update. Restart it after its work finishes, then reload the settings.
+
+The shared implementation works with Claude and Codex. `src/shared/language-tracks.ts` owns settings and guidance; `src/server/domains/video/language-media.ts` assembles media, reusing the existing localization and speech providers. Cancellation propagates to SDK translation, speech and FFmpeg work. Preview videos remain silent and do not generate alternate audio.
+
+## Module boundaries
+
+See [Language-track architecture](language-tracks-architecture.md) for module ownership, Mermaid diagrams, artifact layout and verification coverage.
+
+- `src/shared/language-tracks.ts`: validated settings, artifact contracts and language policy.
+- `src/server/domains/video/language-media/workflow.ts`: build orchestration and manifest publication. Its `translation`, `narration`, `subtitles`, `paths` and `types` modules own those separate responsibilities. The public `language-media.ts` entry keeps callers stable.
+- `src/client/components/language-track-settings.tsx`: settings UI, reusing the existing speech profile controls.
+- `src/client/use-video-language-tracks.ts`: native player state, subtitle modes and seek restoration; `LanguagePlaybackControls` renders selectors. The generic player does not generate media.
+- `src/client/components/language-media-downloads.tsx`: download choices. Playback and downloads share artifact URL resolution in `src/client/lib/language-media.ts`.
+
+The existing localization workflow and speech providers remain the only owners of SDK translation and local synthesis. The renderer only preserves a shared picture/music master; the video workflow requests language media after that render. No provider-specific generation logic lives in React or transport handlers.

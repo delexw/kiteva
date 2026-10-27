@@ -60,6 +60,30 @@ function setup(
   return { job, onEvent, controller, coordinator };
 }
 beforeEach(() => vi.clearAllMocks());
+it.each(["claude", "codex"] as const)(
+  "keeps exhausted repair budgets separate between shots for %s",
+  async (provider) => {
+    const { coordinator } = setup(provider);
+    vi.mocked(agentTurn).mockResolvedValue({
+      value: { ...production, storyboard: validStoryboard() },
+      sessionId: "repair-session",
+    });
+    const issue = (file: string) => ({
+      focus: "technical" as const,
+      cheapEligible: true,
+      evidence: { file, code: "runtime_error" },
+    });
+    const total = provider === "claude" ? 12 : 22;
+    for (let round = 0; round < total; round++)
+      await coordinator.correctRound([issue("shots/01.html")]);
+    await expect(coordinator.correctRound([issue("shots/01.html")])).rejects.toThrow("round limit");
+    await coordinator.correctRound([issue("shots/02.html")]);
+    const last = vi.mocked(agentTurn).mock.calls.at(-1)![0];
+    expect(last.model).toBe(provider === "claude" ? "claude-haiku-5-5" : "gpt-6-luna");
+    if (provider === "claude") expect(last.reasoningEffort).toBe("medium");
+    await expect(coordinator.correctRound([issue("shots/01.html")])).rejects.toThrow("round limit");
+  },
+);
 it("allows five GPT-6.1 full-video repair rounds, charges once per round and reuses the build session", async () => {
   const { coordinator, job } = setup("codex", { kind: "full", model: "gpt-6.1-sol" });
   vi.mocked(agentTurn).mockResolvedValue({
@@ -183,12 +207,12 @@ it("bounds failed corrections and never marks cancellation as another repair", a
       { focus: "technical", cheapEligible: true, evidence: { code: "runtime" } },
     ]),
   ).rejects.toThrow("Cannot repair");
-  expect(agentTurn).toHaveBeenCalledTimes(10);
+  expect(agentTurn).toHaveBeenCalledTimes(12);
   controller.abort();
   await expect(
     coordinator.correctRound([{ focus: "layout", cheapEligible: true, evidence: {} }]),
   ).rejects.toThrow();
-  expect(agentTurn).toHaveBeenCalledTimes(10);
+  expect(agentTurn).toHaveBeenCalledTimes(12);
 });
 it("routes structured QA categories and ignores advisory findings", () => {
   const pass = { ok: true, findings: [] };
@@ -242,7 +266,7 @@ it("routes structured QA categories and ignores advisory findings", () => {
   ).toEqual(["pacing", "style"]);
 });
 
-it("retries rejected settings within ten attempts while preserving the accepted manifest", async () => {
+it("bounds rejected settings across cheap and main attempts while preserving the accepted manifest", async () => {
   const { coordinator, job } = setup();
   vi.mocked(agentTurn).mockResolvedValue({
     value: { ...production, duration: 5 },
@@ -254,7 +278,7 @@ it("retries rejected settings within ten attempts while preserving the accepted 
     ]),
   ).rejects.toThrow("Corrector changed");
   expect(job.production?.duration).toBe(3);
-  expect(agentTurn).toHaveBeenCalledTimes(10);
+  expect(agentTurn).toHaveBeenCalledTimes(12);
 });
 
 it.each(["claude", "codex"] as const)(
@@ -323,38 +347,52 @@ it.each(["layout", "contrast", "technical", "pacing", "style"] as const)(
 it("directs determinism repairs to frame evidence without weakening validation", () => {
   expect(technicalCorrector.instructions).toContain("reference/actual/diff images before editing");
   expect(technicalCorrector.instructions).toContain("cleared Canvas 2D overlay");
+  expect(technicalCorrector.instructions).toContain("identical DOM, geometry and loaded fonts");
+  expect(technicalCorrector.instructions).toContain("shape-rendering: geometricPrecision");
+  expect(technicalCorrector.instructions).toContain("text-rendering: geometricPrecision");
   expect(technicalCorrector.instructions).toContain(
     "Do not guess at unrelated code or weaken comparison thresholds",
   );
 });
 
-it("uses exactly three medium, three high and four xhigh Haiku rounds, including non-cheap findings", async () => {
-  const { coordinator, job } = setup("claude", { model: "claude-opus-5-5" });
-  vi.mocked(agentTurn).mockResolvedValue({
-    value: { ...production, storyboard: validStoryboard() },
-    sessionId: "haiku-session",
-  });
-  const findings = [{ focus: "style" as const, cheapEligible: false, evidence: "Style mismatch" }];
-  for (let attempt = 0; attempt < 10; attempt++) await coordinator.correctRound(findings);
-  await expect(coordinator.correctRound(findings)).rejects.toThrow("round limit");
-  const calls = vi.mocked(agentTurn).mock.calls.map(([call]) => call);
-  expect(calls).toHaveLength(10);
-  expect(calls.map((call) => call.reasoningEffort)).toEqual([
-    "medium",
-    "medium",
-    "medium",
-    "high",
-    "high",
-    "high",
-    "xhigh",
-    "xhigh",
-    "xhigh",
-    "xhigh",
-  ]);
-  expect(calls.every((call) => call.model === "claude-haiku-5-5")).toBe(true);
-  expect(calls.slice(1).every((call) => call.sessionId === "haiku-session")).toBe(true);
-  expect(job.sessionId).toBe("generation-session");
-});
+it.each([true, false])(
+  "uses ten Haiku rounds before main escalation regardless of cheap eligibility (%s)",
+  async (cheapEligible) => {
+    const { coordinator, job } = setup("claude", { model: "claude-opus-5-5" });
+    vi.mocked(agentTurn).mockImplementation(async (options) => ({
+      value: { ...production, storyboard: validStoryboard() },
+      sessionId: options.model === "claude-haiku-5-5" ? "haiku-session" : "generation-session",
+    }));
+    const findings = [
+      { focus: "technical" as const, cheapEligible, evidence: "Same reload mismatch" },
+    ];
+    for (let round = 0; round < 12; round++) await coordinator.correctRound(findings);
+    await expect(coordinator.correctRound(findings)).rejects.toThrow("round limit");
+    const calls = vi.mocked(agentTurn).mock.calls.map(([call]) => call);
+    expect(calls.slice(0, 10).every((call) => call.model === "claude-haiku-5-5")).toBe(true);
+    expect(calls.slice(0, 10).map((call) => call.reasoningEffort)).toEqual([
+      "medium",
+      "medium",
+      "medium",
+      "high",
+      "high",
+      "high",
+      "xhigh",
+      "xhigh",
+      "xhigh",
+      "xhigh",
+    ]);
+    expect(calls[1].sessionId).toBe("haiku-session");
+    expect(calls.slice(10).map((call) => [call.model, call.sessionId])).toEqual([
+      ["claude-opus-5-5", "generation-session"],
+      ["claude-opus-5-5", "generation-session"],
+    ]);
+    expect(calls[10].promptContext).toMatchObject({
+      correctionHistory: expect.stringContaining("10 rounds"),
+    });
+    expect(job.sessionId).toBe("generation-session");
+  },
+);
 
 it("recovers a rejected manifest in its own session and supplies the previous failure", async () => {
   const { coordinator, job } = setup();

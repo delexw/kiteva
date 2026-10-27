@@ -82,6 +82,19 @@ it("keeps provider homes stable through preview/full jobs and separates project-
         "utf8",
       ),
     ).toBe("subagent");
+    const transcript = path.join(
+      a,
+      ".claude",
+      "projects",
+      "source-project",
+      "fixture-session.jsonl",
+    );
+    await writeFile(transcript, "project-owned-session");
+    await writeFile(path.join(source, ".credentials.json"), '{"fixture":"refreshed"}');
+    await Promise.all(Array.from({ length: 5 }, () => prepareClaudeHome(full, "fixture-session")));
+    expect(await readFile(auth, "utf8")).toBe('{"fixture":"refreshed"}');
+    expect((await lstat(auth)).mode & 0o777).toBe(0o600);
+    expect(await readFile(transcript, "utf8")).toBe("project-owned-session");
     await expect(readFile(path.join(a, ".claude", "settings.json"))).rejects.toThrow();
     await expect(prepareClaudeHome(preview, "../escape")).rejects.toThrow("Invalid SDK session ID");
     await expect(isolatedCodexHome(preview, "../escape")).rejects.toThrow("Invalid SDK session ID");

@@ -2,7 +2,18 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import path from "node:path";
 import { constants } from "node:fs";
-import { copyFile, cp, mkdir, readdir, access, writeFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import {
+  copyFile,
+  cp,
+  mkdir,
+  readdir,
+  access,
+  readFile,
+  writeFile,
+  rename,
+  rm,
+} from "node:fs/promises";
 import { prepareProjectRuntime } from "../runtime/project-files";
 import { userHome } from "../runtime/platform";
 
@@ -17,48 +28,46 @@ export async function prepareClaudeHome(
   const target = path.join(home, ".claude");
   const source = process.env.CLAUDE_CONFIG_DIR || path.join(userHome(), ".claude");
   await mkdir(target, { recursive: true, mode: 0o700 });
-  await copyFile(
-    path.join(source, ".credentials.json"),
-    path.join(target, ".credentials.json"),
-    constants.COPYFILE_EXCL,
-  ).catch(async (error: NodeJS.ErrnoException) => {
-    if (error.code === "EEXIST") return;
-    if (error.code !== "ENOENT") throw error;
-    // macOS keeps the normal CLI login in Keychain, rather than .credentials.json.
-    // Copy only its Claude login into the project; never import MCP accounts or settings.
-    if (
-      process.platform !== "darwin" ||
-      process.env.CLAUDE_CONFIG_DIR ||
-      process.env.ANTHROPIC_API_KEY ||
-      process.env.CLAUDE_CODE_OAUTH_TOKEN
-    )
-      return;
-    let stdout: string;
+  const login = await readFile(path.join(source, ".credentials.json"), "utf8").catch(
+    async (error: NodeJS.ErrnoException) => {
+      if (error.code !== "ENOENT") throw error;
+      // macOS keeps the normal CLI login in Keychain, rather than .credentials.json.
+      // Copy only its Claude login into the project; never import MCP accounts or settings.
+      if (
+        process.platform !== "darwin" ||
+        process.env.CLAUDE_CONFIG_DIR ||
+        process.env.ANTHROPIC_API_KEY ||
+        process.env.CLAUDE_CODE_OAUTH_TOKEN
+      )
+        return;
+      let stdout: string;
+      try {
+        ({ stdout } = await promisify(execFile)(
+          "/usr/bin/security",
+          ["find-generic-password", "-s", "Claude Code-credentials", "-w"],
+          { signal, timeout: 5000, maxBuffer: 1024 * 1024 },
+        ));
+      } catch (cause) {
+        signal?.throwIfAborted();
+        if ((cause as { code?: unknown }).code === 44) return;
+        throw cause;
+      }
+      const credentials = JSON.parse(stdout) as { claudeAiOauth?: unknown };
+      if (!credentials.claudeAiOauth) return;
+      return JSON.stringify({ claudeAiOauth: credentials.claudeAiOauth });
+    },
+  );
+  if (login !== undefined) {
+    // Refresh on every turn. Atomic replacement prevents parallel jobs reading a partial login.
+    const temporaryLogin = path.join(target, `.credentials-${randomUUID()}.tmp`);
     try {
-      ({ stdout } = await promisify(execFile)(
-        "/usr/bin/security",
-        ["find-generic-password", "-s", "Claude Code-credentials", "-w"],
-        { signal, timeout: 5000, maxBuffer: 1024 * 1024 },
-      ));
-    } catch (cause) {
+      await writeFile(temporaryLogin, login, { mode: 0o600, flag: "wx", signal });
       signal?.throwIfAborted();
-      if ((cause as { code?: unknown }).code === 44) return;
-      throw cause;
+      await rename(temporaryLogin, path.join(target, ".credentials.json"));
+    } finally {
+      await rm(temporaryLogin, { force: true });
     }
-    const credentials = JSON.parse(stdout) as { claudeAiOauth?: unknown };
-    if (!credentials.claudeAiOauth) return;
-    await writeFile(
-      path.join(target, ".credentials.json"),
-      JSON.stringify({ claudeAiOauth: credentials.claudeAiOauth }),
-      {
-        mode: 0o600,
-        flag: "wx",
-        signal,
-      },
-    ).catch((cause: NodeJS.ErrnoException) => {
-      if (cause.code !== "EEXIST") throw cause;
-    });
-  });
+  }
   if (sessionId) {
     if (!/^[\w-]+$/.test(sessionId)) throw Error("Invalid SDK session ID");
     const projects = path.join(source, "projects");
@@ -100,4 +109,21 @@ export async function prepareClaudeHome(
   }
   signal?.throwIfAborted();
   return home;
+}
+
+/** Use the SDK's explicit login input so it does not persist copied OAuth credentials to Keychain. */
+export async function claudeLoginEnvironment(home: string, signal?: AbortSignal) {
+  signal?.throwIfAborted();
+  if (process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_CODE_OAUTH_TOKEN) return {};
+  const login = await readFile(path.join(home, ".claude", ".credentials.json"), {
+    encoding: "utf8",
+    signal,
+  }).catch((error: NodeJS.ErrnoException) => {
+    if (error.code !== "ENOENT") throw error;
+    return undefined;
+  });
+  if (!login) return {};
+  const credentials = JSON.parse(login) as { claudeAiOauth?: { accessToken?: unknown } };
+  const token = credentials.claudeAiOauth?.accessToken;
+  return typeof token === "string" && token.length > 0 ? { CLAUDE_CODE_OAUTH_TOKEN: token } : {};
 }

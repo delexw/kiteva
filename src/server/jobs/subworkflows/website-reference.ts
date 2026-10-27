@@ -1,4 +1,5 @@
 import { launchReferenceBrowser } from "../../agents/capabilities/reference-browser/launch";
+import { ReferenceAuthenticationError } from "../../agents/capabilities/reference-browser/authentication-error";
 import { prepareProjectRuntime } from "../../runtime/project-files";
 import { mkdtemp, rm } from "node:fs/promises";
 import path from "node:path";
@@ -26,6 +27,11 @@ import { validateReferenceUrl } from "../../requests/reference-url";
 import { CodedError } from "../../../shared/errors";
 import { agentMode } from "../../runtime/config";
 import { browserExecutablePath } from "../../runtime/browser";
+import {
+  authenticateReferenceBrowser,
+  isAuthenticationRedirect,
+  referencePageNeedsAuthentication,
+} from "../../agents/capabilities/reference-browser/authentication";
 
 export async function createLocalReferenceBrowser(
   origins: string[],
@@ -47,7 +53,8 @@ export async function createLocalReferenceBrowser(
   const files = workspace ? prepareProjectRuntime(workspace, "browser") : undefined;
   const profile = files ? await mkdtemp(path.join(files.tmp, "profile-")) : undefined;
   const processScope = createProcessScope(signal);
-  const browser = await processScope
+  let useWindowViewport = desktop;
+  let browser = await processScope
     .run(async (signal) =>
       launchReferenceBrowser({
         executablePath,
@@ -89,6 +96,7 @@ export async function createLocalReferenceBrowser(
     },
   });
   let navigationError: unknown;
+  let authenticationRequired = false;
   const loadingErrors: string[] = [];
   try {
     signal.throwIfAborted();
@@ -110,7 +118,15 @@ export async function createLocalReferenceBrowser(
           loadingErrors.push(error instanceof Error ? error.message : String(error));
           if (loadingErrors.length > 5) loadingErrors.shift();
         });
-        if (!desktop)
+        targetPage.on("response", (response) => {
+          if (
+            response.request().isNavigationRequest() &&
+            response.request().frame() === targetPage.mainFrame() &&
+            (response.headers()["www-authenticate"] || response.status() === 401)
+          )
+            authenticationRequired = true;
+        });
+        if (!useWindowViewport)
           await targetPage.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
         await targetPage.setBypassServiceWorker(true);
         await targetPage.setCacheEnabled(false);
@@ -127,11 +143,14 @@ export async function createLocalReferenceBrowser(
                 request.isNavigationRequest() &&
                 request.frame() === targetPage.mainFrame() &&
                 !allowedOrigins.has(new URL(request.url()).origin)
-              )
+              ) {
+                if (mode === "local" && isAuthenticationRedirect(request.url()))
+                  authenticationRequired = true;
                 throw new CodedError(
                   "PUBLIC_URL_REQUIRED",
                   "Navigation must stay on supplied website origins",
                 );
+              }
               if (mode === "local") {
                 network.checkRequest(targetPage, request.url());
                 await validateReferenceUrl(request.url(), mode);
@@ -165,14 +184,49 @@ export async function createLocalReferenceBrowser(
       return setup;
     }
     await configurePage(page);
-    page.browser().on("targetcreated", (target) => {
-      void target
-        .page()
-        .then(async (tab) => {
-          if (tab) await configurePage(tab);
-        })
-        .catch(() => {});
-    });
+    const configurePopups = () =>
+      browser.on("targetcreated", (target) => {
+        void target
+          .page()
+          .then(async (tab) => {
+            if (tab) await configurePage(tab);
+          })
+          .catch(() => {});
+      });
+    configurePopups();
+    async function signIn(url: string) {
+      if (mode !== "local") throw Error("Sign-in requires a local reference browser");
+      if (recording) throw Error("Complete website sign-in before starting a recording");
+      const executable =
+        process.env.VIDEO_AUTH_BROWSER_PATH ||
+        browserExecutablePath(true, { fallbackFromHeadlessShell: true });
+      if (!executable) throw Error("Website sign-in requires full Chrome or Chromium");
+      try {
+        await browser.close();
+        browser = await processScope.run((signal) =>
+          launchReferenceBrowser({
+            executablePath: executable,
+            signal,
+            workspace,
+            profile,
+            presentation: "sign-in",
+            mode,
+          }),
+        );
+        useWindowViewport = true;
+        await configureReferencePermissions(browser.defaultBrowserContext(), origins, mode);
+        page = await authenticateReferenceBrowser(browser, url, allowedOrigins, signal);
+        authenticationRequired = false;
+        navigationError = undefined;
+        selectedFrame = undefined;
+        lastInspection = undefined;
+        await configurePage(page);
+        configurePopups();
+      } catch (error) {
+        signal.throwIfAborted();
+        throw new ReferenceAuthenticationError(error);
+      }
+    }
     async function settle() {
       signal.throwIfAborted();
       try {
@@ -196,7 +250,7 @@ export async function createLocalReferenceBrowser(
       }
     }
     let lastInspection: ReferencePageInspection | undefined;
-    async function inspect(url?: string): Promise<ReferencePageInspection> {
+    async function inspect(url?: string, requestSignIn = false): Promise<ReferencePageInspection> {
       const dialog = capabilities.pendingDialog();
       if (dialog && lastInspection) return { ...lastInspection, dialog };
       if (url) {
@@ -208,11 +262,25 @@ export async function createLocalReferenceBrowser(
           );
         await validateReferenceUrl(url, mode);
         navigationError = undefined;
-        const response = await page.goto(url, { waitUntil: "networkidle2", timeout: 20000 });
-        if (navigationError) throw navigationError;
-        if (!response || response.status() >= 400)
-          throw Error("Reference page could not be opened");
+        authenticationRequired = false;
+        try {
+          const response = await page.goto(url, { waitUntil: "networkidle2", timeout: 20000 });
+          if (navigationError) throw navigationError;
+          if (!response || response.status() >= 400)
+            throw Error("Reference page could not be opened");
+        } catch (error) {
+          if (!authenticationRequired && !requestSignIn) throw error;
+        }
       }
+      const referenceUrl = url ?? lastInspection?.url ?? (requestSignIn ? origins[0] : undefined);
+      if (
+        mode === "local" &&
+        referenceUrl &&
+        (requestSignIn ||
+          authenticationRequired ||
+          (await page.evaluate(referencePageNeedsAuthentication)) === true)
+      )
+        await signIn(referenceUrl);
       await settle();
       lastInspection = await currentFrame().evaluate(inspectReferenceDocument);
       return lastInspection;

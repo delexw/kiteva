@@ -2,11 +2,18 @@ import path from "node:path";
 import { existsSync, readdirSync } from "node:fs";
 import { userHome } from "./platform";
 
-export function browserExecutablePath(desktop = false) {
+export function browserExecutablePath(
+  desktop = false,
+  options: { fallbackFromHeadlessShell?: boolean } = {},
+) {
   const configured = desktop
     ? process.env.VIDEO_BROWSER_PATH || process.env.HYPERFRAMES_BROWSER_PATH
     : process.env.HYPERFRAMES_BROWSER_PATH || process.env.VIDEO_BROWSER_PATH;
-  if (configured) return desktop && /headless-shell/i.test(configured) ? undefined : configured;
+  if (
+    configured &&
+    !(desktop && /headless-shell/i.test(configured) && options.fallbackFromHeadlessShell)
+  )
+    return desktop && /headless-shell/i.test(configured) ? undefined : configured;
   const cache = process.env.PUPPETEER_CACHE_DIR || path.join(userHome(), ".cache", "puppeteer");
   for (const product of desktop ? ["chrome"] : ["chrome-headless-shell", "chrome"]) {
     const folder = path.join(cache, product);

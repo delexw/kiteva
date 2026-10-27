@@ -21,6 +21,46 @@ export async function localizeVideoRequest(
   onEvent: (event: ProviderEvent) => void,
   generate: typeof agentTurn = agentTurn,
 ): Promise<VideoRequest> {
+  if (request.scriptItems !== undefined && request.languageTracks) {
+    const primary =
+      request.languageTracks.narration.find(
+        (track) => track.language === request.languageTracks!.defaultNarration,
+      ) || request.languageTracks.narration[0];
+    if (!primary) return request;
+    const items = [];
+    for (const item of request.scriptItems) {
+      signal.throwIfAborted();
+      if (item.source === "write" || item.speech.mode === "off") {
+        items.push(item);
+        continue;
+      }
+      const translated = await localizeVideoRequest(
+        {
+          ...request,
+          languageTracks: undefined,
+          scriptItems: undefined,
+          outputLanguage: primary.language,
+          translations: undefined,
+          subtitles: { mode: "off" },
+          speech: {
+            ...primary.speech,
+            language: primary.language,
+            followVideoLanguage: false,
+            source: "provided",
+            text: item.text,
+          },
+        },
+        workspace,
+        signal,
+        onEvent,
+        generate,
+      );
+      if (translated.speech?.mode !== "narration")
+        throw Error("Primary narration translation returned no script.");
+      items.push({ ...item, text: translated.speech.text });
+    }
+    return { ...request, scriptItems: items };
+  }
   if (request.scriptItems !== undefined || !request.outputLanguage) return request;
   const original: VideoCopy = {
     ...request.translations?.original,

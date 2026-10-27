@@ -489,3 +489,76 @@ it("requires document and image review after each edit before exporting a chapte
     await rm(workspace, { recursive: true, force: true });
   }
 });
+
+it("replaces the failed browser after a disconnected sign-in handoff instead of reusing detached frames", async () => {
+  const { ReferenceAuthenticationError } =
+    await import("../src/server/agents/capabilities/reference-browser/authentication-error");
+  const closed = vi.fn(async () => {});
+  const inspection = {
+    title: "Product",
+    url: "https://example.com/",
+    text: "Signed-in product",
+    controls: [],
+    sections: [],
+  };
+  const unusedMethods = {
+    perform: vi.fn(),
+    click: vi.fn(),
+    fill: vi.fn(),
+    upload: vi.fn(),
+    scroll: vi.fn(),
+    wait: vi.fn(),
+    startRecording: vi.fn(),
+    prepareRecording: vi.fn(),
+    editRecording: vi.fn(),
+    exportRecording: vi.fn(),
+    capture: vi.fn(),
+  };
+  const failed = {
+    ...unusedMethods,
+    inspect: vi.fn().mockRejectedValue(new ReferenceAuthenticationError(Error("fetch failed"))),
+    close: closed,
+  };
+  const fresh = {
+    ...unusedMethods,
+    inspect: vi.fn().mockResolvedValue(inspection),
+    close: vi.fn(async () => {}),
+  };
+  vi.mocked(createReferenceBrowser)
+    .mockReset()
+    .mockResolvedValueOnce(failed)
+    .mockResolvedValueOnce(fresh);
+  const tools = createReferenceTools({
+    workspace: "/tmp/example-workspace",
+    urls: ["https://example.com/"],
+    mode: "local",
+    signal: new AbortController().signal,
+  });
+  const client = new Client({ name: "recovery-test", version: "1" });
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  try {
+    await tools.server.connect(serverTransport);
+    await client.connect(clientTransport);
+    const first = await client.callTool({
+      name: "inspect_page",
+      arguments: { url: "https://example.com/", requestSignIn: true },
+    });
+    expect(first.isError).toBe(true);
+    expect(first.structuredContent).toMatchObject({
+      kind: "error",
+      message: expect.stringContaining("fresh sign-in session"),
+    });
+    expect(closed).toHaveBeenCalledOnce();
+    const second = await client.callTool({
+      name: "inspect_page",
+      arguments: { url: "https://example.com/", requestSignIn: true },
+    });
+    expect(second.isError).not.toBe(true);
+    expect(second.structuredContent).toMatchObject({ kind: "inspection", page: inspection });
+    expect(createReferenceBrowser).toHaveBeenCalledTimes(2);
+    expect(failed.inspect).toHaveBeenCalledOnce();
+  } finally {
+    await client.close();
+    await tools.close();
+  }
+});

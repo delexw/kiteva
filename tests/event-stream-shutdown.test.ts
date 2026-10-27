@@ -13,6 +13,63 @@ import { createApp } from "../src/server/app";
 import { Store } from "../src/server/jobs/store";
 import { RequestSchema, type Run, type GenerationJob } from "../src/shared/contracts";
 
+it.each([false, true])(
+  "replays history with batching=%s and resumes live events after the cursor",
+  async (batch) => {
+    const { app, store } = await createApp({ store: new Store(":memory:") });
+    store.save({
+      id: "project",
+      createdAt: "2026-01-01",
+      phase: "ready",
+      request: RequestSchema.parse({ instructions: "An original story" }),
+      candidates: [],
+      jobs: [],
+    });
+    const history = Array.from({ length: 1002 }, (_, index) =>
+      store.emit("project", "state", `saved-${index}`),
+    );
+    await app.listen({ port: 0, host: "127.0.0.1" });
+    const { port } = app.server.address() as AddressInfo;
+    try {
+      const frames = await new Promise<string[]>((resolve, reject) => {
+        let received = "",
+          liveSent = false;
+        const client = request(
+          {
+            host: "127.0.0.1",
+            port,
+            path: `/api/runs/project/events?batch=${batch ? 1 : 0}&after=1`,
+            headers: { "Last-Event-ID": String(history[1].id) },
+          },
+          (response) => {
+            response.setEncoding("utf8");
+            response.on("data", (chunk) => {
+              received += chunk;
+              if (!liveSent && received.includes("saved-1001")) {
+                liveSent = true;
+                store.emit("project", "state", "live-update");
+              }
+              if (received.includes("live-update")) {
+                client.destroy();
+                resolve(received.trim().split("\n\n"));
+              }
+            });
+          },
+        );
+        client.on("error", reject);
+        client.end();
+      });
+      const values = frames.map((frame) => JSON.parse(frame.split("\ndata: ")[1]));
+      expect(values.slice(0, -1).flat()).toEqual(history.slice(2));
+      expect(values.at(-1)).toMatchObject({ message: "live-update" });
+      expect(frames.filter((frame) => frame.includes("event: history")).length).toBe(batch ? 2 : 0);
+      expect(frames.at(-2)).toContain(`id: ${history.at(-1)!.id}\n`);
+    } finally {
+      await app.close();
+    }
+  },
+);
+
 it("closes the backend even while a browser is still listening to project events", async () => {
   const { app, store } = await createApp({ store: new Store(":memory:") });
   store.save({

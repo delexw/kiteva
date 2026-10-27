@@ -32,6 +32,21 @@ export function ProjectSettings({
       ? [
           request.duration === "auto" ? "Auto duration" : `${request.duration}s`,
           ...(request.outputLanguage ? [videoLanguageLabel(request.outputLanguage)] : []),
+          ...(request.languageTracks
+            ? [
+                translateUi("Narration languages: {{value0}}", {
+                  value0:
+                    request.languageTracks.narration
+                      .map((track) => videoLanguageLabel(track.language))
+                      .join(" / ") || translateUi("Off"),
+                }),
+                translateUi("Subtitle languages: {{value0}}", {
+                  value0:
+                    request.languageTracks.subtitles.map(videoLanguageLabel).join(" / ") ||
+                    translateUi("Off"),
+                }),
+              ]
+            : []),
           request.aspectRatio,
           request.resolution === "1440p" ? "2K · 1440p" : "1080p",
           translateUi("{{value0}} fps", { value0: request.frameRate || 30 }),

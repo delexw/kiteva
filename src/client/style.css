@@ -993,10 +993,30 @@ footer {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  flex-wrap: wrap;
 }
 .candidate-heading h3 {
   font-size: 14px;
   margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.candidate-heading-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+  flex: 1;
+  min-width: 0;
+}
+.candidate-heading-label h3 {
+  flex: initial;
+}
+.candidate-generated-at {
+  color: var(--muted);
+  font-size: 10px;
+  white-space: nowrap;
 }
 .fit {
   color: var(--accent-text);
@@ -1135,6 +1155,61 @@ footer {
   gap: 12px;
   flex-wrap: wrap;
   margin: 20px 0;
+}
+.candidate-heading > .delivery-links {
+  margin: 0 0 0 auto;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.candidate-progress {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.candidate-progress .activity-work-title {
+  flex-wrap: wrap;
+}
+.delivery-links > .delivery-icon-button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+.delivery-links > .delivery-icon-button {
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+.delivery-links > .delivery-icon-button > svg {
+  transition: transform 160ms ease;
+}
+@media (hover: hover) {
+  .delivery-links > .delivery-icon-button:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px #0002;
+  }
+  .delivery-links > .delivery-icon-button:hover > svg {
+    transform: translateY(-1px);
+  }
+  .delivery-links > .delivery-icon-button.ant-btn-dangerous:hover {
+    border-color: currentColor;
+  }
+}
+.delivery-links > .delivery-icon-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.delivery-links > .delivery-icon-button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .delivery-links > .delivery-icon-button,
+  .delivery-links > .delivery-icon-button > svg {
+    transition: none;
+    transform: none;
+  }
 }
 .full-delivery {
   margin-bottom: 28px;
@@ -2570,9 +2645,17 @@ html,
 }
 
 .candidate-media-unavailable .preview-loading-media {
-  aspect-ratio: auto;
-  min-height: 72px;
-  padding: 20px;
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+  max-height: 420px;
+  padding: 0;
+}
+.project-chat .full-delivery .candidate-media-unavailable .preview-loading-media {
+  max-height: 460px;
+}
+.candidate-media-unavailable {
+  padding-bottom: var(--kiteva-playback-bar-height);
+  background: var(--room-inset, #171410);
 }
 
 .preparation-checkpoints {

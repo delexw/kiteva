@@ -35,6 +35,19 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 Dates below use New Zealand time.
 
 <details>
+<summary>2026-10-29</summary>
+
+- **Refinement continuity and versions:** preserve earlier requests, question/answer history and image references; allow excluding prior requests before submission. Resume verified build sessions, including cancelled versions, without letting helper sessions replace them. Versions can be deleted with confirmation, and their numbers are never reused. See [video refinement](docs/video-refinement.md).
+- **Activity history on demand:** expand any parent to load its immediate children through one recursive component and shared grouping logic. Remove manual paging buttons, load more siblings on scroll, release collapsed branches, virtualize long lists and use consistent indentation. Finished jobs no longer leave unresolved entries spinning while another version runs. See [activity history](docs/activity-history.md).
+- **Shared loading and result UI:** reuse loading indicators with visible text; group revisions in one card with wrapping version controls, overlay playback controls, generated timestamps and consistent icon actions. Conversation shows narration providers/voices and uses shared image/document attachment previews.
+- **Language and subtitle controls:** global selected languages govern matching narration and subtitle tracks, with one voice configuration per language and global subtitle visibility. Timed script items inherit these choices; subtitle generation reports progress in cues. See [video languages](docs/video-languages.md).
+- **Rendering and capture recovery:** accept video duration within five seconds of the requested target, preserve eligible render cache across repairs, and exclude runtime/dot-folder noise from change summaries. Separate chapter timing retries from planning, retain capture diagnostics and keep cancellation scoped to owned dependencies. See [render cache recovery](docs/render-cache-recovery.md).
+- **Portable style assets:** Production Theatre metadata includes its canonical crew CSS and role markup, without imports from application source. A JPEG logo is available alongside the existing brand assets.
+- **Governance and local configuration:** expose combination and render-cache decisions, keep Claude SDK costs and incremental Codex estimates distinct, and use `TYPESAFE_API_KEY` as the single JEV key. Tests use local fixtures/mocked transports and block external provider requests; downloaded agent skills remain outside Git.
+
+</details>
+
+<details>
 <summary>2026-10-28</summary>
 
 - **Human sign-in handoff:** protected local website references pause for human authentication with Sign in and Continue controls in the project. A token-protected project-scoped bridge keeps the wait alive; interrupted handoffs discard the failed browser session before another inspection. Device-authenticator network permissions are temporary, and project cancellation closes the handoff. See [application guide](docs/application-guide.md).

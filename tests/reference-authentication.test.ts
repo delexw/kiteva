@@ -167,8 +167,10 @@ it
         (page) => page !== loginPage && page.url() === "about:blank" && !page.isClosed(),
       );
       // The instructions page is identified by its own title, not tab order.
-      const pages = await handoff!.pages();
-      const titles = await Promise.all(pages.map((page) => page.title()));
+      // Identity-provider pages can still be navigating; inspect only our stable instruction tab.
+      const pages = (await handoff!.pages()).filter((page) => page.url() === "about:blank");
+      // An unrelated blank tab may begin redirecting after pages() returns.
+      const titles = await Promise.all(pages.map((page) => page.title().catch(() => "")));
       const instructions =
         pages[titles.findIndex((title) => title.includes("Continue after signing in"))];
       expect(confirmation).toBeDefined();
@@ -213,6 +215,19 @@ it
       await protocol.detach();
       expect(launches).toHaveBeenCalledTimes(2);
       expect(launches.mock.calls[1][0]?.userDataDir).toBe(launches.mock.calls[0][0]?.userDataDir);
+      if (action === "complete") {
+        await session.close();
+        session = await createLocalReferenceBrowser(
+          [origin],
+          controller.signal,
+          "local",
+          false,
+          workspace,
+        );
+        expect((await session.inspect(origin)).text).toContain("Authenticated reference content");
+        expect(launches).toHaveBeenCalledTimes(3);
+        expect(launches.mock.calls[2][0]?.userDataDir).toBe(launches.mock.calls[0][0]?.userDataDir);
+      }
     } finally {
       controller.abort();
       await session?.close();

@@ -81,6 +81,12 @@ it("translates provided copy, preserves originals, caches per language and share
     generate,
   );
   expect(generate).toHaveBeenCalledTimes(4);
+  for (const [call] of vi.mocked(generate).mock.calls) {
+    expect(call.prompt).toContain("Write as a native-speaking narrator and subtitle writer");
+    expect(call.prompt).toContain("rather than literal word-for-word translation");
+    expect(call.prompt).toContain("preserving the source meaning and technical accuracy");
+    expect(call.prompt).toContain("Do not add facts");
+  }
 });
 it("keeps legacy and generated copy model-free and rejects aborted translations", async () => {
   const folder = await workspace();

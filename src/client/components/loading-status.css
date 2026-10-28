@@ -1,0 +1,15 @@
+.loading-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding-block: 12px;
+  color: var(--muted);
+}
+.loading-status > .ant-spin {
+  flex: 0 0 auto;
+}
+.loading-status > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

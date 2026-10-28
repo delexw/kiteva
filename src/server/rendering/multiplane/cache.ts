@@ -10,7 +10,7 @@ import { multiplaneShotDependencies, type MultiplaneShotScope } from "./dependen
 const RecordSchema = z.object({ sha256: z.string().regex(/^[a-f0-9]{64}$/) });
 const workerIdentity = randomUUID();
 
-async function fileHash(file: string, signal: AbortSignal) {
+export async function fileHash(file: string, signal: AbortSignal) {
   const hash = createHash("sha256");
   for await (const chunk of createReadStream(file, { signal })) hash.update(chunk);
   return hash.digest("hex");
@@ -56,7 +56,7 @@ async function treeHash(
   return hash.digest("hex");
 }
 
-async function installedRuntimeFingerprint(signal: AbortSignal) {
+export async function installedRuntimeFingerprint(signal: AbortSignal) {
   const dependencyRoot = path.resolve(path.dirname(multiplaneCli), "../..");
   return JSON.stringify({
     multiplane: await treeHash(path.dirname(path.dirname(multiplaneCli)), signal),
@@ -122,25 +122,30 @@ export async function storeMultiplaneShot(input: {
   fingerprint: string;
   signal: AbortSignal;
   scope?: MultiplaneShotScope;
+  validateInputs?: () => Promise<boolean>;
 }) {
   const directory = path.join(input.workspace, multiplaneCacheDirectory);
   const temporary = path.join(directory, `${randomUUID()}.tmp`);
   try {
-    if (!input.fingerprint) return;
+    if (!input.fingerprint) return false;
     if (
-      (await multiplaneInputFingerprint(input.workspace, input.signal, input.scope)) !==
-      input.fingerprint
+      !(input.validateInputs
+        ? await input.validateInputs()
+        : (await multiplaneInputFingerprint(input.workspace, input.signal, input.scope)) ===
+          input.fingerprint)
     )
-      return;
+      return false;
     await mkdir(directory, { recursive: true });
     await copyFile(input.output, temporary);
     const sha256 = await fileHash(temporary, input.signal);
     await rename(temporary, path.join(directory, `${input.key}.video`));
     await writeFile(temporary, JSON.stringify({ sha256 }));
     await rename(temporary, path.join(directory, `${input.key}.json`));
+    return true;
   } catch {
     input.signal.throwIfAborted();
     // A cache write failure must not invalidate a successful render.
+    return false;
   } finally {
     await rm(temporary, { force: true });
   }
@@ -153,6 +158,7 @@ export async function restoreMultiplaneShot(input: {
   fingerprint: string;
   signal: AbortSignal;
   scope?: MultiplaneShotScope;
+  validateInputs?: () => Promise<boolean>;
 }) {
   const directory = path.join(input.workspace, multiplaneCacheDirectory);
   const temporary = `${input.output}.${randomUUID()}.tmp`;
@@ -165,8 +171,10 @@ export async function restoreMultiplaneShot(input: {
     if ((await fileHash(temporary, input.signal)) !== record.sha256) return false;
     input.signal.throwIfAborted();
     if (
-      (await multiplaneInputFingerprint(input.workspace, input.signal, input.scope)) !==
-      input.fingerprint
+      !(input.validateInputs
+        ? await input.validateInputs()
+        : (await multiplaneInputFingerprint(input.workspace, input.signal, input.scope)) ===
+          input.fingerprint)
     )
       return false;
     await rename(temporary, input.output);

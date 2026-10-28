@@ -1,6 +1,6 @@
 # Language-track architecture
 
-Video language controls authored visual text. Narration and subtitle languages are independent delivery settings. A full build produces one visual timeline and separate language media against its measured cue windows. See [the settings and playback guide](video-languages.md) for user-facing behavior.
+Video language controls authored visual text. The settings UI adds narration languages one at a time, with matching subtitles controlled by one global switch, with the first selected language used initially for playback. Separate narration/subtitle arrays remain in the delivery contract for media generation and older saved requests. Timed script items inherit global narration profiles and subtitle visibility; they contain no per-item language, voice, narration or subtitle controls. A full build produces one visual timeline and separate language media against its measured cue windows. See [the settings and playback guide](video-languages.md) for user-facing behavior.
 
 ## Ownership
 
@@ -113,6 +113,6 @@ Each language MP4 copies the same video frames and carries one audio mix. This i
 
 ## Compatibility and verification
 
-Requests without `languageTracks` keep the existing single-language path. Preview builds remain silent. Existing exports are not retroactively translated, and previously burned captions remain in those files. Uploaded recordings are not automatically dubbed. Settings require the backend's `languageTracksSupported` capability flag.
+Requests without `languageTracks` keep the existing single-language path. Preview builds remain silent. Existing exports are not retroactively translated, and previously burned captions remain in those files. Uploaded recordings are not automatically dubbed. Settings require the backend's `languageTracksSupported` capability flag. Planning's `PROJECT_REQUEST.json`, builder `style-context.json` and the build prompt resolve the same global profiles through `applyLanguageTracks`; original saved requests remain unchanged. Narration MCP profiles are prepared from that resolved request. Global subtitle visibility also governs subtitle exports, regardless of legacy per-item flags.
 
-Focused coverage lives in `tests/language-tracks.test.ts`, `tests/language-media.test.ts` and `tests/language-player-browser.test.ts`: schema and voice validation, localization, subtitle output, real FFmpeg artifacts with matching decoded video frames, timing failure, cancellation, independent selectors, and playback position/state restoration. The live local TTS smoke also produced Chinese and English tracks against the same ten-second fixture; it verifies the media path rather than creative video quality.
+Focused coverage lives in `tests/language-tracks.test.ts`, `tests/language-media.test.ts` and `tests/language-player-browser.test.ts`: schema and voice validation, localization, subtitle output, real FFmpeg artifacts with matching decoded video frames, timing failure, cancellation, paired language selection, inherited timed-item profiles, and playback position/state restoration. The live local TTS smoke also produced Chinese and English tracks against the same ten-second fixture; it verifies the media path rather than creative video quality.

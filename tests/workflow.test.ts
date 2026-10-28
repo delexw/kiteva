@@ -21,6 +21,7 @@ vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
 vi.mock("../src/server/rendering/render", () => ({
   renderJob: vi.fn(async () => ({ video: "renders/preview.mp4", poster: "renders/preview.jpg" })),
 }));
+import { generationSessionEvents } from "../src/server/jobs/generation-session";
 import { Workflow } from "../src/server/jobs/workflow";
 import { Store } from "../src/server/jobs/store";
 import { loadCatalog } from "../src/server/catalog/catalog";
@@ -438,6 +439,21 @@ it("records correction and capture governance without replacing the main generat
   store.save(run);
   const callback = workflow["providerEvent"](run, job);
   callback({
+    type: "usage",
+    message: "Cache decision",
+    data: {
+      provider: "jev",
+      model: "jev-test",
+      invocationId: "cache-review",
+      purpose: "Render cache review",
+      usage: { input_tokens: 12 },
+    },
+  });
+  expect(store.allEvents(run.id).at(-1)?.data).toMatchObject({
+    purpose: "Render cache review",
+    provider: "jev",
+  });
+  callback({
     type: "session",
     message: "Chapter opened",
     data: {
@@ -537,7 +553,9 @@ it.each(["preview", "full"] as const)(
       duration: 3,
     };
     run.jobs.push(job);
-    const receive = workflow["providerEvent"](run, job);
+    const receive = generationSessionEvents(job, workflow["providerEvent"](run, job), () =>
+      workflow["update"](run),
+    );
     receive({
       type: "session",
       message: "Planning opened",
@@ -564,7 +582,7 @@ it.each(["preview", "full"] as const)(
       message: "Build",
       data: { model: "gpt-6.1-sol", invocationId: "build" },
     });
-    const events = store.allEvents(run.id);
+    const events = store.allEvents(run.id).filter((event) => event.type !== "state");
     expect(events.map((event) => (event.data as { purpose: string }).purpose)).toEqual([
       kind === "preview" ? "Preview video planning" : "Full video planning",
       kind === "preview" ? "Preview video planning" : "Full video planning",

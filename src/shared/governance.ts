@@ -16,6 +16,21 @@ export interface ModelActivity {
   costLow: number | null;
   costHigh: number | null;
   costBasis: string;
+  renderCacheReviews?: {
+    id: string;
+    time: string;
+    shot: string | null;
+    jobId?: string;
+    direction?: string;
+    version?: number;
+    choice: "reuse" | "refresh" | null;
+    confidence: number | null;
+    probabilities: { reuse: number | null; refresh: number | null };
+    summary?: string;
+    renderImpact?: string;
+    uncertain?: boolean;
+    promptUrl: string;
+  }[];
   combinationEvaluation?: {
     selected: {
       id: string;

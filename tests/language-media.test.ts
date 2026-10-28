@@ -9,6 +9,7 @@ import { probeVideo } from "../src/server/rendering/video-probe";
 import { validStoryboard } from "./fixtures/storyboard";
 import type { Brief } from "../src/shared/agents/schemas/video";
 import type { VideoGenerationJob } from "../src/shared/domains/video";
+import { SubtitleProgressSchema } from "../src/shared/subtitle-progress";
 const folders: string[] = [];
 afterEach(async () => {
   await Promise.all(
@@ -125,6 +126,18 @@ it("creates language MP4/audio/subtitle files while preserving the same picture 
     return { file: "voice.wav", durationSeconds: 1, source: "narration" as const, cues: [] };
   });
   const result = await buildLanguageMedia(input, { translate: async () => "示例", speak });
+  const subtitleProgress = input.onEvent.mock.calls
+    .map(([event]) => event)
+    .filter((event) => event.type === "subtitle_progress")
+    .map((event) => SubtitleProgressSchema.parse(event.data.subtitleProgress));
+  expect(
+    subtitleProgress.map((item) => [item.language, item.completed, item.total, item.status]),
+  ).toEqual([
+    ["en", 0, 1, "running"],
+    ["en", 1, 1, "complete"],
+    ["zh", 0, 1, "running"],
+    ["zh", 1, 1, "complete"],
+  ]);
   expect(speak).toHaveBeenCalledTimes(1);
   expect(result.narration.map((track) => track.language)).toEqual(["en", "zh"]);
   for (const track of result.narration) {
@@ -173,4 +186,20 @@ it("propagates cancellation before starting work", async () => {
   const controller = new AbortController();
   controller.abort();
   await expect(buildLanguageMedia({ ...input, signal: controller.signal })).rejects.toThrow();
+}, 60000);
+
+it("omits all subtitle downloads when the global subtitle switch is off", async () => {
+  const input = await fixture();
+  input.request.languageTracks = {
+    ...input.request.languageTracks!,
+    narration: input.request.languageTracks!.narration.slice(0, 1),
+    showSubtitles: false,
+  };
+  const translate = vi.fn(async (text) => text);
+  const speak = vi.fn();
+  const result = await buildLanguageMedia(input, { translate, speak });
+  expect(result.narration).toHaveLength(1);
+  expect(result.subtitles).toEqual([]);
+  expect(result.defaultSubtitle).toBe("off");
+  expect(speak).not.toHaveBeenCalled();
 }, 60000);

@@ -1,0 +1,151 @@
+/* One result card per direction: version switcher and in-card status strip. */
+.revision-stack {
+  container: revision-stack / inline-size;
+  min-width: 0;
+}
+.revision-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.revision-glyph {
+  flex-shrink: 0;
+}
+.revision-attention {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  display: inline-block;
+  border-radius: 50%;
+  background: var(--room-activity, var(--accent));
+}
+
+/* Version buttons remain visible and wrap within the card at every width. */
+.revision-switcher {
+  flex-basis: 100%;
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.revision-switcher-tabs.ant-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+.revision-switcher-tabs .ant-radio-button-wrapper {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  flex: 0 0 auto;
+}
+.revision-switcher-tabs .ant-radio-button-wrapper::before {
+  display: none;
+}
+.revision-switcher-tabs .revision-tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.revision-switcher-tabs .ant-radio-button-wrapper-checked {
+  box-shadow: inset 0 0 0 1px var(--accent);
+  color: var(--accent-text);
+}
+.revision-switcher-tabs .revision-tab-failed .revision-glyph {
+  color: var(--room-error, #e0663d);
+}
+.revision-switcher-tabs .revision-tab-cancelled {
+  opacity: 0.65;
+}
+.revision-switcher-tabs .ant-radio-button-wrapper:has(:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Strip: fixed-height row inside the card, between media and footer. */
+.revision-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 2px 10px 2px 4px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  min-width: 0;
+}
+.revision-strip-body.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 0 1 auto;
+  height: 36px;
+  color: inherit;
+}
+.revision-strip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.revision-strip-progress.ant-progress {
+  flex: 1;
+  min-width: 48px;
+  margin: 0;
+}
+.revision-strip-percent {
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.revision-strip-action.ant-btn {
+  margin-left: auto;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  flex-shrink: 0;
+}
+.revision-strip-progress ~ .revision-strip-action.ant-btn,
+.revision-strip-percent ~ .revision-strip-action.ant-btn {
+  margin-left: 0;
+}
+.revision-strip-failed .revision-glyph {
+  color: var(--room-error, #e0663d);
+}
+.revision-strip-ready .revision-glyph {
+  color: var(--accent);
+}
+
+.revision-reference-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+@container revision-stack (max-width: 240px) {
+  .revision-strip-progress.ant-progress {
+    display: none;
+  }
+  .revision-strip-percent {
+    margin-left: auto;
+  }
+  .revision-strip-percent ~ .revision-strip-action.ant-btn {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revision-glyph.spin {
+    animation: none;
+  }
+}

@@ -12,6 +12,18 @@ export function activityLabel(item: ActivityItem): string {
 }
 
 export function activityText(item: ActivityItem): string {
+  if (item.subtitleProgress) {
+    const progress = item.subtitleProgress;
+    return translateUi(
+      progress.language === "en"
+        ? "Generating English subtitles… {{completed}}/{{total}} cues"
+        : "Generating Chinese subtitles… {{completed}}/{{total}} cues",
+      {
+        completed: String(progress.completed),
+        total: String(progress.total),
+      },
+    );
+  }
   if (item.text === "Timing correction attempt")
     return translateUi("Attempt {{attempt}}", { attempt: String(item.correctionAttempt) });
   const timing = item.captureTiming;

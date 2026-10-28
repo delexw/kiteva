@@ -1,3 +1,8 @@
+import { isVideoRefinementSource } from "../../shared/video-refinement-source";
+import { deleteVideoVersion } from "../domains/video/delete-version";
+import { reserveJobVersion } from "../../shared/job-versions";
+import { previousRefinementInstructions } from "../domains/video/refinement-history";
+import { applyLanguageTracks } from "../../shared/language-tracks";
 import { DependencyCleanupError } from "../runtime/process-tree";
 import { addAbortListener } from "node:events";
 import { writePreviewPlan, previewPlanArtifact } from "./preview-plan";
@@ -57,7 +62,7 @@ import { CodedError, errorCode } from "../../shared/errors";
 import { prepareSubtitles, resolvedSubtitlesRequest } from "../domains/video/prepare-subtitles";
 import { resolveVideoDuration, videoStyleCountRange } from "../../shared/domains/video";
 import { generateVideo } from "../domains/video/workflow";
-import { prepareVideoRefinement } from "../domains/video/refinement";
+import { prepareVideoRefinement } from "../domains/video/refinement-workspace";
 import { videoRendererOf } from "../../shared/video-renderers";
 
 import { generatePage } from "../domains/page/workflow";
@@ -69,6 +74,7 @@ import {
   type ReferenceScreenshot,
   type PreparationStep,
   terminalPhases,
+  type Asset,
   type Run,
   type GenerationJob,
   type StyleCandidate,
@@ -194,6 +200,7 @@ export class Workflow {
     }
     run.request = RequestSchema.parse(request);
     question.state = "answered";
+    question.answeredAt = new Date().toISOString();
     question.answer = body.answer || "Use the newly supplied reference.";
     question.assetIds = added;
     this.update(run);
@@ -262,6 +269,7 @@ export class Workflow {
         ...need,
         id: randomUUID(),
         state: "open",
+        createdAt: new Date().toISOString(),
         ...(jobId ? { jobId } : {}),
       });
     }
@@ -277,6 +285,7 @@ export class Workflow {
           ...need,
           id: randomUUID(),
           state: "open",
+          createdAt: new Date().toISOString(),
           jobId: job.id,
         });
       }
@@ -294,6 +303,7 @@ export class Workflow {
     return bindActivityCallback((e: ProviderEvent) => {
       const eventData = e.data as
         | {
+            purpose?: string;
             resultReview?: boolean;
             videoBuildPlanning?: boolean;
             videoLocalization?: boolean;
@@ -304,17 +314,6 @@ export class Workflow {
             sessionId?: string;
           }
         | undefined;
-      if (
-        e.type === "session" &&
-        job &&
-        !eventData?.resultReview &&
-        !eventData?.videoLocalization &&
-        !eventData?.captureChapter &&
-        eventData?.correctionTier !== "cheap"
-      ) {
-        job.sessionId = (e.data as { sessionId: string }).sessionId;
-        this.store.save(run);
-      }
       this.emit(run, e.type, e.message, job, {
         ...(e.data as object),
         purpose:
@@ -330,7 +329,7 @@ export class Workflow {
                   ? "Result quality review"
                   : eventData?.correctionFocus
                     ? `${eventData.correctionFocus} correction`
-                    : purpose,
+                    : eventData?.purpose || purpose,
         audience: "internal",
       });
     });
@@ -845,6 +844,7 @@ export class Workflow {
       runId: run.id,
       candidateId: candidate.id,
       kind,
+      ...(kind === "full" ? { version: reserveJobVersion(run, candidate.id) } : {}),
       ...(run.request.outputType === "page"
         ? { outputType: "page" as const }
         : { outputType: "video" as const, duration }),
@@ -949,7 +949,8 @@ export class Workflow {
       path.join(job.workspace, "style-context.json"),
       JSON.stringify(
         {
-          request: run.request,
+          request:
+            run.request.outputType === "video" ? applyLanguageTracks(run.request) : run.request,
           brief: run.brief,
           authoringResources: job.authoringResources,
           audioAuthoring: job.audioAuthoring,
@@ -1215,7 +1216,12 @@ export class Workflow {
         },
       });
       task.controller.signal.throwIfAborted();
-      job.sessionId = preview.sessionId;
+      job.sessionId = this.store.generationSessionId(run.id, preview.id, preview.sessionId);
+      if (preview.sessionId && !job.sessionId)
+        throw new CodedError(
+          "INVALID_REQUEST",
+          "No verified preview-build session is available for this version",
+        );
       run.jobs.push(job);
       run.phase = "generating";
       this.update(run);
@@ -1228,16 +1234,43 @@ export class Workflow {
       task.finish();
     }
   }
-  async refineVideo(run: Run, jobId: string, prompt: string) {
+  async deleteVideoVersion(run: Run, jobId: string) {
     if (
       this.hasActiveTasks(run) ||
       !terminalPhases.has(run.phase) ||
       run.jobs.some((job) => !terminalPhases.has(job.phase))
     )
       throw new CodedError("PROJECT_ACTIVE", "Wait for the current work to finish", 409);
-    const source = run.jobs.find(
-      (job) => job.id === jobId && job.kind === "full" && job.phase === "ready",
-    );
+    const task = this.startTask(run.id);
+    if (!task) throw new CodedError("PROJECT_ACTIVE", "Project is stopping", 409);
+    try {
+      return await deleteVideoVersion({
+        run,
+        jobId,
+        signal: task.controller.signal,
+        persist: (next) => {
+          this.update(next);
+          Object.assign(run, next);
+        },
+      });
+    } finally {
+      task.finish();
+    }
+  }
+  async refineVideo(
+    run: Run,
+    jobId: string,
+    prompt: string,
+    assetIds: string[] = [],
+    discardedRefinementJobIds?: string[],
+  ) {
+    if (
+      this.hasActiveTasks(run) ||
+      !terminalPhases.has(run.phase) ||
+      run.jobs.some((job) => !terminalPhases.has(job.phase))
+    )
+      throw new CodedError("PROJECT_ACTIVE", "Wait for the current work to finish", 409);
+    const source = run.jobs.find((job) => job.id === jobId && isVideoRefinementSource(job));
     if (
       !source ||
       source.outputType === "page" ||
@@ -1245,18 +1278,63 @@ export class Workflow {
       !source.sessionId ||
       !run.brief
     )
-      throw new CodedError("INVALID_REQUEST", "Choose a completed video with a saved session");
+      throw new CodedError(
+        "INVALID_REQUEST",
+        "Choose a completed or cancelled video with a saved build session",
+      );
     const feedback = prompt.trim();
     if (!feedback || feedback.length > 6000)
       throw new CodedError("INVALID_REQUEST", "Describe your changes in up to 6000 characters");
+    const resumeSessionId = this.store.generationSessionId(run.id, source.id, source.sessionId);
+    if (!resumeSessionId)
+      throw new CodedError(
+        "INVALID_REQUEST",
+        "No verified video-build session is available for this version",
+      );
+    const deleted = (run.deletedVersions || []).map((version) => version.id);
+    const available = previousRefinementInstructions(run.jobs, source.candidateId, deleted);
+    const availableIds = new Set(available.map((entry) => entry.jobId));
+    if (discardedRefinementJobIds?.some((id) => !availableIds.has(id)))
+      throw new CodedError("INVALID_REQUEST", "Choose earlier requests from this direction");
+    const discarded =
+      discardedRefinementJobIds ??
+      (run.discardedRefinementJobIds || []).filter((id) => availableIds.has(id));
+    const history = previousRefinementInstructions(run.jobs, source.candidateId, [
+      ...deleted,
+      ...discarded,
+    ]);
     const candidate = run.candidates.find((entry) => entry.id === source.candidateId);
     if (!candidate) throw new CodedError("INVALID_REQUEST", "Video direction not found");
+    const references = [...new Set(assetIds)].map((id) => {
+      const asset = this.store.getAsset(id);
+      if (!asset) throw new CodedError("FILE_UNREADABLE", "Refinement image not found");
+      if (briefAttachmentKind(asset) !== "image")
+        throw new CodedError("FILE_TYPE_UNSUPPORTED", "Choose an image for refinement");
+      return asset;
+    });
+    const carriedReferences = history
+      .flatMap((entry) => entry.assetIds || [])
+      .map((id) => this.store.getAsset(id))
+      .filter((asset): asset is Asset => Boolean(asset));
+    const allReferences = [
+      ...new Map([...carriedReferences, ...references].map((asset) => [asset.id, asset])).values(),
+    ];
+    validateAssetLimits(references);
     const job = this.newJob(run, candidate, "full", source.duration);
     if (job.outputType === "page") throw Error("Fine-tuning requires a video job");
     job.model = source.model;
-    job.sessionId = source.sessionId;
+    job.sessionId = resumeSessionId;
+    job.refinementHistory = history;
+    job.discardedRefinementJobIds = [...new Set([...deleted, ...discarded])];
     job.sourceJobId = source.id;
     job.refinementPrompt = feedback;
+    job.refinementAssetIds = references.map((asset) => asset.id);
+    run.discardedRefinementJobIds = [
+      ...new Set([
+        ...(run.discardedRefinementJobIds || []).filter((id) => !availableIds.has(id)),
+        ...discarded,
+      ]),
+    ];
     // Reserve the job before copying, so concurrent requests cannot start another build.
     run.jobs.push(job);
     run.phase = "generating";
@@ -1268,10 +1346,11 @@ export class Workflow {
       job.authoringResources = structuredClone(source.authoringResources);
       job.audioAuthoring = structuredClone(source.audioAuthoring);
       job.refinementCheckpoint = await prepareVideoRefinement(
-        source,
+        { ...source, sessionId: resumeSessionId },
         job,
         source.production?.pipeline ?? videoRendererOf(run.request),
         task.controller.signal,
+        allReferences,
       );
       task.controller.signal.throwIfAborted();
       this.update(run);

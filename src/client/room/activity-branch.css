@@ -1,0 +1,10 @@
+/* Reserve the same arrow column for branches and leaves; every child level adds 28px. */
+.activity-context-history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--activity-row-gap, 12px);
+  min-width: 0;
+}
+.activity-branch-leaf {
+  padding-inline-start: 28px;
+}

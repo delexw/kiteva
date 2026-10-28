@@ -172,6 +172,9 @@ export type ReferenceScreenshot = z.infer<typeof ReferenceScreenshotSchema>;
 export type { PreparationStep, PreparationCheckpoint, PreparationState } from "./preparation";
 import type { PreparationState } from "./preparation";
 export interface Run {
+  revisionCounters?: Record<string, number>;
+  discardedRefinementJobIds?: string[];
+  deletedVersions?: { id: string; candidateId: string; version: number; deletedAt: string }[];
   inputWaits?: import("./input-checkpoint").InputWait[];
   assetQuestions?: import("./asset-requirements-policy").AssetQuestion[];
   id: string;

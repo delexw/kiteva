@@ -526,7 +526,7 @@ UI-component tool called [Storybook](https://storybook.js.org).
   uses `CODEX_API_KEY`/`OPENAI_API_KEY` or the Codex CLI sign-in in `~/.codex/auth.json`, which Kiteva
   copies into the project's isolated Codex home. Subscription usage or
   remaining-percentage reporting hasn't been tested. Governance displays Claude SDK-reported costs and estimates Codex costs from incremental token usage at standard API rates.
-- JEV has its own key (`TYPESAFE_API_KEY`, or `JEV_API_KEY`) and talks to Typesafe directly, outside Caveman.
+- JEV has its own key (`TYPESAFE_API_KEY`) and talks to Typesafe directly, outside Caveman.
 - Uploaded files and fetched pages are treated as data, never as instructions.
 - This is a local tool for one person. It isn't a hardened multi-tenant code execution service.
 

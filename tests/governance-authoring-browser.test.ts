@@ -66,6 +66,51 @@ it.skipIf(!browserExecutablePath())(
         },
       })),
     ).activity;
+    rows.push(
+      ...projectGovernance(
+        run,
+        Array.from({ length: 3 }, (_, index) => {
+          const data = {
+            model: "jev-1.14.0",
+            provider: "jev",
+            purpose: "Render cache review",
+            invocationId: `cache-${index}`,
+          };
+          const base = { runId: run.id, jobId: "full", time: run.createdAt, message: "" };
+          return [
+            {
+              ...base,
+              id: 10 + index * 2,
+              type: "invocation",
+              data: {
+                ...data,
+                prompt: { user: JSON.stringify({ state: { shot: `shots/scene-${index}.html` } }) },
+              },
+            },
+            {
+              ...base,
+              id: 11 + index * 2,
+              type: "usage",
+              data: {
+                ...data,
+                usage: { input_tokens: 100, output_tokens: 10 },
+                decision: {
+                  questionKey: "cache",
+                  answer: {
+                    choice: index === 0 ? "reuse" : "refresh",
+                    confidence: 0.8,
+                    probabilities: {
+                      reuse: index === 0 ? 0.9 : 0.1,
+                      refresh: index === 0 ? 0.1 : 0.9,
+                    },
+                  },
+                },
+              },
+            },
+          ];
+        }).flat(),
+      ).activity,
+    );
     const cacheDir = await mkdtemp(path.join(os.tmpdir(), "governance-authoring-"));
     const server = await createServer({
       configFile: false,
@@ -122,7 +167,7 @@ const rows=await(await fetch('/rows')).json();createRoot(document.getElementById
         "Existing local code and libraries (82%)",
       );
       const expanders = await page.$$("button.ant-table-row-expand-icon");
-      expect(expanders).toHaveLength(2);
+      expect(expanders).toHaveLength(3);
       for (const button of expanders) await button.click();
       await page.waitForFunction(
         () => document.querySelectorAll('section[aria-label="Authoring comparison"]').length === 2,
@@ -133,6 +178,23 @@ const rows=await(await fetch('/rows')).json();createRoot(document.getElementById
       expect(details).toHaveLength(2);
       expect(details.join(" ")).toContain("Local audio tools · 2%");
       expect(details.join(" ")).toContain("Audio Studio · 98% · Selected");
+      await page.waitForFunction(
+        () => document.querySelectorAll('section[aria-label="Render cache review"]').length === 3,
+      );
+      const cacheDetails = await page.$$eval(
+        'section[aria-label="Render cache review"]',
+        (sections) => sections.map((section) => section.textContent),
+      );
+      expect(cacheDetails).toHaveLength(3);
+      expect(cacheDetails[0]).toContain("shots/scene-0.html");
+      expect(cacheDetails[0]).toContain("JEV decision: Reuse cached shot");
+      expect(cacheDetails[1]).toContain("JEV decision: Rebuild shot");
+      expect(cacheDetails[0]).toContain("Reuse cached shot: 90%");
+      expect(
+        await page.$eval('section[aria-label="Render cache review"] a', (node) =>
+          node.getAttribute("href"),
+        ),
+      ).toBe("/api/admin/governance/example-project/prompts/cache-0");
       expect(errors).toEqual([]);
     } finally {
       await browser?.close();

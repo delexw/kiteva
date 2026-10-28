@@ -82,7 +82,10 @@ it("pauses a job before taking a worker slot, preserves its checkpoint through r
     job.phase = "ready";
   });
   workflow.answerAssetQuestion(run, "question", { answer: "Proceed", assetIds: [] });
+  const answeredAt = run.assetQuestions![0].answeredAt;
+  expect(Number.isFinite(Date.parse(answeredAt!))).toBe(true);
   workflow.answerAssetQuestion(run, "question", { answer: "Proceed again", assetIds: [] });
+  expect(run.assetQuestions![0].answeredAt).toBe(answeredAt);
   expect(generate).toHaveBeenCalledTimes(1);
   expect(run.inputWaits).toEqual([]);
   finish();
@@ -275,6 +278,7 @@ it("shows and pauses for a new need in an already answered category, without reo
   // The public start path records pending production needs, then reaches its input checkpoint.
   await workflow.generate(run, job);
   expect(run.assetQuestions).toHaveLength(2);
+  expect(Number.isFinite(Date.parse(run.assetQuestions![1].createdAt!))).toBe(true);
   expect(run.assetQuestions![0].state).toBe("answered");
   expect(run.assetQuestions![1]).toMatchObject({
     state: "open",

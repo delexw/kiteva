@@ -1,3 +1,4 @@
+import { acquireReferenceProfile } from "../../agents/capabilities/reference-browser/profile";
 import { launchReferenceBrowser } from "../../agents/capabilities/reference-browser/launch";
 import { ReferenceAuthenticationError } from "../../agents/capabilities/reference-browser/authentication-error";
 import { prepareProjectRuntime } from "../../runtime/project-files";
@@ -51,8 +52,28 @@ export async function createLocalReferenceBrowser(
         : "Screenshot browser unavailable",
     );
   const files = workspace ? prepareProjectRuntime(workspace, "browser") : undefined;
-  const profile = files ? await mkdtemp(path.join(files.tmp, "profile-")) : undefined;
-  const processScope = createProcessScope(signal);
+  const persistent =
+    workspace && mode === "local" ? await acquireReferenceProfile(workspace, signal) : undefined;
+  const temporaryDirectory = files ? await mkdtemp(path.join(files.tmp, "session-")) : undefined;
+  const profile =
+    persistent?.profile ??
+    (temporaryDirectory ? path.join(temporaryDirectory, "profile") : undefined);
+  signal = persistent?.signal ?? signal;
+  const releaseProfile = async () => {
+    try {
+      if (persistent) await persistent.release();
+      else if (profile) await rm(profile, { recursive: true, force: true });
+    } finally {
+      if (temporaryDirectory) await rm(temporaryDirectory, { recursive: true, force: true });
+    }
+  };
+  let processScope: ReturnType<typeof createProcessScope>;
+  try {
+    processScope = createProcessScope(signal);
+  } catch (error) {
+    await releaseProfile();
+    throw error;
+  }
   let useWindowViewport = desktop;
   let browser = await processScope
     .run(async (signal) =>
@@ -61,13 +82,17 @@ export async function createLocalReferenceBrowser(
         signal,
         workspace,
         profile,
+        temporaryDirectory,
         presentation: desktop ? "capture" : "headless",
         mode,
       }),
     )
     .catch(async (error: unknown) => {
-      await processScope.close();
-      if (profile) await rm(profile, { recursive: true, force: true });
+      try {
+        await processScope.close();
+      } finally {
+        await releaseProfile();
+      }
       throw new CodedError(
         "REFERENCE_CAPTURE_FAILED",
         error instanceof Error ? error.message : "Browser launch failed",
@@ -77,8 +102,13 @@ export async function createLocalReferenceBrowser(
   const editable = new Map<string, Awaited<ReturnType<typeof startWebsiteCapture>>>();
   const stop = () => {
     void (async () => {
-      await recording?.close().catch(() => {});
-    })();
+      try {
+        await recording?.close().catch(() => {});
+        await processScope.close();
+      } finally {
+        await releaseProfile();
+      }
+    })().catch(() => {});
   };
   signal.addEventListener("abort", stop, { once: true });
   if (signal.aborted) stop();
@@ -100,6 +130,7 @@ export async function createLocalReferenceBrowser(
   const loadingErrors: string[] = [];
   try {
     signal.throwIfAborted();
+    await persistent?.restore(browser);
     await configureReferencePermissions(browser.defaultBrowserContext(), origins, mode);
     signal.throwIfAborted();
     let page = desktop
@@ -202,6 +233,7 @@ export async function createLocalReferenceBrowser(
         browserExecutablePath(true, { fallbackFromHeadlessShell: true });
       if (!executable) throw Error("Website sign-in requires full Chrome or Chromium");
       try {
+        await persistent?.save(browser);
         await browser.close();
         browser = await processScope.run((signal) =>
           launchReferenceBrowser({
@@ -213,9 +245,11 @@ export async function createLocalReferenceBrowser(
             mode,
           }),
         );
+        await persistent?.restore(browser);
         useWindowViewport = true;
         await configureReferencePermissions(browser.defaultBrowserContext(), origins, mode);
         page = await authenticateReferenceBrowser(browser, url, allowedOrigins, signal);
+        await persistent?.save(browser);
         authenticationRequired = false;
         navigationError = undefined;
         selectedFrame = undefined;
@@ -462,12 +496,16 @@ export async function createLocalReferenceBrowser(
         await recording?.close().catch(() => {});
         await Promise.all([...editable.values()].map((take) => take.close().catch(() => {})));
         try {
-          await processScope.close();
+          try {
+            if (browser.connected) await persistent?.save(browser);
+          } finally {
+            await browser.close();
+          }
         } finally {
           try {
-            await browser.close();
+            await processScope.close();
           } finally {
-            if (profile) await rm(profile, { recursive: true, force: true });
+            await releaseProfile();
           }
         }
       },
@@ -480,7 +518,7 @@ export async function createLocalReferenceBrowser(
       try {
         await browser.close();
       } finally {
-        if (profile) await rm(profile, { recursive: true, force: true });
+        await releaseProfile();
       }
     }
     throw error;

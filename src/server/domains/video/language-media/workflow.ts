@@ -8,6 +8,7 @@ import { buildNarrationTrack } from "./narration";
 import { createTrackTranslator } from "./translation";
 import { languageMediaPaths } from "./paths";
 import type { LanguageMediaInput, LanguageMediaDependencies, SubtitleCue as Cue } from "./types";
+import type { SubtitleProgress } from "../../../../shared/subtitle-progress";
 export async function buildLanguageMedia(
   input: LanguageMediaInput,
   dependencies: LanguageMediaDependencies = {},
@@ -16,6 +17,7 @@ export async function buildLanguageMedia(
   signal.throwIfAborted();
   const settings = request.languageTracks;
   if (!settings) throw Error("Language tracks are not configured.");
+  const subtitleLanguages = settings.showSubtitles === false ? [] : settings.subtitles;
   const { folder, base } = languageMediaPaths(job.workspace);
   await mkdir(folder, { recursive: true });
   const result: LanguageMedia = {
@@ -23,7 +25,7 @@ export async function buildLanguageMedia(
     subtitles: [],
     musicVideo: path.relative(job.workspace, base),
     defaultNarration: settings.defaultNarration || settings.narration[0]?.language,
-    defaultSubtitle: settings.defaultSubtitle,
+    defaultSubtitle: settings.showSubtitles === false ? "off" : settings.defaultSubtitle,
   };
   const translate = dependencies.translate || createTrackTranslator(input);
   const spoken = job.speechTrack?.cues || [];
@@ -58,7 +60,7 @@ export async function buildLanguageMedia(
         ),
     ),
   ].sort((a, b) => a.startSeconds - b.startSeconds);
-  if (settings.subtitles.length && !subtitleSource.length)
+  if (subtitleLanguages.length && !subtitleSource.length)
     throw Error("No timed subtitle text was provided by the plan or narration.");
 
   const spokenByLanguage = new Map<VideoLanguage, Cue[]>();
@@ -73,28 +75,54 @@ export async function buildLanguageMedia(
     result.narration.push(track.media);
     spokenByLanguage.set(profile.language, track.cues);
   }
-  for (const language of settings.subtitles) {
+  for (const language of subtitleLanguages) {
     signal.throwIfAborted();
-    const translatedSpoken = spokenByLanguage.get(language);
-    const cues: Cue[] = translatedSpoken ? [...translatedSpoken] : [];
-    for (const cue of subtitleSource) {
-      if (translatedSpoken && subtitles.includes(cue)) continue;
-      cues.push({
-        ...cue,
-        text: await translate(cue.text, language, cue.endSeconds - cue.startSeconds, 0),
+    let completed = 0;
+    const report = (status: SubtitleProgress["status"]) =>
+      input.onEvent({
+        type: "subtitle_progress",
+        message: `Generating ${language} subtitles`,
+        data: {
+          purpose: "Subtitle generation",
+          subtitleProgress: {
+            language,
+            completed,
+            total: subtitleSource.length,
+            status,
+          } satisfies SubtitleProgress,
+        },
       });
+    report("running");
+    try {
+      const translatedSpoken = spokenByLanguage.get(language);
+      const cues: Cue[] = translatedSpoken ? [...translatedSpoken] : [];
+      for (const cue of subtitleSource) {
+        signal.throwIfAborted();
+        if (!(translatedSpoken && subtitles.includes(cue))) {
+          cues.push({
+            ...cue,
+            text: await translate(cue.text, language, cue.endSeconds - cue.startSeconds, 0),
+          });
+        }
+        completed++;
+        if (completed < subtitleSource.length) report("running");
+      }
+      cues.sort((a, b) => a.startSeconds - b.startSeconds);
+      const documents = subtitleDocuments(cues);
+      const vtt = path.join(folder, `${language}.vtt`),
+        srt = path.join(folder, `${language}.srt`);
+      await writeFile(vtt, documents.vtt, { signal });
+      await writeFile(srt, documents.srt, { signal });
+      result.subtitles.push({
+        language,
+        vtt: path.relative(job.workspace, vtt),
+        srt: path.relative(job.workspace, srt),
+      });
+      report("complete");
+    } catch (error) {
+      report(signal.aborted ? "stopped" : "failed");
+      throw error;
     }
-    cues.sort((a, b) => a.startSeconds - b.startSeconds);
-    const documents = subtitleDocuments(cues);
-    const vtt = path.join(folder, `${language}.vtt`),
-      srt = path.join(folder, `${language}.srt`);
-    await writeFile(vtt, documents.vtt);
-    await writeFile(srt, documents.srt);
-    result.subtitles.push({
-      language,
-      vtt: path.relative(job.workspace, vtt),
-      srt: path.relative(job.workspace, srt),
-    });
   }
   signal.throwIfAborted();
   await writeFile(path.join(folder, "tracks.json"), JSON.stringify(result, null, 2));

@@ -129,7 +129,6 @@ it.each([
 );
 it("excludes a failed MCP probe without dropping the music request", async () => {
   vi.stubEnv("TYPESAFE_API_KEY", "");
-  vi.stubEnv("JEV_API_KEY", "");
   vi.mocked(audioStudioAvailability).mockRejectedValue(Error("MCP startup failed"));
   const options = input();
   const prompt = options.request.requirements!.music.instructions;

@@ -28,7 +28,7 @@ Future jobs record generation and validation/export timings separately and displ
 
 ## Remaining setup and verification limits
 
-- Neither TYPESAFE_API_KEY nor JEV_API_KEY is configured. Live Jev ranking cannot run yet. Official SDK request/response behavior, scoring modes, combinations, missing assets, explicit conflicts, uncertainty, limits and API failures are covered by tests with mocked HTTP responses. Those tests do not prove a live Jev response.
+- TYPESAFE_API_KEY is not configured. Live Jev ranking cannot run yet. Official SDK request/response behavior, scoring modes, combinations, missing assets, explicit conflicts, uncertainty, limits and API failures are covered by tests with mocked HTTP responses. Those tests do not prove a live Jev response.
 - Exact provider availability is checked on the first brief turn; local SDK verification established access to both configured models in this environment. There is no silent model substitution.
 - The Remotion fallback is implemented but was not exercised by these live exports; all used HyperFrames.
 - Thumbnails are labeled illustrative palette/composition sketches. They are not full demonstrations of every style.

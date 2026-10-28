@@ -19,13 +19,18 @@ it.skipIf(!browserExecutablePath())(
       root: appRoot,
       optimizeDeps: browserDependencyScan,
       resolve: { alias: browserAliases },
-      server: { host: "127.0.0.1", port: 0, watch: { ignored: ["**/.data/**"] } },
+      server: { host: "127.0.0.1", port: 0, watch: null },
       plugins: [
         react(),
         {
           name: "onboarding-script-fixture",
           configureServer(server) {
             server.middlewares.use(async (req, res, next) => {
+              if (req.url === "/api/setup" || req.url?.startsWith("/api/speech/status")) {
+                res.setHeader("Content-Type", "application/json");
+                res.end(JSON.stringify({ languageTracksSupported: true, available: true }));
+                return;
+              }
               if (req.url !== "/onboarding-script-test") return next();
               const html = await server.transformIndexHtml(
                 req.url,
@@ -78,14 +83,14 @@ createRoot(document.getElementById('root')).render(React.createElement(App));</s
       });
       await page.waitForFunction(
         () =>
-          JSON.parse(document.querySelector("#state")!.textContent!).request.subtitles.mode ===
-          "off",
+          JSON.parse(document.querySelector("#state")!.textContent!).request.languageTracks
+            .showSubtitles === false,
       );
       const narrationOnly = await page.$eval("#state", (el) => JSON.parse(el.textContent!));
       expect(narrationOnly.request.speech).toMatchObject({
-        source: "provided",
         text: "One shared script.",
       });
+      expect(narrationOnly.request.languageTracks.subtitles).toEqual([]);
       expect(errors).toEqual([]);
     } finally {
       await browser.close();

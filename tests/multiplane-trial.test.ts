@@ -10,6 +10,9 @@ import {
   rendererPipelineProblem,
   videoRendererOf,
 } from "../src/shared/video-renderers";
+vi.mock("../src/server/jev/strategies/render-cache", () => ({
+  reviewRenderCache: vi.fn(async () => false),
+}));
 vi.mock("../src/server/runtime/process", () => ({ command: vi.fn(), isolatedCommand: vi.fn() }));
 vi.mock("../src/server/rendering/webm-video", async (load) => ({
   ...(await load<typeof import("../src/server/rendering/webm-video")>()),
@@ -368,6 +371,104 @@ it("renders a Multiplane preview directly to WebM without inspection or verifica
     "multiplane render shot.html",
   );
 });
+
+it.each([
+  { rate: "60/1", valid: true },
+  { rate: "120/2", valid: true },
+  { rate: "11059200/184319", valid: true },
+  { rate: "60005/1000", valid: true },
+  { rate: "59995/1000", valid: true },
+  { rate: "60011/1000", valid: true },
+  { rate: "59989/1000", valid: true },
+  { rate: "60000/1001", valid: true },
+  { rate: "60099/1000", valid: true },
+  { rate: "59901/1000", valid: true },
+  { rate: "60101/1000", valid: true },
+  { rate: "59899/1000", valid: true },
+  { rate: "595/10", valid: true },
+  { rate: "59499/1000", valid: false },
+  { rate: "60499/1000", valid: true },
+  { rate: "605/10", valid: false },
+  { rate: "30/1", valid: false },
+  { rate: "invalid", valid: false },
+  { rate: "60/0", valid: false },
+  { rate: "0/0", valid: false },
+  { rate: "", valid: false },
+])("validates rendered average frame rate $rate (accepted: $valid)", async ({ rate, valid }) => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), "render-frame-rate-"));
+  try {
+    vi.mocked(isolatedCommand).mockImplementation(
+      async (_exe, _args, _cwd, _signal, _output, _timeout, stdout) => {
+        stdout?.(result("render", true, { frames: 180 }));
+        return "";
+      },
+    );
+    const probe = JSON.parse(ffprobe("vp9"));
+    probe.streams[0].avg_frame_rate = rate;
+    vi.mocked(command).mockImplementation(async (exe) =>
+      exe === "ffprobe" ? JSON.stringify(probe) : "",
+    );
+    const rendering = renderJob(
+      job(workspace),
+      { ...production("Multiplane"), fps: 60 },
+      new AbortController().signal,
+      () => {},
+    );
+    if (valid) await expect(rendering).resolves.toMatchObject({ video: "renders/preview.webm" });
+    else await expect(rendering).rejects.toThrow(/frame rate/);
+  } finally {
+    await rm(workspace, { recursive: true, force: true });
+  }
+});
+
+it.each([
+  { actual: 115, planned: 120, valid: true },
+  { actual: 119.8, planned: 120, valid: true },
+  { actual: 125, planned: 120, valid: true },
+  { actual: 114.9, planned: 120, valid: false },
+  { actual: 125.1, planned: 120, valid: false },
+  { actual: 129, planned: 124, valid: false },
+])(
+  "checks full export $actual against the original target and $planned plan",
+  async ({ actual, planned, valid }) => {
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "render-duration-"));
+    try {
+      vi.mocked(isolatedCommand).mockImplementation(
+        async (_exe, args, _cwd, _signal, _output, _timeout, stdout) => {
+          stdout?.(
+            args[1] === "inspect"
+              ? result("inspect", true, {
+                  stage: { width: 1280, height: 720 },
+                  duration: planned,
+                  fps: 30,
+                })
+              : result(args[1], true, { frames: planned * 30 }),
+          );
+          return "";
+        },
+      );
+      const probe = JSON.parse(ffprobe("h264"));
+      probe.format.duration = String(actual);
+      vi.mocked(command).mockImplementation(async (exe) =>
+        exe === "ffprobe" ? JSON.stringify(probe) : "",
+      );
+      const rendering = renderJob(
+        { ...job(workspace, "full"), duration: planned, targetDuration: 120 },
+        { ...production("Multiplane"), duration: planned },
+        new AbortController().signal,
+        () => {},
+      );
+      if (valid) {
+        await expect(rendering).resolves.toMatchObject({ video: "renders/full.mp4" });
+        expect(await readFile(path.join(workspace, "VALIDATION.md"), "utf8")).toContain(
+          `${actual}s (planned ${planned}s)`,
+        );
+      } else await expect(rendering).rejects.toThrow("duration");
+    } finally {
+      await rm(workspace, { recursive: true, force: true });
+    }
+  },
+);
 
 it("refuses a Multiplane shot whose stage or timing differs from the project settings", async () => {
   const workspace = await mkdtemp(path.join(os.tmpdir(), "multiplane-mismatch-"));

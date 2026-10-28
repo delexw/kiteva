@@ -3,6 +3,8 @@ import { StoryboardSchema } from "./storyboard";
 import { z } from "zod";
 import { ContentBriefSchema } from "./content-brief";
 import { CandidateCopySchema } from "./candidate-copy";
+import { MAX_VIDEO_DURATION, videoDurationRange } from "../../video-duration";
+export { MAX_VIDEO_DURATION } from "../../video-duration";
 export const ProductionSchema = z.object({
   assetNeeds: z.array(AssetNeedSchema).max(6).optional(),
   displayTitle: CandidateCopySchema.shape.displayTitle.optional(),
@@ -39,7 +41,22 @@ export function videoGenerationOutputSchemaForDuration(duration: number) {
   });
 }
 
-export const MAX_VIDEO_DURATION = 300;
+export function videoRefinementOutputSchemaForTarget(targetDuration: number) {
+  const range = videoDurationRange(targetDuration);
+  const duration = z.number().finite().min(range.min).max(range.max);
+  return VideoGenerationOutputSchema.extend({
+    duration,
+    storyboard: StoryboardSchema.safeExtend({ durationSeconds: duration }),
+  }).superRefine((output, context) => {
+    if (output.duration !== output.storyboard.durationSeconds)
+      context.addIssue({
+        code: "custom",
+        path: ["storyboard", "durationSeconds"],
+        message: "Storyboard duration must match the revised production",
+      });
+  });
+}
+
 export const BriefSchema = ContentBriefSchema.extend({
   suggestedDuration: z.number().int().min(3).max(MAX_VIDEO_DURATION),
   durationReason: z.string(),

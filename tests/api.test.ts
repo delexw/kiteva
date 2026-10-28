@@ -737,7 +737,7 @@ it("validates manual styles before preparation and routes regeneration and refin
       payload: { jobId: "source", prompt: " Bigger captions " },
     });
     expect(revision.statusCode).toBe(202);
-    expect(refine.mock.calls[0].slice(1)).toEqual(["source", "Bigger captions"]);
+    expect(refine.mock.calls[0].slice(1)).toEqual(["source", "Bigger captions", [], undefined]);
   } finally {
     regenerate.mockRestore();
     refine.mockRestore();

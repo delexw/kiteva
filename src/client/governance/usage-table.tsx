@@ -136,9 +136,56 @@ export function GovernanceUsageTable({
         byFunction
           ? {
               rowExpandable: (row) =>
-                Boolean(row.authoringSelections?.length || row.combinationEvaluation),
+                Boolean(
+                  row.authoringSelections?.length ||
+                  row.combinationEvaluation ||
+                  row.renderCacheReviews?.length,
+                ),
               expandedRowRender: (row) => (
                 <div>
+                  {row.renderCacheReviews?.map((review) => (
+                    <section key={review.id} aria-label={translateUi("Render cache review")}>
+                      <strong>{review.shot || translateUi("Not recorded")}</strong>
+                      {review.direction && (
+                        <div>
+                          {review.direction} ·{" "}
+                          {translateUi("Version {{value0}}", { value0: review.version })}
+                        </div>
+                      )}
+                      <div>
+                        {translateUi("JEV decision")}:{" "}
+                        {review.choice === null
+                          ? translateUi("Not recorded")
+                          : translateUi(
+                              review.choice === "reuse" ? "Reuse cached shot" : "Rebuild shot",
+                            )}
+                      </div>
+                      <div>
+                        {translateUi("Choice certainty")}: {probability(review.confidence)}
+                      </div>
+                      <ul>
+                        <li>
+                          {translateUi("Reuse cached shot")}:{" "}
+                          {probability(review.probabilities.reuse)}
+                        </li>
+                        <li>
+                          {translateUi("Rebuild shot")}: {probability(review.probabilities.refresh)}
+                        </li>
+                      </ul>
+                      {review.summary && <p>{review.summary}</p>}
+                      {review.renderImpact && <p>{review.renderImpact}</p>}
+                      {review.uncertain && (
+                        <p>
+                          {translateUi(
+                            "The change brief is uncertain; cached footage cannot be reused.",
+                          )}
+                        </p>
+                      )}
+                      <a href={review.promptUrl} target="_blank" rel="noreferrer">
+                        {translateUi("Recorded review input")} · {review.time}
+                      </a>
+                    </section>
+                  ))}
                   {row.combinationEvaluation && (
                     <section aria-label={translateUi("Combination evaluation")}>
                       {row.combinationEvaluation.selected.map((candidate) => (

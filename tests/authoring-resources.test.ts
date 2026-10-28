@@ -137,7 +137,6 @@ it.each(["animate_ui", "react_bits", "anatomy", "local_code"])(
 );
 it("does not block production on unavailable JEV and does not swallow cancellation", async () => {
   vi.stubEnv("TYPESAFE_API_KEY", "");
-  vi.stubEnv("JEV_API_KEY", "");
   const options = await input();
   expect(await selectAuthoringResources(options)).toMatchObject({
     source: "unavailable",

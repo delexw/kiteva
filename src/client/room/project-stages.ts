@@ -97,9 +97,10 @@ function duration(items: ActivityItem[]) {
   return seconds >= 60 ? `${Math.floor(seconds / 60)}m ${seconds % 60}s` : `${seconds}s`;
 }
 function summary(status: StageStatus, items: ActivityItem[], fallback: string) {
-  const steps = displayActivityItems(items.filter((item) => item.kind !== "message"));
-  if (status === "loading")
+  if (status === "loading") {
+    const steps = displayActivityItems(items.filter((item) => item.kind !== "message"));
     return steps.length ? activityLabel(steps.at(-1)!) : translateUi(fallback);
+  }
   if (status === undefined && fallback) return fallback;
   if (!items.length) return fallback;
   const took = duration(items);
@@ -129,13 +130,17 @@ export function roomActivityContexts(
       continue;
     }
     const round = directionRoundOfEvent(boundaries, event.id);
-    projectEvents.set(round, [...(projectEvents.get(round) || []), event]);
+    const roundEvents = projectEvents.get(round);
+    if (roundEvents) roundEvents.push(event);
+    else projectEvents.set(round, [event]);
   }
   for (const [round, roundEvents] of projectEvents)
     byContext.set(preparationKey(round), activityItems(roundEvents, true, run));
   for (const item of activityItems(jobEvents)) {
     const key = run.jobs.some((job) => job.id === item.jobId) ? item.jobId! : "earlier";
-    byContext.set(key, [...(byContext.get(key) || []), item]);
+    const items = byContext.get(key);
+    if (items) items.push(item);
+    else byContext.set(key, [item]);
   }
   const context = (
     key: string,

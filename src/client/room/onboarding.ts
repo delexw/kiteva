@@ -1,3 +1,4 @@
+import { applyLanguageTracks } from "../../shared/language-tracks";
 import { normalizeSubtitleFields } from "../../shared/subtitle-compatibility";
 import { ScriptItemDraftSchema } from "../../shared/script-items";
 import type { z } from "zod";
@@ -7,7 +8,8 @@ import {
   sharedVideoScript,
 } from "../../shared/video-language";
 import { speechConfigurationProblem } from "../../shared/speech";
-import { RequestSchema, type CreativeRequest } from "../../shared/contracts";
+import { RequestSchema, type CreativeRequest, type Run } from "../../shared/contracts";
+import { projectEditBrief } from "../../shared/project-edit-brief";
 import { SharedRequestSchema } from "../../shared/domains/common";
 import type { PageRequest } from "../../shared/domains/page";
 import type { VideoRequest } from "../../shared/domains/video";
@@ -340,7 +342,35 @@ export function roomDraftFromProject(
     assets: assets.filter((asset) => request.assetIds.includes(asset.id)),
   };
 }
+export function roomEditDraft(
+  run: Run,
+  assets: RoomLibraryAsset[],
+  previous?: RoomDraft,
+): RoomDraft {
+  const draft = previous || roomDraftFromProject(run.request, assets);
+  const history = projectEditBrief(
+    run,
+    previous
+      ? {
+          instructions:
+            typeof previous.request.instructions === "string"
+              ? previous.request.instructions
+              : run.request.instructions,
+          historyIds: previous.editHistoryIds,
+          historyText: previous.editHistoryText,
+        }
+      : undefined,
+  );
+  return {
+    ...draft,
+    request: { ...draft.request, instructions: history.instructions },
+    editHistoryIds: history.historyIds,
+    editHistoryText: history.historyText,
+  };
+}
+
 export function roomSubmission(request: CreativeRequest): CreativeRequest {
+  if (request.outputType === "video") request = applyLanguageTracks(request);
   if (request.outputType === "video" && request.scriptItems === undefined)
     request = editSharedVideoScript(request, sharedVideoScript(request));
   if (request.outputType === "video") {

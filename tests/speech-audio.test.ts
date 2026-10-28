@@ -16,6 +16,16 @@ afterEach(async () => {
   );
 });
 const signal = () => new AbortController().signal;
+it("rejects narration outside the chosen timeline instead of silently trimming it", async () => {
+  await expect(
+    mixSpeech(
+      "/unused.mp4",
+      { file: "audio/voice.wav", durationSeconds: 125, source: "narration", cues: [] },
+      120,
+      signal(),
+    ),
+  ).rejects.toThrow("Audio was not truncated");
+});
 async function input() {
   const workspace = await mkdtemp(path.join(os.tmpdir(), "speech-test-"));
   folders.push(workspace);

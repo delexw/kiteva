@@ -152,7 +152,6 @@ it("uses the official SDK wire format and excludes conflicting candidates", asyn
 });
 it("reports missing ranking credentials and real SDK API failures without invented scores", async () => {
   vi.stubEnv("TYPESAFE_API_KEY", "");
-  vi.stubEnv("JEV_API_KEY", "");
   const catalog = await loadCatalog();
   const request = RequestSchema.parse({ instructions: "Explain assembly" });
   const options: Proposal[] = [

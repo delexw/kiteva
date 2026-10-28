@@ -1,3 +1,4 @@
+import { applyLanguageTracks } from "../../shared/language-tracks";
 import { LanguageTrackSettings } from "../components/language-track-settings";
 import { ScriptItems } from "../components/script-items";
 import { legacyScriptItems } from "../../shared/script-items";
@@ -7,8 +8,8 @@ import { creativeApproaches } from "../../shared/creative-approach";
 import { buildRouteLabel, buildRouteOf } from "../../shared/build-route";
 import { translateUi, useUiLanguage } from "../i18n";
 import {
-  deliverySpeech,
   editSharedVideoScript,
+  editVideoCopy,
   sharedVideoScript,
   type VideoLanguage,
 } from "../../shared/video-language";
@@ -17,7 +18,7 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Bubble, Sender } from "@ant-design/x";
 import { roomOnboardingReplies } from "./onboarding-replies";
 import { RoomChosenFile, RoomFilePick } from "./room-file-card";
-import { Alert, Button, Input, InputNumber, Select, Splitter, Switch, Tag, Upload } from "antd";
+import { Alert, Button, Input, InputNumber, Select, Splitter, Tag, Upload } from "antd";
 import { ZodError } from "zod";
 import {
   PencilLine,
@@ -49,12 +50,10 @@ import {
 } from "./onboarding";
 import { StylePicker } from "../components/style-picker";
 import { manualStyleLimit, trimStylesForDuration } from "../../shared/style-selection";
-import { subtitlesFromInput } from "../../shared/domains/video";
 import { providerDisplayName } from "../../shared/model-display-name";
 import { api } from "../lib/api";
 import { RendererChoice } from "./renderer-choice";
 import { SettingsSectionHeading } from "../components/settings-section-heading";
-import { SpeechSettings } from "../components/speech-settings";
 import { ensureSpeechGenerationReady } from "../lib/speech";
 import { videoRendererOf } from "../../shared/video-renderers";
 
@@ -500,60 +499,20 @@ export function RoomOnboarding({
               description={translateUi("Use one script for narration and on-screen text.")}
               icon={<Captions size={18} />}
             />
-            <label>
-              <Switch
-                size="small"
-                checked={request.subtitles?.mode !== "off" && Boolean(request.subtitles)}
-                onChange={(enabled) =>
-                  onChange({
-                    ...draft,
-                    request: editSharedVideoScript(
-                      {
-                        ...request,
-                        subtitles: subtitlesFromInput(enabled, sharedVideoScript(request)),
-                      },
-                      sharedVideoScript(request),
-                    ),
-                  })
-                }
-              />{" "}
-              {translateUi("Show subtitles on screen")}
-            </label>
-            {((request.subtitles && request.subtitles.mode !== "off") ||
-              request.speech?.mode === "narration") && (
-              <>
-                <Input.TextArea
-                  aria-label={translateUi("Shared script")}
-                  autoSize={{ minRows: 2, maxRows: 6 }}
-                  placeholder={translateUi(
-                    "Paste your subtitles, or leave empty and I’ll write them",
-                  )}
-                  value={sharedVideoScript(request)}
-                  onChange={(e) => {
-                    onChange({
-                      ...draft,
-                      request: editSharedVideoScript(request, e.target.value),
-                    });
-                  }}
-                />
-              </>
-            )}
-            <SpeechSettings
-              value={deliverySpeech(request)}
-              videoLanguage={request.outputLanguage}
-              sharedScript
-              onChange={(speech) =>
+            <Input.TextArea
+              aria-label={translateUi("Shared script")}
+              autoSize={{ minRows: 2, maxRows: 6 }}
+              placeholder={translateUi("Paste your subtitles, or leave empty and I’ll write them")}
+              value={sharedVideoScript(request)}
+              onChange={(e) => {
                 onChange({
                   ...draft,
-                  request: editSharedVideoScript(
-                    { ...request, speech },
-                    sharedVideoScript(request),
-                  ),
-                })
-              }
-              audioAssets={selected
-                .filter((asset) => requirements.music.assetIds.includes(asset.id))
-                .map((asset) => ({ id: asset.id, name: asset.originalName }))}
+                  request:
+                    request.languageTracks && !request.languageTracks.narration.length
+                      ? editVideoCopy(request, "subtitles", e.target.value)
+                      : editSharedVideoScript(applyLanguageTracks(request), e.target.value),
+                });
+              }}
             />
           </div>
         )}
@@ -653,7 +612,7 @@ export function RoomOnboarding({
             {request.outputType === "video" ? (
               <>
                 <label>
-                  {translateUi("Length")}
+                  {translateUi("Target length (±5 s)")}
                   <span className="room-duration">
                     <Select
                       aria-label={translateUi("Full video duration")}

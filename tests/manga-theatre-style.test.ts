@@ -73,3 +73,28 @@ it("plans sample crew motion and status from JSON using the shared deterministic
   ).toBe(true);
   expect(mangaTheatrePreviewFrames()).toEqual(frames);
 });
+
+it("embeds a portable mandatory crew implementation in the style metadata", async () => {
+  const style = (await loadCatalog()).styles.find((entry) => entry.id === "style-136")!;
+  expect(style.tech.reference_implementation).toMatchObject({
+    version: 1,
+    required: true,
+    format: "HTML/CSS",
+    files: [
+      { name: "crew.css", language: "css", code: expect.stringContaining("clip-path: polygon(") },
+      {
+        name: "crew.html",
+        language: "html",
+        code: expect.stringContaining('data-role="director"'),
+      },
+    ],
+  });
+  for (const guidance of [style.tech.implementation, style.executable_prompt_template]) {
+    expect(guidance).toContain("MANDATORY CHARACTER IMPLEMENTATION");
+    expect(guidance).toContain("tech.reference_implementation.files");
+    expect(guidance).toContain("do not redraw the cast from the prose alone");
+  }
+  expect(JSON.stringify(style.tech.reference_implementation)).not.toMatch(
+    /src\/client|storyboard-crew\.tsx|import\s|https?:|url\(/,
+  );
+});

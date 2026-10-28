@@ -88,3 +88,9 @@ Local verification also exercised real Claude and Codex calls from two projects 
 then resumed each from a full-build workspace with its own remembered marker. Native macOS
 rendering, cancellation and command-tool writes were checked. Windows runtime verification
 still requires a Windows host; passing policy tests is not evidence of a Windows render.
+
+### Website sign-in during local builds
+
+Reference reads, preview builds and full-video capture reuse the project-owned `.runtime/browser/reference-profile` directory. Chromium retains site storage there; a private `reference-cookies.json` also preserves session cookies between browser restarts. The files stay inside the project and are excluded from editable downloads. They disappear when the project is deleted. A site can still expire or revoke its login.
+
+A cross-process, cancellation-aware lease allows one browser session at a time to use this profile; different projects use separate profiles. Closing a session releases the lease without deleting sign-in state. Hosted reference browsers keep their temporary profiles and read-only behavior.

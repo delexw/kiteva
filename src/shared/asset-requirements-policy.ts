@@ -62,6 +62,8 @@ export interface AssetNeed {
   fallback: string;
 }
 export interface AssetQuestion extends AssetNeed {
+  createdAt?: string;
+  answeredAt?: string;
   id: string;
   jobId?: string;
   state: "open" | "answered";

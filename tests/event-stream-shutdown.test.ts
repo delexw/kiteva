@@ -328,3 +328,55 @@ it("retains a project when a dependency reports unsuccessful cleanup", async () 
     await app.close();
   }
 });
+
+it("keeps activity history paged and diagnostic bodies out of both UI transports", async () => {
+  const { app, store } = await createApp({ store: new Store(":memory:") });
+  store.save({
+    id: "project",
+    createdAt: "2026-01-01",
+    phase: "ready",
+    request: RequestSchema.parse({ instructions: "An original story" }),
+    candidates: [],
+    jobs: [],
+  });
+  for (let i = 0; i < 1100; i++)
+    store.emit("project", "tool_result", "Large internal output", undefined, {
+      results: [{ itemId: `tool-${i}`, failed: false, output: "private".repeat(10000) }],
+      prompt: "private",
+    });
+  try {
+    const response = await app.inject({ method: "GET", url: "/api/runs/project/activity" });
+    expect(response.statusCode).toBe(200);
+    const page = response.json();
+    expect(page.events).toHaveLength(500);
+    expect(page.hasOlder).toBe(true);
+    expect(response.body).not.toContain("private");
+    expect(response.body.length).toBeLessThan(200000);
+    expect(store.allEvents("project").at(-1)?.data).toHaveProperty("prompt", "private");
+    await app.listen({ port: 0, host: "127.0.0.1" });
+    const { port } = app.server.address() as AddressInfo;
+    const history = await new Promise<string>((resolve, reject) => {
+      const client = request(
+        { host: "127.0.0.1", port, path: "/api/runs/project/events?batch=1&view=summary" },
+        (response) => {
+          let text = "";
+          response.setEncoding("utf8");
+          response.on("data", (chunk) => {
+            text += chunk;
+            if (text.includes("\n\n")) {
+              client.destroy();
+              resolve(text);
+            }
+          });
+        },
+      );
+      client.on("error", reject);
+      client.end();
+    });
+    expect(history).toContain("event: history");
+    expect(history).not.toContain("private");
+    expect(JSON.parse(history.split("data: ")[1].trim())).toHaveLength(500);
+  } finally {
+    await app.close();
+  }
+});

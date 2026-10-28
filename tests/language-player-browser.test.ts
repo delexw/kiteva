@@ -98,9 +98,9 @@ it.skipIf(!browserExecutablePath())(
 import React from 'react';import{createRoot}from'react-dom/client';
 import{VideoPlayer}from'/src/client/components/video-player.tsx';import{LanguageMediaDownloads}from'/src/client/components/language-media-downloads.tsx';
 import'/src/client/framework.css';
-import{LanguageTrackSettings}from'/src/client/components/language-track-settings.tsx';import{VideoLanguageControl}from'/src/client/components/video-language-control.tsx';import{VideoRequestSchema}from'/src/shared/domains/video.ts';
+import{ScriptItems}from'/src/client/components/script-items.tsx';import{LanguageTrackSettings}from'/src/client/components/language-track-settings.tsx';import{VideoLanguageControl}from'/src/client/components/video-language-control.tsx';import{VideoRequestSchema}from'/src/shared/domains/video.ts';
 const media={narration:['en','zh'].map(language=>({language,video:'/'+language+'.mp4',audio:'/'+language+'.wav',mix:'/'+language+'.m4a'})),subtitles:['en','zh'].map(language=>({language,vtt:'/'+language+'.vtt',srt:'/'+language+'.srt'})),musicVideo:'/music.mp4',defaultNarration:'en',defaultSubtitle:'zh'};
-function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.parse({instructions:'Explain an example process',outputLanguage:'en'}));return React.createElement(React.Fragment,null,React.createElement(VideoPlayer,{src:'/sample.mp4','aria-label':'Example film',languageMedia:media}),React.createElement(LanguageMediaDownloads,{media}),React.createElement(LanguageTrackSettings,{request,onChange:languageTracks=>setRequest({...request,languageTracks})}),React.createElement(VideoLanguageControl,{value:request.outputLanguage,onChange:outputLanguage=>setRequest({...request,outputLanguage})}),React.createElement('pre',{id:'request'},JSON.stringify(request)));}createRoot(document.getElementById('root')).render(React.createElement(Page));
+function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.parse({instructions:'Explain an example process',outputLanguage:'en',scriptItems:[{id:'spoken',text:'Example words',startSeconds:0,endSeconds:3,showSubtitles:true,speech:{mode:'narration',voice:'af_heart'}}]}));return React.createElement(React.Fragment,null,React.createElement(VideoPlayer,{src:'/sample.mp4','aria-label':'Example film',languageMedia:media}),React.createElement(LanguageMediaDownloads,{media}),React.createElement(LanguageTrackSettings,{request,onChange:languageTracks=>setRequest({...request,languageTracks})}),React.createElement(ScriptItems,{items:request.scriptItems,duration:request.duration,languageTracks:request.languageTracks,onChange:scriptItems=>setRequest({...request,scriptItems})}),React.createElement(VideoLanguageControl,{value:request.outputLanguage,onChange:outputLanguage=>setRequest({...request,outputLanguage})}),React.createElement('pre',{id:'request'},JSON.stringify(request)));}createRoot(document.getElementById('root')).render(React.createElement(Page));
 </script>`,
                 ),
               );
@@ -122,6 +122,35 @@ function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.pars
       const page = await browser.newPage();
       await page.goto(`http://127.0.0.1:${address.port}/test`);
       await page.waitForFunction(() => (document.querySelector("video")?.readyState ?? 0) >= 1);
+      // Shared controls overlay the media instead of adding height below it.
+      await page.mouse.move(799, 599);
+      await page.waitForFunction(
+        () => getComputedStyle(document.querySelector(".kiteva-playback-overlay")!).opacity === "0",
+      );
+      expect(
+        await page.$eval(".kiteva-video-player", (player) => {
+          const video = player.querySelector("video")!.getBoundingClientRect();
+          const bar = player.querySelector(".kiteva-playback-bar")!.getBoundingClientRect();
+          return {
+            sameHeight: Math.abs(player.getBoundingClientRect().height - video.height) < 1,
+            barInside: bar.bottom <= video.bottom + 1 && bar.top >= video.top,
+          };
+        }),
+      ).toEqual({ sameHeight: true, barInside: true });
+      await page.hover(".kiteva-video-player");
+      await page.waitForFunction(
+        () => getComputedStyle(document.querySelector(".kiteva-playback-overlay")!).opacity === "1",
+      );
+      await page.mouse.move(799, 599);
+      await page.waitForFunction(
+        () => getComputedStyle(document.querySelector(".kiteva-playback-overlay")!).opacity === "0",
+      );
+      await page.focus('[aria-label="Play video"]');
+      await page.keyboard.press("Tab");
+      await page.waitForFunction(
+        () => getComputedStyle(document.querySelector(".kiteva-playback-overlay")!).opacity === "1",
+      );
+      await page.evaluate(() => (document.activeElement as HTMLElement).blur());
       await page.evaluate(() => {
         document.querySelector("video")!.currentTime = 1.25;
       });
@@ -237,61 +266,20 @@ function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.pars
           links.find((a) => a.textContent === "Download audio")?.getAttribute("href"),
         ),
       ).toBe("/zh.wav");
-      await page.waitForFunction(
-        () =>
-          document.querySelector<HTMLButtonElement>('[aria-label="Multiple language tracks"]')
-            ?.disabled === false,
-      );
-      await page.waitForSelector(".ant-select-dropdown:not(.ant-select-dropdown-hidden)", {
-        hidden: true,
-      });
-      await page.click('[aria-label="Multiple language tracks"]');
-      const layoutAtWidth = async (width: number) => {
-        await page.$eval(
-          ".language-track-settings",
-          (el, width) => {
-            (el as HTMLElement).style.width = `${width}px`;
-          },
-          width,
+      await page.waitForSelector('section[aria-label="Narration voice en"]');
+      expect(await page.$('[aria-label="Multiple language tracks"]')).toBeNull();
+      expect(await page.$('.script-items [aria-label="Speech language"]')).toBeNull();
+      expect(await page.$('[aria-label="Default language"]')).toBeNull();
+      expect(await page.$('[aria-label="Subtitles when playback starts"]')).toBeNull();
+      const order = await page.$eval(".language-track-settings", (el) => {
+        const card = el.querySelector(".language-track-voice")!;
+        return Boolean(
+          card.compareDocumentPosition(el.querySelector(".language-track-add")!) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
         );
-        return page.$eval(".language-track-settings-fields", (el) => ({
-          columns: getComputedStyle(el).gridTemplateColumns.split(" ").length,
-          selects: [...el.querySelectorAll(".ant-select")].map(
-            (select) => select.getBoundingClientRect().width,
-          ),
-        }));
-      };
-      expect((await layoutAtWidth(1000)).columns).toBe(3);
-      expect((await layoutAtWidth(650)).columns).toBe(2);
-      const narrowLayout = await layoutAtWidth(360);
-      expect(narrowLayout.columns).toBe(1);
-      expect(narrowLayout.selects.every((width) => width > 300)).toBe(true);
-      await page.$eval(".language-track-settings", (el) =>
-        (el as HTMLElement).style.removeProperty("width"),
-      );
-      expect(await page.$('[aria-label="Subtitles when playback starts"]')).toBeTruthy();
-      await page.waitForSelector(".ant-select-dropdown:not(.ant-select-dropdown-hidden)", {
-        hidden: true,
       });
-      await page.click('[aria-label="Narration languages"]');
-      await page.waitForSelector(
-        '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option[title="English"]',
-        { visible: true },
-      );
-      await page
-        .locator(
-          '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option[title="English"]',
-        )
-        .click();
-      await page.keyboard.press("Escape");
-      await page.waitForSelector(".ant-select-dropdown:not(.ant-select-dropdown-hidden)", {
-        hidden: true,
-      });
-      await page.click('[aria-label="Subtitle languages"]');
-      await page.waitForSelector(
-        '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option[title="简体中文"]',
-        { visible: true },
-      );
+      expect(order).toBe(true);
+      await page.click('[aria-label="Add language"]');
       await page
         .locator(
           '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option[title="简体中文"]',
@@ -306,11 +294,57 @@ function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.pars
       const request = await page.$eval("#request", (el) => JSON.parse(el.textContent!));
       expect(request.languageTracks.narration[0].language).toBe("en");
       expect(request.outputLanguage).toBe("en");
-      expect(request.languageTracks.subtitles).toEqual(["zh"]);
+      expect(request.languageTracks.subtitles).toEqual(["en", "zh"]);
+      expect(
+        request.languageTracks.narration.map((track: { language: string }) => track.language),
+      ).toEqual(["en", "zh"]);
+      expect(await page.$('.script-items [aria-label="Speech language"]')).toBeNull();
+      expect(await page.$('.script-items [aria-label="Narrator voice"]')).toBeNull();
+      expect(await page.$('.script-items [aria-label="Narration"]')).toBeNull();
+      expect(await page.$('.script-items [aria-label="Show subtitles on screen"]')).toBeNull();
+      expect(await page.$('[aria-label="Add language"]')).toBeNull();
+      await page.click('[aria-label="Remove language en"]');
+      await page.keyboard.press("Escape");
+      await page.waitForFunction(
+        () =>
+          JSON.parse(document.querySelector("#request")!.textContent!).languageTracks.narration
+            .length === 1,
+      );
+      const chinese = await page.$eval("#request", (element) => JSON.parse(element.textContent!));
+      expect(
+        chinese.languageTracks.narration.map((track: { language: string }) => track.language),
+      ).toEqual(["zh"]);
+      expect(chinese.languageTracks.subtitles).toEqual(["zh"]);
+      expect(chinese.languageTracks.defaultNarration).toBe("zh");
+      expect(chinese.languageTracks.defaultSubtitle).toBe("zh");
+      await page.click('.language-track-settings [aria-label="Show subtitles on screen"]');
+      const global = await page.$eval("#request", (element) => JSON.parse(element.textContent!));
+      expect(global.languageTracks.showSubtitles).toBe(false);
+      expect(global.languageTracks.defaultSubtitle).toBe("off");
       expect(
         await page.$$('section[aria-label="Narration voice en"] [aria-label="Speech mode"]'),
       ).toHaveLength(0);
-      await page.screenshot({ path: "/tmp/kiteva-language-tracks-browser.png", fullPage: true });
+      await (await page.$(".language-track-settings"))!.screenshot({
+        path: "/tmp/kiteva-language-tracks-browser.png",
+      });
+      await (await page.$(".script-items"))!.screenshot({
+        path: "/tmp/kiteva-timed-script-inherited.png",
+      });
+      await page.click('[aria-label="Remove language zh"]');
+      await page.waitForFunction(
+        () =>
+          JSON.parse(document.querySelector("#request")!.textContent!).languageTracks.narration
+            .length === 0,
+      );
+      expect(await page.$('.script-items [aria-label="Speech language"]')).toBeNull();
+      expect(await page.$('.script-items [aria-label="Narrator voice"]')).toBeNull();
+      expect(await page.$('.script-items [aria-label="Narration"]')).toBeNull();
+      await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+      await page.waitForSelector(".kiteva-playback-overlay");
+      expect(await page.evaluate(() => matchMedia("(hover: none)").matches)).toBe(true);
+      await page.waitForFunction(
+        () => getComputedStyle(document.querySelector(".kiteva-playback-overlay")!).opacity === "1",
+      );
     } finally {
       await browser.close();
       await server.close();

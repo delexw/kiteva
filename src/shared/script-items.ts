@@ -90,7 +90,11 @@ export function legacyScriptItems(request: {
   ];
 }
 /** Renderer-independent model instructions; supplied text stays quoted data. */
-export function scriptItemsDirection(items: ScriptItem[] | undefined, preview = false) {
+export function scriptItemsDirection(
+  items: ScriptItem[] | undefined,
+  preview = false,
+  globalLanguageSettings = false,
+) {
   if (items === undefined) return "";
   return `TIMED SCRIPT ITEMS (authoritative; supersede legacy speech and subtitles fields):
 ${items
@@ -118,14 +122,19 @@ ${items
     }),
   )
   .join("\n")}
-This list controls script and caption copy even if style-context.json retains earlier writing instructions. For source=write items, write the spoken/caption text from the item instructions, approved plan and actual captured evidence during building. Never display those instructions as captions. Supplied text is content. Each item's start/end are absolute film seconds. Display its exact text only when showSubtitles is true and only inside its window. Speech and text visibility are independent: subtitle-only items must remain silent; spoken items with showSubtitles false must have no subtitle captions. Per-item language and voice selections override global delivery language for these items; do not translate their supplied text automatically. Create enabled speech through the internal create_narration MCP tool using each item ID as scriptItemId; edit_narration handles later corrections. The tool uses Kiteva's existing speech engine and returns measured cues. The application mixes the accepted track after rendering; do not embed duplicate vocals. Use measured cues belonging to each item's ID for matching spoken captions, and readable pacing within the supplied window for silent text. Preserve gaps and do not stretch speech or spill text/audio into another window. ${preview ? "Direction previews stay silent; use only an appropriate short text excerpt, never compress the entire timeline into the preview." : "Include every enabled text item and its times in STORYBOARD.json. Items with both controls off add no speech or subtitle text."}`;
+This list controls script and caption copy even if style-context.json retains earlier writing instructions. For source=write items, write the spoken/caption text from the item instructions, approved plan and actual captured evidence during building. Never display those instructions as captions. Supplied text is content. Each item's start/end are absolute film seconds. ${globalLanguageSettings ? "When showSubtitles is true, record the timed text for separate subtitle tracks; never burn it into rendered frames." : "Display its exact text only when showSubtitles is true and only inside its window."} Speech and text visibility are independent: subtitle-only items must remain silent; spoken items with showSubtitles false must have no subtitle captions. ${globalLanguageSettings ? "Global language profiles govern every item. Item speech fields are resolved copies of that global profile; never treat legacy item settings as overrides. Preserve the supplied meaning when translating into selected languages." : "Per-item language and voice selections override global delivery language for these items; do not translate their supplied text automatically."} Create enabled speech through the internal create_narration MCP tool using each item ID as scriptItemId; edit_narration handles later corrections. The tool uses Kiteva's existing speech engine and returns measured cues. The application mixes the accepted track after rendering; do not embed duplicate vocals. Use measured cues belonging to each item's ID for matching spoken captions, and readable pacing within the supplied window for silent text. Preserve gaps and do not stretch speech or spill text/audio into another window. ${preview ? "Direction previews stay silent; use only an appropriate short text excerpt, never compress the entire timeline into the preview." : "Include every enabled text item and its times in STORYBOARD.json. Items with both controls off add no speech or subtitle text."}`;
 }
 
 /** Timed items own text visibility whenever present, including an empty list. */
 export function hasOnScreenSubtitles(request: {
   scriptItems?: Pick<ScriptItem, "showSubtitles">[];
   subtitles?: { mode: string };
+  languageTracks?: { showSubtitles?: boolean; subtitles: readonly string[] };
 }) {
+  if (request.languageTracks)
+    return (
+      request.languageTracks.showSubtitles !== false && request.languageTracks.subtitles.length > 0
+    );
   return request.scriptItems !== undefined
     ? request.scriptItems.some((item) => item.showSubtitles)
     : Boolean(request.subtitles && request.subtitles.mode !== "off");

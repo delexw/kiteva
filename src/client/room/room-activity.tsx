@@ -25,6 +25,8 @@ import {
 import type { ActivityItem } from "../agent-activity-model";
 import { MessageResponse } from "../components/ai-elements/message";
 import { StoryboardCrew } from "../storyboard-crew";
+import { activityDisplayRows } from "./activity-rows";
+import { VirtualActivityRows } from "./virtual-activity-rows";
 import {
   isRoomActivityLive,
   roomActivityContexts,
@@ -117,8 +119,28 @@ export function roomActivityStep(
   };
 }
 function ContextEntries({ items, retry }: { items: ActivityItem[]; retry?: ActivityRetry }) {
+  const displayed = useMemo(() => displayActivityItems(items), [items]);
+  const rows = useMemo(() => activityDisplayRows(displayed), [displayed]);
+  if (rows.length > 100)
+    return (
+      <VirtualActivityRows
+        rows={rows}
+        renderRow={({ item }) => (
+          <ThoughtChain
+            line="dashed"
+            className="room-activity-steps"
+            items={[
+              roomActivityStep(
+                { ...item, children: undefined, progressPercent: activityProgressPercent(item) },
+                retry,
+              ),
+            ]}
+          />
+        )}
+      />
+    );
   const runs: Array<DisplayActivityItem | DisplayActivityItem[]> = [];
-  for (const item of displayActivityItems(items)) {
+  for (const item of displayed) {
     const last = runs.at(-1);
     if (item.kind !== "message" && Array.isArray(last)) last.push(item);
     else runs.push(item.kind === "message" ? item : [item]);
@@ -261,13 +283,18 @@ export function RoomActivityNow({
   run,
   events,
   onOpen,
+  contexts: preparedContexts,
 }: {
   run: Run;
   events: AgentProgressEvent[];
   onOpen: () => void;
+  contexts?: RoomActivityContext[];
 }) {
   const { language } = useUiLanguage();
-  const contexts = useMemo(() => roomActivityContexts(run, events), [run, events, language]);
+  const contexts = useMemo(
+    () => preparedContexts ?? roomActivityContexts(run, events),
+    [preparedContexts, run, events, language],
+  );
   const working = contexts.filter((context) => context.status === "loading");
   if (!isRoomActivityLive(run) || !working.length) return null;
   const progress = latestActivityProgress(working[0].items);
@@ -291,17 +318,44 @@ export function RoomActivityNow({
   );
 }
 
+export function RoomActivityContextDetail({
+  run,
+  context,
+  onRetry,
+}: {
+  run: Run;
+  context: RoomActivityContext;
+  onRetry?: (jobId?: string) => void | Promise<void>;
+}) {
+  const interrupted = latestRetryableActivityItem(context.items);
+  const phase = interrupted?.jobId
+    ? run.jobs.find((job) => job.id === interrupted.jobId)?.phase
+    : run.phase;
+  const retry =
+    interrupted && onRetry && phase && ["failed", "interrupted", "cancelled"].includes(phase)
+      ? { itemId: interrupted.id, action: () => onRetry(interrupted.jobId) }
+      : undefined;
+  return <ContextDetail context={context} retry={retry} />;
+}
+
 export function RoomActivity({
   run,
   events,
   onRetry,
+  contexts: preparedContexts,
+  renderContext,
 }: {
   run: Run;
   events: AgentProgressEvent[];
   onRetry?: (jobId?: string) => void | Promise<void>;
+  contexts?: RoomActivityContext[];
+  renderContext?: (context: RoomActivityContext) => ReactNode;
 }) {
   const { language } = useUiLanguage();
-  const contexts = useMemo(() => roomActivityContexts(run, events), [run, events, language]);
+  const contexts = useMemo(
+    () => preparedContexts ?? roomActivityContexts(run, events),
+    [preparedContexts, run, events, language],
+  );
   const { scrollRef, contentRef } = useStickToBottom({ initial: "smooth", resize: "smooth" });
   const activityRef = useCallback(
     (element: HTMLElement | null) => {
@@ -324,25 +378,15 @@ export function RoomActivity({
         size="small"
         ghost
         className="room-activity-list"
+        destroyOnHidden={Boolean(renderContext)}
         items={contexts.map((context) => {
           const empty = !context.items.length && !context.checkpoints.length;
-          const interrupted = latestRetryableActivityItem(context.items);
-          const phase = interrupted?.jobId
-            ? run.jobs.find((job) => job.id === interrupted.jobId)?.phase
-            : run.phase;
-          const retry =
-            interrupted &&
-            onRetry &&
-            phase &&
-            ["failed", "interrupted", "cancelled"].includes(phase)
-              ? { itemId: interrupted.id, action: () => onRetry(interrupted.jobId) }
-              : undefined;
           const latest = context.items.at(-1);
           const progress = latestActivityProgress(context.items);
           return {
             key: context.key,
-            collapsible: empty ? ("disabled" as const) : undefined,
-            showArrow: !empty,
+            collapsible: empty && !renderContext ? ("disabled" as const) : undefined,
+            showArrow: !empty || Boolean(renderContext),
             label: (
               <span className="room-activity-heading">
                 <span className="room-activity-line">
@@ -358,7 +402,11 @@ export function RoomActivity({
               </span>
             ),
             extra: latest && <time dateTime={latest.time}>{clock(latest.time)}</time>,
-            children: <ContextDetail context={context} retry={retry} />,
+            children: renderContext ? (
+              renderContext(context)
+            ) : (
+              <RoomActivityContextDetail run={run} context={context} onRetry={onRetry} />
+            ),
           };
         })}
       />

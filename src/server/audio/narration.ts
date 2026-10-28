@@ -69,9 +69,12 @@ export async function prepareNarrationCapability(
   let unchanged = false;
   try {
     const file = await workspaceFile(workspace, narrationConfigPath);
-    unchanged =
-      JSON.stringify(NarrationConfigSchema.parse(JSON.parse(await readFile(file, "utf8")))) ===
-      JSON.stringify(config);
+    const previous = NarrationConfigSchema.parse(JSON.parse(await readFile(file, "utf8")));
+    unchanged = JSON.stringify(previous) === JSON.stringify(config);
+    if (!unchanged && JSON.stringify(previous.profiles) === JSON.stringify(config.profiles)) {
+      const state = await readNarrationState(workspace);
+      unchanged = Boolean(state && state.track.durationSeconds <= config.duration);
+    }
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   }

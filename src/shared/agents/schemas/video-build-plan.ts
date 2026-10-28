@@ -1,6 +1,11 @@
 import { CaptureChapterPlanSchema } from "../../capture-chapters";
 import { z } from "zod";
 import { StoryboardSchema } from "./storyboard";
+import {
+  MAX_VIDEO_DURATION,
+  MIN_AUTO_VIDEO_DURATION,
+  videoDurationRange,
+} from "../../video-duration";
 const text = z.string().trim().min(1);
 const seconds = z.number().finite().nonnegative();
 const interval = { startSeconds: seconds, endSeconds: seconds };
@@ -67,20 +72,32 @@ export type FullVideoPlan = z.infer<typeof FullVideoPlanSchema>;
 export type VideoBuildPlan = z.infer<typeof PlanSchema> | FullVideoPlan;
 export function fullVideoPlanSchemaFor(
   expected: {
+    /** Exact approved timeline, used when revising capture timing. */
     duration?: number;
+    /** User-selected approximate length for initial full-film planning. */
+    targetDuration?: number;
+    minimumDuration?: number;
     width: number;
     height: number;
     fps: number;
   },
   requireStoryboard = false,
 ) {
+  const range =
+    expected.targetDuration === undefined
+      ? { min: MIN_AUTO_VIDEO_DURATION, max: MAX_VIDEO_DURATION }
+      : videoDurationRange(expected.targetDuration);
   const schema = FullVideoPlanSchema.extend({
     width: z.literal(expected.width),
     height: z.literal(expected.height),
     fps: z.literal(expected.fps),
     durationSeconds:
       expected.duration === undefined
-        ? z.number().int().min(15).max(300)
+        ? z
+            .number()
+            .int()
+            .min(Math.max(range.min, expected.minimumDuration ?? 0))
+            .max(range.max)
         : z.literal(expected.duration),
   });
   return (

@@ -67,6 +67,13 @@ it("rejects duplicate IDs, spoken overlaps and windows beyond the film", () => {
       duration: 5,
       scriptItems: [item],
     }).success,
+  ).toBe(true);
+  expect(
+    VideoRequestSchema.safeParse({
+      instructions: "A short explanation",
+      duration: 4,
+      scriptItems: [item],
+    }).success,
   ).toBe(false);
 });
 it("retains independently selected providers, languages and hidden captions in model guidance", () => {

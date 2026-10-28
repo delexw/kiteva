@@ -769,3 +769,45 @@ it("uses matching labels and outcomes for equivalent provider operations", () =>
     status: "complete",
   });
 });
+
+it("shows each accepted planning artifact as a separate completed activity", () => {
+  const items = activityItems([
+    event(1, "plan_ready", "Plan ready", "a", {
+      audience: "internal",
+      videoBuildPlanning: true,
+      purpose: "Full video planning",
+    }),
+    event(2, "storyboard_ready", "Storyboard ready", "a", {
+      audience: "internal",
+      videoBuildPlanning: true,
+      purpose: "Full video planning",
+    }),
+    event(3, "capture_plan_ready", "Capture plan ready", "a", {
+      audience: "internal",
+      videoBuildPlanning: true,
+      purpose: "Full video planning",
+    }),
+  ]);
+  expect(items.map((item) => item.text)).toEqual([
+    "Plan ready",
+    "Storyboard ready",
+    "Capture plan ready",
+  ]);
+  expect(items.every((item) => item.status === "complete")).toBe(true);
+});
+
+it("keeps narration language visible instead of replacing it with generic preparation", () => {
+  const events = [
+    event(1, "phase", "Mixing voice and music…"),
+    event(2, "phase", "Preparing en narration…"),
+    event(3, "phase", "Preparing zh narration…"),
+  ];
+  expect(activityItems(events).map((item) => item.text)).toEqual([
+    "Mixing your audio…",
+    "Preparing English narration…",
+    "Preparing Chinese narration…",
+  ]);
+  const html = renderToStaticMarkup(<AgentActivity events={events} />);
+  expect(html).toContain("Preparing English narration…");
+  expect(html).toContain("Preparing Chinese narration…");
+});

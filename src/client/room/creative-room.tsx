@@ -87,7 +87,7 @@ import { roomQuestionScope } from "./question-scope";
 import {
   chooseRoomDraftStyle,
   emptyRoomDraft,
-  roomDraftFromProject,
+  roomEditDraft,
   roomMaterialSection,
   removeRoomEditDraft,
 } from "./onboarding";
@@ -279,7 +279,6 @@ export function CreativeRoom({
     const key = `edit:${editSourceId}`;
     setConversation(key);
     reveal("assistant");
-    if (room.drafts[key]) return;
     let disposed = false;
     void Promise.all([
       api<Run>(`/api/runs/${editSourceId}`),
@@ -289,11 +288,17 @@ export function CreativeRoom({
     ])
       .then(([source, attachments]) => {
         if (disposed) return;
-        const draft = roomDraftFromProject(
-          source.request,
-          attachments.assets.map((asset) => ({ ...asset, kind: "", bytes: asset.bytes || 0 })),
-        );
-        setRoom((previous) => ({ ...previous, drafts: { ...previous.drafts, [key]: draft } }));
+        setRoom((previous) => ({
+          ...previous,
+          drafts: {
+            ...previous.drafts,
+            [key]: roomEditDraft(
+              source,
+              attachments.assets.map((asset) => ({ ...asset, kind: "", bytes: asset.bytes || 0 })),
+              previous.drafts[key],
+            ),
+          },
+        }));
       })
       .catch((e) =>
         setError(

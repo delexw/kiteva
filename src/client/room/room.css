@@ -1266,6 +1266,13 @@
   padding: 10px 20px;
   border-bottom: 1px solid var(--room-hairline);
 }
+.room-project-attention {
+  flex: none;
+}
+.room-project-attention:has(.ant-alert) {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--room-hairline);
+}
 .room-project-scroll {
   flex: 1;
   min-height: 0;
@@ -1289,7 +1296,7 @@
 }
 .room-preview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   gap: 18px;
 }
 .room-preview-grid > section {
@@ -1459,6 +1466,12 @@
   gap: var(--activity-row-gap);
   padding: 4px 0 6px;
   padding-inline-start: 28px;
+}
+.room-virtual-activity {
+  min-width: 0;
+}
+.room-virtual-activity-row {
+  padding-block-end: var(--activity-row-gap);
 }
 .room-activity-steps {
   row-gap: var(--activity-row-gap);

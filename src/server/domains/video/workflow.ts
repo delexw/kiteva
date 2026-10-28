@@ -1,10 +1,11 @@
-import { StructuredOutputError } from "../../agents/structured-output-error";
+import { createVideoBuildTurn } from "./execution/build-turn";
+import { executeInitialBuild } from "./execution/initial-build";
+import { executeRefinement } from "./execution/refinement";
+import { executeQuestionResume } from "./execution/question-resume";
 import { applyLanguageTracks } from "../../../shared/language-tracks";
 import { buildLanguageMedia } from "./language-media";
-import { previewPlanArtifact } from "../../jobs/preview-plan";
 import { activityScope } from "../../jobs/activity-scope";
-import { mergeCorrection, correctionMergeGuidance } from "../../agents/correction-merge";
-import { ProductionSchema } from "../../../shared/agents/schemas/video";
+import { videoDurationRange } from "../../../shared/video-duration";
 import { currentNarrationTrack, prepareNarrationCapability } from "../../audio/narration";
 import { localizeVideoRequest } from "../../jobs/subworkflows/video-localization";
 import { deliverySpeech, narrationLanguage } from "../../../shared/video-language";
@@ -14,25 +15,19 @@ import { prepareSpeech } from "../../audio/speech";
 import { RendererDiagnosticError, rendererCorrectionEvidence } from "../../rendering/diagnostics";
 import { prepareVideoBuildPlan } from "./build-plan";
 import { captureWithTimingRetries } from "../../jobs/subworkflows/chapter-capture/timing-retry";
-import { capturedChaptersArtifact } from "../../jobs/subworkflows/chapter-capture/workflow";
-import {
-  BriefSchema,
-  videoGenerationOutputSchemaForDuration,
-  type Brief,
-} from "../../../shared/agents/schemas/video";
-import { CandidateCopySchema } from "../../../shared/agents/schemas/candidate-copy";
+import { BriefSchema, type Brief } from "../../../shared/agents/schemas/video";
 import path from "node:path";
 import { writeFile } from "node:fs/promises";
 import { dimensions, type Style, type StyleCandidate } from "../../../shared/contracts";
 import type { VideoRequest, VideoGenerationJob } from "../../../shared/domains/video";
-import { agentTurn, type ProviderEvent } from "../../agents/providers";
+import type { ProviderEvent } from "../../agents/providers";
 import { buildVideoPrompt } from "./prompts";
 import { renderJob } from "../../rendering/render";
 import { safeMessage } from "../../runtime/config";
 import { VideoCorrectionCoordinator } from "./corrector";
 import { VideoQaError, VideoQaReportError, resultReviewFindings } from "./qa";
 import { reviewFinishedResult } from "../../jobs/subworkflows/result-review";
-import { validateStoryboardJson, writeStoryboardJson } from "./storyboard";
+import { validateStoryboardJson } from "./storyboard";
 import { rendererPipelineProblem, videoRendererOf } from "../../../shared/video-renderers";
 
 export async function generateVideo(input: {
@@ -49,6 +44,14 @@ export async function generateVideo(input: {
   emit: (type: string, message: string) => void;
   render: <T>(task: () => Promise<T>) => Promise<T>;
 }) {
+  if (input.job.kind === "full") {
+    const targetDuration =
+      typeof input.request.duration === "number" ? input.request.duration : undefined;
+    if (input.job.targetDuration !== targetDuration) {
+      input.job.targetDuration = targetDuration;
+      input.update();
+    }
+  }
   return activityScope("Creating your video", async () => {
     const {
       job,
@@ -117,11 +120,9 @@ export async function generateVideo(input: {
           applicationDemoStage: "planning",
         }),
         referenceUrls: request.urls,
-        automaticDuration: Boolean(
-          request.selectedStyleIds?.length &&
-          request.duration === "auto" &&
-          request.scriptItems === undefined,
-        ),
+        automaticDuration: request.duration === "auto",
+        targetDuration: typeof request.duration === "number" ? request.duration : undefined,
+        minimumDuration: Math.max(0, ...(request.scriptItems || []).map((item) => item.endSeconds)),
         ...size,
         fps,
         signal,
@@ -134,9 +135,17 @@ export async function generateVideo(input: {
         await captureWithTimingRetries({ job, request, signal, onEvent, update });
       }
     }
+    const refinementDuration =
+      job.kind === "full" && job.refinementPrompt
+        ? videoDurationRange(job.targetDuration ?? job.duration)
+        : undefined;
     const narrationRequired =
       job.kind === "full" &&
-      (await prepareNarrationCapability(job.workspace, request, job.duration));
+      (await prepareNarrationCapability(
+        job.workspace,
+        request,
+        refinementDuration?.max ?? job.duration,
+      ));
     // Uploaded recordings are imported; generated narration is created only through MCP.
     job.speechTrack =
       job.kind === "full" &&
@@ -146,7 +155,7 @@ export async function generateVideo(input: {
             request,
             brief,
             workspace: job.workspace,
-            duration: job.duration,
+            duration: refinementDuration?.max ?? job.duration,
             signal,
             onEvent,
             emit,
@@ -165,8 +174,8 @@ export async function generateVideo(input: {
       feedback,
       speechTrack: job.speechTrack,
     });
-    const previewRequirementsFile = path.resolve(job.workspace, "VIDEO_REQUIREMENTS.md");
-    if (job.kind === "preview") await writeFile(previewRequirementsFile, prompt);
+    const requirementsFile = path.resolve(job.workspace, "VIDEO_REQUIREMENTS.md");
+    await writeFile(requirementsFile, prompt);
     await writeFile(path.join(job.workspace, "EXECUTABLE_PROMPT.md"), prompt);
     const corrector = new VideoCorrectionCoordinator({
       job,
@@ -176,115 +185,38 @@ export async function generateVideo(input: {
       update,
       emit,
     });
-    const buildTurn = async (prompt: string) => {
-      const generationStarted = Date.now();
-      const turn = await agentTurn({
-        includeCreativeAlternatives: false,
-        provider: request.provider,
-        model: job.model,
-        workspace: job.workspace,
+    const buildTurn = createVideoBuildTurn({
+      job,
+      request,
+      candidate,
+      signal,
+      onEvent,
+      update,
+      corrector,
+      refinementDuration,
+    });
+    const execution = {
+      planning: {
         referenceUrls: request.urls,
-        enableVideoCapture:
-          job.kind === "full" &&
-          job.buildPlan?.value.version === 2 &&
-          job.buildPlan.value.capturePlan !== undefined
-            ? false
-            : undefined,
-        signal,
-        sessionId: job.sessionId,
-        schema:
-          job.kind === "preview"
-            ? videoGenerationOutputSchemaForDuration(job.duration).extend(CandidateCopySchema.shape)
-            : videoGenerationOutputSchemaForDuration(job.duration),
-        onEvent,
+        automaticDuration: request.duration === "auto",
+        targetDuration: typeof request.duration === "number" ? request.duration : undefined,
+        minimumDuration: Math.max(0, ...(request.scriptItems || []).map((item) => item.endSeconds)),
+        job,
+        provider: request.provider,
         prompt,
-        ...(job.production ? { promptContext: { currentManifest: job.production } } : {}),
-      }).catch(async (error: unknown) => {
-        signal.throwIfAborted();
-        if (
-          !(error instanceof StructuredOutputError) ||
-          !error.issues.length ||
-          error.issues.some((issue) => issue.path[0] !== "storyboard")
-        )
-          throw error;
-        // A valid manifest can be retained while the shared corrector repairs its rejected storyboard.
-        const production = ProductionSchema.safeParse(error.output);
-        if (!production.success) throw error;
-        job.production = mergeCorrection(job.production, production.data, ProductionSchema);
-        job.sessionId = error.sessionId || job.sessionId;
-        job.generationMs = (job.generationMs || 0) + Date.now() - generationStarted;
-        const copy = CandidateCopySchema.safeParse(error.output);
-        if (job.kind === "preview" && copy.success) Object.assign(candidate, copy.data);
-        update();
-        await corrector.correctRound([
-          {
-            focus: "technical",
-            cheapEligible: true,
-            issue: "Generated storyboard failed application validation",
-            expectedFix:
-              "Repair every reported storyboard validation error. Keep beats ordered and contiguous inside each scene, covering its full duration. Preserve the accepted manifest, actual animation, source assets and unrelated content; update scene code only if needed for consistency.",
-            acceptanceCriteria:
-              "The complete storyboard passes the existing schema and matches the composition and requested duration without relaxing validation.",
-            evidence: { issues: error.issues, rejectedOutput: error.output },
-          },
-        ]);
-        return undefined;
-      });
-      if (!turn) return;
-      job.generationMs = (job.generationMs || 0) + Date.now() - generationStarted;
-      job.sessionId = turn.sessionId || job.sessionId;
-      job.speechTrack = await currentNarrationTrack(job.workspace, job.speechTrack);
-      const { storyboard, ...production } = turn.value;
-      const merged = mergeCorrection(job.production, production, ProductionSchema);
-      if (merged.assetNeeds?.length) {
-        job.production = merged;
-        // The orchestrator pauses only unanswered questions; answered needs may remain in a merged manifest.
-        update();
-      }
-      await writeStoryboardJson(job.workspace, storyboard, job.duration);
-      job.production = merged;
-      if (job.kind === "preview") {
-        const copy = CandidateCopySchema.safeParse(turn.value);
-        if (copy.success) Object.assign(candidate, copy.data);
-      }
-      update();
+        ...size,
+        fps,
+        signal,
+        onEvent,
+        update,
+      },
+      buildTurn,
     };
     if (!job.production) {
-      const implementationPrompt =
-        job.kind === "preview"
-          ? `# Build this preview
-
-- Read ${JSON.stringify(path.resolve(job.workspace, previewPlanArtifact))} for the shared plan and direction ${JSON.stringify(candidate.id)}. Implement only that direction's assigned styles and scene roles.
-- Read ${JSON.stringify(previewRequirementsFile)} for the original idea, settings, references and renderer contract.
-- Build the short silent preview directly; do not return another plan or restart direction selection.
-- Return the production manifest with the complete storyboard, displayTitle and displayDescription. The app validates and renders the result.`
-          : await prepareVideoBuildPlan({
-              referenceUrls: request.urls,
-              job,
-              provider: request.provider,
-              prompt,
-              ...size,
-              fps,
-              signal,
-              onEvent,
-              update,
-            });
-      const captured = job.buildPlan?.value.version === 2 && job.buildPlan.value.capturePlan;
-      const implementationHandoff =
-        job.kind === "preview" || job.refinementPrompt
-          ? implementationPrompt
-          : `${implementationPrompt}\n\n${prompt}`;
-      const assemblyPrompt = captured
-        ? `${implementationHandoff}\nCAPTURE HANDOFF: Code has completed the planned chapter captures. Read ${capturedChaptersArtifact} and use its reviewed exported assets and observed results. Reconcile actual durations with the storyboard and chapter cards. Do not record the chapters again; capture tools are unavailable during assembly.`
-        : implementationHandoff;
-      if (assemblyPrompt !== prompt)
-        await writeFile(path.join(job.workspace, "EXECUTABLE_PROMPT.md"), assemblyPrompt);
-      await buildTurn(assemblyPrompt);
+      if (job.refinementPrompt) await executeRefinement(execution);
+      else await executeInitialBuild({ ...execution, candidateId: candidate.id });
     } else if (decisions) {
-      emit("state", "Applying your decision…");
-      await buildTurn(
-        `The user answered a question about this existing ${job.kind === "preview" ? "preview" : "full video"}. Continue this session and apply only the decision below to the current composition. ${correctionMergeGuidance} Read request.instructions in style-context.json for the complete original idea and exact copy before reporting any information missing. Inspect any newly supplied files listed in style-context.json assetInputs before using them. Keep the selected Motion Graphics, ${job.duration}s duration, dimensions, ${fps} fps and every unaffected scene unchanged. Read STORYBOARD.json completely and return the updated production manifest and complete storyboard.\n\n${decisions}`,
-      );
+      await executeQuestionResume({ ...execution, decisions, emit, refinementDuration });
     }
     while (true) {
       signal.throwIfAborted();
@@ -332,7 +264,8 @@ export async function generateVideo(input: {
                 job,
                 production,
                 signal,
-                (type, msg) => emit(type, msg),
+                (type, msg, data) =>
+                  data === undefined ? emit(type, msg) : onEvent({ type, message: msg, data }),
                 job.speechTrack,
                 ...(request.languageTracks ? ([true] as const) : []),
               );

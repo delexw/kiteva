@@ -1,3 +1,4 @@
+import { LoadingStatus } from "../components/loading-status";
 import { uiLanguage, translateUi, useUiLanguage } from "../i18n";
 import { PromptText } from "../components/style-mention";
 import { useEffect, useState } from "react";
@@ -129,7 +130,12 @@ export function ModelPromptBrowser({
           )}
         </p>
         <div className="governance-prompt-body">
-          {!record && <p role="status">{error || translateUi("Loading full prompt…")}</p>}
+          {!record &&
+            (error ? (
+              <p role="status">{error}</p>
+            ) : (
+              <LoadingStatus text={translateUi("Loading full prompt…")} />
+            ))}
           {record && (
             <>
               {record.note && <Alert title={translateUi(record.note)} type="info" />}

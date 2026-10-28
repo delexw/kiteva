@@ -22,7 +22,7 @@ const laterStyleIds = ["style-137", "style-138", "style-139", "style-140", "styl
 // The user-directed Manga crew revision postdates the orbit review. Keep its
 // historical evidence unchanged and verify the revised metadata separately.
 const laterMetadataHashes: Record<string, string> = {
-  "style-136": "5ad165955cb64f60707a2b53b1fdee94d548a85ef1e55fae3e710bfbfbcb9541",
+  "style-136": "82a925d0a2c44852e328f691e300b703a8b26f45fc4b117442f1f2e3e7541021",
 };
 const withoutLaterMotionAdditions = (pattern: Record<string, unknown>) => {
   const { variants: _variants, ...rest } = pattern;

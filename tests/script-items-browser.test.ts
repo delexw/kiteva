@@ -83,8 +83,11 @@ function App(){const[items,setItems]=useState(initial);const[saved,setSaved]=use
       await page.keyboard.press("Backspace");
       await firstText.type("Opening words");
       expect((await state())[0].text).toBe("Opening words");
-      await page.click('[aria-label="Show subtitles on screen"]');
-      expect((await state())[0].showSubtitles).toBe(false);
+      expect(await page.$('[aria-label="Show subtitles on screen"]')).toBeNull();
+      expect(await page.$('[aria-label="Narration"]')).toBeNull();
+      expect(await page.$('[aria-label="Speech language"]')).toBeNull();
+      expect(await page.$('[aria-label="Narrator voice"]')).toBeNull();
+      expect((await state())[0].showSubtitles).toBe(true);
       expect((await state())[1].showSubtitles).toBe(false);
       const end = (await page.$$('[aria-label="End (seconds)"]'))[0];
       await end.click();

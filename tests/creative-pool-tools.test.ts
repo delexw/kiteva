@@ -443,3 +443,33 @@ it("inspects and bundles a nested model-prepared runtime and rejects escape", as
     ],
   });
 });
+
+it.each([true, false])(
+  "returns the complete embedded crew code as style metadata (%s)",
+  async (includeAlternatives) => {
+    const { client } = await connect(includeAlternatives);
+    const style = (await loadCatalog()).styles.find((entry) => entry.id === "style-136")!;
+    const result = await client.callTool({
+      name: "read_pool_entry",
+      arguments: { kind: "motion_graphic", idOrName: style.id },
+    });
+    expect(result.isError).not.toBe(true);
+    expect(result.structuredContent).toMatchObject({
+      kind: "entry",
+      entry: {
+        definition: {
+          executable_prompt_template: expect.stringContaining("MANDATORY CHARACTER IMPLEMENTATION"),
+          tech: { reference_implementation: style.tech.reference_implementation },
+        },
+      },
+    });
+    expect(JSON.parse((result.content as { text: string }[])[0].text)).toEqual(
+      result.structuredContent,
+    );
+    const other = await client.callTool({
+      name: "read_pool_entry",
+      arguments: { kind: "motion_graphic", idOrName: "style-001" },
+    });
+    expect(JSON.stringify(other.structuredContent)).not.toContain("manga-head");
+  },
+);

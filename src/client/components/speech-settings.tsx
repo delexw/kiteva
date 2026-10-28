@@ -135,15 +135,17 @@ export function SpeechSettings({
   };
   return (
     <section aria-label={translateUi("Speech and vocals")} className="speech-settings">
-      <SettingsSectionHeading
-        title={translateUi("Speech / vocals")}
-        description={translateUi(
-          timedItem
-            ? "Choose a narrator for this item."
-            : "Choose a narrator or use your own vocal recording.",
-        )}
-        icon={<Mic size={18} />}
-      />
+      {!profileOnly && (
+        <SettingsSectionHeading
+          title={translateUi("Speech / vocals")}
+          description={translateUi(
+            timedItem
+              ? "Choose a narrator for this item."
+              : "Choose a narrator or use your own vocal recording.",
+          )}
+          icon={<Mic size={18} />}
+        />
+      )}
       {!profileOnly && (
         <Select
           className={value?.mode === "narration" ? "speech-control-half" : undefined}
@@ -206,18 +208,6 @@ export function SpeechSettings({
               })
             }
           />
-          {status?.available ? (
-            <Typography.Text type="secondary" className="speech-ready" role="status">
-              <CheckCircle2 size={14} aria-hidden="true" />
-              {translateUi("Local voice · no provider credits")}
-            </Typography.Text>
-          ) : (
-            <Alert
-              type="info"
-              showIcon
-              title={status?.detail || translateUi("Checking local speech…")}
-            />
-          )}
           {!profileOnly && (
             <Select
               className="speech-control-half"
@@ -280,7 +270,10 @@ export function SpeechSettings({
               }}
             />
           )}
-          <Space.Compact className="speech-control-half" style={{ width: "100%" }}>
+          <Space.Compact
+            className="speech-control-half speech-voice-control"
+            style={{ width: "100%" }}
+          >
             <Select<string>
               aria-label={translateUi("Narrator voice")}
               style={{ flex: 1 }}
@@ -316,6 +309,18 @@ export function SpeechSettings({
               {translateUi("Listen")}
             </Button>
           </Space.Compact>
+          {status?.available ? (
+            <Typography.Text type="secondary" className="speech-ready" role="status">
+              <CheckCircle2 size={14} aria-hidden="true" />
+              {translateUi("Local voice · no provider credits")}
+            </Typography.Text>
+          ) : (
+            <Alert
+              type="info"
+              showIcon
+              title={status?.detail || translateUi("Checking local speech…")}
+            />
+          )}
           {sample && (
             <audio aria-label={translateUi("Narrator sample")} controls autoPlay src={sample} />
           )}

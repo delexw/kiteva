@@ -1,3 +1,4 @@
+import { generationSessionEvents } from "../../jobs/generation-session";
 import { correctionIdentity } from "../../agents/correction-identity";
 import { RendererDiagnosticError, rendererCorrectionEvidence } from "../../rendering/diagnostics";
 import { RetryBudgets } from "../../../shared/retry-budget";
@@ -52,7 +53,7 @@ export async function generatePage(input: {
               signal,
               sessionId: job.sessionId,
               schema: job.pageProduction ? PageProductionSchema.partial() : PageProductionSchema,
-              onEvent: input.onEvent,
+              onEvent: generationSessionEvents(job, input.onEvent, update),
               ...(job.pageProduction
                 ? { promptContext: { currentManifest: job.pageProduction } }
                 : {}),

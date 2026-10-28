@@ -1,3 +1,5 @@
+import type { reviewRenderCache } from "../../jev/strategies/render-cache";
+import { createMultiplaneRecoveryCache } from "../../rendering/multiplane/recovery-cache";
 import { hyperframesMetadata } from "../../rendering/hyperframes/metadata";
 import { multiplaneMetadata } from "../../rendering/multiplane/metadata";
 import { remotionMetadata } from "../../rendering/remotion/metadata";
@@ -8,6 +10,7 @@ import {
   rendererReproductionCommand,
 } from "../../rendering/execution";
 import { videoRenderTimeoutMs } from "../../rendering/timeouts";
+import { fullVideoDurationMatches } from "../../../shared/video-duration";
 import { type Production } from "../../../shared/agents/schemas/video";
 import { withContentReveal } from "../../motion/content-reveal";
 import { withArrowDrawing } from "../../motion/arrow-drawing";
@@ -19,7 +22,7 @@ import { mixSpeech } from "../../audio/speech";
 import { readFile, writeFile, mkdir, rm, copyFile } from "node:fs/promises";
 import { command, isolatedCommand } from "../../runtime/process.js";
 import { probeVideo } from "../../rendering/video-probe";
-import { previewVideoFile, transcodePreviewToWebm } from "../../rendering/webm-video";
+import { frameRateOf, previewVideoFile, transcodePreviewToWebm } from "../../rendering/webm-video";
 import {
   cardClipFile,
   cardClipStart,
@@ -63,7 +66,7 @@ async function renderHyperFrames(
   out: string,
   fps: number,
   signal: AbortSignal,
-  emit: (type: string, message: string) => void,
+  emit: (type: string, message: string, data?: unknown) => void,
 ) {
   if (production.sourceFile !== "index.html")
     throw Error("HyperFrames entry point must be index.html");
@@ -165,7 +168,7 @@ async function renderRemotion(
   video: string,
   fps: number,
   signal: AbortSignal,
-  emit: (type: string, message: string) => void,
+  emit: (type: string, message: string, data?: unknown) => void,
 ) {
   if (!production.fallbackReason?.trim())
     throw Error("Remotion fallback requires a verified reason");
@@ -200,13 +203,20 @@ async function renderMultiplane(
   video: string,
   fps: number,
   signal: AbortSignal,
-  emit: (type: string, message: string) => void,
+  emit: (type: string, message: string, data?: unknown) => void,
+  review?: typeof reviewRenderCache,
 ) {
   const shots = multiplaneShotPlan(production, job.duration, fps);
   const segmented = shots.length > 1;
   const directory = path.join(job.workspace, "renders", "shots");
   if (segmented) await mkdir(directory, { recursive: true });
   const parts: string[] = [];
+  const recovery = await createMultiplaneRecoveryCache({
+    workspace: job.workspace,
+    signal,
+    onEvent: (event) => emit(event.type, event.message, event.data),
+    review,
+  });
   for (const [index, shot] of shots.entries()) {
     const scope = {
       sourceFile: shot.sourceFile,
@@ -232,17 +242,27 @@ async function renderMultiplane(
           audioFile: segmented ? null : production.audioFile,
         })
       : undefined;
+    const cacheSettings = {
+      shot,
+      fps,
+      width: production.width,
+      height: production.height,
+      kind: job.kind,
+      policy: multiplaneMetadata.execution,
+      audioFile: segmented ? null : production.audioFile,
+    };
     if (
-      key &&
-      fingerprint &&
-      (await restoreMultiplaneShot({
-        workspace: job.workspace,
-        key,
-        output,
-        fingerprint,
-        signal,
-        scope,
-      }))
+      (key &&
+        fingerprint &&
+        (await restoreMultiplaneShot({
+          workspace: job.workspace,
+          key,
+          output,
+          fingerprint,
+          signal,
+          scope,
+        }))) ||
+      (await recovery?.restore(shot.sourceFile, cacheSettings, output))
     ) {
       emit("phase", `Reusing the validated Multiplane shot${label}`);
       if (segmented) parts.push(part);
@@ -295,6 +315,7 @@ async function renderMultiplane(
       signal,
       (text) => emit("render_progress", text),
     );
+    await recovery?.store(shot.sourceFile, cacheSettings, output);
     if (key && fingerprint)
       await storeMultiplaneShot({
         workspace: job.workspace,
@@ -325,9 +346,10 @@ export async function renderJob(
   job: VideoGenerationJob,
   production: Production,
   signal: AbortSignal,
-  emit: (type: string, message: string) => void,
+  emit: (type: string, message: string, data?: unknown) => void,
   speechTrack?: SpeechTrack,
   preserveMusicVideo = false,
+  dependencies: { reviewRenderCache?: typeof reviewRenderCache } = {},
 ) {
   const fps = production.fps ?? 30;
   const out = path.join(job.workspace, "renders");
@@ -340,7 +362,15 @@ export async function renderJob(
   if (production.pipeline === "HyperFrames")
     await renderHyperFrames(job, production, rendered, out, fps, signal, emit);
   else if (production.pipeline === "Multiplane")
-    await renderMultiplane(job, production, rendered, fps, signal, emit);
+    await renderMultiplane(
+      job,
+      production,
+      rendered,
+      fps,
+      signal,
+      emit,
+      dependencies.reviewRenderCache,
+    );
   else await renderRemotion(job, production, rendered, fps, signal, emit);
   emit("render_progress", "Render complete");
   if (job.kind === "full" && preserveMusicVideo)
@@ -351,13 +381,18 @@ export async function renderJob(
   }
   const probe = await probeVideo(rendered, signal);
   const picture = probe.streams.find((s) => s.codec_type === "video");
+  const actualDuration = Number(probe.format.duration);
   if (
     !picture ||
     picture.codec_name !== (rendered.endsWith(".webm") ? "vp9" : "h264") ||
     picture.width !== production.width ||
     picture.height !== production.height ||
-    Math.abs(Number(probe.format.duration) - job.duration) > 0.15 ||
-    picture.avg_frame_rate !== `${fps}/1`
+    !Number.isFinite(actualDuration) ||
+    (job.kind === "full"
+      ? !fullVideoDurationMatches(actualDuration, job.duration, job.targetDuration)
+      : Math.abs(actualDuration - job.duration) > 0.15) ||
+    // Accept average rates that round to the requested whole-number frame rate.
+    Math.round(frameRateOf(probe)) !== fps
   )
     throw Error(
       "Rendered video dimensions, frame rate, or duration do not match the requested output",
@@ -406,7 +441,7 @@ export async function renderJob(
   );
   await writeFile(
     path.join(job.workspace, "VALIDATION.md"),
-    `# Render validation\n\nVerified by the application: ${job.duration}s, ${production.width}×${production.height}, ${fps} fps; full video decode passed. ${job.kind === "preview" ? "No audio track (silent preview). The preview is a VP9 WebM, checked against the validated render for size, frame rate, duration, frame count and picture similarity." : "Audio presence is recorded in renders/validation.json."}\n\nInspect renders/contact-sheet.jpg and the decoded ${path.relative(job.workspace, video)} for appearance and movement. Agent-side limitations about pending rendering are superseded only for the checks listed here.\n\nReproduce with: ${production.pipeline === "Multiplane" && (production.shots?.length ?? 0) > 1 ? `Render each production.shots entry in order with ${multiplaneMetadata.execution.commonFlags.join(" ")}, concatenate the silent parts, then mux production.audioFile once for the complete film.` : production.pipeline === "Multiplane" ? rendererReproductionCommand(multiplaneMetadata, production.sourceFile, fps, job.kind) : rendererReproductionCommand(production.pipeline === "Remotion" ? remotionMetadata : hyperframesMetadata, production.pipeline === "Remotion" ? production.sourceFile : ".", fps, job.kind)}\n`,
+    `# Render validation\n\nVerified by the application: ${actualDuration}s (planned ${job.duration}s), ${production.width}×${production.height}, ${fps} fps; full video decode passed. ${job.kind === "preview" ? "No audio track (silent preview). The preview is a VP9 WebM, checked against the validated render for size, frame rate, duration, frame count and picture similarity." : "Audio presence is recorded in renders/validation.json."}\n\nInspect renders/contact-sheet.jpg and the decoded ${path.relative(job.workspace, video)} for appearance and movement. Agent-side limitations about pending rendering are superseded only for the checks listed here.\n\nReproduce with: ${production.pipeline === "Multiplane" && (production.shots?.length ?? 0) > 1 ? `Render each production.shots entry in order with ${multiplaneMetadata.execution.commonFlags.join(" ")}, concatenate the silent parts, then mux production.audioFile once for the complete film.` : production.pipeline === "Multiplane" ? rendererReproductionCommand(multiplaneMetadata, production.sourceFile, fps, job.kind) : rendererReproductionCommand(production.pipeline === "Remotion" ? remotionMetadata : hyperframesMetadata, production.pipeline === "Remotion" ? production.sourceFile : ".", fps, job.kind)}\n`,
   );
   await writeFile(
     path.join(out, "validation.json"),
@@ -424,7 +459,7 @@ export async function renderJob(
 export async function makePlaybackCopies(
   job: VideoGenerationJob,
   signal: AbortSignal,
-  emit: (type: string, message: string) => void,
+  emit: (type: string, message: string, data?: unknown) => void,
 ): Promise<Pick<VideoGenerationJob, "viewingVideo" | "cardClip" | "playbackCopies">> {
   const status = (value: "ready" | "failed", error?: string) => ({
     profile: playbackCopyProfile,

@@ -44,6 +44,7 @@ coverage/
 
 # Upstream authoring skills are installed and refreshed at launch.
 /skills/
+/.agents/
 
 # Downloaded local instrument bank and upstream license (music:setup recreates these).
 /models/instruments/

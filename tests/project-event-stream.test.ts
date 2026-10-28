@@ -22,6 +22,11 @@ const event = (id: number, type = "render_progress"): AgentProgressEvent => ({
 beforeEach(() => {
   vi.useFakeTimers();
   vi.stubGlobal("EventSource", TestEventSource);
+  vi.stubGlobal(
+    "requestAnimationFrame",
+    vi.fn((callback: FrameRequestCallback) => setTimeout(() => callback(0), 16)),
+  );
+  vi.stubGlobal("cancelAnimationFrame", vi.fn(clearTimeout));
 });
 afterEach(() => {
   vi.useRealTimers();
@@ -81,4 +86,87 @@ it("discards pending work and closes the stream when leaving a project", () => {
   expect(source.close).toHaveBeenCalledOnce();
   expect(receive).not.toHaveBeenCalled();
   expect(refresh).not.toHaveBeenCalled();
+});
+
+it("commits a live burst on the next frame instead of waiting 100ms", () => {
+  const receive = vi.fn(),
+    refresh = vi.fn();
+  const stop = subscribeProjectEvents("project", receive, refresh);
+  const source = TestEventSource.latest;
+  for (let id = 1; id <= 20; id++)
+    source.onmessage?.(new MessageEvent("message", { data: JSON.stringify(event(id)) }));
+  vi.advanceTimersByTime(15);
+  expect(receive).not.toHaveBeenCalled();
+  vi.advanceTimersByTime(1);
+  expect(receive).toHaveBeenCalledExactlyOnceWith(
+    Array.from({ length: 20 }, (_, index) => event(index + 1)),
+  );
+  vi.advanceTimersByTime(100);
+  expect(receive).toHaveBeenCalledOnce();
+  expect(refresh).not.toHaveBeenCalled();
+  stop();
+});
+
+it("keeps project refreshes throttled across multiple live frames", () => {
+  const receive = vi.fn(),
+    refresh = vi.fn();
+  const stop = subscribeProjectEvents("project", receive, refresh);
+  const source = TestEventSource.latest;
+  for (let id = 1; id <= 5; id++) {
+    source.onmessage?.(new MessageEvent("message", { data: JSON.stringify(event(id, "state")) }));
+    vi.advanceTimersByTime(16);
+  }
+  expect(receive).toHaveBeenCalledTimes(5);
+  expect(refresh).not.toHaveBeenCalled();
+  vi.advanceTimersByTime(20);
+  expect(refresh).toHaveBeenCalledOnce();
+  stop();
+});
+
+it("flushes live events in background tabs when animation frames are paused", () => {
+  vi.stubGlobal(
+    "requestAnimationFrame",
+    vi.fn(() => 1),
+  );
+  vi.stubGlobal("cancelAnimationFrame", vi.fn());
+  const receive = vi.fn();
+  const stop = subscribeProjectEvents("project", receive, vi.fn());
+  TestEventSource.latest.onmessage?.(
+    new MessageEvent("message", { data: JSON.stringify(event(1)) }),
+  );
+  vi.advanceTimersByTime(100);
+  expect(receive).toHaveBeenCalledExactlyOnceWith([event(1)]);
+  expect(cancelAnimationFrame).toHaveBeenCalledWith(1);
+  stop();
+});
+
+it("coalesces a pending history replay with live events without losing their order", () => {
+  const receive = vi.fn();
+  const stop = subscribeProjectEvents("project", receive, vi.fn());
+  const source = TestEventSource.latest;
+  source.dispatchEvent(new MessageEvent("history", { data: JSON.stringify([event(1), event(2)]) }));
+  source.onmessage?.(new MessageEvent("message", { data: JSON.stringify(event(3)) }));
+  vi.advanceTimersByTime(16);
+  expect(receive).toHaveBeenCalledExactlyOnceWith([event(1), event(2), event(3)]);
+  vi.advanceTimersByTime(100);
+  expect(receive).toHaveBeenCalledOnce();
+  stop();
+});
+
+it("uses a bounded lightweight subscription and releases pending data on disposal", () => {
+  const receive = vi.fn();
+  const stop = subscribeProjectEvents("project", receive, vi.fn(), { view: "summary" });
+  const source = TestEventSource.latest;
+  expect(source.url).toContain("view=summary");
+  source.dispatchEvent(
+    new MessageEvent("history", {
+      data: JSON.stringify(Array.from({ length: 5000 }, (_, id) => event(id))),
+    }),
+  );
+  vi.advanceTimersByTime(100);
+  expect(receive.mock.calls[0][0]).toHaveLength(256);
+  expect(receive.mock.calls[0][0].at(-1).id).toBe(4999);
+  stop();
+  vi.runAllTimers();
+  expect(source.close).toHaveBeenCalledOnce();
 });

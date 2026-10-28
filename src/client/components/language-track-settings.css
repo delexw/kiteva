@@ -6,44 +6,35 @@
   container-type: inline-size;
 }
 
-.language-track-settings-fields {
+.language-track-voice {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  min-width: 0;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--ant-color-border, #493f33);
+  border-radius: 12px;
 }
 
-.language-track-settings-fields > label,
-.language-track-settings-primary {
+.language-track-voice-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.language-track-add {
   display: grid;
   gap: 8px;
   min-width: 0;
 }
+.language-track-add .ant-select {
+  width: 100%;
+}
 
-.language-track-settings > .language-track-settings-toggle {
+.language-track-subtitles {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-.language-track-settings-fields > label > .ant-select,
-.language-track-settings-primary > .ant-select {
-  width: 100%;
-  min-width: 0;
-}
-
-.language-track-settings > section {
-  min-width: 0;
-}
-
-@container (max-width: 760px) {
-  .language-track-settings-fields {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@container (max-width: 500px) {
-  .language-track-settings-fields {
-    grid-template-columns: minmax(0, 1fr);
-  }
+.language-track-subtitles .ant-switch {
+  flex: 0 0 auto;
 }

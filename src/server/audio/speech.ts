@@ -345,6 +345,11 @@ export async function mixSpeech(
   duration: number,
   signal: AbortSignal,
 ) {
+  if (!Number.isFinite(track.durationSeconds) || track.durationSeconds > duration)
+    throw new CodedError(
+      "SPEECH_TOO_LONG",
+      "Narration exceeds the chosen film duration; revise its text or placement. Audio was not truncated.",
+    );
   const probe = await probeVideo(video, signal);
   const background = probe.streams.some((stream) => stream.codec_type === "audio");
   const output = `${video}.speech.mp4`;

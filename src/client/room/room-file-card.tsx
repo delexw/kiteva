@@ -1,11 +1,12 @@
 import { translateUi, useUiLanguage } from "../i18n";
 import { FileCard } from "@ant-design/x";
-import { Button, Image, Tag } from "antd";
+import { Button, Tag } from "antd";
+import { AttachmentImage } from "../components/attachment-image";
 import { Trash2 } from "lucide-react";
 import type { RoomLibraryAsset } from "../../shared/room";
 import { roomMaterialSection } from "./onboarding";
 
-function cardProps(asset: RoomLibraryAsset) {
+function cardProps(asset: RoomLibraryAsset, imagePreview = false) {
   return {
     name: asset.originalName,
     byte: asset.bytes,
@@ -21,13 +22,11 @@ function cardProps(asset: RoomLibraryAsset) {
             icon: { width: 48, height: 48, flexShrink: 0 },
           },
           icon: (
-            <Image
-              src={`/api/assets/${asset.id}/preview`}
-              width={48}
-              height={48}
-              preview={false}
-              alt=""
-              style={{ objectFit: "cover", borderRadius: 6 }}
+            <AttachmentImage
+              assetId={asset.id}
+              size={48}
+              preview={imagePreview}
+              label={imagePreview ? asset.originalName : ""}
             />
           ),
         }
@@ -115,7 +114,15 @@ export function RoomChosenFile({
     </div>
   );
 }
-export function RoomFileCard({ asset }: { asset: RoomLibraryAsset }) {
+export function RoomFileCard({
+  asset,
+  type,
+  imagePreview = false,
+}: {
+  asset: RoomLibraryAsset;
+  type?: "file";
+  imagePreview?: boolean;
+}) {
   useUiLanguage();
-  return <FileCard {...cardProps(asset)} />;
+  return <FileCard {...cardProps(asset, imagePreview)} {...(type ? { type } : {})} />;
 }

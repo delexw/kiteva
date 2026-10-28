@@ -1,6 +1,7 @@
 .speech-settings {
   container-type: inline-size;
   display: grid;
+  align-items: start;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px 16px;
   min-width: 0;
@@ -64,4 +65,11 @@
   .speech-settings > .speech-control-half {
     grid-column: 1 / -1;
   }
+}
+
+.speech-voice-control {
+  align-items: stretch;
+}
+.speech-voice-control > .ant-select {
+  min-width: 0;
 }

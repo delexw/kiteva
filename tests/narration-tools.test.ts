@@ -85,6 +85,28 @@ async function fixture() {
   return { workspace, config, service, prepare, request };
 }
 const signal = () => new AbortController().signal;
+it("preserves narration when a refinement extends its time window and accepts later cues", async () => {
+  const f = await fixture();
+  await prepareNarrationCapability(f.workspace, f.request, 10);
+  const state = await f.service.create(
+    { cues: [{ id: "credit", text: "Example", startSeconds: 8 }] },
+    signal(),
+  );
+  await prepareNarrationCapability(f.workspace, f.request, 15);
+  expect((await readNarrationState(f.workspace))?.revision).toBe(state.revision);
+  const config = NarrationConfigSchema.parse(
+    JSON.parse(await readFile(path.join(f.workspace, "audio/narration-config.json"), "utf8")),
+  );
+  const service = narrationService(f.workspace, config, { prepare: f.prepare, run: command });
+  const edited = await service.edit(
+    { expectedRevision: state.revision, edits: [{ id: "credit", startSeconds: 12 }] },
+    signal(),
+  );
+  expect(edited.track.durationSeconds).toBe(13);
+  expect(f.prepare).toHaveBeenCalledOnce();
+  await prepareNarrationCapability(f.workspace, f.request, 10);
+  expect(await readNarrationState(f.workspace)).toBeUndefined();
+});
 it("creates measured narration and edits timing without resynthesizing speech", async () => {
   const f = await fixture();
   const created = await f.service.create(

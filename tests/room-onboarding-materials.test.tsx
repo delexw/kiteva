@@ -110,8 +110,9 @@ it("uses matching titled sections for materials, websites, subtitles and review"
     }),
   );
   expect(music).toContain("<h3>Shared script</h3>");
-  expect(music).toContain("<h3>Speech / vocals</h3>");
-  expect(music).toContain("Choose a narrator or use your own vocal recording.");
+  expect(music).toContain('aria-label="Language tracks"');
+  expect(music).not.toContain("<h3>Speech / vocals</h3>");
+  expect(music).not.toContain('aria-label="Speech mode"');
 });
 
 it("removes an attachment once without reattaching it on duplicate removal", () => {

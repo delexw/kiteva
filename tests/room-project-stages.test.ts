@@ -41,6 +41,27 @@ const event = (
   data: { audience: "customer" },
   ...change,
 });
+
+it("preserves a large interleaved history and its input data when grouping contexts", () => {
+  const project = run({ jobs: [job("a", "full", "ready"), job("b", "full", "ready")] });
+  const history = Array.from({ length: 12000 }, (_, index) =>
+    event(index + 1, {
+      type: index % 2 === 0 ? "input" : "storyboard_ready",
+      message: `Recorded update ${index}`,
+      time: new Date(Date.UTC(2026, 0, 1, 0, 0, index)).toISOString(),
+      jobId: index % 3 === 0 ? undefined : index % 3 === 1 ? "a" : "b",
+    }),
+  );
+  const original = structuredClone(history);
+  const contexts = roomActivityContexts(project, history);
+  expect(contexts.reduce((total, context) => total + context.items.length, 0)).toBe(history.length);
+  for (const context of contexts) {
+    const ids = context.items.map((item) => item.id);
+    expect(ids).toEqual([...ids].sort((a, b) => a - b));
+  }
+  expect(history).toEqual(original);
+  expect(roomActivityContexts(project, history)).toEqual(contexts);
+});
 it("keeps project preparation, each preview and each full film as separate recorded contexts", () => {
   const project = run({
     preparation: {

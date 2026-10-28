@@ -187,3 +187,74 @@ it("updates one render group across failed attempts and corrections using record
   const html = renderToStaticMarkup(<>{roomActivityStep(retried[0]).content}</>);
   expect(html.match(/Checking the design and playback/g)).toHaveLength(1);
 });
+
+it("nests render warnings and cache-summary tools by ownership without completing render progress", () => {
+  const events = [
+    {
+      ...scope(1, "render"),
+      jobId: "video",
+      data: {
+        activityScope: { id: "render", label: "Rendering your video", state: "running" },
+      },
+    },
+    {
+      ...event(2, { activityScopeId: "render" }, "phase", "video"),
+      message: "Rendering validated composition",
+    },
+    {
+      ...event(3, { activityScopeId: "render" }, "render_progress", "video"),
+      message: "Rendered 3/50",
+    },
+    { ...scope(4, "summary", "render"), jobId: "video" },
+    {
+      ...event(5, { activityScopeId: "summary" }, "warning", "video"),
+      message: "Render cache review unavailable; rebuilding the affected shot.",
+    },
+    {
+      ...event(
+        6,
+        {
+          activityScopeId: "summary",
+          purpose: "Render cache change summary",
+          invocationId: "summary-call",
+          itemId: "summary-output",
+          toolName: "StructuredOutput",
+          state: "item.completed",
+        },
+        "tool",
+        "video",
+      ),
+      message: "StructuredOutput",
+    },
+    {
+      ...event(
+        7,
+        {
+          purpose: "playback correction",
+          invocationId: "fix",
+          itemId: "edit",
+          state: "item.completed",
+        },
+        "tool",
+        "video",
+      ),
+      message: "Edit",
+    },
+  ];
+  const before = JSON.stringify(events);
+  const shown = displayActivityItems(activityItems(events));
+  const render = shown.find((item) => item.progressStage === "render")!;
+  expect(render).toMatchObject({
+    status: "running",
+    progressPercent: 6,
+    activityScopeId: "render",
+  });
+  expect(render.children!.map((child) => child.text)).toEqual(
+    expect.arrayContaining(["This step needs another check…", "Recording render change summary…"]),
+  );
+  expect(shown.some((item) => item.text === "Recording render change summary…")).toBe(false);
+  expect(shown.some((item) => item.purpose === "playback correction")).toBe(true);
+  expect(JSON.stringify(events)).toBe(before);
+  const html = renderToStaticMarkup(<>{roomActivityStep(render).content}</>);
+  expect(html).toContain("Recording render change summary");
+});

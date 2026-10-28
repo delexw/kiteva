@@ -1,5 +1,6 @@
 import type { RenderProgress } from "./render-progress";
 import type { ActivityScope } from "./activity-scopes";
+import { SubtitleProgressSchema, type SubtitleProgress } from "./subtitle-progress";
 import { toolActivityLabels, type ToolActivity } from "./tool-activity";
 import {
   CaptureChapterProgressSchema,
@@ -27,11 +28,14 @@ export interface ActivityItem {
   purpose?: string;
   preparationStep?: PreparationStep;
   activityScopeId?: string;
+  renderScopeId?: string;
+  renderScopeStatus?: ActivityItem["status"];
   invocationId?: string;
   streaming?: boolean;
   retryable?: boolean;
   repetitions?: number;
   progressPercent?: number;
+  subtitleProgress?: SubtitleProgress;
   progressStage?: "render" | "playback-copy" | "capture";
   captureChapterId?: string;
   captureChapterTitle?: string;
@@ -43,6 +47,10 @@ export const taskActivityLabels: Record<
   string,
   { working: string; saving: string; preparationStep?: PreparationStep }
 > = {
+  "Render cache change summary": {
+    working: "Reviewing render changes…",
+    saving: "Recording render change summary…",
+  },
   "Footage chapter capture": { working: "Capturing footage…", saving: "Saving captured chapter…" },
   "Project title extraction": {
     preparationStep: "brief",
@@ -219,14 +227,16 @@ export function mergeProgressItems(
 export function activityItems(
   events: AgentProgressEvent[],
   groupConsecutive = true,
-  run?: Pick<Run, "request" | "preparation" | "phase">,
+  run?: Pick<Run, "request" | "preparation" | "phase"> & Partial<Pick<Run, "jobs">>,
 ): ActivityItem[] {
   const items: ActivityItem[] = [];
   const renderProgress = new Map<string, RenderProgress>();
   const streams = new Map<string, ActivityItem>();
   const scopeStatuses = new Map<string, ActivityScope["state"]>();
+  const executionScopes = new Map<string, ActivityScope>();
   const scopePreparationSteps = new Map<string, PreparationStep>();
   const seen = new Set<number>();
+  const subtitleItems = new Map<string, ActivityItem>();
   for (const event of events) {
     if (seen.has(event.id)) continue;
     seen.add(event.id);
@@ -243,6 +253,7 @@ export function activityItems(
       invocationId?: string;
       correctionAttempt?: number;
       captureProgress?: unknown;
+      subtitleProgress?: unknown;
       captureTiming?: unknown;
       captureChapter?: { chapterId: string; title: string; index: number; total: number };
       results?: { itemId: string; failed: boolean; output: string }[];
@@ -252,6 +263,7 @@ export function activityItems(
       if (data.activityScope) {
         const owner = `${event.runId}:${event.jobId || "brief"}:`;
         const activity = data.activityScope;
+        executionScopes.set(`${owner}${activity.id}`, activity);
         scopeStatuses.set(`${owner}${activity.id}`, activity.state);
         if (!event.jobId) {
           const step =
@@ -464,6 +476,27 @@ export function activityItems(
       }
       continue;
     }
+    if (event.type === "subtitle_progress") {
+      const parsed = SubtitleProgressSchema.safeParse(data.subtitleProgress);
+      if (parsed.success) {
+        const progress = parsed.data;
+        const text =
+          progress.language === "en"
+            ? "Generating English subtitles…"
+            : "Generating Chinese subtitles…";
+        const key = `${scope}:${progress.language}`;
+        const previous = subtitleItems.get(key);
+        const item = previous || add("notice", text);
+        Object.assign(item, {
+          time: event.time,
+          subtitleProgress: progress,
+          progressPercent: (progress.completed / progress.total) * 100,
+          status: progress.status,
+        });
+        subtitleItems.set(key, item);
+      }
+      continue;
+    }
     if (event.type === "capture_progress") {
       const parsed = CaptureChapterProgressSchema.safeParse(data.captureProgress);
       if (parsed.success) {
@@ -496,19 +529,27 @@ export function activityItems(
         ? "Rendering your video…"
         : event.message === "Mixing voice and music…"
           ? "Mixing your audio…"
-          : "Preparing your finished project…";
+          : event.message === "Preparing en narration…"
+            ? "Preparing English narration…"
+            : event.message === "Preparing zh narration…"
+              ? "Preparing Chinese narration…"
+              : "Preparing your finished project…";
     const notices: Record<string, string> = {
       subtitles:
         event.message === "Subtitles ready" ? "Subtitles ready" : "Writing your subtitles…",
       input: "Reading your reference material…",
       reference_capture: "Capturing your website reference…",
       reference_ready: "Website screenshot ready",
+      storyboard_ready: "Storyboard ready",
+      capture_plan_ready: "Capture plan ready",
       plan_ready:
-        event.message === "Preview plan validated and saved"
-          ? "Preview plan validated and saved"
-          : event.message === "Full-film storyboard validated and saved before capture"
-            ? "Storyboard ready"
-            : "Full-film plan validated and saved",
+        event.message === "Plan ready"
+          ? "Plan ready"
+          : event.message === "Preview plan validated and saved"
+            ? "Preview plan validated and saved"
+            : event.message === "Full-film storyboard validated and saved before capture"
+              ? "Storyboard ready"
+              : "Full-film plan validated and saved",
       ranking: "Finding visual Motion Graphics for your idea…",
       validation: playbackCopy
         ? "Playback assets checked"
@@ -545,7 +586,8 @@ export function activityItems(
         }
         item.progressStage = "render";
       }
-      if (event.type === "plan_ready") item.status = "complete";
+      if (["plan_ready", "storyboard_ready", "capture_plan_ready"].includes(event.type))
+        item.status = "complete";
       if (
         event.type === "render_progress" ||
         (event.type === "phase" && (rendering || playbackCopy))
@@ -553,20 +595,32 @@ export function activityItems(
         item.progressStage = playbackCopy ? "playback-copy" : "render";
     }
   }
-  // A terminal project cannot still have active preparation tools or text streams.
-  if (run && terminalPhases.has(run.phase)) {
-    for (const item of items) {
-      if (item.jobId) continue;
-      if (item.status === "running") item.status = "stopped";
-      if (item.streaming) item.streaming = false;
-    }
-  }
   for (const item of items) {
     if (!item.activityScopeId) continue;
+    let owner = executionScopes.get(`${item.scope}:${item.activityScopeId}`);
+    const visited = new Set<string>();
+    while (owner && !visited.has(owner.id)) {
+      visited.add(owner.id);
+      if (owner.label === "Rendering your video") {
+        item.renderScopeId = owner.id;
+        item.renderScopeStatus = owner.state === "waiting" ? undefined : owner.state;
+        break;
+      }
+      owner = owner.parentId ? executionScopes.get(`${item.scope}:${owner.parentId}`) : undefined;
+    }
     if (item.progressStage !== "render" && !(item.kind === "notice" && item.status === undefined))
       continue;
     const status = scopeStatuses.get(`${item.scope}:${item.activityScopeId}`);
     if (status && status !== "waiting") item.status = status;
+  }
+  // The project may keep building other versions after this job has finished.
+  // Missing tool outcomes are stopped work, not evidence of successful completion.
+  const jobPhases = new Map(run?.jobs?.map((job) => [job.id, job.phase]));
+  for (const item of items) {
+    const phase = item.jobId ? jobPhases.get(item.jobId) : run?.phase;
+    if (!phase || !terminalPhases.has(phase)) continue;
+    if (item.status === "running") item.status = "stopped";
+    if (item.streaming) item.streaming = false;
   }
   const visibleItems = items.filter((item) => item.text.trim());
   if (!groupConsecutive) return visibleItems;

@@ -636,7 +636,7 @@ it.each(["failed", "stopped"] as const)(
   },
 );
 
-it("shows narration in a separate group across build and correction calls, preserving tool outcomes", () => {
+it("nests narration under video creation across build and correction calls, preserving tool outcomes", () => {
   const events = [
     {
       id: 1,
@@ -696,7 +696,11 @@ it("shows narration in a separate group across build and correction calls, prese
   const source = activityItems(events);
   const shown = displayActivityItems([item(0), ...source]);
   expect(shown).toHaveLength(2);
-  const group = shown.find((entry) => entry.text === "Narration")!;
+  const creation = shown.find(
+    (entry) => entry.text === "Creating your video…" && entry.scope === "project:job",
+  )!;
+  const group = creation.children!.find((entry) => entry.text === "Narration")!;
+  expect(shown.some((entry) => entry.text === "Narration")).toBe(false);
   expect(group.status).toBe("failed");
   expect(group.children).toMatchObject([
     { text: "Creating narration…", status: "complete" },
@@ -725,7 +729,10 @@ it("replaces failed narration retries with the latest outcome across invocations
   );
   const before = JSON.stringify(source);
   for (let length = 1; length <= source.length; length++) {
-    const [group] = displayActivityItems(source.slice(0, length));
+    const [creation] = displayActivityItems(source.slice(0, length));
+    const group = creation.children!.find((entry) => entry.text === "Narration")!;
+    expect(creation.text).toBe("Creating your video…");
+    expect(creation.status).not.toBe("complete");
     const latest = source[length - 1];
     expect(group.status).toBe(latest.status);
     expect(group.children).toHaveLength(1);
@@ -743,8 +750,10 @@ it("replaces failed narration retries with the latest outcome across invocations
       status: "failed",
     }),
   ]);
-  expect(separate.find((group) => group.scope === "job")?.status).toBe("complete");
-  expect(separate.find((group) => group.scope === "other-job")?.status).toBe("failed");
+  expect(separate.find((group) => group.scope === "job")?.children?.[0].status).toBe("complete");
+  expect(separate.find((group) => group.scope === "other-job")?.children?.[0].status).toBe(
+    "failed",
+  );
   expect(JSON.stringify(source)).toBe(before);
 });
 
@@ -793,7 +802,11 @@ it("groups historical pacing calls into attempts without claiming the timing pas
     "Refining the story timing…",
     "Recording timing changes…",
   ]);
-  expect(shown.find((entry) => entry.text === "Narration")?.children).toHaveLength(1);
+  expect(
+    shown
+      .find((entry) => entry.text === "Creating your video…")
+      ?.children?.find((entry) => entry.text === "Narration")?.children,
+  ).toHaveLength(1);
   expect(shown.filter((entry) => entry.text === "Refining story timing")).toHaveLength(2);
   expect(JSON.stringify(source)).toBe(before);
   const pending = displayActivityItems([{ ...source[0], status: "running" as const }]);

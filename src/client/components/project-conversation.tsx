@@ -23,6 +23,15 @@ import { Message, MessageContent } from "./ai-elements/message";
 import { PreviewWorkspace, PreviewLoadingMedia } from "./preview-workspace";
 import { AssetQuestions } from "./asset-questions";
 import { GenerationTime } from "./generation-time";
+import { fullRevisionGroupOf } from "../lib/revision-stack";
+import { RefinementMessage } from "./refinement-message";
+import { ConversationAttachments, useConversationAttachments } from "./conversation-attachments";
+import {
+  RevisionReference,
+  RevisionStack,
+  useRevisionSelection,
+  type RevisionSlots,
+} from "./revision-stack";
 
 function GenerationProgressCard({
   job,
@@ -30,12 +39,14 @@ function GenerationProgressCard({
   now,
   onCancel,
   activity,
+  revisions,
 }: {
   job: GenerationJob;
   title: string;
   now: number;
   onCancel?: () => void;
   activity?: ReactNode;
+  revisions?: RevisionSlots;
 }) {
   useUiLanguage();
   const active = !["ready", "failed", "cancelled", "interrupted"].includes(job.phase);
@@ -48,6 +59,7 @@ function GenerationProgressCard({
     >
       <div className="candidate-body">
         <h3>{title}</h3>
+        {revisions?.switcher}
         <PreviewLoadingMedia
           status={
             job.phase === "queued"
@@ -57,6 +69,7 @@ function GenerationProgressCard({
                 : "Creating your project"
           }
         />
+        {revisions?.strip}
         <GenerationTime job={job} now={now} />
         {activity}
         {active && onCancel && (
@@ -84,6 +97,7 @@ export function ProjectConversation({
   renderPreview,
   renderFull,
   onCancel,
+  onRetry,
   onPreviewActivate,
 }: {
   styles?: Pick<Style, "id" | "name_en">[];
@@ -96,15 +110,19 @@ export function ProjectConversation({
   titleFor: (job: GenerationJob) => string;
   controls: ReactNode;
   renderPreview: (job: GenerationJob, activity?: ReactNode) => ReactNode;
-  renderFull: (job: GenerationJob, activity?: ReactNode) => ReactNode;
+  /** Renders one full-result card; revision slots place the switcher/strip inside that card. */
+  renderFull: (job: GenerationJob, activity?: ReactNode, revisions?: RevisionSlots) => ReactNode;
   onCancel?: (jobId: string) => void;
+  onRetry?: (jobId: string) => void;
   onPreviewActivate?: () => void;
 }) {
   useUiLanguage();
   const [previewPanelOpen, setPreviewPanelOpen] = useState(true);
+  const attachments = useConversationAttachments(run.id, run.request.assetIds);
   const hasFullBuild = run.jobs.some((job) => job.kind === "full");
   const previews = run.jobs.filter((job) => job.kind === "preview");
   const entries = useMemo(() => projectConversationEntries(run, events), [run, events]);
+  const [revisionSelection, selectRevision] = useRevisionSelection();
   const active = (job: GenerationJob) =>
     !["ready", "failed", "cancelled", "interrupted"].includes(job.phase);
   return (
@@ -167,6 +185,10 @@ export function ProjectConversation({
                       className="project-chat-user"
                     >
                       <MessageContent>
+                        <ConversationAttachments
+                          assetIds={run.request.assetIds}
+                          assets={attachments}
+                        />
                         <div className="project-brief-section">
                           <h3>{translateUi("Main prompt")}</h3>
                           <p>
@@ -269,26 +291,33 @@ export function ProjectConversation({
                 return (
                   <Message from="user" key={entry.id} className="project-chat-user">
                     <MessageContent>
-                      <p>
-                        {job.refinementPrompt
-                          ? translateUi("Fine-tune: {{value0}}", { value0: job.refinementPrompt })
-                          : translateUi("Build the full {{value0}} using {{value1}}.", {
-                              value0: output,
-                              value1: titleFor(job),
-                            })}
-                      </p>
+                      {job.refinementPrompt ? (
+                        <RefinementMessage job={job} />
+                      ) : (
+                        <p>
+                          {translateUi("Build the full {{value0}} using {{value1}}.", {
+                            value0: output,
+                            value1: titleFor(job),
+                          })}
+                        </p>
+                      )}
                     </MessageContent>
                   </Message>
                 );
-              const activity = (
+              const activityFor = (target: GenerationJob) => (
                 <GenerationActivity
                   events={events}
-                  jobId={job.id}
-                  title={titleFor(job)}
+                  jobId={target.id}
+                  title={titleFor(target)}
                   label={translateUi("Full {{value0}}", { value0: output })}
-                  completed={!active(job)}
+                  completed={!active(target)}
                 />
               );
+              const activity = activityFor(job);
+              // One card per direction lives at its first revision; later revisions point to it.
+              const group = fullRevisionGroupOf(run.jobs, job.id)!;
+              const anchor = group.revisions[0].job;
+              const revision = group.revisions.find((item) => item.job.id === job.id)!;
               return (
                 <Message from="assistant" key={entry.id} className="project-chat-artifact">
                   <MessageContent>
@@ -304,16 +333,44 @@ export function ProjectConversation({
                       tabIndex={-1}
                       className="project-job-target"
                     >
-                      {active(job) ? (
-                        <GenerationProgressCard
-                          job={job}
+                      {anchor.id === job.id ? (
+                        <RevisionStack
+                          group={group}
                           title={titleFor(job)}
-                          now={now}
-                          activity={activity}
-                          onCancel={onCancel ? () => onCancel(job.id) : undefined}
-                        />
+                          selectedJobId={revisionSelection[group.key]}
+                          onSelect={(jobId) => selectRevision(group.key, jobId)}
+                          events={events}
+                          onCancel={onCancel}
+                          onRetry={onRetry}
+                        >
+                          {(selected, revisions) => {
+                            // Each revision's log stays in its own conversation entry.
+                            const selectedActivity = selected.id === job.id ? activity : undefined;
+                            return active(selected) ? (
+                              <GenerationProgressCard
+                                job={selected}
+                                title={titleFor(selected)}
+                                now={now}
+                                activity={selectedActivity}
+                                onCancel={onCancel ? () => onCancel(selected.id) : undefined}
+                                revisions={revisions}
+                              />
+                            ) : (
+                              renderFull(selected, selectedActivity, revisions)
+                            );
+                          }}
+                        </RevisionStack>
                       ) : (
-                        renderFull(job, activity)
+                        <RevisionReference
+                          revision={revision}
+                          title={titleFor(job)}
+                          onShow={() => {
+                            selectRevision(group.key, job.id);
+                            document.getElementById(`generation-full-${anchor.id}`)?.focus();
+                          }}
+                        >
+                          {activity}
+                        </RevisionReference>
                       )}
                       <AssetQuestions run={run} jobId={job.id} onUpdated={onRunUpdated} />
                     </div>

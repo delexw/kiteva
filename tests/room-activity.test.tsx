@@ -1,4 +1,6 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
+import * as projectStages from "../src/client/room/project-stages";
+import { RoomProject } from "../src/client/room/room-project";
 import { renderToStaticMarkup } from "react-dom/server";
 import { RequestSchema, type GenerationJob, type Run } from "../src/shared/contracts";
 import {
@@ -38,6 +40,35 @@ const events = [
     message: "",
   },
 ];
+
+it("prepares the lightweight status timeline while loading Activity history separately", () => {
+  const projection = vi.spyOn(projectStages, "roomActivityContexts");
+  try {
+    const html = renderToStaticMarkup(
+      <RoomProject
+        run={run}
+        events={events}
+        renderPreview={() => null}
+        renderFull={() => null}
+        controls={null}
+        onQuestion={() => {}}
+        onUpdated={() => {}}
+        onEdit={() => {}}
+        onCancel={() => {}}
+        onRetry={() => {}}
+        view={{ tab: "activity", refine: "" }}
+        onView={() => {}}
+      />,
+    );
+    expect(html).toContain("room-activity-now");
+    expect(html).not.toContain('aria-label="Loading activity…"');
+    expect(html).toContain('aria-label="Project activity"');
+    expect(html).not.toContain("activity-context-history");
+    expect(projection).toHaveBeenCalledTimes(1);
+  } finally {
+    projection.mockRestore();
+  }
+});
 
 it("shows an explicit neutral icon for updates without inventing a successful outcome", () => {
   const base = {

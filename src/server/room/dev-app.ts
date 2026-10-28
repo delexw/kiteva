@@ -1,3 +1,4 @@
+import { registerActivityChildrenRoute } from "../jobs/activity-routes";
 import Fastify from "fastify";
 import multipart from "@fastify/multipart";
 import { Store } from "../jobs/store";
@@ -11,6 +12,7 @@ export async function createRoomDevelopmentApp() {
   app.setErrorHandler(apiErrorHandler);
   await app.register(multipart, { limits: { fileSize: assetLimits.audio.bytes, files: 1 } });
   await registerRoomRoutes(app, store);
+  registerActivityChildrenRoute(app, store);
   await app.ready();
   return { app, close: () => app.close().finally(() => store.close()) };
 }

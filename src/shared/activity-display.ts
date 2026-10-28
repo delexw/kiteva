@@ -197,19 +197,29 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
       }
       continue;
     }
-    if (item.progressStage === "render") {
+    if (item.progressStage === "render" || (item.renderScopeId && item.kind !== "message")) {
+      const renderScopeId = item.renderScopeId ?? item.activityScopeId;
       let renderGroup = renderGroups.get(item.scope);
       if (!renderGroup) {
-        renderGroup = { ...visible, text: "Rendering your video…", children: [] };
+        renderGroup = {
+          ...visible,
+          kind: "notice",
+          progressStage: "render",
+          activityScopeId: renderScopeId,
+          status: item.renderScopeStatus ?? item.status,
+          text: "Rendering your video…",
+          children: [],
+        };
         renderGroups.set(item.scope, renderGroup);
         display.push(renderGroup);
       }
-      if (renderGroup.activityScopeId !== item.activityScopeId) {
-        renderGroup.activityScopeId = item.activityScopeId;
+      if (renderGroup.activityScopeId !== renderScopeId) {
+        renderGroup.activityScopeId = renderScopeId;
         renderGroup.progressPercent = undefined;
         renderGroup.children = [];
       }
-      renderGroup.status = item.status;
+      if (item.renderScopeStatus) renderGroup.status = item.renderScopeStatus;
+      else if (item.progressStage === "render") renderGroup.status = item.status;
       renderGroup.time = item.time;
       renderGroup.progressPercent = item.progressPercent ?? renderGroup.progressPercent;
       if (item.text === renderGroup.text) continue;
@@ -251,6 +261,27 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
   }
   const chronological = (left: ActivityItem, right: ActivityItem) =>
     left.time.localeCompare(right.time) || left.id - right.id;
+  for (const [scope, narration] of narrationGroups) {
+    display.splice(display.indexOf(narration), 1);
+    let creation = fullVideoGroups.get(scope);
+    if (!creation) {
+      creation = {
+        ...narration,
+        capability: undefined,
+        text: "Creating your video…",
+        status: undefined,
+        progressPercent: undefined,
+        children: [],
+      };
+      fullVideoGroups.set(scope, creation);
+      display.push(creation);
+    }
+    creation.children!.push(narration);
+    if (narration.time > creation.time) creation.time = narration.time;
+    // Speech completion is not completion of the whole video creation operation.
+    if (narration.status === "running") creation.status = "running";
+    narration.children?.sort(chronological);
+  }
   for (const item of display) {
     // Completion belongs to this measured operation, not to a parent relaying a child stage.
     if (

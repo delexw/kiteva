@@ -8,7 +8,7 @@ import { projectRuntimeFiles } from "../src/server/runtime/project-files";
 import { browserExecutablePath } from "../src/server/runtime/browser";
 
 it.skipIf(!browserExecutablePath())(
-  "uses separate project-local browser profiles and removes them after close",
+  "isolates project profiles and retains sign-in storage after close",
   async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "project-browser-"));
     const server = createServer((_request, response) => {
@@ -37,13 +37,26 @@ it.skipIf(!browserExecutablePath())(
         await browser.inspect(`${url}/?owner=project-${i}`);
         const result = await browser.capture(path.join(workspaces[i], "frame.png"));
         expect(result.text).toBe(`project-${i}`);
-        const profiles = await readdir(projectRuntimeFiles(workspaces[i], "browser").tmp);
-        expect(profiles.filter((name) => name.startsWith("profile-"))).toHaveLength(1);
+        const profiles = await readdir(projectRuntimeFiles(workspaces[i], "browser").root);
+        expect(profiles).toContain("reference-profile");
       }
       await Promise.all(browsers.map((browser) => browser.close()));
       browsers.length = 0;
-      for (const workspace of workspaces)
-        expect(await readdir(projectRuntimeFiles(workspace, "browser").tmp)).toEqual([]);
+      for (const [i, workspace] of workspaces.entries()) {
+        const files = projectRuntimeFiles(workspace, "browser");
+        expect(await readdir(files.tmp)).toEqual([]);
+        expect(await readdir(files.root)).toContain("reference-profile");
+        expect(await readdir(files.root)).not.toContain("reference-profile.lock");
+        const reopened = await createLocalReferenceBrowser(
+          [url],
+          AbortSignal.timeout(30000),
+          "local",
+          false,
+          workspace,
+        );
+        browsers.push(reopened);
+        expect((await reopened.inspect(`${url}/?owner=replacement`)).text).toBe(`project-${i}`);
+      }
     } finally {
       await Promise.all(browsers.map((browser) => browser.close()));
       await new Promise<void>((resolve, reject) =>

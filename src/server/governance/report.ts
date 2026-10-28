@@ -5,6 +5,7 @@ import type { AgentProgressEvent, Run } from "../../shared/contracts";
 import { isRunSettled } from "../../shared/contracts";
 import { projectName } from "../../shared/project-name";
 import { jobAuthoringSelection } from "./authoring-selections";
+import { renderCacheReviewDetails } from "./render-cache-reviews";
 import {
   correctionActivityPurpose,
   type GovernanceProject,
@@ -22,6 +23,7 @@ export function projectGovernance(
   now = Date.now(),
 ): GovernanceProject {
   const rows = new Map<string, ModelActivity>();
+  const cacheReviews = renderCacheReviewDetails(run, events);
   const sessions = new Map<string, string>();
   const tools = new Set<string>();
   const calls = new Set<string>();
@@ -130,6 +132,11 @@ export function projectGovernance(
           : "Historical activity · function unrecorded");
     if (!d.invocationId && event.type !== "summary_cache") incompleteHistory = true;
     const row = rowFor(model, purpose);
+    if (purpose === "Render cache review" && typeof d.invocationId === "string") {
+      const review = cacheReviews.get(d.invocationId);
+      if (review && !row.renderCacheReviews?.some((entry) => entry.id === review.id))
+        (row.renderCacheReviews ||= []).push(review);
+    }
     if (purpose === "Combination evaluation" && run.rankingModel === model) {
       row.combinationEvaluation ||= {
         selected: run.candidates.map((candidate) => ({

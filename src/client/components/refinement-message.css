@@ -1,0 +1,10 @@
+.refinement-message-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.refinement-message-images img {
+  max-width: 100%;
+  border-radius: 6px;
+}

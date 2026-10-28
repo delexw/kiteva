@@ -1,6 +1,8 @@
+import { roomSubmission } from "../src/client/room/onboarding";
 import { expect, it, vi } from "vitest";
 import {
   LanguageTracksSchema,
+  selectLanguageTrackLanguages,
   applyLanguageTracks,
   languageTracksDirection,
 } from "../src/shared/language-tracks";
@@ -22,7 +24,7 @@ it("validates independent enabled/default languages and rejects duplicates", () 
   ])
     expect(LanguageTracksSchema.safeParse(invalid).success).toBe(false);
 });
-it("sets the primary global voice without changing visuals, script text or silent items", () => {
+it("applies selected narration to every timed item without changing visuals or text", () => {
   const request = VideoRequestSchema.parse({
     instructions: "Explain a system",
     outputLanguage: "zh",
@@ -53,7 +55,14 @@ it("sets the primary global voice without changing visuals, script text or silen
     text: "Explain it",
     speech: { voice: "af_heart", language: "en", followVideoLanguage: false },
   });
-  expect(applied.scriptItems![1].speech.mode).toBe("off");
+  expect(applied.scriptItems![1].speech.mode).toBe("narration");
+  const hidden = applyLanguageTracks({
+    ...request,
+    languageTracks: { ...request.languageTracks!, showSubtitles: false },
+  });
+  expect(
+    hidden.scriptItems!.every((item) => !item.showSubtitles && item.speech.mode === "narration"),
+  ).toBe(true);
   expect(request.scriptItems![0].speech).toMatchObject({ voice: "zf_xiaobei" });
   expect(languageTracksDirection(request)).toContain("Keep subtitles out of the rendered pixels");
 });
@@ -142,4 +151,69 @@ it("resolves every media artifact for playback and downloads without changing me
     subtitles: [{ vtt: "/artifacts/captions.vtt", srt: "/artifacts/captions.srt" }],
   });
   expect(media.narration[0].video).toBe("video.mp4");
+});
+
+it("selects paired languages, preserves voice profiles and keeps both playback defaults together", () => {
+  const request = VideoRequestSchema.parse({
+    instructions: "Example explanation",
+    outputLanguage: "en",
+    languageTracks: settings,
+  });
+  const paired = selectLanguageTrackLanguages(request, ["en", "zh"]);
+  expect(paired.narration.map((track) => track.language)).toEqual(["en", "zh"]);
+  expect(paired.subtitles).toEqual(["en", "zh"]);
+  expect(paired.narration[0].speech.voice).toBe("af_heart");
+  expect(paired.defaultNarration).toBe("en");
+  expect(paired.defaultSubtitle).toBe("en");
+  const chinese = selectLanguageTrackLanguages({ ...request, languageTracks: paired }, ["zh"]);
+  expect(chinese.narration[0].language).toBe("zh");
+  expect(chinese.subtitles).toEqual(["zh"]);
+  expect(chinese.defaultNarration).toBe("zh");
+  expect(chinese.defaultSubtitle).toBe("zh");
+  expect(LanguageTracksSchema.safeParse(chinese).success).toBe(true);
+  const applied = applyLanguageTracks({ ...request, languageTracks: chinese });
+  expect(applied.speech).toMatchObject({ mode: "narration", language: "zh" });
+  expect(applied.outputLanguage).toBe("en");
+  const empty = selectLanguageTrackLanguages({ ...request, languageTracks: chinese }, []);
+  expect(empty).toEqual({
+    narration: [],
+    subtitles: [],
+    defaultNarration: undefined,
+    defaultSubtitle: "off",
+  });
+  expect(request.languageTracks).toEqual(LanguageTracksSchema.parse(settings));
+});
+
+it("submits global profiles rather than hidden legacy item switches", () => {
+  const request = VideoRequestSchema.parse({
+    instructions: "Explain a sample",
+    languageTracks: {
+      narration: [
+        { language: "en", speech: { mode: "narration", engine: "kokoro", voice: "af_heart" } },
+      ],
+      subtitles: [],
+      showSubtitles: false,
+      defaultNarration: "en",
+      defaultSubtitle: "off",
+    },
+    scriptItems: [
+      {
+        id: "opening",
+        startSeconds: 0,
+        endSeconds: 3,
+        text: "Exact supplied copy",
+        showSubtitles: true,
+        speech: { mode: "off" },
+      },
+    ],
+  });
+  const submitted = roomSubmission(request);
+  expect(submitted.outputType).toBe("video");
+  if (submitted.outputType !== "video") throw Error("Expected video");
+  expect(submitted.scriptItems![0]).toMatchObject({
+    text: "Exact supplied copy",
+    showSubtitles: false,
+    speech: { mode: "narration", engine: "kokoro", voice: "af_heart", language: "en" },
+  });
+  expect(request.scriptItems![0].speech.mode).toBe("off");
 });

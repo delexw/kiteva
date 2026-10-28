@@ -49,8 +49,14 @@ async function pass(name: string, currentJob = job) {
   const workspace = currentJob.workspace;
   const messages: string[] = [];
   const start = performance.now();
-  const result = await renderJob(currentJob, production, signal, (_type, message) =>
-    messages.push(message),
+  const result = await renderJob(
+    currentJob,
+    production,
+    signal,
+    (_type, message) => messages.push(message),
+    undefined,
+    false,
+    { reviewRenderCache: async () => false },
   );
   const frames = await command(
     "ffmpeg",

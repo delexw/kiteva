@@ -50,3 +50,22 @@ it("retains headless and hosted network configuration in the shared launcher", a
   expect(options.args).toContain("--proxy-server=http://127.0.0.1:9");
   expect(options.args).not.toContain("--window-size=1440,1000");
 });
+it("uses only the invocation-owned temporary directory when one is supplied", async () => {
+  const launch = vi.spyOn(puppeteer, "launch").mockRejectedValue(Error("Launch intercepted"));
+  await expect(
+    launchReferenceBrowser({
+      executablePath: "/example/chrome",
+      workspace: "/tmp/example-project",
+      temporaryDirectory: "/tmp/example-project/.runtime/browser/tmp/session",
+      signal: new AbortController().signal,
+      presentation: "headless",
+      mode: "local",
+    }),
+  ).rejects.toThrow("Launch intercepted");
+  expect(launch.mock.calls[0][0]?.env).toMatchObject({
+    TMPDIR: "/tmp/example-project/.runtime/browser/tmp/session",
+    MAC_CHROMIUM_TMPDIR: "/tmp/example-project/.runtime/browser/tmp/session",
+    TMP: "/tmp/example-project/.runtime/browser/tmp/session",
+    TEMP: "/tmp/example-project/.runtime/browser/tmp/session",
+  });
+});

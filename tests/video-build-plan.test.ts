@@ -1,4 +1,5 @@
 import { StoryboardSchema } from "../src/shared/agents/schemas/storyboard";
+import { ProductionSchema } from "../src/shared/agents/schemas/video";
 import { afterEach, expect, it, vi } from "vitest";
 import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import os from "node:os";
@@ -302,18 +303,30 @@ it.each([
   ["claude", "full"],
   ["codex", "automatic"],
   ["claude", "automatic"],
+  ["codex", "refinement"],
+  ["claude", "refinement"],
+  ["codex", "refinement-resume"],
+  ["claude", "refinement-resume"],
 ] as const)(
   "runs %s %s with independent preview builds and unchanged full-film planning",
   async (provider, mode) => {
     const automatic = mode === "automatic";
+    const resuming = mode === "refinement-resume";
+    const refining = mode === "refinement" || resuming;
     const kind = mode === "preview" || mode === "selected-preview" ? "preview" : "full";
-    const duration = automatic ? 90 : 3;
+    const duration = automatic ? 90 : refining ? 125 : kind === "full" ? 124 : 3;
+    const targetDuration = kind === "full" ? 120 : 3;
     const { generateVideo } = await import("../src/server/domains/video/workflow");
     const { loadCatalog } = await import("../src/server/catalog/catalog");
     const { VideoRequestSchema } = await import("../src/shared/domains/video");
     const options = await input();
     const controller = new AbortController();
     options.job.kind = kind;
+    options.job.duration = targetDuration;
+    if (refining) {
+      options.job.refinementPrompt = "Extend the credits to 125 seconds";
+      options.job.sessionId = "refinement-source-session";
+    }
     if (automatic || mode === "direct" || kind === "preview") {
       if (automatic) options.job.duration = 15;
       options.job.sessionId = undefined;
@@ -339,7 +352,14 @@ it.each([
       limitations: [],
       storyboard: validStoryboard(duration),
     };
-    if (kind === "full")
+    if (resuming) {
+      options.job.production = ProductionSchema.parse({ ...production, duration: 120 });
+      await writeFile(
+        path.join(options.job.workspace, "STORYBOARD.json"),
+        JSON.stringify(validStoryboard(120)),
+      );
+    }
+    if (kind === "full" && !refining)
       vi.mocked(agentTurn).mockImplementationOnce(async (call) => {
         const planningFiles = [
           await readFile(path.join(call.workspace, "VIDEO_PLANNING_GUIDANCE.md"), "utf8"),
@@ -366,23 +386,52 @@ it.each([
         return { value: previewPlan, sessionId: "planning-session" };
       });
     vi.mocked(agentTurn).mockImplementationOnce(async (call) => {
-      expect(call.sessionId).toBe(kind === "preview" ? undefined : "planning-session");
+      expect(call.sessionId).toBe(
+        kind === "preview"
+          ? undefined
+          : refining
+            ? "refinement-source-session"
+            : "planning-session",
+      );
       expect(call.readOnly).toBeUndefined();
       expect(call.model).toBe(options.job.model);
       expect(call.prompt).toContain(
-        kind === "preview" ? "# Build this preview" : "IMPLEMENT THE SAVED VIDEO BUILD PLAN",
+        kind === "preview"
+          ? "# Build this preview"
+          : resuming
+            ? "The user answered a question"
+            : refining
+              ? "REVISION SCOPE"
+              : "IMPLEMENT THE SAVED VIDEO BUILD PLAN",
       );
       if (kind === "preview") {
         expect(call.prompt).not.toContain("ORIGINAL USER IDEA");
         expect(call.prompt).not.toContain("NEXT-TURN BUILD SPECIFICATION");
         expect(call.prompt).toContain("displayTitle and displayDescription");
       }
+      if (refining) {
+        expect(call.prompt).toContain("between 115 and 125");
+        expect(call.prompt).not.toContain("duration MUST be 120");
+        expect(
+          call.schema.safeParse({ ...production, duration: 125, storyboard: validStoryboard(125) })
+            .success,
+        ).toBe(true);
+        expect(
+          call.schema.safeParse({ ...production, duration: 126, storyboard: validStoryboard(126) })
+            .success,
+        ).toBe(false);
+      }
       expect(call.schema.parse(production)).toMatchObject({
         storyboard: validStoryboard(duration),
       });
       return {
         value: production,
-        sessionId: kind === "preview" ? "preview-build-session" : "planning-session",
+        sessionId:
+          kind === "preview"
+            ? "preview-build-session"
+            : refining
+              ? "refinement-source-session"
+              : "planning-session",
       };
     });
     await expect(
@@ -393,7 +442,7 @@ it.each([
           provider,
           urls: ["https://example.com/app"],
           frameRate: 60,
-          duration: automatic ? "auto" : duration,
+          duration: automatic ? "auto" : targetDuration,
           ...(automatic || mode === "direct" || mode === "selected-preview"
             ? {
                 selectedStyleIds: ["style-018"],
@@ -430,21 +479,34 @@ it.each([
         update: options.update,
         onEvent: options.onEvent,
         emit: vi.fn(),
+        decisions: resuming
+          ? "Extend the credits from 120 to 125 seconds as originally requested."
+          : undefined,
         render: async () => {
           controller.abort(new Error("verified before render"));
           throw controller.signal.reason;
         },
       }),
     ).rejects.toThrow("verified before render");
-    expect(agentTurn).toHaveBeenCalledTimes(kind === "preview" ? 1 : 2);
+    expect(agentTurn).toHaveBeenCalledTimes(kind === "preview" || refining ? 1 : 2);
     expect(options.job.sessionId).toBe(
-      kind === "preview" ? "preview-build-session" : "planning-session",
+      kind === "preview"
+        ? "preview-build-session"
+        : refining
+          ? "refinement-source-session"
+          : "planning-session",
     );
     expect(options.job.duration).toBe(duration);
     expect(
       await readFile(path.join(options.job.workspace, "EXECUTABLE_PROMPT.md"), "utf8"),
     ).toContain(
-      kind === "preview" ? "# Build this preview" : "IMPLEMENT THE SAVED VIDEO BUILD PLAN",
+      kind === "preview"
+        ? "# Build this preview"
+        : resuming
+          ? "The user answered a question"
+          : refining
+            ? "REVISION SCOPE"
+            : "IMPLEMENT THE SAVED VIDEO BUILD PLAN",
     );
   },
 );
@@ -571,7 +633,7 @@ it.each(["claude", "codex"] as const)(
       expect(call.schema.safeParse(fullPlan(301)).success).toBe(false);
       expect(
         await readFile(path.join(call.workspace, "VIDEO_PLANNING_GUIDANCE.md"), "utf8"),
-      ).toContain("duration in the next-turn specification is provisional");
+      ).toContain("specification's duration is provisional");
       return { value: fullPlan(90), sessionId: "auto-main-plan" };
     });
     await prepareVideoBuildPlan({ ...options, provider, automaticDuration: true });
@@ -581,6 +643,47 @@ it.each(["claude", "codex"] as const)(
     expect(agentTurn).toHaveBeenCalledOnce();
   },
 );
+
+it.each(["claude", "codex"] as const)(
+  "uses a nearby planned duration for %s instead of locking the requested target",
+  async (provider) => {
+    const options = await input();
+    options.job.kind = "full";
+    options.job.duration = 120;
+    options.job.sessionId = undefined;
+    vi.mocked(agentTurn).mockImplementationOnce(async (call) => {
+      for (const duration of [115, 120, 125])
+        expect(call.schema.safeParse(fullPlan(duration)).success).toBe(true);
+      for (const duration of [114, 126])
+        expect(call.schema.safeParse(fullPlan(duration)).success).toBe(false);
+      expect(
+        await readFile(path.join(call.workspace, "VIDEO_PLANNING_GUIDANCE.md"), "utf8"),
+      ).toContain("between 115 and 125");
+      return { value: fullPlan(124), sessionId: "target-plan" };
+    });
+    await prepareVideoBuildPlan({ ...options, provider, targetDuration: 120 });
+    expect(options.job.duration).toBe(124);
+    expect(
+      JSON.parse(await readFile(path.join(options.job.workspace, "STORYBOARD.json"), "utf8")),
+    ).toMatchObject({ durationSeconds: 124 });
+    await prepareVideoBuildPlan({ ...options, provider, targetDuration: 120 });
+    expect(agentTurn).toHaveBeenCalledOnce();
+  },
+);
+
+it("keeps explicit script windows inside the selected actual duration", () => {
+  const schema = fullVideoPlanSchemaFor(
+    { ...size, duration: undefined, targetDuration: 120, minimumDuration: 124 },
+    true,
+  );
+  expect(schema.safeParse(fullPlan(123)).success).toBe(false);
+  expect(schema.safeParse(fullPlan(124)).success).toBe(true);
+  expect(schema.safeParse(fullPlan(125)).success).toBe(true);
+  expect(schema.safeParse(fullPlan(126)).success).toBe(false);
+  expect(schema.safeParse({ ...fullPlan(124), storyboard: validStoryboard(125) }).success).toBe(
+    false,
+  );
+});
 
 it("requires a complete full-film storyboard before handing off a new build", async () => {
   const options = await input();
@@ -609,7 +712,7 @@ it("saves the validated storyboard before announcing readiness and preserves it 
   expect(options.onEvent).toHaveBeenCalledWith(
     expect.objectContaining({
       type: "plan_ready",
-      message: "Full-film storyboard validated and saved before capture",
+      message: "Plan ready",
     }),
   );
 });
@@ -757,3 +860,54 @@ it("revises a saved capture budget in the same main session and saves the new st
   ).toEqual(revised.storyboard);
   expect(options.onEvent).toHaveBeenCalledWith(expect.objectContaining({ type: "plan_ready" }));
 });
+
+it.each([false, true])(
+  "publishes accepted plan artifacts once, with capture=%s",
+  async (capture) => {
+    const options = await input();
+    options.job.kind = "full";
+    const capturePlan = capture
+      ? {
+          scope: "Show a result",
+          story: "Open then play",
+          chapters: [
+            {
+              id: "watch",
+              title: "Watch",
+              purpose: "See the result",
+              startingState: "Result page",
+              actions: ["Play"],
+              expectedResults: ["Playback"],
+              nextChapterContext: "End",
+              estimatedDurationSeconds: 3,
+            },
+          ],
+        }
+      : null;
+    const plan = {
+      ...fullPlan(),
+      storyboard: StoryboardSchema.parse(fullPlan().storyboard),
+      capturePlan,
+    };
+    if (capture) plan.storyboard.scenes[0].assets = ["capture:watch"];
+    vi.mocked(agentTurn).mockResolvedValue({ value: plan, sessionId: "main" });
+    await prepareVideoBuildPlan(options);
+    const ready = () =>
+      options.onEvent.mock.calls
+        .map(([event]) => event)
+        .filter((event) => event.type.endsWith("_ready"));
+    expect(ready().map((event) => event.message)).toEqual(
+      capture
+        ? ["Plan ready", "Storyboard ready", "Capture plan ready"]
+        : ["Plan ready", "Storyboard ready"],
+    );
+    expect(
+      JSON.parse(await readFile(path.join(options.job.workspace, "VIDEO_BUILD_PLAN.json"), "utf8")),
+    ).toEqual(plan);
+    expect(
+      JSON.parse(await readFile(path.join(options.job.workspace, "STORYBOARD.json"), "utf8")),
+    ).toEqual(plan.storyboard);
+    await prepareVideoBuildPlan(options);
+    expect(ready()).toHaveLength(capture ? 3 : 2);
+  },
+);

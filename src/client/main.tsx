@@ -1,3 +1,6 @@
+import { LoadingStatus } from "./components/loading-status";
+import { LanguageTrackSettings } from "./components/language-track-settings";
+import type { LanguageTracks } from "../shared/language-tracks";
 import { languageMediaUrls } from "./lib/language-media";
 import { LanguageMediaDownloads } from "./components/language-media-downloads";
 import { PromptText } from "./components/style-mention";
@@ -31,13 +34,16 @@ import { ProjectList } from "./components/project-list";
 import { Button, Input, Alert, Card, Collapse, Tooltip } from "antd";
 import { CodedError, errorCode } from "../shared/errors";
 import { ProjectConversation } from "./components/project-conversation";
+import type { RevisionSlots } from "./components/revision-stack";
 import { RunningProjects } from "./components/running-projects";
 import { projectName } from "../shared/project-name";
 import { api } from "./lib/api";
+import { mergeActivityEvents, summaryEventLimit } from "../shared/project-activity";
 import { subscribeProjectEvents } from "./lib/project-event-stream";
 import { loadMotionCatalog } from "./motion-catalog";
 import { appRoute } from "./lib/app-route";
 import { projectSettingsDraft } from "./lib/project-settings";
+import { projectEditBrief } from "../shared/project-edit-brief";
 import { SpeechSettings } from "./components/speech-settings";
 import { ensureSpeechGenerationReady } from "./lib/speech";
 import type { SpeechSettings as SpeechConfiguration } from "../shared/speech";
@@ -196,6 +202,7 @@ function App() {
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
   const [subtitlesText, setSubtitlesText] = useState("");
   const [scriptItems, setScriptItems] = useState<ScriptItem[]>();
+  const [languageTracks, setLanguageTracks] = useState<LanguageTracks>();
   const [speech, setSpeech] = useState<SpeechConfiguration>();
   const [urls, setUrls] = useState("");
   const [sectionInstructions, setSectionInstructions] = useState({
@@ -260,8 +267,8 @@ function App() {
     };
   }, []);
   useEffect(() => {
-    if (!run?.id) return;
     setEvents([]);
+    if (!run?.id || !projectId) return;
     let disposed = false;
     const refreshRun = () =>
       void api<Run>(`/api/runs/${run.id}`)
@@ -273,14 +280,15 @@ function App() {
         });
     const unsubscribe = subscribeProjectEvents(
       run.id,
-      (batch) => setEvents((old) => [...old, ...batch]),
+      (batch) => setEvents((old) => mergeActivityEvents(old, batch, summaryEventLimit)),
       refreshRun,
+      { view: "summary" },
     );
     return () => {
       disposed = true;
       unsubscribe();
     };
-  }, [run?.id]);
+  }, [run?.id, projectId]);
   useEffect(() => {
     if (!run) return;
     setHistory((previous) =>
@@ -311,7 +319,10 @@ function App() {
           ])
             .then(([project, attachments, _catalog]) => {
               if (navigation !== projectNavigation.current) return;
-              const draft = projectSettingsDraft(project.request);
+              const draft = projectSettingsDraft({
+                ...project.request,
+                instructions: projectEditBrief(project).instructions,
+              });
               setInstructions(draft.instructions);
               setPreference(draft.preference);
               setProvider(draft.provider);
@@ -325,6 +336,9 @@ function App() {
               setSubtitlesEnabled(draft.subtitlesEnabled);
               setSubtitlesText(draft.subtitlesText);
               setSpeech(draft.speech);
+              setLanguageTracks(
+                project.request.outputType === "video" ? project.request.languageTracks : undefined,
+              );
               setScriptItems(draft.scriptItems);
               setUrls(draft.urls);
               setSectionInstructions(draft.sectionInstructions);
@@ -543,6 +557,7 @@ function App() {
               subtitles: subtitlesFromInput(subtitlesEnabled, subtitlesText),
               speech,
               scriptItems,
+              languageTracks: scriptItems ? languageTracks : undefined,
             }),
       };
       if (request.outputType === "video") await ensureSpeechGenerationReady(request);
@@ -614,6 +629,7 @@ function App() {
       setSubtitlesEnabled(false);
       setSubtitlesText("");
       setSpeech(undefined);
+      setLanguageTracks(undefined);
       setScriptItems(undefined);
       setError("");
       setRestoredSettingsId(undefined);
@@ -679,14 +695,17 @@ function App() {
       </>
     );
   }
-  function fullDelivery(job: GenerationJob, activity?: React.ReactNode) {
+  function fullDelivery(job: GenerationJob, activity?: React.ReactNode, revisions?: RevisionSlots) {
     if (!run) return null;
-    return <div className="full-delivery">{candidateCard(job, activity)}</div>;
+    return (
+      <div className="full-delivery">{candidateCard(job, activity, undefined, revisions)}</div>
+    );
   }
   function candidateCard(
     job: GenerationJob,
     activity?: React.ReactNode,
     onFullStarted?: () => void,
+    revisions?: RevisionSlots,
   ) {
     if (!run) return null;
     const candidate = run!.candidates.find((c) => c.id === job.candidateId);
@@ -744,6 +763,7 @@ function App() {
             <PreviewLoadingMedia loading={false} status="Preview unavailable" />
           )}
         </div>
+        {revisions?.strip}
         <div className="candidate-body">
           <div className="candidate-heading">
             <div className="candidate-heading-label">
@@ -833,18 +853,20 @@ function App() {
                     title={translateUi("Stop generating this result.")}
                   >
                     <Button
-                      className="delivery-icon-button"
+                      className="delivery-icon-button stop-icon-button"
+                      type="text"
                       aria-label={translateUi("Cancel")}
                       danger
                       onClick={() => action("cancel", job.id)}
                     >
-                      <Square size={18} aria-hidden="true" />
+                      <Square size={18} fill="currentColor" strokeWidth={0} aria-hidden="true" />
                     </Button>
                   </Tooltip>
                 )}
               </div>
             )}
           </div>
+          {revisions?.switcher}
           {active && <JobActivityProgress jobId={job.id} events={events} />}
           {job.outputType === "page" && <p>{translateUi("Interactive page")}</p>}
           {job.kind === "preview" && candidate?.displayDescription && (
@@ -1061,7 +1083,9 @@ function App() {
                   {translateUi("Open interactive geometry study")}
                 </Button>
                 {demo && (
-                  <Suspense fallback={<p>{translateUi("Loading demonstration…")}</p>}>
+                  <Suspense
+                    fallback={<LoadingStatus text={translateUi("Loading demonstration…")} />}
+                  >
                     <SceneDemo tokens={detail.palette.tokens} />
                   </Suspense>
                 )}
@@ -1192,11 +1216,11 @@ function App() {
             </Suspense>
           )
         ) : utilityPage === "governance" ? (
-          <Suspense fallback={<div role="status">{translateUi("Loading governance…")}</div>}>
+          <Suspense fallback={<LoadingStatus text={translateUi("Loading governance…")} />}>
             <GovernancePage />
           </Suspense>
         ) : utilityPage === "technologies" ? (
-          <Suspense fallback={<div role="status">{translateUi("Loading technologies…")}</div>}>
+          <Suspense fallback={<LoadingStatus text={translateUi("Loading technologies…")} />}>
             <TechnologyPoolPage />
           </Suspense>
         ) : utilityPage === "motions" ? (
@@ -1275,11 +1299,12 @@ function App() {
                 renderPreview={(job) =>
                   candidateCard(job, undefined, () => onView({ ...view, tab: "full" }))
                 }
-                renderFull={fullDelivery}
+                renderFull={(job, revisions) => fullDelivery(job, undefined, revisions)}
                 onQuestion={onQuestion}
                 onUpdated={setRun}
                 onEdit={() => navigate(`/?settingsFrom=${run.id}`)}
                 onCancel={() => void action("cancel")}
+                onCancelJob={(jobId) => void action("cancel", jobId)}
                 onRetry={(jobId) => action("retry", jobId)}
               />
             )
@@ -1413,11 +1438,11 @@ function App() {
               />
             </Suspense>
           ) : page === "governance" ? (
-            <Suspense fallback={<div role="status">{translateUi("Loading governance…")}</div>}>
+            <Suspense fallback={<LoadingStatus text={translateUi("Loading governance…")} />}>
               <GovernancePage />
             </Suspense>
           ) : page === "technologies" ? (
-            <Suspense fallback={<div role="status">{translateUi("Loading technologies…")}</div>}>
+            <Suspense fallback={<LoadingStatus text={translateUi("Loading technologies…")} />}>
               <TechnologyPoolPage />
             </Suspense>
           ) : page === "motions" ? (
@@ -1449,9 +1474,9 @@ function App() {
               />
             </PageTemplate>
           ) : settingsSourceId && restoredSettingsId !== settingsSourceId ? (
-            <p role="status">{translateUi("Loading your settings…")}</p>
+            <LoadingStatus text={translateUi("Loading your settings…")} />
           ) : projectId && run?.id !== projectId ? (
-            <p role="status">{translateUi("Loading project…")}</p>
+            <LoadingStatus text={translateUi("Loading project…")} />
           ) : run ? (
             <PageTemplate
               className="project-page-template"
@@ -1517,6 +1542,7 @@ function App() {
                 renderPreview={candidateCard}
                 renderFull={fullDelivery}
                 onCancel={(jobId) => void action("cancel", jobId)}
+                onRetry={(jobId) => void action("retry", jobId)}
                 onPreviewActivate={() => {
                   void conversationContextRef.current?.scrollToBottom({
                     animation: "smooth",
@@ -1630,11 +1656,17 @@ function App() {
                       </label>
                       {outputType === "video" &&
                         (scriptItems !== undefined ? (
-                          <ScriptItems
-                            items={scriptItems}
-                            duration={duration}
-                            onChange={setScriptItems}
-                          />
+                          <>
+                            <LanguageTrackSettings
+                              request={{ speech, scriptItems, languageTracks }}
+                              onChange={setLanguageTracks}
+                            />
+                            <ScriptItems
+                              items={scriptItems}
+                              duration={duration}
+                              onChange={setScriptItems}
+                            />
+                          </>
                         ) : (
                           <Button
                             disabled={speech?.mode === "uploaded"}
@@ -1730,7 +1762,10 @@ function App() {
                         {outputType === "video" ? (
                           <>
                             {" "}
-                            <div className="composer-control">
+                            <div
+                              className="composer-control"
+                              title={translateUi("Target length (±5 s)")}
+                            >
                               <StudioSelect
                                 aria-label={translateUi("Full video duration")}
                                 value={

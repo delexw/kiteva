@@ -1,3 +1,4 @@
+import { LoadingStatus } from "./components/loading-status";
 import { translateUi, useUiLanguage } from "./i18n";
 import { useEffect, useState } from "react";
 import type { MotionPattern, Style } from "../shared/contracts";
@@ -89,6 +90,6 @@ export function MotionReferences({ references }: { references: Style["motion_ref
     return () => controller.abort();
   }, []);
   if (error) return <p role="alert">{error}</p>;
-  if (!motions) return <p role="status">{translateUi("Loading motion references…")}</p>;
+  if (!motions) return <LoadingStatus text={translateUi("Loading motion references…")} />;
   return <MotionReferenceList references={references} motions={motions} />;
 }

@@ -27,6 +27,8 @@ export const RoomDraftSchema = z
   .object({
     step: z.number().int().min(0).max(7).catch(0).default(0),
     stepLayout: z.literal("separate-speech").optional().catch(undefined),
+    editHistoryIds: z.array(z.string()).optional(),
+    editHistoryText: z.string().optional(),
     request: z
       .record(z.string(), z.unknown())
       .transform(normalizeSubtitleFields)

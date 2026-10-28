@@ -33,10 +33,12 @@ it.skipIf(!browserExecutablePath())(
                 `<!doctype html><div id="root"></div><script type="module">
 import React,{useState}from'react';import{createRoot}from'react-dom/client';
 import{RoomOnboarding}from'/src/client/room/room-onboarding.tsx';
-import{emptyRoomDraft}from'/src/client/room/onboarding.ts';
+import{roomEditDraft}from'/src/client/room/onboarding.ts';
+import{RequestSchema}from'/src/shared/contracts.ts';
 import '/src/client/room/room.css';
 const idea='Act 1: <style id="style-140">Vintage Rubber Hose Animation</style>. '+('Keep the original story, references and exact timing.\\n'.repeat(60));
-function App(){const[draft,setDraft]=useState({...emptyRoomDraft(),step:0,stepLayout:'separate-speech',request:{instructions:idea,urls:[]}});return React.createElement(React.Fragment,null,React.createElement('div',{className:'room-assistant-body',id:'dialog',style:{height:540,width:800}},React.createElement(RoomOnboarding,{draft,onChange:setDraft,materials:[],styles:[{id:'style-140',name_en:'Vintage Rubber Hose Animation'}],examples:[],onCreated(){},onUpload:async()=>[]})),React.createElement('output',{id:'state'},JSON.stringify(draft)));}
+const source={id:'example-project',createdAt:'2026-01-01',phase:'ready',request:RequestSchema.parse({instructions:idea}),candidates:[],jobs:[{id:'original',kind:'full',candidateId:'direction'},{id:'revision',kind:'full',candidateId:'direction',createdAt:'2026-01-03',refinementPrompt:'Make the opening clearer'}],assetQuestions:[{id:'question',state:'answered',kind:'reference',question:'Which example?',answer:'Use the supplied example',answeredAt:'2026-01-02'}]};
+function App(){const[draft,setDraft]=useState({...roomEditDraft(source,[]),step:0});return React.createElement(React.Fragment,null,React.createElement('div',{className:'room-assistant-body',id:'dialog',style:{height:540,width:800}},React.createElement(RoomOnboarding,{draft,onChange:setDraft,materials:[],styles:[{id:'style-140',name_en:'Vintage Rubber Hose Animation'}],examples:[],onCreated(){},onUpload:async()=>[]})),React.createElement('output',{id:'state'},JSON.stringify(draft)));}
 createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
               );
               res.setHeader("Content-Type", "text/html");
@@ -66,6 +68,13 @@ createRoot(document.getElementById('root')).render(React.createElement(App));</s
             .querySelector('[role="textbox"]')
             ?.textContent?.includes("Keep the original story"),
         ),
+      );
+      const editorText = await page.$eval(editor, (el) => el.textContent || "");
+      expect(editorText).toContain("Which example?");
+      expect(editorText).toContain("Use the supplied example");
+      expect(editorText).toContain("Make the opening clearer");
+      expect(editorText.indexOf("Which example?")).toBeLessThan(
+        editorText.indexOf("Make the opening clearer"),
       );
       const before = await (await page.$(editor))!.boundingBox();
       const handle = await (await page.$(separator))!.boundingBox();

@@ -1,8 +1,11 @@
+import { registerActivityChildrenRoute } from "./jobs/activity-routes";
 import {
   pendingReferenceAuthentications,
   answerReferenceAuthentication,
 } from "./agents/capabilities/reference-browser/authentication-bridge";
+import { projectActivityEvent } from "../shared/project-activity";
 import { finished } from "node:stream/promises";
+import { VideoRefinementRequestSchema } from "../shared/domains/video";
 import { writeProjectRequest } from "./requests/project-request";
 import { stopPocketTtsWorker } from "./audio/providers/pocket-tts";
 import { jevModel } from "./jev/client";
@@ -121,7 +124,7 @@ export async function createApp(options: { store?: Store } = {}) {
     videoLanguageSupported: true,
     agentMode,
     models,
-    jevConfigured: Boolean(process.env.TYPESAFE_API_KEY || process.env.JEV_API_KEY),
+    jevConfigured: Boolean(process.env.TYPESAFE_API_KEY),
     codexCredentialPresent: Boolean(
       process.env.CODEX_API_KEY ||
       process.env.OPENAI_API_KEY ||
@@ -449,13 +452,31 @@ export async function createApp(options: { store?: Store } = {}) {
       deletingRuns.delete(id);
     }
   });
+  app.delete<{ Params: { id: string; jobId: string } }>(
+    "/api/runs/:id/versions/:jobId",
+    async (req) => {
+      const run = getRun(req.params.id);
+      if (fullLocks.has(run.id)) throw new CodedError("PROJECT_ACTIVE", "A build is starting", 409);
+      const task = workflow.deleteVideoVersion(run, req.params.jobId);
+      fullLocks.set(run.id, task);
+      try {
+        return await task;
+      } finally {
+        fullLocks.delete(run.id);
+      }
+    },
+  );
   app.post<{ Params: { id: string } }>("/api/runs/:id/refine", async (req, reply) => {
     const run = getRun(req.params.id);
-    const body = z
-      .object({ jobId: z.string(), prompt: z.string().trim().min(1).max(6000) })
-      .parse(req.body);
+    const body = VideoRefinementRequestSchema.parse(req.body);
     if (fullLocks.has(run.id)) throw new CodedError("PROJECT_ACTIVE", "A build is starting", 409);
-    const task = workflow.refineVideo(run, body.jobId, body.prompt);
+    const task = workflow.refineVideo(
+      run,
+      body.jobId,
+      body.prompt,
+      body.assetIds,
+      body.discardedRefinementJobIds,
+    );
     fullLocks.set(run.id, task);
     try {
       return reply.code(202).send(await task);
@@ -486,44 +507,82 @@ export async function createApp(options: { store?: Store } = {}) {
   app.addHook("preClose", async () => {
     for (const stream of eventStreams) stream.end();
   });
-  app.get<{ Params: { id: string }; Querystring: { after?: string; batch?: string } }>(
-    "/api/runs/:id/events",
-    async (req, reply) => {
-      getRun(req.params.id);
-      const rawCursor = Number(req.headers["last-event-id"] || req.query.after || 0);
-      let cursor = Number.isFinite(rawCursor) ? Math.max(0, rawCursor) : 0;
-      reply.hijack();
-      reply.raw.writeHead(200, {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-        "X-Accel-Buffering": "no",
-      });
-      reply.raw.flushHeaders();
-      const send = (e: AgentProgressEvent) => {
-        if (e.id <= cursor) return;
-        cursor = e.id;
-        reply.raw.write(`id: ${e.id}\ndata: ${JSON.stringify(e)}\n\n`);
-      };
-      const listener = (e: AgentProgressEvent) => send(e);
-      store.bus.on(req.params.id, listener);
-      let page;
-      do {
-        page = store.events(req.params.id, cursor);
-        if (req.query.batch === "1" && page.length) {
-          cursor = page.at(-1)!.id;
-          reply.raw.write(`id: ${cursor}\nevent: history\ndata: ${JSON.stringify(page)}\n\n`);
-        } else page.forEach(send);
-      } while (page.length === 500);
-      const keep = setInterval(() => reply.raw.write(": keepalive\n\n"), 15000);
-      eventStreams.add(reply.raw);
-      req.raw.on("close", () => {
-        eventStreams.delete(reply.raw);
-        clearInterval(keep);
-        store.bus.off(req.params.id, listener);
-      });
-    },
-  );
+  app.get<{
+    Params: { id: string };
+    Querystring: { before?: string; after?: string; jobId?: string };
+  }>("/api/runs/:id/activity", async (req) => {
+    getRun(req.params.id);
+    const query = z
+      .object({
+        before: z.coerce.number().int().positive().optional(),
+        after: z.coerce.number().int().nonnegative().optional(),
+        jobId: z.string().max(200).optional(),
+      })
+      .parse(req.query);
+    return store.activityPage(req.params.id, query.before, query.after, query.jobId);
+  });
+  registerActivityChildrenRoute(app, store, getRun);
+  app.get<{
+    Params: { id: string };
+    Querystring: { after?: string; batch?: string; view?: string };
+  }>("/api/runs/:id/events", async (req, reply) => {
+    getRun(req.params.id);
+    const rawCursor = Number(req.headers["last-event-id"] || req.query.after || 0);
+    let cursor = Number.isFinite(rawCursor) ? Math.max(0, rawCursor) : 0;
+    reply.hijack();
+    reply.raw.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+      "X-Accel-Buffering": "no",
+    });
+    reply.raw.flushHeaders();
+    const lightweight = req.query.view === "summary" || req.query.view === "activity";
+    const send = (raw: AgentProgressEvent) => {
+      const e = lightweight ? projectActivityEvent(raw) : raw;
+      if (!e) {
+        if (raw.id > cursor) {
+          cursor = raw.id;
+          reply.raw.write(`id: ${cursor}\nevent: cursor\ndata: {}\n\n`);
+        }
+        return;
+      }
+      if (e.id <= cursor) return;
+      cursor = e.id;
+      reply.raw.write(`id: ${e.id}\ndata: ${JSON.stringify(e)}\n\n`);
+    };
+    const listener = (e: AgentProgressEvent) => send(e);
+    store.bus.on(req.params.id, listener);
+    if (req.query.view === "summary") {
+      const summary = store.activityPage(req.params.id);
+      cursor = Math.max(cursor, summary.after);
+      reply.raw.write(`id: ${cursor}\nevent: history\ndata: ${JSON.stringify(summary.events)}\n\n`);
+    }
+    let page;
+    do {
+      page = req.query.view === "summary" ? [] : store.events(req.params.id, cursor);
+      if (req.query.batch === "1" && page.length) {
+        cursor = page.at(-1)!.id;
+        reply.raw.write(
+          `id: ${cursor}\nevent: history\ndata: ${JSON.stringify(
+            lightweight
+              ? page.flatMap((event) => {
+                  const compact = projectActivityEvent(event);
+                  return compact ? [compact] : [];
+                })
+              : page,
+          )}\n\n`,
+        );
+      } else page.forEach(send);
+    } while (page.length === 500);
+    const keep = setInterval(() => reply.raw.write(": keepalive\n\n"), 15000);
+    eventStreams.add(reply.raw);
+    req.raw.on("close", () => {
+      eventStreams.delete(reply.raw);
+      clearInterval(keep);
+      store.bus.off(req.params.id, listener);
+    });
+  });
   app.get("/api/examples", async () => {
     const videos = await readStyleVideos();
     return {

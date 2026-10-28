@@ -1,6 +1,7 @@
 import { proposalSchemaForStyleRange } from "../src/shared/agents/schemas/proposals";
 
 import { expect, it } from "vitest";
+import { fullVideoDurationMatches, videoDurationRange } from "../src/shared/video-duration";
 import {
   VideoRequestSchema,
   resolveVideoDuration,
@@ -16,6 +17,23 @@ it("enforces fifteen seconds for automatic full videos, including older briefs",
 it("preserves explicit short durations", () => {
   expect(resolveVideoDuration(3, 30)).toBe(3);
   expect(resolveVideoDuration(10, 30)).toBe(10);
+});
+
+it("allows five seconds either side of the requested target within application limits", () => {
+  expect(videoDurationRange(120)).toEqual({ min: 115, max: 125 });
+  expect(videoDurationRange(3)).toEqual({ min: 3, max: 8 });
+  expect(videoDurationRange(300)).toEqual({ min: 295, max: 300 });
+  expect(resolveVideoDuration(120, 120, [{ endSeconds: 124 }])).toBe(124);
+});
+
+it("accepts small export differences without stacking the planning and export allowances", () => {
+  for (const actual of [115, 119.8, 120, 125])
+    expect(fullVideoDurationMatches(actual, 120, 120)).toBe(true);
+  for (const actual of [114.99, 125.01, 130, NaN, Infinity])
+    expect(fullVideoDurationMatches(actual, 120, 120)).toBe(false);
+  expect(fullVideoDurationMatches(125, 124, 120)).toBe(true);
+  expect(fullVideoDurationMatches(129, 124, 120)).toBe(false);
+  expect(fullVideoDurationMatches(116, 124, 120)).toBe(false);
 });
 
 it("caps explicit and automatic durations at five minutes, including older suggestions", () => {

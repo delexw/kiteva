@@ -8,6 +8,7 @@ export function launchReferenceBrowser(input: {
   signal: AbortSignal;
   workspace?: string;
   profile?: string;
+  temporaryDirectory?: string;
   presentation: "capture" | "sign-in" | "headless";
   mode: "local" | "hosted";
 }) {
@@ -19,7 +20,18 @@ export function launchReferenceBrowser(input: {
     userDataDir: input.profile,
     ...(input.workspace
       ? {
-          env: { ...systemEnvironment(), ...projectRuntimeEnvironment(input.workspace, "browser") },
+          env: {
+            ...systemEnvironment(),
+            ...projectRuntimeEnvironment(input.workspace, "browser"),
+            ...(input.temporaryDirectory
+              ? {
+                  TMPDIR: input.temporaryDirectory,
+                  MAC_CHROMIUM_TMPDIR: input.temporaryDirectory,
+                  TMP: input.temporaryDirectory,
+                  TEMP: input.temporaryDirectory,
+                }
+              : {}),
+          },
         }
       : {}),
     headless: headed ? false : "shell",

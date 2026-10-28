@@ -9,6 +9,37 @@ import { Fragment } from "react";
 import { StyleExampleMedia } from "../style-card";
 import type { Run, Style, StyleExample } from "../../shared/contracts";
 import { modelDisplayName } from "../../shared/model-display-name";
+import { speechEngines, speechVoicesForEngine } from "../../shared/speech";
+import type { VideoRequest } from "../../shared/domains/video";
+
+function narrationSettingsLabels(request: VideoRequest) {
+  const profiles = request.languageTracks
+    ? request.languageTracks.narration.map((track) => ({
+        speech: track.speech,
+        language: track.language,
+      }))
+    : (request.scriptItems !== undefined
+        ? request.scriptItems.map((item) => item.speech)
+        : [request.speech]
+      ).flatMap((speech) =>
+        speech?.mode === "narration" ? [{ speech, language: undefined }] : [],
+      );
+  return [
+    ...new Set(
+      profiles.map(({ speech, language }) => {
+        const engine = speech.engine ?? "kokoro";
+        const provider = speechEngines.find((item) => item.id === engine)?.label ?? engine;
+        const voice =
+          speechVoicesForEngine(engine).find((item) => item.id === speech.voice)?.label ??
+          speech.voice;
+        const label = `${provider} · ${translateUi(voice)}`;
+        return translateUi("Narration: {{value0}}", {
+          value0: language ? `${videoLanguageLabel(language)} · ${label}` : label,
+        });
+      }),
+    ),
+  ];
+}
 
 export function ProjectSettings({
   run,
@@ -30,7 +61,9 @@ export function ProjectSettings({
     ),
     ...(request.outputType === "video"
       ? [
-          request.duration === "auto" ? "Auto duration" : `${request.duration}s`,
+          request.duration === "auto"
+            ? "Auto duration"
+            : translateUi("About {{seconds}}s (±5 s)", { seconds: request.duration }),
           ...(request.outputLanguage ? [videoLanguageLabel(request.outputLanguage)] : []),
           ...(request.languageTracks
             ? [
@@ -52,6 +85,7 @@ export function ProjectSettings({
           translateUi("{{value0}} fps", { value0: request.frameRate || 30 }),
           videoRenderers[videoRendererOf(request)].label,
           hasOnScreenSubtitles(request) ? "Subtitles on" : "No subtitles",
+          ...narrationSettingsLabels(request),
         ]
       : [request.viewport === "mobile" ? "Mobile layout" : "Desktop layout"]),
     request.candidateCount === 0

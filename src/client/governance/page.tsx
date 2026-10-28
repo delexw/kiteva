@@ -1,3 +1,4 @@
+import { LoadingStatus } from "../components/loading-status";
 import { normalizeSubtitleFields } from "../../shared/subtitle-compatibility";
 import { hasOnScreenSubtitles } from "../../shared/script-items";
 import { creativeApproachLabel } from "../../shared/creative-approach";
@@ -54,7 +55,11 @@ export function GovernancePage() {
         title={translateUi("AI governance")}
         description={<p>{translateUi("Project inputs, responsibilities, usage and spend.")}</p>}
       >
-        <div role="status">{error || translateUi("Loading governance…")}</div>
+        {error ? (
+          <div role="status">{error}</div>
+        ) : (
+          <LoadingStatus text={translateUi("Loading governance…")} />
+        )}
       </PageTemplate>
     );
   const projects = report.projects.filter(

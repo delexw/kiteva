@@ -1,0 +1,10 @@
+.conversation-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  min-width: 0;
+}
+.conversation-attachments > * {
+  max-width: 100%;
+}

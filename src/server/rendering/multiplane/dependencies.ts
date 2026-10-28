@@ -67,15 +67,15 @@ const resourceNames = new Set([
 class UnresolvedDependency extends Error {}
 class ExternalDependency extends Error {}
 
-/** Resolve static HTML/CSS/module dependencies. Null means caching is unsafe:
- * unknown/computed resources must render again, never trust an incomplete graph.
+/** Collect static HTML/CSS/module dependency evidence, including partial graphs.
+ * Strict caching requires complete evidence; reviewed recovery can inspect partial evidence.
  * No renderer-specific dependency rules belong in the common render orchestration.
  */
-export async function multiplaneShotDependencies(
+export async function multiplaneShotDependencyEvidence(
   workspace: string,
   scope: MultiplaneShotScope,
   signal: AbortSignal,
-): Promise<Set<string> | null> {
+): Promise<{ files: Set<string>; complete: boolean }> {
   const root = path.resolve(workspace);
   const dependencies = new Set<string>();
   const scanned = new Set<string>();
@@ -285,9 +285,19 @@ export async function multiplaneShotDependencies(
       if (format === "css") css(text, file);
       if (format === "js") javascript(text, file);
     }
-    return dependencies;
+    return { files: dependencies, complete: true };
   } catch {
     signal.throwIfAborted();
-    return null;
+    return { files: dependencies, complete: false };
   }
+}
+
+/** Strict callers still require a complete graph; reviewed recovery also needs partial evidence. */
+export async function multiplaneShotDependencies(
+  workspace: string,
+  scope: MultiplaneShotScope,
+  signal: AbortSignal,
+) {
+  const evidence = await multiplaneShotDependencyEvidence(workspace, scope, signal);
+  return evidence.complete ? evidence.files : null;
 }

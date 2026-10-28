@@ -11,7 +11,11 @@ export function roomDevelopmentApi(): Plugin {
       };
       const { app, close } = await room.createRoomDevelopmentApp();
       server.middlewares.use((request, response, next) => {
-        if (!request.url?.startsWith("/api/room")) return next();
+        if (
+          !request.url?.startsWith("/api/room") &&
+          !/^\/api\/runs\/[^/]+\/activity\/children(?:\?|$)/.test(request.url || "")
+        )
+          return next();
         app.routing(request, response);
       });
       server.httpServer?.once("close", () => {

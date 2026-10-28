@@ -1,3 +1,10 @@
+import { activityItems } from "../../shared/activity-model";
+import {
+  displayActivityItems,
+  latestRetryableActivityItem,
+  type DisplayActivityItem,
+} from "../../shared/activity-display";
+import { activityBranchPage, type ActivityBranch } from "../../shared/activity-branches";
 import { normalizeSubtitleFields } from "../../shared/subtitle-compatibility";
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
@@ -5,9 +12,24 @@ import { EventEmitter } from "node:events";
 import { dataRoot, safeMessage } from "../runtime/config.js";
 import type { Run, Asset, AgentProgressEvent, PreparationStep } from "../../shared/contracts.js";
 import { RoomStateSchema, applyRoomPatch, type RoomPatch, type RoomState } from "../../shared/room";
+import {
+  projectActivityEvent,
+  type ProjectActivityPage,
+  activityPageSize,
+} from "../../shared/project-activity";
 export class Store {
   private db: DatabaseSync;
   readonly bus = new EventEmitter();
+  private activityTrees = new Map<
+    string,
+    {
+      revision: number;
+      phase: Run["phase"];
+      events: AgentProgressEvent[];
+      items: DisplayActivityItem[];
+      retryItemId?: number;
+    }
+  >();
   constructor(filename = path.join(dataRoot, "jobs.sqlite")) {
     this.db = new DatabaseSync(filename);
     // The web development server and generation backend share this database.
@@ -105,6 +127,8 @@ export class Store {
       this.db.prepare("DELETE FROM events WHERE run_id=?").run(id);
       this.db.prepare("DELETE FROM runs WHERE id=?").run(id);
       this.db.exec("COMMIT");
+      for (const key of this.activityTrees.keys())
+        if (key.startsWith(`${id}:`)) this.activityTrees.delete(key);
     } catch (error) {
       this.db.exec("ROLLBACK");
       throw error;
@@ -158,6 +182,159 @@ export class Store {
       .all(id, after)
       .map((x) => ({ ...normalizeSubtitleFields(JSON.parse(String(x.json))), id: Number(x.id) }));
   }
+  activityPage(id: string, before?: number, after?: number, jobId?: string): ProjectActivityPage {
+    const scope = jobId === undefined ? "" : " AND coalesce(json_extract(json,'$.jobId'),'')=?";
+    const scopeParameters = jobId === undefined ? [] : [jobId];
+    const latest =
+      jobId === undefined
+        ? this.lastEventId(id)
+        : Number(
+            this.db
+              .prepare(`SELECT max(id) AS id FROM events WHERE run_id=?${scope}`)
+              .get(id, ...scopeParameters)?.id || 0,
+          );
+    const forward = after !== undefined;
+    const boundary = forward ? after : (before ?? latest + 1);
+    const rows = this.db
+      .prepare(
+        `SELECT id,json FROM events WHERE run_id=?${scope} AND id ${forward ? ">" : "<"} ? AND id<=? ORDER BY id ${forward ? "ASC" : "DESC"} LIMIT ?`,
+      )
+      .all(id, ...scopeParameters, boundary, latest, activityPageSize);
+    const raw = rows
+      .map(
+        (row) =>
+          ({
+            ...normalizeSubtitleFields(JSON.parse(String(row.json))),
+            id: Number(row.id),
+          }) as AgentProgressEvent,
+      )
+      .sort((a, b) => a.id - b.id);
+    const first = raw[0]?.id ?? boundary;
+    const last = raw.at(-1)?.id ?? (forward ? boundary : latest);
+    const events = raw.flatMap((event) => {
+      const compact = projectActivityEvent(event);
+      return compact ? [compact] : [];
+    });
+    // Frame counters need their shot/phase boundary even when it precedes this window.
+    const jobs = [...new Set(events.map((event) => event.jobId || ""))];
+    for (const job of jobs) {
+      const context = this.db
+        .prepare(
+          "SELECT id,json FROM events WHERE run_id=? AND id<? AND coalesce(json_extract(json,'$.jobId'),'')=? AND json_extract(json,'$.type')='phase' ORDER BY id DESC LIMIT 1",
+        )
+        .get(id, first, job);
+      if (context) {
+        const compact = projectActivityEvent({
+          ...JSON.parse(String(context.json)),
+          id: Number(context.id),
+        });
+        if (compact) events.unshift(compact);
+      }
+    }
+    const needed = new Set(
+      events
+        .map((event) => (event.data as { activityScopeId?: string })?.activityScopeId)
+        .filter((value): value is string => Boolean(value)),
+    );
+    const scopes = new Map<number, AgentProgressEvent>();
+    for (let depth = 0; depth < 16 && needed.size && scopes.size < 128; depth++) {
+      const ids = [...needed].slice(0, 128);
+      needed.clear();
+      const records = this.db
+        .prepare(
+          `SELECT id,json FROM events WHERE run_id=? AND json_extract(json,'$.type')='activity_scope' AND json_extract(json,'$.data.activityScope.id') IN (${ids.map(() => "?").join(",")}) ORDER BY id DESC`,
+        )
+        .all(id, ...ids);
+      const found = new Set<string>();
+      for (const row of records) {
+        const event = { ...JSON.parse(String(row.json)), id: Number(row.id) } as AgentProgressEvent;
+        const scope = (event.data as { activityScope: { id: string; parentId?: string } })
+          .activityScope;
+        if (found.has(scope.id) || scopes.size >= 128) continue;
+        found.add(scope.id);
+        scopes.set(event.id, projectActivityEvent(event)!);
+        if (scope.parentId) needed.add(scope.parentId);
+      }
+    }
+    const merged = new Map([...scopes.values(), ...events].map((event) => [event.id, event]));
+    return {
+      events: [...merged.values()].sort((a, b) => a.id - b.id),
+      before: first,
+      after: last,
+      hasOlder: Boolean(
+        this.db
+          .prepare(`SELECT 1 FROM events WHERE run_id=?${scope} AND id<? LIMIT 1`)
+          .get(id, ...scopeParameters, first),
+      ),
+      hasNewer: last < latest,
+    };
+  }
+  activityChildren(run: Run, jobId: string, parents: number[] = [], offset = 0): ActivityBranch {
+    const revision = this.lastEventId(run.id);
+    const key = `${run.id}:${jobId}`;
+    const phase = run.jobs.find((job) => job.id === jobId)?.phase || run.phase;
+    let tree = this.activityTrees.get(key);
+    if (!tree || tree.revision !== revision || tree.phase !== phase) {
+      const events: AgentProgressEvent[] = tree ? [...tree.events] : [];
+      let changed = !tree || tree.phase !== phase;
+      for (const row of this.db
+        .prepare(
+          "SELECT id,json FROM events WHERE run_id=? AND coalesce(json_extract(json,'$.jobId'),'')=? AND id>? AND id<=? ORDER BY id",
+        )
+        .iterate(run.id, jobId, tree?.revision || 0, revision)) {
+        const compact = projectActivityEvent({
+          ...normalizeSubtitleFields(JSON.parse(String(row.json))),
+          id: Number(row.id),
+        });
+        if (compact) {
+          events.push(compact);
+          changed = true;
+        }
+      }
+      const interpreted = changed ? activityItems(events, false, run) : undefined;
+      tree = {
+        revision,
+        phase,
+        events,
+        items: interpreted ? displayActivityItems(interpreted) : tree!.items,
+        retryItemId: interpreted ? latestRetryableActivityItem(interpreted)?.id : tree?.retryItemId,
+      };
+      this.activityTrees.delete(key);
+      this.activityTrees.set(key, tree);
+      while (this.activityTrees.size > 4)
+        this.activityTrees.delete(this.activityTrees.keys().next().value!);
+    }
+    return {
+      ...activityBranchPage(tree.items, parents, offset),
+      lastEventId: revision,
+      retryItemId: tree.retryItemId,
+    };
+  }
+  generationSessionId(runId: string, jobId: string, fallback?: string): string | undefined {
+    const row = this.db
+      .prepare(
+        `SELECT json_extract(json,'$.data.sessionId') AS session FROM events WHERE run_id=? AND json_extract(json,'$.jobId')=? AND json_extract(json,'$.type')='session' AND (lower(json_extract(json,'$.data.purpose')) IN ('full video generation','preview video generation','full html generation','preview html generation') OR json_extract(json,'$.data.correctionTier')='main') ORDER BY id DESC LIMIT 1`,
+      )
+      .get(runId, jobId);
+    if (typeof row?.session === "string" && row.session) return row.session;
+    if (!fallback) return undefined;
+    // Legacy fixtures and older records may have no event history. A known helper session is never a fallback.
+    const recorded = this.db
+      .prepare(
+        "SELECT json_extract(json,'$.data.purpose') AS purpose, json_extract(json,'$.data.correctionTier') AS tier FROM events WHERE run_id=? AND json_extract(json,'$.data.sessionId')=? AND json_extract(json,'$.type')='session' ORDER BY id DESC LIMIT 1",
+      )
+      .get(runId, fallback);
+    if (!recorded) return fallback;
+    return recorded.tier === "main" ||
+      [
+        "full video generation",
+        "preview video generation",
+        "full html generation",
+        "preview html generation",
+      ].includes(String(recorded.purpose).toLowerCase())
+      ? fallback
+      : undefined;
+  }
   recover() {
     for (const run of this.allRuns()) {
       let changed = false;
@@ -198,6 +375,7 @@ export class Store {
     }
   }
   close() {
+    this.activityTrees.clear();
     this.db.close();
   }
 }

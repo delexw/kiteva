@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { SpeechSettingsSchema, speechLanguage } from "./speech";
-import { VideoLanguageSchema, type VideoLanguage } from "./video-language";
+import {
+  sharedVideoScript,
+  deliverySpeech,
+  VideoLanguageSchema,
+  type VideoLanguage,
+} from "./video-language";
 import type { VideoRequest } from "./domains/video";
 
 export const LanguageTracksSchema = z
@@ -10,6 +15,7 @@ export const LanguageTracksSchema = z
       .max(2),
     subtitles: z.array(VideoLanguageSchema).max(2),
     defaultNarration: VideoLanguageSchema.optional(),
+    showSubtitles: z.boolean().optional(),
     defaultSubtitle: z.union([VideoLanguageSchema, z.literal("off")]).default("off"),
   })
   .superRefine((settings, ctx) => {
@@ -54,29 +60,85 @@ export type LanguageMedia = {
   defaultSubtitle: VideoLanguage | "off";
 };
 
-/** Global narration settings override voices, not which script items contain speech. */
+/** One enabled-language selection produces matching narration and subtitle tracks. */
+export function selectLanguageTrackLanguages(
+  request: Pick<VideoRequest, "languageTracks" | "speech" | "scriptItems" | "outputLanguage">,
+  languages: VideoLanguage[],
+): LanguageTracks {
+  const current = request.languageTracks;
+  const selected = [...new Set(languages)];
+  const narration = selected.map((language) => {
+    const existing = current?.narration.find((track) => track.language === language);
+    if (existing) return existing;
+    const source =
+      request.scriptItems?.find((item) => item.speech.mode === "narration")?.speech ||
+      request.speech;
+    const speech = deliverySpeech({
+      outputLanguage: language,
+      speech: {
+        ...SpeechSettingsSchema.options[1].parse(
+          source?.mode === "narration" ? source : { mode: "narration" },
+        ),
+        followVideoLanguage: true,
+      },
+    });
+    if (speech?.mode !== "narration") throw Error("No narration profile");
+    return { language, speech: { ...speech, language, followVideoLanguage: false } };
+  });
+  const defaultLanguage = selected[0];
+  return {
+    narration,
+    subtitles: current?.showSubtitles === false ? [] : selected,
+    ...(current?.showSubtitles !== undefined ? { showSubtitles: current.showSubtitles } : {}),
+    defaultNarration: defaultLanguage,
+    defaultSubtitle: current?.showSubtitles === false ? "off" : defaultLanguage || "off",
+  };
+}
+
+export function primaryNarrationProfile(settings: LanguageTracks) {
+  return (
+    settings.narration.find((track) => track.language === settings.defaultNarration) ||
+    settings.narration[0]
+  );
+}
+
+/** Selected languages and subtitle visibility govern the entire timed script. */
 export function applyLanguageTracks(request: VideoRequest): VideoRequest {
   const settings = request.languageTracks;
   if (!settings) return request;
-  const profile =
-    settings.narration.find((track) => track.language === settings.defaultNarration) ||
-    settings.narration[0];
+  const profile = primaryNarrationProfile(settings);
   const speech = profile
     ? { ...profile.speech, language: profile.language, followVideoLanguage: false }
     : { mode: "off" as const };
   return {
     ...request,
+    subtitles:
+      settings.showSubtitles === false || !settings.subtitles.length
+        ? { mode: "off" }
+        : request.subtitles,
     speech:
       speech.mode === "narration"
         ? {
             ...speech,
-            source: request.speech?.mode === "narration" ? request.speech.source : "write",
-            text: request.speech?.mode === "narration" ? request.speech.text : "",
+            source:
+              request.speech?.mode === "narration"
+                ? request.speech.source === "subtitles" &&
+                  (settings.showSubtitles === false || !settings.subtitles.length)
+                  ? "provided"
+                  : request.speech.source
+                : request.subtitles?.mode === "provided"
+                  ? "provided"
+                  : "write",
+            text:
+              request.speech?.mode === "narration"
+                ? request.speech.text
+                : sharedVideoScript(request),
           }
         : speech,
     scriptItems: request.scriptItems?.map((item) => ({
       ...item,
-      speech: item.speech.mode === "off" ? item.speech : speech,
+      speech,
+      showSubtitles: settings.showSubtitles !== false,
     })),
   };
 }

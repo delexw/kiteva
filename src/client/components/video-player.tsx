@@ -140,93 +140,98 @@ export function VideoPlayer({ ref, src, languageMedia, ...props }: VideoPlayerPr
           />
         ))}
       </video>
-      {languageMedia && (
-        <LanguagePlaybackControls
-          media={languageMedia}
-          audioLanguage={languages.audioLanguage}
-          subtitleLanguage={languages.subtitleLanguage}
-          onAudioChange={languages.changeAudioLanguage}
-          onSubtitleChange={languages.changeSubtitleLanguage}
-        />
-      )}
-      <div
-        className="kiteva-playback-bar"
-        role="toolbar"
-        aria-label={translateUi("Video playback controls")}
-      >
-        <Button
-          type="text"
-          aria-label={playing ? translateUi("Pause video") : translateUi("Play video")}
-          title={playing ? translateUi("Pause") : translateUi("Play")}
-          icon={playing ? <Pause size={18} /> : <Play size={18} />}
-          onClick={() => void togglePlayback()}
-        />
-        <span className="kiteva-playback-time" aria-label={translateUi("Playback time")}>
-          {playbackTime(time)} / {playbackTime(duration)}
-        </span>
-        <Slider
-          className="kiteva-playback-seek"
-          aria-label={translateUi("Seek video")}
-          ariaLabelForHandle="Seek video"
-          min={0}
-          max={duration || 1}
-          step={0.1}
-          value={time}
-          disabled={!duration}
-          tooltip={{ formatter: (value) => playbackTime(value || 0) }}
-          onChange={(value) => {
-            if (player.current) {
-              player.current.currentTime = value;
-              setTime(value);
+      <div className="kiteva-playback-overlay">
+        {languageMedia && (
+          <LanguagePlaybackControls
+            media={languageMedia}
+            audioLanguage={languages.audioLanguage}
+            subtitleLanguage={languages.subtitleLanguage}
+            onAudioChange={languages.changeAudioLanguage}
+            onSubtitleChange={languages.changeSubtitleLanguage}
+          />
+        )}
+        <div
+          className="kiteva-playback-bar"
+          role="toolbar"
+          aria-label={translateUi("Video playback controls")}
+        >
+          <Button
+            type="text"
+            aria-label={playing ? translateUi("Pause video") : translateUi("Play video")}
+            title={playing ? translateUi("Pause") : translateUi("Play")}
+            icon={playing ? <Pause size={18} /> : <Play size={18} />}
+            onClick={() => void togglePlayback()}
+          />
+          <span className="kiteva-playback-time" aria-label={translateUi("Playback time")}>
+            {playbackTime(time)} / {playbackTime(duration)}
+          </span>
+          <Slider
+            className="kiteva-playback-seek"
+            aria-label={translateUi("Seek video")}
+            ariaLabelForHandle="Seek video"
+            min={0}
+            max={duration || 1}
+            step={0.1}
+            value={time}
+            disabled={!duration}
+            tooltip={{ formatter: (value) => playbackTime(value || 0) }}
+            onChange={(value) => {
+              if (player.current) {
+                player.current.currentTime = value;
+                setTime(value);
+              }
+            }}
+          />
+          <Popover
+            trigger={["hover", "click"]}
+            placement="top"
+            getPopupContainer={(trigger) => trigger.parentElement!}
+            content={
+              <Slider
+                aria-label={translateUi("Video volume")}
+                ariaLabelForHandle="Video volume"
+                style={{ width: 110 }}
+                min={0}
+                max={1}
+                step={0.05}
+                value={muted ? 0 : volume}
+                onChange={(value) => {
+                  if (player.current) {
+                    player.current.volume = value;
+                    player.current.muted = value === 0;
+                    sync();
+                  }
+                }}
+              />
             }
-          }}
-        />
-        <Popover
-          trigger={["hover", "click"]}
-          placement="top"
-          content={
-            <Slider
-              aria-label={translateUi("Video volume")}
-              ariaLabelForHandle="Video volume"
-              style={{ width: 110 }}
-              min={0}
-              max={1}
-              step={0.05}
-              value={muted ? 0 : volume}
-              onChange={(value) => {
+          >
+            <Button
+              type="text"
+              aria-label={
+                muted || volume === 0 ? translateUi("Unmute video") : translateUi("Mute video")
+              }
+              title={translateUi("Volume")}
+              icon={muted || volume === 0 ? <VolumeX size={17} /> : <Volume2 size={17} />}
+              onClick={() => {
                 if (player.current) {
-                  player.current.volume = value;
-                  player.current.muted = value === 0;
+                  player.current.muted = !player.current.muted;
+                  if (player.current.volume === 0) player.current.volume = 1;
                   sync();
                 }
               }}
             />
-          }
-        >
+          </Popover>
           <Button
             type="text"
+            disabled={!canFullscreen}
             aria-label={
-              muted || volume === 0 ? translateUi("Unmute video") : translateUi("Mute video")
+              fullscreen ? translateUi("Exit fullscreen") : translateUi("Enter fullscreen")
             }
-            title={translateUi("Volume")}
-            icon={muted || volume === 0 ? <VolumeX size={17} /> : <Volume2 size={17} />}
-            onClick={() => {
-              if (player.current) {
-                player.current.muted = !player.current.muted;
-                if (player.current.volume === 0) player.current.volume = 1;
-                sync();
-              }
-            }}
+            title={translateUi("Fullscreen")}
+            icon={fullscreen ? <Minimize size={17} /> : <Maximize size={17} />}
+            onClick={() => void toggleFullscreen()}
           />
-        </Popover>
-        <Button
-          type="text"
-          disabled={!canFullscreen}
-          aria-label={fullscreen ? translateUi("Exit fullscreen") : translateUi("Enter fullscreen")}
-          title={translateUi("Fullscreen")}
-          icon={fullscreen ? <Minimize size={17} /> : <Maximize size={17} />}
-          onClick={() => void toggleFullscreen()}
-        />
+        </div>
       </div>
       {error && (
         <div className="kiteva-playback-error" role="alert">

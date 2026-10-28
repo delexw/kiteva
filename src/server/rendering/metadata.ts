@@ -44,6 +44,7 @@ export type RenderContractInput = {
   width: number;
   height: number;
   duration: number;
+  durationRange?: { min: number; max: number };
   fps: number;
   kind: RendererJobKind;
 };

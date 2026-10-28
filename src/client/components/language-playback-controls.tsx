@@ -23,6 +23,7 @@ export function LanguagePlaybackControls({
           {translateUi("Narration language")}
           <Select
             aria-label={translateUi("Narration language")}
+            getPopupContainer={(trigger) => trigger.parentElement!}
             value={audioLanguage}
             options={media.narration.map((track) => ({
               value: track.language,
@@ -36,6 +37,7 @@ export function LanguagePlaybackControls({
         {translateUi("Subtitle language")}
         <Select
           aria-label={translateUi("Subtitle language")}
+          getPopupContainer={(trigger) => trigger.parentElement!}
           value={subtitleLanguage}
           options={[
             { value: "off", label: translateUi("Off") },

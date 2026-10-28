@@ -188,6 +188,35 @@ it.each(["preview", "full", "refinement"] as const)(
     expect(timedPrompt).toContain(
       kind === "preview" ? "Direction previews stay silent" : "STORYBOARD.json",
     );
+    const globalPrompt = buildVideoPrompt({
+      ...input,
+      request: VideoRequestSchema.parse({
+        ...input.request,
+        languageTracks: {
+          narration: [{ language: "en", speech: { mode: "narration", voice: "af_heart" } }],
+          subtitles: ["en"],
+          showSubtitles: true,
+          defaultNarration: "en",
+          defaultSubtitle: "en",
+        },
+        scriptItems: [
+          {
+            id: "global",
+            startSeconds: 0,
+            endSeconds: 3,
+            text: "A source fact",
+            showSubtitles: false,
+            speech: { mode: "off" },
+          },
+        ],
+      }),
+    });
+    expect(globalPrompt).toContain('"enabled":true');
+    expect(globalPrompt).toContain('"voice":"af_heart"');
+    expect(globalPrompt).toContain('"showSubtitles":true');
+    expect(globalPrompt).toContain("Global language profiles govern every item");
+    expect(globalPrompt).toContain("never burn it into rendered frames");
+    expect(globalPrompt).not.toContain("Per-item language and voice selections override");
     const musicPrompt = "Sparse drums, warm bass. Keep my exact phrasing.";
     const musicRequest = VideoRequestSchema.parse({
       ...input.request,

@@ -1,3 +1,7 @@
+import { isVideoRefinementSource } from "../../shared/video-refinement-source";
+import { RefinementHistoryReview, useRefinementExclusions } from "./refinement-history-review";
+import { availableRefinementInstructions } from "../../shared/refinement-history";
+import { jobVersions } from "../../shared/job-versions";
 import { translateUi, useUiLanguage } from "../i18n";
 import { useState } from "react";
 import { Button, Select } from "antd";
@@ -8,21 +12,26 @@ import { customerErrorMessage } from "../customer-messages";
 import { errorCode } from "../../shared/errors";
 import { api } from "../lib/api";
 import { PromptInput, PromptInputTextarea, PromptInputFooter } from "./ai-elements/prompt-input";
+import { RefinementImages, useRefinementImages } from "./refinement-images";
 
 export function VideoRefinement({ run, onUpdated }: { run: Run; onUpdated: (run: Run) => void }) {
   useUiLanguage();
-  const completed = run.jobs.filter(
-    (job) =>
-      job.kind === "full" && job.phase === "ready" && job.outputType !== "page" && job.sessionId,
-  );
+  const [discarded, setDiscarded] = useRefinementExclusions(run);
+  const versions = jobVersions(run.jobs);
+  const attachments = useRefinementImages(run.id, run.request.assetIds);
+  const refinementSources = run.jobs.filter(isVideoRefinementSource);
   const [selectedId, setSelectedId] = useState<string>();
   const [prompt, setPrompt] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  if (!completed.length) return null;
-  const selected = completed.find((job) => job.id === selectedId) || completed.at(-1)!;
+  if (!refinementSources.length) return null;
+  const selected =
+    refinementSources.find((job) => job.id === selectedId) ||
+    refinementSources.filter((job) => job.phase === "ready").at(-1) ||
+    refinementSources.at(-1)!;
   const active =
     busy ||
+    attachments.uploading ||
     !terminalPhases.has(run.phase) ||
     run.jobs.some((job) => !terminalPhases.has(job.phase));
   return (
@@ -38,16 +47,24 @@ export function VideoRefinement({ run, onUpdated }: { run: Run; onUpdated: (run:
         value={selected.id}
         disabled={active}
         onChange={setSelectedId}
-        options={completed.map((job, index) => ({
+        options={refinementSources.map((job, index) => ({
           value: job.id,
-          label: translateUi("{{value0}} · version {{value1}}", {
-            value0: candidateDisplayTitle(
-              run.candidates.find((entry) => entry.id === job.candidateId),
-              index + 1,
-            ),
-            value1: index + 1,
-          }),
+          label:
+            translateUi("{{value0}} · version {{value1}}", {
+              value0: candidateDisplayTitle(
+                run.candidates.find((entry) => entry.id === job.candidateId),
+                index + 1,
+              ),
+              value1: versions.get(job.id),
+            }) + (job.phase === "cancelled" ? ` · ${translateUi("Cancelled")}` : ""),
         }))}
+      />
+      <RefinementHistoryReview
+        run={run}
+        sourceJobId={selected.id}
+        discarded={discarded}
+        onChange={setDiscarded}
+        disabled={active}
       />
       <PromptInput
         onSubmit={async (message) => {
@@ -57,10 +74,20 @@ export function VideoRefinement({ run, onUpdated }: { run: Run; onUpdated: (run:
           try {
             await api(`/api/runs/${run.id}/refine`, {
               method: "POST",
-              body: JSON.stringify({ jobId: selected.id, prompt: message.text }),
+              body: JSON.stringify({
+                jobId: selected.id,
+                prompt: message.text,
+                discardedRefinementJobIds: discarded.filter((id) =>
+                  availableRefinementInstructions(run, selected.candidateId).some(
+                    (entry) => entry.jobId === id,
+                  ),
+                ),
+                assetIds: attachments.images.map((image) => image.id),
+              }),
             });
             onUpdated(await api<Run>(`/api/runs/${run.id}`));
             setPrompt("");
+            attachments.clear();
           } catch (issue) {
             setError(customerErrorMessage(errorCode(issue)));
           } finally {
@@ -77,6 +104,7 @@ export function VideoRefinement({ run, onUpdated }: { run: Run; onUpdated: (run:
           disabled={active}
         />
         <PromptInputFooter>
+          <RefinementImages attachments={attachments} disabled={active} />
           <Button
             htmlType="submit"
             type="primary"

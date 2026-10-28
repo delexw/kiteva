@@ -1,8 +1,8 @@
-import { Alert, Button, Card, Input, Select, Space, Switch, Typography } from "antd";
+import { Alert, Button, Card, Input, Select, Space, Typography } from "antd";
 import "./script-items.css";
-import { SpeechSettings } from "./speech-settings";
 import { translateUi, useUiLanguage } from "../i18n";
 import { scriptItemsProblem, type ScriptItem } from "../../shared/script-items";
+import { MAX_VIDEO_DURATION, videoDurationRange } from "../../shared/video-duration";
 
 export function ScriptItems({
   items,
@@ -21,13 +21,15 @@ export function ScriptItems({
     [next[index], next[index + offset]] = [next[index + offset], next[index]];
     onChange(next);
   };
-  const problem = scriptItemsProblem(items, duration);
+  const durationLimit =
+    typeof duration === "number" ? videoDurationRange(duration).max : MAX_VIDEO_DURATION;
+  const problem = scriptItemsProblem(items, durationLimit);
   return (
     <section className="script-items" aria-label={translateUi("Timed script items")}>
       <Typography.Title level={4}>{translateUi("Timed script items")}</Typography.Title>
       <p>
         {translateUi(
-          "Each item has its own time window, text, subtitle visibility and voice. Times are seconds from the start of the film.",
+          "Each item has its own time window and text. Narration, languages, voices and subtitle visibility come from the global settings. Times are seconds from the start of the film.",
         )}
       </p>
       <Space orientation="vertical" className="script-items-list" size={16}>
@@ -118,52 +120,12 @@ export function ScriptItems({
                 onChange={(event) => change(index, { text: event.target.value })}
               />
             </label>
-            <label className="script-item-subtitles">
-              <Switch
-                aria-label={translateUi("Show subtitles on screen")}
-                checked={item.showSubtitles}
-                onChange={(showSubtitles) => change(index, { showSubtitles })}
-              />{" "}
-              {translateUi("Show subtitles on screen")}
-            </label>
-            <SpeechSettings
-              timedItem
-              sharedScript
-              audioAssets={[]}
-              value={
-                item.speech.mode === "narration"
-                  ? {
-                      ...item.speech,
-                      source: "provided",
-                      text: item.text,
-                      instructions: "",
-                      followVideoLanguage: false,
-                    }
-                  : item.speech
-              }
-              onChange={(speech) => {
-                if (speech.mode === "uploaded") return;
-                change(index, {
-                  speech:
-                    speech.mode === "off"
-                      ? speech
-                      : {
-                          mode: "narration",
-                          engine: speech.engine,
-                          voice: speech.voice,
-                          language: speech.language,
-                          volume: speech.volume,
-                          speed: speech.speed,
-                        },
-                });
-              }}
-            />
           </Card>
         ))}
         <Button
           disabled={items.length >= 80}
           onClick={() => {
-            const limit = typeof duration === "number" ? duration : 300;
+            const limit = durationLimit;
             const previousEnd = items.length ? items[items.length - 1].endSeconds : 0;
             const startSeconds = previousEnd < limit ? Math.max(0, previousEnd) : 0;
             onChange([
@@ -171,10 +133,7 @@ export function ScriptItems({
               {
                 id: crypto.randomUUID(),
                 startSeconds,
-                endSeconds: Math.min(
-                  startSeconds + 10,
-                  typeof duration === "number" ? duration : 300,
-                ),
+                endSeconds: Math.min(startSeconds + 10, durationLimit),
                 text: "",
                 showSubtitles: true,
                 speech: { mode: "off" },

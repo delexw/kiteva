@@ -9,8 +9,15 @@ import { SharedRequestSchema } from "./common";
 import { videoRendererIds } from "../video-renderers";
 import { SpeechSettingsSchema, type SpeechTrack } from "../speech";
 import type { JobState } from "./common";
-export { MAX_VIDEO_DURATION } from "../agents/schemas/video";
-import { MAX_VIDEO_DURATION } from "../agents/schemas/video";
+import { assetLimits } from "../asset-limits";
+export const VideoRefinementRequestSchema = z.object({
+  jobId: z.string(),
+  discardedRefinementJobIds: z.array(z.string().min(1)).max(200).optional(),
+  prompt: z.string().trim().min(1).max(6000),
+  assetIds: z.array(z.string().uuid()).max(assetLimits.images.count).default([]),
+});
+export { MAX_VIDEO_DURATION, MIN_AUTO_VIDEO_DURATION } from "../video-duration";
+import { MAX_VIDEO_DURATION, MIN_AUTO_VIDEO_DURATION, videoDurationRange } from "../video-duration";
 export const SubtitlesSchema = z.discriminatedUnion("mode", [
   z.object({ mode: z.literal("off") }),
   z.object({ mode: z.literal("write") }),
@@ -50,12 +57,14 @@ export const VideoRequestSchema = z.preprocess(
   })
     .superRefine(validateStyleSelection)
     .superRefine((request, context) => {
-      const problem = scriptItemsProblem(request.scriptItems, request.duration);
+      const problem = scriptItemsProblem(
+        request.scriptItems,
+        typeof request.duration === "number" ? videoDurationRange(request.duration).max : undefined,
+      );
       if (problem) context.addIssue({ code: "custom", path: ["scriptItems"], message: problem });
     }),
 );
 export type VideoRequest = z.infer<typeof VideoRequestSchema>;
-export const MIN_AUTO_VIDEO_DURATION = 15;
 export function resolveVideoDuration(
   duration: VideoRequest["duration"],
   suggestedDuration: number,
@@ -69,7 +78,7 @@ export function resolveVideoDuration(
           suggestedDuration,
           ...(scriptItems || []).map((item) => item.endSeconds),
         )
-      : duration,
+      : Math.max(duration, ...(scriptItems || []).map((item) => item.endSeconds)),
   );
 }
 export { videoStyleCountRange } from "../style-selection";
@@ -77,7 +86,7 @@ export type VideoRefinementCheckpoint = {
   sourceJobId: string;
   sourceWorkspace: string;
   sourceSessionId: string;
-  sourcePhase: "ready";
+  sourcePhase: "ready" | "cancelled";
   sourceFinishedAt?: string;
   workspace: string;
   requestedChanges: string;
@@ -85,7 +94,16 @@ export type VideoRefinementCheckpoint = {
   inheritedCacheDirectories: string[];
 };
 
+export type VideoRefinementInstruction = {
+  jobId: string;
+  prompt: string;
+  createdAt?: string;
+  assetIds?: string[];
+};
 export interface VideoGenerationJob extends JobState {
+  refinementHistory?: VideoRefinementInstruction[];
+  discardedRefinementJobIds?: string[];
+  refinementAssetIds?: string[];
   refinementCheckpoint?: VideoRefinementCheckpoint;
   speechTrack?: SpeechTrack;
   languageMedia?: LanguageMedia;
@@ -93,6 +111,8 @@ export interface VideoGenerationJob extends JobState {
   page?: never;
   pageProduction?: never;
   duration: number;
+  /** Original approximate setting, retained separately from the chosen production timeline. */
+  targetDuration?: number;
   video?: string;
   viewingVideo?: string;
   cardClip?: string;

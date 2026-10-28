@@ -1,8 +1,22 @@
+import { isVideoRefinementSource } from "../../shared/video-refinement-source";
+import {
+  RefinementHistoryReview,
+  useRefinementExclusions,
+} from "../components/refinement-history-review";
+import { availableRefinementInstructions } from "../../shared/refinement-history";
+import { ProjectActivityPanel } from "./project-activity-panel";
 import { ReferenceSignIn } from "../components/reference-sign-in";
+import { RefinementMessage } from "../components/refinement-message";
+import {
+  ConversationAttachments,
+  useConversationAttachments,
+} from "../components/conversation-attachments";
+import { RefinementImages, useRefinementImages } from "../components/refinement-images";
 import { translateUi, useUiLanguage } from "../i18n";
 import { Bubble, Sender } from "@ant-design/x";
 import { Alert, Button, Select, Tabs } from "antd";
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { roomActivityContexts } from "./project-stages";
 import {
   type Run,
   type Style,
@@ -17,9 +31,16 @@ import { ProjectSettings } from "../components/project-settings";
 import { ProjectResultPending } from "../components/project-result-pending";
 import { api } from "../lib/api";
 import { scopedAssetQuestions } from "../../shared/asset-question-scopes";
-import { RoomActivity, RoomActivityNow, RoomActivityTab } from "./room-activity";
+import { RoomActivityNow, RoomActivityTab } from "./room-activity";
 import { roomQuestionScope } from "./question-scope";
 import { roomProjectTabs, type RoomProjectView } from "../../shared/room";
+import { candidateDisplayTitle } from "../../shared/candidate-copy";
+import { fullRevisionGroups } from "../lib/revision-stack";
+import {
+  RevisionStack,
+  useRevisionSelection,
+  type RevisionSlots,
+} from "../components/revision-stack";
 
 const sectionLabels: Record<string, string> = {
   main: "Documents",
@@ -39,6 +60,7 @@ export function RoomProject({
   onUpdated,
   onEdit,
   onCancel,
+  onCancelJob,
   onRetry,
   view,
   onView,
@@ -48,19 +70,36 @@ export function RoomProject({
   examples?: StyleExample[];
   events: AgentProgressEvent[];
   renderPreview: (job: GenerationJob) => ReactNode;
-  renderFull: (job: GenerationJob) => ReactNode;
+  /** Renders one full-result card; revision slots place the switcher/strip inside that card. */
+  renderFull: (job: GenerationJob, revisions?: RevisionSlots) => ReactNode;
   controls: ReactNode;
   onQuestion: (id: string) => void;
   onUpdated: (run: Run) => void;
   onEdit: () => void;
   onCancel: () => void;
+  onCancelJob?: (jobId: string) => void;
   onRetry: (jobId?: string) => void | Promise<void>;
   view: RoomProjectView;
   onView: (view: RoomProjectView) => void;
 }) {
-  useUiLanguage();
+  const { language } = useUiLanguage();
+  const activityContexts = useMemo(
+    () => roomActivityContexts(run, events),
+    [run, events, language],
+  );
+  const [discardedRefinements, setDiscardedRefinements] = useRefinementExclusions(run);
+  const refinementImages = useRefinementImages(run.id, run.request.assetIds);
   const overview = projectOverview(run);
   const full = run.jobs.filter((job) => job.kind === "full");
+  const fullGroups = fullRevisionGroups(run.jobs);
+  const [revisionSelection, selectRevision] = useRevisionSelection();
+  const candidateTitle = (candidateId: string) => {
+    const candidate = run.candidates.find((item) => item.id === candidateId);
+    return candidateDisplayTitle(
+      candidate,
+      candidate ? run.candidates.indexOf(candidate) + 1 : undefined,
+    );
+  };
   const tab = view.tab || (full.length ? "full" : "previews");
   const setTab = (next: string) =>
     onView({ ...view, tab: roomProjectTabs.find((item) => item === next) });
@@ -68,24 +107,29 @@ export function RoomProject({
   const setRefine = (text: string) => onView({ ...view, refine: text });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const completed = full.filter(
-    (job) => job.phase === "ready" && job.outputType !== "page" && job.sessionId,
-  );
-  const refineId = completed.some((job) => job.id === view.refineJobId)
+  const refinementSources = full.filter(isVideoRefinementSource);
+  const refineId = refinementSources.some((job) => job.id === view.refineJobId)
     ? view.refineJobId
-    : completed.at(-1)?.id;
+    : (refinementSources.filter((job) => job.phase === "ready").at(-1) || refinementSources.at(-1))
+        ?.id;
   const storyboards = full.filter(
     (job) => job.outputType !== "page" && (job.storyboardReady || job.phase === "ready"),
   );
   const questions = scopedAssetQuestions(run);
+  const attachments = useConversationAttachments(run.id, run.request.assetIds);
+  const briefAssetIds = run.request.assetIds.filter(
+    (id) => !questions.some((question) => question.assetIds?.includes(id)),
+  );
   const open = questions.filter((q) => q.state === "open");
-  const pending = (jobId?: string) =>
+  const pending = (jobId?: string, version?: number) =>
     open
       .filter((q) => q.jobId === jobId)
       .map((q) => (
         <Button key={q.id} className="room-question-badge" onClick={() => onQuestion(q.id)}>
           <span className="room-attention-dot" />
-          {translateUi("Decision needed")}
+          {version === undefined
+            ? translateUi("Decision needed")
+            : translateUi("Decision needed · v{{value0}}", { value0: version })}
         </Button>
       ));
   return (
@@ -103,14 +147,22 @@ export function RoomProject({
         )}
         {pending()}
       </div>
-      <div className="room-project-scroll">
+      <div className="room-project-attention">
         <ReferenceSignIn
           runId={run.id}
           revision={
             events.filter((event) => event.type === "reference_authentication").at(-1)?.id || 0
           }
         />
-        <RoomActivityNow run={run} events={events} onOpen={() => setTab("activity")} />
+      </div>
+      {error && <Alert type="error" showIcon title={error} />}
+      <div className="room-project-scroll">
+        <RoomActivityNow
+          run={run}
+          events={events}
+          contexts={activityContexts}
+          onOpen={() => setTab("activity")}
+        />
         <Tabs
           className="room-project-tabs"
           activeKey={tab}
@@ -130,7 +182,12 @@ export function RoomProject({
                   <Bubble
                     placement="end"
                     className="room-bubble-user"
-                    content={<PromptText>{run.request.instructions}</PromptText>}
+                    content={
+                      <>
+                        <PromptText>{run.request.instructions}</PromptText>
+                        <ConversationAttachments assetIds={briefAssetIds} assets={attachments} />
+                      </>
+                    }
                   />
                   {run.request.requirements &&
                     Object.entries(run.request.requirements).map(
@@ -189,11 +246,30 @@ export function RoomProject({
                         <Bubble
                           placement="end"
                           className="room-bubble-user"
-                          content={<PromptText>{q.answer || q.fallback}</PromptText>}
+                          content={
+                            <>
+                              <PromptText>{q.answer || q.fallback}</PromptText>
+                              <ConversationAttachments
+                                assetIds={q.assetIds || []}
+                                assets={attachments}
+                              />
+                            </>
+                          }
                         />
                       )}
                     </div>
                   ))}
+                  {full
+                    .filter((job) => job.refinementPrompt)
+                    .map((job) => (
+                      <Bubble
+                        key={`refinement-${job.id}`}
+                        placement="end"
+                        className="room-bubble-user"
+                        header={roomQuestionScope(run, job.id)}
+                        content={<RefinementMessage job={job} />}
+                      />
+                    ))}
                 </div>
               ),
             },
@@ -233,10 +309,42 @@ export function RoomProject({
                       )}
                     </p>
                   )}
-                  {full.map((job) => (
-                    <section key={job.id}>
-                      {renderFull(job)}
-                      {pending(job.id)}
+                  {fullGroups.map((group) => (
+                    <section key={group.key}>
+                      <RevisionStack
+                        group={group}
+                        title={candidateTitle(group.revisions[0].job.candidateId)}
+                        selectedJobId={revisionSelection[group.key]}
+                        onSelect={(jobId) => selectRevision(group.key, jobId)}
+                        events={events}
+                        onCancel={onCancelJob}
+                        onDelete={
+                          overview.active
+                            ? undefined
+                            : async (jobId) => {
+                                try {
+                                  onUpdated(
+                                    await api<Run>(`/api/runs/${run.id}/versions/${jobId}`, {
+                                      method: "DELETE",
+                                    }),
+                                  );
+                                } catch (error) {
+                                  setError((error as Error).message);
+                                  throw error;
+                                }
+                              }
+                        }
+                        onRetry={(jobId) => void onRetry(jobId)}
+                        attention={(jobId) => open.some((q) => q.jobId === jobId)}
+                      >
+                        {(job, revisions) => renderFull(job, revisions)}
+                      </RevisionStack>
+                      {group.revisions.flatMap((revision) =>
+                        pending(
+                          revision.job.id,
+                          group.revisions.length > 1 ? revision.version : undefined,
+                        ),
+                      )}
                     </section>
                   ))}
                 </div>
@@ -275,49 +383,78 @@ export function RoomProject({
             {
               key: "activity",
               label: <RoomActivityTab run={run} />,
-              children: <RoomActivity run={run} events={events} onRetry={onRetry} />,
+              children:
+                tab === "activity" ? (
+                  <ProjectActivityPanel run={run} contexts={activityContexts} onRetry={onRetry} />
+                ) : null,
             },
           ]}
         />
       </div>
-      {completed.length > 0 && (
-        <section className="room-refinement" aria-label={translateUi("Fine-tune a finished film")}>
+      {refinementSources.length > 0 && (
+        <section className="room-refinement" aria-label={translateUi("Fine-tune a video version")}>
+          <RefinementHistoryReview
+            run={run}
+            sourceJobId={refineId}
+            discarded={discardedRefinements}
+            onChange={setDiscardedRefinements}
+            disabled={overview.active || busy}
+          />
           <Sender
             aria-label={translateUi("Fine-tune instructions")}
             value={refine}
             onChange={setRefine}
             loading={busy}
-            disabled={overview.active}
+            disabled={overview.active || refinementImages.uploading}
             placeholder={
               overview.active
                 ? translateUi("Available when the current work finishes")
                 : translateUi("Fine-tune: what would you like to change?")
             }
             footer={
-              <Select
-                size="small"
-                variant="borderless"
-                aria-label={translateUi("Version to fine-tune")}
-                value={refineId}
-                popupMatchSelectWidth={false}
-                options={completed.map((job) => ({
-                  value: job.id,
-                  label: roomQuestionScope(run, job.id),
-                }))}
-                onChange={(refineJobId) => onView({ ...view, refineJobId })}
-              />
+              <div>
+                <RefinementImages
+                  attachments={refinementImages}
+                  disabled={overview.active || busy}
+                />
+                <Select
+                  size="small"
+                  variant="borderless"
+                  aria-label={translateUi("Version to fine-tune")}
+                  value={refineId}
+                  popupMatchSelectWidth={false}
+                  options={refinementSources.map((job) => ({
+                    value: job.id,
+                    label:
+                      roomQuestionScope(run, job.id) +
+                      (job.phase === "cancelled" ? ` · ${translateUi("Cancelled")}` : ""),
+                  }))}
+                  onChange={(refineJobId) => onView({ ...view, refineJobId })}
+                />
+              </div>
             }
             onSubmit={async (text) => {
-              if (!text.trim()) return;
+              if (!text.trim() || overview.active || busy || refinementImages.uploading) return;
               setBusy(true);
               setError("");
               try {
                 await api(`/api/runs/${run.id}/refine`, {
                   method: "POST",
-                  body: JSON.stringify({ jobId: refineId, prompt: text }),
+                  body: JSON.stringify({
+                    jobId: refineId,
+                    prompt: text,
+                    discardedRefinementJobIds: discardedRefinements.filter((id) =>
+                      availableRefinementInstructions(
+                        run,
+                        run.jobs.find((job) => job.id === refineId)?.candidateId || "",
+                      ).some((entry) => entry.jobId === id),
+                    ),
+                    assetIds: refinementImages.images.map((image) => image.id),
+                  }),
                 });
                 onUpdated(await api<Run>(`/api/runs/${run.id}`));
                 onView({ ...view, refine: "", tab: "full" });
+                refinementImages.clear();
               } catch (e) {
                 setError((e as Error).message);
               } finally {
@@ -325,7 +462,6 @@ export function RoomProject({
               }
             }}
           />
-          {error && <Alert type="error" showIcon title={error} />}
         </section>
       )}
     </div>

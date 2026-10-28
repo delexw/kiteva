@@ -153,6 +153,7 @@ it("repairs a stretched pacing plan before marking a full video ready", async ()
       "richer content and more balanced pacing",
     );
     expect(phases.filter((phase, index) => index === 0 || phase !== phases[index - 1])).toEqual([
+      "queued",
       "validating",
       "rendering",
       "generating",

@@ -13,7 +13,7 @@ import { CodedError } from "../../../shared/errors";
 import { prepareSpeech } from "../../audio/speech";
 import { RendererDiagnosticError, rendererCorrectionEvidence } from "../../rendering/diagnostics";
 import { prepareVideoBuildPlan } from "./build-plan";
-import { captureWithTimingRetries } from "../../jobs/subworkflows/chapter-capture/planning";
+import { captureWithTimingRetries } from "../../jobs/subworkflows/chapter-capture/timing-retry";
 import { capturedChaptersArtifact } from "../../jobs/subworkflows/chapter-capture/workflow";
 import {
   BriefSchema,

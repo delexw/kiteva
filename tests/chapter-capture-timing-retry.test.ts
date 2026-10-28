@@ -1,6 +1,6 @@
 import { expect, it, vi } from "vitest";
 import type { prepareChapterCaptures } from "../src/server/jobs/subworkflows/chapter-capture/workflow";
-import { captureWithTimingRetries } from "../src/server/jobs/subworkflows/chapter-capture/planning";
+import { captureWithTimingRetries } from "../src/server/jobs/subworkflows/chapter-capture/timing-retry";
 import { ChapterTimingConflictError } from "../src/server/capture/chapter-timing";
 import type { VideoGenerationJob } from "../src/shared/domains/video";
 import { VideoRequestSchema } from "../src/shared/domains/video";

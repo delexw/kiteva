@@ -56,5 +56,5 @@ try {
   await browser?.close();
   clearTimeout(timer);
   process.send?.(result);
-  process.disconnect();
+  process.disconnect?.();
 }

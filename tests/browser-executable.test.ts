@@ -30,6 +30,7 @@ it("shares the rendering browser overrides with reference capture", () => {
 it("finds an installed headless shell without downloading a second browser", () => {
   vi.stubEnv("HYPERFRAMES_BROWSER_PATH", "");
   vi.stubEnv("VIDEO_BROWSER_PATH", "");
+  vi.stubEnv("PUPPETEER_CACHE_DIR", "");
   vi.stubEnv("HOME", "/test-home");
   vi.mocked(existsSync).mockReturnValue(true);
   vi.mocked(readdirSync).mockReturnValue([

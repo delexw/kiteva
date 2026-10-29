@@ -22,6 +22,8 @@ jobs:
   native-windows:
     runs-on: windows-2022
     timeout-minutes: 20
+    env:
+      PUPPETEER_CACHE_DIR: ${{ github.workspace }}/.data/browser-cache
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -33,8 +35,9 @@ jobs:
         shell: pwsh
         run: |
           choco install ffmpeg --no-progress -y
-          $cache = Join-Path $env:USERPROFILE '.cache\puppeteer'
-          npx --no-install browsers install chrome-headless-shell@stable --path $cache
+          npx --no-install browsers install chrome-headless-shell@stable --path $env:PUPPETEER_CACHE_DIR
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --import tsx --input-type=module -e "import { browserExecutablePath } from './src/server/runtime/browser.ts'; import { appendFileSync } from 'node:fs'; const browser = browserExecutablePath(); if (!browser) throw Error('Installed CI browser not found'); appendFileSync(process.env.GITHUB_ENV, 'HYPERFRAMES_BROWSER_PATH=' + browser + '\n');"
       - name: Check types and build
         run: npm run build
       - name: Check native platform contracts

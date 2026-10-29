@@ -4,12 +4,12 @@
 
 <p align="center">
   <a href="https://releaseszn.com/p/kiteva"><img src="https://releaseszn.com/badge/kiteva.svg" alt="releaseszn"></a>
-  <a href="https://github.com/delexw/kiteva/releases/latest"><img src="https://img.shields.io/github/v/release/delexw/kiteva" alt="Latest release"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/delexw/kiteva" alt="MIT license"></a>
-  <a href="https://github.com/delexw/kiteva/actions/workflows/native-windows.yml"><img src="https://github.com/delexw/kiteva/actions/workflows/native-windows.yml/badge.svg" alt="Native Windows CI"></a>
+  <a href="https://github.com/delexw/motion-graphics-agent/releases/latest"><img src="https://img.shields.io/github/v/release/delexw/motion-graphics-agent" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/delexw/motion-graphics-agent" alt="MIT license"></a>
+  <a href="https://github.com/delexw/motion-graphics-agent/actions/workflows/native-windows.yml"><img src="https://github.com/delexw/motion-graphics-agent/actions/workflows/native-windows.yml/badge.svg" alt="Native Windows CI"></a>
 </p>
 
-<h1 align="center">kiteva</h1>
+<h1 align="center">Kiteva — AI Motion Graphics Agent</h1>
 
 <p align="center">
   <b>A personal creative room where an idea turns into a short motion-graphics film.</b><br>
@@ -401,8 +401,8 @@ On macOS, [install.sh](install.sh) installs missing system prerequisites, locked
   It is used for generated style directions and visual/audio capability selection. Manually selecting Motion Graphics skips style ranking, while capability decisions remain separate.
 
 ```sh
-git clone https://github.com/delexw/kiteva.git
-cd kiteva
+git clone https://github.com/delexw/motion-graphics-agent.git
+cd motion-graphics-agent
 ./install.sh
 # Edit the created .env.local: add TYPESAFE_API_KEY and provider keys if needed.
 npm start                       # open http://127.0.0.1:4317

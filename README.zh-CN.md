@@ -4,12 +4,12 @@
 
 <p align="center">
   <a href="https://releaseszn.com/p/kiteva"><img src="https://releaseszn.com/badge/kiteva.svg" alt="releaseszn"></a>
-  <a href="https://github.com/delexw/kiteva/releases/latest"><img src="https://img.shields.io/github/v/release/delexw/kiteva" alt="Latest release"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/delexw/kiteva" alt="MIT license"></a>
-  <a href="https://github.com/delexw/kiteva/actions/workflows/native-windows.yml"><img src="https://github.com/delexw/kiteva/actions/workflows/native-windows.yml/badge.svg" alt="Native Windows CI"></a>
+  <a href="https://github.com/delexw/motion-graphics-agent/releases/latest"><img src="https://img.shields.io/github/v/release/delexw/motion-graphics-agent" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/delexw/motion-graphics-agent" alt="MIT license"></a>
+  <a href="https://github.com/delexw/motion-graphics-agent/actions/workflows/native-windows.yml"><img src="https://github.com/delexw/motion-graphics-agent/actions/workflows/native-windows.yml/badge.svg" alt="Native Windows CI"></a>
 </p>
 
-<h1 align="center">kiteva</h1>
+<h1 align="center">Kiteva — AI 动态图形智能体</h1>
 
 <p align="center">
   <b>一个私人的创作小房间，把一个想法变成一段动态图形短片。</b><br>
@@ -389,8 +389,8 @@ macOS 可以运行 [install.sh](install.sh)，一次安装缺少的系统工具�
   它用于风格方向评估以及视觉、音频能力选择。手动选择 Motion Graphic 会跳过风格排名，能力选择仍独立进行。
 
 ```sh
-git clone https://github.com/delexw/kiteva.git
-cd kiteva
+git clone https://github.com/delexw/motion-graphics-agent.git
+cd motion-graphics-agent
 ./install.sh
 # 编辑自动创建的 .env.local：填入 TYPESAFE_API_KEY，以及需要的提供方 key。
 npm start                       # 打开 http://127.0.0.1:4317

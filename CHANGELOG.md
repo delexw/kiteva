@@ -8,25 +8,25 @@ Kiteva adds model-owned technology setup, documentation research and clearer pro
 
 ### Added
 
-- **Project-local technology capabilities.** Both providers can inspect tools through Creative Pool MCP, prepare their own JavaScript, Python or other environments, and bundle browser libraries, CSS and assets without relying on Kiteva's dependency tree. Bundling never installs packages. [Implementation](https://github.com/delexw/kiteva/commit/b5ca0fe).
-- **Bundled AnySearch research.** Read tool documentation, CLI parameters, repository examples and source code through a verified workspace skill. Native provider web search/fetch is disabled; sandboxed setup and research use project-local caches. [Implementation](https://github.com/delexw/kiteva/commit/b5ca0fe).
-- **Model-called narration tools.** Create and edit timed narration through internal MCP while the application retains measured scheduling, final mixing and validation. [Narration and workflow controls](https://github.com/delexw/kiteva/commit/7827aaf).
-- **Pixel RPG Quest Explainer and Step-Tick Slot Refill.** New reviewed metadata, an authored preview and a seekable motion study bring the catalog to 141 Motion Graphics and 49 motions. [Catalog addition](https://github.com/delexw/kiteva/commit/84bd05b).
-- **Shared color chips.** Prompt displays and editors show compact color swatches alongside existing style and motion mentions. [Prompt controls](https://github.com/delexw/kiteva/commit/7827aaf).
+- **Project-local technology capabilities.** Both providers can inspect tools through Creative Pool MCP, prepare their own JavaScript, Python or other environments, and bundle browser libraries, CSS and assets without relying on Kiteva's dependency tree. Bundling never installs packages. [Implementation](https://github.com/delexw/motion-graphics-agent/commit/b5ca0fe).
+- **Bundled AnySearch research.** Read tool documentation, CLI parameters, repository examples and source code through a verified workspace skill. Native provider web search/fetch is disabled; sandboxed setup and research use project-local caches. [Implementation](https://github.com/delexw/motion-graphics-agent/commit/b5ca0fe).
+- **Model-called narration tools.** Create and edit timed narration through internal MCP while the application retains measured scheduling, final mixing and validation. [Narration and workflow controls](https://github.com/delexw/motion-graphics-agent/commit/7827aaf).
+- **Pixel RPG Quest Explainer and Step-Tick Slot Refill.** New reviewed metadata, an authored preview and a seekable motion study bring the catalog to 141 Motion Graphics and 49 motions. [Catalog addition](https://github.com/delexw/motion-graphics-agent/commit/84bd05b).
+- **Shared color chips.** Prompt displays and editors show compact color swatches alongside existing style and motion mentions. [Prompt controls](https://github.com/delexw/motion-graphics-agent/commit/7827aaf).
 
 ### Changed
 
-- **Focused corrections retain accepted fields.** Shared recursive merging preserves omitted manifest values, including shot lists and soundtracks; changed arrays replace rather than append. Model instructions reinforce the same boundary. [Workflow controls](https://github.com/delexw/kiteva/commit/7827aaf).
-- **Provider-independent activity.** Reads, file updates, checks, installation and bundling share work categories; repeated named actions show the latest outcome without exposing execution nesting. Different models may still need different calls and correction rounds. [Activity normalization](https://github.com/delexw/kiteva/commit/b5ca0fe).
-- **Governance and cache settings.** Separate uncached input, cache reads, cache writes and output, show API-rate cost ranges when usage details are incomplete, and use five-minute Claude prompt caches. [Usage accounting](https://github.com/delexw/kiteva/commit/7827aaf).
-- **Capability documentation.** Refresh the architecture, Mermaid diagrams and bilingual dated README history. Anatomy and AnySearch are staged from verified upstream installations; downloaded skills and local models are not source-release assets. [Documentation](https://github.com/delexw/kiteva/commit/b5ca0fe).
+- **Focused corrections retain accepted fields.** Shared recursive merging preserves omitted manifest values, including shot lists and soundtracks; changed arrays replace rather than append. Model instructions reinforce the same boundary. [Workflow controls](https://github.com/delexw/motion-graphics-agent/commit/7827aaf).
+- **Provider-independent activity.** Reads, file updates, checks, installation and bundling share work categories; repeated named actions show the latest outcome without exposing execution nesting. Different models may still need different calls and correction rounds. [Activity normalization](https://github.com/delexw/motion-graphics-agent/commit/b5ca0fe).
+- **Governance and cache settings.** Separate uncached input, cache reads, cache writes and output, show API-rate cost ranges when usage details are incomplete, and use five-minute Claude prompt caches. [Usage accounting](https://github.com/delexw/motion-graphics-agent/commit/7827aaf).
+- **Capability documentation.** Refresh the architecture, Mermaid diagrams and bilingual dated README history. Anatomy and AnySearch are staged from verified upstream installations; downloaded skills and local models are not source-release assets. [Documentation](https://github.com/delexw/motion-graphics-agent/commit/b5ca0fe).
 
 ### Fixed
 
-- **Playback and review evidence.** Align windowed cursor tracks and assess sampled export frames during final review. [Cursor fix](https://github.com/delexw/kiteva/commit/7568781), [sampled review](https://github.com/delexw/kiteva/commit/c004af1).
-- **Question and source boundaries.** Pause unanswered questions before storyboard validation; keep document names and paths out of visible or spoken video content unless explicitly requested. [Fixes](https://github.com/delexw/kiteva/commit/b5ca0fe).
-- **Previews, translations and outcomes.** Stabilize mention hover playback, translate new catalog details, and retain failure states for Codex MCP calls, commands and file changes. [Fixes and regression coverage](https://github.com/delexw/kiteva/commit/b5ca0fe).
-- **Vintage style guidance.** Clarify visual requirements without encouraging simplified drawing. [Metadata correction](https://github.com/delexw/kiteva/commit/084e43d).
+- **Playback and review evidence.** Align windowed cursor tracks and assess sampled export frames during final review. [Cursor fix](https://github.com/delexw/motion-graphics-agent/commit/7568781), [sampled review](https://github.com/delexw/motion-graphics-agent/commit/c004af1).
+- **Question and source boundaries.** Pause unanswered questions before storyboard validation; keep document names and paths out of visible or spoken video content unless explicitly requested. [Fixes](https://github.com/delexw/motion-graphics-agent/commit/b5ca0fe).
+- **Previews, translations and outcomes.** Stabilize mention hover playback, translate new catalog details, and retain failure states for Codex MCP calls, commands and file changes. [Fixes and regression coverage](https://github.com/delexw/motion-graphics-agent/commit/b5ca0fe).
+- **Vintage style guidance.** Clarify visual requirements without encouraging simplified drawing. [Metadata correction](https://github.com/delexw/motion-graphics-agent/commit/084e43d).
 
 This is a GitHub source release, without desktop installers, npm publication, bundled local models or downloaded upstream skills. Windows support remains experimental; native CI results describe the tested runner, not every installation.
 
@@ -61,21 +61,21 @@ Kiteva adds style-driven previews, editable video exports and native demo captur
 
 ### Added
 
-- **Selected-style preview directions and inline style mentions.** Keep previews enabled with fixed styles, insert `@` references in the idea editor, and inspect the same animated style preview across the editor, conversations and project board. [Preview workflows](https://github.com/delexw/kiteva/commit/43532cf).
-- **Editable project downloads.** Export renderer sources, available media, an OpenTimelineIO timeline and SRT subtitles whenever files exist, including incomplete or failed builds. [Editable exports](https://github.com/delexw/kiteva/commit/d6e9ae5).
-- **Expanded creative tools and catalog.** Add Particle Flow Network and Vintage Rubber Hose Animation, component-authoring integrations and uniform random creative directions. [Authoring capabilities](https://github.com/delexw/kiteva/commit/9c29942), [random directions](https://github.com/delexw/kiteva/commit/3034ac4), [catalog and authoring](https://github.com/delexw/kiteva/commit/d38e580), [rubber-hose style](https://github.com/delexw/kiteva/commit/43532cf).
+- **Selected-style preview directions and inline style mentions.** Keep previews enabled with fixed styles, insert `@` references in the idea editor, and inspect the same animated style preview across the editor, conversations and project board. [Preview workflows](https://github.com/delexw/motion-graphics-agent/commit/43532cf).
+- **Editable project downloads.** Export renderer sources, available media, an OpenTimelineIO timeline and SRT subtitles whenever files exist, including incomplete or failed builds. [Editable exports](https://github.com/delexw/motion-graphics-agent/commit/d6e9ae5).
+- **Expanded creative tools and catalog.** Add Particle Flow Network and Vintage Rubber Hose Animation, component-authoring integrations and uniform random creative directions. [Authoring capabilities](https://github.com/delexw/motion-graphics-agent/commit/9c29942), [random directions](https://github.com/delexw/motion-graphics-agent/commit/3034ac4), [catalog and authoring](https://github.com/delexw/motion-graphics-agent/commit/d38e580), [rubber-hose style](https://github.com/delexw/motion-graphics-agent/commit/43532cf).
 
 ### Changed
 
-- **Shared plan-before-build workflow.** Both providers validate a main-model plan before a new preview or full build, preserving the SDK session and correcting rejected structured plans before implementation. [Planning](https://github.com/delexw/kiteva/commit/43532cf).
-- **Native OpenScreen demo capture.** Record a dedicated browser window with explicit model-planned zoom/focus regions, automatic zoom disabled and cursor smoothing at 0.15. Extend browser capabilities and remove application-imposed capture budgets. [Native capture](https://github.com/delexw/kiteva/commit/338e87a), [capture lifecycle](https://github.com/delexw/kiteva/commit/4c97e7b).
-- **Central renderer policy.** Prompts, execution and reproduction instructions share renderer-owned flags and stages. Previews skip QA and automatic repair loops; full films retain QA and runtime determinism verification. Multiplane inspect, verify and render use `--no-lint`. [Shared policies](https://github.com/delexw/kiteva/commit/233ceeb), [execution](https://github.com/delexw/kiteva/commit/43532cf).
-- **Standard MIT license.** Replace the custom non-commercial license with MIT; third-party components retain their own terms. [License](https://github.com/delexw/kiteva/commit/fa678e0).
+- **Shared plan-before-build workflow.** Both providers validate a main-model plan before a new preview or full build, preserving the SDK session and correcting rejected structured plans before implementation. [Planning](https://github.com/delexw/motion-graphics-agent/commit/43532cf).
+- **Native OpenScreen demo capture.** Record a dedicated browser window with explicit model-planned zoom/focus regions, automatic zoom disabled and cursor smoothing at 0.15. Extend browser capabilities and remove application-imposed capture budgets. [Native capture](https://github.com/delexw/motion-graphics-agent/commit/338e87a), [capture lifecycle](https://github.com/delexw/motion-graphics-agent/commit/4c97e7b).
+- **Central renderer policy.** Prompts, execution and reproduction instructions share renderer-owned flags and stages. Previews skip QA and automatic repair loops; full films retain QA and runtime determinism verification. Multiplane inspect, verify and render use `--no-lint`. [Shared policies](https://github.com/delexw/motion-graphics-agent/commit/233ceeb), [execution](https://github.com/delexw/motion-graphics-agent/commit/43532cf).
+- **Standard MIT license.** Replace the custom non-commercial license with MIT; third-party components retain their own terms. [License](https://github.com/delexw/motion-graphics-agent/commit/fa678e0).
 
 ### Fixed
 
-- **Editor and project visibility.** Resize the idea editor from its top edge, reuse the full-width style picker, show route-appropriate activity, and inspect selected authoring resources and probabilities in Governance. [Editor and Governance](https://github.com/delexw/kiteva/commit/43532cf).
-- **Production reliability.** Improve guarded brief corrections, SDK execution policy, storage contention handling, independent Multiplane shot rendering and stale frontend asset responses. [Brief corrections](https://github.com/delexw/kiteva/commit/e07b55c), [execution policy](https://github.com/delexw/kiteva/commit/885af5b), [rendering and storage](https://github.com/delexw/kiteva/commit/541d6bb), [segmented shots](https://github.com/delexw/kiteva/commit/5b610b0), [frontend assets](https://github.com/delexw/kiteva/commit/43532cf).
+- **Editor and project visibility.** Resize the idea editor from its top edge, reuse the full-width style picker, show route-appropriate activity, and inspect selected authoring resources and probabilities in Governance. [Editor and Governance](https://github.com/delexw/motion-graphics-agent/commit/43532cf).
+- **Production reliability.** Improve guarded brief corrections, SDK execution policy, storage contention handling, independent Multiplane shot rendering and stale frontend asset responses. [Brief corrections](https://github.com/delexw/motion-graphics-agent/commit/e07b55c), [execution policy](https://github.com/delexw/motion-graphics-agent/commit/885af5b), [rendering and storage](https://github.com/delexw/motion-graphics-agent/commit/541d6bb), [segmented shots](https://github.com/delexw/motion-graphics-agent/commit/5b610b0), [frontend assets](https://github.com/delexw/motion-graphics-agent/commit/43532cf).
 
 This is a GitHub source release, without desktop installers or npm publication. Windows remains experimental; native CI results describe the tested runner, not every Windows installation.
 
@@ -85,23 +85,23 @@ The first source release of Kiteva: a personal creative workspace that turns ide
 
 ### Added
 
-- **Creative workspace and production workflow.** Create a brief, explore visual directions, review previews, build a full film, and inspect its Storyboard. Claude and Codex providers support configured API keys or signed-in subscriptions. [Initial application](https://github.com/delexw/kiteva/commit/dd83243).
-- **138 Motion Graphics and 48 motions.** Browse reviewed examples, combine treatments for a project, and use deterministic, seekable animation. HyperFrames is the default renderer, Multiplane is a trial option, and Remotion is a conditional fallback. [Catalog refresh](https://github.com/delexw/kiteva/commit/571b25a), [latest additions](https://github.com/delexw/kiteva/commit/63cadd4).
-- **Shared headless website tools.** Both providers can inspect reference websites and capture silent walkthrough footage into the project workspace. [Website capture](https://github.com/delexw/kiteva/commit/60bec38).
-- **Local narration and bilingual delivery.** Kokoro and Pocket TTS offer configurable voices, loudness matching, volume and speaking speed. English and Simplified Chinese video text, narration and subtitles are localized during governed project builds; Mandarin Pocket TTS uses a separate community-model runtime. [Pocket TTS](https://github.com/delexw/kiteva/commit/26187b3), [language support](https://github.com/delexw/kiteva/commit/63cadd4).
-- **Provider workspace skills.** Anatomy installs or updates over HTTPS at startup, with verified offline fallback. Both providers use the same staged local skill; upstream files and model weights are not bundled in the release. [Skill installation](https://github.com/delexw/kiteva/commit/63cadd4).
-- **Native Windows verification.** An experimental Windows sandbox backend includes filesystem, networking, cancellation and render checks. These checks passed on the Windows CI runner; this does not establish testing on every Windows 10/11 installation. [Native Node capture fix](https://github.com/delexw/kiteva/commit/0d972f1), [successful verification](https://github.com/delexw/kiteva/actions/runs/39096394369).
+- **Creative workspace and production workflow.** Create a brief, explore visual directions, review previews, build a full film, and inspect its Storyboard. Claude and Codex providers support configured API keys or signed-in subscriptions. [Initial application](https://github.com/delexw/motion-graphics-agent/commit/dd83243).
+- **138 Motion Graphics and 48 motions.** Browse reviewed examples, combine treatments for a project, and use deterministic, seekable animation. HyperFrames is the default renderer, Multiplane is a trial option, and Remotion is a conditional fallback. [Catalog refresh](https://github.com/delexw/motion-graphics-agent/commit/571b25a), [latest additions](https://github.com/delexw/motion-graphics-agent/commit/63cadd4).
+- **Shared headless website tools.** Both providers can inspect reference websites and capture silent walkthrough footage into the project workspace. [Website capture](https://github.com/delexw/motion-graphics-agent/commit/60bec38).
+- **Local narration and bilingual delivery.** Kokoro and Pocket TTS offer configurable voices, loudness matching, volume and speaking speed. English and Simplified Chinese video text, narration and subtitles are localized during governed project builds; Mandarin Pocket TTS uses a separate community-model runtime. [Pocket TTS](https://github.com/delexw/motion-graphics-agent/commit/26187b3), [language support](https://github.com/delexw/motion-graphics-agent/commit/63cadd4).
+- **Provider workspace skills.** Anatomy installs or updates over HTTPS at startup, with verified offline fallback. Both providers use the same staged local skill; upstream files and model weights are not bundled in the release. [Skill installation](https://github.com/delexw/motion-graphics-agent/commit/63cadd4).
+- **Native Windows verification.** An experimental Windows sandbox backend includes filesystem, networking, cancellation and render checks. These checks passed on the Windows CI runner; this does not establish testing on every Windows 10/11 installation. [Native Node capture fix](https://github.com/delexw/motion-graphics-agent/commit/0d972f1), [successful verification](https://github.com/delexw/motion-graphics-agent/actions/runs/39096394369).
 
 ### Changed
 
-- **Clearer Activity and Governance.** Task-specific activity keeps raw internal content hidden; provider usage is recorded for project cost tracking. [Activity improvements](https://github.com/delexw/kiteva/commit/d02980e).
-- **Documented setup and source distribution.** English and Chinese READMEs include an introduction film, desktop and Storyboard screenshots, architecture, technology inventory and cost notes. This is a source release without desktop installers or npm publication. [Documentation](https://github.com/delexw/kiteva/commit/c55e0d6).
+- **Clearer Activity and Governance.** Task-specific activity keeps raw internal content hidden; provider usage is recorded for project cost tracking. [Activity improvements](https://github.com/delexw/motion-graphics-agent/commit/d02980e).
+- **Documented setup and source distribution.** English and Chinese READMEs include an introduction film, desktop and Storyboard screenshots, architecture, technology inventory and cost notes. This is a source release without desktop installers or npm publication. [Documentation](https://github.com/delexw/motion-graphics-agent/commit/c55e0d6).
 
 ### License
 
 Kiteva uses the [MIT License](LICENSE). Third-party components retain their own licenses.
 
-[0.1.0]: https://github.com/delexw/kiteva/releases/tag/v0.1.0
-[0.2.0]: https://github.com/delexw/kiteva/releases/tag/v0.2.0
-[0.3.0]: https://github.com/delexw/kiteva/releases/tag/v0.3.0
-[0.4.0]: https://github.com/delexw/kiteva/releases/tag/v0.4.0
+[0.1.0]: https://github.com/delexw/motion-graphics-agent/releases/tag/v0.1.0
+[0.2.0]: https://github.com/delexw/motion-graphics-agent/releases/tag/v0.2.0
+[0.3.0]: https://github.com/delexw/motion-graphics-agent/releases/tag/v0.3.0
+[0.4.0]: https://github.com/delexw/motion-graphics-agent/releases/tag/v0.4.0

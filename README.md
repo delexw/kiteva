@@ -37,6 +37,8 @@ Dates below use New Zealand time.
 <details>
 <summary>2026-10-30</summary>
 
+- **v1.0.0 source release:** publish the production workflow improvements below under the renamed `motion-graphics-agent` repository. See the [changelog](CHANGELOG.md#100--2026-10-30).
+
 - **Production Desk and inline storyboard:** open both viewers inside centered, nearly full-window dialogs. Desk provides read-only playback, seeking, zoom, clip inspection and real audio waveforms; its larger preview leaves tracks below. Saved production metadata is available during generation, before the agent returns its accepted response. See [Production Desk](docs/production-desk.md).
 - **Separate audio sources:** new full builds retain music-only and individual SFX files with timed placements and gains in a shared `audioTracks` manifest. The agent still prepares the final music/SFX mix through the existing renderer handoff; Desk inspects the separate sources rather than treating the merged soundtrack as music-only. Application-owned narration mixing is unchanged, and legacy projects keep their fallback.
 - **Playback synchronization:** move the Desk cursor with CSS transforms using the media clock, without frame-by-frame React updates or repeated layout positioning. Opening Desk pauses background audio; shared video players prevent competing audible playback while leaving silent previews running.

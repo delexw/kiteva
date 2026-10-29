@@ -2,6 +2,33 @@
 
 Notable changes to Kiteva. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.0] — 2026-10-30
+
+Kiteva — AI Motion Graphics Agent now lives at `delexw/motion-graphics-agent`. This release brings together the production workflow improvements since v0.4.0.
+
+### Added
+
+- Read-only Production Desk with timeline inspection, source audio waveforms and inline storyboard viewing.
+- Ming 3.0 TTS 0.5B narration with neutral voices, supported-language selections and original narrator cloning.
+- Shared visuals with language-specific narration and subtitle tracks, plus cue-level subtitle progress.
+- Refinement history, attachments and question/answer continuity, including cancelled versions and monotonically increasing version numbers.
+
+### Changed
+
+- Separate music and SFX source files with timed placements; the agent retains ownership of the final music/SFX mix.
+- Centralized workspace paths separate render artifacts and assets from logs, diagnostics and runtime data.
+- Bounded factual cache evidence replaces Haiku change summaries; deterministic checks handle provable cache decisions.
+- Structured correction outcomes escalate unsuccessful Haiku repairs to the main model with context.
+- Activity history loads recursively on demand and releases collapsed branches; playback uses the media clock and avoids competing audible players.
+
+### Fixed
+
+- Brief recovery and draft removal, shared attachment previews, normalized download names and consistent project controls.
+- Duration validation accepts the target length within five seconds; renderers retain their native execution defaults.
+- Shared credential boundaries and test guards prevent codebase tests from using real provider credentials or external APIs.
+
+This is a GitHub source release, without desktop installers, npm publication, bundled local models or downloaded upstream skills. Windows support remains experimental. Existing Qwen speech selections are normalized to the retained narration providers; both Qwen providers have been retired.
+
 ## [0.4.0] — 2026-10-25
 
 Kiteva adds model-owned technology setup, documentation research and clearer production controls, with 141 Motion Graphics and 49 motions.
@@ -105,3 +132,4 @@ Kiteva uses the [MIT License](LICENSE). Third-party components retain their own 
 [0.2.0]: https://github.com/delexw/motion-graphics-agent/releases/tag/v0.2.0
 [0.3.0]: https://github.com/delexw/motion-graphics-agent/releases/tag/v0.3.0
 [0.4.0]: https://github.com/delexw/motion-graphics-agent/releases/tag/v0.4.0
+[1.0.0]: https://github.com/delexw/motion-graphics-agent/releases/tag/v1.0.0

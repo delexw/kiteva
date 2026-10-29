@@ -1,0 +1,68 @@
+name: Dependabot Auto-Merge
+
+# Use the trusted base workflow. Never check out or execute the pull request here.
+# Only npm patch/minor updates qualify; majors and the Claude Agent SDK stay manual.
+# Explicitly wait for CI because the repository's branch rules do not require checks.
+# Approve the checked commit and dispatch main CI after a GITHUB_TOKEN merge.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Merge dependency updates
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    concurrency:
+      group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PR_URL: ${{ github.event.pull_request.html_url }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+      GH_REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Read the update
+        id: metadata
+        uses: dependabot/fetch-metadata@v3.1.0
+      - name: Wait for checks, merge and verify main
+        if: >-
+          !contains(steps.metadata.outputs.dependency-names, '@anthropic-ai/claude-agent-sdk') &&
+          (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor')
+        shell: bash
+        run: |
+          # Watch only this commit's PR CI, never this auto-merge job itself.
+          run_id=""
+          until [ -n "$run_id" ]; do
+            run_id=$(gh run list --workflow native-windows.yml --commit "$HEAD_SHA" --event pull_request --limit 1 --json databaseId --jq '.[0].databaseId // empty')
+            if [ -z "$run_id" ]; then sleep 15; fi
+          done
+          gh run watch "$run_id" --exit-status --interval 15
+          # A skipped native render job must not count as success.
+          test "$(gh run view "$run_id" --json jobs --jq 'any(.jobs[]; .name == "native-windows" and .conclusion == "success")')" = true
+          gh api "repos/$GH_REPO/pulls/$PR_NUMBER/reviews" --method POST -f event=APPROVE -f commit_id="$HEAD_SHA"
+          until gh pr merge "$PR_URL" --squash --match-head-commit "$HEAD_SHA"; do
+            state=$(gh pr view "$PR_URL" --json state --jq .state)
+            case "$state" in
+              MERGED) break ;;
+              CLOSED) echo "Closed without merging"; exit 0 ;;
+            esac
+            current_head=$(gh pr view "$PR_URL" --json headRefOid --jq .headRefOid)
+            if [ "$current_head" != "$HEAD_SHA" ]; then
+              echo "Pull request changed; leave this head for its own checks"
+              exit 1
+            fi
+            sleep 30
+          done
+          gh workflow run native-windows.yml --ref "$BASE_BRANCH"

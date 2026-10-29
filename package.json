@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "multiplane:setup": "node --import tsx scripts/setup-multiplane.ts",
-    "speech:setup:qwen:base": "node --import tsx scripts/setup-qwen-tts.ts --base",
-    "speech:setup:qwen": "node --import tsx scripts/setup-qwen-tts.ts",
+    "speech:setup:ming": "node --import tsx scripts/setup-ming-tts.ts",
     "speech:setup:pocket": "node --import tsx scripts/setup-pocket-tts.ts",
     "speech:setup": "node --import tsx scripts/setup-speech.ts",
     "dev": "node --import tsx src/server/index.ts",
@@ -103,10 +102,12 @@
     "roughjs": "4.6.6",
     "sharp": "0.35.5",
     "shell-quote": "1.12.0",
+    "slugify": "^1.6.9",
     "streamdown": "2.7.0",
     "tailwind-merge": "3.7.0",
     "three": "0.186.1",
     "use-stick-to-bottom": "1.1.6",
+    "wavesurfer.js": "8.0.3",
     "yauzl": "3.4.0",
     "yazl": "3.3.1",
     "zod": "4.6.5"

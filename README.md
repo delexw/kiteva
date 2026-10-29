@@ -35,6 +35,20 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 Dates below use New Zealand time.
 
 <details>
+<summary>2026-10-30</summary>
+
+- **Production Desk and inline storyboard:** open both viewers inside centered, nearly full-window dialogs. Desk provides read-only playback, seeking, zoom, clip inspection and real audio waveforms; its larger preview leaves tracks below. Saved production metadata is available during generation, before the agent returns its accepted response. See [Production Desk](docs/production-desk.md).
+- **Separate audio sources:** new full builds retain music-only and individual SFX files with timed placements and gains in a shared `audioTracks` manifest. The agent still prepares the final music/SFX mix through the existing renderer handoff; Desk inspects the separate sources rather than treating the merged soundtrack as music-only. Application-owned narration mixing is unchanged, and legacy projects keep their fallback.
+- **Playback synchronization:** move the Desk cursor with CSS transforms using the media clock, without frame-by-frame React updates or repeated layout positioning. Opening Desk pauses background audio; shared video players prevent competing audible playback while leaving silent previews running.
+- **Ming narration:** add the local Ming 3.0 TTS 0.5B provider, its supported-language voice catalog and neutral voice controls. Retire both Qwen providers, retain the original narrator reference for Ming cloning, and normalize saved legacy speech selections. Narration guidance now asks for a connected story with natural chapter transitions. See [Ming TTS](docs/ming-tts.md).
+- **Shared project workspace:** centralize artifact, asset, diagnostic and runtime paths for build agents, correctors, capture, narration, exports and cache recovery. Render inputs stay under artifacts; logs and task context remain separate. Existing workspaces and recovery checkpoints use explicit layout compatibility. See [project workspace](docs/project-workspace.md).
+- **Cache evidence and correction outcomes:** replace the Haiku change-summary step with bounded factual evidence for JEV, preserving hash checks and concrete cache-restore reporting. Corrections return structured fixed/refused/unresolved outcomes, escalate non-repairs to the main model and retain reasons for narrowly scoped bypasses. Renderer execution uses native defaults. See [cache recovery](docs/render-cache-recovery.md) and [correction outcomes](docs/video-correction-outcomes.md).
+- **Consistent project controls:** recover from a broken brief without losing the option to remove its draft, copy style metadata, and name downloads from the normalized style and version. Storyboard actions use matching icons and lowercase labels; activity grouping and render progress keep their task hierarchy.
+- **Credential boundaries and verification:** share credential environment names across SDK configuration, child processes and provider tests; deny credential access in agent shell tools while retaining required SDK authentication. Codebase tests clear provider credentials and block real external API calls. A separate live 10-second project verified the model-created music/SFX mix, saved source clips and Desk waveforms.
+
+</details>
+
+<details>
 <summary>2026-10-29</summary>
 
 - **Refinement continuity and versions:** preserve earlier requests, question/answer history and image references; allow excluding prior requests before submission. Resume verified build sessions, including cancelled versions, without letting helper sessions replace them. Versions can be deleted with confirmation, and their numbers are never reused. See [video refinement](docs/video-refinement.md).

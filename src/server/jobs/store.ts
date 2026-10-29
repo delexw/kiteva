@@ -1,3 +1,4 @@
+import { normalizeRetiredSpeechSelections } from "../../shared/speech-compatibility";
 import { activityItems } from "../../shared/activity-model";
 import {
   displayActivityItems,
@@ -113,13 +114,17 @@ export class Store {
   }
   get(id: string): Run | undefined {
     const row = this.db.prepare("SELECT json FROM runs WHERE id=?").get(id);
-    return row ? normalizeSubtitleFields(JSON.parse(String(row.json))) : undefined;
+    return row
+      ? normalizeRetiredSpeechSelections(normalizeSubtitleFields(JSON.parse(String(row.json))))
+      : undefined;
   }
   list(): Run[] {
     return this.db
       .prepare("SELECT json FROM runs ORDER BY rowid DESC LIMIT 50")
       .all()
-      .map((x) => normalizeSubtitleFields(JSON.parse(String(x.json))));
+      .map((x) =>
+        normalizeRetiredSpeechSelections(normalizeSubtitleFields(JSON.parse(String(x.json)))),
+      );
   }
   delete(id: string) {
     this.db.exec("BEGIN");
@@ -138,7 +143,9 @@ export class Store {
     return this.db
       .prepare("SELECT json FROM runs ORDER BY rowid DESC")
       .all()
-      .map((row) => normalizeSubtitleFields(JSON.parse(String(row.json))));
+      .map((row) =>
+        normalizeRetiredSpeechSelections(normalizeSubtitleFields(JSON.parse(String(row.json)))),
+      );
   }
   allEvents(id: string): AgentProgressEvent[] {
     return this.db

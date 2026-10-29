@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { afterEach, expect, it, vi } from "vitest";
 import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
 import path from "node:path";
@@ -7,8 +8,8 @@ import { claudeLoginEnvironment } from "../src/server/agents/claude-home";
 afterEach(() => vi.unstubAllEnvs());
 it("passes only the synchronized access token without exposing refresh tokens or other accounts", async () => {
   const home = await mkdtemp(path.join(os.tmpdir(), "claude-login-env-"));
-  vi.stubEnv("ANTHROPIC_API_KEY", "");
-  vi.stubEnv("CLAUDE_CODE_OAUTH_TOKEN", "");
+  vi.stubEnv(credentialEnvironmentVariables.anthropicApiKey, "");
+  vi.stubEnv(credentialEnvironmentVariables.claudeOauthToken, "");
   try {
     expect(await claudeLoginEnvironment(home)).toEqual({});
     await mkdir(path.join(home, ".claude"));
@@ -21,13 +22,16 @@ it("passes only the synchronized access token without exposing refresh tokens or
       }),
     );
     expect(await claudeLoginEnvironment(home)).toEqual({
-      CLAUDE_CODE_OAUTH_TOKEN: "fixture-first",
+      [credentialEnvironmentVariables.claudeOauthToken]: "fixture-first",
     });
     await writeFile(file, JSON.stringify({ claudeAiOauth: { accessToken: "fixture-refreshed" } }));
     expect(await claudeLoginEnvironment(home)).toEqual({
-      CLAUDE_CODE_OAUTH_TOKEN: "fixture-refreshed",
+      [credentialEnvironmentVariables.claudeOauthToken]: "fixture-refreshed",
     });
-    for (const name of ["ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN"]) {
+    for (const name of [
+      credentialEnvironmentVariables.anthropicApiKey,
+      credentialEnvironmentVariables.claudeOauthToken,
+    ]) {
       vi.stubEnv(name, "explicit-fixture");
       expect(await claudeLoginEnvironment(home)).toEqual({});
       vi.stubEnv(name, "");

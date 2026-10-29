@@ -41,6 +41,7 @@ export interface RendererMetadata {
 export type RendererJobKind = "preview" | "full";
 export type RendererCommand = "check" | "inspect" | "verify" | "render";
 export type RenderContractInput = {
+  workspace?: string;
   width: number;
   height: number;
   duration: number;

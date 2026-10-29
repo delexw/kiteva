@@ -1,3 +1,4 @@
+import { workspacePaths, workspaceFolders, legacyWorkspaceFolders } from "../../runtime/workspace";
 import { mkdir, rm, rename, writeFile, readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
@@ -20,9 +21,14 @@ import {
   type CapturePresentationInput,
 } from "../../capture/presentation";
 
+const recordingAssetDirectories = [workspaceFolders.assets, legacyWorkspaceFolders.assets]
+  .map((directory) => z.util.escapeRegex(directory))
+  .join("|");
+const recordingAssetPrefix = `^(?:${recordingAssetDirectories})/website-video-[0-9a-f-]{36}`;
+
 export const WebsiteRecordingSchema = z.object({
-  assetPath: z.string().regex(/^assets\/website-video-[0-9a-f-]{36}\.webm$/),
-  cursorPath: z.string().regex(/^assets\/website-video-[0-9a-f-]{36}\.cursor\.json$/),
+  assetPath: z.string().regex(new RegExp(`${recordingAssetPrefix}\\.webm$`)),
+  cursorPath: z.string().regex(new RegExp(`${recordingAssetPrefix}\\.cursor\\.json$`)),
   url: z.string().url(),
   duration: z.number().finite().positive(),
   width: z.number().int().positive(),
@@ -68,7 +74,7 @@ export async function startWebsiteCapture(
   signal.throwIfAborted();
   const settings = resolveCapturePresentation(CapturePresentationSchema.parse(presentation ?? {}));
   const id = randomUUID();
-  const assets = path.join(workspace, "assets");
+  const assets = path.join(workspace, workspacePaths(workspace).assets);
   await mkdir(assets, { recursive: true });
   const temporary = path.join(assets, `website-video-${id}.partial.webm`);
   const finalized = path.join(assets, `website-video-${id}.ready.webm`);
@@ -100,7 +106,7 @@ export async function startWebsiteCapture(
       path.join(editDirectory, "edited.mp4"),
       signal,
       settings,
-      path.join(workspace, "capture-diagnostics"),
+      path.join(workspace, workspacePaths(workspace).captureDiagnostics),
     );
     pointerTrack.start(editor.recordingStartedAt!);
   } catch (error) {
@@ -190,8 +196,8 @@ export async function startWebsiteCapture(
     await rename(finalized, path.join(assets, name));
     await rm(temporary, { force: true });
     return {
-      assetPath: `assets/${name}`,
-      cursorPath: `assets/${cursorName}`,
+      assetPath: `${workspacePaths(workspace).assets}/${name}`,
+      cursorPath: `${workspacePaths(workspace).assets}/${cursorName}`,
       url,
       duration,
       width: stream.width,

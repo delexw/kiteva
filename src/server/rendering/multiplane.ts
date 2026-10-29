@@ -1,3 +1,4 @@
+import { projectDiagnosticsRoot, workspaceOwner, workspaceFolders } from "../runtime/workspace";
 import { multiplaneProgress } from "./multiplane/progress";
 export { multiplaneProgress } from "./multiplane/progress";
 import { rendererCliPath, rendererCommandFlags } from "./execution";
@@ -13,7 +14,7 @@ import { isolatedCommand } from "../runtime/process.js";
 import { formatMultiplaneDiagnostic, RendererDiagnosticError } from "./diagnostics";
 
 export const multiplaneCli = rendererCliPath(multiplaneMetadata);
-export const multiplaneJobsDir = "renders/multiplane-jobs";
+export const multiplaneJobsDir = workspaceFolders.multiplaneJobs;
 
 const ResultSchema = z.object({
   type: z.literal("result"),
@@ -97,7 +98,11 @@ export function multiplaneShotProblems(
     problems.push(`Shot.define fps is ${String(data?.fps)}; it must be ${expected.fps}`);
   return problems;
 }
-export function multiplaneVerifyArgs(shot: string, fps: number) {
+export function multiplaneVerifyArgs(
+  shot: string,
+  fps: number,
+  jobDirectory: string = multiplaneJobsDir,
+) {
   return [
     multiplaneCli,
     "verify",
@@ -106,7 +111,7 @@ export function multiplaneVerifyArgs(shot: string, fps: number) {
     "--fps",
     String(fps),
     "--job-dir",
-    multiplaneJobsDir,
+    jobDirectory,
   ];
 }
 export function multiplaneRenderArgs(input: {
@@ -115,6 +120,7 @@ export function multiplaneRenderArgs(input: {
   fps: number;
   kind: "preview" | "full";
   audioFile?: string | null;
+  jobDirectory?: string;
 }) {
   const preview = input.kind === "preview";
   return [
@@ -123,7 +129,7 @@ export function multiplaneRenderArgs(input: {
     input.shot,
     ...rendererCommandFlags(multiplaneMetadata, "render"),
     "--job-dir",
-    multiplaneJobsDir,
+    input.jobDirectory ?? multiplaneJobsDir,
     "--fps",
     String(input.fps),
     "--format",
@@ -231,9 +237,11 @@ export async function runMultiplane(
   const result = multiplaneResult(stdout);
   let report: string | undefined;
   if (stdout.trim()) {
-    report = path.join(multiplaneJobsDir, `diagnostics-${randomUUID()}.jsonl`);
-    await mkdir(path.join(workspace, multiplaneJobsDir), { recursive: true });
-    await writeFile(path.join(workspace, report), stdout, "utf8");
+    const reportRoot = projectDiagnosticsRoot(workspace);
+    await mkdir(reportRoot, { recursive: true });
+    const absoluteReport = path.join(reportRoot, `diagnostics-${randomUUID()}.jsonl`);
+    await writeFile(absoluteReport, stdout, "utf8");
+    report = path.relative(workspaceOwner(workspace), absoluteReport);
   }
   if (result?.ok) return result;
   if (!result && failure) throw failure;

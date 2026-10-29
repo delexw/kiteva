@@ -200,3 +200,32 @@ it("relays only the parent's current measured child and clears stale progress af
     ]),
   ).toBeUndefined();
 });
+
+it("shows progress when every rendered shot is restored from a checkpoint", () => {
+  const events = [
+    event(1, "phase", "Reusing the Multiplane shot checkpoint (1/4: artifacts/shots/first.html)"),
+    event(2, "phase", "Reusing the Multiplane shot checkpoint (2/4: artifacts/shots/second.html)"),
+  ];
+  const grouped = displayActivityItems(activityItems(events));
+  expect(grouped).toHaveLength(1);
+  expect(grouped[0].progressPercent).toBe(50);
+  expect(activityLabel(grouped[0])).toContain("50%");
+  expect(latestActivityProgress(activityItems(events))?.progressPercent).toBe(50);
+});
+
+it("keeps native renderer completion below 100 until final export validation passes", () => {
+  const native = {
+    id: 1,
+    runId: "example",
+    type: "render_progress",
+    message: "Rendered 120/120",
+    time: "2026-01-01",
+    data: { renderer: "remotion", pendingValidation: true },
+  };
+  const progress = renderProgressUpdate(native);
+  expect(progress?.percent).toBe(99);
+  expect(
+    renderProgressUpdate({ ...native, id: 2, message: "Render complete", data: {} }, progress)
+      ?.percent,
+  ).toBe(100);
+});

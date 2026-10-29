@@ -25,6 +25,8 @@ export interface ActivityItem {
   itemId?: string;
   capability?: "narration";
   correctionAttempt?: number;
+  correctionModel?: string;
+  correctionGroupId?: string;
   purpose?: string;
   preparationStep?: PreparationStep;
   activityScopeId?: string;
@@ -252,6 +254,8 @@ export function activityItems(
       purpose?: string;
       invocationId?: string;
       correctionAttempt?: number;
+      model?: string;
+      correctionTier?: string;
       captureProgress?: unknown;
       subtitleProgress?: unknown;
       captureTiming?: unknown;
@@ -331,6 +335,7 @@ export function activityItems(
           : undefined,
         invocationId: data.invocationId,
         correctionAttempt: data.correctionAttempt,
+        correctionModel: data.correctionTier ? data.model : undefined,
         captureChapterId: data.captureChapter?.chapterId,
         captureChapterTitle: data.captureChapter?.title,
         captureChapterIndex: data.captureChapter?.index,
@@ -601,6 +606,8 @@ export function activityItems(
     const visited = new Set<string>();
     while (owner && !visited.has(owner.id)) {
       visited.add(owner.id);
+      if (owner.label === "Correction attempt" && owner.parentId)
+        item.correctionGroupId = owner.parentId;
       if (owner.label === "Rendering your video") {
         item.renderScopeId = owner.id;
         item.renderScopeStatus = owner.state === "waiting" ? undefined : owner.state;

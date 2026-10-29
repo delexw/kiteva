@@ -1,3 +1,4 @@
+import { workspaceOwner } from "./workspace";
 import { prepareProjectRuntime, projectRuntimeEnvironment } from "./project-files";
 import { spawn } from "node:child_process";
 import { StringDecoder } from "node:string_decoder";
@@ -17,8 +18,9 @@ export async function command(
   env: Record<string, string | undefined> = {},
 ): Promise<string> {
   signal.throwIfAborted();
-  prepareProjectRuntime(cwd, isolate ? "render" : "tools");
-  const sandbox = isolate ? await renderCommand(executable, args, cwd) : undefined;
+  const owner = workspaceOwner(cwd);
+  prepareProjectRuntime(owner, isolate ? "render" : "tools");
+  const sandbox = isolate ? await renderCommand(executable, args, owner, cwd) : undefined;
   signal.throwIfAborted();
   return new Promise<string>((resolve, reject) => {
     const child = spawn(sandbox?.executable || executable, sandbox?.args || args, {
@@ -28,7 +30,7 @@ export async function command(
       env: {
         ...systemEnvironment(),
         LANG: "en_US.UTF-8",
-        ...projectRuntimeEnvironment(cwd, isolate ? "render" : "tools"),
+        ...projectRuntimeEnvironment(owner, isolate ? "render" : "tools"),
         ...sandbox?.env,
         DO_NOT_TRACK: "1",
         ...env,

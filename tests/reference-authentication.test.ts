@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import {
   startAuthenticationBridge,
   pendingReferenceAuthentications,
@@ -98,7 +99,7 @@ it
       : undefined;
     if (bridge) {
       vi.stubEnv("KITEVA_AUTH_BRIDGE_URL", bridge.url);
-      vi.stubEnv("KITEVA_AUTH_BRIDGE_TOKEN", bridge.token);
+      vi.stubEnv(credentialEnvironmentVariables.authenticationBridgeToken, bridge.token);
     }
     let session: Awaited<ReturnType<typeof createLocalReferenceBrowser>> | undefined;
     try {

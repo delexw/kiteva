@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../runtime/credential-environment";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import path from "node:path";
@@ -36,8 +37,8 @@ export async function prepareClaudeHome(
       if (
         process.platform !== "darwin" ||
         process.env.CLAUDE_CONFIG_DIR ||
-        process.env.ANTHROPIC_API_KEY ||
-        process.env.CLAUDE_CODE_OAUTH_TOKEN
+        process.env[credentialEnvironmentVariables.anthropicApiKey] ||
+        process.env[credentialEnvironmentVariables.claudeOauthToken]
       )
         return;
       let stdout: string;
@@ -114,7 +115,11 @@ export async function prepareClaudeHome(
 /** Use the SDK's explicit login input so it does not persist copied OAuth credentials to Keychain. */
 export async function claudeLoginEnvironment(home: string, signal?: AbortSignal) {
   signal?.throwIfAborted();
-  if (process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_CODE_OAUTH_TOKEN) return {};
+  if (
+    process.env[credentialEnvironmentVariables.anthropicApiKey] ||
+    process.env[credentialEnvironmentVariables.claudeOauthToken]
+  )
+    return {};
   const login = await readFile(path.join(home, ".claude", ".credentials.json"), {
     encoding: "utf8",
     signal,
@@ -125,5 +130,7 @@ export async function claudeLoginEnvironment(home: string, signal?: AbortSignal)
   if (!login) return {};
   const credentials = JSON.parse(login) as { claudeAiOauth?: { accessToken?: unknown } };
   const token = credentials.claudeAiOauth?.accessToken;
-  return typeof token === "string" && token.length > 0 ? { CLAUDE_CODE_OAUTH_TOKEN: token } : {};
+  return typeof token === "string" && token.length > 0
+    ? { [credentialEnvironmentVariables.claudeOauthToken]: token }
+    : {};
 }

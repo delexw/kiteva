@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { afterEach, expect, it, vi } from "vitest";
 import { readFile, writeFile, mkdtemp, rm } from "node:fs/promises";
 import path from "node:path";
@@ -137,7 +138,7 @@ it("transfers worker artifacts over HTTP and keeps interaction and recording in 
   const controller = new AbortController();
   await app.listen({ host: "127.0.0.1", port: 0 });
   vi.stubEnv("KITEVA_CAPTURE_WORKER_URL", app.listeningOrigin);
-  vi.stubEnv("KITEVA_CAPTURE_WORKER_TOKEN", token);
+  vi.stubEnv(credentialEnvironmentVariables.captureWorkerToken, token);
   const client = await createRemoteReferenceBrowser(
     ["https://example.com"],
     controller.signal,
@@ -216,7 +217,7 @@ it("rejects an unencrypted remote worker or an absent authentication token", asy
     createRemoteReferenceBrowser(["https://example.com"], new AbortController().signal, "local"),
   ).rejects.toThrow("HTTPS");
   vi.stubEnv("KITEVA_CAPTURE_WORKER_URL", "http://127.0.0.1:4330");
-  vi.stubEnv("KITEVA_CAPTURE_WORKER_TOKEN", "");
+  vi.stubEnv(credentialEnvironmentVariables.captureWorkerToken, "");
   await expect(
     createRemoteReferenceBrowser(["https://example.com"], new AbortController().signal, "local"),
   ).rejects.toThrow("authentication token");

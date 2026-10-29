@@ -1,3 +1,14 @@
+import { prepareProjectLayout, workspacePaths } from "../src/server/runtime/workspace";
+import { mkdtemp, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { afterEach } from "vitest";
+const workspaces: string[] = [];
+afterEach(async () => {
+  await Promise.all(
+    workspaces.splice(0).map((workspace) => rm(workspace, { recursive: true, force: true })),
+  );
+});
 import { validStoryboard } from "./fixtures/storyboard";
 import { expect, it } from "vitest";
 import { buildApplicationDemoRoutePrompt } from "../src/server/domains/video/route-prompts/application-demo";
@@ -52,65 +63,73 @@ it.each(["hyperframes", "multiplane"] as const)(
   },
 );
 
-it("gives a chapter its plan, prior results, upload and native review rules without full-film responsibilities", () => {
-  const plan = CaptureChapterPlanSchema.parse({
-    scope: "Show creation and review",
-    story: "One connected example",
-    chapters: [
-      {
-        id: "review",
-        title: "Review",
-        purpose: "Review the example",
-        startingState: "Open the result",
-        actions: ["Play the result"],
-        expectedResults: ["Visible playback"],
-        nextChapterContext: "End",
-        estimatedDurationSeconds: 10,
-      },
-    ],
-  });
-  const storyboard = validStoryboard(30);
-  const prompt = buildChapterCapturePrompt({
-    storyboard,
-    plan,
-    chapter: plan.chapters[0],
-    index: 0,
-    previousResult: { observedResults: ["Example created"] },
-    previousChapterContext: "Continue with the created example",
-    request: VideoRequestSchema.parse({
-      instructions: "Keep the same sample knowledge item throughout the film",
-      urls: ["https://example.com"],
-      outputLanguage: "en",
-      requirements: {
-        main: { instructions: "Preserve the product name" },
-        images: { instructions: "Use the supplied cover image" },
-        music: { instructions: "Do not include soundtrack instructions in capture" },
-        urls: { instructions: "Show playback and publishing; report unsupported sharing" },
-      },
-    }),
-  });
-  expect(prompt).toContain(JSON.stringify(storyboard));
-  expect(prompt).toContain('"observedResults":["Example created"]');
-  expect(prompt).toContain("Review the example");
-  expect(prompt).toContain("new model session");
-  expect(prompt).toContain("Keep the same sample knowledge item");
-  expect(prompt).toContain("Show playback and publishing");
-  expect(prompt).toContain("Use the supplied cover image");
-  expect(prompt).toContain("Continue with the created example");
-  expect(prompt).toContain("https://example.com");
-  expect(prompt).toContain("brief-attachments.json");
-  expect(prompt).not.toContain("Do not include soundtrack instructions in capture");
-  expect(prompt).toContain("do not assume prior browser state persists");
-  expect(prompt).toContain("UNSUPPORTED INTERACTIONS");
-  expect(prompt).toContain('input[type="file"]');
-  expect(prompt).toContain("```mermaid\nflowchart TD");
-  expect(prompt).toContain("correct --> document");
-  expect(prompt).toContain("check -->|No| document");
-  expect(prompt).toContain("After any edit, inspect the affected frames again");
-  expect(prompt).toContain("captured footage is excluded from the energetic pacing default");
-  expect(prompt.split("## 4. Inspect frames before export")).toHaveLength(2);
-  expect(prompt).not.toMatch(
-    /DISCOVER:|CHAPTERS:|FOOTAGE PLACEMENT:|ROUTE A \/ MULTIPLANE|ROUTE A \/ HYPERFRAMES/,
-  );
-  expect(prompt).toContain("Code owns the next chapter");
-});
+it.each([false, true])(
+  "gives chapter context using its actual media directory (new layout=%s)",
+  async (newLayout) => {
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "capture-prompt-"));
+    workspaces.push(workspace);
+    if (newLayout) await prepareProjectLayout(workspace);
+    const plan = CaptureChapterPlanSchema.parse({
+      scope: "Show creation and review",
+      story: "One connected example",
+      chapters: [
+        {
+          id: "review",
+          title: "Review",
+          purpose: "Review the example",
+          startingState: "Open the result",
+          actions: ["Play the result"],
+          expectedResults: ["Visible playback"],
+          nextChapterContext: "End",
+          estimatedDurationSeconds: 10,
+        },
+      ],
+    });
+    const storyboard = validStoryboard(30);
+    const prompt = buildChapterCapturePrompt({
+      workspace,
+      storyboard,
+      plan,
+      chapter: plan.chapters[0],
+      index: 0,
+      previousResult: { observedResults: ["Example created"] },
+      previousChapterContext: "Continue with the created example",
+      request: VideoRequestSchema.parse({
+        instructions: "Keep the same sample knowledge item throughout the film",
+        urls: ["https://example.com"],
+        outputLanguage: "en",
+        requirements: {
+          main: { instructions: "Preserve the product name" },
+          images: { instructions: "Use the supplied cover image" },
+          music: { instructions: "Do not include soundtrack instructions in capture" },
+          urls: { instructions: "Show playback and publishing; report unsupported sharing" },
+        },
+      }),
+    });
+    expect(prompt).toContain(`Use local ${workspacePaths(workspace).assets}/`);
+    expect(prompt).toContain(JSON.stringify(storyboard));
+    expect(prompt).toContain('"observedResults":["Example created"]');
+    expect(prompt).toContain("Review the example");
+    expect(prompt).toContain("new model session");
+    expect(prompt).toContain("Keep the same sample knowledge item");
+    expect(prompt).toContain("Show playback and publishing");
+    expect(prompt).toContain("Use the supplied cover image");
+    expect(prompt).toContain("Continue with the created example");
+    expect(prompt).toContain("https://example.com");
+    expect(prompt).toContain("brief-attachments.json");
+    expect(prompt).not.toContain("Do not include soundtrack instructions in capture");
+    expect(prompt).toContain("do not assume prior browser state persists");
+    expect(prompt).toContain("UNSUPPORTED INTERACTIONS");
+    expect(prompt).toContain('input[type="file"]');
+    expect(prompt).toContain("```mermaid\nflowchart TD");
+    expect(prompt).toContain("correct --> document");
+    expect(prompt).toContain("check -->|No| document");
+    expect(prompt).toContain("After any edit, inspect the affected frames again");
+    expect(prompt).toContain("captured footage is excluded from the energetic pacing default");
+    expect(prompt.split("## 4. Inspect frames before export")).toHaveLength(2);
+    expect(prompt).not.toMatch(
+      /DISCOVER:|CHAPTERS:|FOOTAGE PLACEMENT:|ROUTE A \/ MULTIPLANE|ROUTE A \/ HYPERFRAMES/,
+    );
+    expect(prompt).toContain("Code owns the next chapter");
+  },
+);

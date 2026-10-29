@@ -138,9 +138,9 @@ createRoot(document.getElementById('root')).render(h(App));</script>`,
         });
         await page.locator('.revision-tab:has(input[value="v2"])').click();
         await page.locator('[aria-label="Delete version 2"]').click();
-        await page.waitForSelector(".ant-popconfirm");
+        await page.waitForSelector(".ant-popconfirm", { visible: true });
         expect(await page.$eval("article h3", (node) => node.textContent)).toBe("v2");
-        await page.click(".ant-popconfirm .ant-btn-primary");
+        await page.locator(".ant-popconfirm:not(.ant-popover-hidden) .ant-btn-primary").click();
         await page.waitForFunction(
           () => !document.querySelector('[aria-label="Version 2 · Cancelled"]'),
         );

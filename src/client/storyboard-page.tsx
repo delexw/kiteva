@@ -1,10 +1,9 @@
 import { translateUi, useUiLanguage } from "./i18n";
-import { useEffect, useState } from "react";
 import { Button } from "antd";
 import { PageTemplate } from "./components/page-template";
 import { StoryboardMovie } from "./storyboard-movie-player";
-import { api } from "./lib/api";
-import { storyboardPageSchema, storyboardTime, type MangaStoryboard } from "./storyboard-model";
+import { storyboardTime, type MangaStoryboard } from "./storyboard-model";
+import { useStoryboard } from "./use-storyboard";
 
 export function StoryboardComic({
   storyboard,
@@ -25,59 +24,52 @@ export function StoryboardPage({
   projectId,
   jobId,
   onBack,
+  embedded = false,
 }: {
   projectId: string;
   jobId: string;
   onBack: () => void;
+  embedded?: boolean;
 }) {
   useUiLanguage();
-  const [storyboard, setStoryboard] = useState<MangaStoryboard>();
-  const [error, setError] = useState(false);
-  const base = `/api/artifacts/${encodeURIComponent(projectId)}/${encodeURIComponent(jobId)}`;
-  useEffect(() => {
-    let active = true;
-    setStoryboard(undefined);
-    setError(false);
-    void api<unknown>(`${base}/STORYBOARD.json`)
-      .then((value) => {
-        const parsed = storyboardPageSchema.parse(value);
-        if (active) setStoryboard(parsed);
+  const { storyboard, error, base } = useStoryboard(projectId, jobId);
+  const title = storyboard?.title || translateUi("The director’s notebook.");
+  const description = storyboard
+    ? translateUi("{{value0}} scenes · {{value1}}", {
+        value0: storyboard.scenes.length,
+        value1: storyboardTime(storyboard.durationSeconds),
       })
-      .catch(() => {
-        if (active) setError(true);
-      });
-    return () => {
-      active = false;
-    };
-  }, [base]);
+    : translateUi("Your film, told panel by panel.");
+  const content = error ? (
+    <p role="alert">
+      {translateUi(
+        "We couldn’t load this storyboard. Check that the video has a saved storyboard.",
+      )}
+    </p>
+  ) : storyboard ? (
+    <StoryboardComic storyboard={storyboard} base={base} />
+  ) : (
+    <p role="status">{translateUi("Opening the storyboard…")}</p>
+  );
+  if (embedded)
+    return (
+      <section className="storyboard-page storyboard-page-embedded">
+        <header className="storyboard-dialog-heading">
+          <h2>{title}</h2>
+          <p>{description}</p>
+        </header>
+        <div className="storyboard-dialog-animation">{content}</div>
+      </section>
+    );
   return (
     <PageTemplate
       className="storyboard-page"
       eyebrow="Workspace / Storyboard"
-      title={storyboard?.title || translateUi("The director’s notebook.")}
-      description={
-        <p>
-          {storyboard
-            ? translateUi("{{value0}} scenes · {{value1}}", {
-                value0: storyboard.scenes.length,
-                value1: storyboardTime(storyboard.durationSeconds),
-              })
-            : translateUi("Your film, told panel by panel.")}
-        </p>
-      }
+      title={title}
+      description={<p>{description}</p>}
       actions={<Button onClick={onBack}>{translateUi("Back to project")}</Button>}
     >
-      {error ? (
-        <p role="alert">
-          {translateUi(
-            "We couldn’t load this storyboard. Check that the video has a saved storyboard.",
-          )}
-        </p>
-      ) : storyboard ? (
-        <StoryboardComic storyboard={storyboard} base={base} />
-      ) : (
-        <p role="status">{translateUi("Opening the storyboard…")}</p>
-      )}
+      {content}
     </PageTemplate>
   );
 }

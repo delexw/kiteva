@@ -1,8 +1,9 @@
+import { workspaceEntries } from "../../workspace";
 import { AssetNeedSchema } from "./asset-needs";
 import { z } from "zod";
 export const PageProductionSchema = z.object({
   assetNeeds: z.array(AssetNeedSchema).max(6).optional(),
-  sourceFile: z.literal("index.html"),
+  sourceFile: z.enum(["index.html", workspaceEntries.page]),
   title: z.string().min(1),
   styleRenderer: z.array(z.string()).min(1),
   interactionEngine: z.array(z.string()).min(1),

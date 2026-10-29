@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../runtime/credential-environment";
 import { RetryBudget } from "../../shared/retry-budget";
 import { terminateProcessTree } from "../runtime/process-tree";
 import { nativeExecutable } from "../runtime/platform";
@@ -126,12 +127,18 @@ export async function cavemanRuntime(signal: AbortSignal) {
 
 export function codexCavemanProvider(
   url: string,
-  auth: { auth_mode?: string; tokens?: unknown; OPENAI_API_KEY?: unknown },
+  auth: {
+    auth_mode?: string;
+    tokens?: unknown;
+    [credentialEnvironmentVariables.openaiApiKey]?: unknown;
+  },
 ) {
   const subscription =
     auth.auth_mode === "chatgpt" ||
     auth.auth_mode === "chatgptAuthTokens" ||
-    (auth.auth_mode !== "apikey" && Boolean(auth.tokens) && !auth.OPENAI_API_KEY);
+    (auth.auth_mode !== "apikey" &&
+      Boolean(auth.tokens) &&
+      !auth[credentialEnvironmentVariables.openaiApiKey]);
   return {
     name: "Caveman",
     base_url: `${url}${subscription ? "/chatgpt" : "/w/codex/v1"}`,

@@ -1,3 +1,4 @@
+import { renderInputRoot, renderSourcePath } from "../../runtime/workspace";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -46,7 +47,7 @@ async function snapshot(workspace: string, signal: AbortSignal): Promise<Snapsho
       if (entry.isDirectory()) await visit(absolute);
       else if (entry.isFile()) {
         const hash = await fileHash(absolute, signal);
-        const text = /\.(html?|m?js|css|svg)$/i.test(entry.name)
+        const text = /\.(html?|m?js|css|svg|json|md|txt|ts|tsx|jsx)$/i.test(entry.name)
           ? await readFile(absolute, "utf8")
           : undefined;
         files[relative] = {
@@ -58,7 +59,7 @@ async function snapshot(workspace: string, signal: AbortSignal): Promise<Snapsho
     }
   }
   workspace = path.resolve(workspace);
-  await visit(workspace);
+  await visit(renderInputRoot(workspace));
   const runtime = digest({
     native: await installedRuntimeFingerprint(signal),
     node: process.version,
@@ -113,6 +114,15 @@ export async function createMultiplaneRecoveryCache(input: {
       await rm(temporary, { force: true });
     }
   }
+  let snapshotPublished: Promise<void> | undefined;
+  const publishCurrentSnapshot = () =>
+    (snapshotPublished ??= publish(
+      path.join(directory, "snapshots", `${current.digest}.json`),
+      current,
+    ).catch((error) => {
+      snapshotPublished = undefined;
+      throw error;
+    }));
   function key(sourceFile: string, settings: unknown) {
     return multiplaneCacheKey("reviewed-cache-v1", {
       sourceFile,
@@ -150,8 +160,14 @@ export async function createMultiplaneRecoveryCache(input: {
               authoredInput(file) && previous.files[file]?.hash !== current.files[file]?.hash,
           );
           const evidence = await multiplaneShotDependencyEvidence(
-            input.workspace,
-            { sourceFile, shotSources: [sourceFile] },
+            renderInputRoot(input.workspace),
+            {
+              sourceFile: path.relative(
+                renderInputRoot(input.workspace),
+                renderSourcePath(input.workspace, sourceFile),
+              ),
+              shotSources: [sourceFile],
+            },
             input.signal,
           );
           const relevant = [...evidence.files].map((file) =>
@@ -194,8 +210,21 @@ export async function createMultiplaneRecoveryCache(input: {
           signal: input.signal,
           validateInputs: sameInputs,
         });
+        input.onEvent({
+          type: restored ? "notification" : "warning",
+          message: restored
+            ? "Reused validated shot checkpoint."
+            : "Shot checkpoint could not be restored; rebuilding.",
+          data: {
+            shot: sourceFile,
+            cacheOutcome: restored ? "reused" : "refresh",
+            reason: restored
+              ? "Validated checkpoint restored"
+              : "Artifact integrity or current-input validation failed",
+          },
+        });
         if (restored) {
-          await publish(path.join(directory, "snapshots", `${current.digest}.json`), current);
+          await publishCurrentSnapshot();
           await publish(path.join(directory, `review-${id}.json`), { snapshot: current.digest });
         }
         return restored;
@@ -222,7 +251,7 @@ export async function createMultiplaneRecoveryCache(input: {
         if (!stored) return;
         // Metadata is useful only alongside the validated, integrity-protected artifact.
         if (!(await sameInputs())) return;
-        await publish(path.join(directory, "snapshots", `${current.digest}.json`), current);
+        await publishCurrentSnapshot();
         await publish(path.join(directory, `review-${id}.json`), { snapshot: current.digest });
       } catch {
         input.signal.throwIfAborted();

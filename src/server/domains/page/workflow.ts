@@ -1,3 +1,4 @@
+import { renderInputRoot } from "../../runtime/workspace";
 import { generationSessionEvents } from "../../jobs/generation-session";
 import { correctionIdentity } from "../../agents/correction-identity";
 import { RendererDiagnosticError, rendererCorrectionEvidence } from "../../rendering/diagnostics";
@@ -32,7 +33,7 @@ export async function generatePage(input: {
     const { job, signal, update, emit } = input;
     await copyFile(
       path.join(appRoot, "src/browser/page/motion-runtime.js"),
-      path.join(job.workspace, "motion-runtime.js"),
+      path.join(renderInputRoot(job.workspace), "motion-runtime.js"),
     );
     const prompt = buildPagePrompt(input);
     await writeFile(path.join(job.workspace, "EXECUTABLE_PROMPT.md"), prompt);

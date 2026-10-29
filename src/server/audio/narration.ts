@@ -1,3 +1,4 @@
+import { workspacePaths } from "../runtime/workspace";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, realpath, rename, writeFile, rm } from "node:fs/promises";
 import path from "node:path";
@@ -167,10 +168,11 @@ export function narrationService(
       segments.map((segment) => workspaceFile(workspace, segment.file)),
     );
     const revision = randomUUID();
-    const directory = path.join(workspace, "audio/narration");
+    const narrationDirectory = workspacePaths(workspace).narration;
+    const directory = path.join(workspace, narrationDirectory);
     await mkdir(directory, { recursive: true });
-    await workspaceFile(workspace, "audio/narration");
-    const file = `audio/narration/${revision}.wav`;
+    await workspaceFile(workspace, narrationDirectory);
+    const file = `${narrationDirectory}/${revision}.wav`;
     const filters = segments.map(
       (segment, index) =>
         `[${index}:a]atrim=start=${segment.sourceStartSeconds}:duration=${segment.durationSeconds},asetpts=PTS-STARTPTS,adelay=${segment.startSeconds * 1000}:all=1[v${index}]`,

@@ -353,12 +353,12 @@ it("renders a Multiplane preview directly to WebM without inspection or verifica
     },
   );
   vi.mocked(command).mockImplementation(async (exe) => (exe === "ffprobe" ? ffprobe("vp9") : ""));
-  const events: string[] = [];
+  const events: { type: string; message: string; data?: unknown }[] = [];
   const output = await renderJob(
     job(workspace),
     production("Multiplane"),
     new AbortController().signal,
-    (_type, message) => events.push(message),
+    (type, message, data) => events.push({ type, message, data }),
   );
   expect(output.video).toBe("renders/preview.webm");
   expect(vi.mocked(isolatedCommand).mock.calls.map((call) => call[1][1])).toEqual(["render"]);
@@ -366,7 +366,17 @@ it("renders a Multiplane preview directly to WebM without inspection or verifica
   expect(renderArgs).toContain("--no-lint");
   expect(renderArgs[renderArgs.indexOf("--out") + 1]).toBe("renders/preview.webm");
   expect(transcodePreviewToWebm).not.toHaveBeenCalled();
-  expect(events).toContain("capture: 90/90 frames");
+  expect(events).toContainEqual(
+    expect.objectContaining({
+      type: "render_progress",
+      data: expect.objectContaining({
+        renderer: "multiplane",
+        phase: "shots",
+        completedFrames: 90,
+        totalFrames: 90,
+      }),
+    }),
+  );
   expect(await readFile(path.join(workspace, "VALIDATION.md"), "utf8")).toContain(
     "multiplane render shot.html",
   );

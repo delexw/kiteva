@@ -319,6 +319,12 @@ export const claudeAgent: Agent = {
               enabled: true,
               autoAllowBashIfSandboxed: true,
               allowUnsandboxedCommands: false,
+              credentials: {
+                envVars: Object.values(credentialEnvironmentVariables).map((name) => ({
+                  name,
+                  mode: "deny" as const,
+                })),
+              },
               filesystem: {
                 allowWrite: [workspace, projectRuntimeFiles(workspace, "agent").root],
                 denyRead: ["~/.ssh", "~/.aws", "~/.codex/auth.json", "~/.claude/.credentials.json"],
@@ -404,3 +410,4 @@ export const claudeAgent: Agent = {
     });
   },
 };
+import { credentialEnvironmentVariables } from "../runtime/credential-environment";

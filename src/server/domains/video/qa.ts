@@ -1,3 +1,4 @@
+import { workspaceFolders } from "../../../shared/workspace";
 import {
   type ResultReview,
   type ReviewCorrection,
@@ -77,7 +78,7 @@ export function videoQaFindings(report: z.infer<typeof VideoQaReportSchema>): Co
                 error,
                 ...report[section].findings.filter((finding) => finding.severity === "warning"),
               ].map((finding) => formatHyperframesDiagnostic(section, finding)),
-              "renders/qa-report.json",
+              `${workspaceFolders.renders}/qa-report.json`,
             ),
             snapshots: report.snapshots,
           },
@@ -98,7 +99,7 @@ export function videoQaFindings(report: z.infer<typeof VideoQaReportSchema>): Co
                   formatHyperframesDiagnostic(section, finding),
                 ),
               ],
-              "renders/qa-report.json",
+              `${workspaceFolders.renders}/qa-report.json`,
             ),
             snapshots: report.snapshots,
           },
@@ -117,7 +118,7 @@ export function videoQaFindings(report: z.infer<typeof VideoQaReportSchema>): Co
             message: "QA did not complete all required browser checks",
           }),
         ],
-        "renders/qa-report.json",
+        `${workspaceFolders.renders}/qa-report.json`,
       ),
     });
   return findings;

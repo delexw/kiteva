@@ -1,3 +1,4 @@
+import { remainingCorrectionFindings, videoFailureFindings } from "./correction-bypass";
 import { createVideoBuildTurn } from "./execution/build-turn";
 import { executeInitialBuild } from "./execution/initial-build";
 import { executeRefinement } from "./execution/refinement";
@@ -12,7 +13,6 @@ import { deliverySpeech, narrationLanguage } from "../../../shared/video-languag
 import { InputRequired } from "../../../shared/input-checkpoint";
 import { CodedError } from "../../../shared/errors";
 import { prepareSpeech } from "../../audio/speech";
-import { RendererDiagnosticError, rendererCorrectionEvidence } from "../../rendering/diagnostics";
 import { prepareVideoBuildPlan } from "./build-plan";
 import { captureWithTimingRetries } from "../../jobs/subworkflows/chapter-capture/timing-retry";
 import { BriefSchema, type Brief } from "../../../shared/agents/schemas/video";
@@ -291,7 +291,11 @@ export async function generateVideo(input: {
             onEvent,
             emit,
           });
-          const reviewFindings = resultReviewFindings(job.resultReview);
+          const reviewFindings = remainingCorrectionFindings(
+            job,
+            resultReviewFindings(job.resultReview),
+            (type, message, data) => onEvent({ type, message, data }),
+          );
           if (reviewFindings.length) throw new VideoQaError(reviewFindings);
         }
         job.phase = "ready";
@@ -309,19 +313,12 @@ export async function generateVideo(input: {
         job.error = safeMessage(error);
         job.phase = "generating";
         update();
-        const findings =
-          error instanceof VideoQaError
-            ? error.findings
-            : [
-                {
-                  focus: "technical" as const,
-                  cheapEligible: false,
-                  evidence:
-                    error instanceof RendererDiagnosticError
-                      ? rendererCorrectionEvidence(error.diagnostics, error.reportFile)
-                      : job.error,
-                },
-              ];
+        const findings = remainingCorrectionFindings(
+          job,
+          videoFailureFindings(error),
+          (type, message, data) => onEvent({ type, message, data }),
+        );
+        if (!findings.length) throw error; // A renderer that cannot produce output cannot be skipped.
         await corrector.correctRound(findings);
         job.error = undefined;
         job.errorCode = undefined;

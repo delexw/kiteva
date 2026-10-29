@@ -10,7 +10,7 @@ import {
   speechVoices,
   speechLanguage,
   speechVoiceDefinition,
-  PocketLanguageSchema,
+  SpeechLanguageSchema,
 } from "../../shared/speech";
 import { CodedError } from "../../shared/errors";
 import { dataRoot } from "../runtime/config";
@@ -29,7 +29,7 @@ export function registerSpeechRoutes(app: FastifyInstance) {
           .enum(speechVoices.map((voice) => voice.id))
           .optional()
           .parse(req.query.voice),
-        PocketLanguageSchema.optional().parse(req.query.language),
+        SpeechLanguageSchema.optional().parse(req.query.language),
       ),
   );
   app.post("/api/speech/sample", async (req) => {
@@ -65,6 +65,7 @@ export function registerSpeechRoutes(app: FastifyInstance) {
         es: "Demos vida a tus ideas.",
         nl: "Laten we je idee tot leven brengen.",
         ja: "あなたのアイデアを形にしましょう。",
+        ko: "당신의 아이디어를 명확하고 자연스럽게 전합니다.",
         zh: "让你的创意成为现实，用自然清晰的中文，讲述属于你的故事。",
       };
       const sample = samples[speechLanguage(settings.voice, settings.engine, settings.language)!];

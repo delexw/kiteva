@@ -1,3 +1,4 @@
+import { workspacePaths } from "../../../runtime/workspace";
 import { ReferenceAuthenticationError } from "./authentication-error";
 import {
   browserCapabilities,
@@ -116,7 +117,7 @@ export function createReferenceTools(options: {
     run(async () => {
       const captures = await readReferenceScreenshots(options.workspace);
       const name = `website-reference-${randomUUID()}.png`;
-      const assets = path.join(options.workspace, "assets");
+      const assets = path.join(options.workspace, workspacePaths(options.workspace).assets);
       const references = path.join(path.dirname(options.workspace), "references");
       await mkdir(assets, { recursive: true });
       await mkdir(references, { recursive: true });
@@ -130,7 +131,11 @@ export function createReferenceTools(options: {
       const original = await readFile(assetPath);
       const inspection = await prepareBriefImage(original).catch(() => ({ image: original }));
       return {
-        result: { kind: "screenshot", screenshot, assetPath: `assets/${name}` },
+        result: {
+          kind: "screenshot",
+          screenshot,
+          assetPath: `${workspacePaths(options.workspace).assets}/${name}`,
+        },
         image: inspection.image,
       };
     }),

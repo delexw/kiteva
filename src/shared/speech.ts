@@ -1,21 +1,14 @@
+import mingCatalog from "./ming-tts-catalog.json";
 import { normalizeSubtitleFields } from "./subtitle-compatibility";
 import { z } from "zod";
 import pocketCatalog from "./pocket-tts-catalog.json";
-import qwenCatalog from "./qwen-tts-catalog.json";
-import qwenBaseCatalog from "./qwen-base-tts-catalog.json";
 
-export const SpeechProviderIdSchema = z.enum([
-  "kokoro",
-  "pocket-tts",
-  "qwen3-tts",
-  "qwen3-tts-base",
-]);
+export const SpeechProviderIdSchema = z.enum(["kokoro", "pocket-tts", "ming-tts"]);
 export type SpeechProviderId = z.infer<typeof SpeechProviderIdSchema>;
 export const speechEngines = [
+  { id: "ming-tts", label: "Ming-3.0-TTS · 0.5B · Neutral" },
   { id: "kokoro", label: "Kokoro" },
   { id: "pocket-tts", label: "Pocket TTS" },
-  { id: "qwen3-tts", label: "Qwen3-TTS · VoiceDesign 1.7B" },
-  { id: "qwen3-tts-base", label: "Qwen3-TTS · Base 1.7B" },
 ] as const;
 export const kokoroVoices = [
   { id: "af_heart", label: "Heart", language: "en-us" },
@@ -31,15 +24,12 @@ export const kokoroVoices = [
   { id: "jf_alpha", label: "Alpha", language: "ja" },
   { id: "zf_xiaobei", label: "Xiaobei", language: "zh" },
 ] as const;
-export const qwenVoices = qwenCatalog.voices;
-export const qwenBaseVoices = qwenBaseCatalog.voices;
-export function isQwenSpeechEngine(engine?: SpeechProviderId) {
-  return engine === "qwen3-tts" || engine === "qwen3-tts-base";
-}
-export const qwenLanguages = [
-  { id: "en", label: "English" },
-  { id: "zh", label: "Chinese" },
-] as const;
+export const mingVoices = mingCatalog.voices;
+export const mingLanguages = mingCatalog.languages;
+export const mingBlockedTags = mingCatalog.blockedTags;
+export const mingNarrationGuidance =
+  "MING NEUTRAL NARRATION: For ming-tts, use only the configured preset or reference voice. Write plain spoken words, without inline expression tags or model control tokens. Emotion variants, emotion controls, freeform delivery instructions, voice design and acting directions are disabled. Do not add them to cue text. The adapter owns preset/reference task selection; speed and volume are handled by application audio processing.";
+export const mingVoiceGroups = groupSpeechVoices(mingVoices);
 export const pocketLanguages = pocketCatalog.languages;
 export const pocketVoices = pocketCatalog.voices.map((voice) => ({
   ...voice,
@@ -57,11 +47,6 @@ function groupSpeechVoices(voices: readonly { id: string; label: string; gender:
   }));
 }
 export const pocketVoiceGroups = groupSpeechVoices(pocketVoices);
-export const qwenVoiceGroups = groupSpeechVoices(qwenVoices);
-export const qwenBaseVoiceGroups = groupSpeechVoices(qwenBaseVoices);
-export function qwenVoiceGroupsForEngine(engine: SpeechProviderId) {
-  return engine === "qwen3-tts-base" ? qwenBaseVoiceGroups : qwenVoiceGroups;
-}
 export function pocketLanguageForVoice(voice: string, language?: string) {
   const preset = pocketVoices.find((item) => item.id === voice);
   const selected = preset
@@ -76,34 +61,32 @@ export function speechLanguage(
   engine: SpeechProviderId = "kokoro",
   language?: string,
 ) {
-  if (isQwenSpeechEngine(engine))
-    return language || speechVoicesForEngine(engine).find((item) => item.id === voice)?.language;
+  if (engine === "ming-tts")
+    return mingLanguages.find(
+      (item) =>
+        item.id === (language || mingVoices.find((voiceItem) => voiceItem.id === voice)?.language),
+    )?.id;
   return engine === "pocket-tts"
     ? pocketLanguageForVoice(voice, language)?.id
     : kokoroVoices.find((item) => item.id === voice)?.language;
 }
-export const speechVoices = [
-  ...kokoroVoices,
-  ...pocketVoices,
-  ...qwenVoices,
-  ...qwenBaseVoices,
-] as const;
+export const speechVoices = [...mingVoices, ...kokoroVoices, ...pocketVoices] as const;
 export function speechVoicesForEngine(engine: SpeechProviderId = "kokoro") {
-  return engine === "qwen3-tts-base"
-    ? qwenBaseVoices
-    : engine === "qwen3-tts"
-      ? qwenVoices
-      : engine === "pocket-tts"
-        ? pocketVoices
-        : kokoroVoices;
+  return engine === "ming-tts" ? mingVoices : engine === "pocket-tts" ? pocketVoices : kokoroVoices;
 }
+export const SpeechLanguageSchema = z.enum([
+  ...new Set([
+    ...pocketLanguages.map((language) => language.id),
+    ...mingLanguages.map((language) => language.id),
+  ]),
+]);
 export const SpeechSettingsSchema = z
   .discriminatedUnion("mode", [
     z.object({ mode: z.literal("off") }),
     z.object({
       mode: z.literal("narration"),
       engine: SpeechProviderIdSchema.optional(),
-      language: PocketLanguageSchema.optional(),
+      language: SpeechLanguageSchema.optional(),
       followVideoLanguage: z.boolean().optional(),
       voice: z.enum(speechVoices.map((voice) => voice.id)).default("af_heart"),
       volume: z.number().min(0).max(2).optional(),
@@ -123,14 +106,14 @@ export const SpeechSettingsSchema = z
   .superRefine((settings, context) => {
     if (
       settings.mode === "narration" &&
-      isQwenSpeechEngine(settings.engine) &&
+      settings.engine === "ming-tts" &&
       settings.language &&
-      !qwenLanguages.some((item) => item.id === settings.language)
+      !mingLanguages.some((item) => item.id === settings.language)
     )
       context.addIssue({
         code: "custom",
         path: ["language"],
-        message: "Choose Chinese or English for Qwen3-TTS.",
+        message: "Choose a supported Ming narration language.",
       });
     if (
       settings.mode === "narration" &&
@@ -159,20 +142,20 @@ export function speechVoiceDefinition(settings?: {
   engine?: SpeechProviderId;
   voice?: string;
 }) {
-  if (settings?.mode !== "narration" || !isQwenSpeechEngine(settings.engine)) return undefined;
-  if (settings.engine === "qwen3-tts-base") {
-    const voice = qwenBaseVoices.find((item) => item.id === settings.voice);
-    return voice
-      ? {
-          referenceAudio: voice.referenceAudio,
-          referenceText: voice.referenceText,
-          revision: voice.revision,
-          language: voice.language,
-        }
-      : undefined;
-  }
-  const voice = qwenVoices.find((item) => item.id === settings.voice);
-  return voice ? { description: voice.description, language: voice.language } : undefined;
+  if (settings?.mode === "narration" && settings.engine === "ming-tts")
+    return {
+      model: mingCatalog.model,
+      revision: mingCatalog.modelRevision,
+      mlxModel: mingCatalog.mlxModel,
+      mlxRevision: mingCatalog.mlxRevision,
+      policyRevision: mingCatalog.policyRevision,
+      ip: mingVoices.find((voice) => voice.id === settings.voice)?.ip,
+      reference: mingVoices.find((voice) => voice.id === settings.voice)?.referenceAudio
+        ? mingVoices.find((voice) => voice.id === settings.voice)
+        : undefined,
+      task: mingVoices.find((voice) => voice.id === settings.voice)?.referenceAudio ? "TTS" : "IP",
+    };
+  return undefined;
 }
 export const SpeechTrackSchema = z.object({
   file: z.string(),

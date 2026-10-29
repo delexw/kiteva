@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../../../runtime/credential-environment";
 import { browserExecutablePath } from "../../../runtime/browser";
 import os from "node:os";
 import path from "node:path";
@@ -43,7 +44,8 @@ export function referenceBrowserCapability(
         toolTimeoutSeconds: recordingToolTimeoutSeconds,
         env: {
           KITEVA_AUTH_BRIDGE_URL: options.authenticationBridge?.url || "",
-          KITEVA_AUTH_BRIDGE_TOKEN: options.authenticationBridge?.token || "",
+          [credentialEnvironmentVariables.authenticationBridgeToken]:
+            options.authenticationBridge?.token || "",
           VIDEO_AUTH_BROWSER_PATH:
             process.env.VIDEO_AUTH_BROWSER_PATH ||
             browserExecutablePath(true, { fallbackFromHeadlessShell: true }) ||
@@ -57,7 +59,8 @@ export function referenceBrowserCapability(
             "",
           OPENSCREEN_EXECUTABLE: process.env.OPENSCREEN_EXECUTABLE || "",
           KITEVA_CAPTURE_WORKER_URL: process.env.KITEVA_CAPTURE_WORKER_URL || "",
-          KITEVA_CAPTURE_WORKER_TOKEN: process.env.KITEVA_CAPTURE_WORKER_TOKEN || "",
+          [credentialEnvironmentVariables.captureWorkerToken]:
+            process.env[credentialEnvironmentVariables.captureWorkerToken] || "",
           HYPERFRAMES_BROWSER_PATH: process.env.HYPERFRAMES_BROWSER_PATH || "",
         },
       }

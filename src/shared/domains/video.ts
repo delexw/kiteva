@@ -1,3 +1,5 @@
+import { normalizeRetiredSpeechSelections } from "../speech-compatibility";
+import type { VideoCorrectionBypass } from "../agents/schemas/video-correction";
 import { LanguageTracksSchema, type LanguageMedia } from "../language-tracks";
 import { normalizeSubtitleFields } from "../subtitle-compatibility";
 import { ScriptItemsSchema, scriptItemsProblem } from "../script-items";
@@ -37,7 +39,7 @@ export const GeneratedSubtitlesSchema = z.object({
 });
 export type GeneratedSubtitles = z.infer<typeof GeneratedSubtitlesSchema>;
 export const VideoRequestSchema = z.preprocess(
-  normalizeSubtitleFields,
+  (value) => normalizeRetiredSpeechSelections(normalizeSubtitleFields(value)),
   SharedRequestSchema.extend({
     outputType: z.literal("video").default("video"),
     viewport: z.never().optional(),
@@ -122,6 +124,7 @@ export interface VideoGenerationJob extends JobState {
   storyboardReady?: boolean;
   buildPlan?: { model: string; sessionId: string; value: VideoBuildPlan };
   correctionSession?: { model: string; sessionId: string };
+  correctionBypasses?: VideoCorrectionBypass[];
 }
 export type PlaybackCopies = {
   profile: string;

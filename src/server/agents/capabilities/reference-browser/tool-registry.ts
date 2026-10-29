@@ -41,7 +41,7 @@ export const referenceToolRegistry = {
   capture_screenshot: {
     execution: "reference",
     description:
-      "Capture the currently inspected page or a relevant section. Choose the section semantically from the brief; use a selector returned by inspect_page or a known page CSS selector. Saves the original PNG in assets/ and returns its asset path plus a Pica-resized inspection image when oversized. Read the original asset or capture a focused section if fine text is unclear; the response image is not a production asset. Capture each needed existing product state; omit unavailable optional steps rather than inventing placeholder UI.",
+      "Capture the currently inspected page or a relevant section. Choose the section semantically from the brief; use a selector returned by inspect_page or a known page CSS selector. Saves the original PNG using the shared workspace media directory and returns its exact asset path plus a Pica-resized inspection image when oversized. Read the original asset or capture a focused section if fine text is unclear; the response image is not a production asset. Capture each needed existing product state; omit unavailable optional steps rather than inventing placeholder UI.",
     schema: z.object({ selector: z.string().max(500).optional() }),
     readOnly: true,
   },
@@ -394,7 +394,7 @@ export type BrowserCapabilityResult = {
   kind: "browser_action";
   operation: keyof typeof browserCapabilities;
   data: unknown;
-  artifact?: { name: string; mimeType: string };
+  artifact?: { name: string; mimeType: string; relativePath?: string };
 };
 export const BrowserCapabilityResultSchema = z.object({
   kind: z.literal("browser_action"),
@@ -409,6 +409,7 @@ export const BrowserCapabilityResultSchema = z.object({
     .object({
       name: z.string().regex(/^browser-[0-9a-f-]{36}\.(png|pdf|json|heapsnapshot|bin)$/),
       mimeType: z.string(),
+      relativePath: z.string().optional(),
     })
     .optional(),
 });

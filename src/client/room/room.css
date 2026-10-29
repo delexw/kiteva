@@ -1333,6 +1333,8 @@
 }
 .room-storyboards li {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 10px 12px;
@@ -1340,7 +1342,15 @@
   border-radius: 10px;
   background: var(--room-inset);
 }
-.room-storyboards a {
+.room-storyboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px 10px;
+  flex-shrink: 0;
+}
+.room-storyboards .room-storyboard-action {
   color: var(--room-focus);
   font-weight: 600;
 }
@@ -1853,14 +1863,17 @@
 .room-utility .movie-controls .ant-btn {
   border-color: var(--room-borderStrong);
   color: var(--room-text);
+  background: var(--room-raised);
 }
 .room-utility .movie-controls .ant-btn:not(:disabled):hover {
   border-color: var(--room-primary);
   color: var(--room-focus);
+  background: var(--room-raised);
 }
 .room-utility .movie-controls .ant-btn:not(:disabled):active {
   border-color: var(--room-primaryActive);
   color: var(--room-primaryActive);
+  background: var(--room-raised);
 }
 .room-utility .governance-panel {
   background: var(--room-raised);

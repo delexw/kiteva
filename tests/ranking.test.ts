@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import type { PreferenceHistoryRecord } from "../src/server/catalog/preference-history";
 import { type Brief } from "../src/shared/agents/schemas/video";
 import { type Proposal } from "../src/shared/agents/schemas/proposals";
@@ -64,7 +65,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 it("uses the official SDK wire format and excludes conflicting candidates", async () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "test-only-placeholder");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-only-placeholder");
   let observed = false;
   vi.stubGlobal("fetch", async (_url: string, options: RequestInit) => {
     const body = JSON.parse(String(options.body));
@@ -151,7 +152,7 @@ it("uses the official SDK wire format and excludes conflicting candidates", asyn
   });
 });
 it("reports missing ranking credentials and real SDK API failures without invented scores", async () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "");
   const catalog = await loadCatalog();
   const request = RequestSchema.parse({ instructions: "Explain assembly" });
   const options: Proposal[] = [
@@ -174,7 +175,7 @@ it("reports missing ranking credentials and real SDK API failures without invent
       summaries(catalog.styles),
     ),
   ).rejects.toThrow(/API_KEY/);
-  vi.stubEnv("TYPESAFE_API_KEY", "test-only-placeholder");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-only-placeholder");
   vi.stubGlobal(
     "fetch",
     async () =>
@@ -198,7 +199,7 @@ it("reports missing ranking credentials and real SDK API failures without invent
 it.each([undefined, "style-046"])(
   "retains separately ranked combinations with the same primary Motion Graphic (%s)",
   async (pinnedStyleId) => {
-    vi.stubEnv("TYPESAFE_API_KEY", "test-only-placeholder");
+    vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-only-placeholder");
     vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
       const body = JSON.parse(String(init.body));
       if (body.questions.direction?.type === "choice") return choiceResponse(body);
@@ -270,7 +271,7 @@ it.each([undefined, "style-046"])(
 );
 
 it("adds contextual preference fit within the existing JEV request without overriding feasibility", async () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "test-only-placeholder");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-only-placeholder");
   const history: PreferenceHistoryRecord[] = [
     {
       projectId: "previous-project",
@@ -382,7 +383,7 @@ it("caps preference influence, discounts sparse history, and preserves scores wi
 });
 
 it("preserves original instructions and evaluates readable combination tradeoffs without production inventories or a proposal veto", async () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
   const catalog = await loadCatalog();
   const extracted = summaries(catalog.styles).map((summary) => ({
     ...summary,
@@ -488,7 +489,7 @@ it("preserves original instructions and evaluates readable combination tradeoffs
 });
 
 it("compares survivors across all batches repeatedly and obeys JEV choice order over batch scores", async () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
   const catalog = await loadCatalog();
   const options: Proposal[] = catalog.styles.slice(0, 6).map((style) => ({
     primaryStyleId: style.id,
@@ -571,7 +572,7 @@ it("compares survivors across all batches repeatedly and obeys JEV choice order 
 it.each(["all-conflict", "invalid-choice", "cancel"] as const)(
   "does not invent or fall back to a score winner when cross-batch selection is %s",
   async (scenario) => {
-    vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+    vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
     const catalog = await loadCatalog();
     const controller = new AbortController();
     let calls = 0;
@@ -636,7 +637,7 @@ it.each(["all-conflict", "invalid-choice", "cancel"] as const)(
 it.each(["unknown-id", "missing-extraction"] as const)(
   "validates %s locally before sending combination briefs",
   async (scenario) => {
-    vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+    vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
     const catalog = await loadCatalog();
     const fetch = vi.fn();
     vi.stubGlobal("fetch", fetch);

@@ -1,23 +1,32 @@
-import { expect, it, vi } from "vitest";
+import { beforeEach, expect, it, vi } from "vitest";
 vi.mock("../src/server/jev/choice", () => ({ runJevChoice: vi.fn() }));
-vi.mock("../src/server/jev/strategies/render-cache/brief", () => ({
-  buildRenderCacheBrief: vi.fn(),
-}));
-import { buildRenderCacheBrief } from "../src/server/jev/strategies/render-cache/brief";
+vi.mock("../src/server/agents/providers", () => ({ agentTurn: vi.fn() }));
+import { agentTurn } from "../src/server/agents/providers";
 import { runJevChoice } from "../src/server/jev/choice";
 import { reviewRenderCache } from "../src/server/jev/strategies/render-cache";
-it("uses native Choice for reuse/refresh, forwards governance events and fails closed", async () => {
-  const onEvent = vi.fn(),
-    signal = new AbortController().signal;
-  vi.mocked(buildRenderCacheBrief).mockResolvedValue({
-    summary: "Only unrelated metadata changed",
-    changedFiles: ["last.html"],
-    renderImpact: "No shot effect",
-    limitations: [],
-    uncertain: false,
-  });
+
+const input = () => ({
+  workspace: "/unused",
+  state: {
+    shot: "first.html",
+    unchangedRenderSettings: { fps: 60 },
+    staticGraphComplete: false,
+    changes: [
+      {
+        file: "last.html",
+        before: { hash: "old", text: "old credits", complete: true },
+        after: { hash: "new", text: "new credits", complete: true },
+      },
+    ],
+    sourceContext: [{ file: "first.html", hash: "same", text: "<p>Opening</p>", complete: true }],
+  },
+  signal: new AbortController().signal,
+  onEvent: vi.fn(),
+});
+beforeEach(() => {
+  vi.clearAllMocks();
   vi.mocked(runJevChoice).mockImplementation(async (options) => {
-    options.onEvent({ type: "usage", message: "Recorded cache review", data: { provider: "jev" } });
+    options.onEvent({ type: "usage", message: "Recorded", data: { provider: "jev" } });
     return {
       answer: {
         choice: "reuse",
@@ -29,101 +38,63 @@ it("uses native Choice for reuse/refresh, forwards governance events and fails c
       comparedIds: ["reuse", "refresh"],
     };
   });
-  expect(
-    await reviewRenderCache({
-      workspace: "/unused",
-      state: { shot: "first.html", changes: ["last.html"] },
-      signal,
-      onEvent,
-    }),
-  ).toBe(true);
-  expect(onEvent).toHaveBeenCalledWith(
+});
+it("reviews factual evidence directly without Haiku or a global uncertainty veto", async () => {
+  const options = input();
+  expect(await reviewRenderCache(options)).toBe(true);
+  expect(agentTurn).not.toHaveBeenCalled();
+  expect(runJevChoice).toHaveBeenCalledOnce();
+  expect(vi.mocked(runJevChoice).mock.calls[0][0].state).toMatchObject({
+    shot: "first.html",
+    staticGraphComplete: false,
+    changes: [{ file: "last.html", beforeHash: "old", afterHash: "new" }],
+  });
+  expect(options.onEvent).toHaveBeenCalledWith(
     expect.objectContaining({
       type: "usage",
       data: { provider: "jev", purpose: "Render cache review" },
     }),
   );
-  expect(vi.mocked(runJevChoice).mock.calls[0][0]).toMatchObject({
-    label: "Render cache review",
-    questionKey: "cache",
-    signal,
-  });
-  vi.mocked(runJevChoice).mockRejectedValueOnce(Error("Unavailable"));
-  expect(await reviewRenderCache({ workspace: "/unused", state: {}, signal, onEvent })).toBe(false);
-  await expect(
-    reviewRenderCache({
-      workspace: "/unused",
-      state: {},
-      signal: AbortSignal.abort(Error("Stopped")),
-      onEvent,
-    }),
-  ).rejects.toThrow("Stopped");
+  expect(options.onEvent).toHaveBeenCalledWith(
+    expect.objectContaining({ data: expect.objectContaining({ cacheDecision: "reuse" }) }),
+  );
 });
-it("sends only the Haiku brief to JEV and refuses uncertain or failed summarization", async () => {
-  const input = {
-    workspace: "/unused",
-    state: { shot: "shot.html", sourceContext: [{ file: "shot.html", text: "x".repeat(4000) }] },
-    signal: new AbortController().signal,
-    onEvent: vi.fn(),
-  };
-  vi.mocked(buildRenderCacheBrief).mockResolvedValue({
-    summary: "A visual change cannot be excluded",
-    changedFiles: ["shared.js"],
-    renderImpact: "Unknown",
-    limitations: ["Incomplete source"],
-    uncertain: true,
-  });
-  vi.mocked(runJevChoice).mockResolvedValue({
+it("honors refresh, reports failures and propagates cancellation", async () => {
+  const options = input();
+  vi.mocked(runJevChoice).mockResolvedValueOnce({
     answer: {
-      choice: "reuse",
+      choice: "refresh",
       type: "choice",
-      confidence: 0.9,
-      probabilities: { reuse: 0.9, refresh: 0.1 },
+      confidence: 0.8,
+      probabilities: { reuse: 0.2, refresh: 0.8 },
     },
     model: "fixture",
     comparedIds: ["reuse", "refresh"],
   });
-  expect(await reviewRenderCache(input)).toBe(false);
-  const state = vi.mocked(runJevChoice).mock.calls.at(-1)![0].state;
-  expect(state).toMatchObject({ shot: "shot.html", changeBrief: { uncertain: true } });
-  expect(state).toMatchObject({ sourceContext: input.state.sourceContext });
-  expect(Buffer.byteLength(JSON.stringify(state))).toBeLessThan(28000);
-  const calls = vi.mocked(runJevChoice).mock.calls.length;
-  vi.mocked(buildRenderCacheBrief).mockRejectedValueOnce(Error("Summary unavailable"));
-  expect(await reviewRenderCache(input)).toBe(false);
-  expect(runJevChoice).toHaveBeenCalledTimes(calls);
-});
-
-it("skips both providers when per-shot evidence is too large", async () => {
-  vi.mocked(buildRenderCacheBrief).mockClear();
-  vi.mocked(runJevChoice).mockClear();
-  expect(
-    await reviewRenderCache({
-      workspace: "/unused",
-      signal: new AbortController().signal,
-      onEvent: vi.fn(),
-      state: { shot: "shot.html", sourceContext: "x".repeat(28000) },
+  expect(await reviewRenderCache(options)).toBe(false);
+  vi.mocked(runJevChoice).mockRejectedValueOnce(Error("Unavailable"));
+  expect(await reviewRenderCache(options)).toBe(false);
+  expect(options.onEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      type: "warning",
+      data: expect.objectContaining({ reason: "Unavailable", cacheDecision: "refresh" }),
     }),
-  ).toBe(false);
-  expect(buildRenderCacheBrief).not.toHaveBeenCalled();
-  expect(runJevChoice).not.toHaveBeenCalled();
+  );
+  await expect(
+    reviewRenderCache({ ...options, signal: AbortSignal.abort(Error("Stopped")) }),
+  ).rejects.toThrow("Stopped");
 });
-
-it("keeps hidden source dependencies out of both providers", async () => {
-  vi.mocked(buildRenderCacheBrief).mockClear();
-  vi.mocked(runJevChoice).mockClear();
-  expect(
-    await reviewRenderCache({
-      workspace: "/unused",
-      signal: new AbortController().signal,
-      onEvent: vi.fn(),
-      state: {
-        shot: "shot.html",
-        changes: [{ file: "shared.js" }],
-        sourceContext: [{ file: "assets/.private/data.json", text: "private" }],
-      },
+it("explains oversized evidence and keeps hidden inputs local before any provider call", async () => {
+  const options = input();
+  options.state.sourceContext[0].text = "x".repeat(30000);
+  expect(await reviewRenderCache(options)).toBe(false);
+  expect(options.onEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      data: expect.objectContaining({ reason: expect.stringContaining("review budget") }),
     }),
-  ).toBe(false);
-  expect(buildRenderCacheBrief).not.toHaveBeenCalled();
+  );
+  options.state.sourceContext[0].file = "assets/.private/data.json";
+  expect(await reviewRenderCache(options)).toBe(false);
   expect(runJevChoice).not.toHaveBeenCalled();
+  expect(agentTurn).not.toHaveBeenCalled();
 });

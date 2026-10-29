@@ -1,9 +1,10 @@
 import { z } from "zod";
-import { SpeechSettingsSchema, speechLanguage } from "./speech";
+import { SpeechSettingsSchema, speechLanguage, mingVoices } from "./speech";
 import {
   sharedVideoScript,
   deliverySpeech,
   VideoLanguageSchema,
+  videoLanguages,
   type VideoLanguage,
 } from "./video-language";
 import type { VideoRequest } from "./domains/video";
@@ -12,8 +13,8 @@ export const LanguageTracksSchema = z
   .object({
     narration: z
       .array(z.object({ language: VideoLanguageSchema, speech: SpeechSettingsSchema.options[1] }))
-      .max(2),
-    subtitles: z.array(VideoLanguageSchema).max(2),
+      .max(videoLanguages.length),
+    subtitles: z.array(VideoLanguageSchema).max(videoLanguages.length),
     defaultNarration: VideoLanguageSchema.optional(),
     showSubtitles: z.boolean().optional(),
     defaultSubtitle: z.union([VideoLanguageSchema, z.literal("off")]).default("off"),
@@ -73,7 +74,7 @@ export function selectLanguageTrackLanguages(
     const source =
       request.scriptItems?.find((item) => item.speech.mode === "narration")?.speech ||
       request.speech;
-    const speech = deliverySpeech({
+    let speech = deliverySpeech({
       outputLanguage: language,
       speech: {
         ...SpeechSettingsSchema.options[1].parse(
@@ -82,6 +83,20 @@ export function selectLanguageTrackLanguages(
         followVideoLanguage: true,
       },
     });
+    if (
+      speech?.mode === "narration" &&
+      (!SpeechSettingsSchema.safeParse(speech).success ||
+        speechLanguage(speech.voice, speech.engine, language)?.split("-")[0] !== language)
+    ) {
+      // A newly added language needs a valid editable profile, even when the prior engine cannot speak it.
+      // This is a settings default, never an inference-time provider fallback.
+      speech = SpeechSettingsSchema.options[1].parse({
+        ...speech,
+        engine: "ming-tts",
+        voice: mingVoices[0].id,
+        language,
+      });
+    }
     if (speech?.mode !== "narration") throw Error("No narration profile");
     return { language, speech: { ...speech, language, followVideoLanguage: false } };
   });

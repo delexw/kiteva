@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "./credential-environment";
 import { projectRuntimeEnvironment } from "./project-files";
 import path from "node:path";
 import { systemEnvironment } from "./platform";
@@ -39,12 +40,12 @@ export function childEnvironment(workspace?: string) {
     "LANG",
     "USER",
     "SHELL",
-    "OPENAI_API_KEY",
-    "CODEX_API_KEY",
-    "ANTHROPIC_API_KEY",
-    "CLAUDE_CODE_OAUTH_TOKEN",
+    credentialEnvironmentVariables.openaiApiKey,
+    credentialEnvironmentVariables.codexApiKey,
+    credentialEnvironmentVariables.anthropicApiKey,
+    credentialEnvironmentVariables.claudeOauthToken,
     "CLAUDE_CODE_GIT_BASH_PATH",
-    "ANYSEARCH_API_KEY",
+    credentialEnvironmentVariables.anysearchApiKey,
   ];
   return {
     ...systemEnvironment(),

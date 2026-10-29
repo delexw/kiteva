@@ -195,8 +195,8 @@ it("keys previews by volume and rejects out-of-range gain", async () => {
 });
 
 it.each([
-  { engine: "qwen3-tts", voice: "qwen_deep_male" },
-  { engine: "qwen3-tts-base", voice: "qwen_base_male" },
+  { engine: "ming-tts", voice: "ming_xiaorou" },
+  { engine: "ming-tts", voice: "ming_original_female" },
 ])(
   "uses $engine selected voice and explicit language for readiness and preview",
   async ({ engine, voice }) => {
@@ -242,11 +242,11 @@ it.each([
   },
 );
 
-it.each(["qwen3-tts", "qwen3-tts-base"])(
+it.each(["ming-tts"])(
   "invalidates %s previews when its voice definition changes",
   async (engine) => {
-    const { qwenVoices, qwenBaseVoices } = await import("../src/shared/speech");
-    const voice = engine === "qwen3-tts-base" ? qwenBaseVoices[0] : qwenVoices[0];
+    const { mingVoices } = await import("../src/shared/speech");
+    const voice = mingVoices.find((voice) => voice.id === "ming_original_female")!;
     const original = { ...voice };
     const app = Fastify();
     app.setErrorHandler(apiErrorHandler);
@@ -258,8 +258,7 @@ it.each(["qwen3-tts", "qwen3-tts-base"])(
         payload: { mode: "narration", engine, voice: voice.id, language: "en" },
       };
       const before = (await app.inject(request)).json().url;
-      if ("description" in voice) voice.description += " Clear broadcast delivery.";
-      else voice.revision += 1;
+      voice.revision = (voice.revision || 0) + 1;
       const after = (await app.inject(request)).json().url;
       expect(after).not.toBe(before);
     } finally {
@@ -268,3 +267,40 @@ it.each(["qwen3-tts", "qwen3-tts-base"])(
     }
   },
 );
+
+it("accepts Ming readiness and Korean samples through the same speech endpoints", async () => {
+  const app = Fastify();
+  app.setErrorHandler(apiErrorHandler);
+  registerSpeechRoutes(app);
+  try {
+    const status = await app.inject({
+      method: "GET",
+      url: "/api/speech/status?engine=ming-tts&voice=ming_xiaorou&language=ko",
+    });
+    expect(status.statusCode).toBe(200);
+    expect(speechReadiness).toHaveBeenLastCalledWith(
+      expect.any(AbortSignal),
+      "ming-tts",
+      "ming_xiaorou",
+      "ko",
+    );
+    const sample = await app.inject({
+      method: "POST",
+      url: "/api/speech/sample",
+      payload: { mode: "narration", engine: "ming-tts", voice: "ming_xiaorou", language: "ko" },
+    });
+    expect(sample.statusCode).toBe(200);
+    expect(synthesizeSpeech).toHaveBeenLastCalledWith(
+      expect.stringContaining("아이디어"),
+      expect.any(String),
+      "ming_xiaorou",
+      1,
+      expect.any(AbortSignal),
+      "ming-tts",
+      "ko",
+      1,
+    );
+  } finally {
+    await app.close();
+  }
+});

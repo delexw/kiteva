@@ -253,6 +253,12 @@ sandbox proxy through `NODE_USE_ENV_PROXY`. On macOS, Claude can access the syst
 filesystem sandboxing; npm and XDG caches live under the job's `.cache` directory. External content
 remains reference data. AnySearch is Apache-2.0; the browser bundler esbuild is MIT.
 
+Claude's SDK sandbox denies the credential environment variables declared in
+`runtime/credential-environment.ts` to sandboxed Bash commands. The same constants are used by
+host configuration, login synchronization, capability setup and tests. SDK authentication and
+host MCP capabilities retain their credentials; the Bash deny policy does not isolate those host
+processes. Shell scripts cannot rely on the denied variables for API authentication.
+
 Codex uses the isolated SDK directory for both `CODEX_HOME` and the process home, so native
 skill discovery does not import the user's unrelated `~/.agents/skills` instructions.
 

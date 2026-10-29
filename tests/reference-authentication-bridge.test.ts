@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { expect, it, vi } from "vitest";
 import {
   startAuthenticationBridge,
@@ -11,7 +12,7 @@ it("pauses for any origin, focuses on demand, validates before continuing, and i
   const changes = vi.fn();
   const bridge = await startAuthenticationBridge("/tmp/project-a/run", controller.signal, changes);
   vi.stubEnv("KITEVA_AUTH_BRIDGE_URL", bridge.url);
-  vi.stubEnv("KITEVA_AUTH_BRIDGE_TOKEN", bridge.token);
+  vi.stubEnv(credentialEnvironmentVariables.authenticationBridgeToken, bridge.token);
   const focus = vi.fn(async () => {});
   let authenticated = false,
     finished = false;
@@ -66,7 +67,7 @@ it("rejects unauthenticated IPC and removes a pending handoff on project cancell
     () => {},
   );
   vi.stubEnv("KITEVA_AUTH_BRIDGE_URL", bridge.url);
-  vi.stubEnv("KITEVA_AUTH_BRIDGE_TOKEN", bridge.token);
+  vi.stubEnv(credentialEnvironmentVariables.authenticationBridgeToken, bridge.token);
   try {
     expect((await fetch(bridge.url + "/request", { method: "POST", body: "{}" })).status).toBe(403);
     const waiting = waitForProjectAuthentication(

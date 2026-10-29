@@ -50,6 +50,7 @@ export async function windowsRenderCommand(
   executable: string,
   args: string[],
   workspace: string,
+  executionDirectory = workspace,
 ): Promise<RenderCommand> {
   await assertWindowsRenderReady();
   const { home } = prepareProjectRuntime(workspace, "render");
@@ -75,7 +76,7 @@ export async function windowsRenderCommand(
           configOverrides: sandboxConfigOverrides(
             windowsRenderPolicy(workspace, home, privatePaths),
           ),
-          cwd: workspace,
+          cwd: executionDirectory,
           command: [executable, ...args],
         }),
       ).toString("base64url"),

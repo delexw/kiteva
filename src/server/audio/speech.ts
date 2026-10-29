@@ -1,3 +1,5 @@
+import { speechWorkspacePaths } from "./workspace";
+import { workspacePaths } from "../runtime/workspace";
 import { scriptItemsProblem } from "../../shared/script-items";
 import { createHash, randomUUID } from "node:crypto";
 import { access, mkdir, readFile, realpath, rename, rm, writeFile } from "node:fs/promises";
@@ -80,8 +82,8 @@ export async function prepareSpeech(
       }),
     )
     .digest("hex");
-  const folder = path.join(workspace, "audio");
-  const checkpoint = path.join(folder, `speech-${hash}.json`);
+  const { media: folder, context: contextFolder } = speechWorkspacePaths(workspace);
+  const checkpoint = path.join(contextFolder, `speech-${hash}.json`);
   try {
     const saved = SpeechTrackSchema.parse(JSON.parse(await readFile(checkpoint, "utf8")));
     await access(path.join(workspace, saved.file));
@@ -90,6 +92,7 @@ export async function prepareSpeech(
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   }
   await mkdir(folder, { recursive: true });
+  await mkdir(contextFolder, { recursive: true });
   let track: SpeechTrack;
   if (settings.mode === "uploaded") {
     const context = z
@@ -98,7 +101,7 @@ export async function prepareSpeech(
     const asset = context.assetInputs.find((item) => item.id === settings.assetId);
     if (!asset) throw Error("The selected vocal recording is not attached to this build.");
     const file = await realpath(path.resolve(workspace, asset.path));
-    const root = await realpath(path.join(workspace, "assets"));
+    const root = await realpath(path.join(workspace, workspacePaths(workspace).assets));
     if (!file.startsWith(`${root}${path.sep}`))
       throw Error("Vocal recording must be an attached audio asset.");
     const probe = await probeVideo(file, signal);
@@ -125,7 +128,7 @@ export async function prepareSpeech(
     const scriptHash = createHash("sha256")
       .update(JSON.stringify({ ...context, settings: { ...settings, volume: undefined } }))
       .digest("hex");
-    const scriptFile = path.join(folder, `script-${scriptHash}.json`);
+    const scriptFile = path.join(contextFolder, `script-${scriptHash}.json`);
     if (settings.source === "write") {
       try {
         text = ScriptSchema.parse(JSON.parse(await readFile(scriptFile, "utf8"))).text;
@@ -185,8 +188,11 @@ export async function prepareSpeech(
     }
     const file = path.join(folder, `speech-${hash}.wav`);
     // Paths are app-generated hex names; the concat list contains no user filenames.
-    const list = path.join(folder, `concat-${hash}.txt`);
-    await writeFile(list, files.map((file) => `file '${path.basename(file)}'`).join("\n"));
+    const list = path.join(contextFolder, `concat-${hash}.txt`);
+    await writeFile(
+      list,
+      files.map((file) => `file '${path.relative(contextFolder, file)}'`).join("\n"),
+    );
     await command(
       "ffmpeg",
       [
@@ -196,7 +202,7 @@ export async function prepareSpeech(
         "-f",
         "concat",
         "-safe",
-        "1",
+        "0",
         "-i",
         list,
         ...(startSeconds > 0 ? ["-af", `adelay=${startSeconds * 1000}:all=1`] : []),
@@ -251,7 +257,8 @@ async function prepareScriptItemsSpeech(
       }),
     )
     .digest("hex");
-  const folder = path.join(input.workspace, "audio", "items", hash);
+  const speechPaths = speechWorkspacePaths(input.workspace);
+  const folder = path.join(speechPaths.media, "items", hash);
   await mkdir(folder, { recursive: true });
   const tracks: { file: string; start: number }[] = [];
   const cues: SpeechTrack["cues"] = [];
@@ -267,7 +274,7 @@ async function prepareScriptItemsSpeech(
         }),
       )
       .digest("hex");
-    const workspace = path.join(input.workspace, "audio", "items", itemHash);
+    const workspace = path.join(speechPaths.context, "items", itemHash);
     const track = await prepareSpeech(
       {
         ...input,

@@ -34,6 +34,7 @@ export function createVideoBuildTurn(input: {
     return merged;
   };
   const buildTurn = async (prompt: string) => {
+    const separateAudio = !job.production || job.production.audioTracks !== undefined;
     const generationStarted = Date.now();
     const turn = await agentTurn({
       includeCreativeAlternatives: false,
@@ -53,8 +54,11 @@ export function createVideoBuildTurn(input: {
         job.kind === "preview"
           ? videoGenerationOutputSchemaForDuration(job.duration).extend(CandidateCopySchema.shape)
           : refinementDuration
-            ? videoRefinementOutputSchemaForTarget(job.targetDuration ?? job.duration)
-            : videoGenerationOutputSchemaForDuration(job.duration),
+            ? videoRefinementOutputSchemaForTarget(
+                job.targetDuration ?? job.duration,
+                separateAudio,
+              )
+            : videoGenerationOutputSchemaForDuration(job.duration, separateAudio),
       onEvent: generationSessionEvents(job, onEvent, update),
       prompt,
       ...(job.production ? { promptContext: { currentManifest: job.production } } : {}),

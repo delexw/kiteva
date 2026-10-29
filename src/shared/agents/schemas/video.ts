@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ContentBriefSchema } from "./content-brief";
 import { CandidateCopySchema } from "./candidate-copy";
 import { MAX_VIDEO_DURATION, videoDurationRange } from "../../video-duration";
+import { AudioTracksSchema } from "../../audio-tracks";
 export { MAX_VIDEO_DURATION } from "../../video-duration";
 export const ProductionSchema = z.object({
   assetNeeds: z.array(AssetNeedSchema).max(6).optional(),
@@ -28,25 +29,31 @@ export const ProductionSchema = z.object({
   fps: z.union([z.literal(30), z.literal(60)]).optional(),
   audioDescription: z.string(),
   audioFile: z.string().nullable().optional(),
+  audioTracks: AudioTracksSchema.optional(),
   limitations: z.array(z.string()),
 });
 
 export const VideoGenerationOutputSchema = ProductionSchema.extend({
   storyboard: StoryboardSchema,
 });
-export function videoGenerationOutputSchemaForDuration(duration: number) {
+export function videoGenerationOutputSchemaForDuration(duration: number, separateAudio = false) {
   return VideoGenerationOutputSchema.extend({
     duration: z.literal(duration),
     storyboard: StoryboardSchema.safeExtend({ durationSeconds: z.literal(duration) }),
+    audioTracks: separateAudio ? AudioTracksSchema : AudioTracksSchema.optional(),
   });
 }
 
-export function videoRefinementOutputSchemaForTarget(targetDuration: number) {
+export function videoRefinementOutputSchemaForTarget(
+  targetDuration: number,
+  separateAudio = false,
+) {
   const range = videoDurationRange(targetDuration);
   const duration = z.number().finite().min(range.min).max(range.max);
   return VideoGenerationOutputSchema.extend({
     duration,
     storyboard: StoryboardSchema.safeExtend({ durationSeconds: duration }),
+    audioTracks: separateAudio ? AudioTracksSchema : AudioTracksSchema.optional(),
   }).superRefine((output, context) => {
     if (output.duration !== output.storyboard.durationSeconds)
       context.addIssue({

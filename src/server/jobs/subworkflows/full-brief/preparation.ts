@@ -1,3 +1,4 @@
+import { legacyWorkspaceFolders } from "../../../runtime/workspace";
 import { briefTitleGuidance } from "../shared/brief-title-guidance";
 import { assetRequirementsPolicy } from "../../../../shared/asset-requirements-policy";
 import { briefExplorationInstructions } from "../../../agents/brief-exploration";
@@ -15,6 +16,7 @@ export function assemblePreparationBrief(
   value: unknown,
   sourceDescriptions: string[],
   screenshots: ReferenceScreenshot[],
+  assetDirectory: string = legacyWorkspaceFolders.assets,
 ) {
   const interpretation = preparationBriefSchemaFor(request).parse(value);
   const exactCopy: string[] = [];
@@ -30,7 +32,7 @@ export function assemblePreparationBrief(
       ...sourceDescriptions,
       ...screenshots.map(
         (screenshot) =>
-          `assets/${screenshot.name}: captured reference from ${screenshot.url}; inspect the image before making visual claims.`,
+          `${assetDirectory}/${screenshot.name}: captured reference from ${screenshot.url}; inspect the image before making visual claims.`,
       ),
     ],
   };

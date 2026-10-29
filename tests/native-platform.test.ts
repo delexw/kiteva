@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   defaultPython,
@@ -18,7 +19,7 @@ describe("native platform environment", () => {
       SYSTEMROOT: "C:\\Windows",
       TEMP: "C:\\Temp",
       USERPROFILE: "C:\\Users\\Creator",
-      ANTHROPIC_API_KEY: "private",
+      [credentialEnvironmentVariables.anthropicApiKey]: "private",
       NODE_OPTIONS: "--require=evil",
     });
     expect(env).toMatchObject({
@@ -27,7 +28,7 @@ describe("native platform environment", () => {
       TEMP: "C:\\Temp",
       HOME: "C:\\Users\\Creator",
     });
-    expect(env).not.toHaveProperty("ANTHROPIC_API_KEY");
+    expect(env).not.toHaveProperty(credentialEnvironmentVariables.anthropicApiKey);
     expect(env).not.toHaveProperty("NODE_OPTIONS");
   });
   it("chooses native binaries and the usual Python command", () => {

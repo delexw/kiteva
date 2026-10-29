@@ -1,3 +1,4 @@
+import { workspacePaths } from "../../../runtime/workspace";
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import path from "node:path";
 import { mkdir } from "node:fs/promises";
@@ -7,7 +8,8 @@ import { systemEnvironment } from "../../../runtime/platform";
 import { audioStudioCommand, audioStudioTools } from "./capability";
 
 export async function connectAudioStudio(workspace: string, command: string, signal?: AbortSignal) {
-  await mkdir(path.join(workspace, "audio", "audio-studio"), { recursive: true });
+  const outputDirectory = path.join(workspace, workspacePaths(workspace).audioStudio);
+  await mkdir(outputDirectory, { recursive: true });
   const env = Object.fromEntries(
     Object.entries(systemEnvironment()).filter(
       (entry): entry is [string, string] => typeof entry[1] === "string",
@@ -25,7 +27,7 @@ export async function connectAudioStudio(workspace: string, command: string, sig
   const transport = new StdioClientTransport({
     command,
     cwd: workspace,
-    env: { ...env, AUDIO_STUDIO_OUTPUT_DIR: path.join(workspace, "audio", "audio-studio") },
+    env: { ...env, AUDIO_STUDIO_OUTPUT_DIR: outputDirectory },
     stderr: "pipe",
   });
   try {

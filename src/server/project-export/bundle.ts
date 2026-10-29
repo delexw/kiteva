@@ -1,3 +1,4 @@
+import { hasProjectLayout, workspaceFolders } from "../runtime/workspace";
 import { mkdtemp, readdir, realpath, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
@@ -33,7 +34,23 @@ export async function projectFiles(workspace: string) {
     }
   }
   try {
-    await collect(workspace);
+    if (hasProjectLayout(workspace)) {
+      await collect(path.join(workspace, workspaceFolders.artifacts));
+      for (const name of [
+        "production.json",
+        "STORYBOARD.json",
+        "package.json",
+        "package-lock.json",
+      ]) {
+        const file = path.join(workspace, name);
+        try {
+          await readFile(file);
+          files.push({ path: file, name });
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+        }
+      }
+    } else await collect(workspace);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   }
@@ -121,7 +138,7 @@ export async function createProjectBundle(job: GenerationJob, signal: AbortSigna
         throw Error("Media outside project");
       return file;
     };
-    const videoPath = job.video || "renders/full.mp4";
+    const videoPath = job.video || `${workspaceFolders.renders}/full.mp4`;
     if (videoPath) {
       try {
         const file = await safeMedia(videoPath);

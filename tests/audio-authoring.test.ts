@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { afterEach, expect, it, vi } from "vitest";
 import { BriefRequirementsSchema } from "../src/shared/brief-sections";
 import { RequestSchema } from "../src/shared/contracts";
@@ -50,7 +51,7 @@ it.each([
 ] as const)(
   "uses %s metadata and available capabilities (Audio Studio ready=%s) for Choice",
   async (renderer, available) => {
-    vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+    vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
     vi.mocked(audioStudioAvailability).mockResolvedValue({
       available,
       limitation: available ? undefined : "Not installed",
@@ -128,7 +129,7 @@ it.each([
   },
 );
 it("excludes a failed MCP probe without dropping the music request", async () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "");
   vi.mocked(audioStudioAvailability).mockRejectedValue(Error("MCP startup failed"));
   const options = input();
   const prompt = options.request.requirements!.music.instructions;

@@ -20,9 +20,21 @@ export function Dialog({
       title={title}
       onCancel={onClose}
       footer={footer ?? null}
-      width={wide ? "min(1100px, calc(100vw - 32px))" : "min(620px, calc(100vw - 32px))"}
-      className="studio-modal"
-      style={{ top: 24 }}
+      width={wide ? "calc(100vw - 32px)" : "min(620px, calc(100vw - 32px))"}
+      className={wide ? "studio-modal studio-modal-wide" : "studio-modal"}
+      styles={
+        wide
+          ? {
+              container: {
+                height: "calc(100dvh - 32px)",
+                display: "flex",
+                flexDirection: "column",
+              },
+              body: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column" },
+            }
+          : undefined
+      }
+      centered
       focusable={{ trap: true, focusTriggerAfterClose: true }}
       destroyOnHidden
       closeIcon={<span aria-label={translateUi("Close dialog")}>×</span>}

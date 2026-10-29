@@ -1,3 +1,5 @@
+import { runVideoValidation } from "../src/server/domains/video/correction-bypass";
+import { fixedCorrectionOutcome } from "./fixtures/video-correction";
 import { validStoryboard } from "./fixtures/storyboard";
 import { expect, it, vi } from "vitest";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -35,9 +37,17 @@ const cases: Array<{
   renderFails: boolean;
   provider?: "claude" | "codex";
   diagnostic?: "render_threw" | "resource_failed";
+  declines?: boolean;
   persistent?: boolean;
   interrupt?: "cancel" | "question";
 }> = [
+  {
+    kind: "full",
+    provider: "claude",
+    renderFails: true,
+    diagnostic: "render_threw",
+    declines: true,
+  },
   { kind: "preview", renderFails: true },
   { kind: "preview", renderFails: false },
   { kind: "full", renderFails: true },
@@ -62,7 +72,7 @@ const cases: Array<{
 ];
 it.each(cases)(
   "$kind repairs only failures (provider=$provider, diagnostic=$diagnostic, persistent=$persistent, interrupt=$interrupt)",
-  async ({ kind, renderFails, provider, diagnostic, persistent, interrupt }) => {
+  async ({ kind, renderFails, provider, diagnostic, persistent, interrupt, declines }) => {
     vi.resetAllMocks();
     const workspace = await mkdtemp(path.join(os.tmpdir(), "repair-round-"));
     try {
@@ -170,14 +180,34 @@ it.each(cases)(
           expect(job.error).toBeUndefined();
           expect(job.errorCode).toBeUndefined();
           if (persistent) throw failure;
+          if (declines)
+            await runVideoValidation(
+              job,
+              async () => {
+                throw failure;
+              },
+              vi.fn(),
+            );
           return { video: "renders/preview.mp4", poster: "renders/preview.jpg" };
         });
       vi.mocked(agentTurn).mockImplementation(async () => {
         order.push("repair");
         expect(job.error).toContain(failure.message);
         if (!persistent) expect(renderJob).toHaveBeenCalledTimes(1);
+        if (declines)
+          return {
+            value: {
+              correctionOutcome: {
+                status: "unresolved",
+                reason: "The supplied check does not identify an implementable repair.",
+              },
+            },
+          };
         return {
-          value: { storyboard: validStoryboard(production.duration) },
+          value: {
+            correctionOutcome: fixedCorrectionOutcome,
+            storyboard: validStoryboard(production.duration),
+          },
           sessionId: "repair-session",
         };
       });
@@ -225,6 +255,17 @@ it.each(cases)(
         return;
       }
       await generation;
+      if (declines) {
+        expect(order).toEqual(["check", "repair", "repair", "recheck"]);
+        expect(job.phase).toBe("ready");
+        expect(job.correctionBypasses).toHaveLength(1);
+        expect(vi.mocked(agentTurn).mock.calls.map(([call]) => call.model)).toEqual([
+          "claude-haiku-5-5",
+          "claude-opus-5-5",
+        ]);
+        expect(reviewFinishedResult).toHaveBeenCalledOnce();
+        return;
+      }
       expect(order).toEqual(
         diagnostic
           ? ["check", "repair", "recheck"]
@@ -329,7 +370,10 @@ it.each(["claude", "codex"] as const)(
       });
       expect(job.sessionId).toBe("original-session");
       expect(options.reasoningEffort).toBe(provider === "claude" ? "medium" : undefined);
-      return { value: { storyboard: validStoryboard() }, sessionId: "repair-session" };
+      return {
+        value: { correctionOutcome: fixedCorrectionOutcome, storyboard: validStoryboard() },
+        sessionId: "repair-session",
+      };
     });
     vi.mocked(renderJob).mockResolvedValue({
       video: "renders/preview.webm",

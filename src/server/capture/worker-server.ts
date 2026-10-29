@@ -1,3 +1,4 @@
+import { legacyWorkspaceFolders } from "../runtime/workspace";
 import Fastify from "fastify";
 import { timingSafeEqual, randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
@@ -57,7 +58,7 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
     let workspace: string | undefined;
     try {
       workspace = await mkdtemp(path.join(os.tmpdir(), "kiteva-desktop-"));
-      await mkdir(path.join(workspace, "assets"));
+      await mkdir(path.join(workspace, legacyWorkspaceFolders.assets));
       const browser = await createBrowser(
         input.urls,
         controller.signal,
@@ -137,7 +138,7 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
           const name = `website-reference-${randomUUID()}.png`;
           return {
             ...(await browser.capture(
-              path.join(session.workspace, "assets", name),
+              path.join(session.workspace, legacyWorkspaceFolders.assets, name),
               action.selector,
             )),
             name,
@@ -154,7 +155,7 @@ export function createCaptureWorker(token: string, createBrowser = createLocalRe
     if (!session) return reply.code(404).send({ error: "Capture session expired" });
     return reply
       .type("application/octet-stream")
-      .send(createReadStream(path.join(session.workspace, "assets", name)));
+      .send(createReadStream(path.join(session.workspace, legacyWorkspaceFolders.assets, name)));
   });
   app.delete("/sessions/:id", async (request) => {
     await close(sessionSchema.parse(request.params).id);

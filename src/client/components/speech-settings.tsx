@@ -19,9 +19,8 @@ import {
   speechEngines,
   speechVoicesForEngine,
   pocketLanguages,
-  qwenLanguages,
-  qwenVoiceGroupsForEngine,
-  isQwenSpeechEngine,
+  mingLanguages,
+  mingVoiceGroups,
   pocketVoiceGroups,
   pocketLanguageForVoice,
   type SpeechSettings as Settings,
@@ -204,7 +203,7 @@ export function SpeechSettings({
                 ...value,
                 engine,
                 voice: speechVoicesForEngine(engine)[0].id,
-                language: engine === "pocket-tts" || isQwenSpeechEngine(engine) ? "en" : undefined,
+                language: engine === "pocket-tts" || engine === "ming-tts" ? "en" : undefined,
               })
             }
           />
@@ -229,13 +228,11 @@ export function SpeechSettings({
                       },
                     ]
                   : []),
-                ...(engine === "pocket-tts" || isQwenSpeechEngine(engine)
-                  ? (isQwenSpeechEngine(engine) ? qwenLanguages : pocketLanguages).map(
-                      (language) => ({
-                        value: language.id,
-                        label: translateUi(language.label),
-                      }),
-                    )
+                ...(engine === "pocket-tts" || engine === "ming-tts"
+                  ? (engine === "ming-tts" ? mingLanguages : pocketLanguages).map((language) => ({
+                      value: language.id,
+                      label: translateUi(language.label),
+                    }))
                   : Object.entries(languages)
                       .filter(([language]) => voices.some((voice) => voice.language === language))
                       .map(([value, label]) => ({ value, label: translateUi(label) }))),
@@ -246,7 +243,7 @@ export function SpeechSettings({
                   return;
                 }
                 onChange(
-                  isQwenSpeechEngine(engine)
+                  engine === "ming-tts"
                     ? { ...value, followVideoLanguage: false, language }
                     : engine === "pocket-tts"
                       ? {
@@ -279,8 +276,8 @@ export function SpeechSettings({
               style={{ flex: 1 }}
               value={value.voice}
               options={
-                isQwenSpeechEngine(engine)
-                  ? qwenVoiceGroupsForEngine(engine).map((group) => ({
+                engine === "ming-tts"
+                  ? mingVoiceGroups.map((group) => ({
                       ...group,
                       label: translateUi(group.label),
                     }))

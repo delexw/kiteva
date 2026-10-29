@@ -100,7 +100,7 @@ import{VideoPlayer}from'/src/client/components/video-player.tsx';import{Language
 import'/src/client/framework.css';
 import{ScriptItems}from'/src/client/components/script-items.tsx';import{LanguageTrackSettings}from'/src/client/components/language-track-settings.tsx';import{VideoLanguageControl}from'/src/client/components/video-language-control.tsx';import{VideoRequestSchema}from'/src/shared/domains/video.ts';
 const media={narration:['en','zh'].map(language=>({language,video:'/'+language+'.mp4',audio:'/'+language+'.wav',mix:'/'+language+'.m4a'})),subtitles:['en','zh'].map(language=>({language,vtt:'/'+language+'.vtt',srt:'/'+language+'.srt'})),musicVideo:'/music.mp4',defaultNarration:'en',defaultSubtitle:'zh'};
-function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.parse({instructions:'Explain an example process',outputLanguage:'en',scriptItems:[{id:'spoken',text:'Example words',startSeconds:0,endSeconds:3,showSubtitles:true,speech:{mode:'narration',voice:'af_heart'}}]}));return React.createElement(React.Fragment,null,React.createElement(VideoPlayer,{src:'/sample.mp4','aria-label':'Example film',languageMedia:media}),React.createElement(LanguageMediaDownloads,{media}),React.createElement(LanguageTrackSettings,{request,onChange:languageTracks=>setRequest({...request,languageTracks})}),React.createElement(ScriptItems,{items:request.scriptItems,duration:request.duration,languageTracks:request.languageTracks,onChange:scriptItems=>setRequest({...request,scriptItems})}),React.createElement(VideoLanguageControl,{value:request.outputLanguage,onChange:outputLanguage=>setRequest({...request,outputLanguage})}),React.createElement('pre',{id:'request'},JSON.stringify(request)));}createRoot(document.getElementById('root')).render(React.createElement(Page));
+function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.parse({instructions:'Explain an example process',outputLanguage:'en',scriptItems:[{id:'spoken',text:'Example words',startSeconds:0,endSeconds:3,showSubtitles:true,speech:{mode:'narration',voice:'af_heart'}}]}));return React.createElement(React.Fragment,null,React.createElement(VideoPlayer,{src:'/sample.mp4','aria-label':'Example film',languageMedia:media}),React.createElement(LanguageMediaDownloads,{media,downloadName:"example-style-v7"}),React.createElement(LanguageTrackSettings,{request,onChange:languageTracks=>setRequest({...request,languageTracks})}),React.createElement(ScriptItems,{items:request.scriptItems,duration:request.duration,languageTracks:request.languageTracks,onChange:scriptItems=>setRequest({...request,scriptItems})}),React.createElement(VideoLanguageControl,{value:request.outputLanguage,onChange:outputLanguage=>setRequest({...request,outputLanguage})}),React.createElement('pre',{id:'request'},JSON.stringify(request)));}createRoot(document.getElementById('root')).render(React.createElement(Page));
 </script>`,
                 ),
               );
@@ -249,6 +249,12 @@ function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.pars
       await page.waitForSelector(".ant-select-dropdown:not(.ant-select-dropdown-hidden)", {
         hidden: true,
       });
+      expect(await page.$eval('a[href="/zh.mp4"]', (a) => a.getAttribute("download"))).toBe(
+        "example-style-v7-zh.mp4",
+      );
+      expect(await page.$eval('a[href="/zh.m4a"]', (a) => a.getAttribute("download"))).toBe(
+        "example-style-v7-zh-mix.m4a",
+      );
       await page.click('[aria-label="Download audio type"]');
       await page.waitForSelector(
         '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option[title="Narration only"]',
@@ -266,6 +272,9 @@ function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.pars
           links.find((a) => a.textContent === "Download audio")?.getAttribute("href"),
         ),
       ).toBe("/zh.wav");
+      expect(await page.$eval('a[href="/zh.wav"]', (a) => a.getAttribute("download"))).toBe(
+        "example-style-v7-zh-voice.wav",
+      );
       await page.waitForSelector('section[aria-label="Narration voice en"]');
       expect(await page.$('[aria-label="Multiple language tracks"]')).toBeNull();
       expect(await page.$('.script-items [aria-label="Speech language"]')).toBeNull();
@@ -302,7 +311,7 @@ function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.pars
       expect(await page.$('.script-items [aria-label="Narrator voice"]')).toBeNull();
       expect(await page.$('.script-items [aria-label="Narration"]')).toBeNull();
       expect(await page.$('.script-items [aria-label="Show subtitles on screen"]')).toBeNull();
-      expect(await page.$('[aria-label="Add language"]')).toBeNull();
+      expect(await page.$('[aria-label="Add language"]')).not.toBeNull();
       await page.click('[aria-label="Remove language en"]');
       await page.keyboard.press("Escape");
       await page.waitForFunction(

@@ -1,3 +1,4 @@
+import { normalizeRetiredSpeechSelections } from "./speech-compatibility";
 import { normalizeSubtitleFields } from "./subtitle-compatibility";
 import { z } from "zod";
 import { RoomAppearanceSchema, defaultRoomAppearance } from "./room-appearance";
@@ -32,6 +33,7 @@ export const RoomDraftSchema = z
     request: z
       .record(z.string(), z.unknown())
       .transform(normalizeSubtitleFields)
+      .transform(normalizeRetiredSpeechSelections)
       .catch({})
       .default({}),
     assets: z.array(RoomLibraryAssetSchema).max(20).catch([]).default([]),

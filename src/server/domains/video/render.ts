@@ -1,5 +1,12 @@
+import { renderMultiplane } from "./multiplane-render";
+import {
+  renderInputRoot,
+  renderSourcePath,
+  projectArtifactPath,
+  workspaceFolders,
+} from "../../runtime/workspace";
+import { runVideoValidation } from "./correction-bypass";
 import type { reviewRenderCache } from "../../jev/strategies/render-cache";
-import { createMultiplaneRecoveryCache } from "../../rendering/multiplane/recovery-cache";
 import { hyperframesMetadata } from "../../rendering/hyperframes/metadata";
 import { multiplaneMetadata } from "../../rendering/multiplane/metadata";
 import { remotionMetadata } from "../../rendering/remotion/metadata";
@@ -16,9 +23,9 @@ import { withContentReveal } from "../../motion/content-reveal";
 import { withArrowDrawing } from "../../motion/arrow-drawing";
 import type { VideoGenerationJob } from "../../../shared/domains/video";
 import path from "node:path";
-import { existsSync } from "node:fs";
 import type { SpeechTrack } from "../../../shared/speech";
 import { mixSpeech } from "../../audio/speech";
+import { validateAudioTracks } from "../../../shared/audio-tracks";
 import { readFile, writeFile, mkdir, rm, copyFile } from "node:fs/promises";
 import { command, isolatedCommand } from "../../runtime/process.js";
 import { probeVideo } from "../../rendering/video-probe";
@@ -32,23 +39,6 @@ import {
   viewingVideoFile,
 } from "../../rendering/playback-copies";
 import { readStoryboardJson } from "./storyboard";
-import {
-  multiplaneInspectArgs,
-  multiplaneRenderArgs,
-  multiplaneShotProblems,
-  multiplaneVerifyArgs,
-  runMultiplane,
-} from "../../rendering/multiplane";
-
-import {
-  multiplaneInputFingerprint,
-  multiplaneCacheKey,
-  restoreMultiplaneShot,
-  storeMultiplaneShot,
-} from "../../rendering/multiplane/cache";
-
-import { multiplaneShotPlan, assembleMultiplaneShots } from "../../rendering/multiplane/shots";
-
 import { redactSecrets, safeMessage } from "../../runtime/config";
 import { VideoQaError, VideoQaReportError, VideoQaReportSchema, videoQaFindings } from "./qa";
 export const hyperframesCli = rendererCliPath(hyperframesMetadata);
@@ -68,11 +58,15 @@ async function renderHyperFrames(
   signal: AbortSignal,
   emit: (type: string, message: string, data?: unknown) => void,
 ) {
-  if (production.sourceFile !== "index.html")
+  if (production.sourceFile !== projectArtifactPath(job.workspace, "index.html"))
     throw Error("HyperFrames entry point must be index.html");
-  const originalHtml = await readFile(path.join(job.workspace, "index.html"), "utf8");
+  const originalHtml = await readFile(
+    renderSourcePath(job.workspace, production.sourceFile),
+    "utf8",
+  );
   const html = withContentReveal(withArrowDrawing(originalHtml));
-  if (html !== originalHtml) await writeFile(path.join(job.workspace, "index.html"), html);
+  if (html !== originalHtml)
+    await writeFile(renderSourcePath(job.workspace, production.sourceFile), html);
   if (hasRemoteResources(html))
     throw Error(
       "Composition contains a remote URL. Localize assets and dependencies before rendering.",
@@ -87,10 +81,10 @@ async function renderHyperFrames(
         [
           hyperframesCli,
           "check",
-          job.workspace,
+          renderInputRoot(job.workspace),
           ...rendererCommandFlags(hyperframesMetadata, "check"),
         ],
-        job.workspace,
+        renderInputRoot(job.workspace),
         signal,
         () => {},
         180000,
@@ -119,7 +113,7 @@ async function renderHyperFrames(
         expectedFix:
           "Repair the QA command or report reader using the saved output and parsing/schema diagnostics. Do not modify the video without evidence of a composition failure.",
         evidence: {
-          stdoutFile: "renders/qa-stdout.txt",
+          stdoutFile: `${workspaceFolders.renders}/qa-stdout.txt`,
           parseError,
           schemaIssues: parsed.error.issues,
           commandError: checkError ? safeMessage(checkError) : undefined,
@@ -137,9 +131,16 @@ async function renderHyperFrames(
       ),
     );
     const findings = videoQaFindings(parsed.data);
-    if (findings.length) throw new VideoQaError(findings);
-    if (checkError) throw checkError;
-    emit("validation", "Composition, layout, motion, and contrast checks passed");
+    if (findings.length)
+      await runVideoValidation(
+        job,
+        async () => {
+          throw new VideoQaError(findings);
+        },
+        emit,
+      );
+    if (checkError && !findings.length) throw checkError;
+    emit("validation", "Composition checks completed; any bypassed findings remain recorded");
   }
   emit("phase", job.kind === "preview" ? "Rendering preview" : "Rendering validated composition");
   await isolatedCommand(
@@ -147,7 +148,7 @@ async function renderHyperFrames(
     [
       hyperframesCli,
       "render",
-      job.workspace,
+      renderInputRoot(job.workspace),
       ...rendererCommandFlags(hyperframesMetadata, "render"),
       hyperframesMetadata.execution.outputArgument,
       video,
@@ -156,9 +157,9 @@ async function renderHyperFrames(
       "--quality",
       hyperframesMetadata.execution.quality[job.kind],
     ],
-    job.workspace,
+    renderInputRoot(job.workspace),
     signal,
-    (t) => emit("render_progress", t),
+    (t) => emit("render_progress", t, { renderer: "hyperframes", pendingValidation: true }),
     videoRenderTimeoutMs,
   );
 }
@@ -178,7 +179,7 @@ async function renderRemotion(
     [
       rendererCliPath(remotionMetadata),
       "render",
-      production.sourceFile,
+      renderSourcePath(job.workspace, production.sourceFile),
       remotionMetadata.execution.compositionId,
       video,
       ...rendererCommandFlags(remotionMetadata, "render"),
@@ -191,156 +192,11 @@ async function renderRemotion(
       "--frames",
       `0-${Math.round(job.duration * fps) - 1}`,
     ],
-    job.workspace,
+    renderInputRoot(job.workspace),
     signal,
-    (t) => emit("render_progress", t),
+    (t) => emit("render_progress", t, { renderer: "remotion", pendingValidation: true }),
     videoRenderTimeoutMs,
   );
-}
-async function renderMultiplane(
-  job: VideoGenerationJob,
-  production: Production,
-  video: string,
-  fps: number,
-  signal: AbortSignal,
-  emit: (type: string, message: string, data?: unknown) => void,
-  review?: typeof reviewRenderCache,
-) {
-  const shots = multiplaneShotPlan(production, job.duration, fps);
-  const segmented = shots.length > 1;
-  const directory = path.join(job.workspace, "renders", "shots");
-  if (segmented) await mkdir(directory, { recursive: true });
-  const parts: string[] = [];
-  const recovery = await createMultiplaneRecoveryCache({
-    workspace: job.workspace,
-    signal,
-    onEvent: (event) => emit(event.type, event.message, event.data),
-    review,
-  });
-  for (const [index, shot] of shots.entries()) {
-    const scope = {
-      sourceFile: shot.sourceFile,
-      shotSources: shots.map((item) => item.sourceFile),
-      additionalFiles: !segmented && production.audioFile ? [production.audioFile] : [],
-    };
-    const fingerprint =
-      shots.every((item) => !item.sourceFile.startsWith("renders/")) &&
-      existsSync(path.join(job.workspace, shot.sourceFile))
-        ? await multiplaneInputFingerprint(job.workspace, signal, scope)
-        : undefined;
-    const label = segmented ? ` (${index + 1}/${shots.length}: ${shot.sourceFile})` : "";
-    const part = `shot-${index}.${multiplaneMetadata.execution.format[job.kind]}`;
-    const output = segmented ? path.join(directory, part) : video;
-    const key = fingerprint
-      ? multiplaneCacheKey(fingerprint, {
-          shot,
-          fps,
-          width: production.width,
-          height: production.height,
-          kind: job.kind,
-          policy: multiplaneMetadata.execution,
-          audioFile: segmented ? null : production.audioFile,
-        })
-      : undefined;
-    const cacheSettings = {
-      shot,
-      fps,
-      width: production.width,
-      height: production.height,
-      kind: job.kind,
-      policy: multiplaneMetadata.execution,
-      audioFile: segmented ? null : production.audioFile,
-    };
-    if (
-      (key &&
-        fingerprint &&
-        (await restoreMultiplaneShot({
-          workspace: job.workspace,
-          key,
-          output,
-          fingerprint,
-          signal,
-          scope,
-        }))) ||
-      (await recovery?.restore(shot.sourceFile, cacheSettings, output))
-    ) {
-      emit("phase", `Reusing the validated Multiplane shot${label}`);
-      if (segmented) parts.push(part);
-      continue;
-    }
-    if (rendererUsesStage(multiplaneMetadata, job.kind, "inspect")) {
-      emit(
-        "validation",
-        `Checking the Multiplane shot: stage size, duration and frame rate${label}`,
-      );
-      const inspected = await runMultiplane(
-        "inspect",
-        multiplaneInspectArgs(shot.sourceFile),
-        job.workspace,
-        signal,
-        () => {},
-        180000,
-      );
-      const problems = multiplaneShotProblems(inspected.data, {
-        width: production.width,
-        height: production.height,
-        duration: shot.duration,
-        fps,
-      });
-      if (problems.length)
-        throw Error(
-          `Multiplane shot ${shot.sourceFile} does not match the requested output: ${problems.join("; ")}`,
-        );
-    }
-    if (rendererUsesStage(multiplaneMetadata, job.kind, "verify")) {
-      emit("validation", `Checking that every frame depends only on time${label}`);
-      await runMultiplane(
-        "verify",
-        multiplaneVerifyArgs(shot.sourceFile, fps),
-        job.workspace,
-        signal,
-      );
-    }
-    emit("phase", `Rendering the Multiplane shot${label}`);
-    await runMultiplane(
-      "render",
-      multiplaneRenderArgs({
-        shot: shot.sourceFile,
-        output: path.relative(job.workspace, output),
-        fps,
-        kind: job.kind,
-        audioFile: segmented ? null : production.audioFile,
-      }),
-      job.workspace,
-      signal,
-      (text) => emit("render_progress", text),
-    );
-    await recovery?.store(shot.sourceFile, cacheSettings, output);
-    if (key && fingerprint)
-      await storeMultiplaneShot({
-        workspace: job.workspace,
-        key,
-        output,
-        fingerprint,
-        signal,
-        scope,
-      });
-    if (segmented) parts.push(part);
-  }
-  if (segmented) {
-    emit("phase", "Joining the Multiplane shots and continuous soundtrack");
-    await assembleMultiplaneShots({
-      directory,
-      parts,
-      output: video,
-      duration: job.duration,
-      audioFile:
-        job.kind === "full" && production.audioFile
-          ? path.resolve(job.workspace, production.audioFile)
-          : null,
-      signal,
-    });
-  }
 }
 export async function renderJob(
   job: VideoGenerationJob,
@@ -351,8 +207,15 @@ export async function renderJob(
   preserveMusicVideo = false,
   dependencies: { reviewRenderCache?: typeof reviewRenderCache } = {},
 ) {
+  renderSourcePath(job.workspace, production.sourceFile);
+  for (const shot of production.shots ?? []) renderSourcePath(job.workspace, shot.sourceFile);
+  if (production.audioFile) renderSourcePath(job.workspace, production.audioFile);
+  if (production.audioTracks !== undefined) {
+    validateAudioTracks(production.audioTracks, job.duration);
+    for (const clip of production.audioTracks) renderSourcePath(job.workspace, clip.file);
+  }
   const fps = production.fps ?? 30;
-  const out = path.join(job.workspace, "renders");
+  const out = path.join(job.workspace, workspaceFolders.renders);
   await mkdir(out, { recursive: true });
   const video = path.join(out, job.kind === "preview" ? previewVideoFile : "full.mp4");
   const nativeWebm = production.pipeline === "Multiplane";
@@ -372,7 +235,6 @@ export async function renderJob(
       dependencies.reviewRenderCache,
     );
   else await renderRemotion(job, production, rendered, fps, signal, emit);
-  emit("render_progress", "Render complete");
   if (job.kind === "full" && preserveMusicVideo)
     await copyFile(rendered, path.join(out, "full.music.mp4"));
   if (job.kind === "full" && speechTrack) {
@@ -441,16 +303,23 @@ export async function renderJob(
   );
   await writeFile(
     path.join(job.workspace, "VALIDATION.md"),
-    `# Render validation\n\nVerified by the application: ${actualDuration}s (planned ${job.duration}s), ${production.width}×${production.height}, ${fps} fps; full video decode passed. ${job.kind === "preview" ? "No audio track (silent preview). The preview is a VP9 WebM, checked against the validated render for size, frame rate, duration, frame count and picture similarity." : "Audio presence is recorded in renders/validation.json."}\n\nInspect renders/contact-sheet.jpg and the decoded ${path.relative(job.workspace, video)} for appearance and movement. Agent-side limitations about pending rendering are superseded only for the checks listed here.\n\nReproduce with: ${production.pipeline === "Multiplane" && (production.shots?.length ?? 0) > 1 ? `Render each production.shots entry in order with ${multiplaneMetadata.execution.commonFlags.join(" ")}, concatenate the silent parts, then mux production.audioFile once for the complete film.` : production.pipeline === "Multiplane" ? rendererReproductionCommand(multiplaneMetadata, production.sourceFile, fps, job.kind) : rendererReproductionCommand(production.pipeline === "Remotion" ? remotionMetadata : hyperframesMetadata, production.pipeline === "Remotion" ? production.sourceFile : ".", fps, job.kind)}\n`,
+    `# Render validation\n\nVerified by the application: ${actualDuration}s (planned ${job.duration}s), ${production.width}×${production.height}, ${fps} fps; full video decode passed. ${job.kind === "preview" ? "No audio track (silent preview). The preview is a VP9 WebM, checked against the validated render for size, frame rate, duration, frame count and picture similarity." : `Audio presence is recorded in ${workspaceFolders.renders}/validation.json.`}\n\n${job.correctionBypasses?.length ? `Correction exceptions: ${job.correctionBypasses.length} findings were bypassed after both correction models declined; statuses and reasons are retained in ${workspaceFolders.renders}/validation.json.\n\n` : ""}Inspect ${workspaceFolders.renders}/contact-sheet.jpg and the decoded ${path.relative(job.workspace, video)} for appearance and movement. Agent-side limitations about pending rendering are superseded only for the checks listed here.\n\nReproduce with: ${production.pipeline === "Multiplane" && (production.shots?.length ?? 0) > 1 ? `Render each production.shots entry in order with ${multiplaneMetadata.execution.commonFlags.join(" ")}, concatenate the silent parts, then mux production.audioFile once for the complete film.` : production.pipeline === "Multiplane" ? rendererReproductionCommand(multiplaneMetadata, production.sourceFile, fps, job.kind) : rendererReproductionCommand(production.pipeline === "Remotion" ? remotionMetadata : hyperframesMetadata, production.pipeline === "Remotion" ? production.sourceFile : ".", fps, job.kind)}\n`,
   );
   await writeFile(
     path.join(out, "validation.json"),
     JSON.stringify(
-      { probe, production, mixedVoice: speechTrack, verifiedAt: new Date().toISOString() },
+      {
+        probe,
+        production,
+        mixedVoice: speechTrack,
+        correctionBypasses: job.correctionBypasses,
+        verifiedAt: new Date().toISOString(),
+      },
       null,
       2,
     ),
   );
+  emit("render_progress", "Render complete");
   return {
     video: path.relative(job.workspace, video),
     poster: path.relative(job.workspace, poster),
@@ -470,7 +339,7 @@ export async function makePlaybackCopies(
   if (job.kind !== "full" || !job.video)
     return { playbackCopies: status("failed", "Only finished full films get playback copies") };
   const master = path.join(job.workspace, job.video);
-  const renders = path.join(job.workspace, "renders");
+  const renders = path.join(job.workspace, workspaceFolders.renders);
   const made: Pick<VideoGenerationJob, "viewingVideo" | "cardClip"> = {};
   emit("phase", "Making the 720p viewing copy and card clip; the MP4 download is ready");
   try {

@@ -1,3 +1,4 @@
+import { workspaceFolders } from "../../shared/workspace";
 import path from "node:path";
 import type { Run } from "../../shared/contracts";
 import { playbackCopyProfile } from "./playback-copies";
@@ -34,8 +35,8 @@ export function unusedHeavyCopies(runs: Run[]) {
       job.kind === "full" &&
       job.playbackCopies?.profile === playbackCopyProfile &&
       job.playbackCopies.status === "ready" &&
-      job.viewingVideo !== "renders/full.webm"
-        ? [path.join(job.workspace, "renders", "full.webm")]
+      job.viewingVideo !== `${workspaceFolders.renders}/full.webm`
+        ? [path.join(job.workspace, workspaceFolders.renders, "full.webm")]
         : [],
     ),
   );

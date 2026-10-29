@@ -1,3 +1,5 @@
+import { prepareProjectLayout, projectArtifactPath } from "../src/server/runtime/workspace";
+import { fixedCorrectionOutcome } from "./fixtures/video-correction";
 import { writePreviewPlan } from "../src/server/jobs/preview-plan";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -21,13 +23,16 @@ import { generateVideo } from "../src/server/domains/video/workflow";
 import { writeStoryboardJson } from "../src/server/domains/video/storyboard";
 import { probeVideo } from "../src/server/rendering/video-probe";
 
-it.skipIf(process.env.KITEVA_TEST_LOCAL_PREVIEW_REPAIR !== "1")(
-  "repairs a real Canvas runtime failure through the shared coordinator and renders a silent preview",
-  async () => {
+it.skipIf(process.env.KITEVA_TEST_LOCAL_PREVIEW_REPAIR !== "1").each([false, true])(
+  "repairs a real Canvas runtime failure and renders a silent preview (structured=%s)",
+  async (structured) => {
+    vi.clearAllMocks();
     const workspace = await mkdtemp(path.join(os.tmpdir(), "preview-render-repair-"));
     const controller = new AbortController();
     try {
-      const sourceFile = path.join(workspace, "shot.html");
+      if (structured) await prepareProjectLayout(workspace);
+      const entry = projectArtifactPath(workspace, "shot.html");
+      const sourceFile = path.join(workspace, entry);
       await writeFile(
         sourceFile,
         `<!doctype html><link rel="stylesheet" href="/multiplane/runtime/shot.css">
@@ -45,7 +50,7 @@ if(t===0)return;ctx.arc(640,360,radius - 30,0,Math.PI*2);ctx.fill();
         fallbackReason: null,
         styleRenderer: ["Canvas 2D"],
         motionEngine: ["Time-driven Canvas"],
-        sourceFile: "shot.html",
+        sourceFile: entry,
         duration: 3,
         width: 1280,
         height: 720,
@@ -119,7 +124,10 @@ if(t===0)return;ctx.arc(640,360,radius - 30,0,Math.PI*2);ctx.fill();
         expect(report).toContain("radius");
         const source = await readFile(sourceFile, "utf8");
         await writeFile(sourceFile, source.replace("radius - 30", "Math.max(0, radius - 30)"));
-        return { value: { storyboard: validStoryboard() }, sessionId: "repair-session" };
+        return {
+          value: { correctionOutcome: fixedCorrectionOutcome, storyboard: validStoryboard() },
+          sessionId: "repair-session",
+        };
       });
       await generateVideo({
         job,

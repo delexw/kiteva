@@ -1,3 +1,9 @@
+import {
+  prepareProjectLayout,
+  projectArtifactPath,
+  hasProjectLayout,
+  workspacePaths,
+} from "../runtime/workspace";
 import { isVideoRefinementSource } from "../../shared/video-refinement-source";
 import { deleteVideoVersion } from "../domains/video/delete-version";
 import { reserveJobVersion } from "../../shared/job-versions";
@@ -362,7 +368,8 @@ export class Workflow {
       run.errorCode = undefined;
       this.update(run);
       const workspace = path.join(dataRoot, "runs", run.id, "brief");
-      await mkdir(path.join(workspace, "assets"), { recursive: true });
+      await prepareProjectLayout(workspace, { onlyIfNew: true });
+      await mkdir(path.join(workspace, workspacePaths(workspace).assets), { recursive: true });
       const preparationInputs = (request: CreativeRequest) => ({
         request,
         catalog: this.catalog.hash,
@@ -404,14 +411,14 @@ export class Workflow {
       const restoreReferences = async (screenshots: ReferenceScreenshot[]) => {
         await validateReferences(screenshots);
         const allowed = new Set(screenshots.map((item) => item.name));
-        for (const name of await readdir(path.join(workspace, "assets"))) {
+        for (const name of await readdir(path.join(workspace, workspacePaths(workspace).assets))) {
           if (/^website-reference-[a-f0-9-]+\.png$/.test(name) && !allowed.has(name))
-            await rm(path.join(workspace, "assets", name));
+            await rm(path.join(workspace, workspacePaths(workspace).assets, name));
         }
         for (const screenshot of screenshots)
           await copyFile(
             path.join(dataRoot, "runs", run.id, "references", screenshot.name),
-            path.join(workspace, "assets", screenshot.name),
+            path.join(workspace, workspacePaths(workspace).assets, screenshot.name),
           );
         await writeFile(path.join(workspace, referenceManifest), JSON.stringify(screenshots));
         run.referenceScreenshots = structuredClone(screenshots);
@@ -424,7 +431,7 @@ export class Workflow {
           for (const id of preparedRequest.assetIds) {
             const a = this.store.getAsset(id);
             if (!a) throw Error("Uploaded asset not found");
-            await copyFile(a.path, path.join(workspace, "assets", a.name));
+            await copyFile(a.path, path.join(workspace, workspacePaths(workspace).assets, a.name));
             descriptions.push(await describeAsset(a));
           }
           run.referenceScreenshots ??= [];
@@ -449,7 +456,7 @@ export class Workflow {
           for (const id of preparedRequest.assetIds) {
             const asset = this.store.getAsset(id);
             if (!asset) throw Error("Uploaded asset not found");
-            await access(path.join(workspace, "assets", asset.name));
+            await access(path.join(workspace, workspacePaths(workspace).assets, asset.name));
           }
         },
       );
@@ -851,12 +858,18 @@ export class Workflow {
       model: run.request.mainModel || models[run.request.provider],
       phase: "queued",
       createdAt: new Date().toISOString(),
+      workspaceLayoutVersion: 1,
       workspace: path.join(dataRoot, "runs", run.id, id),
     };
   }
   private async setup(run: Run, job: GenerationJob, signal: AbortSignal) {
-    await mkdir(path.join(job.workspace, "assets"), { recursive: true });
-    await mkdir(path.join(job.workspace, "vendor"), { recursive: true });
+    if (job.workspaceLayoutVersion === 1) await prepareProjectLayout(job.workspace);
+    await mkdir(path.join(job.workspace, workspacePaths(job.workspace).assets), {
+      recursive: true,
+    });
+    await mkdir(path.join(job.workspace, workspacePaths(job.workspace).vendor), {
+      recursive: true,
+    });
     await linkWorkspaceDirectory(
       path.join(appRoot, "node_modules"),
       path.join(job.workspace, "node_modules"),
@@ -868,7 +881,10 @@ export class Workflow {
     );
     for (const id of scopedAssetIds) {
       const a = this.store.getAsset(id)!;
-      await copyFile(a.path, path.join(job.workspace, "assets", a.name));
+      await copyFile(
+        a.path,
+        path.join(job.workspace, projectArtifactPath(job.workspace, "assets", a.name)),
+      );
     }
     if (run.request.selectedStyleIds?.length) {
       const assets = scopedAssetIds.map((id) => this.store.getAsset(id)!);
@@ -882,24 +898,24 @@ export class Workflow {
     for (const screenshot of run.referenceScreenshots || []) {
       await copyFile(
         path.join(dataRoot, "runs", run.id, "references", screenshot.name),
-        path.join(job.workspace, "assets", screenshot.name),
+        path.join(job.workspace, projectArtifactPath(job.workspace, "assets", screenshot.name)),
       );
     }
     await copyFile(
       path.join(appRoot, "node_modules/gsap/dist/gsap.min.js"),
-      path.join(job.workspace, "vendor/gsap.min.js"),
+      path.join(job.workspace, projectArtifactPath(job.workspace, "vendor", "gsap.min.js")),
     );
     await copyFile(
       path.join(appRoot, "node_modules/three/build/three.module.js"),
-      path.join(job.workspace, "vendor/three.module.js"),
+      path.join(job.workspace, projectArtifactPath(job.workspace, "vendor", "three.module.js")),
     );
     await copyFile(
       path.join(appRoot, "node_modules/three/build/three.core.js"),
-      path.join(job.workspace, "vendor/three.core.js"),
+      path.join(job.workspace, projectArtifactPath(job.workspace, "vendor", "three.core.js")),
     );
     await copyFile(
       path.join(appRoot, "node_modules/pica/dist/pica.min.js"),
-      path.join(job.workspace, "vendor/pica.min.js"),
+      path.join(job.workspace, projectArtifactPath(job.workspace, "vendor", "pica.min.js")),
     );
     await writeFile(
       path.join(job.workspace, "package.json"),
@@ -958,7 +974,7 @@ export class Workflow {
             const asset = this.store.getAsset(id)!;
             return {
               id,
-              path: `assets/${asset.name}`,
+              path: projectArtifactPath(job.workspace, "assets", asset.name),
               name: asset.originalName || asset.name,
               kind: asset.kind,
             };
@@ -1216,6 +1232,7 @@ export class Workflow {
         },
       });
       task.controller.signal.throwIfAborted();
+      job.workspaceLayoutVersion = hasProjectLayout(preview.workspace) ? 1 : undefined;
       job.sessionId = this.store.generationSessionId(run.id, preview.id, preview.sessionId);
       if (preview.sessionId && !job.sessionId)
         throw new CodedError(

@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { mkdtemp, mkdir, copyFile, writeFile, chmod, readFile, rm } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -11,7 +12,10 @@ async function fixture() {
   await mkdir(bin);
   await copyFile(path.resolve("install.sh"), path.join(root, "install.sh"));
   await writeFile(path.join(root, "package-lock.json"), "{}");
-  await writeFile(path.join(root, ".env.example"), "TYPESAFE_API_KEY=\n");
+  await writeFile(
+    path.join(root, ".env.example"),
+    `${credentialEnvironmentVariables.typesafeApiKey}=\n`,
+  );
   const log = path.join(root, "commands.log");
   async function shim(name: string, body: string) {
     const file = path.join(bin, name);
@@ -80,8 +84,6 @@ it("runs the complete fresh-clone setup in order using isolated command fixtures
       "npm run speech:setup\n",
       "npm run speech:setup:pocket\n",
       "npm run speech:setup:pocket:zh",
-      "npm run speech:setup:qwen",
-      "npm run speech:setup:qwen:base",
       "git clone --depth 1 https://github.com/kanaworksai-hue/audio-studio-mcp.git",
       "audio-installer \n",
       "npm run build",
@@ -89,7 +91,9 @@ it("runs the complete fresh-clone setup in order using isolated command fixtures
       expect(commands).toContain(command);
     expect(commands.indexOf("npm ci")).toBeLessThan(commands.indexOf("node --import tsx"));
     expect(commands.indexOf("audio-installer")).toBeLessThan(commands.indexOf("npm run build"));
-    expect(await readFile(path.join(f.root, ".env.local"), "utf8")).toBe("TYPESAFE_API_KEY=\n");
+    expect(await readFile(path.join(f.root, ".env.local"), "utf8")).toBe(
+      `${credentialEnvironmentVariables.typesafeApiKey}=\n`,
+    );
   } finally {
     await f.close();
   }
@@ -97,7 +101,7 @@ it("runs the complete fresh-clone setup in order using isolated command fixtures
 it("preserves configuration and reuses the Audio Studio checkout on repeat installation", async () => {
   const f = await fixture();
   try {
-    const config = "TYPESAFE_API_KEY=test-placeholder\nCUSTOM_SETTING=keep\n";
+    const config = `${credentialEnvironmentVariables.typesafeApiKey}=test-placeholder\nCUSTOM_SETTING=keep\n`;
     await writeFile(path.join(f.root, ".env.local"), config);
     await f.run(["--speech", "none", "--audio-no-weights"]);
     await f.run(["--speech", "none", "--audio-no-weights"]);
@@ -192,49 +196,10 @@ it("stops on a dependency installation failure instead of reporting completion",
   }
 });
 
-it("sets up Qwen independently and rejects Intel hardware before installing", async () => {
+it.each(["qwen", "qwen-base"])("rejects removed speech mode %s", async (mode) => {
   const f = await fixture();
   try {
-    await f.run([
-      "--speech",
-      "qwen",
-      "--skip-audio-studio",
-      "--skip-openscreen",
-      "--skip-browser",
-      "--skip-caveman",
-      "--skip-build",
-    ]);
-    const commands = await readFile(f.log, "utf8");
-    expect(commands).toContain("npm run speech:setup:qwen");
-    expect(commands).not.toContain("npm run speech:setup\n");
-    expect(commands).not.toContain("speech:setup:pocket");
-    Object.assign(f.env, { TEST_ARCH: "x86_64" });
-    await expect(f.run(["--speech", "qwen"])).rejects.toThrow("Qwen3-TTS requires Apple Silicon");
-  } finally {
-    await f.close();
-  }
-});
-
-it("sets up Base without requiring VoiceDesign or Kokoro", async () => {
-  const f = await fixture();
-  try {
-    await f.run([
-      "--speech",
-      "qwen-base",
-      "--skip-audio-studio",
-      "--skip-openscreen",
-      "--skip-browser",
-      "--skip-caveman",
-      "--skip-build",
-    ]);
-    const commands = await readFile(f.log, "utf8");
-    expect(commands).toContain("npm run speech:setup:qwen:base");
-    expect(commands).not.toContain("npm run speech:setup:qwen\n");
-    expect(commands).not.toContain("npm run speech:setup\n");
-    Object.assign(f.env, { TEST_ARCH: "x86_64" });
-    await expect(f.run(["--speech", "qwen-base"])).rejects.toThrow(
-      "Qwen3-TTS requires Apple Silicon",
-    );
+    await expect(f.run(["--speech", mode])).rejects.toThrow("Invalid speech mode");
   } finally {
     await f.close();
   }

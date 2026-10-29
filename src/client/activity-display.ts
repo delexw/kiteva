@@ -1,3 +1,4 @@
+import { modelDisplayName } from "../shared/model-display-name";
 import { captureChapterRetryLimit } from "../shared/capture-chapters";
 import { translateUi } from "./i18n/service";
 import type { ActivityItem } from "../shared/activity-model";
@@ -24,8 +25,12 @@ export function activityText(item: ActivityItem): string {
       },
     );
   }
-  if (item.text === "Timing correction attempt")
-    return translateUi("Attempt {{attempt}}", { attempt: String(item.correctionAttempt) });
+  if (item.text === "Timing correction attempt") {
+    const attempt = translateUi("Attempt {{attempt}}", { attempt: String(item.correctionAttempt) });
+    return item.correctionModel
+      ? `${attempt} · ${modelDisplayName(item.correctionModel)}`
+      : attempt;
+  }
   const timing = item.captureTiming;
   return timing
     ? translateUi(item.text, {

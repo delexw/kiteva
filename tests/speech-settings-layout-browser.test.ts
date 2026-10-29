@@ -1,3 +1,5 @@
+import { mingVoices } from "../src/shared/speech";
+import { nextSelectOption } from "./fixtures/select-options";
 import { mkdtemp, rm } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
@@ -9,9 +11,16 @@ import { browserExecutablePath } from "../src/server/runtime/browser";
 import { appRoot } from "../src/server/runtime/config";
 import { browserAliases, browserDependencyScan } from "../vite.resolve";
 
-it.skipIf(!browserExecutablePath())(
-  "aligns narration controls and stacks them in narrow settings panels",
-  async () => {
+it.skipIf(!browserExecutablePath()).each([
+  { engine: "ming-tts", voice: "ming_original_female", languages: ["zh", "en"] },
+  {
+    engine: "ming-tts",
+    voice: mingVoices[0].id,
+    languages: ["en", "zh", "ja", "ko", "de", "fr", "es"],
+  },
+])(
+  "aligns language voice controls and handles narrow settings panels ($engine, $voice)",
+  async (fixture) => {
     const cacheDir = await mkdtemp(path.join(os.tmpdir(), "speech-layout-"));
     const server = await createServer({
       configFile: false,
@@ -37,8 +46,8 @@ it.skipIf(!browserExecutablePath())(
                 await server.transformIndexHtml(
                   req.url,
                   `<style>body{margin:0;padding:16px;box-sizing:border-box}#root{max-width:1100px}</style><div id="root"></div><script type="module">
-import React from 'react';import{createRoot}from'react-dom/client';import{LanguageTrackSettings}from'/src/client/components/language-track-settings.tsx';import{VideoRequestSchema}from'/src/shared/domains/video.ts';import{qwenBaseVoices}from'/src/shared/speech.ts';import'/src/client/framework.css';
-const request=VideoRequestSchema.parse({instructions:'Explain an example',languageTracks:{narration:['zh','en'].map(language=>({language,speech:{mode:'narration',engine:'qwen3-tts-base',voice:qwenBaseVoices[0].id,language,speed:1,volume:1}})),subtitles:['zh','en'],defaultNarration:'zh',defaultSubtitle:'zh'}});
+import React from 'react';import{createRoot}from'react-dom/client';import{LanguageTrackSettings}from'/src/client/components/language-track-settings.tsx';import{VideoRequestSchema}from'/src/shared/domains/video.ts';import'/src/client/framework.css';
+const fixture=${JSON.stringify(fixture)};const request=VideoRequestSchema.parse({instructions:'Explain an example',languageTracks:{narration:fixture.languages.map(language=>({language,speech:{mode:'narration',engine:fixture.engine,voice:fixture.voice,language,speed:1,volume:1}})),subtitles:fixture.languages,defaultNarration:fixture.languages[0],defaultSubtitle:fixture.languages[0]}});
 createRoot(document.getElementById('root')).render(React.createElement(LanguageTrackSettings,{request,onChange:()=>{}}));</script>`,
                 ),
               );
@@ -57,6 +66,26 @@ createRoot(document.getElementById('root')).render(React.createElement(LanguageT
       await page.setViewport({ width: 1200, height: 900 });
       await page.goto(`${server.resolvedUrls!.local[0]}layout`);
       await page.waitForSelector(".speech-ready");
+      if (fixture.engine === "ming-tts") {
+        await page.click(".speech-voice-control .ant-select");
+        await page.waitForSelector(".ant-select-dropdown .ant-select-item-option");
+        const visible = new Set<string>();
+        for (let index = 0; index <= mingVoices.length; index++) {
+          const names = await page.$$eval(
+            ".ant-select-dropdown .ant-select-item-option-content",
+            (items) => items.map((item) => item.textContent || ""),
+          );
+          for (const name of names) visible.add(name);
+          if (index === mingVoices.length) break;
+          await nextSelectOption(page);
+        }
+        for (const voice of mingVoices.filter(
+          (voice) => voice.gender === "female" && voice.language === "zh",
+        ))
+          expect(visible.has(voice.label)).toBe(true);
+        await page.keyboard.press("Escape");
+      }
+
       const subtitleSpacing = await page.$eval(".language-track-subtitles", (el) => ({
         display: getComputedStyle(el).display,
         gap: parseFloat(getComputedStyle(el).gap),
@@ -91,7 +120,7 @@ createRoot(document.getElementById('root')).render(React.createElement(LanguageT
             };
           }),
         );
-        expect(layouts).toHaveLength(2);
+        expect(layouts).toHaveLength(fixture.languages.length);
         for (const l of layouts) {
           expect(l.selectHeight).toBeCloseTo(l.buttonHeight, 0);
           expect(l.right).toBeLessThanOrEqual(width);
@@ -104,7 +133,10 @@ createRoot(document.getElementById('root')).render(React.createElement(LanguageT
             expect(l.speedTop).toBeGreaterThan(l.volumeTop);
           }
         }
-        await page.screenshot({ path: `/tmp/kiteva-speech-layout-${width}.png`, fullPage: true });
+        await page.screenshot({
+          path: `/tmp/kiteva-speech-layout-${fixture.engine}-${width}.png`,
+          fullPage: true,
+        });
       }
     } finally {
       await browser.close();

@@ -1,12 +1,17 @@
 import { z } from "zod";
 import type { VideoRequest } from "./domains/video";
-import { type SpeechSettings, speechLanguage, isQwenSpeechEngine } from "./speech";
+import { type SpeechSettings, speechLanguage, pocketVoices, kokoroVoices } from "./speech";
 
-export const VideoLanguageSchema = z.enum(["en", "zh"]);
+export const VideoLanguageSchema = z.enum(["en", "zh", "ja", "ko", "de", "fr", "es"]);
 export type VideoLanguage = z.infer<typeof VideoLanguageSchema>;
 export const videoLanguages = [
   { value: "en", label: "English" },
   { value: "zh", label: "简体中文" },
+  { value: "ja", label: "日本語" },
+  { value: "ko", label: "한국어" },
+  { value: "de", label: "Deutsch" },
+  { value: "fr", label: "Français" },
+  { value: "es", label: "Español" },
 ] as const;
 const CopySchema = z.object({
   subtitles: z.string().max(8000).optional(),
@@ -32,9 +37,20 @@ export function deliverySpeech(
   )
     return speech;
   const language = request.outputLanguage;
-  if (isQwenSpeechEngine(speech.engine)) return { ...speech, language };
+  if (speech.engine === "ming-tts") return { ...speech, language };
   const current = speechLanguage(speech.voice, speech.engine, speech.language);
-  const matches = language === "en" ? current?.startsWith("en") : current === "zh";
+  const matches = current?.split("-")[0] === language;
+  if (language !== "en" && language !== "zh") {
+    const available = speech.engine === "pocket-tts" ? pocketVoices : kokoroVoices;
+    const voice = available.find((item) => item.language.split("-")[0] === language);
+    return voice
+      ? {
+          ...speech,
+          voice: voice.id,
+          language: speech.engine === "pocket-tts" ? language : undefined,
+        }
+      : { ...speech, language };
+  }
   return {
     ...speech,
     language: speech.engine === "pocket-tts" ? language : undefined,

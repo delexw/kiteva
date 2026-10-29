@@ -5,6 +5,10 @@
   gap: var(--activity-row-gap, 12px);
   min-width: 0;
 }
-.activity-branch-leaf {
+.activity-branch-leaf,
+.activity-branch-loading {
   padding-inline-start: 28px;
+}
+.activity-branch-loading {
+  min-block-size: 80px;
 }

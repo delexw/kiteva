@@ -1,3 +1,4 @@
+import { workspacePaths } from "../../../runtime/workspace";
 import { fileBackedPlanningPrompt } from "../../../agents/planning-prompt";
 import { BriefSchema } from "../../../../shared/agents/schemas/video";
 import { PageBriefSchema } from "../../../../shared/agents/schemas/page";
@@ -82,6 +83,7 @@ export async function runFullBriefWorkflow(options: {
       interpretation.value,
       sourceDescriptions,
       await readReferenceScreenshots(workspace),
+      workspacePaths(workspace).assets,
     ),
   };
   prepared = await reviewBriefAssets({

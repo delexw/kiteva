@@ -1,3 +1,4 @@
+import { projectArtifactPath } from "../src/server/runtime/workspace";
 vi.mock("../src/server/jev/strategies/visual-authoring", () => ({
   selectAuthoringResources: async () => ({
     source: "jev",
@@ -135,7 +136,10 @@ it.each([
         const references = path.join(path.dirname(options.workspace), "references");
         await mkdir(references, { recursive: true });
         await writeFile(
-          path.join(options.workspace, "assets", reference.name),
+          path.join(
+            options.workspace,
+            projectArtifactPath(options.workspace, "assets", reference.name),
+          ),
           "actual-screenshot-bytes",
         );
         await writeFile(path.join(references, reference.name), "actual-screenshot-bytes");
@@ -175,7 +179,7 @@ it.each([
               ],
               assets: [
                 {
-                  path: "assets/website-reference-1.png",
+                  path: projectArtifactPath(options.workspace, "assets", "website-reference-1.png"),
                   sceneIds: [],
                   observedContent: "Rendered product content",
                   relevance: "Unrelated to the abstract idea",
@@ -275,7 +279,13 @@ it.each([
       ]);
       await workflow["setup"](run, run.jobs[0], new AbortController().signal);
       expect(
-        await readFile(path.join(run.jobs[0].workspace, "assets/website-reference-1.png"), "utf8"),
+        await readFile(
+          path.join(
+            run.jobs[0].workspace,
+            projectArtifactPath(run.jobs[0].workspace, "assets", "website-reference-1.png"),
+          ),
+          "utf8",
+        ),
       ).toBe("actual-screenshot-bytes");
       expect(run.brief).toMatchObject({
         ...brief,

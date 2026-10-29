@@ -4,7 +4,7 @@ The Assistant has separate **Music** and **Narration / subtitles** steps. Choose
 
 Choose **Video language → English / 简体中文** in Settings. Narration follows it by default; the Speech language selector allows an explicit override. Changing language saves the setting without a model call. Supplied scripts and subtitles are translated during project building through the selected AI provider, with usage recorded against the project in Governance. Generated scripts use the chosen language even if the idea is written in another language. See [Video languages](video-languages.md).
 
-Local narration offers Kokoro, Pocket TTS or Qwen3-TTS through app-owned provider adapters. Pocket TTS keeps all 27 official presets across seven languages and adds eight Mandarin reference voices through [PocketTTS-ZH-6L](https://huggingface.co/hustfyb/PocketTTS-ZH-6L). The Chinese voices are explicitly synthetic Kokoro references, not official Pocket presets or clones of supplied human recordings. English uses the existing Pocket checkpoint; Chinese uses the separate Mandarin checkpoint. No fallback to another engine is silent. TTS does not generate singing. Upload a voice-only recording under Music for recorded vocals. Changing a language does not translate an uploaded audio recording.
+Local narration offers Kokoro, Pocket TTS or Ming-3.0-TTS through app-owned provider adapters. Pocket TTS keeps all 27 official presets across seven languages and adds eight Mandarin reference voices through [PocketTTS-ZH-6L](https://huggingface.co/hustfyb/PocketTTS-ZH-6L). The Chinese voices are explicitly synthetic Kokoro references, not official Pocket presets or clones of supplied human recordings. English uses the existing Pocket checkpoint; Chinese uses the separate Mandarin checkpoint. No fallback to another engine is silent. TTS does not generate singing. Upload a voice-only recording under Music for recorded vocals. Changing a language does not translate an uploaded audio recording.
 
 ## Local setup
 
@@ -99,54 +99,18 @@ Each timed item can use **My script** or **Write a script**. In the latter, its 
 
 Pocket TTS's non-Mandarin runtime keeps one language model warm and caches each selected voice state in that process. Native `copy_state=True` isolates utterances from cached voice state. Requests are serialized; changing the language/runtime/setup replaces the worker. Cancellation, timeout or worker failure discards it so the next request starts cleanly. The worker closes after five idle minutes or server shutdown; a new process still needs one model load. Completed item audio is cached independently, so editing one item does not invalidate other items' audio.
 
-## Qwen3-TTS on Apple Silicon
+## Retired speech providers
 
-Choose **Qwen3-TTS** under Speech engine, then a Female or Male voice profile. The provider uses **Qwen3-TTS-12Hz-1.7B-VoiceDesign**, via the community MLX BF16 conversion pinned to revision `7d3824abff87e49756bb0f83fb5411de75d160c4`, with MLX Audio 0.6.2. It runs locally on Apple Silicon; no hosted TTS service or Fish dependency is used.
+The two Qwen3 providers, setup commands, catalogs and bundled synthetic defaults have been removed. Saved Qwen speech selections are migrated at request and saved-project boundaries to **Ming → Original narrator**, preserving the spoken script, selected language, speed, volume and cue timing. No Qwen runtime is selected or installed. Historical usage/provider records remain unchanged.
 
-| Female              | Male                |
-| ------------------- | ------------------- |
-| Bright              | Clear               |
-| Warm                | Deep                |
-| Broadcast narrator  | Broadcast narrator  |
-| Technical explainer | Technical explainer |
-| Playful             |                     |
-
-Broadcast narrator profiles use clear diction, stable breath and restrained broadcast delivery, with standard Putonghua for Chinese narration. Technical explainer profiles emphasize patient, structured explanation and clear terminology. Bright suits product introductions, Warm suits approachable storytelling, Clear suits friendly tutorials, and Deep suits documentary narration.
-
-Playful uses a youthful, sweet adult female voice with gentle teasing warmth and light upward inflection, while keeping narration and technical terms clear.
-
-Profiles describe voice characteristics and delivery; they are not fixed speaker recordings or official CustomVoice presets. Both Chinese and English work with every profile. Changing narration language, or following video language, preserves the selected profile. Mixed-language technical terms remain authored text, with pronunciation requiring listening review.
-
-```sh
-npm run speech:setup:qwen
-```
-
-`./install.sh --speech qwen --skip-audio-studio` prepares only Qwen speech; the default `all` also includes Qwen on Apple Silicon. Setup owns the model download (roughly 4.5 GB), isolated `.data/qwen3-tts-venv`, and readiness manifest. Reruns reuse downloads. It does not require Kokoro voice references. `SPEECH_SETUP_PYTHON` chooses the setup interpreter; `QWEN_TTS_PYTHON` overrides only the Qwen runtime. Web startup and narration never install packages or download weights. Models remain Git-ignored under `models/qwen3-tts/`.
-
-The TypeScript adapter, Python implementation and requirements live in `src/server/audio/providers/qwen3-tts/`. UI and runtime share the profile catalog `src/shared/qwen-tts-catalog.json`. Voice descriptions are independent of model installation: adding or editing profiles does not invalidate the checkpoint manifest or require another model download. The same manifest/runtime check serves readiness and synthesis, retries failures, and retains actual diagnostics. Synthesis loads local files offline, uses native `generate_voice_design` with the selected profile description, streams 0.5-second chunks, serializes generation per provider process and propagates the caller's abort signal. Shared WAV handling validates output, applies pitch-preserving speed adjustment and cleans partial files/processes after failure or cancellation. Synthesis scratch files use the current build's audio directory. The model is loaded per synthesis call.
-
-This provider uses the selected 1.7B VoiceDesign model, not the previously benchmarked 0.6B Base model; Base's memory/speed figures do not describe this implementation. VoiceDesign profiles guide timbre and delivery but do not guarantee an identical speaker identity across different utterances. No fallback to another model/engine is silent.
-
-## Qwen3-TTS Base on Apple Silicon
-
-Choose **Qwen3-TTS · Base 1.7B** as a separate Speech engine. Base conditions speech on reference audio and its transcript. It has no built-in named speakers; Kiteva supplies **Female narrator** and **Male narrator**, grouped by gender. These are synthetic Kiteva defaults generated with VoiceDesign, not recordings of a third-party speaker. Each supports Chinese and English, and changing language preserves the selected reference voice.
-
-```sh
-npm run speech:setup:qwen:base
-# Or during installation:
-./install.sh --speech qwen-base
-```
-
-The pinned model is `mlx-community/Qwen3-TTS-12Hz-1.7B-Base-bf16` at revision `a6eb4f68e4b056f1215157bb696209bc82a6db48`, under `models/qwen3-tts-base/checkpoint/`. Base and VoiceDesign share the managed MLX Python environment and serialized generation queue, but use separate model folders, provider folders and catalogs. Base setup needs no VoiceDesign or Kokoro model: its two small reference WAVs and exact transcripts are bundled under `assets/speech/qwen3-tts-base/` and `src/shared/qwen-base-tts-catalog.json`.
-
-Both providers reuse readiness retries, cancellation, temporary-output cleanup, speed adjustment and audio validation. Missing or invalid reference recordings fail readiness with the actual diagnostic. Base audio caches include the reference transcript and revision; increment the catalog revision when replacing a reference WAV. Existing VoiceDesign selections and IDs remain unchanged. This initial provider exposes the two bundled references; it does not add a user voice-upload workflow.
-
-### Bundled original narrator reference
-
-**Original narrator** is an additional Base option backed by the user-supplied reference excerpt at `assets/speech/qwen3-tts-base/original-narrator.wav`. It is a system asset included with the codebase so other installations can use the same voice after Base model setup. The catalog contains its matching transcript and reference revision. It supports reference-based Chinese and English synthesis. Generated previews, test outputs and downloaded model weights remain outside the bundled assets and are ignored by Git.
+The sole retained original narrator WAV is a system asset under `assets/speech/ming-tts/original-narrator.wav`; its matching transcript and revision live directly in `src/shared/ming-tts-catalog.json`. Ming owns local reference-conditioned generation and its neutral control policy. See [Ming](ming-tts.md).
 
 ### Subtitle naming and saved projects
 
 On-screen text is called **subtitles** throughout settings, script items, prompts, storyboard JSON and exports. Requests use `subtitles`, script items use `showSubtitles`, and prepared text uses `generatedSubtitles`. Selectable narration and subtitle tracks are configured separately; see [video languages](video-languages.md).
 
 Legacy `lyrics`, `showLyrics` and `generatedLyrics` fields are normalized when loading requests, projects, drafts and saved storyboards. Canonical fields take precedence when both names are present. Supplied text is preserved. The client includes legacy wire aliases so updating the interface does not require interrupting a build running in an older backend process. Genuine song lyrics in source descriptions and catalog entries retain their musical meaning.
+
+### Ming-3.0-TTS 0.5B
+
+Ming is available as a separate provider with seven target languages and curated built-in male/female voices without emotion variants. Emotion controls and inline expression tags are disabled. Apple Silicon uses the pinned local MLX backend; other supported hosts use upstream CUDA. The dropdown offers all 21 sampled Chinese female voices without emotion variants, plus the existing male and English voices. Setup is explicit with `npm run speech:setup:ming`; the macOS installer does not download this provider. See [Ming setup and neutral inference contract](ming-tts.md).

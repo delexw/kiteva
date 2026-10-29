@@ -1,13 +1,8 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { expect, it, vi } from "vitest";
 
 it("does not inherit real provider credentials", () => {
-  for (const key of [
-    "TYPESAFE_API_KEY",
-    "OPENAI_API_KEY",
-    "ANTHROPIC_API_KEY",
-    "ANTHROPIC_AUTH_TOKEN",
-    "CLAUDE_CODE_OAUTH_TOKEN",
-  ])
+  for (const key of Object.values(credentialEnvironmentVariables))
     expect(process.env[key]).toBe("");
 });
 

@@ -1,3 +1,4 @@
+import { workspaceFolders } from "./workspace";
 import path from "node:path";
 import { mkdirSync } from "node:fs";
 import { dataRoot } from "./paths";
@@ -20,7 +21,7 @@ export function projectDirectory(workspace: string) {
 
 export function projectRuntimeFiles(workspace: string, role: RuntimeRole) {
   const owner = role === "agent" ? projectDirectory(workspace) : path.resolve(workspace);
-  const root = path.join(owner, ".runtime", role);
+  const root = path.join(owner, workspaceFolders.runtime, role);
   return {
     root,
     home: path.join(root, "home"),

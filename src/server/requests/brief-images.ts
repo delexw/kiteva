@@ -1,3 +1,4 @@
+import { projectArtifactPath } from "../runtime/workspace";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
@@ -62,7 +63,7 @@ export async function prepareBriefImages(
   const images = [];
   for (const name of imageNames) {
     signal.throwIfAborted();
-    const originalPath = `assets/${name}`;
+    const originalPath = projectArtifactPath(workspace, "assets", name);
     const original = await readFile(path.join(workspace, originalPath));
     try {
       const prepared = await prepareBriefImage(original);

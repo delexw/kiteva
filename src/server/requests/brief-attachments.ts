@@ -1,3 +1,4 @@
+import { projectArtifactPath } from "../runtime/workspace";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
@@ -42,7 +43,7 @@ export async function prepareBriefAttachments(
   const attachments = [];
   for (const asset of assets) {
     signal.throwIfAborted();
-    const originalPath = `assets/${asset.name}`;
+    const originalPath = projectArtifactPath(workspace, "assets", asset.name);
     const localPath = path.join(workspace, originalPath);
     const kind = briefAttachmentKind(asset);
     const item = {

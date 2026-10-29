@@ -1,3 +1,4 @@
+import { prepareProjectLayout, workspacePaths } from "../src/server/runtime/workspace";
 vi.mock("../src/server/agents/claude-home", () => ({
   prepareClaudeHome: async () => "/isolated-home",
   claudeLoginEnvironment: async () => ({}),
@@ -87,6 +88,7 @@ it.each(["claude", "codex"] as const)(
     const headings = [...effectivePrompt.matchAll(/^## (.+)$/gm)].map((match) => match[1]);
     expect(headings).toEqual([
       "Role and boundaries",
+      "Project folder contract",
       "Requirements and reference handling",
       "Drawing and content reveals",
       "Visual readability",
@@ -244,13 +246,18 @@ it.each(["claude", "codex"] as const)(
       });
   },
 );
-it.each(["claude", "codex"] as const)(
-  "stores complete versioned context and tells %s to read it instead of inlining JSON",
-  async (provider) => {
+it.each(
+  (["claude", "codex"] as const).flatMap((provider) =>
+    [false, true].map((structured) => ({ provider, structured })),
+  ),
+)(
+  "stores full context for $provider using the shared layout (structured=$structured)",
+  async ({ provider, structured }) => {
     const { mkdtemp, readFile, rm } = await import("node:fs/promises");
     const { tmpdir } = await import("node:os");
     const { join } = await import("node:path");
     const workspace = await mkdtemp(join(tmpdir(), "prompt-context-"));
+    if (structured) await prepareProjectLayout(workspace);
     calls.query.mockClear();
     calls.codex.mockClear();
     calls.query.mockImplementation(async function* () {
@@ -284,7 +291,9 @@ it.each(["claude", "codex"] as const)(
         const user = (event as { prompt: { user: string } }).prompt.user;
         expect(user).not.toContain('"draft":');
         expect(user.length).toBeLessThan(1000);
-        return user.match(/prompt-inputs\/[\w-]+\.json/)![0];
+        const file = `${workspacePaths(workspace).inputs}/${user.match(/[a-f0-9-]{36}\.json/)![0]}`;
+        expect(user).toContain(file);
+        return file;
       });
       expect(files[0]).not.toBe(files[1]);
       for (const [index, file] of files.entries()) {

@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { removeRoomEditDraft } from "../src/client/room/onboarding";
+import { removeRoomEditDraft, roomDraftRequest } from "../src/client/room/onboarding";
 import { RoomStateSchema } from "../src/shared/room";
 import { Store } from "../src/server/jobs/store";
 import { RequestSchema, type Run } from "../src/shared/contracts";
@@ -70,3 +70,51 @@ it("persists draft removal across reload while preserving the project and video 
     await rm(folder, { recursive: true, force: true });
   }
 });
+
+it.each(["qwen3-tts", "qwen3-tts-base"])(
+  "opens a saved %s draft using the shared speech migration",
+  (engine) => {
+    const draft = {
+      step: 0,
+      assets: [],
+      request: {
+        instructions: "Keep this complete original idea",
+        urls: ["https://example.com"],
+        scriptItems: [
+          {
+            id: "intro",
+            startSeconds: 0,
+            endSeconds: 8,
+            text: "Original narration",
+            showSubtitles: true,
+            speech: {
+              mode: "narration",
+              engine,
+              voice: "retired-voice",
+              language: "en",
+              speed: 1,
+              volume: 0.8,
+            },
+          },
+        ],
+      },
+    };
+    const before = JSON.stringify(draft);
+    for (const saved of [
+      draft,
+      RoomStateSchema.parse({ drafts: { "edit:example": draft } }).drafts["edit:example"],
+    ]) {
+      const request = roomDraftRequest(saved);
+      if (request.outputType !== "video") throw Error("Expected a video draft");
+      expect(request.instructions).toBe(draft.request.instructions);
+      expect(request.urls).toEqual(draft.request.urls);
+      expect(request.scriptItems?.[0]).toMatchObject({
+        text: "Original narration",
+        startSeconds: 0,
+        endSeconds: 8,
+        speech: { engine: "ming-tts", voice: "ming_original_female", speed: 1, volume: 0.8 },
+      });
+    }
+    expect(JSON.stringify(draft)).toBe(before);
+  },
+);

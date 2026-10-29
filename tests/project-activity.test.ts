@@ -132,3 +132,30 @@ it("pages one parent's children without mixing other versions or project prepara
     store.close();
   }
 });
+
+it("retains correction model metadata without retaining diagnostic payloads", () => {
+  expect(
+    projectActivityEvent(
+      event(1, "tool", {
+        model: "claude-haiku-5-5",
+        correctionTier: "cheap",
+        correctionAttempt: 1,
+        correctionIssueKey: "private diagnostic",
+        prompt: "private prompt",
+      }),
+    )?.data,
+  ).toEqual({ model: "claude-haiku-5-5", correctionTier: "cheap", correctionAttempt: 1 });
+});
+
+it("preserves aggregate render counters through lightweight activity transport", () => {
+  const progress = {
+    renderer: "multiplane",
+    phase: "shots",
+    completed: 2,
+    total: 4,
+    completedFrames: 150,
+    totalFrames: 300,
+    pendingValidation: true,
+  };
+  expect(projectActivityEvent(event(1, "render_progress", progress))?.data).toEqual(progress);
+});

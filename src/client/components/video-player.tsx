@@ -13,7 +13,7 @@ import {
 } from "react";
 import { Button, Popover, Slider } from "antd";
 import { Maximize, Minimize, Pause, Play, Volume2, VolumeX } from "lucide-react";
-import { playbackTime } from "../lib/video-playback";
+import { playbackTime, pauseOtherPlayback } from "../lib/video-playback";
 import "./video-player.css";
 
 type VideoPlayerProps = Omit<VideoHTMLAttributes<HTMLVideoElement>, "controls"> & {
@@ -108,6 +108,7 @@ export function VideoPlayer({ ref, src, languageMedia, ...props }: VideoPlayerPr
           props.onTimeUpdate?.(event);
         }}
         onPlay={(event) => {
+          if (!event.currentTarget.muted) pauseOtherPlayback(event.currentTarget);
           sync();
           props.onPlay?.(event);
         }}
@@ -120,6 +121,8 @@ export function VideoPlayer({ ref, src, languageMedia, ...props }: VideoPlayerPr
           props.onEnded?.(event);
         }}
         onVolumeChange={(event) => {
+          if (!event.currentTarget.paused && !event.currentTarget.muted)
+            pauseOtherPlayback(event.currentTarget);
           sync();
           props.onVolumeChange?.(event);
         }}

@@ -1,3 +1,5 @@
+import { jobDownloadBasename } from "../shared/job-download-name";
+import { StyleDetailActions } from "./components/style-detail-actions";
 import { LoadingStatus } from "./components/loading-status";
 import { LanguageTrackSettings } from "./components/language-track-settings";
 import type { LanguageTracks } from "../shared/language-tracks";
@@ -713,6 +715,7 @@ function App() {
       candidate,
       candidate ? run!.candidates.indexOf(candidate) + 1 : undefined,
     );
+    const downloadName = jobDownloadBasename(run, job);
     const fullVersionBuilt = run!.jobs.some(
       (existingJob) =>
         existingJob.kind === "full" &&
@@ -781,7 +784,7 @@ function App() {
                 role="group"
                 aria-label={translateUi("Result actions")}
               >
-                {job.kind === "full" && <ProjectDownload runId={run.id} job={job} />}
+                {job.kind === "full" && <ProjectDownload run={run} job={job} />}
                 {job.phase === "ready" && (
                   <>
                     <Tooltip
@@ -799,7 +802,7 @@ function App() {
                             ? `/api/projects/${run.id}/${job.id}`
                             : artifactUrl(run, job, job.video!)
                         }
-                        download
+                        download={`${downloadName}.${job.outputType === "page" ? "zip" : "mp4"}`}
                         aria-label={translateUi(
                           job.outputType === "page" ? "Download HTML bundle" : "Download MP4",
                         )}
@@ -877,7 +880,7 @@ function App() {
               <PromptText>{candidate.displayDescription}</PromptText>
             </p>
           )}
-          {media && <LanguageMediaDownloads media={media} />}
+          {media && <LanguageMediaDownloads media={media} downloadName={downloadName} />}
           {activity}
           {job.phase === "failed" && job.error && (
             <p className="failure">
@@ -1005,12 +1008,7 @@ function App() {
           navigate("/styles");
         }}
         wide
-        footer={
-          <Button type="primary" className="primary" onClick={() => onUse(detail)}>
-            {translateUi("Use this Motion Graphic") + " "}
-            <ArrowRight size={16} />
-          </Button>
-        }
+        footer={<StyleDetailActions style={detail} onUse={onUse} />}
       >
         <div className="style-detail">
           <div>

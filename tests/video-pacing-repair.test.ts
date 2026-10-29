@@ -1,3 +1,4 @@
+import { fixedCorrectionOutcome } from "./fixtures/video-correction";
 import { validStoryboard } from "./fixtures/storyboard";
 import { type Production, type Brief } from "../src/shared/agents/schemas/video";
 import { expect, it, vi } from "vitest";
@@ -101,7 +102,11 @@ it("repairs a stretched pacing plan before marking a full video ready", async ()
         },
       })
       .mockResolvedValueOnce({
-        value: { ...production, storyboard: validStoryboard(production.duration) },
+        value: {
+          correctionOutcome: fixedCorrectionOutcome,
+          ...production,
+          storyboard: validStoryboard(production.duration),
+        },
       })
       .mockResolvedValueOnce({ value: { ...review, pacingPlan: "balanced", corrections: [] } });
     vi.mocked(renderJob).mockResolvedValue({

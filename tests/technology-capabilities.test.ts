@@ -1,3 +1,4 @@
+import { prepareProjectLayout, workspaceFolders } from "../src/server/runtime/workspace";
 import { mkdtemp, mkdir, writeFile, readFile, readdir, rm, symlink } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -189,4 +190,21 @@ it("does not mistake an executable directory for an installed command", async ()
       "python",
     ),
   ).toMatchObject({ status: "unavailable" });
+});
+
+it("puts browser bundles and stylesheets inside versioned render inputs", async () => {
+  const { root, pkg } = await fixture();
+  await writeFile(path.join(pkg, "style.css"), "body { color: red; }");
+  const workspace = await folder();
+  await prepareProjectLayout(workspace);
+  const module = await prepareTechnology("gsap", workspace, signal(), root);
+  const css = await prepareTechnologyStylesheet("gsap", "style.css", workspace, signal(), root);
+  expect(module.modulePath.startsWith(`${workspaceFolders.artifacts}/`)).toBe(true);
+  expect(module.importStatement).toContain('from "./technology-');
+  expect(module.importStatement).not.toContain('from "./artifacts/');
+  expect(css.cssPaths.every((file) => file.startsWith(`${workspaceFolders.artifacts}/`))).toBe(
+    true,
+  );
+  expect(await readFile(path.join(workspace, module.modulePath), "utf8")).toContain("fixture");
+  expect(await readFile(path.join(workspace, css.cssPaths[0]), "utf8")).toContain("red");
 });

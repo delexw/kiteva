@@ -1,3 +1,6 @@
+import { prepareProjectLayout, workspaceFolders } from "../src/server/runtime/workspace";
+import { speechWorkspacePaths } from "../src/server/audio/workspace";
+import { readdir } from "node:fs/promises";
 import { SpeechSettingsSchema } from "../src/shared/speech";
 import { afterEach, expect, it, vi } from "vitest";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
@@ -453,14 +456,14 @@ it("does not synthesize a subtitle-only timeline even when legacy narration rema
   expect(synthesize).not.toHaveBeenCalled();
 });
 
-it("regenerates edited Qwen voice audio while reusing the written script", async () => {
-  const { qwenVoices } = await import("../src/shared/speech");
-  const voice = qwenVoices[0];
-  const original = voice.description;
+it("regenerates edited Ming reference voice audio while reusing the written script", async () => {
+  const { mingVoices } = await import("../src/shared/speech");
+  const voice = mingVoices.find((voice) => voice.id === "ming_original_female")!;
+  const original = voice.revision;
   const options = await input();
   options.request.speech = SpeechSettingsSchema.parse({
     mode: "narration",
-    engine: "qwen3-tts",
+    engine: "ming-tts",
     voice: voice.id,
     source: "write",
   });
@@ -473,12 +476,34 @@ it("regenerates edited Qwen voice audio while reusing the written script", async
   });
   try {
     const first = await prepareSpeech(options, { generate, synthesize });
-    voice.description = original + " Steady broadcast diction.";
+    voice.revision = (original || 0) + 1;
     const second = await prepareSpeech(options, { generate, synthesize });
     expect(second?.file).not.toBe(first?.file);
     expect(synthesize).toHaveBeenCalledTimes(2);
     expect(generate).toHaveBeenCalledTimes(1);
   } finally {
-    voice.description = original;
+    voice.revision = original;
+  }
+});
+
+it("separates speech media from checkpoints for new project roots and child tasks", async () => {
+  const options = await input();
+  await prepareProjectLayout(options.workspace);
+  for (const workspace of [
+    options.workspace,
+    path.join(options.workspace, workspaceFolders.languageContext, "en", "cue-1"),
+  ]) {
+    const synthesize = vi.fn(async (_text: string, file: string) => {
+      expect(file.startsWith(path.join(options.workspace, workspaceFolders.speech))).toBe(true);
+      await tone(file);
+      return 0.25;
+    });
+    const track = await prepareSpeech({ ...options, workspace }, { synthesize });
+    const paths = speechWorkspacePaths(workspace);
+    expect(path.resolve(workspace, track!.file).startsWith(paths.media)).toBe(true);
+    expect((await readdir(paths.media)).every((name) => name.endsWith(".wav"))).toBe(true);
+    expect((await readdir(paths.context)).some((name) => name.endsWith(".json"))).toBe(true);
+    expect(await prepareSpeech({ ...options, workspace }, { synthesize })).toEqual(track);
+    expect(synthesize).toHaveBeenCalledTimes(2);
   }
 });

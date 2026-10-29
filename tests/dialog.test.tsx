@@ -15,7 +15,12 @@ describe("Ant Design dialog", () => {
       open: true,
       title: "Motion Graphic details",
       focusable: { trap: true, focusTriggerAfterClose: true },
-      width: "min(1100px, calc(100vw - 32px))",
+      width: "calc(100vw - 32px)",
+      centered: true,
+      styles: {
+        container: { height: "calc(100dvh - 32px)", display: "flex", flexDirection: "column" },
+        body: { flex: 1, minHeight: 0 },
+      },
     });
     expect(renderToStaticMarkup(modal.props.children)).toBe(
       '<div class="dialog-body"><p>Scrollable content</p></div>',

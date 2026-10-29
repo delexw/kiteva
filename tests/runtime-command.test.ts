@@ -1,10 +1,11 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { afterEach, expect, it, vi } from "vitest";
 import { appRoot } from "../src/server/runtime/config";
 import { command } from "../src/server/runtime/process";
 afterEach(() => vi.unstubAllEnvs());
 it("keeps machine-readable stdout intact while redacting the display channel", async () => {
   const fake = "fixture-not-a-real-api-key";
-  vi.stubEnv("ANTHROPIC_API_KEY", fake);
+  vi.stubEnv(credentialEnvironmentVariables.anthropicApiKey, fake);
   let stdout = "";
   const display = await command(
     process.execPath,

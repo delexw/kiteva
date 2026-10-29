@@ -1,3 +1,5 @@
+import { prepareProjectLayout, workspacePaths } from "../src/server/runtime/workspace";
+import sharp from "sharp";
 import { afterEach, expect, it } from "vitest";
 import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
@@ -141,3 +143,31 @@ it("stops checkpoint and cache preparation before creating output when the calle
     inheritRendererCache(source.workspace, job.workspace, "Multiplane", signal),
   ).rejects.toThrow("Stop project");
 });
+
+it.each([false, true])(
+  "copies refinement references into the matching media role (versioned=%s)",
+  async (versioned) => {
+    const { root, source, job } = await fixture();
+    if (versioned) await prepareProjectLayout(source.workspace);
+    const bytes = await sharp({ create: { width: 8, height: 8, channels: 4, background: "red" } })
+      .png()
+      .toBuffer();
+    const file = path.join(root, "reference.png");
+    await writeFile(file, bytes);
+    await prepareVideoRefinement(source, job, "Multiplane", new AbortController().signal, [
+      {
+        id: "reference",
+        name: "reference.png",
+        path: file,
+        kind: "image/png",
+        bytes: bytes.length,
+      },
+    ]);
+    const expected = `${workspacePaths(job.workspace).refinementImages}/reference.png`;
+    const images = JSON.parse(
+      await readFile(path.join(job.workspace, "REFINEMENT_IMAGES.json"), "utf8"),
+    );
+    expect(images[0].originalPath).toBe(expected);
+    expect(await readFile(path.join(job.workspace, expected))).toEqual(bytes);
+  },
+);

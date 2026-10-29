@@ -1,0 +1,257 @@
+{
+  "model": "inclusionAI/Ming-3.0-tts-0.5b",
+  "modelRevision": "7247f4c94a5b2e987404ed28a5cfec41b1a4ca61",
+  "sourceRevision": "9332fb9443325d4726ce02cefd4ec1c211df4079",
+  "policyRevision": 2,
+  "languages": [
+    {
+      "id": "en",
+      "label": "English"
+    },
+    {
+      "id": "zh",
+      "label": "Chinese"
+    },
+    {
+      "id": "ja",
+      "label": "Japanese"
+    },
+    {
+      "id": "ko",
+      "label": "Korean"
+    },
+    {
+      "id": "de",
+      "label": "German"
+    },
+    {
+      "id": "fr",
+      "label": "French"
+    },
+    {
+      "id": "es",
+      "label": "Spanish"
+    }
+  ],
+  "voices": [
+    {
+      "id": "ming_xiaorou",
+      "ip": "灵小柔",
+      "label": "灵小柔",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaoan",
+      "ip": "灵小安",
+      "label": "灵小安",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_yuxi",
+      "ip": "灵语汐",
+      "label": "灵语汐",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaomeng",
+      "ip": "灵小萌",
+      "label": "灵小萌",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaoya",
+      "ip": "灵小雅",
+      "label": "灵小雅",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_huaxiaobei",
+      "ip": "花小呗",
+      "label": "花小呗",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_lingyun",
+      "ip": "灵韵",
+      "label": "灵韵",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_daji",
+      "ip": "妩媚妲己",
+      "label": "妩媚妲己",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_lingwan",
+      "ip": "灵婉",
+      "label": "灵婉",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaoyue",
+      "ip": "灵小月",
+      "label": "灵小月",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_duoer",
+      "ip": "灵朵儿",
+      "label": "灵朵儿",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaozhen",
+      "ip": "灵小甄",
+      "label": "灵小甄",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaozhi",
+      "ip": "灵小知",
+      "label": "灵小知",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaohui",
+      "ip": "灵小惠",
+      "label": "灵小惠",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaoqing",
+      "ip": "灵小晴",
+      "label": "灵小晴",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_lingmeng",
+      "ip": "灵梦",
+      "label": "灵梦",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_lingtian",
+      "ip": "灵恬",
+      "label": "灵恬",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaoxi",
+      "ip": "灵小汐",
+      "label": "灵小汐",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaotang",
+      "ip": "灵小棠",
+      "label": "灵小棠",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaoli",
+      "ip": "灵小梨",
+      "label": "灵小梨",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaoyun",
+      "ip": "灵小芸",
+      "label": "灵小芸",
+      "gender": "female",
+      "language": "zh"
+    },
+    {
+      "id": "ming_xiaofeng",
+      "ip": "灵小锋",
+      "label": "灵小锋",
+      "gender": "male",
+      "language": "zh"
+    },
+    {
+      "id": "ming_lingxu",
+      "ip": "灵旭",
+      "label": "灵旭",
+      "gender": "male",
+      "language": "zh"
+    },
+    {
+      "id": "ming_lingkai",
+      "ip": "灵楷",
+      "label": "灵楷",
+      "gender": "male",
+      "language": "zh"
+    },
+    {
+      "id": "ming_emma",
+      "ip": "US_Emma",
+      "label": "US_Emma",
+      "gender": "female",
+      "language": "en"
+    },
+    {
+      "id": "ming_george",
+      "ip": "UK_George",
+      "label": "UK_George",
+      "gender": "male",
+      "language": "en"
+    },
+    {
+      "id": "ming_charlotte",
+      "ip": "UK_Charlotte",
+      "label": "UK_Charlotte",
+      "gender": "female",
+      "language": "en"
+    },
+    {
+      "id": "ming_original_female",
+      "ip": "",
+      "label": "Original narrator",
+      "gender": "female",
+      "language": "zh",
+      "referenceAudio": "../../assets/speech/ming-tts/original-narrator.wav",
+      "referenceText": "和不必要的额度消耗致歉，为所有订阅用户一次性重置用量，最多恢复月度额度的百分之二十五。该公司同时调整方案参数，减少 Kimi Code CLI 与桌面端中。",
+      "revision": 1
+    }
+  ],
+  "blockedTags": [
+    "[Breathing]",
+    "[Cough]",
+    "[Sigh]",
+    "[Laughter]",
+    "[Surprise-ah]",
+    "[Surprise-oh]",
+    "[Dissatisfaction-hnn]",
+    "[Uhm]",
+    "[Confirmation-en]",
+    "[Question-ei]",
+    "[Question-ah]",
+    "[Question-en]",
+    "[Question-oh]",
+    "[Question-huh]"
+  ],
+  "defaultVoice": "ming_xiaorou",
+  "mlxModel": "mlx-community/Ming-3.0-tts-0.5B-bf16",
+  "mlxRevision": "283b3c342c6fb69a7a87832c97f9799567efe05d",
+  "mlxAudioVersion": "0.6.2"
+}

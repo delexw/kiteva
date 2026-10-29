@@ -1,3 +1,4 @@
+import { projectArtifactPath } from "../../../runtime/workspace";
 import { RetryBudget, RetryBudgets } from "../../../../shared/retry-budget";
 import {
   BriefAssetReviewSchema,
@@ -104,7 +105,7 @@ export async function reviewBriefAssets<
     const screenshots = await readReferenceScreenshots(input.workspace);
     const assetPaths = [
       ...inventory.attachments.map((asset) => asset.originalPath),
-      ...screenshots.map((image) => `assets/${image.name}`),
+      ...screenshots.map((image) => projectArtifactPath(input.workspace, "assets", image.name)),
     ];
     await writeFile(
       path.join(input.workspace, "brief-asset-review-input.json"),

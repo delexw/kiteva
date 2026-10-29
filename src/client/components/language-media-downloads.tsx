@@ -3,7 +3,13 @@ import { Select } from "antd";
 import type { LanguageMedia } from "../../shared/language-tracks";
 import { videoLanguageLabel } from "../../shared/video-language";
 import { translateUi, useUiLanguage } from "../i18n";
-export function LanguageMediaDownloads({ media }: { media: LanguageMedia }) {
+export function LanguageMediaDownloads({
+  media,
+  downloadName,
+}: {
+  media: LanguageMedia;
+  downloadName: string;
+}) {
   useUiLanguage();
   const [language, setLanguage] = useState(media.defaultNarration || media.narration[0]?.language);
   const [subtitle, setSubtitle] = useState(media.subtitles[0]?.language);
@@ -26,7 +32,7 @@ export function LanguageMediaDownloads({ media }: { media: LanguageMedia }) {
             }))}
             onChange={setLanguage}
           />
-          <a href={selected.video} download>
+          <a href={selected.video} download={`${downloadName}-${selected.language}.mp4`}>
             {translateUi("Download MP4")}
           </a>
           <Select
@@ -38,12 +44,15 @@ export function LanguageMediaDownloads({ media }: { media: LanguageMedia }) {
             ]}
             onChange={setAudio}
           />
-          <a href={audio === "mix" ? selected.mix : selected.audio} download>
+          <a
+            href={audio === "mix" ? selected.mix : selected.audio}
+            download={`${downloadName}-${selected.language}-${audio}.${audio === "mix" ? "m4a" : "wav"}`}
+          >
             {translateUi("Download audio")}
           </a>
         </>
       ) : (
-        <a href={media.musicVideo} download>
+        <a href={media.musicVideo} download={`${downloadName}.mp4`}>
           {translateUi("Download MP4")}
         </a>
       )}
@@ -58,10 +67,10 @@ export function LanguageMediaDownloads({ media }: { media: LanguageMedia }) {
             }))}
             onChange={setSubtitle}
           />
-          <a href={captions.srt} download>
+          <a href={captions.srt} download={`${downloadName}-${captions.language}.srt`}>
             SRT
           </a>{" "}
-          <a href={captions.vtt} download>
+          <a href={captions.vtt} download={`${downloadName}-${captions.language}.vtt`}>
             VTT
           </a>
         </>

@@ -349,6 +349,7 @@ it.each([
       displayTitle: "An idea",
       displayDescription: "An idea appears",
       audioDescription: "Silent",
+      audioTracks: [],
       limitations: [],
       storyboard: validStoryboard(duration),
     };
@@ -790,6 +791,7 @@ it("preserves the reconciled production storyboard when resuming narration for a
     displayTitle: "A result",
     displayDescription: "A result appears",
     audioDescription: "Silent",
+    audioTracks: [],
     limitations: [],
   };
   const reconciled = { ...validStoryboard(3), title: "Reconciled with actual footage and speech" };

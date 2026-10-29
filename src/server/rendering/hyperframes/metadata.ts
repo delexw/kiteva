@@ -1,3 +1,4 @@
+import { separateAudioGuidance } from "../../../shared/audio-tracks";
 import { sharedRendererAudioPolicy, type RendererMetadata } from "../metadata";
 
 export const hyperframesMetadata = {
@@ -39,8 +40,7 @@ export const hyperframesMetadata = {
       "Place audio sources on the composition timeline with verified timing and levels",
       "Render the composition; Kiteva mixes prepared narration afterward",
     ],
-    guidance:
-      "HYPERFRAMES AUDIO HANDOFF: Create or inspect the actual local soundtrack assets before integrating them as documented composition audio media tracks. Set timeline timing and levels explicitly and verify the exported mix; do not assume a production.audioFile value alone is consumed by the HyperFrames path. Renderer playback is not music generation. Keep application-prepared narration separate for Kiteva's post-render mix. Respect uploaded sources; an empty music request adds no soundtrack task.",
+    guidance: `${separateAudioGuidance}\nHYPERFRAMES AUDIO HANDOFF: Create or inspect the actual local soundtrack assets before integrating them as documented composition audio media tracks. Set timeline timing and levels explicitly and verify the exported mix; do not assume a production.audioFile value alone is consumed by the HyperFrames path. Renderer playback is not music generation. Keep application-prepared narration separate for Kiteva's post-render mix. Respect uploaded sources; an empty music request adds no soundtrack task.`,
   },
   limitations: [
     "Local dependencies and assets only; no network imports or external music generation services",

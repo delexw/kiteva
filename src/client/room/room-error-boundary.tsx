@@ -1,9 +1,9 @@
 import { translateUi } from "../i18n/service";
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { Alert, Button } from "antd";
+import { Alert, Button, Space } from "antd";
 
 export class RoomErrorBoundary extends Component<
-  { children: ReactNode; label: string },
+  { children: ReactNode; label: string; recoveryAction?: ReactNode },
   { error?: Error }
 > {
   state: { error?: Error } = {};
@@ -23,9 +23,12 @@ export class RoomErrorBoundary extends Component<
           title={translateUi("{{label}} couldn’t be shown", { label: this.props.label })}
           description={translateUi("Nothing was deleted. The rest of your room still works.")}
           action={
-            <Button size="small" onClick={() => this.setState({ error: undefined })}>
-              {translateUi("Try again")}
-            </Button>
+            <Space wrap>
+              <Button size="small" onClick={() => this.setState({ error: undefined })}>
+                {translateUi("Try again")}
+              </Button>
+              {this.props.recoveryAction}
+            </Space>
           }
         />
       </div>

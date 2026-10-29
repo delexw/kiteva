@@ -1,3 +1,4 @@
+import { normalizeRetiredSpeechSelections } from "../../shared/speech-compatibility";
 import { applyLanguageTracks } from "../../shared/language-tracks";
 import { normalizeSubtitleFields } from "../../shared/subtitle-compatibility";
 import { ScriptItemDraftSchema } from "../../shared/script-items";
@@ -127,8 +128,10 @@ const strings = (value: unknown) =>
  * half-written links) are kept as typed; anything unusable falls back to its default.
  */
 export function roomDraftRequest(draft: Partial<RoomDraft>): CreativeRequest {
-  const saved = normalizeSubtitleFields(
-    draft.request && typeof draft.request === "object" ? draft.request : {},
+  const saved = normalizeRetiredSpeechSelections(
+    normalizeSubtitleFields(
+      draft.request && typeof draft.request === "object" ? draft.request : {},
+    ),
   ) as Record<string, unknown>;
   const merged = { ...initialRoomRequest(), ...saved };
   const count =

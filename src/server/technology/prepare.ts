@@ -1,3 +1,4 @@
+import { renderInputRoot } from "../runtime/workspace";
 import { mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { build, type BuildOptions } from "esbuild";
@@ -75,7 +76,8 @@ export async function prepareTechnology(
   if (availability.status !== "available" || !availability.entry)
     throw Error(`${availability.name}: ${availability.guidance}`);
   const directory = await realpath(workspace);
-  const output = await mkdtemp(path.join(directory, `technology-${id}-`));
+  const renderDirectory = await realpath(renderInputRoot(workspace));
+  const output = await mkdtemp(path.join(renderDirectory, `technology-${id}-`));
   const relative = (file: string) => path.relative(directory, file).split(path.sep).join("/");
   try {
     const result = await build({
@@ -110,7 +112,7 @@ export async function prepareTechnology(
       modulePath: relative(path.join(output, "index.js")),
       cssPaths: outputs.filter((file) => file.endsWith(".css")).map(relative),
       assetPaths: outputs.filter((file) => !/\.(?:js|css)$/.test(file)).map(relative),
-      importStatement: `import { technology } from "./${relative(path.join(output, "index.js"))}";`,
+      importStatement: `import { technology } from "./${path.relative(renderDirectory, path.join(output, "index.js")).split(path.sep).join("/")}";`,
       packages,
       guidance:
         "Local browser bundle compiled successfully; this is not proof that the composition uses it or that every API works. Import the returned module from a module script (adjust the relative path for nested shots). The technology export is the package namespace; inspect its actual exports, including default for CommonJS libraries. Load every returned CSS file and retain its local assets. Import any additional package stylesheet through prepare_technology_stylesheet. Follow the canonical technology lifecycle, licensing and renderer-specific time/seek guidance. Choose and verify the implementation yourself; preparing a library does not require using it.",
@@ -149,7 +151,9 @@ export async function prepareTechnologyStylesheet(
   if (!source.startsWith(packageRoot + path.sep))
     throw Error("Stylesheet must remain inside its catalog package.");
   signal.throwIfAborted();
-  const output = await mkdtemp(path.join(await realpath(workspace), `technology-${id}-css-`));
+  const output = await mkdtemp(
+    path.join(await realpath(renderInputRoot(workspace)), `technology-${id}-css-`),
+  );
   try {
     const result = await build({
       ...projectBrowserBundle(root),

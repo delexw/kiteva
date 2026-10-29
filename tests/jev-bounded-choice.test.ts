@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { afterEach, expect, it, vi } from "vitest";
 import { runBoundedJevChoice, jevChoiceInputByteBudget } from "../src/server/jev/bounded-choice";
 afterEach(() => {
@@ -40,7 +41,7 @@ function response(payload: { questions: { direction: { criteria: Record<string, 
   );
 }
 it("splits oversized comparisons before dispatch and presents every candidate to JEV", async () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
   const seen = new Set<string>();
   const fetch = vi.fn(async (_url, init) => {
     const payload = JSON.parse(init.body);
@@ -57,7 +58,7 @@ it("splits oversized comparisons before dispatch and presents every candidate to
   expect(fetch).toHaveBeenCalledTimes(3);
 });
 it("splits a provider token-limit rejection, but propagates other errors", async () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
   let first = true;
   const fetch = vi.fn(async (_url, init) => {
     if (first) {
@@ -97,7 +98,7 @@ it("honors cancellation before any dispatch", async () => {
 });
 
 it("carries an uncontested subgroup into the finalist comparison without inventing a confidence", async () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
   const fetch = vi.fn(async (_url, init) => {
     const payload = JSON.parse(init.body);
     expect(Object.keys(payload.questions.direction.criteria)).toHaveLength(2);
@@ -111,7 +112,7 @@ it("carries an uncontested subgroup into the finalist comparison without inventi
 });
 
 it("keeps a near-tie Choice certainty distinct from the chosen probability and records the answer", async () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
   vi.stubGlobal(
     "fetch",
     async () =>

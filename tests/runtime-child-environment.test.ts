@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { projectRuntimeEnvironment } from "../src/server/runtime/project-files";
 import path from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
@@ -16,10 +17,12 @@ it("keeps package caches inside the job despite inherited host cache settings", 
 });
 
 it("passes the research credential without copying arbitrary host environment variables", () => {
-  vi.stubEnv("ANYSEARCH_API_KEY", "test-research-credential");
+  vi.stubEnv(credentialEnvironmentVariables.anysearchApiKey, "test-research-credential");
   vi.stubEnv("UNRELATED_HOST_SECRET", "test-host-credential");
   const environment = childEnvironment();
-  expect(environment).toMatchObject({ ANYSEARCH_API_KEY: "test-research-credential" });
+  expect(environment).toMatchObject({
+    [credentialEnvironmentVariables.anysearchApiKey]: "test-research-credential",
+  });
   expect(environment).not.toHaveProperty("UNRELATED_HOST_SECRET");
   expect(environment).not.toHaveProperty("npm_config_cache");
 });

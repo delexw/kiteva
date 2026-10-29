@@ -39,14 +39,12 @@ export function createNarrationTools(
   for (const definition of [
     {
       name: "create_narration",
-      description:
-        "Create or replace narration from timed text cues using configured voices. Read audio/narration.json and supply its expectedRevision when replacing. Returns measured durations and cues; Kiteva performs final mixing.",
+      description: `Create or replace narration from timed text cues using configured voices. Read ${narrationStatePath} and supply its expectedRevision when replacing. Returns measured durations and cues; Kiteva performs final mixing.`,
       schema: CreateNarrationSchema,
     },
     {
       name: "edit_narration",
-      description:
-        "Edit selected narration cue text or startSeconds. Timing-only edits reuse speech; text changes synthesize only changed cues. Read audio/narration.json first and pass expectedRevision. Returns updated measured cues.",
+      description: `Edit selected narration cue text or startSeconds. Timing-only edits reuse speech; text changes synthesize only changed cues. Read ${narrationStatePath} first and pass expectedRevision. Returns updated measured cues.`,
       schema: EditNarrationSchema,
     },
   ]) {

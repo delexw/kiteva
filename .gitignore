@@ -36,6 +36,7 @@ coverage/
 *.tsbuildinfo
 
 # Downloaded speech model weights and voice states (setup recreates these)
+/models/ming-tts/
 /models/qwen3-tts/
 /models/qwen3-tts-base/
 /models/kokoro/

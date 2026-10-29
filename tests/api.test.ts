@@ -1,6 +1,11 @@
+import {
+  prepareProjectLayout,
+  projectArtifactPath,
+  workspaceFolders,
+} from "../src/server/runtime/workspace";
 import * as nativeReadiness from "../src/server/rendering/sandbox/readiness";
 import { CodedError } from "../src/shared/errors";
-import { mkdtemp, writeFile, rm, mkdir, access } from "node:fs/promises";
+import { mkdtemp, writeFile, rm, mkdir, access, symlink } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import type { Run } from "../src/shared/contracts";
 import path from "node:path";
@@ -365,6 +370,9 @@ describe("local application API", () => {
       const response = await server.app.inject({ url, headers });
       expect(response.statusCode).toBe(200);
       expect(response.headers["content-type"]).toContain("application/zip");
+      expect(response.headers["content-disposition"]).toBe(
+        "attachment; filename*=UTF-8''your-direction-v1.zip",
+      );
       expect(unzipSync(response.rawPayload)["source/shot.html"]).toBeDefined();
     } finally {
       server.store.delete(id);
@@ -516,59 +524,87 @@ describe("local application API", () => {
     });
     expect(invalid.statusCode).toBe(400);
   });
-  it("serves ready pages in a script-enabled opaque sandbox and restricts resources to their workspace", async () => {
-    const workspace = await mkdtemp(path.join(dataRoot, "page-api-test-"));
-    try {
-      await writeFile(
-        path.join(workspace, "index.html"),
-        "<!doctype html><title>Example</title><button>Explore</button>",
-      );
-      server.store.save({
-        id: "page-test",
-        createdAt: new Date().toISOString(),
-        phase: "ready",
-        request: RequestSchema.parse({ outputType: "page", instructions: "Explore a diagram" }),
-        candidates: [],
-        jobs: [
-          {
-            outputType: "page",
-            id: "page-job",
-            runId: "page-test",
-            candidateId: "candidate",
-            kind: "preview",
-            phase: "ready",
-            workspace,
-            model: "test",
-            page: "index.html",
-          },
-        ],
-      });
-      const response = await server.app.inject({
-        url: "/api/pages/page-test/page-job/index.html",
-        headers: { ...headers, origin: "null" },
-      });
-      expect(response.statusCode).toBe(200);
-      expect(response.headers["content-type"]).toContain("text/html");
-      const policy = String(response.headers["content-security-policy"]);
-      expect(policy).toContain("sandbox allow-scripts");
-      expect(policy).not.toContain("allow-same-origin");
-      expect(policy).toContain("connect-src 'none'");
-      expect(policy).toContain("/api/pages/page-test/page-job/");
-      expect(response.headers["content-disposition"]).toBeUndefined();
-      const blocked = await server.app.inject({
-        url: "/api/runs",
-        headers: { ...headers, origin: "null" },
-      });
-      expect(blocked.statusCode).toBe(403);
-      const invalid = await server.app.inject({
-        url: "/api/pages/page-test/page-job/../../jobs.sqlite",
-        headers,
-      });
-      expect(invalid.statusCode).not.toBe(200);
-    } finally {
-      await rm(workspace, { recursive: true, force: true });
-    }
-  });
+  it.each([false, true])(
+    "serves pages and resources from their render input root (versioned=%s)",
+    async (versioned) => {
+      const runId = `page-layout-${versioned}`;
+      const workspace = await mkdtemp(path.join(dataRoot, "page-api-test-"));
+      try {
+        if (versioned) await prepareProjectLayout(workspace);
+        const entry = projectArtifactPath(workspace, "index.html");
+        await writeFile(
+          path.join(workspace, projectArtifactPath(workspace, "page.css")),
+          "body { color: red; }",
+        );
+        await writeFile(
+          path.join(workspace, entry),
+          '<!doctype html><title>Example</title><link rel="stylesheet" href="page.css"><button>Explore</button>',
+        );
+        server.store.save({
+          id: runId,
+          createdAt: new Date().toISOString(),
+          phase: "ready",
+          request: RequestSchema.parse({ outputType: "page", instructions: "Explore a diagram" }),
+          candidates: [],
+          jobs: [
+            {
+              outputType: "page",
+              id: "page-job",
+              runId,
+              candidateId: "candidate",
+              kind: "preview",
+              phase: "ready",
+              workspace,
+              model: "test",
+              page: entry,
+            },
+          ],
+        });
+        const response = await server.app.inject({
+          url: `/api/pages/${runId}/page-job/index.html`,
+          headers: { ...headers, origin: "null" },
+        });
+        expect(response.statusCode, response.body).toBe(200);
+        expect(response.body).toContain("<button>Explore</button>");
+        const css = await server.app.inject({
+          url: `/api/pages/${runId}/page-job/page.css`,
+          headers,
+        });
+        expect(css.statusCode).toBe(200);
+        expect(css.body).toBe("body { color: red; }");
+        if (versioned) {
+          const context = path.join(workspace, workspaceFolders.taskContext, "private.txt");
+          await writeFile(context, "task-only data");
+          await symlink(context, path.join(workspace, workspaceFolders.artifacts, "linked.txt"));
+          const escaped = await server.app.inject({
+            url: `/api/pages/${runId}/page-job/linked.txt`,
+            headers,
+          });
+          expect(escaped.statusCode).not.toBe(200);
+          expect(escaped.body).not.toContain("task-only data");
+        }
+        expect(response.headers["content-type"]).toContain("text/html");
+        const policy = String(response.headers["content-security-policy"]);
+        expect(policy).toContain("sandbox allow-scripts");
+        expect(policy).not.toContain("allow-same-origin");
+        expect(policy).toContain("connect-src 'none'");
+        expect(policy).toContain(`/api/pages/${runId}/page-job/`);
+        expect(response.headers["content-disposition"]).toBeUndefined();
+        const blocked = await server.app.inject({
+          url: "/api/runs",
+          headers: { ...headers, origin: "null" },
+        });
+        expect(blocked.statusCode).toBe(403);
+        const invalid = await server.app.inject({
+          url: `/api/pages/${runId}/page-job/../../jobs.sqlite`,
+          headers,
+        });
+        expect(invalid.statusCode).not.toBe(200);
+      } finally {
+        await rm(workspace, { recursive: true, force: true });
+      }
+    },
+  );
   it("does not expose arbitrary filesystem paths as artifacts", async () => {
     const bad = await server.app.inject({
       url: "/api/artifacts/unknown/job/%2e%2e%2fauth.json",

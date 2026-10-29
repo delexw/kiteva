@@ -1,3 +1,4 @@
+import { workspacePaths } from "../../../runtime/workspace";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createHash } from "node:crypto";
 import { lstat, mkdir, mkdtemp, rename, rm, writeFile } from "node:fs/promises";
@@ -124,7 +125,11 @@ export function createComponentRegistryTools(options: {
           let base = path.resolve(options.workspace);
           if (!(await lstat(base)).isDirectory())
             throw Error("Workspace must be a directory, not a link");
-          for (const segment of ["components", definition.id, name]) {
+          for (const segment of [
+            ...workspacePaths(options.workspace).components.split("/"),
+            definition.id,
+            name,
+          ]) {
             base = path.join(base, segment);
             await mkdir(base).catch((error: NodeJS.ErrnoException) => {
               if (error.code !== "EEXIST") throw error;

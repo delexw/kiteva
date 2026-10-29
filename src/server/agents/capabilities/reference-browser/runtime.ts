@@ -1,3 +1,4 @@
+import { workspacePaths, hasProjectLayout } from "../../../runtime/workspace";
 import type {
   CDPSession,
   Dialog,
@@ -167,8 +168,13 @@ export function createBrowserCapabilities(context: {
     return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
   }
   async function jsonArtifact(workspace: string, name: string, data: unknown) {
-    await mkdir(path.join(workspace, "assets"), { recursive: true });
-    await writeFile(path.join(workspace, "assets", name), JSON.stringify(data));
+    await mkdir(path.join(workspace, workspacePaths(workspace).browserDiagnostics), {
+      recursive: true,
+    });
+    await writeFile(
+      path.join(workspace, workspacePaths(workspace).browserDiagnostics, name),
+      JSON.stringify(data),
+    );
   }
   async function execute(
     input: BrowserCapabilityRequest,
@@ -659,8 +665,8 @@ export function createBrowserCapabilities(context: {
       }
       case "browser_capture": {
         const name = `browser-${randomUUID()}.${input.format}`;
-        await mkdir(path.join(workspace, "assets"), { recursive: true });
-        const destination = path.join(workspace, "assets", name);
+        await mkdir(path.join(workspace, workspacePaths(workspace).assets), { recursive: true });
+        const destination = path.join(workspace, workspacePaths(workspace).assets, name);
         if (input.format === "pdf") await page.pdf({ path: destination, printBackground: true });
         else if (input.target)
           await (await element(input.target)).screenshot({ path: destination, type: "png" });
@@ -703,8 +709,12 @@ export function createBrowserCapabilities(context: {
         if (input.action === "trace_start") {
           if (trace) throw Error("Trace already running");
           const name = `browser-${randomUUID()}.json`;
-          await mkdir(path.join(workspace, "assets"), { recursive: true });
-          await page.tracing.start({ path: path.join(workspace, "assets", name) });
+          await mkdir(path.join(workspace, workspacePaths(workspace).browserDiagnostics), {
+            recursive: true,
+          });
+          await page.tracing.start({
+            path: path.join(workspace, workspacePaths(workspace).browserDiagnostics, name),
+          });
           trace = { name, page };
         }
         if (input.action === "trace_stop") {
@@ -725,8 +735,12 @@ export function createBrowserCapabilities(context: {
         }
         if (input.action === "heap") {
           const name = `browser-${randomUUID()}.heapsnapshot`;
-          await mkdir(path.join(workspace, "assets"), { recursive: true });
-          await page.captureHeapSnapshot({ path: path.join(workspace, "assets", name) });
+          await mkdir(path.join(workspace, workspacePaths(workspace).browserDiagnostics), {
+            recursive: true,
+          });
+          await page.captureHeapSnapshot({
+            path: path.join(workspace, workspacePaths(workspace).browserDiagnostics, name),
+          });
           artifact = { name, mimeType: "application/json" };
         }
         if (
@@ -772,7 +786,7 @@ export function createBrowserCapabilities(context: {
       case "browser_downloads": {
         const cdp = await client();
         if (input.action === "enable") {
-          await mkdir(path.join(workspace, "assets"), { recursive: true });
+          await mkdir(path.join(workspace, workspacePaths(workspace).assets), { recursive: true });
           cdp.removeAllListeners("Browser.downloadWillBegin");
           cdp.removeAllListeners("Browser.downloadProgress");
           cdp.on("Browser.downloadWillBegin", (event) =>
@@ -787,8 +801,8 @@ export function createBrowserCapabilities(context: {
             if (!download) return;
             if (event.state === "completed")
               void rename(
-                path.join(workspace, "assets", event.guid),
-                path.join(workspace, "assets", download.name),
+                path.join(workspace, workspacePaths(workspace).assets, event.guid),
+                path.join(workspace, workspacePaths(workspace).assets, download.name),
               )
                 .then(() => {
                   download.state = "completed";
@@ -800,7 +814,7 @@ export function createBrowserCapabilities(context: {
           });
           await cdp.send("Browser.setDownloadBehavior", {
             behavior: "allowAndName",
-            downloadPath: path.join(workspace, "assets"),
+            downloadPath: path.join(workspace, workspacePaths(workspace).assets),
             eventsEnabled: true,
           });
         }
@@ -823,7 +837,21 @@ export function createBrowserCapabilities(context: {
       kind: "browser_action",
       operation: input.operation,
       data,
-      ...(artifact ? { artifact } : {}),
+      ...(artifact
+        ? {
+            artifact: hasProjectLayout(workspace)
+              ? {
+                  ...artifact,
+                  relativePath: path.posix.join(
+                    input.operation === "browser_debug"
+                      ? workspacePaths(workspace).browserDiagnostics
+                      : workspacePaths(workspace).assets,
+                    artifact.name,
+                  ),
+                }
+              : artifact,
+          }
+        : {}),
     };
   }
   return {

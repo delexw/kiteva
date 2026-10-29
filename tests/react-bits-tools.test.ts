@@ -1,3 +1,4 @@
+import { prepareProjectLayout, workspaceFolders } from "../src/server/runtime/workspace";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { mkdtemp, readFile, readdir, rm, symlink } from "node:fs/promises";
@@ -84,30 +85,38 @@ it("advertises discovery only during planning, and rejects a guessed install cal
     ),
   ).toBe(true);
 });
-it("installs selected source with dependencies, license and provenance without trusting target or overwriting files", async () => {
-  const { client, workspace } = await connect(false);
-  expect((await client.listTools()).tools.map((tool) => tool.name)).toContain("install_component");
-  const result = await client.callTool({ name: "install_component", arguments: { name } });
-  expect(result.isError).not.toBe(true);
-  const installed = result.structuredContent as { directory: string };
-  const directory = path.join(workspace, installed.directory);
-  expect(await readFile(path.join(directory, item.files[0].path), "utf8")).toBe(
-    item.files[0].content,
-  );
-  expect(await readFile(path.join(directory, "LICENSE.md"), "utf8")).toContain("Commons Clause");
-  expect(JSON.parse(await readFile(path.join(directory, "provenance.json"), "utf8"))).toMatchObject(
-    {
+it.each([false, true])(
+  "installs source safely using the project layout (versioned=%s)",
+  async (versioned) => {
+    const { client, workspace } = await connect(false);
+    if (versioned) await prepareProjectLayout(workspace);
+    expect((await client.listTools()).tools.map((tool) => tool.name)).toContain(
+      "install_component",
+    );
+    const result = await client.callTool({ name: "install_component", arguments: { name } });
+    expect(result.isError).not.toBe(true);
+    const installed = result.structuredContent as { directory: string };
+    const directory = path.join(workspace, installed.directory);
+    expect(await readFile(path.join(directory, item.files[0].path), "utf8")).toBe(
+      item.files[0].content,
+    );
+    expect(await readFile(path.join(directory, "LICENSE.md"), "utf8")).toContain("Commons Clause");
+    expect(
+      JSON.parse(await readFile(path.join(directory, "provenance.json"), "utf8")),
+    ).toMatchObject({
       source: `https://reactbits.dev/r/${name}.json`,
       dependencies: ["react"],
       sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
-    },
-  );
-  const again = await client.callTool({ name: "install_component", arguments: { name } });
-  expect((again.structuredContent as { directory: string }).directory).not.toBe(
-    installed.directory,
-  );
-  expect(await readdir(workspace)).toEqual(["components"]);
-});
+    });
+    const again = await client.callTool({ name: "install_component", arguments: { name } });
+    expect((again.structuredContent as { directory: string }).directory).not.toBe(
+      installed.directory,
+    );
+    if (versioned)
+      expect(installed.directory.startsWith(`${workspaceFolders.components}/`)).toBe(true);
+    else expect(await readdir(workspace)).toEqual(["components"]);
+  },
+);
 it.each(["../escape.tsx", "/escape.tsx", "C:/escape.tsx", "a\\escape.tsx", "a/../../escape.tsx"])(
   "rejects upstream path %s before writing",
   async (filePath) => {

@@ -1,3 +1,4 @@
+import { workspaceFolders } from "../../../../shared/workspace";
 import { RetryBudget } from "../../../../shared/retry-budget";
 import path from "node:path";
 import { copyFile, mkdir } from "node:fs/promises";
@@ -21,12 +22,19 @@ export async function buildNarrationTrack(
   dependencies: LanguageMediaDependencies,
 ): Promise<{ media: LanguageMedia["narration"][number]; cues: Cue[] }> {
   const { job, request, signal } = input;
-  const { folder, base } = languageMediaPaths(job.workspace);
+  const { folder, base, context } = languageMediaPaths(job.workspace);
   const spoken = job.speechTrack?.cues || [];
   const subtitles = spoken.filter((cue) => cue.showSubtitles !== false);
   if (profile.language === primaryLanguage && job.speechTrack) {
-    const video = path.join(job.workspace, "renders", `full.${profile.language}.mp4`);
-    await copyFile(path.join(job.workspace, job.video || "renders/full.mp4"), video);
+    const video = path.join(
+      job.workspace,
+      workspaceFolders.renders,
+      `full.${profile.language}.mp4`,
+    );
+    await copyFile(
+      path.join(job.workspace, job.video || `${workspaceFolders.renders}/full.mp4`),
+      video,
+    );
     const audio = path.join(folder, `${profile.language}.wav`);
     await command(
       "ffmpeg",
@@ -73,7 +81,7 @@ export async function buildNarrationTrack(
     let accepted = false;
     for (const { index: attempt } of new RetryBudget(2)) {
       const text = await translate(cue.text, profile.language, window, attempt);
-      const workspace = path.join(folder, profile.language, `${index}-${attempt}`);
+      const workspace = path.join(context, profile.language, `${index}-${attempt}`);
       await mkdir(workspace, { recursive: true });
       const track = await (dependencies.speak || prepareSpeech)({
         ...input,
@@ -134,7 +142,7 @@ export async function buildNarrationTrack(
     job.workspace,
     signal,
   );
-  const video = path.join(job.workspace, "renders", `full.${profile.language}.mp4`);
+  const video = path.join(job.workspace, workspaceFolders.renders, `full.${profile.language}.mp4`);
   await copyFile(base, video);
   const track: SpeechTrack = {
     file: path.relative(job.workspace, audio),

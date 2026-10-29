@@ -1,3 +1,5 @@
+import { credentialEnvironmentVariables } from "../runtime/credential-environment";
+import { workspacePaths, hasProjectLayout } from "../runtime/workspace";
 import { BrowserCapabilityResultSchema } from "../agents/capabilities/reference-browser/tool-registry";
 import {
   EditableCaptureSchema,
@@ -57,7 +59,7 @@ export async function createRemoteReferenceBrowser(
     throw Error("The capture worker requires HTTPS or a loopback tunnel");
   if (base.username || base.password || base.pathname !== "/" || base.search || base.hash)
     throw Error("Use the capture worker origin without embedded credentials or a path");
-  const token = process.env.KITEVA_CAPTURE_WORKER_TOKEN;
+  const token = process.env[credentialEnvironmentVariables.captureWorkerToken];
   if (!token || token.length < 32) throw Error("Configure the capture worker authentication token");
   const headers = { authorization: `Bearer ${token}` };
   async function request(
@@ -154,6 +156,17 @@ export async function createRemoteReferenceBrowser(
   }
   async function downloadRecording(recording: z.infer<typeof WebsiteRecordingSchema>) {
     if (!workspace) throw Error("Start an OpenScreen recording first");
+    recording = {
+      ...recording,
+      assetPath: path.posix.join(
+        workspacePaths(workspace).assets,
+        path.basename(recording.assetPath),
+      ),
+      cursorPath: path.posix.join(
+        workspacePaths(workspace).assets,
+        path.basename(recording.cursorPath),
+      ),
+    };
     const video = path.join(workspace, recording.assetPath);
     const cursor = path.join(workspace, recording.cursorPath);
     try {
@@ -172,11 +185,16 @@ export async function createRemoteReferenceBrowser(
       const result = BrowserCapabilityResultSchema.parse(
         await action({ action: "browser", request }),
       );
-      if (result.artifact)
-        await download(
+      if (result.artifact) {
+        const file = path.posix.join(
+          request.operation === "browser_debug"
+            ? workspacePaths(destination).browserDiagnostics
+            : workspacePaths(destination).assets,
           result.artifact.name,
-          path.join(destination, "assets", result.artifact.name),
         );
+        await download(result.artifact.name, path.join(destination, file));
+        if (hasProjectLayout(destination)) result.artifact.relativePath = file;
+      }
       return result;
     },
     inspect: async (url, requestSignIn = false) =>

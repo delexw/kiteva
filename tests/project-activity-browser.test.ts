@@ -16,7 +16,7 @@ import{RequestSchema}from'/src/shared/contracts.ts';
 window.calls=[];window.streams=[];window.retries=[];window.holdActivity=true;
 window.EventSource=class extends EventTarget{constructor(url){super();this.url=url;this.closed=false;window.streams.push(this);}close(){this.closed=true;}};
 const node=(id,text,hasChildren=false)=>({id,scope:'project:job:',jobId:'job',kind:'notice',text,time:'2026-01-01T00:00:00Z',status:'complete',hasChildren});
-window.fetch=async(url,options)=>{window.calls.push(String(url));if(window.holdActivity)await new Promise(resolve=>window.releaseActivity=()=>{window.holdActivity=false;resolve();});const query=new URL(String(url),'http://localhost').searchParams;const parents=query.get('path');const items=parents==='10.11'?[node(12,'Checking playback…')]:parents==='10'?[node(11,'Rendering your video…',true)]:[node(10,'Creating your video…',true),{...node(20,'Something interrupted this step. You can retry it.'),retryable:true,status:'stopped'}];return new Response(JSON.stringify({items,lastEventId:501,retryItemId:20}),{headers:{'Content-Type':'application/json'}});};
+window.fetch=async(url,options)=>{window.calls.push(String(url));if(window.holdActivity)await new Promise(resolve=>window.releaseActivity=()=>{window.holdActivity=false;resolve();});const query=new URL(String(url),'http://localhost').searchParams;const parents=query.get('path');const items=parents==='10.11'?[node(12,'Checking playback…')]:parents==='10'?[node(11,'Rendering your video…',true)]:[node(10,'Creating your video…',true),{...node(20,'Something interrupted this step. You can retry it.'),retryable:true,status:'stopped'}];if(!parents&&window.appendActivity)items.push(node(30,'New activity'));return new Response(JSON.stringify({items,lastEventId:501,retryItemId:20}),{headers:{'Content-Type':'application/json'}});};
 const run={id:'project',createdAt:'2026-01-01',phase:'generating',request:RequestSchema.parse({instructions:'Explain an original topic'}),candidates:[{id:'direction',displayTitle:'Example',styleId:'example'}],jobs:[{id:'job',runId:'project',candidateId:'direction',kind:'full',phase:'failed',workspace:'/unused',model:'example',duration:20}]};
 run.jobs.push({...run.jobs[0],id:'earlier-job',phase:'rendering'});
 function App(){const[active,setActive]=useState(false);return React.createElement(React.Fragment,null,React.createElement('button',{id:'activity',onClick:()=>setActive(true)},'Activity'),React.createElement('button',{id:'conversation',onClick:()=>setActive(false)},'Conversation'),active&&React.createElement('div',{className:'room-project-scroll',style:{height:500,overflow:'auto'}},React.createElement(ProjectActivityPanel,{run,onRetry:id=>window.retries.push(id)})));}
@@ -83,8 +83,21 @@ it.skipIf(!browserExecutablePath())(
       );
       const nestedHeader =
         '.activity-context-history[data-activity-branch="root"] > div > .ant-collapse > .ant-collapse-item > .ant-collapse-header';
+      await page.evaluate(() => Reflect.set(window, "holdActivity", true));
       await page.locator(nestedHeader).click();
-      await page.waitForSelector('[data-activity-branch="10"]');
+      await page.waitForSelector('[data-activity-branch="10"] .activity-branch-loading', {
+        visible: true,
+      });
+      expect(
+        await page.$eval(
+          '[data-activity-branch="10"] .activity-branch-loading',
+          (node) => getComputedStyle(node).paddingInlineStart,
+        ),
+      ).toBe("28px");
+      await page.evaluate(() => Reflect.get(window, "releaseActivity")());
+      await page.waitForSelector('[data-activity-branch="10"] .activity-branch-loading', {
+        hidden: true,
+      });
       await expect.poll(() => page.evaluate(() => Reflect.get(window, "calls").length)).toBe(2);
       expect(await page.evaluate(() => Reflect.get(window, "calls")[1])).toContain("path=10");
       await page
@@ -124,6 +137,36 @@ it.skipIf(!browserExecutablePath())(
       expect(await page.evaluate(() => Reflect.get(window, "calls").at(-1))).toContain(
         "jobId=earlier-job",
       );
+      const activeBranch =
+        '.room-activity-list > .ant-collapse-item:nth-child(2) [data-activity-branch="root"]';
+      await page.waitForSelector(`${activeBranch}[aria-busy="false"]`);
+      const existingRow = await page.$(`${activeBranch} .ant-collapse`);
+      await page.evaluate(() => {
+        Reflect.set(window, "holdActivity", true);
+        Reflect.set(window, "appendActivity", true);
+        Reflect.get(window, "streams")[0].onmessage({
+          data: JSON.stringify({
+            id: 502,
+            runId: "project",
+            jobId: "earlier-job",
+            type: "phase",
+            message: "Rendering",
+            time: "2026-01-01T00:01:00Z",
+          }),
+        });
+      });
+      await page.waitForSelector(`${activeBranch}[aria-busy="true"]`);
+      expect(await page.$(`${activeBranch} .loading-status`)).toBeNull();
+      expect(await existingRow!.evaluate((node) => node.isConnected)).toBe(true);
+      await page.evaluate(() => Reflect.get(window, "releaseActivity")());
+      await page.waitForSelector(`${activeBranch}[aria-busy="false"]`);
+      await page.waitForFunction(
+        (selector) => document.querySelector(selector)?.textContent.includes("New activity"),
+        {},
+        activeBranch,
+      );
+      expect(await existingRow!.evaluate((node) => node.isConnected)).toBe(true);
+      expect(await page.$(`${activeBranch} .loading-status`)).toBeNull();
       await page.locator(otherHeader).click();
       await page.waitForFunction(() => Reflect.get(window, "streams")[0].closed);
       await page.click("#conversation");

@@ -7,7 +7,9 @@ vi.mock("../src/server/rendering/multiplane/cache", async (load) => ({
   installedRuntimeFingerprint: async () => "fixture-runtime",
 }));
 import { createMultiplaneRecoveryCache } from "../src/server/rendering/multiplane/recovery-cache";
-import type { reviewRenderCache } from "../src/server/jev/strategies/render-cache";
+import { reviewRenderCache } from "../src/server/jev/strategies/render-cache";
+vi.mock("../src/server/jev/choice", () => ({ runJevChoice: vi.fn() }));
+import { runJevChoice } from "../src/server/jev/choice";
 const roots: string[] = [];
 afterEach(async () => {
   vi.unstubAllEnvs();
@@ -125,7 +127,7 @@ it("honors refresh and refuses corrupt bytes, changed render settings and cancel
     createMultiplaneRecoveryCache({ ...f, signal: AbortSignal.abort(Error("Stopped")) }),
   ).rejects.toThrow("Stopped");
 });
-it("passes oversized evidence to the brief-and-review pipeline instead of forcing a rebuild", async () => {
+it("passes raw evidence to the direct review pipeline instead of dropping changed inputs", async () => {
   const f = await fixture();
   let cache = (await f.session())!;
   await writeFile(f.output(0), "accepted");
@@ -165,4 +167,124 @@ it("removes the previous input pointer before a replacement render is interrupte
   await writeFile(path.join(f.workspace, "shot-0.html"), original);
   cache = (await f.session())!;
   expect(await cache.restore("shot-0.html", f.settings, f.output(0))).toBe(false);
+});
+
+it("includes changed JSON contents and records actual checkpoint reuse", async () => {
+  const f = await fixture();
+  await writeFile(path.join(f.workspace, "settings.json"), '{"value":1}');
+  let cache = (await f.session())!;
+  await writeFile(f.output(0), "accepted");
+  await cache.store("shot-0.html", f.settings, f.output(0));
+  await writeFile(path.join(f.workspace, "settings.json"), '{"value":2}');
+  cache = (await f.session())!;
+  expect(await cache.restore("shot-0.html", f.settings, f.output(0))).toBe(true);
+  expect(f.review.mock.calls[0][0].state).toMatchObject({
+    changes: [
+      {
+        file: "settings.json",
+        before: { text: '{"value":1}', complete: true },
+        after: { text: '{"value":2}', complete: true },
+      },
+    ],
+  });
+  expect(f.onEvent).toHaveBeenCalledWith(
+    expect.objectContaining({
+      data: expect.objectContaining({ shot: "shot-0.html", cacheOutcome: "reused" }),
+    }),
+  );
+});
+
+it("restores an unaffected dynamic shot through real evidence construction and mocked JEV", async () => {
+  const f = await fixture();
+  vi.mocked(runJevChoice).mockResolvedValueOnce({
+    answer: {
+      choice: "reuse",
+      type: "choice",
+      confidence: 0.9,
+      probabilities: { reuse: 0.9, refresh: 0.1 },
+    },
+    model: "fixture",
+    comparedIds: ["reuse", "refresh"],
+  });
+  const session = () =>
+    createMultiplaneRecoveryCache({
+      workspace: f.workspace,
+      signal: f.signal,
+      onEvent: f.onEvent,
+      review: reviewRenderCache,
+    });
+  let cache = (await session())!;
+  await writeFile(f.output(0), "accepted shot bytes");
+  await cache.store("shot-0.html", f.settings, f.output(0));
+  await writeFile(path.join(f.workspace, "shot-1.html"), "<p>Updated unrelated scene</p>");
+  await rm(f.output(0));
+  cache = (await session())!;
+  expect(await cache.restore("shot-0.html", f.settings, f.output(0))).toBe(true);
+  expect(await readFile(f.output(0), "utf8")).toBe("accepted shot bytes");
+  expect(vi.mocked(runJevChoice).mock.calls.at(-1)?.[0].state).toMatchObject({
+    shot: "shot-0.html",
+    staticGraphComplete: false,
+    changes: [{ file: "shot-1.html" }],
+  });
+  expect(f.onEvent).toHaveBeenCalledWith(
+    expect.objectContaining({ data: expect.objectContaining({ cacheOutcome: "reused" }) }),
+  );
+});
+
+it("ignores task context and diagnostics in the declared layout but detects actual artifact edits", async () => {
+  const { prepareProjectLayout, workspaceFolders } =
+    await import("../src/server/runtime/workspace");
+  const f = await fixture();
+  await prepareProjectLayout(f.workspace);
+  const sourceFile = path.posix.join(workspaceFolders.artifacts, "scene.html");
+  await writeFile(
+    path.join(f.workspace, sourceFile),
+    "<script>const image=new Image();</script><p>Scene</p>",
+  );
+  let cache = (await f.session())!;
+  await writeFile(f.output(0), "accepted artifact bytes");
+  await cache.store(sourceFile, f.settings, f.output(0));
+  await writeFile(
+    path.join(f.workspace, workspaceFolders.inputs, "repair.json"),
+    "x".repeat(60000),
+  );
+  await writeFile(
+    path.join(f.workspace, workspaceFolders.diagnostics, "report.json"),
+    "New diagnostic",
+  );
+  await writeFile(path.join(f.workspace, workspaceFolders.logs, "agent.log"), "New log");
+  cache = (await f.session())!;
+  expect(await cache.restore(sourceFile, f.settings, f.output(0))).toBe(true);
+  expect(f.review).not.toHaveBeenCalled();
+  await writeFile(
+    path.join(f.workspace, sourceFile),
+    "<script>const image=new Image();</script><p>Changed scene</p>",
+  );
+  cache = (await f.session())!;
+  await cache.restore(sourceFile, f.settings, f.output(0));
+  expect(f.review).toHaveBeenCalledOnce();
+  expect(f.review.mock.calls[0][0].state).toMatchObject({ changes: [{ file: sourceFile }] });
+});
+
+it("publishes a shared snapshot safely for concurrent independent shot checkpoints", async () => {
+  const f = await fixture(4);
+  const cache = (await f.session())!;
+  await Promise.all(
+    [0, 1, 2, 3].map(async (index) => {
+      await writeFile(f.output(index), `accepted-${index}`);
+      await cache.store(`shot-${index}.html`, f.settings, f.output(index));
+    }),
+  );
+  const next = (await f.session())!;
+  const restored = await Promise.all(
+    [0, 1, 2, 3].map(async (index) => {
+      await rm(f.output(index));
+      return next.restore(`shot-${index}.html`, f.settings, f.output(index));
+    }),
+  );
+  expect(restored).toEqual([true, true, true, true]);
+  expect(f.review).not.toHaveBeenCalled();
+  const snapshots = await readdir(path.join(f.workspace, "renders/multiplane-cache/snapshots"));
+  expect(snapshots).toHaveLength(1);
+  expect(snapshots.every((file) => file.endsWith(".json"))).toBe(true);
 });

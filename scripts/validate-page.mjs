@@ -1,8 +1,10 @@
+import { workspaceFolders } from "../src/shared/workspace.ts";
 import { chromium } from "playwright";
 import { createServer } from "node:http";
 import { readFile, realpath, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 const workspace = await realpath(process.argv[2]);
+const outputWorkspace = await realpath(process.argv[3] || process.argv[2]);
 const types = {
   ".html": "text/html",
   ".js": "text/javascript",
@@ -51,7 +53,7 @@ try {
     if (response.status() >= 400) failures.push(`Resource ${response.status()}: ${response.url()}`);
   });
   const checks = [];
-  await mkdir(path.join(workspace, "renders"), { recursive: true });
+  await mkdir(path.join(outputWorkspace, workspaceFolders.renders), { recursive: true });
   for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto(origin, { waitUntil: "networkidle" });
@@ -122,12 +124,16 @@ try {
     await page.evaluate(() => scrollTo(0, 0));
     checks.push({ width, ...layout, motionTargets: await targets.count(), reducedMotion });
     await page.screenshot({
-      path: path.join(workspace, "renders", width === 1280 ? "page.png" : "page-mobile.png"),
+      path: path.join(
+        outputWorkspace,
+        workspaceFolders.renders,
+        width === 1280 ? "page.png" : "page-mobile.png",
+      ),
     });
   }
   if (failures.length) throw Error([...new Set(failures)].join("\n"));
   await writeFile(
-    path.join(workspace, "renders/page-validation.json"),
+    path.join(outputWorkspace, workspaceFolders.renders, "page-validation.json"),
     JSON.stringify({ passed: true, checks, verifiedAt: new Date().toISOString() }, null, 2),
   );
   console.log("Page loads at desktop and mobile widths; no browser errors or failed resources.");

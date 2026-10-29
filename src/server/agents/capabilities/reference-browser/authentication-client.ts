@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../../../runtime/credential-environment";
 import { z } from "zod";
 
 export async function waitForProjectAuthentication(
@@ -7,7 +8,7 @@ export async function waitForProjectAuthentication(
   validate: () => Promise<void>,
 ) {
   const url = process.env.KITEVA_AUTH_BRIDGE_URL;
-  const token = process.env.KITEVA_AUTH_BRIDGE_TOKEN;
+  const token = process.env[credentialEnvironmentVariables.authenticationBridgeToken];
   if (!url || !token) return false;
   async function post(route: string, body: object) {
     const response = await fetch(`${url}${route}`, {

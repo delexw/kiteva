@@ -1,7 +1,10 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { projectRuntimeEnvironment } from "../src/server/runtime/project-files";
 vi.mock("../src/server/agents/claude-home", () => ({
   prepareClaudeHome: async () => "/isolated-home",
-  claudeLoginEnvironment: async () => ({ CLAUDE_CODE_OAUTH_TOKEN: "fixture-sdk-token" }),
+  claudeLoginEnvironment: async () => ({
+    [credentialEnvironmentVariables.claudeOauthToken]: "fixture-sdk-token",
+  }),
 }));
 vi.mock("../src/server/agents/bundled-skills", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../src/server/agents/bundled-skills")>()),
@@ -259,7 +262,9 @@ it.each([claudeAgent, codexAgent] satisfies Agent[])(
         process.platform === "darwin" ? ["com.apple.trustd.agent"] : undefined,
       );
       expect(settings.env.NODE_USE_ENV_PROXY).toBe("1");
-      expect(settings.env.CLAUDE_CODE_OAUTH_TOKEN).toBe("fixture-sdk-token");
+      expect(settings.env[credentialEnvironmentVariables.claudeOauthToken]).toBe(
+        "fixture-sdk-token",
+      );
       expect(settings.env.npm_config_cache).toBe(
         projectRuntimeEnvironment("/job", "agent").npm_config_cache,
       );
@@ -1643,3 +1648,38 @@ it("produces equivalent customer activity from native Claude and Codex SDK event
     await rm(workspace, { recursive: true, force: true });
   }
 });
+
+it.each([{ textOnly: true }, { readOnly: true }, { planMode: true, readOnly: true }, {}])(
+  "denies shared credential names to Claude Bash without removing SDK login (%j)",
+  async (mode) => {
+    sdk.query.mockImplementation(async function* () {
+      yield {
+        type: "result",
+        subtype: "success",
+        is_error: false,
+        structured_output: { message: "done" },
+        session_id: "credential-policy-fixture",
+        usage: {},
+        modelUsage: {},
+      };
+    });
+    await agentTurn({
+      provider: "claude",
+      workspace: "/job",
+      prompt: "Local policy fixture",
+      model: "fixture-model",
+      schema: z.object({ message: z.literal("done") }),
+      signal: new AbortController().signal,
+      onEvent: vi.fn(),
+      ...mode,
+    });
+    const options = sdk.query.mock.calls.at(-1)![0].options;
+    const names = Object.values(credentialEnvironmentVariables);
+    expect(new Set(names).size).toBe(names.length);
+    expect(options.sandbox.credentials.envVars).toEqual(
+      names.map((name) => ({ name, mode: "deny" })),
+    );
+    expect(options.sandbox.allowUnsandboxedCommands).toBe(false);
+    expect(options.env[credentialEnvironmentVariables.claudeOauthToken]).toBe("fixture-sdk-token");
+  },
+);

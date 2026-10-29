@@ -17,9 +17,16 @@ import {
   type CapturePresentationInput,
 } from "../src/server/capture/presentation";
 import {
+  WebsiteRecordingSchema,
   startWebsiteCapture,
   readWebsiteRecordings,
 } from "../src/server/jobs/subworkflows/website-capture";
+
+import {
+  prepareProjectLayout,
+  workspaceFolders,
+  legacyWorkspaceFolders,
+} from "../src/server/runtime/workspace";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -31,8 +38,10 @@ async function fixture(
   frame = { width: 1440, height: 900, left: 0, top: 0 },
   presentation?: CapturePresentationInput,
   title = "Example",
+  projectLayout = false,
 ) {
   const workspace = await mkdtemp(path.join(os.tmpdir(), "website-capture-"));
+  if (projectLayout) await prepareProjectLayout(workspace);
   vi.stubEnv("KITEVA_CAPTURE_DESKTOP", "1");
   await writeFile(path.join(workspace, "raw.mp4"), "raw-recording");
   const nativeCursor = {
@@ -299,3 +308,42 @@ it("matches the native window to the prepared viewport before recording without 
     await f.cleanup();
   }
 });
+
+it.each([false, true])(
+  "exports and reads recordings with project layout=%s",
+  async (projectLayout) => {
+    const f = await fixture(undefined, undefined, undefined, projectLayout);
+    try {
+      await f.capture.prepare();
+      const recording = await f.capture.export();
+      const folders = projectLayout ? workspaceFolders : legacyWorkspaceFolders;
+      expect(recording.assetPath).toBe(`${folders.assets}/website-video-${f.capture.id}.webm`);
+      expect(recording.cursorPath).toBe(
+        `${folders.assets}/website-video-${f.capture.id}.cursor.json`,
+      );
+      expect(WebsiteRecordingSchema.parse(recording)).toEqual(recording);
+      await writeFile(path.join(f.workspace, "reference-videos.json"), JSON.stringify([recording]));
+      expect(await readWebsiteRecordings(f.workspace)).toEqual([recording]);
+      expect(await readFile(path.join(f.workspace, recording.assetPath), "utf8")).toBe(
+        "encoded-video",
+      );
+      for (const prefix of ["../", "unrelated/", `${folders.artifacts}/`]) {
+        expect(
+          WebsiteRecordingSchema.safeParse({
+            ...recording,
+            assetPath: prefix + recording.assetPath,
+          }).success,
+        ).toBe(false);
+        expect(
+          WebsiteRecordingSchema.safeParse({
+            ...recording,
+            cursorPath: prefix + recording.cursorPath,
+          }).success,
+        ).toBe(false);
+      }
+      await f.capture.close();
+    } finally {
+      await f.cleanup();
+    }
+  },
+);

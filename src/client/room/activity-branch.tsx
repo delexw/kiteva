@@ -144,7 +144,11 @@ export function ActivityBranchView({
   };
   return (
     <BranchRefresh.Provider value={refresh}>
-      <div className="activity-context-history" data-activity-branch={path || "root"}>
+      <div
+        className="activity-context-history"
+        data-activity-branch={path || "root"}
+        aria-busy={loading}
+      >
         {error && (
           <Alert
             type="error"
@@ -165,7 +169,11 @@ export function ActivityBranchView({
           ) : (
             page.items.map((item) => <div key={item.id}>{row(item)}</div>)
           ))}
-        {loading && <LoadingStatus text={translateUi("Loading activity…")} />}
+        {loading && !page && (
+          <div className="activity-branch-loading">
+            <LoadingStatus text={translateUi("Loading activity…")} />
+          </div>
+        )}
         {!loading && !error && page?.items.length === 0 && (
           <p className="room-hint">{translateUi("No activity has been recorded yet.")}</p>
         )}

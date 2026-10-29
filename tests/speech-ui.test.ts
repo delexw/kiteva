@@ -1,3 +1,5 @@
+import { mingVoices } from "../src/shared/speech";
+import { nextSelectOption } from "./fixtures/select-options";
 import { browserDependencyScan } from "../vite.resolve";
 import { mkdtemp, rm } from "node:fs/promises";
 import path from "node:path";
@@ -98,27 +100,50 @@ function App(){const[draft,setDraft]=useState({step:4,stepLayout:'separate-speec
       expect(await page.$('[aria-label="Speech mode"]')).toBeNull();
       expect(await page.$('[aria-label="Speech language"]')).toBeNull();
       await page.click('[aria-label="Speech engine"]');
-      await page.locator('.ant-select-item-option[title="Qwen3-TTS · Base 1.7B"]').click();
+      await page.locator('.ant-select-item-option[title="Ming-3.0-TTS · 0.5B · Neutral"]').click();
       await page.click('[aria-label="Narrator voice"]');
-      await page.locator('.ant-select-item-option[title="Original narrator"]').click();
+      await page.waitForSelector(".ant-select-item-option-grouped");
+      await page.focus(".speech-voice-control input");
+      let originalNarratorSelected = false;
+      for (let index = 0; index <= mingVoices.length; index++) {
+        const active = await page.$$eval(
+          ".ant-select-item-option-active.ant-select-item-option-grouped",
+          (items) => items[0]?.getAttribute("title"),
+        );
+        if (active === "Original narrator") {
+          originalNarratorSelected = true;
+          break;
+        }
+        await nextSelectOption(page);
+      }
+      expect(originalNarratorSelected).toBe(true);
+      await page.keyboard.press("Enter");
+      await page.waitForFunction(
+        () =>
+          JSON.parse(document.querySelector("#draft-state")!.textContent!).request.languageTracks
+            .narration[0].speech.voice === "ming_original_female",
+      );
       await page.locator(".speech-voice-control button").click();
       await expect
         .poll(() => previewRequests.at(-1))
         .toMatchObject({
-          engine: "qwen3-tts-base",
-          voice: "qwen_base_original_female",
+          engine: "ming-tts",
+          voice: "ming_original_female",
           language: "en",
         });
       await page.click('.language-track-subtitles [role="switch"]');
+      await page.waitForFunction(
+        () =>
+          JSON.parse(document.querySelector("#draft-state")!.textContent!).request.languageTracks
+            .showSubtitles === false,
+      );
       const draft = await page.$eval("#draft-state", (el) => JSON.parse(el.textContent!));
       expect(draft.request.languageTracks.showSubtitles).toBe(false);
       expect(draft.request.languageTracks.subtitles).toEqual([]);
       expect(
         await page.$eval('[aria-label="Shared script"]', (el) => (el as HTMLTextAreaElement).value),
       ).toBe("Let your idea take flight.");
-      expect(draft.request.languageTracks.narration[0].speech.voice).toBe(
-        "qwen_base_original_female",
-      );
+      expect(draft.request.languageTracks.narration[0].speech.voice).toBe("ming_original_female");
       expect(languageRequests).toEqual([]);
     } finally {
       await browser.close();

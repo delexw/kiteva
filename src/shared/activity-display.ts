@@ -88,9 +88,10 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
     }
     if (item.purpose === "pacing correction" && item.invocationId && item.kind !== "message") {
       const invocationKey = `${item.scope}:${item.invocationId}`;
+      const groupKey = `${item.scope}:${item.correctionGroupId ?? "legacy"}`;
       let pacing = pacingInvocationGroups.get(invocationKey);
       if (!pacing) {
-        pacing = pacingGroups.get(item.scope);
+        pacing = pacingGroups.get(groupKey);
         const previousAttempt = pacing?.children?.at(-1)?.correctionAttempt;
         if (
           item.correctionAttempt !== undefined &&
@@ -107,7 +108,7 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
           status: undefined,
           children: [],
         };
-        pacingGroups.set(item.scope, pacing);
+        pacingGroups.set(groupKey, pacing);
         display.push(pacing);
       }
       pacingInvocationGroups.set(invocationKey, pacing);
@@ -123,6 +124,8 @@ export function displayActivityItems(items: ActivityItem[]): DisplayActivityItem
         };
         pacing.children!.push(attempt);
       }
+      attempt.correctionAttempt = item.correctionAttempt ?? attempt.correctionAttempt;
+      attempt.correctionModel = item.correctionModel ?? attempt.correctionModel;
       appendActivityOutcome(attempt.children!, visible);
       attempt.time = item.time;
       // A completed model call does not establish that the timing repair passed review.

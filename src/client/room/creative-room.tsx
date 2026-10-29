@@ -25,6 +25,7 @@ import {
   MoreHorizontal,
   Palette,
   Plus,
+  Trash2,
 } from "lucide-react";
 import {
   roomEntryLabel,
@@ -512,6 +513,37 @@ export function CreativeRoom({
   };
   const setDraft = (key: string, draft: RoomDraft) =>
     setRoom((previous) => ({ ...previous, drafts: { ...previous.drafts, [key]: draft } }));
+  const removeDraftAction =
+    conversation.startsWith("edit:") && room.drafts[conversation] ? (
+      <Tooltip title={translateUi("Remove draft")}>
+        <Button
+          type="text"
+          danger
+          size="small"
+          shape="circle"
+          aria-label={translateUi("Remove draft")}
+          icon={<Trash2 size={16} />}
+          onClick={() => {
+            const draftKey = conversation;
+            modal.confirm({
+              title: translateUi("Remove this editing draft?"),
+              content: translateUi("The project, videos and material shelf will be kept."),
+              okText: translateUi("Remove draft"),
+              okButtonProps: { danger: true },
+              onOk: () => {
+                setRoom((previous) => ({
+                  ...previous,
+                  drafts: removeRoomEditDraft(previous.drafts, draftKey),
+                }));
+                setConversation("new");
+                setQuestion(undefined);
+                if (draftKey === `edit:${editSourceId}`) onHome();
+              },
+            });
+          }}
+        />
+      </Tooltip>
+    ) : undefined;
   function arrange() {
     setRoom((previous) => ({
       ...previous,
@@ -969,7 +1001,11 @@ export function CreativeRoom({
                   }
                 }}
               >
-                <RoomErrorBoundary label={windowTitle(state.id)}>
+                <RoomErrorBoundary
+                  key={state.id === "assistant" ? conversation : state.id}
+                  label={windowTitle(state.id)}
+                  recoveryAction={state.id === "assistant" ? removeDraftAction : undefined}
+                >
                   {state.id === "library" ? (
                     libraryContent()
                   ) : state.id === "assistant" ? (
@@ -998,35 +1034,7 @@ export function CreativeRoom({
                             <ChevronDown size={14} />
                           </Button>
                         </Dropdown>
-                        {conversation.startsWith("edit:") && room.drafts[conversation] && (
-                          <Button
-                            type="text"
-                            danger
-                            size="small"
-                            onClick={() => {
-                              const draftKey = conversation;
-                              modal.confirm({
-                                title: translateUi("Remove this editing draft?"),
-                                content: translateUi(
-                                  "The project, videos and material shelf will be kept.",
-                                ),
-                                okText: translateUi("Remove draft"),
-                                okButtonProps: { danger: true },
-                                onOk: () => {
-                                  setRoom((previous) => ({
-                                    ...previous,
-                                    drafts: removeRoomEditDraft(previous.drafts, draftKey),
-                                  }));
-                                  setConversation("new");
-                                  setQuestion(undefined);
-                                  if (draftKey === `edit:${editSourceId}`) onHome();
-                                },
-                              });
-                            }}
-                          >
-                            {translateUi("Remove draft")}
-                          </Button>
-                        )}
+                        {removeDraftAction}
                         {questionCount > 0 && (
                           <span className="room-hint">
                             {questionCount}

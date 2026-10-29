@@ -903,3 +903,49 @@ it.each(["running", "complete", "failed", "stopped"] as const)(
     expect(JSON.stringify(source)).toBe(before);
   },
 );
+
+it("keeps distinct timing review rounds separate and identifies model escalation", () => {
+  const shown = displayActivityItems([
+    item(1, {
+      purpose: "pacing correction",
+      invocationId: "old",
+      correctionGroupId: "round-one",
+      correctionAttempt: 1,
+      correctionModel: "claude-haiku-5-5",
+    }),
+    item(2, {
+      purpose: "pacing correction",
+      invocationId: "small",
+      correctionGroupId: "round-two",
+      correctionAttempt: 1,
+      correctionModel: "claude-haiku-5-5",
+    }),
+    item(3, {
+      purpose: "pacing correction",
+      invocationId: "main",
+      correctionGroupId: "round-two",
+      correctionAttempt: 2,
+      correctionModel: "claude-opus-5-5",
+    }),
+  ]);
+  expect(shown).toHaveLength(2);
+  expect(
+    shown[0].children?.map((entry) => roomActivityStep(entry)).map((step) => step.title),
+  ).toEqual(["Attempt 1 · Claude Haiku 5.5"]);
+  expect(
+    shown[1].children?.map((entry) => roomActivityStep(entry)).map((step) => step.title),
+  ).toEqual(["Attempt 1 · Claude Haiku 5.5", "Attempt 2 · Claude Opus 5.5"]);
+});
+it("updates a timing attempt label when later events supply its metadata", () => {
+  const shown = displayActivityItems([
+    item(1, { purpose: "pacing correction", invocationId: "main" }),
+    item(2, {
+      purpose: "pacing correction",
+      invocationId: "main",
+      correctionAttempt: 2,
+      correctionModel: "claude-opus-5-5",
+    }),
+  ]);
+  expect(shown[0].children).toHaveLength(1);
+  expect(roomActivityStep(shown[0].children![0]).title).toBe("Attempt 2 · Claude Opus 5.5");
+});

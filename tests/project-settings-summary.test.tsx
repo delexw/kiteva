@@ -49,7 +49,7 @@ it("shows each language's provider and voice from authoritative language setting
     },
   });
   expect(html).toContain("Narration: English · Kokoro · Isabella");
-  expect(html).toContain("Narration: 简体中文 · Qwen3-TTS · Base 1.7B · Original narrator");
+  expect(html).toContain("Narration: 简体中文 · Ming-3.0-TTS · 0.5B · Neutral · Original narrator");
 });
 
 it("uses legacy global narration only when timed script and track settings are absent", () => {

@@ -1,3 +1,4 @@
+import { fixedCorrectionOutcome } from "./fixtures/video-correction";
 import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -66,7 +67,14 @@ it("rechecks after all issues, reaches a fifth review, and stops immediately whe
     expect(call.model).toBe("gpt-6.1-sol");
     expect(call.sessionId).toBe("build-session");
     order.push(call.prompt.includes("pacing corrector") ? "pacing" : "style");
-    return { value: { ...production, storyboard: validStoryboard() }, sessionId: "build-session" };
+    return {
+      value: {
+        correctionOutcome: fixedCorrectionOutcome,
+        ...production,
+        storyboard: validStoryboard(),
+      },
+      sessionId: "build-session",
+    };
   });
   try {
     await generateVideo({

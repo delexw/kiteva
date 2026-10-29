@@ -32,7 +32,12 @@ export function renderProgressUpdate(
   for (const adapter of adapters) {
     if (!adapter.matches(event)) continue;
     const progress = adapter.update(event, previous);
-    if (progress) return progress;
+    if (progress) {
+      const data = event.data as { pendingValidation?: boolean } | undefined;
+      return data?.pendingValidation
+        ? { ...progress, percent: Math.min(99, progress.percent) }
+        : progress;
+    }
   }
   return previous;
 }

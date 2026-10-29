@@ -1,3 +1,6 @@
+import { credentialEnvironmentVariables } from "./runtime/credential-environment";
+import { jobDownloadBasename } from "../shared/job-download-name";
+import { projectArtifactPath, renderSourcePath } from "./runtime/workspace";
 import { registerActivityChildrenRoute } from "./jobs/activity-routes";
 import {
   pendingReferenceAuthentications,
@@ -124,15 +127,15 @@ export async function createApp(options: { store?: Store } = {}) {
     videoLanguageSupported: true,
     agentMode,
     models,
-    jevConfigured: Boolean(process.env.TYPESAFE_API_KEY),
+    jevConfigured: Boolean(process.env[credentialEnvironmentVariables.typesafeApiKey]),
     codexCredentialPresent: Boolean(
-      process.env.CODEX_API_KEY ||
-      process.env.OPENAI_API_KEY ||
+      process.env[credentialEnvironmentVariables.codexApiKey] ||
+      process.env[credentialEnvironmentVariables.openaiApiKey] ||
       existsSync(path.join(userHome(), " .codex/auth.json".trim())),
     ),
     claudeCredentialPresent: Boolean(
-      process.env.ANTHROPIC_API_KEY ||
-      process.env.CLAUDE_CODE_OAUTH_TOKEN ||
+      process.env[credentialEnvironmentVariables.anthropicApiKey] ||
+      process.env[credentialEnvironmentVariables.claudeOauthToken] ||
       existsSync(path.join(userHome(), ".claude")),
     ),
     modelValidation:
@@ -710,7 +713,9 @@ export async function createApp(options: { store?: Store } = {}) {
       const job = run.jobs.find((j) => j.id === req.params.jobId);
       if (job?.outputType !== "page" || job.phase !== "ready")
         throw new CodedError("PAGE_NOT_READY", "Page is not ready");
-      const file = await artifact(run.id, job.id, req.params["*"] || "index.html");
+      const relative = projectArtifactPath(job.workspace, req.params["*"] || "index.html");
+      renderSourcePath(job.workspace, relative);
+      const file = await artifact(run.id, job.id, relative);
       const resourceRoot = `http://${req.headers.host}/api/pages/${run.id}/${job.id}/`;
       reply.header("Access-Control-Allow-Origin", "*");
       reply.header(
@@ -745,7 +750,10 @@ export async function createApp(options: { store?: Store } = {}) {
         return await workflow.projectDependency(run, controller.signal, async (signal) => {
           const stream = await createProjectBundle(job, signal);
           reply
-            .header("Content-Disposition", "attachment; filename=editable-project.zip")
+            .header(
+              "Content-Disposition",
+              `attachment; filename*=UTF-8''${encodeURIComponent(jobDownloadBasename(run, job))}.zip`,
+            )
             .type("application/zip")
             .send(stream);
           await finished(stream, { cleanup: true });

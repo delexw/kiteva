@@ -1,3 +1,4 @@
+import { workspaceFolders } from "../../shared/workspace";
 import path from "node:path";
 import { appRoot } from "../runtime/config";
 import type { RendererMetadata, RendererCommand, RendererJobKind } from "./metadata";
@@ -36,7 +37,7 @@ export function rendererReproductionCommand(
     String(fps),
     ...(policy.quality ? ["--quality", policy.quality[kind]] : []),
     ...(policy.outputArgument ? [policy.outputArgument] : []),
-    `renders/output.${format}`,
+    `${workspaceFolders.renders}/output.${format}`,
   ].join(" ");
 }
 

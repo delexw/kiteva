@@ -1,3 +1,6 @@
+import { ProductionDesk } from "../components/production-desk/production-desk";
+import type { VideoGenerationJob } from "../../shared/domains/video";
+import { PanelsTopLeft, GalleryVerticalEnd } from "lucide-react";
 import { isVideoRefinementSource } from "../../shared/video-refinement-source";
 import {
   RefinementHistoryReview,
@@ -5,6 +8,8 @@ import {
 } from "../components/refinement-history-review";
 import { availableRefinementInstructions } from "../../shared/refinement-history";
 import { ProjectActivityPanel } from "./project-activity-panel";
+import { Dialog } from "../dialog";
+import { StoryboardPage } from "../storyboard-page";
 import { ReferenceSignIn } from "../components/reference-sign-in";
 import { RefinementMessage } from "../components/refinement-message";
 import {
@@ -83,6 +88,11 @@ export function RoomProject({
   onView: (view: RoomProjectView) => void;
 }) {
   const { language } = useUiLanguage();
+  const [storyboardJobId, setStoryboardJobId] = useState<string>();
+  const [deskJobId, setDeskJobId] = useState<string>();
+  const deskJob = run.jobs.find(
+    (job): job is VideoGenerationJob => job.id === deskJobId && job.outputType !== "page",
+  );
   const activityContexts = useMemo(
     () => roomActivityContexts(run, events),
     [run, events, language],
@@ -134,6 +144,25 @@ export function RoomProject({
       ));
   return (
     <div className="room-project">
+      {deskJob && (
+        <Dialog title={translateUi("Production Desk")} wide onClose={() => setDeskJobId(undefined)}>
+          <ProductionDesk key={deskJob.id} projectId={run.id} job={deskJob} />
+        </Dialog>
+      )}
+      {storyboardJobId && (
+        <Dialog
+          title={translateUi("Storyboard")}
+          wide
+          onClose={() => setStoryboardJobId(undefined)}
+        >
+          <StoryboardPage
+            embedded
+            projectId={run.id}
+            jobId={storyboardJobId}
+            onBack={() => setStoryboardJobId(undefined)}
+          />
+        </Dialog>
+      )}
       <div className="room-project-toolbar">
         <Button onClick={onEdit}>{translateUi("Edit brief")}</Button>
         {!terminalPhases.has(run.phase) ? (
@@ -361,13 +390,24 @@ export function RoomProject({
                         {storyboards.map((job) => (
                           <li key={job.id}>
                             <span>{roomQuestionScope(run, job.id)}</span>
-                            <a
-                              href={`/projects/${run.id}/storyboard?job=${job.id}`}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              {translateUi("Open storyboard")}
-                            </a>
+                            <div className="room-storyboard-actions">
+                              <Button
+                                type="link"
+                                className="room-storyboard-action room-desk-open"
+                                icon={<PanelsTopLeft size={16} aria-hidden="true" />}
+                                onClick={() => setDeskJobId(job.id)}
+                              >
+                                {translateUi("desk")}
+                              </Button>
+                              <Button
+                                type="link"
+                                className="room-storyboard-action room-storyboard-open"
+                                onClick={() => setStoryboardJobId(job.id)}
+                                icon={<GalleryVerticalEnd size={16} aria-hidden="true" />}
+                              >
+                                {translateUi("storyboard")}
+                              </Button>
+                            </div>
                           </li>
                         ))}
                       </ul>

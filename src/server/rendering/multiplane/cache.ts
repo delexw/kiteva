@@ -1,3 +1,4 @@
+import { renderInputRoot, renderSourcePath } from "../../runtime/workspace";
 import { createHash, randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { copyFile, mkdir, readFile, readdir, rename, rm, writeFile, lstat } from "node:fs/promises";
@@ -52,7 +53,7 @@ async function treeHash(
       else throw Error("Unsupported render input");
     }
   }
-  await visit(root);
+  await visit(project ? renderInputRoot(root) : root);
   return hash.digest("hex");
 }
 
@@ -72,7 +73,22 @@ export async function multiplaneInputFingerprint(
 ) {
   try {
     const dependencies = scope
-      ? await multiplaneShotDependencies(workspace, scope, signal)
+      ? await multiplaneShotDependencies(
+          renderInputRoot(workspace),
+          {
+            sourceFile: path.relative(
+              renderInputRoot(workspace),
+              renderSourcePath(workspace, scope.sourceFile),
+            ),
+            shotSources: scope.shotSources.map((file) =>
+              path.relative(renderInputRoot(workspace), renderSourcePath(workspace, file)),
+            ),
+            additionalFiles: scope.additionalFiles?.map((file) =>
+              path.relative(renderInputRoot(workspace), renderSourcePath(workspace, file)),
+            ),
+          },
+          signal,
+        )
       : undefined;
     if (dependencies === null) return undefined;
     if (dependencies) {

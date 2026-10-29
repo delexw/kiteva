@@ -29,6 +29,7 @@ export const SharedRequestSchema = z.object({
 });
 
 export interface JobState {
+  workspaceLayoutVersion?: 1;
   version?: number;
   id: string;
   runId: string;

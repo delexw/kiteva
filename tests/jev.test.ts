@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { afterEach, expect, it, vi } from "vitest";
 import { noul } from "@typesafe-ai/sdk";
 import { jevClient, jevModel } from "../src/server/jev/client";
@@ -7,9 +8,9 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-it("uses the configured TYPESAFE_API_KEY with the native SDK", async () => {
+it("uses the configured JEV credential with the native SDK", async () => {
   const expected = "test-placeholder";
-  vi.stubEnv("TYPESAFE_API_KEY", expected);
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, expected);
   const fetch = vi.fn(async (_url, options) => {
     expect(new Headers(options.headers).get("authorization")).toBe(`Bearer ${expected}`);
     expect(JSON.parse(options.body).model).toBe("jev-1.14.0");
@@ -32,8 +33,8 @@ it("uses the configured TYPESAFE_API_KEY with the native SDK", async () => {
   expect(fetch).toHaveBeenCalledOnce();
 });
 
-it("fails before making a request when TYPESAFE_API_KEY is not configured", () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "");
+it("fails before making a request when the JEV credential is not configured", () => {
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "");
   const fetch = vi.fn();
   vi.stubGlobal("fetch", fetch);
   expect(() => jevClient()).toThrow("JEV decisions are not configured");

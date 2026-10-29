@@ -1,3 +1,5 @@
+import { workspaceFolders } from "../../../shared/workspace";
+import { hasProjectLayout, workspacePaths } from "../../runtime/workspace";
 import { isVideoRefinementSource } from "../../../shared/video-refinement-source";
 import { refinementHistoryArtifact } from "./refinement-history";
 import { createHash } from "node:crypto";
@@ -45,12 +47,15 @@ export async function prepareVideoRefinement(
     throw Error(
       "Fine-tuning requires a completed or cancelled video, saved session and requested changes",
     );
+  job.workspaceLayoutVersion = hasProjectLayout(source.workspace) ? 1 : undefined;
   await mkdir(job.workspace, { recursive: true });
   await cp(source.workspace, job.workspace, {
     recursive: true,
     filter: (file) => {
       signal.throwIfAborted();
-      return !["node_modules", "renders", ".runtime"].includes(path.basename(file));
+      return !["node_modules", workspaceFolders.renders, workspaceFolders.runtime].includes(
+        path.basename(file),
+      );
     },
   });
   await mkdir(path.dirname(path.join(job.workspace, refinementHistoryArtifact)), {
@@ -83,14 +88,15 @@ export async function prepareVideoRefinement(
     signal,
   );
   if (references.length) {
-    const directory = path.join(job.workspace, "refinement-images");
+    const imageDirectory = workspacePaths(job.workspace).refinementImages;
+    const directory = path.join(job.workspace, imageDirectory);
     await mkdir(directory, { recursive: true });
     const images = [];
     for (const asset of references) {
       signal.throwIfAborted();
       const original = await readFile(asset.path, { signal });
       const prepared = await prepareBriefImage(original);
-      const originalPath = `refinement-images/${asset.name}`;
+      const originalPath = `${imageDirectory}/${asset.name}`;
       const inspectionPath = prepared.resized ? `${originalPath}.png` : originalPath;
       await writeFile(path.join(job.workspace, originalPath), original, { signal });
       if (prepared.resized)
@@ -117,9 +123,9 @@ export async function prepareVideoRefinement(
     files,
     inheritedCacheDirectories,
   };
-  await mkdir(path.join(job.workspace, "renders"), { recursive: true });
+  await mkdir(path.join(job.workspace, workspaceFolders.renders), { recursive: true });
   await writeFile(
-    path.join(job.workspace, "renders/refinement-checkpoint.json"),
+    path.join(job.workspace, `${workspaceFolders.renders}/refinement-checkpoint.json`),
     JSON.stringify(checkpoint, null, 2),
     { signal },
   );

@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { afterEach, expect, it, vi } from "vitest";
 import { mkdtemp, readFile, writeFile, readdir, rm } from "node:fs/promises";
 import path from "node:path";
@@ -33,8 +34,8 @@ it.skipIf(process.platform !== "darwin")(
     const root = await mkdtemp(path.join(os.tmpdir(), "claude-login-"));
     vi.stubEnv("HOME", root);
     vi.stubEnv("CLAUDE_CONFIG_DIR", "");
-    vi.stubEnv("ANTHROPIC_API_KEY", "");
-    vi.stubEnv("CLAUDE_CODE_OAUTH_TOKEN", "");
+    vi.stubEnv(credentialEnvironmentVariables.anthropicApiKey, "");
+    vi.stubEnv(credentialEnvironmentVariables.claudeOauthToken, "");
     keychain.calls = 0;
     try {
       keychain.login = JSON.stringify({

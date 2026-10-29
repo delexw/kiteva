@@ -1,13 +1,14 @@
+import { jobDownloadBasename } from "../../shared/job-download-name";
 import { useEffect, useState } from "react";
 import { FolderArchive } from "lucide-react";
 import { Tooltip } from "antd";
 import { translateUi, useUiLanguage } from "../i18n";
-import { terminalPhases, type GenerationJob } from "../../shared/contracts";
+import { terminalPhases, type GenerationJob, type Run } from "../../shared/contracts";
 
-export function ProjectDownload({ runId, job }: { runId: string; job: GenerationJob }) {
+export function ProjectDownload({ run, job }: { run: Run; job: GenerationJob }) {
   useUiLanguage();
   const [available, setAvailable] = useState(false);
-  const url = `/api/projects/${runId}/${job.id}`;
+  const url = `/api/projects/${run.id}/${job.id}`;
   useEffect(() => {
     const controller = new AbortController();
     setAvailable(false);
@@ -41,7 +42,7 @@ export function ProjectDownload({ runId, job }: { runId: string; job: Generation
       <a
         className="secondary delivery-icon-button"
         href={url}
-        download
+        download={`${jobDownloadBasename(run, job)}.zip`}
         aria-label={translateUi("Download editable project")}
       >
         <FolderArchive size={18} aria-hidden="true" />

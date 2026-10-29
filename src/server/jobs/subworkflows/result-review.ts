@@ -1,3 +1,4 @@
+import { workspaceFolders } from "../../../shared/workspace";
 import { activityScope } from "../activity-scope";
 import {
   ResultReviewSchema,
@@ -29,7 +30,9 @@ export async function reviewFinishedResult(input: {
         await readFile(
           path.join(
             job.workspace,
-            job.outputType === "page" ? "renders/page-validation.json" : "renders/validation.json",
+            job.outputType === "page"
+              ? `${workspaceFolders.renders}/page-validation.json`
+              : `${workspaceFolders.renders}/validation.json`,
           ),
           "utf8",
         ),
@@ -42,7 +45,10 @@ export async function reviewFinishedResult(input: {
               .catch(() => undefined);
       const isVideo = job.outputType !== "page";
       const compositionQa = isVideo
-        ? await readFile(path.join(job.workspace, "renders/qa-report.json"), "utf8")
+        ? await readFile(
+            path.join(job.workspace, `${workspaceFolders.renders}/qa-report.json`),
+            "utf8",
+          )
             .then((text) => JSON.parse(text))
             .catch(() => undefined)
         : undefined;
@@ -75,6 +81,7 @@ export async function reviewFinishedResult(input: {
         ? {
             storyboard,
             calibrationTestCases: videoReviewTestCases,
+            correctionBypasses: job.correctionBypasses,
             request: input.request,
             chosenDirection: input.candidate,
             finalQa: { probe: report.probe, verifiedAt: report.verifiedAt },
@@ -165,7 +172,7 @@ Read the complete current page evidence from the required input JSON.`,
         issue: safeMessage(error),
       };
       await writeFile(
-        path.join(job.workspace, "renders/result-review-error.json"),
+        path.join(job.workspace, `${workspaceFolders.renders}/result-review-error.json`),
         JSON.stringify(diagnostic, null, 2),
       ).catch(() => {});
       input.onEvent({

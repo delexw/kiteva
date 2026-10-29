@@ -1,4 +1,5 @@
 const modelNames: Record<string, string> = {
+  "claude-haiku-5-5": "Claude Haiku 5.5",
   "claude-opus-5-5": "Claude Opus 5.5",
   "gpt-6.1-sol": "GPT-6.1 Sol",
 };

@@ -7,8 +7,10 @@ export async function renderCommand(
   executable: string,
   args: string[],
   workspace: string,
+  executionDirectory = workspace,
 ): Promise<RenderCommand> {
-  if (process.platform === "win32") return windowsRenderCommand(executable, args, workspace);
+  if (process.platform === "win32")
+    return windowsRenderCommand(executable, args, workspace, executionDirectory);
   const sandbox = macosRenderSandbox(workspace);
   return {
     executable: "/usr/bin/sandbox-exec",

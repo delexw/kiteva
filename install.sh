@@ -10,7 +10,7 @@ Install macOS prerequisites, npm dependencies, Chrome for Testing, OpenScreen,
 Caveman, local speech providers, Audio Studio MCP/model weights, and build Kiteva.
 The default includes large model downloads. Re-running reuses installed runtimes/caches.
 
-  --speech MODE          all (default), kokoro, pocket, pocket-zh, qwen, qwen-base (Apple Silicon), or none
+  --speech MODE          all (default), kokoro, pocket, pocket-zh, or none
   --skip-audio-studio     Skip local music generation setup
   --audio-no-weights     Install Audio Studio; defer its model weights until first use
   --skip-openscreen       Skip the desktop recorder installation
@@ -47,12 +47,8 @@ while [[ $# -gt 0 ]]; do
     *) echo "Unknown option: $1" >&2; usage >&2; exit 1 ;;
   esac
 done
-case "$speech" in all|kokoro|pocket|pocket-zh|qwen|qwen-base|none) ;; *) echo "Invalid speech mode: $speech" >&2; exit 1 ;; esac
+case "$speech" in all|kokoro|pocket|pocket-zh|none) ;; *) echo "Invalid speech mode: $speech" >&2; exit 1 ;; esac
 [[ "$(uname -s)" == Darwin ]] || { echo 'install.sh supports macOS. For native Windows use docs/windows.md.' >&2; exit 1; }
-if [[ ( "$speech" == qwen || "$speech" == qwen-base ) && "$(uname -m)" != arm64 ]]; then
-  echo 'Qwen3-TTS requires Apple Silicon.' >&2
-  exit 1
-fi
 if [[ "$(uname -m)" == x86_64 ]] && [[ "$(/usr/sbin/sysctl -n hw.optional.arm64 2>/dev/null || true)" == 1 ]]; then
   echo 'Run this installer from a native Apple Silicon terminal, not Rosetta.' >&2
   exit 1
@@ -131,8 +127,6 @@ if [[ "$speech" != none ]]; then
   if [[ "$speech" == all || "$speech" == kokoro || "$speech" == pocket-zh ]]; then npm run speech:setup; fi
   if [[ "$speech" == all || "$speech" == pocket ]]; then npm run speech:setup:pocket; fi
   if [[ "$speech" == all || "$speech" == pocket-zh ]]; then npm run speech:setup:pocket:zh; fi
-  if [[ "$speech" == qwen || ( "$speech" == all && "$(uname -m)" == arm64 ) ]]; then npm run speech:setup:qwen; fi
-  if [[ "$speech" == qwen-base || ( "$speech" == all && "$(uname -m)" == arm64 ) ]]; then npm run speech:setup:qwen:base; fi
 fi
 if [[ "$audio_studio" == 1 ]]; then
   if [[ "$(uname -m)" == arm64 ]]; then

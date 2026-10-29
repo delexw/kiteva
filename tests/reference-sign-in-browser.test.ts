@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -22,7 +23,7 @@ it.skipIf(!browserExecutablePath())(
     const controller = new AbortController();
     const bridge = await startAuthenticationBridge(workspace, controller.signal, () => {});
     vi.stubEnv("KITEVA_AUTH_BRIDGE_URL", bridge.url);
-    vi.stubEnv("KITEVA_AUTH_BRIDGE_TOKEN", bridge.token);
+    vi.stubEnv(credentialEnvironmentVariables.authenticationBridgeToken, bridge.token);
     let focused = false,
       finished = false;
     const startWaiting = () =>

@@ -4,7 +4,7 @@ import type { LanguageMediaInput, TrackTranslator } from "./types";
 import { languageMediaPaths } from "./paths";
 export function createTrackTranslator(input: LanguageMediaInput): TrackTranslator {
   const { request, signal } = input;
-  const { folder } = languageMediaPaths(input.job.workspace);
+  const { context } = languageMediaPaths(input.job.workspace);
   return async (text, language, window, attempt) => {
     const translated = await localizeVideoRequest(
       {
@@ -17,7 +17,7 @@ export function createTrackTranslator(input: LanguageMediaInput): TrackTranslato
         translations: undefined,
         instructions: `${request.instructions}\nTranslate faithfully for a ${window.toFixed(2)} second subtitle/narration window.${attempt ? " Shorten the wording to fit naturally without dropping supported meaning." : ""}`,
       },
-      path.join(folder, "translations"),
+      path.join(context, "translations"),
       signal,
       input.onEvent,
     );

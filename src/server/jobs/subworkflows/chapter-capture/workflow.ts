@@ -95,6 +95,7 @@ export async function prepareChapterCaptures(
           progress({ ...metadata, completed: completed.length, status });
         emit("running");
         const capturePrompt = buildChapterCapturePrompt({
+          workspace: job.workspace,
           storyboard:
             job.buildPlan?.value.version === 2 ? job.buildPlan.value.storyboard : undefined,
           request,

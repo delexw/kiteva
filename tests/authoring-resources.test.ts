@@ -1,3 +1,4 @@
+import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import { afterEach, expect, it, vi } from "vitest";
 import {
   selectAuthoringResources,
@@ -64,7 +65,7 @@ async function input() {
 it.each(["animate_ui", "react_bits", "anatomy", "local_code"])(
   "uses the native Choice API winner %s, preserving renderer, MGs and usage attribution",
   async (winner) => {
-    vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+    vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
     vi.stubGlobal(
       "fetch",
       vi.fn(async (_url, options) => {
@@ -136,7 +137,7 @@ it.each(["animate_ui", "react_bits", "anatomy", "local_code"])(
   },
 );
 it("does not block production on unavailable JEV and does not swallow cancellation", async () => {
-  vi.stubEnv("TYPESAFE_API_KEY", "");
+  vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "");
   const options = await input();
   expect(await selectAuthoringResources(options)).toMatchObject({
     source: "unavailable",
@@ -163,7 +164,7 @@ it.each([
 ])(
   "never accepts a malformed JEV answer as a successful resource decision: %j",
   async (answers) => {
-    vi.stubEnv("TYPESAFE_API_KEY", "test-placeholder");
+    vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
     vi.stubGlobal(
       "fetch",
       vi.fn(

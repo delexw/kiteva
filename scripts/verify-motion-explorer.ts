@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
 import { browserExecutablePath } from "../src/server/runtime/browser";
-import { DEFAULT_WEB_PORT } from "../src/shared/local-web-port";
+import { DEFAULT_WEB_PORT } from "../src/shared/local-ports";
 import { MotionPatternSchema } from "../src/shared/contracts";
 import { z } from "zod";
 import { mkdir, writeFile } from "node:fs/promises";

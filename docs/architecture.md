@@ -3,7 +3,7 @@
 [English README](../README.md) · [中文 README](../README.zh-CN.md) · [Technology inventory](technology-pool.md) · [Costs](costs.md)
 
 Kiteva is a single-user app that runs on your own computer. A [Fastify](https://fastify.dev)
-server on `127.0.0.1:4317` serves a [React](https://react.dev) desktop-style UI, drives the
+server on `127.0.0.1:18417` serves a [React](https://react.dev) desktop-style UI, drives the
 [Claude Agent SDK](https://github.com/anthropics/claude-agent-sdk-typescript) or the
 [Codex SDK](https://github.com/openai/codex/tree/main/sdk/typescript) inside job workspaces it
 controls, and renders films locally. There is no hosted service, no account system and no multi-user

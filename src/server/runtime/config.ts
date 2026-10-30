@@ -4,7 +4,7 @@ import path from "node:path";
 import { systemEnvironment } from "./platform";
 import { mkdirSync } from "node:fs";
 import dotenv from "dotenv";
-import { DEFAULT_WEB_PORT } from "../../shared/local-web-port";
+import { resolveLocalPorts } from "../../shared/local-ports";
 import { defaultProviderModels } from "../../shared/model-display-name";
 import { appRoot, dataRoot } from "./paths";
 export { appRoot, dataRoot } from "./paths";
@@ -16,8 +16,9 @@ export const models = {
   codex: process.env.VIDEO_CODEX_MODEL || defaultProviderModels.codex,
   claude: process.env.VIDEO_CLAUDE_MODEL || defaultProviderModels.claude,
 };
-export const port = Number(process.env.VIDEO_AGENT_PORT || 4317);
-export const webPort = Number(process.env.VIDEO_AGENT_WEB_PORT || DEFAULT_WEB_PORT);
+const localPorts = resolveLocalPorts(process.env);
+export const port = localPorts.backend;
+export const webPort = localPorts.web;
 export const agentMode: "local" | "hosted" =
   (process.env.VIDEO_AGENT_MODE || "local") === "local" ? "local" : "hosted";
 export function redactSecrets(value: unknown): string {

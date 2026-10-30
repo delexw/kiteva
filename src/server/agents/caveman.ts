@@ -8,11 +8,18 @@ import { access, mkdir, open, readFile } from "node:fs/promises";
 import { setTimeout as delay } from "node:timers/promises";
 import path from "node:path";
 import { appRoot, dataRoot, childEnvironment } from "../runtime/config";
+import { resolveLocalPorts } from "../../shared/local-ports";
 
 export function cavemanSettings(env = process.env) {
   const enabled = env.VIDEO_CAVEMAN_ENABLED !== "false";
   const port = Number(env.VIDEO_CAVEMAN_PORT || 4321);
-  if (!Number.isInteger(port) || port < 1024 || port > 65535 || [4317, 4319, 5173].includes(port))
+  const applicationPorts = resolveLocalPorts(env);
+  if (
+    !Number.isInteger(port) ||
+    port < 1024 ||
+    port > 65535 ||
+    [applicationPorts.backend, applicationPorts.web, 5173].includes(port)
+  )
     throw Error("VIDEO_CAVEMAN_PORT must be an unused local port (1024–65535)");
   const home = path.join(dataRoot, "caveman");
   return { enabled, port, home, url: `http://127.0.0.1:${port}` };

@@ -33,7 +33,7 @@ import { validateAssetLimits } from "../shared/asset-limits";
 import { PageTemplate } from "./components/page-template";
 import { technologyPoolSize } from "../shared/technology-pool";
 import { ProjectList } from "./components/project-list";
-import { Button, Input, Alert, Card, Collapse, Tooltip } from "antd";
+import { Button, Input, Alert, Card, Collapse, Tooltip, Popover } from "antd";
 import { CodedError, errorCode } from "../shared/errors";
 import { ProjectConversation } from "./components/project-conversation";
 import type { RevisionSlots } from "./components/revision-stack";
@@ -787,29 +787,43 @@ function App() {
                 {job.kind === "full" && <ProjectDownload run={run} job={job} />}
                 {job.phase === "ready" && (
                   <>
-                    <Tooltip
-                      trigger={["hover", "focus"]}
-                      title={translateUi(
-                        job.outputType === "page"
-                          ? "Download the complete HTML page bundle."
-                          : "Download the finished video as an MP4.",
-                      )}
+                    <Popover
+                      trigger={["hover", "focus", "click"]}
+                      placement="bottomRight"
+                      content={
+                        media ? (
+                          <LanguageMediaDownloads media={media} downloadName={downloadName} />
+                        ) : undefined
+                      }
                     >
-                      <a
-                        className="secondary delivery-icon-button"
-                        href={
-                          job.outputType === "page"
-                            ? `/api/projects/${run.id}/${job.id}`
-                            : artifactUrl(run, job, job.video!)
+                      <Tooltip
+                        trigger={["hover", "focus"]}
+                        title={
+                          media
+                            ? null
+                            : translateUi(
+                                job.outputType === "page"
+                                  ? "Download the complete HTML page bundle."
+                                  : "Download the finished video as an MP4.",
+                              )
                         }
-                        download={`${downloadName}.${job.outputType === "page" ? "zip" : "mp4"}`}
-                        aria-label={translateUi(
-                          job.outputType === "page" ? "Download HTML bundle" : "Download MP4",
-                        )}
                       >
-                        <FileVideo size={18} aria-hidden="true" />
-                      </a>
-                    </Tooltip>
+                        <a
+                          className="secondary delivery-icon-button"
+                          href={
+                            job.outputType === "page"
+                              ? `/api/projects/${run.id}/${job.id}`
+                              : artifactUrl(run, job, job.video!)
+                          }
+                          download={`${downloadName}.${job.outputType === "page" ? "zip" : "mp4"}`}
+                          aria-label={translateUi(
+                            job.outputType === "page" ? "Download HTML bundle" : "Download MP4",
+                          )}
+                        >
+                          <FileVideo size={18} aria-hidden="true" />
+                        </a>
+                      </Tooltip>
+                    </Popover>
                     <Tooltip
                       trigger={["hover", "focus"]}
                       title={translateUi(
@@ -880,7 +894,6 @@ function App() {
               <PromptText>{candidate.displayDescription}</PromptText>
             </p>
           )}
-          {media && <LanguageMediaDownloads media={media} downloadName={downloadName} />}
           {activity}
           {job.phase === "failed" && job.error && (
             <p className="failure">

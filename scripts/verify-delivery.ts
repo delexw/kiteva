@@ -1,7 +1,8 @@
+import { port } from "../src/server/runtime/config";
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
 import { unzipSync } from "fflate";
-const base = "http://127.0.0.1:4317";
+const base = `http://127.0.0.1:${port}`;
 const runs = await (await fetch(`${base}/api/runs`)).json();
 const run = runs.find((r: { jobs: Array<{ kind: string; phase: string }> }) =>
   r.jobs.some((j) => j.kind === "full" && j.phase === "ready"),

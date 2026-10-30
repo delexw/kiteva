@@ -11,6 +11,9 @@
 
 <h1 align="center">Kiteva — AI 动态图形智能体</h1>
 
+通过 [MCP 服务](docs/agent-mcp.md)在外部智能体中使用 Kiteva：搜索想法和 Motion Graphic、
+保存 Assistant 草稿，并在明确请求后启动构建。
+
 <p align="center">
   <b>一个私人的创作小房间，把一个想法变成一段动态图形短片。</b><br>
   使用 <a href="https://platform.claude.com/docs/en/about-claude/models/overview">Claude Opus 5.5</a> 或 <a href="https://developers.openai.com/api/docs/models/gpt-6.1-sol">GPT-6.1 Sol</a>。
@@ -33,6 +36,17 @@
 ## 最近更新
 
 以下日期采用新西兰时间。
+
+<details>
+<summary>2026-10-31</summary>
+
+- **面向外部智能体的 HTTP MCP：**通过应用内置的 `/mcp` 端点搜索已保存的想法和 Motion Graphic、查看可用设置、保存 Assistant 草稿，并明确启动构建。工具共用类型化结果与请求校验，保护并发草稿编辑；默认使用 Claude Opus 5.5、Multiplane、2K、60 fps、Explore 和三个预览方向。详见[智能体 MCP](docs/agent-mcp.md)（英文）。
+- **独立本地端口：**界面使用 `18419`，后端使用 `18417`；共用校验，并同步代理、来源检查和验证脚本。无效或冲突的端口配置会明确报错，前端不会静默占用其他端口。
+- **语言下载与内嵌字幕：**将各语言的视频、音频和字幕下载集中到下载操作的横向面板，空间不足时自动换行。恢复直接制作在视频中的旁白字幕，遵守项目字幕设置，移除独立的播放字幕选择器与重复的浏览器字幕覆盖层。
+- **完整构建的制作台产物：**直接读取已保存的制作与旁白元数据，优先使用当前产物而非继承的任务元数据；查看完整视频时排除预览长度的制作清单和分镜。旁白结构定义由浏览器和服务器共享。
+- **创意选择与稳定开发：**鼓励超出最小常见组合的有意义搭配；即使评估器返回超出预期范围的分数，也在代码中限制历史偏好的贡献。开发文件监听排除生成的运行时文件和下载的创作技能，避免意外刷新页面。
+
+</details>
 
 <details>
 <summary>2026-10-30</summary>
@@ -395,14 +409,14 @@ git clone https://github.com/delexw/motion-graphics-agent.git
 cd motion-graphics-agent
 ./install.sh
 # 编辑自动创建的 .env.local：填入 TYPESAFE_API_KEY，以及需要的提供方 key。
-npm start                       # 打开 http://127.0.0.1:4317
+npm start                       # 打开 http://127.0.0.1:18417
 ```
 
 轻量安装可运行 `./install.sh --minimal`，跳过旁白和 Audio Studio；`./install.sh --speech pocket` 只安装 Pocket TTS 旁白。
 `--audio-no-weights` 将 Audio Studio 模型下载推迟到首次生成。默认复用现有 `speech:setup*` 脚本安装 Kokoro、Pocket TTS 和中文 Pocket TTS。
 提供方登录、API key，以及 macOS 屏幕录制和辅助功能权限仍需你配置；安装器不会启动应用或操作浏览器。
 OpenScreen 从官方 GitHub Release 下载并校验 SHA-256；若 `/Applications` 不可写，会使用用户的 Applications 目录并将路径加入 `.env.local`。
-参见[旁白设置](docs/speech.md)和[语言设置](docs/video-languages.md)。开发界面时保持后端运行，再用 `npx vite`（`http://127.0.0.1:4319`）。
+参见[旁白设置](docs/speech.md)和[语言设置](docs/video-languages.md)。开发界面时保持后端运行，再用 `npx vite`（`http://127.0.0.1:18419`）。
 
 Anatomy 在服务启动时自动安装或更新。首次启动需要网络，通过 HTTPS 下载 ZIP 安装，不需要 Git 或额外 CLI；以后离线启动可使用已校验的本地版本。上游文件保存在 Git 忽略的 `skills/anatomy/`，提供商注册和 Kiteva 指引仍在源码中。
 

@@ -1,3 +1,4 @@
+import { port } from "../src/server/runtime/config";
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
 import { writeFile } from "node:fs/promises";
@@ -9,7 +10,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto("http://127.0.0.1:4317");
+  await page.goto(`http://127.0.0.1:${port}`);
   await page.getByRole("button", { name: /Style explorer/ }).click();
   await page.getByText(/model-authored one-page studies ready/).waitFor();
   await page.getByRole("textbox", { name: "Search styles" }).fill("International Typographic");

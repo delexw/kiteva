@@ -35,11 +35,16 @@ export function weightedScore(
       ? 0
       : preferenceHistoryPolicy.maxWeight[mode] *
         Math.min(Math.max(historyProjects, 0) / preferenceHistoryPolicy.projectsForFullWeight, 1);
+  const preferenceFit = dimensions.preferenceFit ?? 0;
+  // Scores are normalized to 0–1. Provider output cannot exceed the configured contribution.
+  const preferenceContribution = Number.isFinite(preferenceFit)
+    ? Math.min(Math.max(preferenceFit * historyWeight, 0), historyWeight)
+    : 0;
   return (
     Math.round(
       (Object.entries(weights[mode]).reduce((n, [k, w]) => n + (dimensions[k] ?? 0) * w, 0) *
         (1 - historyWeight) +
-        (dimensions.preferenceFit ?? 0) * historyWeight) *
+        preferenceContribution) *
         1000,
     ) / 10
   );

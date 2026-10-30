@@ -1,3 +1,4 @@
+import { port } from "../src/server/runtime/config";
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -9,7 +10,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto("http://127.0.0.1:4317");
+  await page.goto(`http://127.0.0.1:${port}`);
   const suggestions = page.locator(".inspiration-grid .style-card--compact");
   await suggestions.first().waitFor();
   assert.equal(await suggestions.count(), 3);
@@ -38,7 +39,7 @@ try {
   });
   const duration = await video.evaluate((el: HTMLVideoElement) => el.duration);
   assert.equal(duration, 3);
-  const response = await page.request.get("http://127.0.0.1:4317/api/examples/style-011/video", {
+  const response = await page.request.get(`http://127.0.0.1:${port}/api/examples/style-011/video`, {
     headers: { Range: "bytes=0-1000" },
   });
   assert.equal(response.status(), 206);
@@ -115,7 +116,7 @@ try {
   await page.getByRole("textbox", { name: "Search styles" }).fill("Pop Art");
   await card.locator("img").waitFor();
   assert.equal(await card.locator("video").count(), 0);
-  const records = (await (await page.request.get("http://127.0.0.1:4317/api/examples")).json())
+  const records = (await (await page.request.get(`http://127.0.0.1:${port}/api/examples`)).json())
     .examples;
   assert(
     records

@@ -1,3 +1,4 @@
+import { zstdDecompressSync } from "node:zlib";
 import { credentialEnvironmentVariables } from "../src/server/runtime/credential-environment";
 import type { PreferenceHistoryRecord } from "../src/server/catalog/preference-history";
 import { type Brief } from "../src/shared/agents/schemas/video";
@@ -6,6 +7,11 @@ import { it, expect, vi, afterEach } from "vitest";
 import { rankOptions, weightedScore } from "../src/server/jev/strategies/style-combination";
 import { loadCatalog } from "../src/server/catalog/catalog";
 import { RequestSchema } from "../src/shared/contracts";
+async function parseJevRequest(init: RequestInit) {
+  const bytes = Buffer.from(await new Response(init.body).arrayBuffer());
+  const encoding = new Headers(init.headers).get("content-encoding");
+  return JSON.parse((encoding === "zstd" ? zstdDecompressSync(bytes) : bytes).toString("utf8"));
+}
 const brief: Brief = {
   subject: "Generic system",
   audience: "Technical audience",
@@ -68,7 +74,7 @@ it("uses the official SDK wire format and excludes conflicting candidates", asyn
   vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-only-placeholder");
   let observed = false;
   vi.stubGlobal("fetch", async (_url: string, options: RequestInit) => {
-    const body = JSON.parse(String(options.body));
+    const body = await parseJevRequest(options);
     if (body.questions.direction?.type === "choice") return choiceResponse(body);
     observed = true;
     expect(body.model).toBe("jev-1.14.0");
@@ -201,7 +207,7 @@ it.each([undefined, "style-046"])(
   async (pinnedStyleId) => {
     vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-only-placeholder");
     vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
-      const body = JSON.parse(String(init.body));
+      const body = await parseJevRequest(init);
       if (body.questions.direction?.type === "choice") return choiceResponse(body);
       const answers = Object.fromEntries(
         Object.entries(body.questions).map(([id, value]) => {
@@ -296,7 +302,7 @@ it("adds contextual preference fit within the existing JEV request without overr
   let calls = 0;
   vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
     calls++;
-    const body = JSON.parse(String(init.body));
+    const body = await parseJevRequest(init);
     if (body.questions.direction?.type === "choice") return choiceResponse(body);
     expect(body.state.preferenceHistory).toEqual(history);
     expect(body.state.preferenceHistoryGuidance).toContain(
@@ -382,6 +388,23 @@ it("caps preference influence, discounts sparse history, and preserves scores wi
   expect(weightedScore(withoutHistory, "context", 3)).toBe(50);
 });
 
+it.each([
+  [0.4, 49.5],
+  [1, 52.5],
+  [1000, 52.5],
+  [-10, 47.5],
+  [Number.NaN, 47.5],
+  [Number.POSITIVE_INFINITY, 47.5],
+])("bounds creative preference contribution for provider value %s", (preferenceFit, expected) => {
+  expect(
+    weightedScore(
+      { relevance: 0.5, clarity: 0.5, creativity: 0.5, feasibility: 0.5, preferenceFit },
+      "creative",
+      3,
+    ),
+  ).toBe(expected);
+});
+
 it("preserves original instructions and evaluates readable combination tradeoffs without production inventories or a proposal veto", async () => {
   vi.stubEnv(credentialEnvironmentVariables.typesafeApiKey, "test-placeholder");
   const catalog = await loadCatalog();
@@ -428,7 +451,7 @@ it("preserves original instructions and evaluates readable combination tradeoffs
   let calls = 0;
   vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
     calls++;
-    const payload = JSON.parse(String(init.body));
+    const payload = await parseJevRequest(init);
     if (payload.questions.direction?.type === "choice") return choiceResponse(payload);
     expect(payload.state.originalIdea).toBe(originalIdea);
     expect(payload.state.sectionInstructions).toEqual({
@@ -504,7 +527,7 @@ it("compares survivors across all batches repeatedly and obeys JEV choice order 
   const request = RequestSchema.parse({ instructions: "A generic explanation", candidateCount: 2 });
   vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
     calls++;
-    const payload = JSON.parse(String(init.body));
+    const payload = await parseJevRequest(init);
     if (payload.questions.direction?.type === "choice") {
       const round = payload.state.selectionRound;
       expect(payload.state).not.toHaveProperty("styleDefinitions");
@@ -578,7 +601,7 @@ it.each(["all-conflict", "invalid-choice", "cancel"] as const)(
     let calls = 0;
     vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
       calls++;
-      const payload = JSON.parse(String(init.body));
+      const payload = await parseJevRequest(init);
       if (payload.questions.direction?.type === "choice") {
         if (scenario === "cancel") {
           controller.abort(Error("Cancelled selection"));

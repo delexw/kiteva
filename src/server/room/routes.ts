@@ -11,7 +11,7 @@ import { CodedError } from "../../shared/errors";
 import { validateAssetLimits } from "../../shared/asset-limits";
 import { briefSectionFileAccept } from "../../shared/brief-sections";
 import { inspectAssetLimits } from "../requests/asset-limits";
-import { appRoot } from "../runtime/config";
+import { appRoot, webPort } from "../runtime/config";
 import type { Store } from "../jobs/store";
 import type { Asset } from "../../shared/contracts";
 
@@ -83,10 +83,7 @@ export async function registerRoomRoutes(
       throw new CodedError("ACCESS_DENIED", "Local host required", 403);
     const origin = req.headers.origin;
     if (origin && origin !== `http://${req.headers.host}`) {
-      const allowed = new Set([
-        `http://127.0.0.1:${process.env.VIDEO_AGENT_WEB_PORT || 4319}`,
-        `http://localhost:${process.env.VIDEO_AGENT_WEB_PORT || 4319}`,
-      ]);
+      const allowed = new Set([`http://127.0.0.1:${webPort}`, `http://localhost:${webPort}`]);
       if (!allowed.has(origin))
         throw new CodedError("ACCESS_DENIED", "Foreign origin rejected", 403);
     }

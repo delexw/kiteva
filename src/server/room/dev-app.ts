@@ -5,6 +5,10 @@ import { Store } from "../jobs/store";
 import { registerRoomRoutes } from "./routes";
 import { assetLimits } from "../../shared/asset-limits";
 import { apiErrorHandler } from "../runtime/api-errors";
+import { loadCatalog } from "../catalog/catalog";
+import { webPort } from "../runtime/config";
+import { registerKitevaMcpRoutes } from "../mcp/routes";
+import { startIdeaThroughBackend } from "../mcp/client";
 
 export async function createRoomDevelopmentApp() {
   const store = new Store();
@@ -12,6 +16,12 @@ export async function createRoomDevelopmentApp() {
   app.setErrorHandler(apiErrorHandler);
   await app.register(multipart, { limits: { fileSize: assetLimits.audio.bytes, files: 1 } });
   await registerRoomRoutes(app, store);
+  registerKitevaMcpRoutes(app, {
+    store,
+    catalog: await loadCatalog(),
+    webUrl: `http://127.0.0.1:${webPort}`,
+    start: startIdeaThroughBackend,
+  });
   registerActivityChildrenRoute(app, store);
   await app.ready();
   return { app, close: () => app.close().finally(() => store.close()) };

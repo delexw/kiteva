@@ -15,6 +15,8 @@ import { jevModel } from "./jev/client";
 import { assertWindowsRenderReady } from "./rendering/sandbox/readiness";
 import { userHome } from "./runtime/platform";
 import { registerRoomRoutes } from "./room/routes";
+import { registerKitevaMcpRoutes } from "./mcp/routes";
+import { startIdeaThroughBackend } from "./mcp/client";
 import { registerSpeechRoutes } from "./audio/routes";
 import { speechConfigurationProblem, activeSpeech } from "../shared/speech";
 import { assetLimitKind } from "../shared/asset-limits";
@@ -48,7 +50,14 @@ import {
   type Run,
   type AgentProgressEvent,
 } from "../shared/contracts.js";
-import { agentMode, appRoot, dataRoot, models, webPort } from "./runtime/config.js";
+import {
+  agentMode,
+  appRoot,
+  dataRoot,
+  models,
+  port as backendPort,
+  webPort,
+} from "./runtime/config.js";
 import { Store } from "./jobs/store.js";
 import { loadCatalog } from "./catalog/catalog.js";
 import { Workflow } from "./jobs/workflow.js";
@@ -106,8 +115,8 @@ export async function createApp(options: { store?: Store } = {}) {
       origin &&
       !(origin === "null" && req.method === "GET" && req.url.startsWith("/api/pages/")) &&
       !new Set([
-        `http://127.0.0.1:${process.env.VIDEO_AGENT_PORT || 4317}`,
-        `http://localhost:${process.env.VIDEO_AGENT_PORT || 4317}`,
+        `http://127.0.0.1:${backendPort}`,
+        `http://localhost:${backendPort}`,
         `http://127.0.0.1:${webPort}`,
         `http://localhost:${webPort}`,
       ]).has(origin)
@@ -118,6 +127,12 @@ export async function createApp(options: { store?: Store } = {}) {
   app.setErrorHandler(apiErrorHandler);
   await app.register(multipart, { limits: { fileSize: assetLimits.audio.bytes, files: 1 } });
   await registerRoomRoutes(app, store);
+  registerKitevaMcpRoutes(app, {
+    store,
+    catalog,
+    webUrl: `http://127.0.0.1:${webPort}`,
+    start: startIdeaThroughBackend,
+  });
   app.get("/api/setup", async () => ({
     speechSupported: true,
     languageTracksSupported: true,

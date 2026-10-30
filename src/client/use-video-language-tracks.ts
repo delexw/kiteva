@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import type { LanguageMedia } from "../shared/language-tracks";
 
-/** Own native media-track selection and seek restoration; no generation or downloads. */
+/** Own audio-language selection and seek restoration; subtitles are authored in the video. */
 export function useVideoLanguageTracks(
   player: RefObject<HTMLVideoElement | null>,
   src: string | undefined,
@@ -9,9 +9,6 @@ export function useVideoLanguageTracks(
 ) {
   const [audioLanguage, setAudioLanguage] = useState<string>(
     languageMedia?.defaultNarration || languageMedia?.narration[0]?.language || "",
-  );
-  const [subtitleLanguage, setSubtitleLanguage] = useState<string>(
-    languageMedia?.defaultSubtitle || "off",
   );
   const pendingSwitch = useRef<{ time: number; playing: boolean } | null>(null);
   const mediaKey = JSON.stringify(languageMedia);
@@ -21,24 +18,10 @@ export function useVideoLanguageTracks(
         ? current
         : languageMedia?.defaultNarration || languageMedia?.narration[0]?.language || "",
     );
-    setSubtitleLanguage((current) =>
-      current === "off" || languageMedia?.subtitles.some((track) => track.language === current)
-        ? current
-        : "off",
-    );
   }, [mediaKey]);
   const playbackSource =
     languageMedia?.narration.find((track) => track.language === audioLanguage)?.video ||
     (languageMedia ? languageMedia.musicVideo : src);
-  function selectSubtitles(language: string) {
-    const video = player.current;
-    if (!video || !languageMedia) return;
-    for (const track of video.textTracks)
-      track.mode = track.language === language ? "showing" : "disabled";
-  }
-  useEffect(() => {
-    selectSubtitles(subtitleLanguage);
-  }, [subtitleLanguage, mediaKey]);
 
   function changeAudioLanguage(language: string) {
     if (player.current) {
@@ -55,16 +38,12 @@ export function useVideoLanguageTracks(
       pendingSwitch.current = null;
       if (pending.playing) playing = video.play();
     }
-    selectSubtitles(subtitleLanguage);
     return playing;
   }
   return {
     playbackSource,
     audioLanguage,
-    subtitleLanguage,
     changeAudioLanguage,
-    changeSubtitleLanguage: setSubtitleLanguage,
     restorePlayback,
-    selectSubtitles,
   };
 }

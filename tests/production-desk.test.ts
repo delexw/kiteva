@@ -159,3 +159,44 @@ it("clips measured cues to the film window and rejects invalid timing without fi
   ]);
   expect(model.omitted).toBe(2);
 });
+
+it("does not use inherited preview metadata to truncate a full build's saved narration", () => {
+  const model = productionDeskModel(
+    {
+      ...job,
+      phase: "generating",
+      duration: 300,
+      video: undefined,
+      production: {
+        pipeline: "Multiplane",
+        fallbackReason: null,
+        sourceFile: "artifacts/preview.html",
+        duration: 3,
+        width: 1280,
+        height: 720,
+        styleRenderer: ["HTML"],
+        motionEngine: ["Time"],
+        audioDescription: "Silent preview",
+        limitations: [],
+      },
+      speechTrack: {
+        file: "artifacts/assets/audio/narration/current.wav",
+        source: "narration",
+        durationSeconds: 294.6,
+        cues: [
+          { text: "Opening", startSeconds: 0.6, endSeconds: 5.4 },
+          { text: "Closing", startSeconds: 289, endSeconds: 294.6 },
+        ],
+      },
+    },
+    storyboardPageSchema.parse(validStoryboard(300)),
+  );
+  expect(model.duration).toBe(300);
+  expect(model.tracks[1].clips).toEqual([
+    expect.objectContaining({ label: "Opening", start: 0.6, end: 5.4 }),
+    expect.objectContaining({ label: "Closing", start: 289, end: 294.6 }),
+  ]);
+  expect(model.tracks[0].clips.every((clip) => clip.source !== "artifacts/preview.html")).toBe(
+    true,
+  );
+});

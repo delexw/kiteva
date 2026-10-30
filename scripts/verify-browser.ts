@@ -2,7 +2,7 @@ import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import assert from "node:assert/strict";
-import { appRoot } from "../src/server/runtime/config";
+import { appRoot, port } from "../src/server/runtime/config";
 import { browserExecutablePath } from "../src/server/runtime/browser";
 import { RoomStateSchema, RoomPatchSchema, applyRoomPatch } from "../src/shared/room";
 import { loadCatalog } from "../src/server/catalog/catalog";
@@ -29,10 +29,10 @@ try {
   });
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto("http://127.0.0.1:4317/");
+  await page.goto(`http://127.0.0.1:${port}/`);
   await page.locator(".creative-room").waitFor();
   await page.screenshot({ path: path.join(folder, "create-desktop.png"), fullPage: true });
-  await page.goto("http://127.0.0.1:4317/styles");
+  await page.goto(`http://127.0.0.1:${port}/styles`);
   await page.locator(".style-card").first().waitFor();
   assert.equal(await page.locator(".style-card").count(), catalog.styles.length);
   const search = page.getByRole("textbox", { name: "Search Motion Graphics", exact: true });
@@ -45,13 +45,13 @@ try {
   await dialog.waitFor();
   assert.match(await dialog.innerText(), /Three\.js/);
   // Read-only smoke: do not select a style or change the user's project/draft.
-  await page.goto("http://127.0.0.1:4317/styles");
+  await page.goto(`http://127.0.0.1:${port}/styles`);
   await page.locator(".style-card").first().waitFor();
   await page.screenshot({ path: path.join(folder, "styles-desktop.png"), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: path.join(folder, "styles-mobile.png"), fullPage: true });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-  await page.goto("http://127.0.0.1:4317/");
+  await page.goto(`http://127.0.0.1:${port}/`);
   await page.locator(".creative-room").waitFor();
   await page.screenshot({ path: path.join(folder, "create-mobile.png"), fullPage: true });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);

@@ -1,4 +1,5 @@
 import type { VideoGenerationJob } from "../../shared/domains/video";
+import { fullVideoDurationMatches } from "../../shared/video-duration";
 import type { MangaStoryboard } from "../storyboard-model";
 
 export type DeskClip = {
@@ -23,13 +24,34 @@ export type DeskTrack = {
 
 /** Project inspection only: no source parsing, media generation, waveform synthesis or guessed stems. */
 export function productionDeskModel(job: VideoGenerationJob, storyboard?: MangaStoryboard) {
+  // A full build can inherit a preview workspace before publishing its own manifest.
+  const production =
+    job.kind === "full" &&
+    job.production &&
+    !fullVideoDurationMatches(
+      job.production.duration,
+      job.duration,
+      job.targetDuration ?? job.duration,
+    )
+      ? undefined
+      : job.production;
+  if (
+    job.kind === "full" &&
+    storyboard &&
+    !fullVideoDurationMatches(
+      storyboard.durationSeconds,
+      job.duration,
+      job.targetDuration ?? job.duration,
+    )
+  )
+    storyboard = undefined;
   const positive = (value?: number) => (Number.isFinite(value) && value! > 0 ? value : undefined);
   const duration =
-    positive(job.production?.duration) ??
+    positive(production?.duration) ??
     positive(storyboard?.durationSeconds) ??
     positive(job.duration) ??
     1;
-  const title = storyboard?.title || job.production?.displayTitle || "Production Desk";
+  const title = storyboard?.title || production?.displayTitle || "Production Desk";
   const tracks: DeskTrack[] = [
     {
       id: "video",
@@ -81,14 +103,14 @@ export function productionDeskModel(job: VideoGenerationJob, storyboard?: MangaS
         label: scene.title || `Scene ${index + 1}`,
         start: scene.startSeconds!,
         end: scene.endSeconds!,
-        source: job.video || job.production?.sourceFile,
+        source: job.video || production?.sourceFile,
         status: videoStatus,
         timing: "Storyboard scene",
       }),
     );
-  } else if (job.production?.shots?.length) {
+  } else if (production?.shots?.length) {
     let start = 0;
-    job.production.shots.forEach((shot, index) => {
+    production.shots.forEach((shot, index) => {
       add(tracks[0], {
         id: `video-${index}`,
         label: shot.sourceFile.split("/").at(-1) || "Video",
@@ -100,13 +122,13 @@ export function productionDeskModel(job: VideoGenerationJob, storyboard?: MangaS
       });
       start += shot.duration;
     });
-  } else if (job.video || job.production?.sourceFile) {
+  } else if (job.video || production?.sourceFile) {
     add(tracks[0], {
       id: "video",
       label: "Video",
       start: 0,
       end: duration,
-      source: job.video || job.production?.sourceFile,
+      source: job.video || production?.sourceFile,
       status: videoStatus,
       timing: "Production timing",
     });
@@ -133,7 +155,7 @@ export function productionDeskModel(job: VideoGenerationJob, storyboard?: MangaS
       timing: "Production timing",
     });
   }
-  const sourceTracks = job.production?.audioTracks;
+  const sourceTracks = production?.audioTracks;
   if (sourceTracks !== undefined) {
     tracks[2].note = "Saved sound effect sources and placements";
     tracks[3].note = "Separate music sources; effects and narration are not included.";
@@ -164,13 +186,13 @@ export function productionDeskModel(job: VideoGenerationJob, storyboard?: MangaS
           timing: "Storyboard beat window",
         });
     }
-  if (sourceTracks === undefined && job.production?.audioFile)
+  if (sourceTracks === undefined && production?.audioFile)
     add(tracks[3], {
       id: "soundtrack",
       label: "Saved soundtrack",
       start: 0,
       end: duration,
-      source: job.production.audioFile,
+      source: production.audioFile,
       status: "flattened",
       timing: "Production timing",
     });

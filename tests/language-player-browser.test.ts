@@ -11,7 +11,7 @@ import { browserDependencyScan } from "../vite.resolve";
 import { command } from "../src/server/runtime/process";
 
 it.skipIf(!browserExecutablePath())(
-  "switches audio without losing position and independently switches subtitles and downloads",
+  "switches audio without losing position and preserves authored subtitles and switches downloads",
   async () => {
     const folder = await mkdtemp(path.join(os.tmpdir(), "language-player-"));
     const file = path.join(folder, "sample.mp4");
@@ -212,21 +212,8 @@ function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.pars
       await page.waitForSelector(".ant-select-dropdown:not(.ant-select-dropdown-hidden)", {
         hidden: true,
       });
-      await page.click('[aria-label="Subtitle language"]');
-      await page.waitForSelector(
-        '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option[title="Off"]',
-        { visible: true },
-      );
-      await page
-        .locator(
-          '.ant-select-dropdown:not(.ant-select-dropdown-hidden) .ant-select-item-option[title="Off"]',
-        )
-        .click();
-      await page.waitForFunction(() =>
-        Array.from(document.querySelector("video")!.textTracks).every(
-          (track) => track.mode === "disabled",
-        ),
-      );
+      expect(await page.$('[aria-label="Subtitle language"]')).toBeNull();
+      expect(await page.$$eval('video track[kind="subtitles"]', (tracks) => tracks.length)).toBe(0);
       expect(await page.$eval("video", (v) => v.currentSrc)).toContain("/en.mp4");
       await page.waitForSelector(".ant-select-dropdown:not(.ant-select-dropdown-hidden)", {
         hidden: true,
@@ -243,7 +230,8 @@ function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.pars
         .click();
       await page.waitForFunction(() =>
         Array.from(document.querySelectorAll("a")).some(
-          (a) => a.textContent === "Download MP4" && a.getAttribute("href") === "/zh.mp4",
+          (a) =>
+            a.getAttribute("aria-label") === "Download MP4" && a.getAttribute("href") === "/zh.mp4",
         ),
       );
       await page.waitForSelector(".ant-select-dropdown:not(.ant-select-dropdown-hidden)", {
@@ -269,7 +257,9 @@ function Page(){const[request,setRequest]=React.useState(VideoRequestSchema.pars
         .click();
       expect(
         await page.$$eval("a", (links) =>
-          links.find((a) => a.textContent === "Download audio")?.getAttribute("href"),
+          links
+            .find((a) => a.getAttribute("aria-label") === "Download audio")
+            ?.getAttribute("href"),
         ),
       ).toBe("/zh.wav");
       expect(await page.$eval('a[href="/zh.wav"]', (a) => a.getAttribute("download"))).toBe(

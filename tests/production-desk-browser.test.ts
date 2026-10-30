@@ -37,6 +37,42 @@ it.skipIf(!browserExecutablePath())(
                 res.end("[]");
                 return;
               }
+              if (req.url?.endsWith("/audio/narration.json")) {
+                res.setHeader("Content-Type", "application/json");
+                if (req.url.includes("/pending/")) {
+                  res.end(
+                    JSON.stringify({
+                      revision: "saved-revision",
+                      track: {
+                        file: "artifacts/assets/audio/score.wav",
+                        durationSeconds: 3,
+                        source: "narration",
+                        cues: [
+                          {
+                            text: "Narration saved during generation",
+                            startSeconds: 0.5,
+                            endSeconds: 2,
+                          },
+                        ],
+                      },
+                      segments: [
+                        {
+                          id: "cue-1",
+                          text: "Narration saved during generation",
+                          startSeconds: 0.5,
+                          file: "artifacts/assets/audio/score.wav",
+                          sourceStartSeconds: 0,
+                          durationSeconds: 1.5,
+                        },
+                      ],
+                    }),
+                  );
+                } else {
+                  res.statusCode = 404;
+                  res.end('{"error":"No narration"}');
+                }
+                return;
+              }
               if (req.url?.endsWith("/production.json")) {
                 res.setHeader("Content-Type", "application/json");
                 if (req.url.includes("/pending/"))
@@ -117,7 +153,7 @@ const production={pipeline:'Multiplane',fallbackReason:null,sourceFile:'artifact
 if(location.search.includes('brokenAudio'))production.audioFile='artifacts/assets/audio/broken.wav';
 if(location.search.includes('sourceTracks'))production.audioTracks=[{id:'music',kind:'music',label:'Music source',file:'artifacts/assets/audio/score.wav',startSeconds:0,durationSeconds:3,volume:1},{id:'hit',kind:'sfx',label:'Effect source',file:'artifacts/assets/audio/score.wav',startSeconds:0.5,durationSeconds:0.25,volume:1}];
 const speechTrack={file:'artifacts/assets/audio/narration.wav',durationSeconds:3,source:'narration',cues:[{text:'Saved narration words',startSeconds:0.5,endSeconds:2}]};
-const job={id:'full',runId:id,candidateId:'direction',kind:'full',phase:missing?'failed':pending?'generating':'ready',duration:3,workspace:'/tmp/fixture',model:'fixture',storyboardReady:true,...(!missing?{...(!pending?{production,video:'renders/full.webm'}:{}),speechTrack}:{})};
+const job={id:'full',runId:id,candidateId:'direction',kind:'full',phase:missing?'failed':pending?'generating':'ready',duration:3,workspace:'/tmp/fixture',model:'fixture',storyboardReady:true,...(!missing?{...(!pending?{production,video:'renders/full.webm',speechTrack}:{})}:{})};
 const run={id,createdAt:'2026-01-01',phase:missing?'failed':'ready',request:RequestSchema.parse({instructions:'Example film'}),jobs:[job],candidates:[]};
 function App(){const[view,setView]=useState({tab:'storyboard'});const noop=()=>{};return React.createElement(ConfigProvider,{theme:roomTheme},React.createElement('div',{hidden:true},React.createElement(VideoPlayer,{src:'/api/artifacts/example/full/full.webm',loop:true,'aria-label':'Background preview'}),React.createElement(VideoPlayer,{src:'/api/artifacts/example/full/full.webm',loop:true,muted:true,'aria-label':'Silent preview'})),React.createElement(RoomProject,{run,events:[],view,onView:setView,renderPreview:noop,renderFull:noop,onQuestion:noop,onUpdated:noop,onEdit:noop,onCancel:noop,onRetry:noop,controls:null}));}
 createRoot(document.getElementById('root')).render(React.createElement(App));</script>`,
@@ -335,6 +371,11 @@ createRoot(document.getElementById('root')).render(React.createElement(App));</s
         "Saved effect source",
       );
       expect(await page.$$(".desk-track-sfx .desk-clip-planned")).toHaveLength(0);
+      await page.waitForFunction(() =>
+        document
+          .querySelector(".desk-track-narration .desk-clip")
+          ?.textContent?.includes("Narration saved during generation"),
+      );
       expect(await page.$('.desk-transport [aria-label="Play movie"][disabled]')).not.toBeNull();
       expect(requests.every((method) => method === "GET")).toBe(true);
       expect(errors).toEqual([]);

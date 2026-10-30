@@ -1,5 +1,6 @@
 import type { Plugin } from "vite";
 import type { createRoomDevelopmentApp } from "./dev-app.ts";
+import { kitevaMcpPath } from "../../shared/kiteva-mcp.ts";
 
 /** Serve room data during Vite development without restarting in-flight generation workers. */
 export function roomDevelopmentApi(): Plugin {
@@ -12,6 +13,7 @@ export function roomDevelopmentApi(): Plugin {
       const { app, close } = await room.createRoomDevelopmentApp();
       server.middlewares.use((request, response, next) => {
         if (
+          request.url?.split("?")[0] !== kitevaMcpPath &&
           !request.url?.startsWith("/api/room") &&
           !/^\/api\/runs\/[^/]+\/activity\/children(?:\?|$)/.test(request.url || "")
         )

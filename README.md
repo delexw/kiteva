@@ -11,6 +11,9 @@
 
 <h1 align="center">Kiteva — AI Motion Graphics Agent</h1>
 
+Use Kiteva from external agents through its [MCP server](docs/agent-mcp.md): search ideas
+and Motion Graphics, save an Assistant draft, and explicitly start a build.
+
 <p align="center">
   <b>A personal creative room where an idea turns into a short motion-graphics film.</b><br>
   Create with <a href="https://platform.claude.com/docs/en/about-claude/models/overview">Claude Opus 5.5</a> or <a href="https://developers.openai.com/api/docs/models/gpt-6.1-sol">GPT-6.1 Sol</a>.
@@ -33,6 +36,17 @@ Switch the interface instantly with **EN / 中文**; see [interface language](do
 ## Recent updates
 
 Dates below use New Zealand time.
+
+<details>
+<summary>2026-10-31</summary>
+
+- **HTTP MCP for external agents:** search saved ideas and Motion Graphics, inspect available settings, save an Assistant draft, and explicitly start its build through the bundled `/mcp` endpoint. Tools share typed results and request validation, protect concurrent draft edits, and default to Claude Opus 5.5, Multiplane, 2K, 60 fps, Explore and three preview directions. See [agent MCP](docs/agent-mcp.md).
+- **Dedicated local ports:** use `18419` for the interface and `18417` for the backend, with shared validation and matching proxies, origin checks and verification scripts. Invalid or colliding overrides fail explicitly; the frontend never silently takes another port.
+- **Language downloads and embedded subtitles:** place language-specific video, audio and subtitle downloads in a wrapping horizontal panel on the download action. Restore narration subtitles authored inside the video, respect the project's subtitle setting, and remove the separate playback subtitle selector and duplicate browser overlay.
+- **Full-build Desk artifacts:** read saved production and narration metadata directly, prefer current artifacts over inherited job metadata, and reject preview-length manifests and storyboards when inspecting a full build. Shared narration schemas keep browser and server readers aligned.
+- **Creative selection and stable development:** encourage meaningful combinations beyond the smallest familiar set; cap the history preference contribution in code even when evaluator scores exceed their expected range. Ignore generated runtime files and downloaded authoring skills in the development watcher to prevent unwanted page reloads.
+
+</details>
 
 <details>
 <summary>2026-10-30</summary>
@@ -407,7 +421,7 @@ git clone https://github.com/delexw/motion-graphics-agent.git
 cd motion-graphics-agent
 ./install.sh
 # Edit the created .env.local: add TYPESAFE_API_KEY and provider keys if needed.
-npm start                       # open http://127.0.0.1:4317
+npm start                       # open http://127.0.0.1:18417
 ```
 
 For a smaller installation, use `./install.sh --minimal` to skip speech and Audio Studio, or
@@ -419,7 +433,7 @@ and Accessibility permissions require your action; the installer does not start 
 your browser. OpenScreen downloads come from its official GitHub releases and are SHA-256 checked;
 if `/Applications` is not writable, its user Applications path is added to `.env.local`.
 For UI development, keep the backend running and use `npx vite` ([Vite](https://vite.dev),
-`http://127.0.0.1:4319`).
+`http://127.0.0.1:18419`).
 
 Anatomy installs or updates automatically on server launch. Connect to the internet for the first launch; skill installation uses direct HTTPS ZIP downloads and needs no Git or extra CLI; later launches can use the last verified installation offline. Upstream files stay in Git-ignored `skills/anatomy/`, while provider registration and Kiteva guidance remain in source.
 

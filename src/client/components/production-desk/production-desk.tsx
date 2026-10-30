@@ -29,6 +29,7 @@ import { LoadingStatus } from "../loading-status";
 import { AudioWaveform } from "../audio-waveform";
 import { useArtifactJson } from "../../use-artifact-json";
 import { ProductionSchema } from "../../../shared/agents/schemas/video";
+import { NarrationStateSchema, narrationStatePath } from "../../../shared/narration";
 import "./production-desk.css";
 
 const trackIcons = { video: Film, narration: Mic, sfx: Sparkles, music: Music2 };
@@ -36,14 +37,22 @@ const statusLabels = { media: "Saved media reference", flattened: "Flattened", p
 export function ProductionDesk({ projectId, job }: { projectId: string; job: VideoGenerationJob }) {
   useUiLanguage();
   const { storyboard, error: storyboardError, base } = useStoryboard(projectId, job.id);
-  const { data: savedProduction } = useArtifactJson(
-    job.production ? undefined : `${base}/production.json`,
-    ProductionSchema,
+  const { data: savedProduction } = useArtifactJson(`${base}/production.json`, ProductionSchema);
+  const { data: savedNarration } = useArtifactJson(
+    `${base}/${narrationStatePath}`,
+    NarrationStateSchema,
   );
   const model = useMemo(
     () =>
-      productionDeskModel({ ...job, production: job.production ?? savedProduction }, storyboard),
-    [job, savedProduction, storyboard],
+      productionDeskModel(
+        {
+          ...job,
+          production: savedProduction ?? job.production,
+          speechTrack: savedNarration?.track ?? job.speechTrack,
+        },
+        storyboard,
+      ),
+    [job, savedProduction, savedNarration, storyboard],
   );
   const player = useRef<HTMLVideoElement>(null);
   const timeline = useRef<HTMLDivElement>(null);

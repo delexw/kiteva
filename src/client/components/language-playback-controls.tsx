@@ -5,15 +5,11 @@ import { translateUi, useUiLanguage } from "../i18n";
 export function LanguagePlaybackControls({
   media,
   audioLanguage,
-  subtitleLanguage,
   onAudioChange,
-  onSubtitleChange,
 }: {
   media: LanguageMedia;
   audioLanguage: string;
-  subtitleLanguage: string;
   onAudioChange: (language: string) => void;
-  onSubtitleChange: (language: string) => void;
 }) {
   useUiLanguage();
   return (
@@ -33,22 +29,6 @@ export function LanguagePlaybackControls({
           />
         </label>
       )}
-      <label>
-        {translateUi("Subtitle language")}
-        <Select
-          aria-label={translateUi("Subtitle language")}
-          getPopupContainer={(trigger) => trigger.parentElement!}
-          value={subtitleLanguage}
-          options={[
-            { value: "off", label: translateUi("Off") },
-            ...media.subtitles.map((track) => ({
-              value: track.language,
-              label: videoLanguageLabel(track.language),
-            })),
-          ]}
-          onChange={onSubtitleChange}
-        />
-      </label>
     </div>
   );
 }

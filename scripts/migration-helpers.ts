@@ -2,9 +2,9 @@ import { connect } from "node:net";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import type { Run } from "../src/shared/contracts";
-import { dataRoot } from "../src/server/runtime/config";
+import { dataRoot, port as backendPort } from "../src/server/runtime/config";
 
-export const backendPort = Number(process.env.PORT) || 4317;
+export { backendPort };
 
 export function savedRuns(): Run[] {
   const database = new DatabaseSync(path.join(dataRoot, "jobs.sqlite"), { readOnly: true });

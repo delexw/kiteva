@@ -64,7 +64,10 @@ it("applies selected narration to every timed item without changing visuals or t
     hidden.scriptItems!.every((item) => !item.showSubtitles && item.speech.mode === "narration"),
   ).toBe(true);
   expect(request.scriptItems![0].speech).toMatchObject({ voice: "zf_xiaobei" });
-  expect(languageTracksDirection(request)).toContain("Keep subtitles out of the rendered pixels");
+  expect(languageTracksDirection(request)).toContain(
+    "Render narration subtitles directly into the video",
+  );
+  expect(languageTracksDirection(hidden)).toContain("Subtitles are off");
 });
 it("keeps legacy requests unchanged and supports subtitles without narration", () => {
   const legacy = VideoRequestSchema.parse({ instructions: "An example" });

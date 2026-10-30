@@ -1,4 +1,3 @@
-import { videoLanguageLabel } from "../../shared/video-language";
 import { useVideoLanguageTracks } from "../use-video-language-tracks";
 import { LanguagePlaybackControls } from "./language-playback-controls";
 import type { LanguageMedia } from "../../shared/language-tracks";
@@ -132,25 +131,13 @@ export function VideoPlayer({ ref, src, languageMedia, ...props }: VideoPlayerPr
         }}
       >
         {props.children}
-        {languageMedia?.subtitles.map((track) => (
-          <track
-            key={track.language}
-            kind="subtitles"
-            src={track.vtt}
-            srcLang={track.language}
-            label={videoLanguageLabel(track.language)}
-            onLoad={() => languages.selectSubtitles(languages.subtitleLanguage)}
-          />
-        ))}
       </video>
       <div className="kiteva-playback-overlay">
         {languageMedia && (
           <LanguagePlaybackControls
             media={languageMedia}
             audioLanguage={languages.audioLanguage}
-            subtitleLanguage={languages.subtitleLanguage}
             onAudioChange={languages.changeAudioLanguage}
-            onSubtitleChange={languages.changeSubtitleLanguage}
           />
         )}
         <div
